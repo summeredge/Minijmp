@@ -1,5 +1,5 @@
 import numpy as np
-from utilities import norm_test
+from .utilities import norm_test
 from scipy.stats import norm
 from prettytable import PrettyTable as PT
 
