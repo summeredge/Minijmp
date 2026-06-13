@@ -12,8 +12,8 @@ from pandas import DataFrame as DF
 from prettytable import PrettyTable as PT
 ######### Own Modules ############
 # from binomial import binomial
-from chi_sq import chi2_test_stdev
-from t_test import t_test_1sample
+from .chi_sq import chi2_test_stdev
+from .t_test import t_test_1sample
 
 
 def gen_table(input_list):

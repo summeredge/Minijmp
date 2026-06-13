@@ -3,7 +3,7 @@ from scipy.stats import f as f_dist
 from scipy.stats import t as t_dist
 from prettytable import PrettyTable as PT
 ######## Own Module ###########
-from utilities import norm_test
+from .utilities import norm_test
 
 
 def linear_fit(x, y, print_out=True, print_port=print):
@@ -212,7 +212,7 @@ def linear_fit(x, y, print_out=True, print_port=print):
             "MSE": MSE, "Mean of Response": y_est_u,
             "N": len(x), "DF reg": 1, "DF Error": n - 2,
             "DF Total": n - 1, "SSR": SSR, "SSE": SSE,
-            "SST": SST, "MSR": MSR, "MSE": MSE,
+            "SST": SST, "MSR": MSR, 
             "F Reg": F_reg, "p reg": p_reg,
             "Root MSE": S, "DFPE": DFPE,
             "DFLF": DFLF, "SSPE": SSPE,
