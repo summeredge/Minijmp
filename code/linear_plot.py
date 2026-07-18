@@ -4,9 +4,14 @@ import statistics as stat
 from scipy.stats import t as t_dist
 from prettytable import PrettyTable as PT
 ###### Own modules #######
-from .linear_fit import linear_fit
-from .ortho_fit import orthogonal_fit
-from .utilities import pearson_correlation
+try:
+    from .linear_fit import linear_fit
+    from .ortho_fit import orthogonal_fit
+    from .utilities import pearson_correlation
+except ImportError:
+    from linear_fit import linear_fit
+    from ortho_fit import orthogonal_fit
+    from utilities import pearson_correlation
 
 
 def fit_plot(x, y, alpha=0.05, print_out=False,

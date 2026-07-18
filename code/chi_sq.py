@@ -6,7 +6,10 @@ from math import log as ln
 from prettytable import PrettyTable as PT
 ########### Own Modules ############
 #  from utilities import mean_std_CIs
-from .bonett import var_1sample as bonett_var_1sample
+try:
+    from .bonett import var_1sample as bonett_var_1sample
+except BaseException:
+    from bonett import var_1sample as bonett_var_1sample
 
 
 def chi2_test_stdev(data_list, s0, print_out=False, alpha=0.05,

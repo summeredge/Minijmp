@@ -2,7 +2,10 @@ import statistics as stat
 import numpy as np
 from prettytable import PrettyTable as PT
 ########### Own Modules ########
-from .utilities import quantiles, is_number
+try:
+    from .utilities import quantiles, is_number
+except BaseException:
+    from utilities import quantiles, is_number
 
 
 def describe(data, print_port=print,
