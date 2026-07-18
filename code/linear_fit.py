@@ -3,7 +3,10 @@ from scipy.stats import f as f_dist
 from scipy.stats import t as t_dist
 from prettytable import PrettyTable as PT
 ######## Own Module ###########
-from .utilities import norm_test
+try:
+    from .utilities import norm_test
+except ImportError:
+    from utilities import norm_test
 
 
 def linear_fit(x, y, print_out=True, print_port=print):

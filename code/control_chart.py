@@ -2,8 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import statistics as stat
 ####### Own modules ##########
-from .ctrl_chart_const import df as Ctrl_Cht_Const
-from .utilities import add_Y_refs, gen_table, c4_values
+try: 
+    from .ctrl_chart_const import df as Ctrl_Cht_Const
+    from .utilities import add_Y_refs, gen_table, c4_values
+except ImportError:
+    from ctrl_chart_const import df as Ctrl_Cht_Const
+    from utilities import add_Y_refs, gen_table, c4_values
 
 
 def x_mR(x, mr, k=3, sigma=None, mean=None):  # , print_out=True, xLabels=None,max_xlabels=25):

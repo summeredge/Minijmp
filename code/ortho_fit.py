@@ -1,7 +1,11 @@
 import numpy as np
-from .utilities import norm_test
 from scipy.stats import norm
 from prettytable import PrettyTable as PT
+###### own modules #####
+try:
+    from .utilities import norm_test
+except ImportError:
+    from utilities import norm_test
 
 
 def orthogonal_fit(x, y, error_ratio=1.0, alpha=0.05,
