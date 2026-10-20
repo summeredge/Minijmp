@@ -1,3 +1,4 @@
+from stat_table import StatTable
 import numpy as np
 import matplotlib.pyplot as plt
 from chart_style import style_axes
@@ -196,9 +197,13 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
         t.align = t2.align = 'r'
         t.align['\\'] = t2.align['\\'] = 'l'
         print(f"\n---- Pearson 相关系数矩阵（N = {len(data[0])}） ----")
-        print(str(t))
+        print(StatTable(t, f'Pearson 相关系数矩阵（N = {len(data[0])}）', t.field_names,
+            [[label] + [result['r'] for result in row] for label, row in zip(labels, cor_res)],
+            display=[[str(v) for v in row] for row in t.rows]))
         print("\n---- Pearson p 值矩阵 ----")
-        print(str(t2))
+        print(StatTable(t2, 'Pearson p 值矩阵', t2.field_names,
+            [[label] + [result['p'] for result in row] for label, row in zip(labels, cor_res)],
+            display=[[str(v) for v in row] for row in t2.rows]))
 
     if axs is None or fig is None:
         fig, axs = plt.subplots(n - 1, n - 1, squeeze=False, layout="constrained")  # , sharex=True, sharey=True)
@@ -301,9 +306,13 @@ def multi_fit(data, labels, print_out=False, print_port=print,
         t.align = t2.align = 'r'
         t.align['\\'] = t2.align['\\'] = 'l'
         print(f"\n---- Pearson 相关系数矩阵（N = {len(data[0])}） ----")
-        print(str(t))
+        print(StatTable(t, f'Pearson 相关系数矩阵（N = {len(data[0])}）', t.field_names,
+            [[label] + [result['r'] for result in row] for label, row in zip(labels, cor_res)],
+            display=[[str(v) for v in row] for row in t.rows]))
         print("\n---- Pearson p 值矩阵 ----")
-        print(str(t2))
+        print(StatTable(t2, 'Pearson p 值矩阵', t2.field_names,
+            [[label] + [result['p'] for result in row] for label, row in zip(labels, cor_res)],
+            display=[[str(v) for v in row] for row in t2.rows]))
 
     if ax is None or fig is None:
         # n - 1, n - 1)  # , sharex=True, sharey=True)

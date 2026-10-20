@@ -1,3 +1,4 @@
+from stat_table import StatTable
 import numpy as np
 from scipy.stats import norm
 ###### own modules #####
@@ -96,15 +97,17 @@ def orthogonal_fit(x, y, error_ratio=1.0, alpha=0.05,
         print(f"系数的 {(1-alpha)*100:.1f}% 双侧置信区间（正态近似）")
         for title, rows in [
             ('参数估计', [['参数', '系数', '置信下限', '置信上限'],
-                ['截距', format_stat(b0), format_stat(int_l), format_stat(int_u)],
-                ['X（斜率）', format_stat(b1), format_stat(slope_l), format_stat(slope_u)]]),
+                ['截距', b0, int_l, int_u],
+                ['X（斜率）', b1, slope_l, slope_u]]),
             ('测量误差方差估计', [['变量', '误差方差'],
-                ['X', format_stat(var_u)], ['Y', format_stat(var_e)]])]:
+                ['X', var_u], ['Y', var_e]])]:
             print("\n" + title)
-            table = gen_table(rows)
+            display = [[cell if isinstance(cell, str) else format_stat(cell) for cell in row]
+                       for row in rows[1:]]
+            table = gen_table([rows[0]] + display)
             table.align = 'r'
             table.align[rows[0][0]] = 'l'
-            print(str(table))
+            print(StatTable(table, title, rows[0], rows[1:], display=display))
         print("系数置信区间用于总体截距与斜率，不是单次观测的预测区间。")
         print("本方法不报告普通最小二乘的 R²、t 检验或 ANOVA F 检验。")
         print("推断依赖所指定的测量误差方差比及模型假设；相关关系不代表因果关系。")
@@ -121,7 +124,10 @@ def orthogonal_fit(x, y, error_ratio=1.0, alpha=0.05,
                        format_stat(y[i]), format_stat(y_est[i]), format_stat(vt_est[i]),
                        format_stat(std_vt_est[i])])
         print("\n逐观测诊断")
-        print(str(t))
+        print(StatTable(t, '逐观测诊断', t.field_names,
+            [[i + 1, xx, x_est[i], y[i], y_est[i], vt_est[i], std_vt_est[i]]
+             for i, xx in enumerate(x)], display=[[str(v) for v in row] for row in t.rows],
+            number_formats=['0'] + ['0.000'] * 6))
 
     return {"slope": slope, "intercept": intercept,
             "slope_l": slope_l, "slope_u": slope_u,

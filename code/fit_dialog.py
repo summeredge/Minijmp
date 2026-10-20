@@ -1,3 +1,4 @@
+from stat_table import StatTable
 from tkinter import ttk
 import tkinter as tk
 from tkinter import TOP, LEFT, X, BOTH, W
@@ -468,6 +469,7 @@ def print_multi_col_tables(
     t = gen_table([["\\"] + labels])
     t2 = gen_table([["\\"] + labels])
     #  cor_res = []
+    values, p_values = [], []
     n = len(data)
     for y in range(n):
         res_tmp = []
@@ -479,6 +481,8 @@ def print_multi_col_tables(
             row2.append(format_stat(r["p"]))
             res_tmp.append(r)
         #  cor_res.append(res_tmp)
+        values.append([labels[y]] + [r['cor'] for r in res_tmp])
+        p_values.append([labels[y]] + [r['p'] for r in res_tmp])
         t.add_row(row)
         t2.add_row(row2)
     #  res = {"pearson": cor_res}
@@ -487,7 +491,9 @@ def print_multi_col_tables(
     t.align = t2.align = 'r'
     t.align['\\'] = t2.align['\\'] = 'l'
     print(f"\n---- {name} 相关系数矩阵（N = {len(data[0])}） ----")
-    print(str(t))
+    print(StatTable(t, f'{name} 相关系数矩阵（N = {len(data[0])}）', t.field_names, values,
+        display=[[str(v) for v in row] for row in t.rows]))
     print("\n---- " + name + " p 值矩阵 ----")
-    print(str(t2))
+    print(StatTable(t2, name + ' p 值矩阵', t2.field_names, p_values,
+        display=[[str(v) for v in row] for row in t2.rows]))
     return

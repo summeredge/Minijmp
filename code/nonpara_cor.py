@@ -1,3 +1,4 @@
+from stat_table import StatTable
 import numpy as np
 from scipy import stats
 from scipy.stats import rankdata
@@ -10,7 +11,8 @@ def print_correlation(method, n, coefficient, p, print_port):
                        ['X / Y', method, n, format_stat(coefficient), format_stat(p)]])
     table.align = 'r'
     table.align['变量组合'] = table.align['方法'] = 'l'
-    print_port(str(table))
+    print_port(StatTable(table, method + ' 相关分析', table.field_names,
+        [['X / Y', method, n, coefficient, p]], display=[[str(v) for v in row] for row in table.rows]))
 
 
 def spearman(x, y, print_out=False, print_port=print):

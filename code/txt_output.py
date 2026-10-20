@@ -34,6 +34,7 @@ class txt_viewer(plot_viewer):
         self.ui_style = dialog_style(self.main)
         self.setupGUI()
         self._apply_theme()
+        self.table_blocks = []
         self.currentdir = os.path.expanduser('~')
         return
 
@@ -95,8 +96,29 @@ class txt_viewer(plot_viewer):
         return
 
     def add_txt(self, txt):
-        self.T.insert(END, txt)
+        self.T.insert(END, txt, ())
         return
+
+    def add_table(self, table, end='\n'):
+        from stat_table import TableBlock
+        start = self.T.index('end-1c')
+        stop = start
+        line = self.T.index(f'{stop} linestart')
+        while self.T.compare(line, '>', '1.0') and not self.T.get(line, stop).strip():
+            stop = self.T.index(f'{line}-1c')
+            line = self.T.index(f'{stop} linestart')
+        heading = self.T.get(line, stop).strip()
+        if (table.title and heading in (table.title, f'---- {table.title} ----')
+                and not self.T.dump(line, stop, window=True)):
+            # 仅隐藏紧邻的重复标题，保存和复制仍包含原报告的全部字符。
+            self.T.tag_add('table_heading', line, f'{stop}+1c')
+            self.T.tag_configure('table_heading', elide=True)
+        self.T.insert(END, str(table), 'table_ascii')
+        self.T.insert(END, end, ())
+        self.T.tag_configure('table_ascii', elide=True)
+        block = TableBlock(self.T, table)
+        self.table_blocks.append(block)
+        self.T.window_create(start, window=block)
 
     def select_all(self, event=None):
         self.T.tag_add('sel', '1.0', 'end-1c')
@@ -123,6 +145,9 @@ class txt_viewer(plot_viewer):
         return
 
     def clear(self):
+        for block in self.table_blocks:
+            block.destroy()
+        self.table_blocks.clear()
         self.T.delete('1.0', END)
         return
 
