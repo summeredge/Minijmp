@@ -77,6 +77,7 @@ class Minijmp(Minijmp_pre):
                          '05Save As': {'cmd': self.save_as_file},
                          '06sep': '',
                          '07Import CSV': {'cmd': self.import_csv},
+                         '08Advanced Import': {'cmd': lambda: self.import_csv(advanced=True)},
                          '10Import Excel': {'cmd': self.load_excel},
                          '10Export CSV': {'cmd': lambda: self._call('doExport')},
                          '11sep': '',
@@ -268,8 +269,8 @@ class Minijmp(Minijmp_pre):
         self.update_title()
         return
 
-    def import_csv(self):
-        self._call('importCSV', dialog=True)
+    def import_csv(self, advanced=False):
+        self._call('importCSV', dialog=advanced)
         self.update_title()
         return
 

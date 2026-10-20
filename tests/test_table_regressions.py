@@ -75,7 +75,7 @@ def test_official_csv_import_then_click_and_edit(table, name, options, shape):
     filename = Path(__file__).resolve().parents[1] / 'sample_data' / name
     expected = pd.read_csv(filename, **options)
     table.setSelectedCol(4)
-    table.importCSV(str(filename), **options)
+    table.importCSV(str(filename))
     assert table.model.df.shape == shape
     assert_frame_equal(table.model.df, expected)
     table.handle_left_click(event(table))
@@ -86,12 +86,13 @@ def test_official_csv_import_then_click_and_edit(table, name, options, shape):
     assert str(table.model.df.iloc[0, 0]) == '123'
 
 
-def test_csv_menu_exposes_existing_import_settings():
+@pytest.mark.parametrize('advanced', [False, True])
+def test_csv_menu_exposes_smart_and_advanced_import(advanced):
     from MiniJMP import Minijmp
     from unittest.mock import Mock
     app = SimpleNamespace(_call=Mock(), update_title=Mock())
-    Minijmp.import_csv(app)
-    app._call.assert_called_once_with('importCSV', dialog=True)
+    Minijmp.import_csv(app, advanced=advanced)
+    app._call.assert_called_once_with('importCSV', dialog=advanced)
 
 
 def test_real_import_dialog_preserves_hash_text_and_default_rows(table, tmp_path, monkeypatch):

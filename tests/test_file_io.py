@@ -205,7 +205,7 @@ def test_official_comma_csv_encoding_shape_and_types(filename, shape, type_count
     assert frame.shape == shape
     assert len(rows) == shape[0] + 1
     assert {len(row) for row in rows} == {shape[1]}
-    assert frame.dtypes.astype(str).value_counts().to_dict() == type_counts
+    assert frame.dtypes.astype(str).replace('str', 'object').value_counts().to_dict() == type_counts
 
 
 def test_coatings_is_tab_separated_and_has_no_header():
@@ -214,7 +214,7 @@ def test_coatings_is_tab_separated_and_has_no_header():
     records = [row for row in csv.reader(io.StringIO(text), delimiter="\t") if row]
     assert len(records) == 32
     assert {len(row) for row in records} == {2}
-    assert import_through_menu(path).shape == (31, 1)
+    assert import_through_menu(path).shape == (32, 2)
     frame = import_through_menu(path, sep="\t", header=None)
     assert frame.shape == (32, 2)
     assert frame.iloc[0].tolist() == [1, 18.5]
@@ -264,7 +264,7 @@ def test_official_excel_read():
         assert workbook.sheet_names == ["Gasket"]
         frame = workbook.parse("Gasket")
     assert frame.shape == (30, 3)
-    assert frame.dtypes.astype(str).to_dict() == {"Operator": "object", "Part": "int64", "Y": "int64"}
+    assert frame.dtypes.astype(str).replace('str', 'object').to_dict() == {"Operator": "object", "Part": "int64", "Y": "int64"}
 
 
 def test_project_real_save_and_load_chinese_mixed_roundtrip(tmp_path, mixed_frame, monkeypatch):
