@@ -2,9 +2,8 @@ import statistics as stat
 import numpy as np
 from scipy.stats import f as f_dist
 from scipy.stats import t as t_test
-from prettytable import PrettyTable as PT
 ########### Own Modules ############
-from utilities import make_dict
+from utilities import make_dict, gen_table, format_stat
 from t_test import t_test_1sample
 
 
@@ -46,25 +45,33 @@ def one_way_anova(data, labels, print_out=False, print_port=print,
 
     if print_out:
         print = print_port
-        pct = "%.2f%%" % (100 - 100 * alpha)
-        print("\n---- Oneway Anova ----\nAnalysis of Variance")
-        t = PT()
-        t.field_names = ["Source", "DF", "Adj. SS", "Adj. MS", "F Ratio", "P Value"]
-        t.add_row(["Between", df_between, "%.3f" % SSB, "%.3f" % MSB,
-                   "%.3f" % F, "%.3f" % p])
-        t.add_row(["Within", df_within, "%.3f" % SSW, "%.3f" % MSW, " ", " "])
-        t.add_row(["Total", df_total, "%.3f" % SST, "", "", ""])
-        print(str(t))
-        print("\nMeans of Oneway Anova")
-        t = PT()
-        t.field_names = ["Level", "N", "Mean", "SE Mean", pct + " CI of Mean"]
+        print("\n---- 单因素方差分析 ----")
+        print("组数 = %d；总样本量 N = %d；显著性水平 alpha = %s" %
+              (k, N, format_stat(alpha)))
+        print("原假设 H0：各组总体均值相等；备择假设 H1：至少一组总体均值不同。")
+        print("\n各组均值摘要（%.1f%% 总体均值双侧置信区间）" % ((1 - alpha) * 100))
+        t = gen_table([["组别", "N", "均值", "均值标准误", "置信下限", "置信上限"]])
         for i in range(k):
-            t.add_row([groups[i], ns[i], "%.3f" % means[i],
-                       "%.3f" % stds[i], "(%.3f, %.3f)" % CIs[i]])
+            t.add_row([groups[i], ns[i], format_stat(means[i]),
+                       format_stat(stds[i]), format_stat(CIs[i][0]),
+                       format_stat(CIs[i][1])])
+        for column in t.field_names[1:]:
+            t.align[column] = "r"
         print(str(t))
-        print(
-            "Note: SE Mean and CI both use a pooled estimate of error variance = %.3f." %
-            pooled_variance)
+        print("均值标准误及置信区间使用合并误差方差 = %s；区间为各组单独区间，非同时置信区间。" %
+              format_stat(pooled_variance))
+        print("\n方差分析表")
+        t = gen_table([
+            ["来源", "自由度", "平方和", "均方", "F 值", "p 值"],
+            ["组间", df_between, format_stat(SSB), format_stat(MSB),
+             format_stat(F), format_stat(p)],
+            ["组内（误差）", df_within, format_stat(SSW), format_stat(MSW), "*", "*"],
+            ["总计", df_total, format_stat(SST), "*", "*", "*"]])
+        for column in t.field_names[1:]:
+            t.align[column] = "r"
+        print(str(t))
+        print("模型假设：观测独立，组内误差近似正态且方差相等；本报告未检验这些条件。")
+        print("* 表示不适用或不可用；p 值显示为 0.000 是舍入结果，不代表概率严格为零。")
 
     return {"F": F, "p": p,
             "df B": df_between, "df W": df_within, "df TTL": df_total,
@@ -183,38 +190,33 @@ def JMP_ANOVA_t_test(data, labels, print_out=False, print_port=print,
 
     if print_out:
         print = print_port
-        print("\n---- Means Comparisons ----")
-        print("t test p value matrix, H0: u1 == u2, H1: u1 != u2")
-        t = PT()
-        l = [" "]
-        for i in range(k - 1):
-            l.append(str(keys[i]))
-        t.field_names = l
-        #  print(t.field_names)
+        print("\n---- 均值逐对比较（合并方差 t 检验）----")
+        print("显著性水平 alpha = %s；自由度 = %d；合并方差 = %s" %
+              (format_stat(alpha), df, format_stat(pooled_variance)))
+        print("各对比较 H0：两组总体均值相等；H1：两组总体均值不同（双侧）。")
+        print("所有组共用合并方差；以下 p 值未作多重比较校正，不控制整组比较的错误率。")
+        t = gen_table([["组别 1", "组别 2", "p 值"]])
         for i in range(1, k):
-            l = [keys[i]]
             for j in range(i):
-                l.append("%.2f" % ps[i][j])
-            for j in range(k - i - 1):
-                l.append("")
-            t.add_row(l)
+                t.add_row([keys[i], keys[j], format_stat(ps[i][j])])
+        t.align["p 值"] = "r"
         print(str(t))
-        print("\nConnecting Report")
-        t = PT()
-        t.field_names = ["Grouping", "Level", "Mean"]
+        print("\n字母分组（按均值降序）")
+        t = gen_table([["字母分组", "组别", "均值"]])
         for i in range(k):
             key_i = means[i][1]
             gt = ""
             for j, grp in enumerate(groups):
                 if key_i in grp:
                     gt += chr(65 + j) + " "
-                    #  print("X", end=" ")
                 else:
                     gt += "  "
-                    #  print(" ", end=" ")
-            #  print(" ", keys[key_i], "\tmean = %.2f" % means[i][0])
-            t.add_row([gt, keys[key_i], "%.3f" % means[i][0]])
+            t.add_row([gt, keys[key_i], format_stat(means[i][0])])
+        t.align["均值"] = "r"
         print(str(t))
+        print("字母分组沿用现有算法，具体差异以逐对 p 值为准；共享字母不代表总体均值相等。")
+        print("模型假设：观测独立，组内误差近似正态且方差相等；本报告未检验这些条件。")
+        print("p 值显示为 0.000 是舍入结果，不代表概率严格为零。")
 
     return {"p": ps, "keys": keys, "groups": groups}
 

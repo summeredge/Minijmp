@@ -6,10 +6,9 @@ from math import exp
 from numpy import nan
 import statistics as stat
 import numpy as np
-from prettytable import PrettyTable as PT
 #  from scipy.optimize import minimize
 ##### Own Modules #####
-from utilities import norm_test
+from utilities import norm_test, gen_table, format_stat
 
 
 def ABL(rv, data, k):
@@ -34,21 +33,27 @@ def ABL(rv, data, k):
 
 def print_table(fit_name, para_names, paras, abl, a2, p, print_port=print):
     print = print_port
-    print("\n---- Fitted " + fit_name + " Distribution ----")
-    t = PT()
-    t.field_names = ['Parameter', 'Estimate']
+    print("候选分布：" + fit_name)
+    t = gen_table([['参数', '估计值']])
     for i, j in zip(para_names, paras):
-        t.add_row([i, "%.3f" % j])
+        t.add_row([i, format_stat(j)])
+    t.align['估计值'] = 'r'
     print(str(t))
-    t = PT()
-    t.field_names = ['Measures', '-2*LogLikelihood', 'AICc', 'BIC']
-    t.add_row(["Value", "%.2f" % abl[0], "%.2f" % abl[1], "%.2f" % abl[2]])
+    print("参数置信区间：现有方法未计算。")
+    t = gen_table([['-2*LogLikelihood', 'AICc', 'BIC'],
+                   [format_stat(value) for value in abl]])
+    t.align = 'r'
     print(str(t))
-    t = PT()
-    t.field_names = [' ', 'A-sq', 'Approx. p-value']
-    t.add_row(["Anderson-Darling", "%.2f" % a2, "%.3f" % p])
+    t = gen_table([['拟合优度方法', 'AD 统计量', '近似 p 值'],
+                   ['Anderson-Darling', format_stat(a2), format_stat(p)]])
+    t.align['AD 统计量'] = 'r'
+    t.align['近似 p 值'] = 'r'
     print(str(t))
-    print("H0: The data is from the distribution. Small p-value rejects H0.")
+    print("H0：样本来自所拟合的分布；小 p 值提示与该分布不符，未拒绝 H0 不等于证明分布正确。")
+    print("p 值不是 H0 成立的概率；p = 0.000 为三位小数舍入结果，不代表概率严格为零。")
+    print("AD 的 p 值为近似值；非正态分布沿用现有近似，未进行分布专用校准。")
+    print("AICc、BIC 用于同一数据下候选模型的相对比较，值越小越优；它们与 AD 统计量含义不同。")
+    print("* 表示不可用或未计算的统计量。")
     return
 
 
@@ -109,8 +114,11 @@ def fit_norm(data, print_out=True, print_port=print):
     abl = ABL(rv, data, 2)
     a2, p = goodness_of_fit(rv, data, normal=True)
     if print_out:
-        print_table("Normal", ("Location mu", "Dispersion sigma"),
+        print_port("\n---- 分布拟合 ----")
+        print_port("样本量 N = %d" % len(data))
+        print_table("正态 Normal", ("总体均值 mu", "总体标准差 sigma"),
                     (u, s), abl, a2, p, print_port=print_port)
+        print_port("正态分布：mu 为均值，sigma 为标准差；沿用样本均值和样本标准差估计。")
     return {"fits": (u, s), "ABL": abl, "rv": rv}
 
     #  sem = s / n**.5
@@ -131,9 +139,12 @@ def fit_t(data, print_out=True, print_port=print):
     abl = ABL(rv, data, 3)
     a2, p = goodness_of_fit(rv, data)
     if print_out:
-        print_table("Stundent's t",
-                    ("Location mu", "Scale sigma", "DF"),
+        print_port("\n---- 分布拟合 ----")
+        print_port("样本量 N = %d" % len(data))
+        print_table("Student's t",
+                    ("位置 loc", "尺度 scale", "自由度 df"),
                     (u, s, df), abl, a2, p, print_port=print_port)
+        print_port("Student's t 分布：loc 为位置，scale 为尺度，并非标准差；df 为自由度。")
     return {"fits": (u, s, df), "ABL": abl, "rv": rv}
 
     ##### The minimum fitting gives similar but not same results #####
@@ -171,8 +182,11 @@ def fit_gamma(data, print_out=True, print_port=print):
     abl = ABL(rv, data, 2)
     a2, p = goodness_of_fit(rv, data)
     if print_out:
-        print_table("Gamma", ("Shape alpha", "Scale sigma"),
+        print_port("\n---- 分布拟合 ----")
+        print_port("样本量 N = %d" % len(data))
+        print_table("Gamma", ("形状 shape", "尺度 scale"),
                     (u, s), abl, a2, p, print_port=print_port)
+        print_port("Gamma 分布：位置固定为 0，shape 为形状，scale 为尺度；输入值须 > 0。")
     return {"fits": (u, s), "ABL": abl, "rv": rv}
 
 
@@ -184,8 +198,11 @@ def fit_weibull(data,
     abl = ABL(rv, data, 2)
     a2, p = goodness_of_fit(rv, data)
     if print_out:
-        print_table("Weibull", ("Scale alpha", "Shape beta"),
+        print_port("\n---- 分布拟合 ----")
+        print_port("样本量 N = %d" % len(data))
+        print_table("Weibull", ("尺度 scale", "形状 shape"),
                     (s, u), abl, a2, p, print_port=print_port)
+        print_port("Weibull 分布：位置固定为 0，scale 为尺度，shape 为形状；输入值须 > 0。")
     return {"fits": (s, u), "ABL": abl, "rv": rv}
 
 
@@ -198,8 +215,11 @@ def fit_lognorm(data,
     abl = ABL(rv, data, 2)
     a2, p = goodness_of_fit(rv, data)
     if print_out:
-        print_table("Lognormal", ("Scale mu", "Shape sigma"),
+        print_port("\n---- 分布拟合 ----")
+        print_port("样本量 N = %d" % len(data))
+        print_table("对数正态 Lognormal", ("对数均值 mu", "对数标准差 sigma"),
                     (ln(s), a), abl, a2, p, print_port=print_port)
+        print_port("对数正态分布：位置固定为 0；mu、sigma 分别为 ln(X) 的均值、标准差，SciPy scale = exp(mu)；输入值须 > 0。")
     return {"fits": (s, a), "ABL": abl, "rv": rv}
 
 
@@ -215,8 +235,11 @@ def fit_expon(data,
     abl = ABL(rv, data, 1)
     a2, p = goodness_of_fit(rv, data)
     if print_out:
-        print_table("Exponential", ("Scale sigma", ),
+        print_port("\n---- 分布拟合 ----")
+        print_port("样本量 N = %d" % len(data))
+        print_table("指数 Exponential", ("尺度 scale (均值)", ),
                     (s, ), abl, a2, p, print_port=print_port)
+        print_port("指数分布：位置固定为 0，scale 为均值及尺度；输入值须 >= 0。")
     return {"fits": (s,), "ABL": abl, "rv": rv}
 
 
@@ -246,8 +269,8 @@ def compare_dist(
         except BaseException:
             if print_out:
                 print = print_port
-                print("---- " + name + " ----")
-                print("Error: Check input values.")
+                print("---- 分布拟合：" + name + " ----")
+                print("拟合失败：请检查输入值及所选分布的适用条件。")
             pass
     delta_AICc = [i - min(aiccs) for i in aiccs]
     rel_likelihood = [exp(-.5 * i) for i in delta_AICc]
@@ -257,16 +280,22 @@ def compare_dist(
     res.sort(key=lambda x: -x[-1])
     if print_out and len(selected) > 1:
         print = print_port
-        print("\n---- Compare Distributions ----")
-        t = PT()
-        t.field_names = ['Distribution', 'AICc', 'AICc Weight', 'BIC',
-                         '-2*LogLikelihood']
-        for r in res:
-            t.add_row([r[0],
-                       "%.2f" % r[1][1], "%.3f" % r[-1],
-                       "%.2f" % r[1][2], "%.2f" % r[1][0]])
-        print(str(t))
-        print("Note: The AICc weight is the probability that a given model is the best model among a set of candidate models.")
+        print("\n---- 分布比较 ----")
+        if res:
+            t = gen_table([['分布', 'AICc', 'AICc 权重', 'BIC',
+                            '-2*LogLikelihood']])
+            for r in res:
+                t.add_row([r[0], format_stat(r[1][1]), format_stat(r[-1]),
+                           format_stat(r[1][2]), format_stat(r[1][0])])
+            for column in t.field_names[1:]:
+                t.align[column] = 'r'
+            print(str(t))
+            print("排序沿用 AICc 权重降序；权重表示当前候选集合中的相对支持度，不是模型为真或必为最佳模型的概率。")
+            print("AICc、BIC 在同一数据下越小越优；AD 用于检验分布相容性，不参与此处排序。")
+            print("* 表示不可用的统计量；未成功拟合的分布不进入比较。")
+            print("AICc 或权重为 * 时，现有排序不提供有效的优劣结论。")
+        else:
+            print("无法比较：没有成功拟合的候选分布。")
     return res
 
 

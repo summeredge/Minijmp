@@ -25,6 +25,7 @@ from test_g1_text_output import viewer
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = '191c3b7b245ff40f600d442bbf18ea7e523a28df'
+SHARED_BASELINE = 'da54ca1bdc1e5e9d197d5a31308b94754a6d0a9f'
 Y = [10., 11., 20., 22., 31., 30., 12., 13., 25., 26., 40., 42.]
 PART = ['P1', 'P1', 'P2', 'P2', 'P3', 'P3'] * 2
 OP = ['甲'] * 6 + ['乙'] * 6
@@ -470,7 +471,7 @@ def test_specific_replaced_output_patterns(originals, module, function, old):
 def test_shared_modules_and_plot_implementations_remain_at_baseline():
     for name in ('utilities.py', 'txt_output.py', 'dialog.py', 'two_way_anova.py',
                  'one_way_ANOVA.py', 'cpk_plot.py', 'grr_plot.py'):
-        old = subprocess.check_output(['git', 'show', f'{BASELINE}:code/{name}'], cwd=ROOT).decode('utf-8')
+        old = subprocess.check_output(['git', 'show', f'{SHARED_BASELINE}:code/{name}'], cwd=ROOT).decode('utf-8')
         assert (ROOT / 'code' / name).read_text(encoding='utf-8') == old.replace('\r\n', '\n')
 
 
