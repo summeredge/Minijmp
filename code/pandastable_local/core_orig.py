@@ -166,8 +166,8 @@ class Table(Canvas):
 
         # column specific actions, define for every column type in the model
         # when you add a column type you should edit this dict
-        self.columnactions = {'text': {"Edit": 'drawCellEntry'},
-                              'number': {"Edit": 'drawCellEntry'}}
+        self.columnactions = {'text': {'编辑': 'drawCellEntry'},
+                              'number': {'编辑': 'drawCellEntry'}}
         # self.setFontSize()
         self.plotted = False
         self.importpath = None
@@ -3344,56 +3344,56 @@ class Table(Canvas):
             this function, it will take its values from defined dicts in constructor"""
 
         defaultactions = {
-            "Copy": lambda: self.copy(rows, cols),
-            "Undo": lambda: self.undo(),
-            "Paste": lambda: self.paste(),
-            "Fill Down": lambda: self.fillDown(rows, cols),
+            "复制": lambda: self.copy(rows, cols),
+            "撤销": lambda: self.undo(),
+            "粘贴": lambda: self.paste(),
+            "向下填充": lambda: self.fillDown(rows, cols),
             # "Fill Right" : lambda: self.fillAcross(cols, rows),
-            "Add Row(s)": lambda: self.addRows(),
+            "添加行": lambda: self.addRows(),
             # "Delete Row(s)" : lambda: self.deleteRow(),
-            "Add Column(s)": lambda: self.addColumn(),
-            "Delete Column(s)": lambda: self.deleteColumn(),
-            "Clear Data": lambda: self.deleteCells(rows, cols),
-            "Select All": self.selectAll,
+            "添加列": lambda: self.addColumn(),
+            "删除列": lambda: self.deleteColumn(),
+            "清除数据": lambda: self.deleteCells(rows, cols),
+            "全选": self.selectAll,
             # "Auto Fit Columns" : self.autoResizeColumns,
-            "Table Info": self.showInfo,
-            "Set Color": self.setRowColors,
-            "Show as Text": self.showasText,
-            "Filter Rows": self.queryBar,
-            "New": self.new,
-            "Open": self.load,
-            "Save": self.save,
-            "Save As": self.saveAs,
-            "Import Text/CSV": lambda: self.importCSV(),
-            "Advanced Import": lambda: self.importCSV(dialog=True),
-            "Import hdf5": lambda: self.importHDF(dialog=True),
-            "Export": self.doExport,
-            "Plot Selected": self.plotSelected,
-            "Hide plot": self.hidePlot,
-            "Show plot": self.showPlot,
-            "Preferences": self.showPreferences,
-            "Table to Text": self.showasText,
-            "Clean Data": self.cleanData,
-            "Clear Formatting": self.clearFormatting,
-            "Undo Last Change": self.undo,
-            "Copy Table": self.copyTable,
-            "Find/Replace": self.findText}
+            "表格信息": self.showInfo,
+            "设置颜色": self.setRowColors,
+            "显示为文本": self.showasText,
+            "筛选行": self.queryBar,
+            "新建": self.new,
+            "打开": self.load,
+            "保存": self.save,
+            "另存为": self.saveAs,
+            "导入文本/CSV": lambda: self.importCSV(),
+            "高级导入": lambda: self.importCSV(dialog=True),
+            "导入 hdf5": lambda: self.importHDF(dialog=True),
+            "导出": self.doExport,
+            "绘制所选": self.plotSelected,
+            "隐藏图形": self.hidePlot,
+            "显示图形": self.showPlot,
+            "首选项": self.showPreferences,
+            "表格转换为文本": self.showasText,
+            "清理数据": self.cleanData,
+            "清除格式": self.clearFormatting,
+            "撤销上次更改": self.undo,
+            "复制整表": self.copyTable,
+            "查找/替换": self.findText}
 
-        main = ["Copy", "Paste", "Undo", "Fill Down",
-                "Clear Data", "Set Color"]
-        general = ["Select All", "Filter Rows",
-                   "Show as Text", "Table Info", "Preferences"]
+        main = ["复制", "粘贴", "撤销", "向下填充",
+                "清除数据", "设置颜色"]
+        general = ["全选", "筛选行",
+                   "显示为文本", "表格信息", "首选项"]
 
         filecommands = [
-            'Open',
-            'Import Text/CSV',
-            "Import hdf5",
-            'Save',
-            'Save As',
-            'Export']
-        editcommands = ['Undo Last Change', 'Copy Table', 'Find/Replace']
-        plotcommands = ['Plot Selected', 'Hide plot', 'Show plot']
-        tablecommands = ['Table to Text', 'Clean Data', 'Clear Formatting']
+            '打开',
+            '导入文本/CSV',
+            "导入 hdf5",
+            '保存',
+            '另存为',
+            '导出']
+        editcommands = ['撤销上次更改', '复制整表', '查找/替换']
+        plotcommands = ['绘制所选', '隐藏图形', '显示图形']
+        tablecommands = ['表格转换为文本', '清理数据', '清除格式']
 
         def createSubMenu(parent, label, commands):
             menu = Menu(parent, tearoff=0)
@@ -3425,13 +3425,13 @@ class Table(Canvas):
             def add_defaultcommands():
                 """now add general actions for all cells"""
                 for action in main:
-                    if action == 'Fill Down' and (
+                    if action == '向下填充' and (
                             rows is None or len(rows) <= 1):
                         continue
                     if action == 'Fill Right' and (
                             cols is None or len(cols) <= 1):
                         continue
-                    if action == 'Undo' and self.prevdf is None:
+                    if action == '撤销' and self.prevdf is None:
                         continue
                     else:
                         popupmenu.add_command(
@@ -3446,10 +3446,10 @@ class Table(Canvas):
             popupmenu.add_command(label=action, command=defaultactions[action])
 
         popupmenu.add_separator()
-        createSubMenu(popupmenu, 'File', filecommands)
-        createSubMenu(popupmenu, 'Edit', editcommands)
-        createSubMenu(popupmenu, 'Plot', plotcommands)
-        createSubMenu(popupmenu, 'Table', tablecommands)
+        createSubMenu(popupmenu, '文件', filecommands)
+        createSubMenu(popupmenu, '编辑', editcommands)
+        createSubMenu(popupmenu, '图形', plotcommands)
+        createSubMenu(popupmenu, '表格', tablecommands)
         popupmenu.bind("<FocusOut>", popupFocusOut)
         popupmenu.focus_set()
         popupmenu.post(event.x_root, event.y_root)

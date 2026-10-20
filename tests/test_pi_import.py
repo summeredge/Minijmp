@@ -26,12 +26,13 @@ def pump(root, condition):
 def open_menu(app, monkeypatch, action):
     def respond(window):
         assert isinstance(window, PIImportDialog)
+        assert window.title() == '导入 PI 数据'
         assert window.grab_current() == window
         action(window)
     monkeypatch.setattr(app.main, 'wait_window', respond)
     menu = app.file_menu['var']
     index = next(i for i in range(menu.index('end') + 1)
-                 if menu.type(i) == 'command' and menu.entrycget(i, 'label').strip() in ('Import PI Data', '导入 PI 数据'))
+                 if menu.type(i) == 'command' and menu.entrycget(i, 'label').strip() == '导入 PI 数据')
     menu.invoke(index)
 
 
