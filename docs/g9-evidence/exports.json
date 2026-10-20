@@ -1,0 +1,105 @@
+[
+  {
+    "case": "contingency",
+    "title": "列联表（观测频数 / 期望频数）",
+    "headers": [
+      "行 / 列",
+      "中文列（观测）",
+      "中文列（期望）",
+      "长标签列（观测）",
+      "长标签列（期望）",
+      "合计"
+    ],
+    "rows": 3,
+    "columns": 6,
+    "excel": "contingency-0.xlsx",
+    "png": "contingency-0.png"
+  },
+  {
+    "case": "contingency",
+    "title": "检验结果",
+    "headers": [
+      "方法",
+      "卡方统计量",
+      "自由度",
+      "p 值"
+    ],
+    "rows": 2,
+    "columns": 4,
+    "excel": "contingency-1.xlsx",
+    "png": "contingency-1.png"
+  },
+  {
+    "case": "multi_sd",
+    "title": "Multi Sample Standard Deviation Test",
+    "headers": [
+      "Sample",
+      "N",
+      "SD",
+      "95.00% CI lower",
+      "95.00% CI upper",
+      "MAD to Mean",
+      "MAD to Median"
+    ],
+    "rows": 3,
+    "columns": 7,
+    "excel": "multi_sd-0.xlsx",
+    "png": "multi_sd-0.png"
+  },
+  {
+    "case": "pairwise",
+    "title": "均值逐对比较",
+    "headers": [
+      "组别 1",
+      "组别 2",
+      "p 值"
+    ],
+    "rows": 3,
+    "columns": 3,
+    "excel": "pairwise-0.xlsx",
+    "png": "pairwise-0.png"
+  },
+  {
+    "case": "pairwise",
+    "title": "字母分组（按均值降序）",
+    "headers": [
+      "字母分组",
+      "组别",
+      "均值"
+    ],
+    "rows": 3,
+    "columns": 3,
+    "excel": "pairwise-1.xlsx",
+    "png": "pairwise-1.png"
+  },
+  {
+    "case": "ti_summary",
+    "title": "样本统计",
+    "headers": [
+      "N",
+      "样本均值",
+      "样本标准差"
+    ],
+    "rows": 1,
+    "columns": 3,
+    "excel": "ti_summary-0.xlsx",
+    "png": "ti_summary-0.png"
+  },
+  {
+    "case": "ti_summary",
+    "title": "统计容差区间（正态方法）",
+    "headers": [
+      "方法",
+      "限类型",
+      "总体覆盖比例",
+      "置信水平",
+      "下容差限",
+      "上容差限",
+      "容差因子 k"
+    ],
+    "rows": 3,
+    "columns": 7,
+    "excel": "ti_summary-1.xlsx",
+    "png": "ti_summary-1.png"
+  }
+]

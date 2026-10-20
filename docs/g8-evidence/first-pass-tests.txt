@@ -1,0 +1,25 @@
+..................F...........................                           [100%]
+================================== FAILURES ===================================
+________ test_menu_position_independent_of_columns_and_scroll[480x320] ________
+
+viewer = <[AttributeError("'txt_viewer' object has no attribute '_w'") raised in repr()] txt_viewer object at 0x1eb75c95fd0>
+geometry = '480x320'
+
+    @pytest.mark.parametrize('geometry', ['480x320', '1100x800'])
+    def test_menu_position_independent_of_columns_and_scroll(viewer, geometry):
+        viewer.main.geometry(geometry)
+        for columns in (2, 10, 31):
+            viewer.add_table(StatTable(title='ͬ������', headers=[f'��{i}' for i in range(columns)],
+                                       values=[list(range(columns)) for _ in range(8)]))
+        viewer.main.update()
+        assert len({block.menu_button.winfo_rootx() for block in viewer.table_blocks}) == 1
+        for block in viewer.table_blocks:
+            assert block.menu_button.winfo_x() < block.title_label.winfo_x()
+            assert block.menu_button.winfo_width() > 20
+>       assert viewer.T.xview()[1] < 1 and viewer.T.yview()[1] < 1
+E       assert (1.0 < 1)
+
+tests\test_g8_tables.py:154: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_g8_tables.py::test_menu_position_independent_of_columns_and_scroll[480x320]
+1 failed, 45 passed in 51.65s

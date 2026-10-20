@@ -469,11 +469,19 @@ def test_specific_replaced_output_patterns(originals, module, function, old):
 
 
 def test_shared_modules_and_plot_implementations_remain_at_baseline():
-    for name in ('utilities.py', 'txt_output.py', 'dialog.py', 'two_way_anova.py',
+    for name in ('utilities.py', 'dialog.py', 'two_way_anova.py',
                  'one_way_ANOVA.py', 'cpk_plot.py', 'grr_plot.py'):
         # 仅两份绘图源码转为已验收的 G6 基线，其余共享模块仍保留原守卫。
         baseline = '0320b7bdc49321eb7a54f67ddc89dc08edc32f3e' if name in {'cpk_plot.py', 'grr_plot.py'} else SHARED_BASELINE
         old = subprocess.check_output(['git', 'show', f'{baseline}:code/{name}'], cwd=ROOT).decode('utf-8')
+        if name in {'one_way_ANOVA.py', 'two_way_anova.py'}:
+            # G9 仅迁移报告；计算守卫继续保留，完整 TXT 由 G9 固定夹具验证。
+            current = ast.parse((ROOT / 'code' / name).read_text(encoding='utf-8'))
+            current.body = [node for node in current.body if not (
+                isinstance(node, ast.ImportFrom) and node.module == 'stat_table')]
+            assert ast.dump(ComputationOnly().visit(current)) == ast.dump(
+                ComputationOnly().visit(ast.parse(old)))
+            continue
         if name == 'utilities.py':
             # P1/P2 仅授权 Pearson 舍入截断及完全相关区间方向，保留整文件其余守卫。
             old = old.replace('\r\n', '\n')

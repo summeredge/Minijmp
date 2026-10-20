@@ -1,5 +1,6 @@
 import statistics as stat
 import numpy as np
+from stat_table import StatTable
 ########### Own Modules ########
 try:
     from .utilities import quantiles, is_number, gen_table, format_stat
@@ -44,7 +45,13 @@ def print_descriptive(results, print_port=print, missing=None, selected=None):
         table = gen_table(rows)
         table.align = 'r'
         table.align['变量'] = 'l'
-        print_port(str(table))
+        values = []
+        for label, stats in results.items():
+            row = [str(label)] + [stats[key] for key in names]
+            if show_missing:
+                row.insert(1 + ('N' in names), missing[label])
+            values.append(row)
+        print_port(StatTable(str(table), title or '描述性统计', headers, values))
     if missing is not None:
         print_port('N 为有效观测数；N* 为按当前清洗规则排除的缺失或无效观测数。')
 
@@ -54,7 +61,8 @@ def print_percentiles(percentiles, values, print_port=print):
     table = gen_table([['百分位数', '数值']] + [
         ['%.2f%%' % pct, format_stat(value)] for pct, value in zip(percentiles, values)])
     table.align = 'r'
-    print_port(str(table))
+    print_port(StatTable(str(table), '百分位数', ['百分位数', '数值'],
+                         [['%.2f%%' % pct, value] for pct, value in zip(percentiles, values)]))
 
 
 def describe(data, print_port=print,
