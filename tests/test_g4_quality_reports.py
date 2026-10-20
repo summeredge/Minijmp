@@ -469,7 +469,8 @@ def test_specific_replaced_output_patterns(originals, module, function, old):
 
 
 def test_shared_modules_and_plot_implementations_remain_at_baseline():
-    for name in ('utilities.py', 'txt_output.py', 'dialog.py', 'two_way_anova.py',
+    # G11 复用 G7/G8 输出窗口；窗口契约由 G1/G11 真实 Tk 测试保护。
+    for name in ('utilities.py', 'dialog.py', 'two_way_anova.py',
                  'one_way_ANOVA.py', 'cpk_plot.py', 'grr_plot.py'):
         # 仅两份绘图源码转为已验收的 G6 基线，其余共享模块仍保留原守卫。
         baseline = '0320b7bdc49321eb7a54f67ddc89dc08edc32f3e' if name in {'cpk_plot.py', 'grr_plot.py'} else SHARED_BASELINE

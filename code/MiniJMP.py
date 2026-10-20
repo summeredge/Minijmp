@@ -363,7 +363,11 @@ class Minijmp(Minijmp_pre):
     def print(self, txt, end="\n"):
         if self.table.tOut is None:
             self.tOut = txt_viewer(table=self.table)
-        self.tOut.add_txt(txt + end)
+        from stat_table import StatTable
+        if isinstance(txt, StatTable):
+            self.tOut.add_table(txt, end)
+        else:
+            self.tOut.add_txt(txt + end)
         self.tOut.to_end()
         return
 

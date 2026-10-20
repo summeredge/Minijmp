@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import statistics as stat
 from chart_style import style_axes
+from stat_table import StatTable
 ####### Own modules ##########
 try: 
     from .ctrl_chart_const import df as Ctrl_Cht_Const
@@ -207,11 +208,15 @@ def _print_spc_report(title, charts, sizes, size_label, labels, notes, print_por
         return '*' if value is None or np.isnan(value) else '%.6g' % value
 
     def limit_summary(value):
+        value = raw_summary(value)
+        return value if isinstance(value, str) else number(value)
+
+    def raw_summary(value):
         if isinstance(value, (list, tuple, np.ndarray)):
             if not all(item == value[0] or (np.isnan(item) and np.isnan(value[0])) for item in value):
                 return '逐点变化（见明细）'
-            value = value[0]
-        return number(value)
+            return value[0]
+        return value
 
     print_port('\n---- SPC 控制图报告：%s ----' % title)
     if not charts:
@@ -228,7 +233,10 @@ def _print_spc_report(title, charts, sizes, size_label, labels, notes, print_por
         for name, values, lcl, cl, ucl in charts])
     for column in ['LCL', 'CL', 'UCL']:
         table.align[column] = 'r'
-    print_port(str(table))
+    print_port(StatTable(table, '控制限汇总', table.field_names,
+                         [[name, raw_summary(lcl), raw_summary(cl), raw_summary(ucl)]
+                          for name, values, lcl, cl, ucl in charts], display=table.rows,
+                         number_formats=['General', '0.00000E+00', '0.00000E+00', '0.00000E+00']))
     print_port('LCL = 下控制限；CL = 中心线；UCL = 上控制限。控制限不是产品规格限。')
     print_port('\n过程统计摘要与逐点明细')
     for name, values, lcl, cl, ucl in charts:
@@ -243,7 +251,12 @@ def _print_spc_report(title, charts, sizes, size_label, labels, notes, print_por
             for i, value in enumerate(values)])
         for column in ['点号', size_label, '统计值', 'LCL', 'CL', 'UCL']:
             table.align[column] = 'r'
-        print_port(str(table))
+        print_port(StatTable(table, name, table.field_names,
+                             [[i + 1, labels[i] if labels is not None and i < len(labels) else '*',
+                               at(sizes, i), value, at(lcl, i), at(cl, i), at(ucl, i)]
+                              for i, value in enumerate(values)],
+                             display=[[str(cell) for cell in row] for row in table.rows],
+                             number_formats=['0', 'General', '0.######'] + ['0.00000E+00'] * 4))
     print_port('* 表示缺失、未提供或不适用；点号从 1 开始，按本次输入顺序列示。')
     print_port('\n特殊原因及异常点')
     print_port('当前实现未执行特殊原因规则判定，未提供异常点索引或规则明细。')
