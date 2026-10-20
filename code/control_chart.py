@@ -415,10 +415,11 @@ def p_np_plot(p=None, n=1,
     lcl_list = [max(0, p_bar - 3 * (p_bar * (1 - p_bar) / i)**.5)
                 for i in nlist]
     if NP:
-        p_bar *= nlist[0]
-        ucl_list = np.array(ucl_list) * nlist[0]
-        lcl_list = np.array(lcl_list) * nlist[0]
-        p = np.array(p) * nlist[0]
+        p_bar = [p_bar * ni for ni in nlist]
+        p_bar = p_bar[0] if len(set(nlist)) == 1 else p_bar
+        ucl_list = np.array(ucl_list) * nlist
+        lcl_list = np.array(lcl_list) * nlist
+        p = np.array(p) * nlist
 
     xs = [-.5]
     for _ in range(len(p)):
@@ -441,7 +442,10 @@ def p_np_plot(p=None, n=1,
 
     if bar1 is not None:
         p_bar = bar1
-    ax.axhline(p_bar, color='blue', label='CL')
+    if isinstance(p_bar, list):
+        limit_line(ax, p_bar, color='blue', label='CL')
+    else:
+        ax.axhline(p_bar, color='blue', label='CL')
 
     if ucl1 is not None:
         ax.axhline(ucl1, color='red', linestyle='dashed', label='UCL')
@@ -479,7 +483,7 @@ def p_np_plot(p=None, n=1,
             p_bar, ucl1 if ucl1 is not None else ucl_list)], nlist, '检验数量', xLabels,
             ['输入标签（Y 轴）：%s' % ylabel,
              '控制限方法：二项分布的 3 倍标准差；比例中心按检验数量加权；原计算下限截为 0。',
-             'NP 图统计值为不合格品数量；原计算按首组检验数量缩放。' if NP else
+             'NP 图统计值为不合格品数量；按各组检验数量计算中心线与控制限。' if NP else
              'P 图统计值为不合格比例；检验数量不同时逐点列示实际控制限。',
              '中心线与控制限采用实际绘图值（含调用方指定值）。'], print_port)
 
@@ -492,6 +496,7 @@ def cu_plot(c=None, n=1,
             ylabel="P", C=False,
             xlabel=None, ax=None, fig=None, refY=None,
             filename=None):
+    # c 为原始缺陷数，n 为检查单位数；U 图只在此处归一化（C 图 n=1）。
     p = c
     if not isinstance(n, list):
         nlist = [n] * len(p)

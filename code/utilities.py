@@ -212,6 +212,7 @@ def pearson_correlation(x, y, alpha=0.05, print_out=True, print_port=print):
 #     r = [n(ΣXY) - (ΣX)(ΣY)] / √[n(ΣX²) - (ΣX)²][n(ΣY²) - (ΣY)²]
     r = (n * sxy - sx * sy) / ((n * sx2 - sx * sx) * (n * sy2 - sy * sy))**.5
 #     Cov(X,Y) = Σ[(X - X̄)(Y - Ȳ)] / (n - 1)
+    r = np.clip(r, -1, 1)
     cov = sum([(i - x_bar) * (j - y_bar) for i, j in zip(x, y)]) / (n - 1)
     # https://zhiyzuo.github.io/Pearson-Correlation-CI-in-Python/
     # below confidence level calc
@@ -219,7 +220,7 @@ def pearson_correlation(x, y, alpha=0.05, print_out=True, print_port=print):
     if abs(r) < 1:
         r_z = np.arctanh(r)
     else:
-        r_z = 10000
+        r_z = np.copysign(np.inf, r)
     se = 1 / np.sqrt(n - 3)
     z = norm.ppf(1 - alpha / 2)
     lo_z, hi_z = r_z - z * se, r_z + z * se

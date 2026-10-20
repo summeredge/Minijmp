@@ -718,7 +718,12 @@ class PlotViewer(Frame):
         """Get only numeric data that can be plotted"""
 
         #x = df.convert_objects()._get_numeric_data()
-        x = df.apply( lambda x: pd.to_numeric(x,errors='ignore',downcast='float') )
+        def numeric(column):
+            try:
+                return pd.to_numeric(column, downcast='float')
+            except (ValueError, TypeError):
+                return column
+        x = df.apply(numeric)
         if x.empty==True:
             return False
 

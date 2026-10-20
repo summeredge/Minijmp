@@ -1,0 +1,83 @@
+{
+  "pandas": "2.2.3",
+  "cases": [
+    {
+      "input": [
+        1,
+        2,
+        3
+      ],
+      "dtype": "float32",
+      "output": [
+        1.0,
+        2.0,
+        3.0
+      ]
+    },
+    {
+      "input": [
+        "1",
+        "2.5",
+        null
+      ],
+      "dtype": "float32",
+      "output": [
+        1.0,
+        2.5,
+        null
+      ]
+    },
+    {
+      "input": [
+        "1",
+        "bad",
+        null
+      ],
+      "dtype": "object",
+      "output": [
+        "1",
+        "bad",
+        null
+      ]
+    },
+    {
+      "input": [
+        "a",
+        "b",
+        null
+      ],
+      "dtype": "object",
+      "output": [
+        "a",
+        "b",
+        null
+      ]
+    },
+    {
+      "input": [
+        null,
+        null,
+        null
+      ],
+      "dtype": "float32",
+      "output": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "input": [
+        1,
+        null,
+        3
+      ],
+      "dtype": "float32",
+      "output": [
+        1.0,
+        null,
+        3.0
+      ]
+    }
+  ]
+}

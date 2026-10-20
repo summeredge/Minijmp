@@ -152,11 +152,12 @@ def test_attribute_reports_show_every_actual_point_and_limit(report, function, o
     assert tables[0].rows[0][0] == stat_name
     plotted = ax.lines[0].get_ydata()
     nlist = n if isinstance(n, list) else [n] * len(data)
-    expected_points = np.array(data) * (nlist[0] if options.get('NP') else 1) if key == 'p' else np.array(data) / nlist
+    expected_points = np.array(data) * (np.array(nlist) if options.get('NP') else 1) if key == 'p' else np.array(data) / nlist
     np.testing.assert_array_equal(plotted, expected_points)
     for i, row in enumerate(tables[1].rows):
         assert row[:4] == [i + 1, ['早班', '中班', '夜班'][i], numeric(nlist[i]), numeric(plotted[i])]
-        center = ax.lines[1].get_ydata()[0]
+        center_values = ax.lines[1].get_ydata()
+        center = center_values[0 if len(center_values) == 2 else i * 2]
         upper = ax.lines[2].get_ydata()[0 if override else i * 2]
         lower = ax.lines[3].get_ydata()[0 if override else i * 2]
         assert row[4:] == [numeric(lower), numeric(center), numeric(upper)]
@@ -299,8 +300,8 @@ def test_real_dialog_get_data_and_confirm_reach_each_report(tk_root, report, mon
         if title in {'I', 'MR', 'I-MR', 'P', 'NP', 'C', 'U'}:
             assert len(tables[1].rows) == 5
         if title == 'U':
-            # 原有 UDialog 两条分支不一致：带标识列传原始计数，否则先除单位数。
-            assert tables[1].rows[0][3] == ('0.1' if with_ids else '0.01')
+            # 两条入口都传原始缺陷数，仅由 cu_plot 按单位数归一化。
+            assert tables[1].rows[0][3] == '0.1'
     finally:
         tk_root.report_callback_exception = original
         if dialog.main.winfo_exists():
