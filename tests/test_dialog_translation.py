@@ -357,6 +357,13 @@ def test_original_analysis_code_is_unchanged():
             baseline = baseline.replace(statement, '')
         current = (ROOT / file).read_text(encoding='utf-8')
         def methods(source):
+            if file == 'code/qc_dialog.py':
+                # G4 只增加五处变量标签及翻译两条消息；其余 apply AST 仍完整比较。
+                source = '\n'.join(line for line in source.splitlines()
+                                   if 'self.app.print(f"分析变量：' not in line)
+                source = source.replace('Received %d valid data pairs for group ID and measurement.',
+                                        '子组标识与测量值的有效配对数 = %d。')
+                source = source.replace('WARNING: Unbalanced subgrouping.', '警告：子组大小不相等。')
             tree = ErrorsToMarker().visit(ast.parse(source))
             return {c.name + '.' + m.name: ast.dump(m, include_attributes=False) for c in tree.body if isinstance(c, ast.ClassDef)
                     for m in c.body if isinstance(m, ast.FunctionDef) and m.name in ('apply','ok','preview','get_values','get_box_settings','get_histo_setting')}
