@@ -571,6 +571,68 @@ class ProgressDialog(Toplevel):
         prog = Progressbar(self, orient='horizontal',
                             length=200, mode='indeterminate')
 
+class CSVPreviewDialog:
+    """Confirm only the format choices needed for an uncertain CSV."""
+
+    def __init__(self, parent, filename, options):
+        from .csv_import import DELIMITERS
+        self.filename = filename
+        self.df = None
+        self.main = Toplevel(parent)
+        self.main.title('确认 CSV 导入')
+        self.main.transient(parent.winfo_toplevel())
+        self.main.protocol('WM_DELETE_WINDOW', self.main.destroy)
+        self.encoding = StringVar(self.main, value=options['encoding'])
+        self.delimiter = StringVar(self.main, value=next(
+            name for name, value in DELIMITERS.items() if value == options['delimiter']))
+        self.header = BooleanVar(self.main, value=options['header'] is True)
+        Label(self.main, text='请确认分隔符、编码及首行是否为表头。').pack(padx=12, pady=8)
+        for label, variable, choices in [
+                ('分隔符', self.delimiter, list(DELIMITERS)),
+                ('编码', self.encoding, ['utf-8-sig', 'utf-16', 'gb18030', 'cp1252', 'big5'])]:
+            row = Frame(self.main)
+            row.pack(fill=X, padx=12, pady=3)
+            Label(row, text=label).pack(side=LEFT)
+            box = Combobox(row, textvariable=variable, values=choices, state='readonly')
+            box.pack(side=RIGHT)
+            box.bind('<<ComboboxSelected>>', lambda event: self.update_preview())
+        Checkbutton(self.main, text='首行为表头', variable=self.header,
+                    command=self.update_preview).pack(anchor=W, padx=12)
+        self.preview = ScrolledText(self.main, width=90, height=14, wrap=NONE)
+        self.preview.pack(fill=BOTH, expand=True, padx=12, pady=8)
+        self.button = Button(self.main, text='导入', command=self.doImport)
+        self.button.pack(pady=8)
+        self.update_preview()
+        self.main.grab_set()
+        self.main.wait_window()
+
+    def read(self):
+        from .csv_import import DELIMITERS, read_csv
+        return read_csv(self.filename, encoding=self.encoding.get(),
+                        delimiter=DELIMITERS[self.delimiter.get()], header=self.header.get())
+
+    def update_preview(self):
+        try:
+            frame = self.read()
+            text = f'{len(frame)} 行 × {len(frame.columns)} 列\n' + frame.head(10).to_string(index=False)
+            self.button.configure(state=NORMAL)
+        except Exception as error:
+            text = str(error)
+            self.button.configure(state=DISABLED)
+        self.preview.configure(state=NORMAL)
+        self.preview.delete('1.0', END)
+        self.preview.insert('1.0', text)
+        self.preview.configure(state=DISABLED)
+
+    def doImport(self):
+        try:
+            self.df = self.read()
+        except Exception as error:
+            messagebox.showerror('CSV import error', str(error), parent=self.main)
+            return
+        self.main.destroy()
+
+
 class ImportDialog(Frame):
     """Provides a frame for figure canvas and MPL settings"""
 

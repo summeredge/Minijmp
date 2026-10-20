@@ -46,7 +46,8 @@ from .data import TableModel
 from .headers import ColumnHeader, RowHeader, IndexHeader
 from .plotting import MPLBaseOptions, PlotViewer
 #from .prefs import Preferences
-from .dialogs import ImportDialog
+from .dialogs import ImportDialog, CSVPreviewDialog
+from .csv_import import detect_csv, read_csv
 from . import images, util, config
 from .dialogs import *
 
@@ -3363,7 +3364,8 @@ class Table(Canvas):
             "Open": self.load,
             "Save": self.save,
             "Save As": self.saveAs,
-            "Import Text/CSV": lambda: self.importCSV(dialog=True),
+            "Import Text/CSV": lambda: self.importCSV(),
+            "Advanced Import": lambda: self.importCSV(dialog=True),
             "Import hdf5": lambda: self.importHDF(dialog=True),
             "Export": self.doExport,
             "Plot Selected": self.plotSelected,
@@ -4127,13 +4129,23 @@ class Table(Canvas):
                                                              ("All files", "*.*")])
         if not filename:
             return
-        if dialog:
-            impdialog = ImportDialog(self, filename=filename)
-            df = impdialog.df
+        try:
+            if dialog:
+                df = ImportDialog(self, filename=filename).df
+            elif kwargs:
+                df = pd.read_csv(filename, **kwargs)
+            else:
+                options = detect_csv(filename)
+                confirm = options.pop('confirm')
+                if confirm:
+                    df = CSVPreviewDialog(self, filename, options).df
+                else:
+                    df = read_csv(filename, **options)
             if df is None:
                 return
-        else:
-            df = pd.read_csv(filename, **kwargs)
+        except Exception as error:
+            messagebox.showerror('CSV import error', str(error), parent=self.master)
+            return
         model = TableModel(dataframe=df)
         self.updateModel(model)
         self.prevdf = None

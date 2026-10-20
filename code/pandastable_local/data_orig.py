@@ -162,7 +162,7 @@ class TableModel(object):
         longest = c.astype('object').astype('str').str.len().max()
         if np.isnan(longest):
             return 1
-        return longest
+        return int(longest)
 
     def getRecordAtRow(self, rowindex):
         """Get the entire record at the specifed row"""
