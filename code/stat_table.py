@@ -4,6 +4,15 @@ from numbers import Real
 from tkinter import ttk, filedialog, messagebox
 import tkinter as tk
 
+RESULT_BACKGROUND = '#FFFFFF'
+
+
+def configure_result_styles(style):
+    """Keep result content white without changing application-wide styles."""
+    for name in ('Result.TFrame', 'Result.TLabel', 'Result.TMenubutton'):
+        style.configure(name, background=RESULT_BACKGROUND)
+        style.map(name, background=[('', RESULT_BACKGROUND)])
+
 
 def display_value(value, column):
     if isinstance(value, Real):
@@ -125,24 +134,25 @@ def export_png(table, filename):
 
 class TableBlock(ttk.Frame):
     def __init__(self, parent, table):
-        super().__init__(parent, padding=8)
+        configure_result_styles(ttk.Style(parent))
+        super().__init__(parent, padding=8, style='Result.TFrame')
         self.table = table
-        titlebar = ttk.Frame(self)
+        titlebar = ttk.Frame(self, style='Result.TFrame')
         titlebar.grid(row=0, column=0, sticky='w')
-        self.menu_button = button = ttk.Menubutton(titlebar, text='导出')
+        self.menu_button = button = ttk.Menubutton(titlebar, text='导出', style='Result.TMenubutton')
         button.pack(side='left')
-        self.title_label = ttk.Label(titlebar, text=table.title,
+        self.title_label = ttk.Label(titlebar, text=table.title, style='Result.TLabel',
                                     font=('Microsoft YaHei', 11, 'bold'))
         self.title_label.pack(side='left', padx=(8, 0))
         self.menu = tk.Menu(button, tearoff=False)
         for kind in ('Excel', 'PNG'):
             self.menu.add_command(label='导出 '+kind, command=lambda k=kind: self.export(k))
         button.configure(menu=self.menu)
-        body = ttk.Frame(self)
+        body = ttk.Frame(self, style='Result.TFrame')
         body.grid(row=1, column=0, sticky='w')
         for r, row in enumerate([table.headers] + table.display):
             for c, text in enumerate(row):
-                ttk.Label(body, text=text, anchor='e' if c else 'w',
+                ttk.Label(body, text=text, anchor='e' if c else 'w', style='Result.TLabel',
                           font=('Microsoft YaHei', 10, 'bold' if r == 0 else 'normal')).grid(
                     row=r, column=c, sticky='ew', padx=10, pady=3)
 
