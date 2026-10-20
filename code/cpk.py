@@ -17,6 +17,7 @@ from utilities import gen_table, transpose_2D_list
 
 def cpl_cpu_95(cpx, n, df, alpha=0.05):
     c = cpx * 3 * (n)**.5
+    bound = max(abs(c) * 100, 100)
 
     def equation(x):
         return nct.cdf(c, df, x) - (1 - alpha / 2)
@@ -26,13 +27,13 @@ def cpl_cpu_95(cpx, n, df, alpha=0.05):
 
     try:
         lower = root_scalar(equation,
-                            bracket=[-c * 100, c * 100]).root / 3 / (n)**.5
+                            bracket=[-bound, bound]).root / 3 / (n)**.5
     except BaseException:
         lower = -1
         #  print(equation(-c * 100), equation(c * 100))
     try:
         upper = root_scalar(equation2,
-                            bracket=[-c * 100, c * 100]).root / 3 / (n)**.5
+                            bracket=[-bound, bound]).root / 3 / (n)**.5
     except BaseException:
         #  print(equation2(-c * 100), equation2(c * 100))
         upper = -1
@@ -53,8 +54,8 @@ def cpk_calc(mean, std, T, usl, lsl, df, N, print_port=print,
 
     cp_l = cp * (chi2.ppf(alpha / 2, df) / (df))**.5
     cp_u = cp * (chi2.ppf(1 - alpha / 2, df) / (df))**.5
-    cpk_delta = norm.ppf(1 - alpha / 2) * (1 / 9 / N /
-                                           cpk**2 + 1 / 2 / df)**.5 * cpk
+    # Expand the standard error to keep it defined at zero and nonnegative.
+    cpk_delta = norm.ppf(1 - alpha / 2) * (1 / 9 / N + cpk**2 / 2 / df)**.5
     cpk_l, cpk_u = cpk - cpk_delta, cpk + cpk_delta
 
     gamma = N * (1 + ((mean - T) / std)**2)**2 / \

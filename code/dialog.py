@@ -46,6 +46,8 @@ class findRepDialog(FindReplaceDialog):
         """Replace all instances of search text"""
 
         table = self.table
+        if not table.requireUnfiltered():
+            return
         table.storeCurrent()
         df = table.model.df
         self.find()

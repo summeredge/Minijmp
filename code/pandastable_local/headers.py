@@ -107,7 +107,7 @@ class ColumnHeader(Canvas):
         scale = self.table.getScale() * 1.5
         self.height = self.table.rowheight
 
-        if wrap is True:
+        if wrap is True and cols > 0:
             # set height from longest column wrapped
             try:
                 c = list(df.columns.map(str).str.len())
@@ -569,6 +569,8 @@ class ColumnHeader(Canvas):
     def renameColumn(self):
         """Rename column"""
 
+        if not self.table.requireUnfiltered():
+            return
         col = self.table.currentcol
         df = self.model.df
         name = df.columns[col]

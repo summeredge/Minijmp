@@ -35,7 +35,7 @@ def grr_plot(y=None, part=None, op=None,
              ax=None, ylabel="Y"):
 
     def subplot(df, ax, title=""):
-        stripplot(data=df, x="Part", y="Y", jitter=False, ax=ax)
+        stripplot(data=df, x="Part", y="Y", order=part_order, jitter=False, ax=ax)
         ax.set_title(title)
         return
 
@@ -43,6 +43,7 @@ def grr_plot(y=None, part=None, op=None,
     if op is not None:
         dt["OP"] = list(op)
     df = pd.DataFrame(dt)
+    part_order = list(df["Part"].unique())
 
     if ax is None:  # or fig is None:
         # n - 1, n - 1)  # , sharex=True, sharey=True)

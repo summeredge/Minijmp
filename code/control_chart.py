@@ -289,7 +289,7 @@ def x_plot(data, bar1=None, pooled=False,
 
     if filename is not None:
         fname = str(filename) + '.png'
-        plt.savefig(
+        axs[0].figure.savefig(
             fname,
             dpi=200,
             format='png')

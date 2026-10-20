@@ -298,6 +298,9 @@ class CpkDialog(Dialogs):
 
     def apply(self):
         data = number_list(self.df[self.xvar.get()])
+        if len(data) < 2 or len(set(data)) < 2:
+            self.error("Capability analysis requires at least two observations and positive variation.")
+            return
 
         alpha = self.alpha.get()
         if alpha > 0.5 or alpha <= 0:

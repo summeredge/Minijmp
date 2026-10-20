@@ -151,7 +151,7 @@ def fit_plot(x, y, alpha=0.05, print_out=False,
         plt.show()
     if filename is not None:
         fname = str(filename) + '.png'
-        plt.savefig(
+        ax.figure.savefig(
             fname,
             dpi=200,
             format='png')
@@ -224,7 +224,7 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
         plt.show()
     if filename is not None:
         fname = str(filename) + '.png'
-        plt.savefig(
+        fig.savefig(
             fname,
             dpi=200,
             format='png')
@@ -340,7 +340,7 @@ def multi_fit(data, labels, print_out=False, print_port=print,
         plt.show()
     if filename is not None:
         fname = str(filename) + '.png'
-        plt.savefig(
+        ax.figure.savefig(
             fname,
             dpi=200,
             format='png')

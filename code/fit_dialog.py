@@ -99,6 +99,10 @@ class LinearFitDialog(Dialogs):
                              self.df[self.yvar.get()],
                              col_name1=self.xvar.get(), col_name2=self.yvar.get(),
                              print_out=True, print_port=self.app.print)
+        if (self.linear.get() or self.ortho.get()) and (
+                len(x) < 3 or len(set(x)) < 2 or len(set(y)) < 2):
+            self.error("Regression requires at least three pairs and nonconstant X and Y.")
+            return
         pf = self.app.showPlotViewer()
         pf.ax = pf.fig.add_subplot(111)
 
@@ -224,6 +228,12 @@ class CorrelationDialog(LinearFitDialog):
                              self.df[self.yvar.get()],
                              col_name1=self.xvar.get(), col_name2=self.yvar.get(),
                              print_out=True, print_port=self.app.print)
+        if self.cor_p.get() and (len(x) < 4 or len(set(x)) < 2 or len(set(y)) < 2):
+            self.error("Pearson inference requires at least four pairs and nonconstant X and Y.")
+            return
+        if self.cor_h.get() and len(x) < 5:
+            self.error("Hoeffding's D requires at least five pairs.")
+            return
         pf = self.app.showPlotViewer()
         pf.ax = pf.fig.add_subplot(111)
 
@@ -311,6 +321,9 @@ class ResidDialog(Dialogs):
                              self.df[self.yvar.get()],
                              col_name1=self.xvar.get(), col_name2=self.yvar.get(),
                              print_out=True, print_port=self.app.print)
+        if len(x) < 3 or len(set(x)) < 2 or len(set(y)) < 2:
+            self.error("Regression requires at least three pairs and nonconstant X and Y.")
+            return
         pf = self.app.showPlotViewer()
         axs = [[pf.fig.add_subplot(221), pf.fig.add_subplot(222)],
                [pf.fig.add_subplot(223), pf.fig.add_subplot(224)]]

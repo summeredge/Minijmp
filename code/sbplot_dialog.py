@@ -6,7 +6,7 @@ import numpy as np
 import seaborn as sb
 ########### Own Modules ###########
 from dialog import Dialogs
-from utilities import get_number, is_void, grouping_by_labels, transpose_2D_list, number_list
+from utilities import get_number, is_void, is_number, grouping_by_labels, transpose_2D_list, number_list
 
 
 class SBDialog(Dialogs):
@@ -58,7 +58,7 @@ class SBDialog(Dialogs):
         for key in cols:
             d[key] = voids2nan(self.df[key])
         for key in numcols:
-            d[key] = number_list(self.df[key])
+            d[key] = [float(i) if is_number(i) else np.nan for i in self.df[key]]
         self.working_df = DF(d)
         return
 

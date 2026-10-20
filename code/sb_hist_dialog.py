@@ -87,6 +87,9 @@ class singleHistoDialog(SBDialog):
             col_name=xvar,
             print_out=True,
             print_port=self.app.print)
+        if not data:
+            self.error("No numeric observations to plot.")
+            return
         fit_dist = self.fit_dist.get()
         rv = None
         if fit_dist:
@@ -98,8 +101,7 @@ class singleHistoDialog(SBDialog):
             else:
                 self.error("Can't perform fit with the dist..")
                 #  fit_dist = False
-        cols = [xvar]
-        self.make_working_df(cols=cols)
+        self.make_working_df(cols=[], numcols=[xvar])
 
         pf = self.showPlotViewer()
         pf.ax = pf.fig.add_subplot(111)

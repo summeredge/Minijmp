@@ -187,7 +187,17 @@ class IMRDialog(Dialogs):
         return fig, None, [ax1, ax2]
 
     def apply(self):
-        data, xlabels, fig, ax, axs = self.get_data()
+        result = self.get_data()
+        if result is None:
+            return
+        data, xlabels, fig, ax, axs = result
+        if (("BAR" not in self.plot_type.upper() and len(data) < 2)
+                or not data
+                or ("BAR" in self.plot_type.upper() and any(
+                    len(g) < 2 or ("R" in self.plot_type.upper().replace("BAR", "") and len(g) > 25)
+                    for g in data))):
+            self.error("Control chart requires at least two observations per range; Xbar-R subgroup size must be 2 to 25.")
+            return
         try:
             mr_range = self.mr_range.get()
         except BaseException:
@@ -322,6 +332,9 @@ class XBRDialog(IMRDialog):
                                             self.df[gid], return_keys=True)
         else:
             gsize = int(gsize)
+            if gsize < 2:
+                self.error("Subgroup size must be at least two.")
+                return
             l = list(self.df[xid])
             if gsize > 0:
                 data = [l[i:i + gsize] for i in range(0, len(l), gsize)]
@@ -329,7 +342,8 @@ class XBRDialog(IMRDialog):
         if self.xlabelID.get() == "":
             if gsize is None:
                 xlabels = keys
-            xlabels = list(range(1, len(data) + 1))
+            else:
+                xlabels = list(range(1, len(data) + 1))
         else:
             ids = self.df[self.xlabelID.get()]
             [ids] = filter_voids([ids])

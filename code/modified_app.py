@@ -7,6 +7,7 @@ import statsmodels
 import prettytable
 import seaborn
 import platform
+import os
 ##############
 from pandastable_local.app import DataExplore
 from pandastable_local.dialogs import getParentGeometry
@@ -55,7 +56,7 @@ class Minijmp_pre(DataExplore):
         abwin.grab_set()
         abwin.resizable(width=False, height=False)
         abwin.configure(background=self.bg)
-        logo = PhotoImage(file="icon.png")
+        logo = PhotoImage(file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "icon.png"))
         label = Label(abwin, image=logo, anchor=CENTER)
         label.image = logo
         label.grid(row=0, column=0, sticky='ew', padx=4, pady=4)

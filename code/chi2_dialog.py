@@ -60,7 +60,7 @@ class Chi2TableDialog(Dialogs):
             if len(self.rvar.get()) > 0:
                 [rKeys] = filter_voids([list(self.df[self.rvar.get()])])
             else:
-                rKeys = [chr(65 + i) for i in range(len(data[0]))]
+                rKeys = [chr(65 + i) for i in range(len(data))]
         else:
             data, rKeys, cKeys = count_2factors(
                 self.df[self.xvar.get()],

@@ -475,7 +475,13 @@ class Table(Canvas):
         model = self.model
         self.rows = len(self.model.df.index)
         self.cols = len(self.model.df.columns)
+        self.multiplerowlist = [r for r in self.multiplerowlist if 0 <= r < self.rows]
+        self.multiplecollist = [c for c in self.multiplecollist if 0 <= c < self.cols]
+        self.currentrow = min(max(self.currentrow or 0, 0), max(self.rows - 1, 0))
+        self.currentcol = min(max(self.currentcol or 0, 0), max(self.cols - 1, 0))
         if self.cols == 0 or self.rows == 0:
+            self.visiblerows = []
+            self.visiblecols = list(range(self.cols))
             self.delete('entry')
             self.delete('rowrect', 'colrect')
             self.delete('currentrect', 'fillrect')
@@ -483,11 +489,8 @@ class Table(Canvas):
             self.delete('multicellrect', 'multiplesel')
             self.delete('colorrect')
             self.setColPositions()
-            if self.cols == 0:
-                self.colheader.redraw()
-            if self.rows == 0:
-                self.visiblerows = []
-                self.rowheader.redraw()
+            self.colheader.redraw()
+            self.rowheader.redraw()
             return
         self.tablewidth = (self.cellwidth) * self.cols
         self.configure(bg=self.cellbackgr)
@@ -527,7 +530,7 @@ class Table(Canvas):
                 if coldata.dtype == 'float64':
                     coldata = coldata.astype(object).apply(
                         lambda x: self.setPrecision(x, prec))
-            coldata = coldata.astype(object).fillna('')
+            coldata = coldata.astype(object).where(coldata.notna(), '')
             offset = rows[0]
             for row in self.visiblerows:
                 text = coldata.iloc[row - offset]
@@ -884,8 +887,11 @@ class Table(Canvas):
 
     def sortTable(self, columnIndex=None, ascending=1, index=False):
         """Sort rows based on currently selected columns"""
+        if not self.requireUnfiltered():
+            return
 
         df = self.model.df
+        self.storeCurrent()
         if columnIndex is None:
             columnIndex = self.multiplecollist
         if isinstance(columnIndex, int):
@@ -901,22 +907,28 @@ class Table(Canvas):
             except Exception as e:
                 print('could not sort')
                 #logging.error("Exception occurred", exc_info=True)
-        self.updateIndex(ask=False)
+        self.model.df.reset_index(drop=True, inplace=True)
+        self.update_rowcolors()
+        self.tableChanged()
         self.redraw()
         return
 
     def sortColumnIndex(self):
         """Sort the column header by the current rows values"""
+        if not self.requireUnfiltered():
+            return
 
         cols = self.model.df.columns
         # get only sortable cols
-        temp = self.model.df.convert_objects(convert_numeric=True)
+        if self.rows == 0:
+            return
+        temp = self.model.df.apply(pd.to_numeric, errors='coerce')
+        temp = temp.loc[:, self.model.df.notna().eq(temp.notna()).all()]
         temp = temp.select_dtypes(include=['int', 'float'])
-        rowindex = temp.index[self.currentrow]
-        row = temp.ix[rowindex]
+        row = temp.iloc[self.currentrow]
         # add unsortable cols to end of new ordered ones
         newcols = list(temp.columns[row.argsort()])
-        a = list(set(cols) - set(newcols))
+        a = [c for c in cols if c not in newcols]
         newcols.extend(a)
         self.model.df = self.model.df.reindex(columns=newcols)
         self.redraw()
@@ -930,6 +942,8 @@ class Table(Canvas):
 
     def setindex(self):
         """Set indexes"""
+        if not self.requireUnfiltered():
+            return
 
         cols = self.multiplecollist
         self.model.setindex(cols)
@@ -945,6 +959,8 @@ class Table(Canvas):
 
     def resetIndex(self, ask=True, drop=False):
         """Reset index and redraw row header"""
+        if not self.requireUnfiltered():
+            return
 
         self.storeCurrent()
         df = self.model.df
@@ -964,6 +980,8 @@ class Table(Canvas):
 
     def flattenIndex(self):
         """Flatten multiindex"""
+        if not self.requireUnfiltered():
+            return
 
         df = self.model.df
         levels = len(df.columns.levels)
@@ -987,6 +1005,8 @@ class Table(Canvas):
 
     def copyIndex(self):
         """Copy index to a column"""
+        if not self.requireUnfiltered():
+            return
 
         self.model.copyIndex()
         self.redraw()
@@ -1057,6 +1077,8 @@ class Table(Canvas):
 
     def insertRow(self):
         """Insert a new row"""
+        if not self.requireUnfiltered():
+            return
 
         row = self.getSelectedRow()
         key = self.model.insertRow(row)
@@ -1068,6 +1090,8 @@ class Table(Canvas):
 
     def addRows(self, num=None):
         """Add new rows"""
+        if not self.requireUnfiltered():
+            return
 
         if num is None:
             num = simpledialog.askinteger("Now many rows?",
@@ -1084,6 +1108,8 @@ class Table(Canvas):
 
     def addColumn(self, newname=None):
         """Add a new column"""
+        if not self.requireUnfiltered():
+            return
 
         if newname is None:
             coltypes = ['object', 'float64']
@@ -1115,6 +1141,8 @@ class Table(Canvas):
 
     def deleteRow(self, ask=False):
         """Delete a selected row"""
+        if not self.requireUnfiltered():
+            return
 
         n = True
         if ask:
@@ -1144,6 +1172,8 @@ class Table(Canvas):
 
     def duplicateRows(self):
         """Make copy of rows"""
+        if not self.requireUnfiltered():
+            return
 
         rows = self.multiplerowlist
         df = self.model.df
@@ -1154,6 +1184,8 @@ class Table(Canvas):
 
     def deleteColumn(self, ask=True):
         """Delete currently selected column(s)"""
+        if not self.requireUnfiltered():
+            return
 
         n = True
         if ask:
@@ -1174,6 +1206,8 @@ class Table(Canvas):
 
     def copyColumn(self):
         """Copy a column"""
+        if not self.requireUnfiltered():
+            return
 
         col = self.currentcol
         df = self.model.df
@@ -1192,6 +1226,8 @@ class Table(Canvas):
 
     def moveColumns(self, names=None, pos='start'):
         """Move column(s) to start/end, used for large tables"""
+        if not self.requireUnfiltered():
+            return
 
         df = self.model.df
         if names is None:
@@ -1217,10 +1253,19 @@ class Table(Canvas):
             self.pf.updateData()
         return
 
+    def requireUnfiltered(self):
+        """Bulk edits cannot safely map a filtered copy back to the source."""
+        if self.filtered:
+            messagebox.showwarning('Filtered table',
+                                   'Close the row filter before changing table data or saving the project.',
+                                   parent=self.parentframe)
+            return False
+        return True
+
     def storeCurrent(self):
         """Store current version of the table before a major change is made"""
 
-        self.prevdf = self.model.df.copy()
+        self.prevdf = (self.dataframe if self.filtered else self.model.df).copy()
         return
 
     def undo(self, event=None):
@@ -1228,14 +1273,16 @@ class Table(Canvas):
 
         if self.prevdf is None:
             return
-        self.model.df = self.prevdf
-        self.redraw()
+        self.model.df = self.prevdf.copy()
         self.prevdf = None
         self.updateModel(self.model)
+        self.redraw()
         return
 
     def deleteCells(self, rows, cols, answer=None):
         """Clear the cell contents"""
+        if not self.requireUnfiltered():
+            return
 
         if not self.editable:
             return
@@ -1263,6 +1310,8 @@ class Table(Canvas):
 
     def clearTable(self):
         """Make an empty table"""
+        if not self.requireUnfiltered():
+            return
         n = messagebox.askyesno(
             "Clear Confirm",
             "This will clear the entire table.\nAre you sure?",
@@ -1277,6 +1326,8 @@ class Table(Canvas):
 
     def fillColumn(self):
         """Fill a column with a data range"""
+        if not self.requireUnfiltered():
+            return
 
         dists = ['normal', 'gamma', 'uniform', 'random integer', 'logistic']
         d = MultipleValDialog(
@@ -1341,8 +1392,7 @@ class Table(Canvas):
             elif dist == 'logistic':
                 data = np.random.logistic(low, high, len(df))
         else:
-            step = (high - low) / len(df)
-            data = pd.Series(np.arange(low, high, step))
+            data = np.linspace(low, high, len(df), endpoint=False)
         col = df.columns[self.currentcol]
         df[col] = data
         self.redraw()
@@ -1351,6 +1401,8 @@ class Table(Canvas):
 
     def autoAddColumns(self, numcols=None):
         """Automatically add x number of cols"""
+        if not self.requireUnfiltered():
+            return
 
         if numcols is None:
             numcols = simpledialog.askinteger("Auto add rows.",
@@ -1363,6 +1415,8 @@ class Table(Canvas):
 
     def setColumnType(self):
         """Change the column dtype"""
+        if not self.requireUnfiltered():
+            return
 
         df = self.model.df
         col = df.columns[self.currentcol]
@@ -1397,6 +1451,8 @@ class Table(Canvas):
         if d.result is None:
             return
         remove = d.results[0]
+        if remove and not self.requireUnfiltered():
+            return
         if d.results[1] is True:
             cols = self.multiplecollist
         else:
@@ -1412,6 +1468,8 @@ class Table(Canvas):
 
     def cleanData(self):
         """Deal with missing data"""
+        if not self.requireUnfiltered():
+            return
 
         df = self.model.df
         cols = [''] + list(df.columns)
@@ -1492,7 +1550,7 @@ class Table(Canvas):
         n = messagebox.askyesno(
             "Clean Data?", "New table has %s rows and %s columns. Proceed?" %
             (r, c), parent=self.parentframe)
-        if n is None:
+        if not n:
             return
         self.model.df = df
         self.redraw()
@@ -1500,6 +1558,8 @@ class Table(Canvas):
 
     def createCategorical(self):
         """Get a categorical column from selected"""
+        if not self.requireUnfiltered():
+            return
 
         df = self.model.df
         col = df.columns[self.currentcol]
@@ -1533,7 +1593,7 @@ class Table(Canvas):
         if dummies == 1:
             new = pd.get_dummies(df[col], prefix=prefix)
             new.columns = new.columns.astype(str)
-            self.model.df = pd.concat([df, new], 1)
+            self.model.df = pd.concat([df, new], axis=1)
         elif convert == 1:
             df[name] = pd.Categorical(df[col]).codes
         elif bins != '':
@@ -1569,6 +1629,8 @@ class Table(Canvas):
     def applyColumnFunction(self, evt=None):
         """Apply column wise functions, applies a calculation per row and
         ceates a new column."""
+        if not self.requireUnfiltered():
+            return
 
         df = self.model.df
         cols = list(df.columns[self.multiplecollist])
@@ -1633,6 +1695,8 @@ class Table(Canvas):
 
     def applyTransformFunction(self, evt=None):
         """Apply resampling and transform functions on a single column."""
+        if not self.requireUnfiltered():
+            return
 
         df = self.model.df
         cols = list(df.columns[self.multiplecollist])
@@ -1783,6 +1847,8 @@ class Table(Canvas):
 
     def applyStringMethod(self):
         """Apply string operation to column(s)"""
+        if not self.requireUnfiltered():
+            return
 
         df = self.model.df
         cols = list(df.columns[self.multiplecollist])
@@ -1848,7 +1914,7 @@ class Table(Canvas):
         if func == 'split':
             new = df[col].str.split(sep).apply(pd.Series)
             new.columns = [col + '_' + str(i) for i in new.columns]
-            self.model.df = pd.concat([df, new], 1)
+            self.model.df = pd.concat([df, new], axis=1)
             self.redraw()
             return
         elif func == 'strip':
@@ -1883,6 +1949,8 @@ class Table(Canvas):
 
     def convertDates(self):
         """Convert single or multiple columns into datetime"""
+        if not self.requireUnfiltered():
+            return
 
         df = self.model.df
         cols = list(df.columns[self.multiplecollist])
@@ -1964,9 +2032,10 @@ class Table(Canvas):
     def showAll(self):
         """Re-show unfiltered"""
 
-        if hasattr(self, 'dataframe'):
+        if self.filtered and hasattr(self, 'dataframe'):
             self.model.df = self.dataframe
         self.filtered = False
+        self.selectNone()
         self.redraw()
         return
 
@@ -2056,6 +2125,8 @@ class Table(Canvas):
 
     def evalFunction(self, evt=None):
         """Apply a function to create new columns"""
+        if not self.requireUnfiltered():
+            return
 
         # self.convertNumeric(ask=False)
         s = self.evalvar.get()
@@ -2373,6 +2444,7 @@ class Table(Canvas):
         self.multiplecollist = []
         self.multiplerowlist = []
         self.startrow = self.endrow = 0
+        self.startcol = self.endcol = 0
         self.delete('multicellrect', 'multiplesel', 'colrect')
         return
 
@@ -2474,7 +2546,7 @@ class Table(Canvas):
         # which row and column is the click inside?
         rowclicked = self.get_row_clicked(event)
         colclicked = self.get_col_clicked(event)
-        if colclicked is None:
+        if colclicked is None or not (0 <= rowclicked < self.rows and 0 <= colclicked < self.cols):
             return
         self.focus_set()
 
@@ -2507,20 +2579,23 @@ class Table(Canvas):
     def handle_left_release(self, event):
         """Handle left mouse button release event"""
 
-        self.endrow = self.get_row_clicked(event)
         df = self.model.df
-        colname = df.columns[self.currentcol]
-        dtype = df.dtypes[colname]
+        row = self.get_row_clicked(event)
+        col = self.get_col_clicked(event)
+        if col is None or not (0 <= row < len(df) and 0 <= col < len(df.columns)):
+            return
+        self.endrow = row
+        if not self.editable or (row, col) != (self.currentrow, self.currentcol):
+            return
+        dtype = df.dtypes.iloc[col]
 
         if dtype.name == 'category':
             # drop down menu for category entry
-            row = self.get_row_clicked(event)
-            col = self.get_col_clicked(event)
             x1, y1, x2, y2 = self.getCellCoords(row, col)
             self.dropvar = StringVar()
             val = self.model.getValueAt(row, col)
             # get categories
-            optionlist = list(df[colname].cat.categories[:50])
+            optionlist = list(df.iloc[:, col].cat.categories[:50])
             dropmenu = OptionMenu(self, self.dropvar, val, *optionlist)
             util.trace_write(self.dropvar, self.handleEntryMenu)
             self.create_window(x1, y1,
@@ -2561,12 +2636,12 @@ class Table(Canvas):
         if colover is None or rowover is None:
             return
 
-        if rowover >= self.rows or self.startrow > self.rows:
+        if not (0 <= rowover < self.rows and self.startrow is not None and 0 <= self.startrow < self.rows):
             return
         else:
             self.endrow = rowover
         # do columns
-        if colover > self.cols or self.startcol > self.cols:
+        if not (0 <= colover < self.cols and self.startcol is not None and 0 <= self.startcol < self.cols):
             return
         else:
             self.endcol = colover
@@ -2601,9 +2676,9 @@ class Table(Canvas):
         """Handle arrow keys press"""
         # print event.keysym
 
-        row = self.get_row_clicked(event)
-        col = self.get_col_clicked(event)
-        x, y = self.getCanvasPos(self.currentrow, self.currentcol - 1)
+        if not self.visiblerows or not self.visiblecols:
+            return
+        x, y = self.getCanvasPos(self.currentrow, max(self.currentcol - 1, 0))
         rmin = self.visiblerows[0]
         rmax = self.visiblerows[-1] - 2
         cmax = self.visiblecols[-1] - 1
@@ -2652,6 +2727,9 @@ class Table(Canvas):
             self.rowheader.yview('moveto', y)
             self.redraw()
 
+        self.setSelectedRow(self.currentrow)
+        self.setSelectedCol(self.currentcol)
+        self.allrows = False
         self.drawSelectedRect(self.currentrow, self.currentcol)
         coltype = self.model.getColumnType(self.currentcol)
         return
@@ -2713,7 +2791,8 @@ class Table(Canvas):
 
         if hasattr(self, 'cellentry'):
             self.cellentry.destroy()
-        self.currentrow = self.currentrow + 1
+        if self.currentrow + 1 < self.rows:
+            self.setSelectedRow(self.currentrow + 1)
         self.drawSelectedRect(self.currentrow, self.currentcol)
         return
 
@@ -2747,13 +2826,15 @@ class Table(Canvas):
 
     def paste(self, event=None):
         """Paste a new table from the clipboard"""
+        if not self.requireUnfiltered():
+            return
 
         self.storeCurrent()
 
         print(self.multiplerowlist, self.multiplecollist)
 
         try:
-            df = pd.read_clipboard(sep=',', on_bad_lines='skip')
+            df = pd.read_clipboard(sep=',')
         except Exception as e:
             messagebox.showwarning("Could not read data", e,
                                    parent=self.parentframe)
@@ -2761,7 +2842,6 @@ class Table(Canvas):
         if len(df) == 0:
             return
 
-        df = pd.read_clipboard(sep=',', on_bad_lines='skip')
         model = TableModel(df)
         self.updateModel(model)
         self.redraw()
@@ -2770,12 +2850,15 @@ class Table(Canvas):
     def copy(self, rows, cols=None):
         """Copy cell contents from clipboard - overwrites table."""
 
-        data = self.getSelectedDataFrame()
+        rows = self.multiplerowlist
+        if not rows or self.allrows:
+            rows = list(range(len(self.model.df)))
+        data = self.model.df.iloc[rows, self.multiplecollist]
         try:
             if len(data) == 1 and len(data.columns) == 1:
-                data.to_clipboard(index=False, header=False)
+                data.to_clipboard(index=False, header=False, sep=',')
             else:
-                data.to_clipboard()
+                data.to_clipboard(sep=',')
         except BaseException:
             messagebox.showwarning("Warning",
                                    "No clipboard software.\nInstall xclip",
@@ -2784,6 +2867,8 @@ class Table(Canvas):
 
     def transpose(self):
         """Transpose table"""
+        if not self.requireUnfiltered():
+            return
 
         self.storeCurrent()
         self.model.transpose()
@@ -2795,6 +2880,8 @@ class Table(Canvas):
 
     def transform(self):
         """Apply element-wise transform"""
+        if not self.requireUnfiltered():
+            return
 
         df = self.model.df
         cols = list(df.columns[self.multiplecollist])
@@ -3011,6 +3098,8 @@ class Table(Canvas):
 
     def convertColumnNames(self, s='_'):
         """Convert col names so we can use numexpr"""
+        if not self.requireUnfiltered():
+            return
 
         d = MultipleValDialog(
             title='Convert col names',
@@ -3056,6 +3145,8 @@ class Table(Canvas):
 
     def convertNumeric(self):
         """Convert cols to numeric if possible"""
+        if not self.requireUnfiltered():
+            return
 
         types = ['float', 'int']
         d = MultipleValDialog(title='Convert to numeric',
@@ -3094,7 +3185,7 @@ class Table(Canvas):
                     r'[\$\£\€,)]', '', regex=True).replace(
                     '[(]', '-', regex=True)
             if removetext == 1:
-                x = x.replace(r'[^\d.]+', '', regex=True)
+                x = x.replace(r'[^\d.\-]+', '', regex=True)
             self.model.df[c] = pd.to_numeric(
                 x, errors='coerce').astype(convtype)
 
@@ -3633,11 +3724,16 @@ class Table(Canvas):
         """Callback for cell entry"""
 
         value = self.cellentryvar.get()
+        self.storeCurrent()
         if self.filtered == 1:
             df = self.dataframe
         else:
             df = None
-        self.model.setValueAt(value, row, col, df=df)
+        try:
+            self.model.setValueAt(value, row, col, df=df)
+        except ValueError as exc:
+            messagebox.showerror('Could not edit data', str(exc), parent=self.parentframe)
+            return
 
         self.drawText(row, col, value, align=self.align)
         self.delete('entry')
@@ -3651,10 +3747,16 @@ class Table(Canvas):
         self.delete('entry')
         row = self.currentrow
         col = self.currentcol
+        self.storeCurrent()
+        df = self.dataframe if self.filtered else None
         try:
-            self.model.setValueAt(value, row, col)
-        except BaseException:
-            self.model.setValueAt(float(value), row, col)
+            try:
+                self.model.setValueAt(value, row, col, df=df)
+            except ValueError:
+                self.model.setValueAt(float(value), row, col, df=df)
+        except ValueError as exc:
+            messagebox.showerror('Could not edit data', str(exc), parent=self.parentframe)
+            return
         self.drawText(row, col, value, align=self.align)
         return
 
@@ -3662,7 +3764,7 @@ class Table(Canvas):
         """When the user single/double clicks on a text/number cell,
           bring up entry window and allow edits."""
 
-        if not self.editable:
+        if not self.editable or not (0 <= row < self.rows and 0 <= col < self.cols):
             return
         h = self.rowheight
         model = self.model
@@ -3927,9 +4029,21 @@ class Table(Canvas):
         self.rows = self.model.getRowCount()
         self.cols = self.model.getColumnCount()
         self.tablewidth = (self.cellwidth) * self.cols
+        self.selectNone()
+        self.currentrow = self.currentcol = 0
+        self.allrows = False
+        self.filtered = False
+        self.highlighted = None
+        if hasattr(self, 'dataframe'):
+            del self.dataframe
+        if hasattr(self, 'cellentry'):
+            self.cellentry.destroy()
+        self.delete('entry')
+        self.visiblerows = []
+        self.visiblecols = []
         if hasattr(self, 'colheader'):
-            self.colheader.model = model
-            self.rowheader.model = model
+            self.colheader.model = self.model
+            self.rowheader.model = self.model
         self.tableChanged()
         self.adjustColumnWidths()
         return
@@ -3947,6 +4061,7 @@ class Table(Canvas):
             cols = mpDlg.results[1]
             model = TableModel(rows=rows, columns=cols)
             self.updateModel(model)
+            self.prevdf = None
             self.redraw()
             self.filename=None
         return
@@ -3967,7 +4082,8 @@ class Table(Canvas):
             model.load(filename, filetype)
             self.updateModel(model)
             self.filename = filename
-            self.currentdir = os.path.basename(filename)
+            self.currentdir = os.path.dirname(os.path.abspath(filename))
+            self.prevdf = None
             self.adjustColumnWidths()
             self.redraw()
             # prog_bar.pb_stop()
@@ -3975,15 +4091,18 @@ class Table(Canvas):
 
     def saveAs(self, filename=None):
         """Save dataframe to file"""
+        if not self.requireUnfiltered():
+            return
 
         if filename is None:
             filename = filedialog.asksaveasfilename(
                 parent=self.master, initialdir=self.currentdir, filetypes=[
-                    ("pickle", "*.pickle"), ("All files", "*.*")])
+                    ("pickle", "*.pickle"), ("All files", "*.*")],
+                defaultextension='.pickle')
         if filename:
             self.model.save(filename)
             self.filename = filename
-            self.currentdir = os.path.basename(filename)
+            self.currentdir = os.path.dirname(os.path.abspath(filename))
         return
 
     def save(self):
@@ -4017,6 +4136,7 @@ class Table(Canvas):
             df = pd.read_csv(filename, **kwargs)
         model = TableModel(dataframe=df)
         self.updateModel(model)
+        self.prevdf = None
         self.redraw()
         self.importpath = os.path.dirname(filename)
         self.filename=None
@@ -4056,20 +4176,20 @@ class Table(Canvas):
         if not filename:
             return
 
-        xl = pd.ExcelFile(filename)
-        names = xl.sheet_names
-        d = MultipleValDialog(title='Import Sheet',
-                              initialvalues=([names]),
-                              labels=(['Sheet']),
-                              types=(['combobox']),
-                              parent=self.parentframe)
-        if not d.result:
-            return
-
-        df = xl.parse(d.results[0])
+        with pd.ExcelFile(filename) as xl:
+            names = xl.sheet_names
+            d = MultipleValDialog(title='Import Sheet',
+                                  initialvalues=([names]),
+                                  labels=(['Sheet']),
+                                  types=(['combobox']),
+                                  parent=self.parentframe)
+            if not d.result:
+                return
+            df = xl.parse(d.results[0])
         model = TableModel(dataframe=df)
         self.filename=None
         self.updateModel(model)
+        self.prevdf = None
         self.redraw()
         return
 
