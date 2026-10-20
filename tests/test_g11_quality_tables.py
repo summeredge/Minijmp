@@ -260,7 +260,18 @@ def test_plot_dialog_and_statistical_dependencies_unchanged():
         baseline = 'fc9215e0b7bb58d560754ff65607b2241d7ff7dc' if name in (
             'utilities.py', 'two_way_anova.py', 'one_way_ANOVA.py') else BASE
         before = subprocess.check_output(['git', 'show', f'{baseline}:code/{name}'], cwd=ROOT).decode('utf-8')
-        assert (ROOT/'code'/name).read_text(encoding='utf-8') == before.replace('\r\n', '\n')
+        current = (ROOT/'code'/name).read_text(encoding='utf-8')
+        if name == 'utilities.py':
+            # G12 仅迁移区间报告；其余全文及该函数计算仍受保护。
+            trees = [ast.parse(source) for source in (before, current)]
+            for tree in trees:
+                function = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
+                                and n.name == 'mean_std_CIs')
+                function.body = [n for n in function.body if not (
+                    isinstance(n, ast.If) and isinstance(n.test, ast.Name) and n.test.id == 'print_out')]
+            assert ast.dump(trees[0]) == ast.dump(trees[1])
+        else:
+            assert current == before.replace('\r\n', '\n')
 
 
 @pytest.mark.parametrize('study', [False, True])

@@ -1,0 +1,11 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+______ test_all_modules_mixed_report_copy_save_scroll_clear_close_reopen ______
+tests\test_g12_tables.py:152: in test_all_modules_mixed_report_copy_save_scroll_clear_close_reopen
+    assert label.cget('anchor') == ('e' if column else 'w')
+E   AssertionError: assert <string object: 'w'> == 'w'
+E    +  where <string object: 'w'> = cget('anchor')
+E    +    where cget = <tkinter.ttk.Label object .!toplevel.!frame.!frame.!text.!tableblock.!frame2.!label>.cget
+=========================== short test summary info ===========================
+FAILED tests/test_g12_tables.py::test_all_modules_mixed_report_copy_save_scroll_clear_close_reopen
+1 failed in 9.59s

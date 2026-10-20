@@ -1,0 +1,3 @@
+config path C:\Users\shaoy\Documents\Minijmp\user_config
+实际混合表格数： 78
+逐表映射后的菜单 x 坐标： [48]
