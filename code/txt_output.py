@@ -1,5 +1,5 @@
 from tkinter import BOTH, Toplevel, VERTICAL, LEFT, TOP, END, BOTTOM, filedialog
-from tkinter import ttk
+from tkinter import ttk, font, messagebox
 import tkinter as tk
 import os
 #####################################
@@ -25,10 +25,11 @@ class txt_viewer(plot_viewer):
         else:
             self.main = Toplevel()
             self.master = self.main
-            self.main.title('Output')
+            self.main.title('Minijmp - 统计结果')
             self.main.protocol("WM_DELETE_WINDOW", self.close)
             g = '720x700'
             self.main.geometry(g)
+            self.main.minsize(480, 320)
         self.orient = VERTICAL
         self.ui_style = dialog_style(self.main)
         self.setupGUI()
@@ -47,16 +48,34 @@ class txt_viewer(plot_viewer):
         """Add GUI elements"""
 
         self.m = ttk.Frame(self.main)
-        self.m.pack(fill=BOTH, expand=1)
         self.plotfr = ttk.Frame(self.m)
-        self.T = tk.Text(self.plotfr)
+        # shortcut: 无中文等宽字体时沿用 TkFixedFont；需严格对齐时安装下列字体。
+        self.output_font = font.nametofont('TkFixedFont', root=self.main).copy()
+        # 中文需占两个西文字符宽，才能与 PrettyTable 的显示宽度一致。
+        families = set(font.families(self.main))
+        for family in ('Sarasa Mono SC', '新宋体', 'NSimSun',
+                       'Noto Sans Mono CJK SC', 'WenQuanYi Zen Hei Mono'):
+            if family in families:
+                self.output_font.configure(family=family)
+                # 偶数像素字号避免高 DPI 下半角宽度取整后错位。
+                self.output_font.configure(size=-2 * round(self.output_font.measure('中') / 2))
+                break
+        self.T = tk.Text(self.plotfr, wrap='none', font=self.output_font,
+                         tabs=(self.output_font.measure('0') * 8,))
         self.vsb = ttk.Scrollbar(
             self.plotfr,
             orient="vertical",
             command=self.T.yview)
-        self.T.configure(yscrollcommand=self.vsb.set)
-        self.vsb.pack(side="right", fill="y")
-        self.T.pack(side="left", fill="both", expand=True)
+        self.hsb = ttk.Scrollbar(self.plotfr, orient='horizontal', command=self.T.xview)
+        self.T.configure(yscrollcommand=self.vsb.set, xscrollcommand=self.hsb.set)
+        self.T.grid(row=0, column=0, sticky='nsew')
+        self.vsb.grid(row=0, column=1, sticky='ns')
+        self.hsb.grid(row=1, column=0, sticky='ew')
+        self.plotfr.rowconfigure(0, weight=1)
+        self.plotfr.columnconfigure(0, weight=1)
+        self.T.bind('<Control-a>', self.select_all)
+        self.T.bind('<<ThemeChanged>>', lambda event: self.T.configure(
+            **text_widget_colors(self.ui_style)))
         self.plotfr.pack(side=TOP, fill=BOTH, expand=1)
 
         self.ctrlfr = ttk.Frame(self.main)
@@ -65,10 +84,13 @@ class txt_viewer(plot_viewer):
         bf = ttk.Frame(self.ctrlfr, padding=2)
         bf.pack(side=TOP, fill=BOTH)
         side = LEFT
-        addButton(bf, 'Clear', self.clear, images.plot_clear(),
-                  'clear content', side=side)
-        addButton(bf, 'Save', self.save, images.save(),
-                  'save content', side=side)
+        addButton(bf, '清空', self.clear, images.plot_clear(),
+                  '清空结果', side=side)
+        addButton(bf, '保存', self.save, images.save(),
+                  '保存为文本文件', side=side)
+        ttk.Button(bf, text='复制', command=lambda: self.T.event_generate('<<Copy>>')).pack(side=side)
+        ttk.Button(bf, text='全选', command=self.select_all).pack(side=side)
+        self.m.pack(fill=BOTH, expand=1)
 
         return
 
@@ -76,22 +98,28 @@ class txt_viewer(plot_viewer):
         self.T.insert(END, txt)
         return
 
+    def select_all(self, event=None):
+        self.T.tag_add('sel', '1.0', 'end-1c')
+        self.T.focus_set()
+        return 'break'
+
     def save(self, filename=None):
-        """Save the current plot"""
+        """Save output as UTF-8 text."""
 
         ftypes = [('txt', '*.txt')]
         if filename is None:
             filename = filedialog.asksaveasfilename(parent=self.master,
                                                     initialdir=self.currentdir,
+                                                    defaultextension='.txt',
                                                     filetypes=ftypes)
         if filename:
             self.currentdir = os.path.dirname(os.path.abspath(filename))
             try:
-                with open(filename, 'w') as file:
+                with open(filename, 'w', encoding='utf-8') as file:
                     text_content = self.T.get("1.0", "end-1c")
                     file.write(text_content)
-            except BaseException:
-                print("write file", filename, "error")
+            except OSError as error:
+                messagebox.showerror('保存失败', str(error), parent=self.master)
         return
 
     def clear(self):
@@ -99,7 +127,6 @@ class txt_viewer(plot_viewer):
         return
 
     def close(self):
-        print('txt win close')
         try:
             self.table.tOut = None
         except BaseException:

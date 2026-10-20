@@ -136,7 +136,7 @@ def linear_fit(x, y, print_out=True, print_port=print):
     SEb1 = S / (sum([(xi - x_u)**2 for xi in x]))**.5
     SEb0 = S * (1 / n + x_u * x_u / sum([(xi - x_u)**2 for xi in x]))**.5
 
-# The prob of the values are zero in truth
+# 双侧检验：各总体回归系数为零。
     if SEb1 != 0:
         slope_t = abs(b1 / SEb1)
         p_slope = (1 - t_dist.cdf(slope_t, n - 2)) * 2
@@ -176,7 +176,8 @@ def linear_fit(x, y, print_out=True, print_port=print):
         #  print(f"t ratio {slope_t:.3f}\tProb>|t| {p_slope:.3f}")
         #  print(f"Intercept Est. {b0:.3f}\tStd Error {SEb0:.3f}")
         #  print(f"t ratio {int_t:.3f}\tProb>|t| {p_int:.3f}")
-        print("p values above are the probabilities of each term == 0.")
+        print("各项系数检验：原假设 H0：该总体回归系数 = 0；备择假设 H1：该系数 ≠ 0。")
+        print("p 值是在原假设及检验模型成立时，得到当前或更极端检验统计量的概率。")
         print("\nAnalysis of Variances")
         t = PT()
         t.field_names = ["Item", "DF", "Sum of Sq.", "Mean Sq."]
@@ -188,7 +189,7 @@ def linear_fit(x, y, print_out=True, print_port=print):
         #  print("Error DF %d\tSum of Sq %.3f\tMean Sq %.3f" % (n - 2, SSE, MSE))
         #  print("Total DF %d\tSum of Sq %.3f" % (n - 1, SST))
         print(f"F Ratio {F_reg:.3f}\tProb > F {p_reg:.3f}")
-        print("p value is the probability of slope == 0.")
+        print("回归 F 检验：原假设 H0：总体斜率 = 0；备择假设 H1：总体斜率 ≠ 0。")
         if p_lack>=0:
             print("\nLack of Fit")
             t = PT()
@@ -199,8 +200,7 @@ def linear_fit(x, y, print_out=True, print_port=print):
             print(str(t))
             print(
                 f"F Ratio {F_lack:.3f}\tProb > F {p_lack:.3f}\tMax R Square {max_r_sq:.3f}")
-            print("H0: The model correctly specified the relationship.")
-            #  print("p value is the probability of the true relationship is linear.")
+            print("失拟检验：原假设 H0：总体均值与自变量呈线性关系；备择假设 H1：存在失拟。")
         #  print(f"Max R Square {max_r_sq:.3f}")
         print("\nNormality of Residuals")
         print("Shapiro-Wilk Statistics %.3f\tp-value %.3f" %
@@ -208,7 +208,7 @@ def linear_fit(x, y, print_out=True, print_port=print):
         print(
             "Anderson Darling Stats. %.3f\tp-value %.3f" %
             (ntest_e["AD s"], ntest_e["AD p"]))
-        print("p values are the probabilities of true dist is normal.")
+        print("残差正态性检验：原假设 H0：误差服从正态分布；备择假设 H1：误差不服从正态分布。")
 
     return {"slope": b1, "intercept": b0,
             "R Square": R_sq, "R Square Adj": R_sq_adj,

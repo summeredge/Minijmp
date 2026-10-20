@@ -3,10 +3,9 @@ from tkinter import ttk
 import tkinter as tk
 from tkinter import TOP, LEFT, BOTH, X, W
 from scipy.stats import probplot
-from prettytable import PrettyTable as PT
 ########### Own Modules ###########
 from dialog import Dialogs, addListBox
-from describe import describe
+from describe import describe, print_descriptive, print_percentiles
 from utilities import norm_test, number_list, mean_std_CIs
 from dist_fit import compare_dist
 
@@ -104,25 +103,15 @@ class MultiDescribeDialog(Dialogs):
                 number_list(
                     self.df[col],
                     col_name=col,
-                    print_out=True,
+                    print_out=False,
                     print_port=self.app.print),
                 print_out=False)
             if res[col] is None:
                 self.error('至少需要两个数值观测值：' + str(col))
                 return
-        self.app.print("\n---- Statitstics ----")
-        t = PT()
-        t.field_names = [""] + self.grpcols
-        for name in self.names:
-            if self.picks[name].get():
-                row = [name]
-                for col in self.grpcols:
-                    if "N" in name:
-                        row.append("%d" % res[col][name])
-                    else:
-                        row.append("%.3f" % res[col][name])
-                t.add_row(row)
-        self.app.print(str(t))
+        print_descriptive(res, print_port=self.app.print,
+                          missing={col: len(self.df[col]) - res[col]['N'] for col in self.grpcols},
+                          selected=[name for name in self.names if self.picks[name].get()])
         return
 
 
@@ -150,18 +139,20 @@ class DescribeDialog(Dialogs):
 
         x = number_list(self.df[self.xvar.get()],
                         col_name=self.xvar.get(),
-                        print_out=True, print_port=self.app.print)
+                        print_out=False, print_port=self.app.print)
         if len(x) < 2:
             self.error('至少需要两个数值观测值。')
             return
-        print(x)
         pct = self.pct.get()
         try:
             pct = [float(i) for i in pct.split(",") if 0 <= float(i) <= 100]
         except BaseException:
             pct = [100, 99.5, 97.5, 90, 75, 50, 25, 10, 2.5, 0.5, 0]
-        describe(x, print_out=True, print_port=self.app.print,
-                 percentiles=pct)
+        result = describe(x, print_out=False, percentiles=pct)
+        col = self.xvar.get()
+        print_descriptive({col: result}, print_port=self.app.print,
+                          missing={col: len(self.df[col]) - len(x)})
+        print_percentiles(pct, result['quantiles'], print_port=self.app.print)
         return
 
 

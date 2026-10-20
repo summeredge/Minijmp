@@ -421,7 +421,6 @@ class NPDialog(IMRDialog):
     def apply(self):
         data, xlabels, fig, ax, n = self.get_data()
         NP = ("NP" == self.plot_type)
-        print(NP)
         if self.y1label.get() == "":
             if NP:
                 ylabel = "Count (" + self.xvar.get() + ")"

@@ -39,25 +39,31 @@ def t_test_1sample(data_list, u0, print_out=False,
     u0_upper = mean - t_005 * stdev / (n**.5)
     pct = "%.2f%%" % (100 - 100 * alpha)
 
-    # Here P is two tailed test, for one tailed test 1/2
+    # 单侧 p 值按备择方向分别取左尾或右尾。
     if print_out:
+        from utilities import gen_table, format_stat
         print = print_port
-        print("\n---- One sample t ----")
-        print("mean = %.3f" % mean)
-        print("SD = %.3f" % stdev)
-        print("t = %.3f" % t)
-        print("df = %.3f" % df)
-        print("u0 = %.3f"%u0)
-        print("Two-tailed test H0 u==u0, H1 u!=u0: p = %.3f" % p)
-        print("P-value is the prob of that population mean equals the specified value, which the samples came from.")
-        print(
-            pct +
-            " confidence interval for population mean: (%.3f, %.3f)" %
-            u0_95range)
-        print("H0 u==u0, H1 u>u0 p value = %.3f" % p_g)
-        print(pct + " Lower bound of population mean: %.3f" % u0_lower)
-        print("H0 u==u0, H1 u<u0 p value = %.3f" % p_l)
-        print(pct + " Upper bound of population mean: %.3f" % u0_upper)
+        print("\n---- 单样本 t 检验 ----")
+        print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+        print(f'原假设 H0: μ = μ0；μ0 = {format_stat(u0)}')
+        for title, rows in [
+            ('样本统计', [['样本', 'N', '均值', '标准差'],
+                          ['样本', n, format_stat(mean), format_stat(stdev)]]),
+            ('检验结果', [['检验', '备择假设 H1', 't', '自由度', 'p 值'],
+                          ['双侧', 'mu != mu0', format_stat(t), format_stat(df), format_stat(p)],
+                          ['左尾', 'mu < mu0', format_stat(t), format_stat(df), format_stat(p_l)],
+                          ['右尾', 'mu > mu0', format_stat(t), format_stat(df), format_stat(p_g)]]),
+            ('总体均值的置信区间', [['区间', '下限', '上限'],
+                          ['双侧置信区间', format_stat(u0_95range[0]), format_stat(u0_95range[1])],
+                          ['单侧置信下限', format_stat(u0_lower), '*'],
+                          ['单侧置信上限', '*', format_stat(u0_upper)]])]:
+            print(title)
+            table = gen_table(rows)
+            table.align = 'r'
+            table.align[table.field_names[0]] = 'l'
+            print(str(table))
+        print("p 值是在原假设及检验模型成立时，得到当前或更极端检验统计量的概率。")
+        print('p 值保留三位小数，0.000 为舍入显示。')
     return {
         "t": t,
         "p": p,
@@ -101,26 +107,33 @@ def z_test_1sample(
     CI_l = mean + za * deno
     CI_u = mean - za * deno
 
-    # Here P is two tailed test, for one tailed test 1/2
+    # 单侧 p 值按备择方向分别取左尾或右尾。
     if print_out:
+        from utilities import gen_table, format_stat
         print = print_port
-        pct = "%.2f%%" % (100 - 100 * alpha)
-        print("\n---- One sample Z ----")
-        print("mean = %.3f" % mean)
-        print("z = %.3f" % z)
-        print("df = %.3f" % df)
-        print("u0 = %.3f"%u0)
-        print("Known SD = %.3f"%s0)
-        print("Two-tailed test H0: u==u0, H1 u!=u0: p = %.3f" % p)
-        print("P-value is the prob of that population mean equals the specified value, which the samples came from.")
-        print(
-            pct +
-            " confidence interval for population mean: (%.3f, %.3f)" %
-            CI_95)
-        print("H0 u==u0, H1 u>u0 p value = %.3f" % p_u)
-        print(pct + " Lower bound of population mean: %.3f" % CI_l)
-        print("H0 u==u0, H1 u<u0 p value = %.3f" % p_l)
-        print(pct + " Upper bound of population mean: %.3f" % CI_u)
+        print("\n---- 单样本 Z 检验 ----")
+        print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+        print(f'原假设 H0: μ = μ0；μ0 = {format_stat(u0)}')
+        for title, rows in [
+            ('样本统计', [['样本', 'N', '均值', '已知总体标准差'],
+                          ['样本', n, format_stat(mean), format_stat(s0)]]),
+            ('检验结果', [['检验', '备择假设 H1', 'Z', '自由度', 'p 值'],
+                          ['双侧', 'mu != mu0', format_stat(z), format_stat(df), format_stat(p)],
+                          ['左尾', 'mu < mu0', format_stat(z), format_stat(df), format_stat(p_l)],
+                          ['右尾', 'mu > mu0', format_stat(z), format_stat(df), format_stat(p_u)]]),
+            ('总体均值的置信区间', [['区间', '下限', '上限'],
+                          ['双侧置信区间', format_stat(CI_95[0]), format_stat(CI_95[1])],
+                          ['单侧置信下限', format_stat(CI_l), '*'],
+                          ['单侧置信上限', '*', format_stat(CI_u)]])]:
+            print(title)
+            table = gen_table(rows)
+            table.align = 'r'
+            table.align[table.field_names[0]] = 'l'
+            print(str(table))
+        print("p 值是在原假设及检验模型成立时，得到当前或更极端检验统计量的概率。")
+        print('p 值保留三位小数，0.000 为舍入显示。')
+
+        print('Z 检验使用标准正态分布；自由度为沿用的样本信息，不参与 Z 的 p 值或区间计算。')
 
     return {"z": z, "p": p, "df": df, "mean": mean,
             "u0_95range": CI_95,
@@ -137,29 +150,28 @@ def paired_t_test(l1, l2, print_out=False, u0=0,
 # paired measurements.
     pct = "%.2f%%" % (100 - alpha * 100)
     if print_out:
+        from utilities import gen_table, format_stat
         print = print_port
-        print("\n---- Paired t test ----")
-        print("Hypothesized mean of the differences u0 = %.3f" % u0)
-        print("Paired difference (Sample 1 - Sample 2):")
-        print("mean (ud) = %.3f" % res["mean"])
-        print("SD = %.3f" % res["stdev"])
-        print("t = %.3f" % res["t"])
-        print("df = %.3f" % res["df"])
-        print("n = %d" % len(l1))
-        print("H0: ud == u0, H1: ud != u0, p = %.3f" % res["p"])
-        print("" + pct +
-              " range of the difference's mean: (%.3f, %.3f)" %
-              res["u0_95range"])
-        print("H0: u == u0, H1: ud > u0, p value = %.3f" % res["p gt"])
-        print(
-            pct +
-            " Lower bound of difference's mean: %.3f" %
-            res["u0 lower"])
-        print("H0: u == u0, H1: ud < u0, p value = %.3f" % res["p lt"])
-        print(
-            pct +
-            " Upper bound of difference's mean: %.3f" %
-            res["u0 upper"])
+        print("\n---- 配对 t 检验 ----")
+        print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+        print(f'差值 = 样本 1 - 样本 2；原假设 H0: μd = μ0；μ0 = {format_stat(u0)}')
+        for title, rows in [
+            ('样本统计', [['样本', 'N', '均值', '标准差'],
+                          ['配对差值', len(diff), format_stat(res['mean']), format_stat(res['stdev'])]]),
+            ('检验结果', [['检验', '备择假设 H1', 't', '自由度', 'p 值'],
+                          ['双侧', 'mu_d != mu0', format_stat(res['t']), format_stat(res['df']), format_stat(res['p'])],
+                          ['左尾', 'mu_d < mu0', format_stat(res['t']), format_stat(res['df']), format_stat(res['p lt'])],
+                          ['右尾', 'mu_d > mu0', format_stat(res['t']), format_stat(res['df']), format_stat(res['p gt'])]]),
+            ('配对差值总体均值的置信区间', [['区间', '下限', '上限'],
+                          ['双侧置信区间', format_stat(res['u0_95range'][0]), format_stat(res['u0_95range'][1])],
+                          ['单侧置信下限', format_stat(res['u0 lower']), '*'],
+                          ['单侧置信上限', '*', format_stat(res['u0 upper'])]])]:
+            print(title)
+            table = gen_table(rows)
+            table.align = 'r'
+            table.align[table.field_names[0]] = 'l'
+            print(str(table))
+        print('p 值保留三位小数，0.000 为舍入显示。')
     return res
 
 # Assumptions:
@@ -194,14 +206,23 @@ def t_test_2samples(l1=None, l2=None,
         pu = 1 - pl
         p = 2 * (1 - t_test.cdf(abs(t), df))
         if print_out:
+            from utilities import gen_table, format_stat
             print = print_port
-            print("\n" + title)
-            pct = "%.2f%%" % (100 - 100 * alpha)
-            print(pct + " CI of u2 - u1: (%.3f,%.3f)" % CI)
-            print("df = %.3f\tt = %.3f" % (df, t))
-            print("H0: u2 - u1 == d0, H1: u2 - u1 != d0, p = %.3f" % p)
-            print("H0: u2 - u1 == d0, H1: u2 - u1 < d0, p = %.3f" % pl)
-            print("H0: u2 - u1 == d0, H1: u2 - u1 > d0, p = %.3f" % pu)
+            print('方法：合并方差 t（pooled）' if title == 'Equal variances, pooled t'
+                  else '方法：Welch t（JMP 17，不等方差）')
+            for heading, rows in [
+                ('检验结果', [['检验', '备择假设 H1', 't', '自由度', 'p 值'],
+                              ['双侧', 'mu2 - mu1 != d0', format_stat(t), format_stat(df), format_stat(p)],
+                              ['左尾', 'mu2 - mu1 < d0', format_stat(t), format_stat(df), format_stat(pl)],
+                              ['右尾', 'mu2 - mu1 > d0', format_stat(t), format_stat(df), format_stat(pu)]]),
+                ('总体均值差 μ2 - μ1 的置信区间', [['区间', '下限', '上限'],
+                              ['双侧置信区间', format_stat(CI[0]), format_stat(CI[1])]])]:
+                print(heading)
+                table = gen_table(rows)
+                table.align = 'r'
+                table.align[table.field_names[0]] = 'l'
+                print(str(table))
+            print('p 值保留三位小数，0.000 为舍入显示。')
         return {"CI": CI, "p": p, "p lower": pl, "p upper": pu, "t": t,
                 "df": df}
 
@@ -224,11 +245,18 @@ def t_test_2samples(l1=None, l2=None,
         n2 = len(l2)
 
     if print_out:
+        from utilities import gen_table, format_stat
         print = print_port
-        print("\n---- Two Samples t tests ----")
-        print("u1 = %.3f\ts1 = %.3f\tn1 = %d" % (u1, s1, n1))
-        print("u2 = %.3f\ts2 = %.3f\tn2 = %d" % (u2, s2, n2))
-        print("d0 = %.3f\tu2 - u1 = %.3f" % (d0, u2 - u1))
+        print("\n---- 两独立样本 t 检验 ----")
+        print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+        print(f'原假设 H0: μ2 - μ1 = d0；d0 = {format_stat(d0)}；样本均值差 u2 - u1 = {format_stat(u2 - u1)}')
+        print('样本统计')
+        table = gen_table([['样本', 'N', '均值', '标准差'],
+                           ['样本 1', n1, format_stat(u1), format_stat(s1)],
+                           ['样本 2', n2, format_stat(u2), format_stat(s2)]])
+        table.align = 'r'
+        table.align[table.field_names[0]] = 'l'
+        print(str(table))
     # t = (x̄₁ - x̄₂) / √((s₁²/n₁) + (s₂²/n₂))
     # df = (s1^2/n1 + s2^2/n2)^2 / [(s1^2/n1)^2/(n1-1) + (s2^2/n2)^2/(n2-1)]
 
