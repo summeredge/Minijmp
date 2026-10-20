@@ -329,7 +329,7 @@ def test_actual_menu_commands_open_original_dialogs(tk_root):
 
 
 def test_original_analysis_code_is_unchanged():
-    """除 G2 明确接管的两个报告 apply 外，保留原分析方法的完整 AST 守卫。"""
+    """除 G2/G3 明确接管并单独保护的报告 apply 外，保留原分析方法的完整 AST 守卫。"""
     import subprocess
     class ErrorsToMarker(ast.NodeTransformer):
         def visit_Call(self, node):
@@ -374,6 +374,12 @@ def test_original_analysis_code_is_unchanged():
                 assert method in actual and method in original
                 actual.pop(method)
                 original.pop(method)
+        if file == 'code/chi2_dialog.py':
+            # G3 的分类概率报告由专项路由测试及冻结计算 AST 保护。
+            method = 'Chi2PropDialog.apply'
+            assert method in actual and method in original
+            actual.pop(method)
+            original.pop(method)
         assert actual == original, file
 
 

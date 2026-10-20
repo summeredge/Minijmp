@@ -155,3 +155,38 @@ G3 若也改动旧测试，需要正常解决测试文件的文本冲突，不�
   嵌套则按原方法选择是否使用历史值，两者没有混用。
 - 未验证其他操作系统字体、系统剪贴板接收端或原生文件选择器人工交互；
   未执行全仓库无关测试/启动器，G1/G2 已记录的旧 pandas 绘图面板及启动器问题不属于 G4。
+
+## 后续：用户授权合并到 main
+
+以上记录描述独立 G4 开发阶段。随后用户明确要求“合并到 main 分支”，授权本次提交和合并；
+仍未请求远程 push。
+
+- G4 原始修改已提交为 `cec3ae8`，分支 `codex/g4-quality-statistical-reports`。
+- 合并前 main 为 `da54ca1bdc1e5e9d197d5a31308b94754a6d0a9f`，已包含 G3；main 工作区干净。
+  在 G4 分支整合该 main，没有访问或改写其他独立任务的 Worktree。
+- 唯一生产冲突位于 `GRR.py::grr_nested` 的报告块。采用 G4 三表布局，保留 G3 的
+  F 分母、随机效应零方差 H0、平衡/独立正态/等方差假设及 p 值舍入说明。
+  统计计算、校验、返回和绘图均未改动，公共模块保持 main 原样。
+- `test_dialog_translation.py` 自动合并后同时保留 G3 和 G4 的限定守卫。
+  G3 ANOVA 测试更新为 G4 标签、三张表、局部 Auto 筛选报告，不删除原数值、类型、校验或调用次数断言。
+- G4 公共源码只读测试的比较基线更新为合并前 main `da54ca1`，避免将 main 已有 G3 报告当作 G4 越界修改；
+  数值及计算 AST 对照仍保留原始 `191c3b7` 基线。
+- G3 冻结摘要仅更新 EMP 一项：原摘要包含现已移除的固定英文 `guideline` 报告字符串赋值。
+  新摘要不再包含该静态文本；G4 针对同一函数的计算 AST 精确对照与实际数值对照均通过，
+  没有借更新摘要放行算法变化，其余 25 项冻结摘要不变。
+- 首轮整合验证 **234 通过、2 失败**；失败分别为旧嵌套标题断言和上述报告字符串摘要。
+  修复后只复验受影响测试，其余通过结果复用。
+
+复验及扩展相关回归 **441 通过，12 条原有数值/绘图警告**；上述两项失败均已通过，
+26 项 G3 冻结计算约束全部通过。与首轮未受后续修改影响的通过结果合计，
+本次 main/G4 整合共 **650 个不同案例分批通过**，其中 G4 专项 144 项全部通过。
+最终未暂存/已暂存的 `git diff --check` 均通过，实际冲突差异审查无阻塞项。
+
+```powershell
+$python = 'C:\Users\shaoy\Documents\Minijmp\.venv\Scripts\python.exe'
+& $python -m pytest tests/test_g4_quality_reports.py tests/test_g3_anova_reports.py tests/test_g3_computation_contracts.py tests/test_g3_report_display.py tests/test_dialog_translation.py::test_original_analysis_code_is_unchanged -q --tb=short
+& $python -m pytest tests/test_g3_anova_reports.py::test_real_nested_apply_cleans_and_preserves_validation tests/test_g3_computation_contracts.py tests/test_g2_basic_reports.py tests/test_g2_hypothesis_reports.py tests/test_g1_statistics_output.py tests/test_g1_text_output.py tests/test_g1_debug_output.py tests/test_statistics_regressions.py tests/test_statistical_edges.py tests/test_supplemental_stability.py tests/test_g3_chi_square_reports.py tests/test_g3_distribution_reports.py tests/test_g3_regression_reports.py -q --tb=short
+```
+
+main 通过 `--ff-only` 更新到验证后的 G4 整合提交；若 main 在验证期间变化，快进会拒绝，
+不会覆盖新提交。未推送远程、未清理其他 Worktree，未执行无关启动器或跨平台人工验证。

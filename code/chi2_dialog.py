@@ -1,13 +1,13 @@
 from tkinter import ttk
 import tkinter as tk
 from tkinter import TOP, LEFT, X, BOTH
-from prettytable import PrettyTable as PT
 ###################################
 from pandastable_local.dialogs import MultipleValDialog
 ########### Own Modules ###########
 from dialog import Dialogs, addListBox
 from utilities import count_2factors, number_2Dlist, transpose_2D_list, filter_voids, count_1factor, number_list
 from chi_sq import chi_square
+from utilities import gen_table, format_stat
 
 
 class ProbabilityDialog(MultipleValDialog):
@@ -149,14 +149,30 @@ class Chi2PropDialog(Dialogs):
         ratio = sum(cnts) * 1e9
         pseudo_data = [_ * ratio for _ in res]
 
-        t = PT()
-        t.field_names = ["Level", "Est Prob", "Hypoth Prob"]
+        result = chi_square([cnts, pseudo_data], print_out=False,
+                            print_port=self.app.print,
+                            print_table=False)
+        self.app.print("\n---- 卡方拟合优度检验 ----")
+        self.app.print('原假设 H0：各水平的总体概率等于指定的假设概率。')
+        self.app.print('备择假设 H1：至少一个水平的总体概率不同于假设概率。')
+        self.app.print('方法：沿用观测频数与大样本参考行构成的列联表近似，未作连续性校正。')
+        rows = [['水平', '观测频数', '估计概率', '假设概率']]
         for i in range(len(cnts)):
-            t.add_row([rKeys[i], "%.3f" % (cnts[i] / sum(cnts)),
-                       "%.3f" % res[i]])
-        self.app.print("\n---- Test Probabilities ----\n" + str(t))
-
-        chi_square([cnts, pseudo_data], print_out=True,
-                   print_port=self.app.print,
-                   print_table=False)
+            rows.append([rKeys[i], cnts[i], format_stat(cnts[i] / sum(cnts)),
+                         format_stat(res[i])])
+        table = gen_table(rows)
+        table.align = 'r'
+        table.align[table.field_names[0]] = 'l'
+        self.app.print(str(table))
+        self.app.print('当前返回结果未提供各水平的期望频数；不另行推算。')
+        self.app.print('检验结果')
+        table = gen_table([['方法', '卡方统计量', '自由度', 'p 值'],
+                           ['Pearson', format_stat(result['chi sq Pearson']), result['df'], format_stat(result['p Pearson'])],
+                           ['似然比', format_stat(result['chi sq LR']), result['df'], format_stat(result['p LR'])]])
+        table.align = 'r'
+        table.align[table.field_names[0]] = 'l'
+        self.app.print(str(table))
+        self.app.print('适用条件：观测独立，期望频数应足够大；本报告未对小期望频数作自动判断。')
+        self.app.print('p 值是在 H0 及检验模型成立时，得到当前或更极端统计量的概率，不是 H0 成立的概率。')
+        self.app.print('p 值保留三位小数，0.000 为舍入显示，不代表概率严格为零；* 表示不可用。')
         return

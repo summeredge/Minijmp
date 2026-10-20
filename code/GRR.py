@@ -467,6 +467,9 @@ def grr_nested(y=None, op=None, part=None, print_out=False, print_port=print,
         for col in table.field_names[1:]:
             table.align[col] = 'r'
         print(str(table))
+        print("操作员 F 值 = 操作员均方 / 操作员内零件均方；零件 F 值 = 操作员内零件均方 / 误差均方。")
+        print("H0：相应随机效应的方差分量为零；模型要求平衡嵌套设计、独立正态随机效应及等方差误差。")
+        print("p 值显示为 0.000 是舍入结果，不代表概率严格为零。")
         components = [('总量具 R&R (GRR)', GRR_var_comp), ('重复性 (EV)', Repeatability),
                       ('再现性 (AV)', Reproducibility), ('零件间 (PV)', part_var_comp),
                       ('总变异', ttl_var_comp)]
