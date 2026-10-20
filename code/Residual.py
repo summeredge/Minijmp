@@ -38,7 +38,8 @@ def resid_test(data, y_est, print_out=False, show_plot=False,
 
     hist_norm(data, ax=axs[1][0], xlabel="Residual")
 
-    fit_plot(y_est, data, linear=True, print_out=False, ax=axs[0][1],
+    fit_plot(y_est, data, linear=len(set(y_est)) > 1 and len(set(data)) > 1,
+             print_out=False, ax=axs[0][1],
              xlabel="Fitted Value", ylabel="Residual")
 
     x_plot(data, ax=axs[0][0], xlabel="Observation Order", ylabel1="Residual",one_chart=True)
@@ -52,7 +53,7 @@ def resid_test(data, y_est, print_out=False, show_plot=False,
 
     if filename is not None:
         fname = str(filename) + '.png'
-        plt.savefig(
+        axs[0][0].figure.savefig(
             fname,
             dpi=200,
             format='png')

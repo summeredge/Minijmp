@@ -99,9 +99,9 @@ def linear_fit(x, y, print_out=True, print_port=print):
     SSLF = SSE - SSPE
 
     # Mean square of lack of fit
-    MSLF = SSLF / DFLF
+    MSLF = SSLF / DFLF if DFLF > 0 else -1
 
-    if DFPE > 0 and SSPE != 0:
+    if DFLF > 0 and DFPE > 0 and SSPE != 0:
         # Mean square of Pure Error
         MSPE = SSPE / DFPE
 

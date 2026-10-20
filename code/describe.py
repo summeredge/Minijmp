@@ -12,10 +12,10 @@ def describe(data, print_port=print,
              print_out=False, percentiles=[100, 99.5, 97.5, 90, 75, 50,
                                            25, 10, 2.5, 0.5, 0]):
     data = [float(i) for i in data if is_number(i)]
-    mean = stat.mean(data)
     N = len(data)
     if N < 2:
         return
+    mean = stat.mean(data)
     R = max(data) - min(data)
     mode = stat.mode(data)
     N_mode = len([i for i in data if i == mode])
@@ -27,7 +27,7 @@ def describe(data, print_port=print,
     std = stat.stdev(data)
     SEM = std / N**.5
     var = stat.variance(data)
-    coefvar = 100 * std / mean
+    coefvar = 100 * std / mean if mean != 0 else np.nan
     try:
         kurt = N * (N + 1) / (N - 1) / (N - 2) / (N - 3) * sum(
             ((i - mean) / std)**4 for i in data

@@ -213,6 +213,10 @@ class Anova1WayDialog(Dialogs):
                 data = [number_list(i) for i in data]
                 groups = self.df[grp].unique()
 
+        if (len(data) < 2 or any(len(g) < 2 for g in data)
+                or not any(len(set(g)) > 1 for g in data)):
+            self.error("ANOVA requires two groups with at least two observations and positive within-group variation.")
+            return
         res = one_way_anova(data, groups, print_out=True,
                             print_port=self.app.print,
                             alpha=alpha)

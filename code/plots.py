@@ -1,6 +1,7 @@
 from pandastable_local.plotting import PlotViewer, addButton, addFigure
 from pandastable_local import handlers, images, util
 from matplotlib.figure import Figure
+from matplotlib import pyplot as plt
 #  from tkinter.ttk import Frame
 from tkinter import BOTH, Toplevel, VERTICAL, TOP, BOTTOM, LEFT, BooleanVar, Checkbutton, IntVar, Label, X, Entry, Frame
 import os
@@ -94,10 +95,14 @@ class plot_viewer(PlotViewer):
     def close(self):
         """Close the window"""
         print('plot close')
-        try:
-            self.table.pf = None
+        for table in (self.table, getattr(self.table, 'child', None)):
+            if table is not None and getattr(table, 'pf', None) is self:
+                table.pf = None
+        if hasattr(self, 'animateopts'):
             self.animateopts.stop()
-        except BaseException:
-            pass
+        for variable in self.globalvars.values():
+            for mode, callback in variable.trace_info():
+                variable.trace_remove(mode, callback)
         self.main.destroy()
+        plt.close(self.fig)
         return

@@ -36,7 +36,12 @@ class MTable(Table):
         """
         Put row one contents to header, and have priority
         """
+        if not self.requireUnfiltered():
+            return
         df = self.model.df
+        if len(df) == 0:
+            return
+        self.storeCurrent()
         cols = list(df)
         new_headers = []
         for x in range(len(cols)):
@@ -66,10 +71,13 @@ class MTable(Table):
     def copy(self, rows=None, cols=None):
         """Copy cell contents from clipboard - overwrites table."""
 
-        data = self.getSelectedDataFrame()
+        rows = self.multiplerowlist
+        if not rows or self.allrows:
+            rows = list(range(len(self.model.df)))
+        data = self.model.df.iloc[rows, self.multiplecollist]
         try:
             #  if len(data) == 1 and len(data.columns) == 1:
-            data.to_clipboard(index=False, header=False)
+            data.to_clipboard(index=False, header=False, sep=',')
             #  else:
             #  data.to_clipboard()
         except BaseException:
@@ -80,6 +88,8 @@ class MTable(Table):
 
     def fillColumn(self):
         """Fill a column with a data range"""
+        if not self.requireUnfiltered():
+            return
 
         dists = ['normal', 'gamma', 'uniform', 'random integer', 'logistic']
         d = MultipleValDialog(
@@ -149,12 +159,11 @@ class MTable(Table):
         elif dist == 'logistic':
             data = np.random.logistic(low, high, len(df))
         if not random:
-            step = (high - low) / (len(df) - 1)
-            high += step / 10
+            linear = np.linspace(low, high, len(df))
             if add_random:
-                data += np.arange(low, high, step)
+                data += linear
             else:
-                data = pd.Series(np.arange(low, high, step))
+                data = linear
         col = df.columns[self.currentcol]
         df[col] = data
         self.redraw()
@@ -163,23 +172,7 @@ class MTable(Table):
 
     def sortColumnIndex(self):
         """Sort the column header by the current rows values"""
-
-        cols = self.model.df.columns
-        # get only sortable cols
-        # temp = self.model.df._convert(convert_numeric=True) **** depreciated
-        # ****
-        temp = self.model.df.apply(pd.to_numeric, errors='ignore')
-        temp = temp.select_dtypes(include=['int', 'float'])
-        rowindex = temp.index[self.currentrow]
-        #  row = temp.ix[rowindex] **** depreciated ****
-        row = temp.iloc[rowindex]
-        # add unsortable cols to end of new ordered ones
-        newcols = list(temp.columns[row.argsort()])
-        a = list(set(cols) - set(newcols))
-        newcols.extend(a)
-        self.model.df = self.model.df.reindex(columns=newcols)
-        self.redraw()
-        return
+        return super().sortColumnIndex()
 
     def update_rowcolors(self):
         """Update row colors if present so that it syncs with current dataframe."""
@@ -244,7 +237,7 @@ class MTable(Table):
             event.widget.select_range(0, END)
             return 'break'
 
-        if not self.editable:
+        if not self.editable or not (0 <= row < self.rows and 0 <= col < self.cols):
             return
         h = self.rowheight
         #  model = self.model
@@ -285,11 +278,16 @@ class MTable(Table):
         """Callback for cell entry"""
 
         value = self.cellentryvar.get()
+        self.storeCurrent()
         if self.filtered == 1:
             df = self.dataframe
         else:
             df = None
-        self.model.setValueAt(value, row, col, df=df)
+        try:
+            self.model.setValueAt(value, row, col, df=df)
+        except ValueError as exc:
+            messagebox.showerror('Could not edit data', str(exc), parent=self.parentframe)
+            return
 
         self.drawText(row, col, value, align=self.align)
         self.delete('entry')
@@ -302,9 +300,13 @@ class MTable(Table):
         if hasattr(self, 'cellentry'):
             self.cellentry.destroy()
         if nxt_col:
-            self.currentcol += 1
+            if self.currentcol + 1 >= self.cols:
+                return
+            self.setSelectedCol(self.currentcol + 1)
         else:
-            self.currentrow = self.currentrow + 1
+            if self.currentrow + 1 >= self.rows:
+                return
+            self.setSelectedRow(self.currentrow + 1)
         #  self.drawSelectedRect(self.currentrow, self.currentcol)
         #  self.xview_moveto(0)
         self.drawCellEntry(self.currentrow, self.currentcol)
@@ -327,14 +329,14 @@ class MTable(Table):
 
     def paste(self, event=None):
         """Paste a new table from the clipboard"""
+        if not self.requireUnfiltered():
+            return
 
         self.storeCurrent()
         try:
-            df = pd.read_clipboard(sep=',', on_bad_lines='skip', header=None)
-        except BaseException:
-            #  messagebox.showwarning("Could not read data", e,
-            #                          parent=self.parentframe)
-            print("Can't paste.")
+            df = pd.read_clipboard(sep=',', header=None)
+        except Exception as e:
+            messagebox.showwarning('Could not paste data', str(e), parent=self.parentframe)
             return
         if len(df) == 0:
             return
@@ -354,12 +356,14 @@ class MTable(Table):
 
     def paste_header(self, event=None):
         """Paste a new table from the clipboard"""
+        if not self.requireUnfiltered():
+            return
 
         self.storeCurrent()
         try:
-            df = pd.read_clipboard(sep=',', on_bad_lines='skip')
-        except BaseException:
-            print("Can't paste.")
+            df = pd.read_clipboard(sep=',')
+        except Exception as e:
+            messagebox.showwarning('Could not paste data', str(e), parent=self.parentframe)
             return
         if len(df) == 0:
             return
@@ -389,6 +393,8 @@ class MTable(Table):
         Split data column with a categorical column into several
         individual columns.
         """
+        if not self.requireUnfiltered():
+            return
 
         df = self.model.df
         cols = list(df)
@@ -439,6 +445,8 @@ class MTable(Table):
         Stack selected columns into two colums with data and grouping keys
         keys are the column ids
         """
+        if not self.requireUnfiltered():
+            return
 
         self.storeCurrent()
         df = self.model.df
@@ -468,6 +476,8 @@ class MTable(Table):
 
     def addColumn(self, newname=None):
         """Add a new column"""
+        if not self.requireUnfiltered():
+            return
 
         if newname is None:
             coltypes = ['object', 'float64']
@@ -501,6 +511,8 @@ class MTable(Table):
 
     def updateIndex(self, ask=True, drop=True):
         """Reset index and redraw row header"""
+        if not self.requireUnfiltered():
+            return
 
         #  self.storeCurrent()
         #  df = self.model.df
@@ -520,6 +532,8 @@ class MTable(Table):
 
     def deleteRow(self, ask=False):
         """Delete a selected row"""
+        if not self.requireUnfiltered():
+            return
 
         n = True
         if ask:
@@ -558,6 +572,8 @@ class MTable(Table):
         """
         Sort the entire table by 1-3 cols.
         """
+        if not self.requireUnfiltered():
+            return
 
         df = self.model.df
         cols = [""] + list(df)
@@ -617,6 +633,8 @@ class MTable(Table):
         """
         Sort the entire table by 1-3 cols.
         """
+        if not self.requireUnfiltered():
+            return
 
         df = self.model.df
         columnIndex = self.multiplecollist
@@ -673,7 +691,7 @@ class MTable(Table):
         print(dfSub)
         #  for col in list(dfSub):
         #      df[col] = dfSub[col]
-        df[colnames] = dfSub
+        df[colnames] = dfSub.set_axis(df.index)
         self.redraw()
         return
 
@@ -681,7 +699,7 @@ class MTable(Table):
         """Store current version of the table before a major change is made"""
 
         #  print(len(self.prevdf),self.prevdf_end)
-        prevdf = self.model.df.copy()
+        prevdf = (self.dataframe if self.filtered else self.model.df).copy()
         if self.prevdf is None:
             self.prevdf = [prevdf]
             self.prevdf_end = 1
@@ -698,7 +716,6 @@ class MTable(Table):
     def undo(self, event=None):
         """Undo last major table change"""
 
-        print(len(self.prevdf), self.prevdf_end)
         if self.prevdf is None:
             return
         if self.prevdf_end == 0:
@@ -709,25 +726,24 @@ class MTable(Table):
 
         self.prevdf_end -= 1
         prevdf = self.prevdf[self.prevdf_end]
-        self.model.df = prevdf
-        self.redraw()
+        self.model.df = prevdf.copy()
         self.updateModel(self.model)
+        self.redraw()
         print(len(self.prevdf), self.prevdf_end)
         return
 
     def redo(self, event=None):
         """Redo tolast major table change"""
 
-        print(len(self.prevdf), self.prevdf_end)
         if self.prevdf is None:
             return
         if self.prevdf_end + 2 > len(self.prevdf):
             return
         self.prevdf_end += 1
         prevdf = self.prevdf[self.prevdf_end]
-        self.model.df = prevdf
-        self.redraw()
+        self.model.df = prevdf.copy()
         self.updateModel(self.model)
+        self.redraw()
         print(len(self.prevdf), self.prevdf_end)
         return
 
@@ -749,6 +765,8 @@ class MTable(Table):
 
     def clearDataUp(self, evt=None):
         """Delete cells and move cells below up"""
+        if not self.requireUnfiltered():
+            return
 
         if self.allrows:
             self.deleteColumn()

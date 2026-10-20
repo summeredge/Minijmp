@@ -82,6 +82,11 @@ class Mean1SampleDialog(Dialogs):
             x = []
         if u0 is None:
             return
+        if ((n is None and (len(x) < 2 or len(set(x)) < 2))
+                or (n is not None and (n < 2 or std <= 0))
+                or alpha is None or not 0 < alpha < 1):
+            self.error("t test requires N >= 2, positive standard deviation and 0 < alpha < 1.")
+            return
         t_test_1sample(x, u0, print_out=True,
                        sample_mean=mean, sample_n=n,
                        sample_std=std, alpha=alpha,
@@ -156,6 +161,10 @@ class Mean1SampleZDialog(Dialogs):
         if u0 is None or s0 is None:
             return
         alpha = get_number(self.alpha)
+        if (s0 <= 0 or (n is None and not x) or (n is not None and n < 1)
+                or alpha is None or not 0 < alpha < 1):
+            self.error("Z test requires N >= 1, positive known standard deviation and 0 < alpha < 1.")
+            return
         z_test_1sample(x, u0, s0, print_out=True,
                        sample_mean=mean, sample_n=n,
                        alpha=alpha,

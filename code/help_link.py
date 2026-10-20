@@ -1,13 +1,14 @@
 import json
+from pathlib import Path
 
-HELP_JSON = './help.json'
+HELP_JSON = Path(__file__).resolve().with_name('help.json')
 DEFAULT_LINK = 'https://minijmp.readthedocs.io/'
 
 
 def help_link(key_str):
     # Read the JSON file
     try:
-        with open(HELP_JSON, 'r') as file:
+        with open(HELP_JSON, 'r', encoding='utf-8') as file:
             data = json.load(file)
         #  print(data)
         return data[key_str]["link"]
@@ -20,7 +21,7 @@ def help_link(key_str):
 def help_window(key_str):
     # Read the JSON file
     try:
-        with open(HELP_JSON, 'r') as file:
+        with open(HELP_JSON, 'r', encoding='utf-8') as file:
             data = json.load(file)
         #  print(data)
         return data[key_str]["window"]

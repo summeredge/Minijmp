@@ -52,7 +52,8 @@ class TableModel(object):
         if not dataframe is None:
             self.df = dataframe
         else:
-            colnames = list(string.ascii_lowercase[:columns])
+            colnames = [string.ascii_lowercase[i] if i < 26 else "col%d" % (i + 1)
+                        for i in range(columns)]
             self.df = pd.DataFrame(index=range(rows),columns=colnames)
             #self.df = self.getSampleData()
         #self.reclist = self.df.index # not needed now?
@@ -124,15 +125,15 @@ class TableModel(object):
     def save(self, filename):
         """Save dataframe"""
 
-        ftype = os.path.splitext(filename)[1]
+        ftype = os.path.splitext(filename)[1].lower()
         if ftype == '.pickle':
             self.df.to_pickle(filename)
-        elif ftype == '.xls':
+        elif ftype in ('.xls', '.xlsx'):
             self.df.to_excel(filename)
         elif ftype == '.csv':
             self.df.to_csv(filename)
-        #elif ftype == '.html':
-        #    self.df.to_html(filename)
+        else:
+            raise ValueError('Unsupported file extension: %s' % ftype)
         return
 
     def load(self, filename, filetype=None):
@@ -186,8 +187,7 @@ class TableModel(object):
 
         df = self.df
         if len(df) == 0:
-            self.df = pd.DataFrame(pd.Series(range(num)))
-            #print (df)
+            self.df = df.reindex(range(num))
             return
         try:
             ind = self.df.index.max()+1
@@ -324,12 +324,18 @@ class TableModel(object):
 
         if df is None:
             df = self.df
-        rowindex = df.iloc[row].name
-        colindex = df.columns[col]
-        #print (df.loc[rowindex,colindex])
+        target_row = row
+        target_col = col
+        if df is not self.df:
+            if not df.index.is_unique:
+                raise ValueError('Cannot edit filtered data with a non-unique source index')
+            if not df.columns.is_unique:
+                raise ValueError('Cannot edit filtered data with non-unique source columns')
+            target_row = df.index.get_loc(self.df.index[row])
+            target_col = df.columns.get_loc(self.df.columns[col])
         if value == '':
             value = np.nan
-        dtype = df.dtypes[colindex]
+        dtype = df.dtypes.iloc[target_col]
         #try to cast to column type
         try:
             if dtype == 'float64':
@@ -340,11 +346,9 @@ class TableModel(object):
                 value = pd.to_datetime(value)
         except Exception as e:
             print (e)
-        if df.index.is_unique is True:
-            df.loc[rowindex,colindex] = value
-        else:
-            #we cannot use index if not unique
-            df.iloc[row,col] = value
+        df.iloc[target_row,target_col] = value
+        if df is not self.df:
+            self.df.iloc[row,col] = value
         return
 
     def transpose(self):

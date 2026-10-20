@@ -589,7 +589,7 @@ class ImportDialog(Frame):
         #setGeometry(self.main, width=900)
 
         delimiters = [',',r'\t',' ',';','/','&','|','^','+','-']
-        encodings = ['utf-8','ascii','iso8859_15','cp037','cp1252','big5','euc_jp']
+        encodings = ['utf-8','ascii','gb18030','iso8859_15','cp037','cp1252','big5','euc_jp']
         timeformats = ['infer','%d/%m/%Y','%Y/%m/%d','%Y/%d/%m',
                         '%Y-%m-%d %H:%M:%S','%Y-%m-%d %H:%M',
                         '%d-%m-%Y %H:%M:%S','%d-%m-%Y %H:%M']
@@ -607,13 +607,13 @@ class ImportDialog(Frame):
                      #            'tooltip':''},
                      'decimal':{'type':'combobox','default':'.','items':['.',','],
                                 'tooltip':'decimal point symbol'},
-                     'comment':{'type':'entry','default':'#','label':'comment',
+                     'comment':{'type':'entry','default':'','label':'comment',
                                 'tooltip':'comment symbol'},
                      'skipinitialspace':{'type':'checkbutton','default':0,'label':'skip initial space',
                                 'tooltip':'skip initial space'},
                      'skiprows':{'type':'entry','default':0,'label':'skiprows',
                                 'tooltip':'rows to skip'},
-                     'skip_blank_lines':  {'type':'checkbutton','default':0,'label':'skip blank lines',
+                     'skip_blank_lines':  {'type':'checkbutton','default':1,'label':'skip blank lines',
                                 'tooltip':'do not use blank lines'},
                      'numbers_as_string':  {'type':'checkbutton','default':0,'label':'numbers as string',
                                 'tooltip':'import numbers as string'},
@@ -689,45 +689,44 @@ class ImportDialog(Frame):
                 except:
                     pass
             kwds[i] = val
-        self.kwds = kwds
+        if kwds['delimiter'] == r'\t':
+            kwds['delimiter'] = '\t'
         as_string = self.tkvars['numbers_as_string'].get()
         timeformat = self.tkvars['time format'].get()
-        dateparse = lambda x: datetime.strptime(x, timeformat)
+        if timeformat and timeformat != 'infer':
+            kwds['date_format'] = timeformat
+        self.kwds = kwds
         self.showText(encoding=kwds['encoding'])
-        if as_string == True:
-            temp = pd.read_csv(self.filename, chunksize=50, **kwds).get_chunk()
-            cols = temp.columns
-            self.converters = {col: str for col in cols}
-        else:
-            self.converters = None
+        self.converters = None
         try:
-            f = self.textfilereader = pd.read_csv(self.filename,
-                        chunksize=500, on_bad_lines='skip',
-                        warn_bad_lines=False, date_parser=dateparse,
-                        converters=self.converters, **kwds)
+            if as_string == True:
+                cols = pd.read_csv(self.filename, nrows=0, **kwds).columns
+                self.converters = {col: str for col in cols}
+            with pd.read_csv(self.filename, chunksize=500,
+                             converters=self.converters, **kwds) as reader:
+                df = reader.get_chunk()
         except Exception as e:
-            print ('read csv error')
-            print (e)
-            f = None
-        if f is not None:
-            try:
-                df = f.get_chunk()
-            except:
-                print ('parser error')
-                df = pd.DataFrame()
-        else:
+            messagebox.showerror('CSV import error', str(e), parent=self.main)
             df = pd.DataFrame()
+            success = False
+        else:
+            success = True
         model = TableModel(dataframe=df)
         self.previewtable.updateModel(model)
         self.previewtable.showIndex()
         self.previewtable.redraw()
-        return
+        return success
 
     def doImport(self):
         """Do the import"""
 
-        self.update()
-        self.df = pd.read_csv(self.filename, converters=self.converters, **self.kwds)
+        if not self.update():
+            return
+        try:
+            self.df = pd.read_csv(self.filename, converters=self.converters, **self.kwds)
+        except Exception as e:
+            messagebox.showerror('CSV import error', str(e), parent=self.main)
+            return
         self.quit()
         return
 
@@ -861,6 +860,8 @@ class CombineDialog(Frame):
     def replaceTable(self):
         """replace parent table"""
 
+        if not self.parent.requireUnfiltered():
+            return
         n = messagebox.askyesno("Replace with merged",
                                  "Are you sure?",
                                   parent=self.main)
@@ -1402,6 +1403,8 @@ class FindReplaceDialog(Frame):
         """Replace all instances of search text"""
 
         table = self.table
+        if not table.requireUnfiltered():
+            return
         table.storeCurrent()
         df = table.model.df
         s=self.searchvar.get()
@@ -1481,6 +1484,7 @@ class QueryDialog(Frame):
         s = self.queryvar.get()
         if table.filtered == True:
             table.model.df = table.dataframe
+            table.filtered = False
         df = table.model.df
         mask = None
 
@@ -1505,7 +1509,8 @@ class QueryDialog(Frame):
             #replace current dataframe but keep a copy!
             table.dataframe = table.model.df.copy()
             table.delete('rowrect')
-            table.multiplerowlist = []
+            table.selectNone()
+            table.highlighted = None
             table.model.df = filtdf
             table.filtered = True
         else:

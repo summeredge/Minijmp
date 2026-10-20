@@ -40,7 +40,7 @@ except BaseException:
 from . import util, plotting, dialogs
 
 #  homepath = os.path.join(os.path.expanduser('~'))
-parent_dir = os.path.dirname(os.getcwd())
+parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 configpath = os.path.join(parent_dir, 'user_config')
 print("config path", configpath)
 if not os.path.exists(configpath):
@@ -66,11 +66,11 @@ baseoptions['colors'] = {'cellbackgr': '#F4F4F3',
 def write_default_config():
     """Write a default config to users .config folder. Used to add global settings."""
 
-    fname = os.path.join(config_path, 'default.conf')
+    fname = default_conf
     if not os.path.exists(fname):
         try:
             # os.mkdir(config_path)
-            os.makedirs(config_path)
+            os.makedirs(configpath, exist_ok=True)
         except BaseException:
             pass
         write_config(conffile=fname, defaults=baseoptions)
@@ -82,7 +82,8 @@ def write_config(conffile='default.conf', defaults={}):
 
     if not os.path.exists(conffile):
         cp = create_config_parser_from_dict(defaults)
-        cp.write(open(conffile, 'w'))
+        with open(conffile, 'w', encoding='utf-8') as stream:
+            cp.write(stream)
         print('wrote config file %s' % conffile)
     return conffile
 
@@ -125,15 +126,13 @@ def update_config(options):
 def parse_config(conffile=None):
     """Parse a configparser file"""
 
-    f = open(conffile, 'r')
     cp = configparser.ConfigParser()
     try:
-        cp.read(conffile)
+        cp.read(conffile, encoding='utf-8')
     except Exception as e:
         print('failed to read config file! check format')
         print('Error returned:', e)
         return
-    f.close()
     return cp
 
 

@@ -269,7 +269,7 @@ class Minijmp(Minijmp_pre):
         return
 
     def import_csv(self):
-        self._call('importCSV')
+        self._call('importCSV', dialog=True)
         self.update_title()
         return
 
@@ -684,8 +684,8 @@ class Minijmp(Minijmp_pre):
 def main():
     # Create the main window
     root = Tk()
-    img = Image.open("icon.png")
-    icon = ImageTk.PhotoImage(img)
+    with Image.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "icon.png")) as img:
+        icon = ImageTk.PhotoImage(img)
     #  icon = PhotoImage(file="icon.png")
     root.iconphoto(True, icon)
 

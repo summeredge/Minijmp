@@ -2,6 +2,7 @@ import statistics as stat
 import numpy as np
 from scipy.stats import chi2, norm, kurtosis
 from scipy.stats import f as f_dist
+from scipy.special import xlogy
 from math import log as ln
 from prettytable import PrettyTable as PT
 ########### Own Modules ############
@@ -173,7 +174,7 @@ def chi_square(data, print_out=True, print_port=print,
         for y in range(a.shape[0]):
             for x in range(a.shape[1]):
                 expected = row_sum[y] * col_sum[x] / ttl_sum
-                LR += 2 * a[y][x] * ln(a[y][x] / expected)
+                LR += 2 * xlogy(a[y][x], a[y][x] / expected)
                 e[y][x] = expected
 
         p_LR = 1 - chi2.cdf(LR, df)

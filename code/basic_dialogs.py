@@ -106,6 +106,9 @@ class MultiDescribeDialog(Dialogs):
                     print_out=True,
                     print_port=self.app.print),
                 print_out=False)
+            if res[col] is None:
+                self.error("At least two numeric observations are required: " + str(col))
+                return
         self.app.print("\n---- Statitstics ----")
         t = PT()
         t.field_names = [""] + self.grpcols
@@ -147,6 +150,9 @@ class DescribeDialog(Dialogs):
         x = number_list(self.df[self.xvar.get()],
                         col_name=self.xvar.get(),
                         print_out=True, print_port=self.app.print)
+        if len(x) < 2:
+            self.error("At least two numeric observations are required.")
+            return
         print(x)
         pct = self.pct.get()
         try:

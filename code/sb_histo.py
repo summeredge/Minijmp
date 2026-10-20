@@ -72,7 +72,8 @@ def histo_n_fit(df=None, xkey=None,
     if ax is None:
         fig, ax = plt.subplots()
 
-    x = list(df[xkey])
+    fig = ax.figure
+    x = list(df[xkey].dropna())
     if x_min is None:
         x_min = min(x) - (max(x) - min(x)) * ax_margin
     if x_max is None:

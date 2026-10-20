@@ -1,6 +1,8 @@
 from prettytable import PrettyTable as PT
 import pandas as pd
 import statistics as stats
+from collections import Counter
+from math import isfinite
 from scipy.stats import f as f_dist
 # ############# Own Modules ############
 from utilities import d2_2D as d2
@@ -40,7 +42,8 @@ def GRR_xbar(data, op_key="Operator", pt_key="Part", y_key="Y",
             tmp = d[d[op_key] == op]
             op_avgs.append(sum(tmp[y_key]) / len(tmp))
         R0 = max(op_avgs) - min(op_avgs)
-        return ((R0 / d2(num_of_op, 1))**2 - EV_stdev(d, op_key=op_key,
+        # Negative variance components are zero, as in the ANOVA methods below.
+        return max(0, (R0 / d2(num_of_op, 1))**2 - EV_stdev(d, op_key=op_key,
                                                       pt_key=pt_key, y_key=y_key
                                                       )**2 / num_of_parts / num_of_tests)**.5
 
@@ -431,14 +434,24 @@ def grr_master(y=None, op=None, part=None, mode="aiag", alpha=0.05,
 
 def grr_nested(y=None, op=None, part=None, print_out=False, print_port=print,
                hist_std=None):
-    a = len(set(part))  # a is number of parts
-    b = len(set(op))  # number of operators
-    n = len(y) / a
-    if int(n) < n:
-        raise ValueError("The number of measurements per part should be consistent across all parts. A part should be only measured by one operator.")
-    if any(len(set([i for i, j in zip(part, op) if j == o])) != len(y) / n / b for o in set(op)):
+    if y is None or op is None or part is None or not len(y) or not (len(y) == len(op) == len(part)):
+        raise ValueError("Measurements, parts and operators must have equal nonzero lengths.")
+    if not all(isfinite(v) for v in y):
+        raise ValueError("Measurements must be finite numbers.")
+    if hist_std is not None and (not isfinite(hist_std) or hist_std <= 0):
+        raise ValueError("Historical standard deviation must be finite and positive.")
+    counts = Counter(part)
+    b = len(set(op))
+    n = next(iter(counts.values()))
+    if len(set(counts.values())) != 1 or any(
+            len({o for p, o in zip(part, op) if p == label}) != 1 for label in counts):
+        raise ValueError("Each part must have equal replicates and belong to only one operator.")
+    parts_per_op = [len({p for p, operator in zip(part, op) if operator == o}) for o in set(op)]
+    if len(set(parts_per_op)) != 1:
         raise ValueError("The experiment design is not balanced.")
-    a = len(y) / n / b
+    a = parts_per_op[0]
+    if b < 2 or a < 2 or n < 2:
+        raise ValueError("Nested GRR requires at least two operators, two parts per operator and two replicates per part.")
 
     # calc anova table
     # https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/measurement-system-analysis/how-to/gage-study/nested-gage-r-r-study/methods-and-formulas/anova-table/
@@ -470,8 +483,8 @@ def grr_nested(y=None, op=None, part=None, print_out=False, print_port=print,
     MSPO = SSPO / DFPO
     MSR = SSR / DFR
 
-    FO = MSO / MSPO
-    FPO = MSPO / MSR
+    FO = MSO / MSPO if MSPO > 0 else float('nan')
+    FPO = MSPO / MSR if MSR > 0 else float('nan')
 
     p_o = 1 - f_dist.cdf(FO, DFO, DFPO)
     p_po = 1 - f_dist.cdf(FPO, DFPO, DFR)
@@ -483,7 +496,7 @@ def grr_nested(y=None, op=None, part=None, print_out=False, print_port=print,
     std_repeat = Repeatability**.5
     std_reproduce = Reproducibility**.5
 
-    part_var_comp = (MSPO - MSR) / n
+    part_var_comp = max(0, (MSPO - MSR) / n)
     std_part = part_var_comp**.5
     hist_std_used = False
     if hist_std is not None:
@@ -495,11 +508,12 @@ def grr_nested(y=None, op=None, part=None, print_out=False, print_port=print,
     ttl_var_comp = part_var_comp + GRR_var_comp
     std_ttl = ttl_var_comp**.5
 
-    distinct = max(1, int(1.41 * std_part / std_grr))
+    distinct = max(1, int(1.41 * std_part / std_grr)) if std_grr > 0 else float('nan')
 
     if print_out:
         print = print_port
         print("\n---- Gage R&R Nested ANOVA ----\n\nGage R&R Nested for Response")
+        print("nan = not estimable (zero denominator).")
         t = PT()
         t.field_names = ["Source", "DF", "SS", "MS", "F Ratio", "P Value"]
         t.add_row(["Operator", "%d" % DFO, "%.3f" % SSO, "%.3f" % MSO,
@@ -513,11 +527,11 @@ def grr_nested(y=None, op=None, part=None, print_out=False, print_port=print,
         print("\nVariance Components")
         t = PT()
         t.field_names = ["Source", "VarComp", "%Contribution"]
-        t.add_row(["Total Gage R&R", "%.3f" % GRR_var_comp, "%.2f" % (100 * GRR_var_comp / ttl_var_comp)])
-        t.add_row(["  Repeatability", "%.3f" % Repeatability, "%.2f" % (100 * Repeatability / ttl_var_comp)])
-        t.add_row(["  Reproducibility", "%.3f" % Reproducibility, "%.2f" % (100 * Reproducibility / ttl_var_comp)])
-        t.add_row(["Part-to-part", "%.3f" % part_var_comp, "%.2f" % (100 * part_var_comp / ttl_var_comp)])
-        t.add_row(["Total Variation", "%.3f" % ttl_var_comp, "100.00"])
+        t.add_row(["Total Gage R&R", "%.3f" % GRR_var_comp, "%.2f" % (100 * GRR_var_comp / ttl_var_comp if ttl_var_comp > 0 else float("nan"))])
+        t.add_row(["  Repeatability", "%.3f" % Repeatability, "%.2f" % (100 * Repeatability / ttl_var_comp if ttl_var_comp > 0 else float("nan"))])
+        t.add_row(["  Reproducibility", "%.3f" % Reproducibility, "%.2f" % (100 * Reproducibility / ttl_var_comp if ttl_var_comp > 0 else float("nan"))])
+        t.add_row(["Part-to-part", "%.3f" % part_var_comp, "%.2f" % (100 * part_var_comp / ttl_var_comp if ttl_var_comp > 0 else float("nan"))])
+        t.add_row(["Total Variation", "%.3f" % ttl_var_comp, ("100.00" if ttl_var_comp > 0 else "nan")])
         t.align["Source"] = "l"
         print(str(t))
 
@@ -530,20 +544,20 @@ def grr_nested(y=None, op=None, part=None, print_out=False, print_port=print,
         t = PT()
         t.field_names = ["Source", "Std Dev(SD)", "6 x SD", "SV%"]
         t.align["Source"] = "l"
-        t.add_row(["Total Gage R&R", "%.3f" % std_grr, "%.3f" % (6 * std_grr), "%.2f" % (100 * std_grr / std_ttl)])
-        t.add_row(["  Repeatability", "%.3f" % std_repeat, "%.3f" % (6 * std_repeat), "%.2f" % (100 * std_repeat / std_ttl)])
-        t.add_row(["  Reproducibility", "%.3f" % std_reproduce, "%.3f" % (6 * std_reproduce), "%.2f" % (100 * std_reproduce / std_ttl)])
-        t.add_row(["Part-to-part", "%.3f" % std_part, "%.3f" % (6 * std_part), "%.2f" % (100 * std_part / std_ttl)])
-        t.add_row(["Total Variation", "%.3f" % std_ttl, "%.3f" % (6 * std_ttl), "100.00"])
+        t.add_row(["Total Gage R&R", "%.3f" % std_grr, "%.3f" % (6 * std_grr), "%.2f" % (100 * std_grr / std_ttl if std_ttl > 0 else float("nan"))])
+        t.add_row(["  Repeatability", "%.3f" % std_repeat, "%.3f" % (6 * std_repeat), "%.2f" % (100 * std_repeat / std_ttl if std_ttl > 0 else float("nan"))])
+        t.add_row(["  Reproducibility", "%.3f" % std_reproduce, "%.3f" % (6 * std_reproduce), "%.2f" % (100 * std_reproduce / std_ttl if std_ttl > 0 else float("nan"))])
+        t.add_row(["Part-to-part", "%.3f" % std_part, "%.3f" % (6 * std_part), "%.2f" % (100 * std_part / std_ttl if std_ttl > 0 else float("nan"))])
+        t.add_row(["Total Variation", "%.3f" % std_ttl, "%.3f" % (6 * std_ttl), ("100.00" if ttl_var_comp > 0 else "nan")])
         print(str(t))
 
         if hist_std_used:
             print("Historical standard deviation is used to calculate values of some sources.")
 
-        print("\nNumber of Distinct Categories = %d" % distinct)
+        print("\nNumber of Distinct Categories = %s" % distinct)
 
     return {"Distinct Categories": distinct, "P value operator": p_o,
-            "P value part": p_po, "GRR%": (100 * std_grr / std_ttl),
+            "P value part": p_po, "GRR%": (100 * std_grr / std_ttl if std_ttl > 0 else float("nan")),
             "GRR STD": std_grr, "Repeatability STD": std_repeat,
             "Reproducibility STD": std_reproduce}
 

@@ -88,7 +88,7 @@ def cpk_plot(data, usl, target, lsl, print_out=False,
 
     if filename is not None:
         fname = str(filename) + '.png'
-        plt.savefig(
+        ax1.figure.savefig(
             fname,
             transparent=transparent,
             dpi=200,
@@ -136,7 +136,7 @@ def hist_norm(data, ax=None, show_plot=False,
 
     if filename is not None:
         fname = str(filename) + '.png'
-        plt.savefig(
+        ax1.figure.savefig(
             fname,
             dpi=200,
             format='png')
