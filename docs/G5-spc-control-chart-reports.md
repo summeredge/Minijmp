@@ -175,3 +175,27 @@ $python = 'C:\Users\shaoy\Documents\PythonEnvs\minijmp\Scripts\python.exe'
   这些证据来自主执行的上述真实验证，已区分审查与测试职责。
 
 G5 验收完成。原有算法、异常判定缺口及环境限制保留为明确记录，未扩展为下一阶段工作。
+
+## 后续：用户授权合并到 main
+
+以上记录描述独立 G5 开发阶段。随后用户明确要求“合并到 main 分支”，授权提交和本地合并。
+
+- G5 修改提交为 `0f9a766`，分支 `codex/g5-spc-control-chart-reports`。
+- 合并前 main 为 `785fe297696d90fc46c432a38ec1271f5fe79fde`，工作树干净，已包含 G3/G4。
+- 在 main 工作树执行非快进合并，提交 `91e649d`。没有冲突；唯一自动合并的文件为
+  `tests/test_g1_debug_output.py`，同时保留 G5 两条新报告断言和 main 已有的换行一致性守卫。
+  没有覆盖其他阶段内容，没有修改其他独立开发 Worktree。
+- 合并后的控制图源码、G5 专项测试和 AST 基线与 G5 提交完全相同。
+- 采用 main 项目配置指定的 `C:\Users\shaoy\Documents\Minijmp\.venv\Scripts\python.exe`：
+  Python 3.11.9、NumPy 2.4.6、SciPy 1.15.3、pandas 3.0.6、Matplotlib 3.11.2、
+  PrettyTable 3.18.0、pytest 9.1.1；没有修改环境或安装依赖。
+- 合并后相关回归 **225 通过、7 条原有常量数据数值/绘图警告**，含 G5 全部 73 项、
+  G1 输出窗口及控制图、直接相关统计回归和 Dialog 分析源码守卫。
+  main 已有的八项换行守卫全部通过，本次没有排除测试。
+- 已检查合并差异、`git diff --check` 和工作树状态。未推送远程，未运行无关全仓库测试，
+  未修改已记录的 U 图取数或 NP 可变样本量算法问题。
+
+```powershell
+$python = 'C:\Users\shaoy\Documents\Minijmp\.venv\Scripts\python.exe'
+& $python -m pytest tests/test_g5_spc_reports.py tests/test_g1_text_output.py tests/test_g1_debug_output.py tests/test_statistics_regressions.py tests/test_statistical_edges.py tests/test_supplemental_stability.py tests/test_dialog_translation.py::test_original_analysis_code_is_unchanged -q --tb=short
+```
