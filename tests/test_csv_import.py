@@ -34,7 +34,7 @@ def csv_app(tk_root, monkeypatch):
 
 def invoke_csv_menu(app, advanced=False):
     menu = app.file_menu['var']
-    label = 'Advanced Import' if advanced else 'Import CSV'
+    label = '高级导入' if advanced else '导入 CSV'
     index = next(i for i in range(menu.index('end') + 1)
                  if menu.type(i) == 'command' and menu.entrycget(i, 'label').strip() == label)
     menu.invoke(index)

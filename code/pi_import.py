@@ -37,7 +37,7 @@ def query_size(tags, start, end, interval):
 class PIImportDialog(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title('Import PI Data')
+        self.title('导入 PI 数据')
         self.transient(parent)
         self.df = None
         self.pending = None
@@ -65,7 +65,7 @@ class PIImportDialog(tk.Toplevel):
         ttk.Label(body, text='PI Tag（每行一个，最多 20 个）').grid(row=2, column=0, columnspan=3, sticky='w', pady=(10, 0))
         self.tags = tk.Text(body, height=5, width=65, wrap='none')
         self.tags.grid(row=3, column=0, columnspan=3, sticky='nsew')
-        ttk.Label(body, text='Tag Mask').grid(row=4, column=0, sticky='w')
+        ttk.Label(body, text='Tag 搜索模式').grid(row=4, column=0, sticky='w')
         ttk.Entry(body, textvariable=self.mask).grid(row=4, column=1, sticky='ew')
         self.search_button = ttk.Button(body, text='搜索', command=self.search)
         self.search_button.grid(row=4, column=2)

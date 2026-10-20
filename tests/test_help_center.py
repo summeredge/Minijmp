@@ -73,14 +73,17 @@ def test_menu_inventory_and_dialog_ids_match_the_source():
                      if isinstance(node, ast.ClassDef) and node.name == "Minijmp")
     methods = {node.name: node for node in app_class.body if isinstance(node, ast.FunctionDef)}
     menu_method = methods["createMenuBar"]
-    labels = {
-        key.value[2:]
-        for node in ast.walk(menu_method) if isinstance(node, ast.Dict)
-        for key in node.keys
-        if isinstance(key, ast.Constant) and isinstance(key.value, str)
-        and len(key.value) > 2 and key.value[:2].isdigit()
-        and not key.value.endswith("sep")
-    }
+    menu_callbacks = {}
+    for node in ast.walk(menu_method):
+        if not isinstance(node, ast.Dict):
+            continue
+        for key, value in zip(node.keys, node.values):
+            if (isinstance(key, ast.Constant) and isinstance(key.value, str)
+                    and key.value[:2].isdigit() and isinstance(value, ast.Dict)):
+                command = next((v for k, v in zip(value.keys, value.values)
+                                if isinstance(k, ast.Constant) and k.value == "cmd"), None)
+                if isinstance(command, ast.Attribute) and isinstance(command.value, ast.Name) and command.value.id == "self":
+                    menu_callbacks[command.attr] = key.value[2:]
     class_sources = "\n".join(
         path.read_text(encoding="utf-8")
         for path in (ROOT / "code").rglob("*.py")
@@ -102,9 +105,12 @@ def test_menu_inventory_and_dialog_ids_match_the_source():
                 if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
             }
             assert dialog_class in calls, (topic["id"], callback)
-        if topic["menu"] in {"Stats", "Quality", "Plots"}:
-            assert topic["original_name"] in labels, topic["id"]
-    assert len(seen_classes) == 46
+        if topic["menu"] in {"Stats", "Quality", "Plots"} or topic["id"] == "files.pi_import":
+            callback = topic["entry"].split(".", 1)[1].split("(", 1)[0]
+            assert callback in menu_callbacks, topic["id"]
+            assert any("\u4e00" <= char <= "\u9fff" for char in menu_callbacks[callback]), topic["id"]
+    assert len(seen_classes - {"PIImportDialog"}) == 46
+    assert len(seen_classes) == 47
 
 
 def test_generated_search_index_matches_every_nonempty_help_section():
@@ -165,7 +171,7 @@ def test_browser_search_is_local_and_contains_page_body_text():
 def test_main_and_dialog_help_entry_points_use_local_topics():
     app = (ROOT / "code" / "MiniJMP.py").read_text(encoding="utf-8")
     dialog = (ROOT / "code" / "dialog.py").read_text(encoding="utf-8")
-    assert "帮助文档" in app and "Online Help" in app
+    assert "帮助文档" in app and "在线帮助" in app
     assert "self.main.bind('<F1>'" in app
     assert "self.main.bind('<F1>', self.help)" in dialog
     assert "open_help(self.__class__.__name__, parent=self.main)" in dialog
@@ -245,3 +251,26 @@ def test_help_paths_stay_relative_after_project_relocation(monkeypatch, tmp_path
     assert module.open_help("DescribeDialog")
     assert opened[0].endswith("help/index.html#stats.describe")
     assert str(relocated).replace("\\", "/") in opened[0]
+
+
+def test_pi_import_topic_is_unique_searchable_and_available_offline(monkeypatch):
+    topics = help_topics()
+    assert len(topics) == 61
+    assert len({topic['id'] for topic in topics}) == 61
+    topic, = [item for item in topics if item['id'] == 'files.pi_import']
+    assert topic['entry'] == 'MiniJMP.import_pi_data'
+    assert topic['dialog_classes'] == ['PIImportDialog']
+    assert topic['page'] == 'pages/operations.html#files.pi_import'
+    page = (HELP / topic['page'].split('#')[0]).read_text(encoding='utf-8')
+    parser = PageInfo()
+    parser.feed(page)
+    assert topic['id'] in parser.ids
+    assert ('a', 'href', '#files.pi_import', None, '') in parser.links
+    index = json.loads(build_search_index().split(' = ', 1)[1].rstrip()[:-1])
+    item, = [item for item in index if item['id'] == topic['id']]
+    for text in ['PIReader.exe', 'config.txt', 'PI SDK', '插值历史数据', '取消', 'Timestamp']:
+        assert text in item['text']
+    opened = []
+    monkeypatch.setattr(help_link.webbrowser, 'open', lambda url, **kw: opened.append(url) or True)
+    assert help_link.open_help(topic['id'])
+    assert opened == [(HELP / 'index.html').resolve().as_uri() + '#files.pi_import']

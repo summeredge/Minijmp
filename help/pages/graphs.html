@@ -3,76 +3,76 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Plots 菜单帮助 | Minijmp</title>
+  <title>图形菜单帮助 | Minijmp</title>
   <link rel="stylesheet" href="../assets/content.css">
 </head>
 <body>
 <main>
   <header>
-    <h1>Plots 菜单帮助</h1>
+    <h1>图形菜单帮助</h1>
     <p>本页按 Minijmp 当前菜单、参数弹窗和绘图代码整理。Minitab 外链仅作概念参考，不代表 Minijmp 提供相同选项。参数弹窗中的 <strong>Plot</strong> 按钮按当前设置绘图，可调整后再次绘制。</p>
   </header>
 
   <nav aria-label="本页目录">
     <h2>目录</h2>
     <ul>
-      <li><a href="#plots.plot_wizard">Plot Wizard（Legacy）</a></li>
-      <li><a href="#plots.store_plot">Store plot</a></li>
-      <li><a href="#plots.clear_plots">Clear plots</a></li>
-      <li><a href="#plots.pdf_report">PDF report</a></li>
-      <li><a href="#plots.histogram_fit">Histogram &amp; Dist. Fit</a></li>
-      <li><a href="#plots.histogram_grouped">Histogram w/ Groups</a></li>
-      <li><a href="#plots.histogram_2d">Histogram 2D</a></li>
-      <li><a href="#plots.boxplot_multiple">Box Plot Multiple Y</a></li>
-      <li><a href="#plots.boxplot_grouped">Box Plot w/ Groups</a></li>
-      <li><a href="#plots.count_grouped">Count Plot w/ Grps</a></li>
-      <li><a href="#plots.line_grouped">Line Plot w/ Grps</a></li>
-      <li><a href="#plots.dot_grouped">Dot Plot w/ Groups</a></li>
-      <li><a href="#plots.display_probability">Display Probability</a></li>
-      <li><a href="#plots.compare_probability">Prob. Plot Compare</a></li>
+      <li><a href="#plots.plot_wizard">绘图向导（旧版）</a></li>
+      <li><a href="#plots.store_plot">保存图形</a></li>
+      <li><a href="#plots.clear_plots">清除图形</a></li>
+      <li><a href="#plots.pdf_report">PDF 报告</a></li>
+      <li><a href="#plots.histogram_fit">直方图与分布拟合</a></li>
+      <li><a href="#plots.histogram_grouped">分组直方图</a></li>
+      <li><a href="#plots.histogram_2d">二维直方图</a></li>
+      <li><a href="#plots.boxplot_multiple">多变量箱线图</a></li>
+      <li><a href="#plots.boxplot_grouped">分组箱线图</a></li>
+      <li><a href="#plots.count_grouped">分组计数图</a></li>
+      <li><a href="#plots.line_grouped">分组线图</a></li>
+      <li><a href="#plots.dot_grouped">分组点图</a></li>
+      <li><a href="#plots.display_probability">概率图</a></li>
+      <li><a href="#plots.compare_probability">概率图对比</a></li>
     </ul>
   </nav>
 
   <section id="plots.plot_wizard">
-    <h2>Plot Wizard（Legacy）</h2>
+    <h2>绘图向导（旧版）</h2>
     <p><strong>用途：</strong>用数据表当前选中的单元格绘图，并在 Plot Viewer 中调整通用选项。它是旧版绘图窗口，不是 Minitab Graph Builder。</p>
     <p><strong>数据与参数：</strong>先在表格中选取要绘制的行、列。选项面板含图形类型（默认 line）、分组列与第二分组列、点标签列、点大小列、直方图 bins（默认 20）、堆叠、子图、网格、图例、对数 X/Y、刻度标签、共享坐标轴、误差线列，以及线宽、标记、透明度和颜色设置；窗口工具栏另有 DPI（默认 80）、网格布局和 3D 绘图开关。只有被选入绘图数据的列才能用于分组等字段。</p>
-    <p><strong>步骤：</strong>选取数据 → 选择 Plots &gt; Plot Wizard (Legacy) → 在选项面板改设置 → 点 <em>Plot Selected</em> 更新图，或点 <em>Apply Options</em> 应用当前选项；可用 <em>Save</em> 保存图像。</p>
+    <p><strong>步骤：</strong>选取数据 → 选择 图形 → 绘图向导（旧版） → 在选项面板改设置 → 点 <em>Plot Selected</em> 更新图，或点 <em>Apply Options</em> 应用当前选项；可用 <em>Save</em> 保存图像。</p>
     <p><strong>注意：</strong>图形类型和可用设置取决于所选数据；数据不适配时窗口会提示。选项面板可在窗口中显示或隐藏。<a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/graphs/graphs-in-minitab/" target="_blank" rel="noopener noreferrer">Minitab 官方图形帮助（概念参考）</a></p>
   </section>
 
   <section id="plots.store_plot">
-    <h2>Store plot</h2>
-    <p><strong>用途：</strong>把当前 Plot Viewer 中的图形副本加入 Plots 菜单，供稍后重新打开或汇总导出。</p>
-    <p><strong>步骤：</strong>先生成要保留的图，再选择 Plots &gt; Store plot。菜单会新增一项，以保存时的时分秒命名；点击该项会在新窗口打开图形。</p>
+    <h2>保存图形</h2>
+    <p><strong>用途：</strong>把当前 Plot Viewer 中的图形副本加入 图形菜单，供稍后重新打开或汇总导出。</p>
+    <p><strong>步骤：</strong>先生成要保留的图，再选择 图形 → 保存图形。菜单会新增一项，以保存时的时分秒命名；点击该项会在新窗口打开图形。</p>
     <p><strong>注意：</strong>保存的是当前图形快照，不是数据或绘图参数；之后修改原图不会更新已存快照。</p>
   </section>
 
   <section id="plots.clear_plots">
-    <h2>Clear plots</h2>
-    <p><strong>用途：</strong>清空 Store plot 保存的图形列表及其动态菜单项。</p>
-    <p><strong>步骤：</strong>选择 Plots &gt; Clear plots 即可清空。</p>
+    <h2>清除图形</h2>
+    <p><strong>用途：</strong>清空 保存图形 保存的图形列表及其动态菜单项。</p>
+    <p><strong>步骤：</strong>选择 图形 → 清除图形 即可清空。</p>
     <p><strong>注意：</strong>此命令清理已存列表，不清除当前 Plot Viewer 正在显示的图。</p>
   </section>
 
   <section id="plots.pdf_report">
-    <h2>PDF report</h2>
+    <h2>PDF 报告</h2>
     <p><strong>用途：</strong>把已存图形写入一个 PDF 文件。</p>
-    <p><strong>步骤：</strong>先用 Store plot 保存所需图形，再选择 Plots &gt; PDF report 并指定文件名和位置。每张已存图形占 PDF 一页。</p>
+    <p><strong>步骤：</strong>先用 保存图形 保存所需图形，再选择 图形 → PDF 报告 并指定文件名和位置。每张已存图形占 PDF 一页。</p>
     <p><strong>注意：</strong>导出范围是当前已存图形列表；未存图、数据表和统计输出不会加入报告。</p>
   </section>
 
   <section id="plots.histogram_fit">
-    <h2>Histogram &amp; Dist. Fit</h2>
+    <h2>直方图与分布拟合</h2>
     <p><strong>用途：</strong>查看一个数值列的分布，并可叠加一个指定分布的拟合曲线。</p>
     <p><strong>数据：</strong>选择一个数值 Data Column。</p>
     <p><strong>参数：</strong>Stats 可选 count（默认）、frequency、proportion、percent 或 density；Bins 和 Bin Width 默认 Auto，正数输入分别指定箱数或箱宽。Distribution 可选 Normal（默认）、Student&#39;s t、Gamma、Lognormal、Exponential、Weibull；Show Fit 默认关闭。X 轴可设标签、最小值和最大值；另有网格、图例及自动范围边距设置。</p>
     <p><strong>步骤与结果：</strong>选择列并设置选项，勾选 Show Fit 后点 Plot。直方图显示所选统计量；拟合结果同时输出到文本区，并以密度曲线叠加在图中。拟合曲线使用右侧次坐标轴，柱高与曲线高度未必可直接比较。</p>
-    <p><strong>注意：</strong>此弹窗一次只拟合所选的一种分布，不提供多分布比较；需要比较拟合时使用 Stats &gt; Fit Distributions。Minijmp 的现有使用文档也将此入口描述为单分布绘图。<a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/graphs/general-graph-options/labels-lines-and-annotations/fitted-distribution-lines/" target="_blank" rel="noopener noreferrer">Minitab 拟合分布线帮助（概念参考）</a></p>
+    <p><strong>注意：</strong>此弹窗一次只拟合所选的一种分布，不提供多分布比较；需要比较拟合时使用 统计 → 分布拟合。Minijmp 的现有使用文档也将此入口描述为单分布绘图。<a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/graphs/general-graph-options/labels-lines-and-annotations/fitted-distribution-lines/" target="_blank" rel="noopener noreferrer">Minitab 拟合分布线帮助（概念参考）</a></p>
   </section>
 
   <section id="plots.histogram_grouped">
-    <h2>Histogram w/ Groups</h2>
+    <h2>分组直方图</h2>
     <p><strong>用途：</strong>按组比较一个数值变量的分布，或比较多个数值列的分布。</p>
     <p><strong>数据：</strong>长表输入使用 Data Col. 和可选 Group Col.；也可在列列表中选多个数值列。列列表选择会覆盖上方两项，并把各列堆叠后按原列名分组。</p>
     <p><strong>参数：</strong>箱数、箱宽及 Stats 与单列直方图相同。Multiple 可选 layer（默认）、dodge、stack、fill；Element 可选 bars（默认）、step、poly；另有 KDE、KDE Only、调色板、X 轴标签和范围、网格、图例及边距。</p>
@@ -81,7 +81,7 @@
   </section>
 
   <section id="plots.histogram_2d">
-    <h2>Histogram 2D</h2>
+    <h2>二维直方图</h2>
     <p><strong>用途：</strong>用二维分箱查看两个变量的联合分布。</p>
     <p><strong>数据：</strong>选择 X Data Column 和 Y Data Column；Hue Data Column 可选，用于按类别区分数据。</p>
     <p><strong>参数：</strong>Bins 和 Bin Width 默认 Auto；X、Y 轴各可设标签、最小值和最大值。还可设置网格、图例、调色板及自动范围边距。弹窗没有 count/proportion 等统计量下拉项。</p>
@@ -91,7 +91,7 @@
   </section>
 
   <section id="plots.boxplot_multiple">
-    <h2>Box Plot Multiple Y</h2>
+    <h2>多变量箱线图</h2>
     <p><strong>用途：</strong>比较一个或多个数值列的中位数、四分位范围和离散程度。</p>
     <p><strong>数据：</strong>可选一个 Data Col. 和可选 Group Col.；也可在列列表中选多个数值列。多列选择会覆盖上方选择，并把各列堆叠后按原列名分组。</p>
     <p><strong>参数：</strong>可设 X 轴标签、Y 轴标签及范围、水平参考线位置（逗号分隔）和参考线标签；Box Width 可选 Half（默认）、Full、1/4。Extended Features 包含 Swarm Dots、Swarm Only、Hide Fliers、Log Y；Whisker Length or Percentiles 默认 1.5，也可输入百分位二元组。另有 Native X Scale、网格和图例。</p>
@@ -100,7 +100,7 @@
   </section>
 
   <section id="plots.boxplot_grouped">
-    <h2>Box Plot w/ Groups</h2>
+    <h2>分组箱线图</h2>
     <p><strong>用途：</strong>在同一数值列中按主组和子组比较分布。</p>
     <p><strong>数据：</strong>使用堆叠数据：Data Col. 为数值，Group Col. 可选并决定横轴分组，Subgrouping Col. (Hue) 可选并用颜色区分子组。</p>
     <p><strong>参数：</strong>可设 X 轴标签、Y 轴标签及范围、水平参考线和线标签、调色板、网格、图例、Box Width、Hide Fliers、Swarm Dots、Swarm Only、Log Y Scale、Native X Scale。Whisker Length or Percentiles 默认 1.5；Swarm 点大小默认 5，Separate 默认勾选。</p>
@@ -109,7 +109,7 @@
   </section>
 
   <section id="plots.count_grouped">
-    <h2>Count Plot w/ Grps</h2>
+    <h2>分组计数图</h2>
     <p><strong>用途：</strong>统计类别值出现次数，并可按组并列或着色展示。</p>
     <p><strong>数据：</strong>使用 Data Col. 和可选 Group Col.；也可在列列表中选多个列。多列选择会覆盖上方输入，并把列名作为组别。</p>
     <p><strong>参数：</strong>Stats 可选 count（默认）、probability、proportion 或 percent；可设 X 轴标签、Y 轴标签和范围、水平参考线及线标签、调色板、网格和图例。</p>
@@ -118,7 +118,7 @@
   </section>
 
   <section id="plots.line_grouped">
-    <h2>Line Plot w/ Grps</h2>
+    <h2>分组线图</h2>
     <p><strong>用途：</strong>按 X 值展示 Y 值变化；可按组绘制多条线，或比较多个 Y 列。</p>
     <p><strong>数据：</strong>长表使用 Y Data Col.、必选 X Data Col. 和可选 Group Col.；宽表可在 Y Data in its own column 列表中选多个 Y 列，列表选择覆盖上方 Y/Group 输入，X Data Col. 仍需指定。</p>
     <p><strong>参数：</strong>X、Y 轴标签，Y 轴 Min/Max，水平参考线及标签，网格、图例、边距和调色板。X 轴 Min/Max 虽显示在弹窗中，但当前源码未将其传给绘图函数；分组列或宽表原列名用来区分线条。</p>
@@ -127,7 +127,7 @@
   </section>
 
   <section id="plots.dot_grouped">
-    <h2>Dot Plot w/ Groups</h2>
+    <h2>分组点图</h2>
     <p><strong>用途：</strong>以点展示 X 与 Y 的观测关系，并可按组或多个 Y 列区分数据。</p>
     <p><strong>数据：</strong>长表使用 Y Data Col.、必选 X Data Col. 和可选 Group Col.；宽表可在 Y Data in its own column 列表中选多个 Y 列，列表选择覆盖上方 Y/Group 输入，X Data Col. 仍需指定。</p>
     <p><strong>参数：</strong>X、Y 轴标签，Y 轴 Min/Max，水平参考线及标签，网格、图例、边距和调色板。X 轴 Min/Max 虽显示在弹窗中，但当前源码未将其传给绘图函数。</p>
@@ -136,7 +136,7 @@
   </section>
 
   <section id="plots.display_probability">
-    <h2>Display Probability（Distribution Plot）</h2>
+    <h2>概率图</h2>
     <p><strong>用途：</strong>根据指定分布参数查看理论分布、分位数或某个 X 处的概率。</p>
     <p><strong>参数：</strong>分布默认 Normal；可选 Normal（Mean、Standard deviation）、Chi Square（Degrees of freedom）、F（Numerator/Denominator degrees of freedom）、LogNormal（Scale）、t（Degrees of freedom）、Binomial（Number of trials、Event probability）或 Poisson（Mean）。参数输入框默认空白，需按所选分布填写。可输入概率 P 或 X；X 优先于 P。Show Plot 默认勾选。</p>
     <p><strong>结果：</strong>文本区输出理论均值、方差、标准差、偏度和峰度。输入 P（需满足 0&lt;P&lt;1）时输出尾部分位数和等尾界限；输入 X 时输出该点的密度或概率质量及左右尾概率。连续分布绘制密度曲线；Binomial 和 Poisson 绘制概率柱。</p>
@@ -145,11 +145,11 @@
   </section>
 
   <section id="plots.compare_probability">
-    <h2>Prob. Plot Compare（Distribution Plot Compare）</h2>
+    <h2>概率图对比</h2>
     <p><strong>用途：</strong>把两组指定参数的理论分布叠加显示，便于目视比较曲线或概率质量。</p>
-    <p><strong>参数：</strong>Distribution 1 和 Distribution 2 默认均为 Normal；各自支持 Display Probability 中列出的七种分布及对应参数，参数框默认空白。此弹窗没有 P、X 或 Show Plot 选项。</p>
+    <p><strong>参数：</strong>Distribution 1 和 Distribution 2 默认均为 Normal；各自支持 概率图 中列出的七种分布及对应参数，参数框默认空白。此弹窗没有 P、X 或 Show Plot 选项。</p>
     <p><strong>步骤与结果：</strong>分别选择分布并填写参数后点 Plot。文本区分别输出两组分布的参数和理论统计量；连续分布画密度曲线，Binomial/Poisson 画概率柱。第一组为蓝色，第二组为绿色。</p>
-    <p><strong>注意：</strong>虽然菜单名称含 Prob. Plot，此实现是两种分布的理论曲线叠加，不是概率图，也不执行拟合优度或两分布差异检验。</p>
+    <p><strong>注意：</strong>虽然菜单名称为“概率图对比”，此实现是两种分布的理论曲线叠加，不是概率图，也不执行拟合优度或两分布差异检验。</p>
     <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/graphs/graphs-in-minitab/" target="_blank" rel="noopener noreferrer">Minitab 图形类型概览</a>（仅作分布图的概念参考）。</p>
   </section>
 </main>

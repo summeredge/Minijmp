@@ -492,7 +492,7 @@ class ColumnHeader(Canvas):
         colnames = [str(i)[:20] for i in colnames]
         if len(colnames) > 2:
             colnames = ','.join(colnames[:2]) + \
-                '+%s others' % str(len(colnames) - 2)
+                '+%s 其他列' % str(len(colnames) - 2)
         else:
             colnames = ','.join(colnames)
         popupmenu = Menu(self, tearoff=0)
@@ -513,28 +513,28 @@ class ColumnHeader(Canvas):
         #                    'Wrap Header' : self.table.setWrap
         #                   }
         popupmenu.add_command(
-            label="Sort All by " + colnames + ' \u2193',
+            label="按 " + colnames + " 升序排序全表 \u2193",
             command=lambda: self.table.sortTable(
                 ascending=[
                     1 for i in multicols]))
         popupmenu.add_command(
-            label="Sort All by " + colnames + ' \u2191',
+            label="按 " + colnames + " 降序排序全表 \u2191",
             command=lambda: self.table.sortTable(
                 ascending=[
                     0 for i in multicols]))
         #  popupmenu.add_command(label="Set %s as Index" %colnames, command=self.table.setindex)
         popupmenu.add_command(
-            label="Delete Column(s)",
+            label="删除列",
             command=self.table.deleteColumn)
         if ismulti:
             popupmenu.add_command(
-                label="Flatten Index",
+                label="展开多层列名",
                 command=self.table.flattenIndex)
 
         popupmenu.add_command(
-            label="Rename Column",
+            label="重命名列",
             command=self.renameColumn)
-        popupmenu.add_command(label="Add Column", command=self.table.addColumn)
+        popupmenu.add_command(label="添加列", command=self.table.addColumn)
         #  popupmenu.add_command(
         #      label="Set Color",
         #      command=self.table.setColumnColors)
@@ -542,11 +542,11 @@ class ColumnHeader(Canvas):
         #      label="Color by Value",
         #      command=self.table.setColorbyValue)
         popupmenu.add_command(
-            label="Set Alignment",
+            label="设置对齐方式",
             command=self.table.setAlignment)
         #  popupmenu.add_command(label="Wrap Header", command=self.table.setWrap)
         popupmenu.add_command(
-            label="Fill With Data",
+            label="填充数据",
             command=self.table.fillColumn)
         #  popupmenu.add_command(label="Create Categorical", command=self.table.createCategorical)
         #  popupmenu.add_command(label="Apply Function", command=self.table.applyColumnFunction)
@@ -555,7 +555,7 @@ class ColumnHeader(Canvas):
         #  popupmenu.add_command(label="String Operation", command=self.table.applyStringMethod)
         #  popupmenu.add_command(label="Date/Time Conversion", command=self.table.convertDates)
         popupmenu.add_command(
-            label="Set Data Type",
+            label="设置数据类型",
             command=self.table.setColumnType)
 
         #  createSubMenu(popupmenu, 'Column', columncommands)
@@ -872,24 +872,24 @@ class RowHeader(Canvas):
         """Add left and right click behaviour for canvas, should not have to override
             this function, it will take its values from defined dicts in constructor"""
 
-        defaultactions = {"Sort by index": lambda: self.table.sortTable(index=True),
-                          "Reset index": lambda: self.table.resetIndex(),
-                          "Toggle index": lambda: self.toggleIndex(),
-                          "Copy index to column": lambda: self.table.copyIndex(),
-                          "Rename index": lambda: self.table.renameIndex(),
+        defaultactions = {"按索引排序": lambda: self.table.sortTable(index=True),
+                          "重置索引": lambda: self.table.resetIndex(),
+                          "显示/隐藏索引": lambda: self.toggleIndex(),
+                          "复制索引到列": lambda: self.table.copyIndex(),
+                          "重命名索引": lambda: self.table.renameIndex(),
                           #  "Sort columns by row" : lambda: self.table.sortColumnIndex(),
-                          "Select All": self.table.selectAll,
-                          "Add Row(s) at bottom": lambda: self.table.addRows(),
-                          "Insert a Row here": lambda: self.table.insertRow(),
-                          "Delete Row(s)": lambda: self.table.deleteRow(ask=True),
-                          "Duplicate Row(s)": lambda: self.table.duplicateRows()
+                          "全选": self.table.selectAll,
+                          "在末尾添加行": lambda: self.table.addRows(),
+                          "在此处插入行": lambda: self.table.insertRow(),
+                          "删除行": lambda: self.table.deleteRow(ask=True),
+                          "复制行": lambda: self.table.duplicateRows()
                           #  "Set Row Color" : lambda: self.table.setRowColors(cols='all')
                           }
-        main = ["Sort by index", "Reset index", "Toggle index",
-                "Rename index",
+        main = ["按索引排序", "重置索引", "显示/隐藏索引",
+                "重命名索引",
                 #  "Sort columns by row",
-                "Copy index to column", "Insert a Row here",
-                "Add Row(s) at bottom", "Delete Row(s)", "Duplicate Row(s)"]  # , "Set Row Color"]
+                "复制索引到列", "在此处插入行",
+                "在末尾添加行", "删除行", "复制行"]  # , "Set Row Color"]
 
         popupmenu = Menu(self, tearoff=0)
 
