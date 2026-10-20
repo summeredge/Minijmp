@@ -79,6 +79,7 @@ class Minijmp(Minijmp_pre):
                          '06sep': '',
                          '07Import CSV': {'cmd': self.import_csv},
                          '08Advanced Import': {'cmd': lambda: self.import_csv(advanced=True)},
+                         '09Import PI Data': {'cmd': self.import_pi_data},
                          '10Import Excel': {'cmd': self.load_excel},
                          '10Export CSV': {'cmd': lambda: self._call('doExport')},
                          '11sep': '',
@@ -275,6 +276,20 @@ class Minijmp(Minijmp_pre):
     def import_csv(self, advanced=False):
         self._call('importCSV', dialog=advanced)
         self.update_title()
+        return
+
+    def import_pi_data(self):
+        from pi_import import PIImportDialog
+        from pandastable_local.data import TableModel
+
+        dialog = PIImportDialog(self.main)
+        self.main.wait_window(dialog)
+        if dialog.df is not None:
+            self.table.updateModel(TableModel(dialog.df))
+            self.table.prevdf = None
+            self.table.filename = None
+            self.table.redraw()
+            self.update_title()
         return
 
     def load_excel(self):
