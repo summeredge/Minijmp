@@ -56,6 +56,7 @@ def assert_report(lines, title):
 def test_computation_plotting_signatures_and_returns_match_before_g5_ast(name):
     tree = ast.parse((ROOT / 'code/control_chart.py').read_text(encoding='utf-8'))
     function = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == name)
+    # 计算函数保持 G5 基线；五个绘图函数采用 G6 展示基线，坐标另由 G6 专项保护。
     # 只排除三个输出入口的顶层 print_out 分支，保留所有计算和绘图语句。
     if name in {'x_plot', 'p_np_plot', 'cu_plot'}:
         function.body = [n for n in function.body if not (

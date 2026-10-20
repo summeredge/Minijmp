@@ -48,7 +48,7 @@ class plot_viewer(PlotViewer):
         # add it to the panedwindow
         self.fig, self.canvas = addFigure(
             self.plotfr, figure=Figure(
-                figsize=self.figsize, dpi=100, facecolor='white'))
+                figsize=self.figsize, dpi=100, facecolor='white', layout='constrained'))
         #  self.ax = self.fig.add_subplot(111)
 
         #self.m.add(self.plotfr, weight=12)
@@ -57,7 +57,7 @@ class plot_viewer(PlotViewer):
         # frame for controls
         self.ctrlfr = Frame(self.main)
         #self.m.add(self.ctrlfr, weight=4)
-        self.ctrlfr.pack(side=BOTTOM, fill=BOTH)
+        self.ctrlfr.pack(side=BOTTOM, fill=X)
 
         # button frame
         bf = Frame(self.ctrlfr, padx=2)  # padding=2)
@@ -87,8 +87,8 @@ class plot_viewer(PlotViewer):
                 b = Entry(bf, textvariable=v, width=5)
                 util.trace_write(v, partial(self.setGlobalOption, n))
             b.pack(side=LEFT, padx=2)
-        dr = handlers.DragHandler(self)
-        dr.connect()
+        self._drag_handler = handlers.DragHandler(self)
+        self._drag_handler.connect()
         return
 
     def close(self):
@@ -101,6 +101,7 @@ class plot_viewer(PlotViewer):
         for variable in self.globalvars.values():
             for mode, callback in variable.trace_info():
                 variable.trace_remove(mode, callback)
+        self._drag_handler = None
         self.main.destroy()
         plt.close(self.fig)
         return

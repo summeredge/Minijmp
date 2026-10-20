@@ -1,6 +1,7 @@
 import seaborn as sb
 #  import numpy as np
 from matplotlib import pyplot as plt
+from chart_style import style_axes
 ########## Own Modules ###########
 from utilities import add_Y_refs, hash_combined
 
@@ -16,7 +17,7 @@ def interval_plot(xlabel=None, y_max=None, y_min=None,
         return CIs[hash_combined(x)]
 
     if ax is None:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(layout="constrained")
 
     sb.pointplot(ax=ax, zorder=3, capsize=.1,
                  errorbar=custom_error if CIs is not None else ('ci', 95),
@@ -34,6 +35,7 @@ def interval_plot(xlabel=None, y_max=None, y_min=None,
     if grid:
         ax.grid(grid, zorder=1)
     add_Y_refs(ax, y_values=y_ref, label=show_y_ref_label)
+    style_axes(ax)
     return
 
 
@@ -44,7 +46,7 @@ def count_plot(xlabel=None, y_max=None, y_min=None, grid=False,
                y_ref=None, **kwargs):
 
     if ax is None:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(layout="constrained")
 
     sb.countplot(ax=ax, zorder=3,
                  palette=palette, **kwargs)
@@ -59,6 +61,7 @@ def count_plot(xlabel=None, y_max=None, y_min=None, grid=False,
     if grid:
         ax.grid(grid, zorder=1)
     add_Y_refs(ax, y_values=y_ref, label=show_y_ref_label)
+    style_axes(ax)
     return
 
 
@@ -69,7 +72,7 @@ def dot_plot(xlabel=None, y_max=None, y_min=None, grid=False,
              y_ref=None, **kwargs):
 
     if ax is None:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(layout="constrained")
 
     sb.scatterplot(ax=ax, zorder=3,
                    palette=palette, **kwargs)
@@ -84,6 +87,7 @@ def dot_plot(xlabel=None, y_max=None, y_min=None, grid=False,
     if grid:
         ax.grid(grid, zorder=1)
     add_Y_refs(ax, y_values=y_ref, label=show_y_ref_label)
+    style_axes(ax)
     return
 
 
@@ -94,7 +98,7 @@ def line_plot(xlabel=None, y_max=None, y_min=None, grid=False,
               y_ref=None, **kwargs):
 
     if ax is None:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(layout="constrained")
 
     sb.lineplot(ax=ax, zorder=3,
                 palette=palette, **kwargs)
@@ -109,4 +113,5 @@ def line_plot(xlabel=None, y_max=None, y_min=None, grid=False,
     if grid:
         ax.grid(grid, zorder=1)
     add_Y_refs(ax, y_values=y_ref, label=show_y_ref_label)
+    style_axes(ax)
     return

@@ -1,19 +1,12 @@
 import seaborn as sb
 import numpy as np
 from matplotlib import pyplot as plt
+from chart_style import style_axes, font_families
 
 
 def add_fig_legend_best_loc(ax, fig):
-    #  ax.legend(loc='best')  # 'upper left', bbox_to_anchor=(1, 0.8))
-    # Add a legend with automatic placement
-    legend = ax.legend(loc='best')
-
-    # Get the position of the legend in figure coordinates
-    bbox = legend.get_bbox_to_anchor().transformed(fig.transFigure.inverted())
-    # Remove the ax legend
-    legend.remove()
-    # add the fig one at the previous ax legend loc
-    fig.legend(loc='upper left', bbox_to_anchor=bbox)
+    fig.legend(loc='outside upper right',
+               prop={'family': font_families(['DejaVu Sans'])})
     return
 
 
@@ -22,7 +15,7 @@ def histo_xy(xlabel=None, x_max=None, x_min=None, grid=False,
              ax_margin=0.1, ax=None, **kwargs):
 
     if ax is None:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(layout="constrained")
     sb.histplot(ax=ax, zorder=2, **kwargs)
     if y_max is not None:
         ax.set_ylim(top=y_max)
@@ -38,6 +31,7 @@ def histo_xy(xlabel=None, x_max=None, x_min=None, grid=False,
         ax.set_xlabel(xlabel)
     if grid:
         ax.grid(grid, zorder=1)
+    style_axes(ax)
     return
 
 
@@ -45,7 +39,7 @@ def histo_full(xlabel=None, x_max=None, x_min=None, grid=False,
                ax_margin=0.1, ax=None, **kwargs):
 
     if ax is None:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(layout="constrained")
     sb.histplot(ax=ax, zorder=2, **kwargs)
     if x_max is not None:
         ax.set_xlim(right=x_max)
@@ -55,6 +49,7 @@ def histo_full(xlabel=None, x_max=None, x_min=None, grid=False,
         ax.set_xlabel(xlabel)
     if grid:
         ax.grid(grid, zorder=1)
+    style_axes(ax)
     return
 
 
@@ -70,7 +65,7 @@ def histo_n_fit(df=None, xkey=None,
         return
 
     if ax is None:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(layout="constrained")
 
     fig = ax.figure
     x = list(df[xkey].dropna())
@@ -95,13 +90,17 @@ def histo_n_fit(df=None, xkey=None,
                     legend=False)
         rvx = np.linspace(x_min, x_max, 100)
         rvy = rv.pdf(rvx)
-        ax2.plot(rvx, rvy, color=fit_color, linewidth=2, label="Fitted Dist.",
+        ax2.plot(rvx, rvy, color=fit_color, linewidth=2, label=f"拟合分布 ({rv.dist.name})",
                  zorder=3)
 
     if xlabel is not None:
         ax.set_xlabel(xlabel)
+    if rv is not None:
+        ax2.set_ylabel("Density")
+        style_axes(ax2)
 
     if legend:
         add_fig_legend_best_loc(ax=ax, fig=fig)
 
+    style_axes(ax)
     return

@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from chart_style import style_axes
 import statistics as stat
 from scipy.stats import t as t_dist
 ###### Own modules #######
@@ -40,7 +41,7 @@ def fit_plot(x, y, alpha=0.05, print_out=False,
         y_max = max(y) + (max(y) - min(y)) * ax_margin
 
     if ax is None:
-        _, ax = plt.subplots()
+        _, ax = plt.subplots(layout="constrained")
 
     if scatter:
         ax.scatter(x, y, color='blue', alpha=1 / (len(x))**.2,
@@ -116,7 +117,7 @@ def fit_plot(x, y, alpha=0.05, print_out=False,
                 y_line,
                 linewidth=1,
                 color='purple',
-                label='PI' +
+                label='预测区间 (PI)' +
                 alpha_label,
                 linestyle='dashed')
             y_line = -t_value * se_pred + \
@@ -141,12 +142,12 @@ def fit_plot(x, y, alpha=0.05, print_out=False,
                 x_line,
                 y_line,
                 color='g',
-                label='CI' +
+                label='置信区间 (CI)' +
                 alpha_label,
-                linestyle='dashed', linewidth=1)
+                linestyle='dotted', linewidth=1)
             y_line = -t_value * se_pred + \
                 l_res["slope"] * x_line + l_res["intercept"]
-            ax.plot(x_line, y_line, color='g', linestyle='dashed', linewidth=1)
+            ax.plot(x_line, y_line, color='g', linestyle='dotted', linewidth=1)
 
     ax.set(xlabel=xlabel)
     ax.set(ylabel=ylabel)
@@ -155,6 +156,7 @@ def fit_plot(x, y, alpha=0.05, print_out=False,
     ax.set_ylim(bottom=y_min, top=y_max)
     if show_legend:
         ax.legend(loc='best', frameon=True)
+    style_axes(ax)
     if show_plot:
         plt.show()
     if filename is not None:
@@ -162,7 +164,7 @@ def fit_plot(x, y, alpha=0.05, print_out=False,
         ax.figure.savefig(
             fname,
             dpi=200,
-            format='png')
+            format='png', bbox_inches='tight')
     return res
 
 
@@ -199,7 +201,7 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
         print(str(t2))
 
     if axs is None or fig is None:
-        fig, axs = plt.subplots(n - 1, n - 1)  # , sharex=True, sharey=True)
+        fig, axs = plt.subplots(n - 1, n - 1, squeeze=False, layout="constrained")  # , sharex=True, sharey=True)
     # Remove vertical space between Axes
     dot_size = max(20 * (1 / n)**.25, 1)
     #  fig.set_size_inches(7, 7)
@@ -224,9 +226,8 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
                 if y < n - 1:
                     axs[fy][fx].get_xaxis().set_visible(False)
 
-    fig.subplots_adjust(hspace=0)
-    # I don't know why 0 doesn't work, somehow -.5 is fine
-    fig.subplots_adjust(wspace=0)
+    if fig.get_layout_engine() is None:
+        fig.subplots_adjust(hspace=0, wspace=0)
     #  fig.tight_layout()
     #  for ax in np.array(axs).flatten():
     #      print(str(ax.get_position()))
@@ -237,7 +238,7 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
         fig.savefig(
             fname,
             dpi=200,
-            format='png')
+            format='png', bbox_inches='tight')
     return res
 
 
@@ -306,7 +307,7 @@ def multi_fit(data, labels, print_out=False, print_port=print,
 
     if ax is None or fig is None:
         # n - 1, n - 1)  # , sharex=True, sharey=True)
-        fig, ax = plt.subplots(1)
+        fig, ax = plt.subplots(1, layout="constrained")
     ax.set_box_aspect(1)
     ax.axis('off')
 
@@ -355,7 +356,7 @@ def multi_fit(data, labels, print_out=False, print_port=print,
         ax.figure.savefig(
             fname,
             dpi=200,
-            format='png')
+            format='png', bbox_inches='tight')
     return res
 
 

@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.stats import probplot
 import matplotlib.pyplot as plt
+from chart_style import style_axes
 ####### Own Modules ###########
 from cpk_plot import hist_norm
 from linear_plot import fit_plot
@@ -31,7 +32,7 @@ def resid_test(data, y_est, print_out=False, show_plot=False,
     res = norm_test(data, print_out=print_out, print_port=print_port)
 
     if axs is None:
-        fig, axs = plt.subplots(2, 2, dpi=200, figsize=(16, 9))
+        fig, axs = plt.subplots(2, 2, dpi=200, figsize=(16, 9), layout="constrained")
     else:
         fig = None
 
@@ -48,9 +49,17 @@ def resid_test(data, y_est, print_out=False, show_plot=False,
 
     x_plot(data, ax=axs[0][0], xlabel="Observation Order", ylabel1="Residual",one_chart=True)
 
+    axs[0][0].set_title("残差与观测顺序")
+    axs[0][1].set_title("残差与拟合值")
+    axs[1][0].set_title("残差直方图")
+    axs[1][1].set_title("正态 Q-Q 图")
+    for row in axs:
+        for ax in row:
+            style_axes(ax)
+
     if fig is not None:
         fig.suptitle("SW p-value = %.3f   AD p-value = %.3f" % (
-            res["shapiro p"], res["AD p"]), y=0.95)
+            res["shapiro p"], res["AD p"]))
 
     if show_plot:
         plt.show()
@@ -60,7 +69,7 @@ def resid_test(data, y_est, print_out=False, show_plot=False,
         axs[0][0].figure.savefig(
             fname,
             dpi=200,
-            format='png')
+            format='png', bbox_inches='tight')
 
     return res
 

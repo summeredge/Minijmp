@@ -1,4 +1,5 @@
 from scipy import stats
+from chart_style import style_axes
 import matplotlib.pyplot as plt
 import numpy as np
 #### Own Modules ####
@@ -71,7 +72,7 @@ def cont_dist(dist=None, pvalue=None, x=None, print_out=True, plot_out=False,
 
         if plot_out:
             if ax is None:
-                _, ax = plt.subplots(1, 1)
+                _, ax = plt.subplots(1, 1, layout="constrained")
             left = rv.ppf(plot_tail)
             right = rv.ppf(1 - plot_tail)
             try:
@@ -104,6 +105,8 @@ def cont_dist(dist=None, pvalue=None, x=None, print_out=True, plot_out=False,
                     ax.vlines(x, 0, rv.pdf(x), colors='blue', linestyles='dotted',
                               label="Right Tail")
                 ax.legend(loc='best', frameon=False)
+
+            style_axes(ax)
 
             #  plt.show()
 
