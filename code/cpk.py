@@ -12,6 +12,7 @@ import statistics as stat
 ############ Own Modules ##############
 from utilities import d2_values, scale_factor_f, c4_values, grouping_by_labels, calculate_d3, calculate_d2
 from utilities import gen_table, format_stat
+from stat_table import StatTable
 
 
 def cpl_cpu_95(cpx, n, df, alpha=0.05):
@@ -80,7 +81,11 @@ def cpk_calc(mean, std, T, usl, lsl, df, N, print_port=print,
                        ['Cpm', format_stat(cpm), '*', '*']])
         for col in t.field_names[1:]:
             t.align[col] = 'r'
-        print(str(t))
+        print(StatTable(t, section + '（正态模型，置信水平 %.1f%%）' % (100 * (1 - alpha)),
+                        t.field_names,
+                        [[prefix + 'p', cp, cp_l, cp_u], [prefix + 'pk', cpk, cpk_l, cpk_u],
+                         [prefix + 'pl', cpl, cpl_l, cpl_u], [prefix + 'pu', cpu, cpu_l, cpu_u],
+                         ['Cpm', cpm, '*', '*']], display=t.rows))
         print("Cpm 使用本节标准差并考虑均值偏离目标值；原报告不提供其置信限。")
         if name and name not in ("Within", "Overall (AKA Ppk in JMP)"):
             print("分析标签：" + name)
@@ -105,15 +110,18 @@ def nonconformance(data, t, lsl, usl, u, sw, so, print_out=True,
         rows = [['来源', '低于 LSL', '高于 USL', '合计'],
                 ['实际观测', format_stat(below / N * 100), format_stat(above / N * 100),
                  format_stat((below + above) / N * 100)]]
+        values = [['实际观测', below / N * 100, above / N * 100, (below + above) / N * 100]]
         if within:
             rows.append(['正态预测（组内）', format_stat(wl * 100), format_stat(wu * 100),
                          format_stat((wl + wu) * 100)])
+            values.append(['正态预测（组内）', wl * 100, wu * 100, (wl + wu) * 100])
         rows.append(['正态预测（整体）', format_stat(ol * 100), format_stat(ou * 100),
                      format_stat((ol + ou) * 100)])
+        values.append(['正态预测（整体）', ol * 100, ou * 100, (ol + ou) * 100])
         table = gen_table(rows)
         for col in table.field_names[1:]:
             table.align[col] = 'r'
-        print(str(table))
+        print(StatTable(table, '不合格比例（单位：%）', table.field_names, values, display=table.rows))
 
     return {
         "below_s": below / N,
@@ -180,12 +188,16 @@ def cpk(data, target, usl, lsl, print_port=print, within=True,
         rows = [['N', '子组数', 'LSL', '目标值 Target', 'USL', '过程均值', '整体标准差'],
                 [N, sub_grps, format_stat(lsl), format_stat(target), format_stat(usl),
                  format_stat(mean), format_stat(std_overall)]]
+        values = [[N, sub_grps, lsl, target, usl, mean, std_overall]]
         if within:
             rows[0] += ['组内标准差', '整体/组内标准差比']
             rows[1] += [format_stat(std_within), format_stat(stability)]
+            values[0] += [std_within, stability]
         table = gen_table(rows)
         table.align = 'r'
-        print(str(table))
+        print(StatTable(table, '正态过程能力分析', table.field_names, values,
+                        display=[[str(cell) for cell in row] for row in table.rows],
+                        number_formats=['0', '0'] + ['0.000'] * (len(table.field_names) - 2)))
         if within:
             methods = {
                 "Within sigma estimated by the average of ranges over d2.": "子组极差除以 d2 后取平均",
