@@ -9,6 +9,7 @@ from pandastable_local.dialogs import (
     apply_dialog_theme, dialog_style, text_widget_colors)
 ############# Own Modules ###########
 from plots import plot_viewer
+from stat_table import RESULT_BACKGROUND, configure_result_styles
 
 
 class txt_viewer(plot_viewer):
@@ -39,17 +40,23 @@ class txt_viewer(plot_viewer):
         return
 
     def _apply_theme(self):
-        """Match output window to system light/dark appearance."""
+        """Keep result backgrounds white and retain theme text/selection colors."""
 
         apply_dialog_theme(self.main)
-        self.T.configure(**text_widget_colors(self.ui_style))
+        self._apply_result_colors()
         return
+
+    def _apply_result_colors(self):
+        configure_result_styles(self.ui_style)
+        colors = text_widget_colors(self.ui_style)
+        colors['background'] = RESULT_BACKGROUND
+        self.T.configure(**colors)
 
     def setupGUI(self):
         """Add GUI elements"""
 
-        self.m = ttk.Frame(self.main)
-        self.plotfr = ttk.Frame(self.m)
+        self.m = ttk.Frame(self.main, style='Result.TFrame')
+        self.plotfr = ttk.Frame(self.m, style='Result.TFrame')
         # shortcut: 无中文等宽字体时沿用 TkFixedFont；需严格对齐时安装下列字体。
         self.output_font = font.nametofont('TkFixedFont', root=self.main).copy()
         # 中文需占两个西文字符宽，才能与 PrettyTable 的显示宽度一致。
@@ -75,8 +82,7 @@ class txt_viewer(plot_viewer):
         self.plotfr.rowconfigure(0, weight=1)
         self.plotfr.columnconfigure(0, weight=1)
         self.T.bind('<Control-a>', self.select_all)
-        self.T.bind('<<ThemeChanged>>', lambda event: self.T.configure(
-            **text_widget_colors(self.ui_style)))
+        self.T.bind('<<ThemeChanged>>', lambda event: self._apply_result_colors())
         self.plotfr.pack(side=TOP, fill=BOTH, expand=1)
 
         self.ctrlfr = ttk.Frame(self.main)
