@@ -1,4 +1,4 @@
-"""只剔除明确的报告语句，固定 G3 开始时的计算、返回和绘图 AST。"""
+"""固定计算和返回 AST；四个绘图函数的展示基线随 G6 更新，数值由专项测试保护。"""
 import ast
 import hashlib
 import json

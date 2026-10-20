@@ -12,17 +12,17 @@
   {
     "file": "linear_plot.py",
     "function": "fit_plot",
-    "sha256": "e6ddf45c9a0365310c7886e6ad2ff21cfcb1727273e6803025a4239d83adf999"
+    "sha256": "9c86967571200a93d3c05bc0adc6a6e116b9663ec71a88aca1428f547d79cadd"
   },
   {
     "file": "linear_plot.py",
     "function": "multi_fit",
-    "sha256": "6ab1055e3681b480b9bb49c08b2cd00dcddd313c6f96ca7087cd15f59ed35773"
+    "sha256": "c0d2e2567431e9c697c5b8d3ce7a741b2219d5b62836dc2c199483ddc080db6b"
   },
   {
     "file": "linear_plot.py",
     "function": "multi_fit_orig",
-    "sha256": "e22d0361bce9e5a91930a8576b1328aad56484626f5e4eec202ce5c24491d73b"
+    "sha256": "51e0f5c126d82c587cac180fc25895f21c749e1c7a6d0d0f863bdef8445cf843"
   },
   {
     "file": "Residual.py",
@@ -32,7 +32,7 @@
   {
     "file": "Residual.py",
     "function": "resid_test",
-    "sha256": "b2b909d00aac33c82f65795a4b5fa67a822d8c9153eeae2fdab6e536f04468fb"
+    "sha256": "5753b8a430ded7e061d4336080a6e6d562e343b7c44b68f84704027548c0891e"
   },
   {
     "file": "one_way_ANOVA.py",
