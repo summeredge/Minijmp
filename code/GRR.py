@@ -6,6 +6,7 @@ from scipy.stats import f as f_dist
 # ############# Own Modules ############
 from utilities import d2_2D as d2
 from utilities import gen_table, format_stat
+from stat_table import StatTable
 from two_way_anova import two_way_anova
 from one_way_ANOVA import one_way_anova
 from utilities import grouping_by_labels
@@ -25,15 +26,19 @@ def _grr_tables(components, total, print_port, hist_std=None, spec_gap=None, stu
     # 四种 GRR 方法只共用呈现；分量及总方差由各自原算法提供。
     print_port("\n方差分量")
     rows = [['来源', '方差分量', '方差贡献率 (%)']]
+    values = []
     for name, variance in components:
         rows.append([name, format_stat(variance),
                      format_stat(100 * variance / total if total > 0 else None)])
+        values.append([name, variance, 100 * variance / total if total > 0 else None])
     table = gen_table(rows)
     for col in table.field_names[1:]:
         table.align[col] = 'r'
-    print_port(str(table))
+    print_port(StatTable(table, '方差分量', table.field_names, values,
+                         display=[[str(cell) for cell in row] for row in table.rows]))
     print_port("\n研究变异" if study else "\n分量标准差")
     rows = [['来源', '标准差 SD']]
+    values = []
     if study:
         rows[0] += ['研究变异 (6 x SD)', '研究变异占比 (%)']
         if hist_std is not None:
@@ -45,17 +50,23 @@ def _grr_tables(components, total, print_port, hist_std=None, spec_gap=None, stu
     for name, variance in components:
         sd = variance**.5
         row = [name, format_stat(sd)]
+        raw_row = [name, sd]
         if study:
             row += [format_stat(6 * sd), format_stat(100 * sd / total**.5 if total > 0 else None)]
+            raw_row += [6 * sd, 100 * sd / total**.5 if total > 0 else None]
             if hist_std is not None:
                 row.append(format_stat(100 * sd / hist_std if hist_std > 0 else None))
+                raw_row.append(100 * sd / hist_std if hist_std > 0 else None)
             if spec_gap is not None:
                 row.append(format_stat(600 * sd / spec_gap if spec_gap > 0 else None))
+                raw_row.append(600 * sd / spec_gap if spec_gap > 0 else None)
         rows.append(row)
+        values.append(raw_row)
     table = gen_table(rows)
     for col in table.field_names[1:]:
         table.align[col] = 'r'
-    print_port(str(table))
+    print_port(StatTable(table, '研究变异' if study else '分量标准差', table.field_names, values,
+                         display=[[str(cell) for cell in row] for row in table.rows]))
     print_port("方差贡献率基于方差；标准差单位与输入测量值一致，方差单位为其平方。")
     if study:
         print_port("研究变异占比基于 SD / 总 SD；公差占比为 6 x SD / 规格公差，历史过程占比为 SD / 历史 SD。")
@@ -263,15 +274,22 @@ def grr_anova_EMP(y=None, op=None, part=None, inter=True,
                 ['自由度', str(DF), '*'],
                 ['可能误差', format_stat(.674490 * Rept**.5), '*'],
                 ['组内相关（无偏倚）', format_stat(intraclass_no_bias), classification(intraclass_no_bias) + ' Class']]
+        values = [['自由度', DF, '*'], ['可能误差', .674490 * Rept**.5, '*'],
+                  ['组内相关（无偏倚）', intraclass_no_bias, classification(intraclass_no_bias) + ' Class']]
         if op is not None:
             rows += [['组内相关（含偏倚）', format_stat(intraclass_w_bias), classification(intraclass_w_bias) + ' Class'],
                      ['偏倚影响', format_stat(bias_impact), '*']]
+            values += [['组内相关（含偏倚）', intraclass_w_bias, classification(intraclass_w_bias) + ' Class'],
+                       ['偏倚影响', bias_impact, '*']]
         if inter:
             rows += [['组内相关（含偏倚及交互）', format_stat(intraclass_bias_inter), classification(intraclass_bias_inter) + ' Class'],
                      ['偏倚及交互影响', format_stat(bias_inter_impact), '*']]
+            values += [['组内相关（含偏倚及交互）', intraclass_bias_inter, classification(intraclass_bias_inter) + ' Class'],
+                       ['偏倚及交互影响', bias_inter_impact, '*']]
         table = gen_table(rows)
         table.align['结果'] = 'r'
-        print(str(table))
+        print(StatTable(table, 'EMP 补充统计', table.field_names, values,
+                        display=[[str(cell) for cell in row] for row in table.rows]))
         print("重测误差为重复性标准差，见分量标准差表。")
         print("\n原有 EMP 分类参考（不新增 GRR 接受阈值）")
         table = gen_table([
@@ -282,7 +300,9 @@ def grr_anova_EMP(y=None, op=None, part=None, inter=True,
             ['Fourth', '0.00 - 0.20', '> 55%', '0.03 - 0.40', '0.08 - 0.92']])
         for col in table.field_names[1:]:
             table.align[col] = 'r'
-        print(str(table))
+        print(StatTable(table, '原有 EMP 分类参考（不新增 GRR 接受阈值）',
+                        table.field_names, table.rows,
+                        display=[[str(cell) for cell in row] for row in table.rows]))
         print("检出概率指使用 Nelson 控制图规则，在 10 个子组内检出 3 个标准差偏移的概率，详见帮助。")
 
     res = {"EV": Rept, "AV": Repd, "PV": PP, "RR": GRR, "TV": TTL,
@@ -347,18 +367,26 @@ def grr_master(y=None, op=None, part=None, mode="aiag", alpha=0.05,
             print("筛选显著性水平 alpha = " + format_stat(alpha) +
                   ("；交互项达到保留条件。" if inter else "；交互项未达到保留条件。"))
             rows = [['来源', '自由度', '平方和 SS', '均方 MS', 'F 值', 'p 值']]
+            values = []
             for key, label in [('A', '零件'), ('B', '操作者'), ('AB', '零件 x 操作者')]:
                 rows.append([label, res['DF ' + key], format_stat(res['SS' + key]),
                              format_stat(res['MS' + key]), format_stat(res['F ' + key]),
                              format_stat(res['p ' + key])])
+                values.append([label, res['DF ' + key], res['SS' + key],
+                               res['MS' + key], res['F ' + key], res['p ' + key]])
             grand_mean = stats.mean(y)
             rows += [['误差', res['N'] - 1 - res['DF A'] - res['DF B'] - res['DF AB'],
                       format_stat(res['SSE']), format_stat(res['MSE']), '*', '*'],
                      ['合计', res['N'] - 1, format_stat(sum((value - grand_mean)**2 for value in y)), '*', '*', '*']]
+            values += [['误差', res['N'] - 1 - res['DF A'] - res['DF B'] - res['DF AB'],
+                        res['SSE'], res['MSE'], '*', '*'],
+                       ['合计', res['N'] - 1, sum((value - grand_mean)**2 for value in y), '*', '*', '*']]
             table = gen_table(rows)
             for col in table.field_names[1:]:
                 table.align[col] = 'r'
-            print(str(table))
+            print(StatTable(table, 'GRR 交互项筛选：完整模型 ANOVA', table.field_names, values,
+                            display=[[str(cell) for cell in row] for row in table.rows],
+                            number_formats=['General', '0', '0.000', '0.000', '0.000', '0.000']))
             print("此表用于交互项筛选；后续分量仍按原方法及其交互项处理规则估计。")
     elif op is None:
         inter = False
@@ -466,7 +494,13 @@ def grr_nested(y=None, op=None, part=None, print_out=False, print_port=print,
             ['合计', DFTTL, format_stat(SST), '*', '*', '*']])
         for col in table.field_names[1:]:
             table.align[col] = 'r'
-        print(str(table))
+        print(StatTable(table, '方差分析 ANOVA', table.field_names,
+                        [['操作者', DFO, SSO, MSO, FO, p_o],
+                         ['零件（操作者内）', DFPO, SSPO, MSPO, FPO, p_po],
+                         ['重复性', DFR, SSR, MSR, '*', '*'],
+                         ['合计', DFTTL, SST, '*', '*', '*']],
+                        display=[[str(cell) for cell in row] for row in table.rows],
+                        number_formats=['General', '0', '0.000', '0.000', '0.000', '0.000']))
         print("操作员 F 值 = 操作员均方 / 操作员内零件均方；零件 F 值 = 操作员内零件均方 / 误差均方。")
         print("H0：相应随机效应的方差分量为零；模型要求平衡嵌套设计、独立正态随机效应及等方差误差。")
         print("p 值显示为 0.000 是舍入结果，不代表概率严格为零。")

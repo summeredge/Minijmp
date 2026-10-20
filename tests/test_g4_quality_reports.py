@@ -469,7 +469,7 @@ def test_specific_replaced_output_patterns(originals, module, function, old):
 
 
 def test_shared_modules_and_plot_implementations_remain_at_baseline():
-    # txt_output 已接入 G8；真实控件与 TXT 由 G1/G10 测试保护。
+    # txt_output 已接入 G8；真实控件与 TXT 由 G1/G10/G11 测试保护。
     for name in ('utilities.py', 'dialog.py', 'two_way_anova.py',
                  'one_way_ANOVA.py', 'cpk_plot.py', 'grr_plot.py'):
         # 仅两份绘图源码转为已验收的 G6 基线，其余共享模块仍保留原守卫。
