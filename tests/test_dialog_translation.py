@@ -356,6 +356,12 @@ def test_original_analysis_code_is_unchanged():
             assert baseline.count(statement) == count, file
             baseline = baseline.replace(statement, '')
         current = (ROOT / file).read_text(encoding='utf-8')
+        if file == 'code/basic_dialogs.py':
+            # G6 仅更改正态 Q-Q 图的变量标签及字体；仍完整保护统计调用。
+            old_plot = "            pf.ax.set_ylabel('Observed Values')"
+            new_plot = "            pf.ax.set_ylabel(self.xvar.get())\n            style_axes(pf.ax)"
+            assert current.count(new_plot) == 1
+            current = current.replace(new_plot, old_plot)
         def methods(source):
             tree = ErrorsToMarker().visit(ast.parse(source))
             return {c.name + '.' + m.name: ast.dump(m, include_attributes=False) for c in tree.body if isinstance(c, ast.ClassDef)

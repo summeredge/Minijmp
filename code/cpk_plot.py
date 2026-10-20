@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 from cpk import cpk
 import statistics as stat
+from chart_style import style_axes
 
 
 def cpk_plot(data, usl, target, lsl, print_out=False,
@@ -12,7 +13,7 @@ def cpk_plot(data, usl, target, lsl, print_out=False,
              show_within=True, show_spec=True):
 
     if ax is None:
-        fig, ax1 = plt.subplots()
+        fig, ax1 = plt.subplots(layout='constrained')
     else:
         ax1 = ax
     # Add y axis on the right side
@@ -58,30 +59,18 @@ def cpk_plot(data, usl, target, lsl, print_out=False,
     # ax1.set_title(f'Histogram with Normal Distribution Fit (μ={mu:.2f}, σ={std:.2f})')
 
     if show_spec:
-        ax1.axvline(target, color='g', linewidth=2)
-        ax1.axvline(usl, color='r', linewidth=2)
-        ax1.axvline(lsl, color='r', linewidth=2)
-        txt_pos = max(ax1.get_ylim())
-        ax1.text(
-            target,
-            txt_pos,
-            "Target",
-            horizontalalignment='center',
-            verticalalignment='bottom')
-        ax1.text(
-            usl,
-            txt_pos,
-            "USL",
-            horizontalalignment='center',
-            verticalalignment='bottom')
-        ax1.text(
-            lsl,
-            txt_pos,
-            "LSL",
-            horizontalalignment='center',
-            verticalalignment='bottom')
-    if show_within and show_legend:
+        for value, name, color, linestyle in (
+                (target, "Target", 'g', ':'),
+                (usl, "USL", 'r', '-.'), (lsl, "LSL", 'r', '-.')):
+            ax1.axvline(value, color=color, linewidth=2, linestyle=linestyle)
+            ax1.annotate(name, xy=(value, 1), xycoords=ax1.get_xaxis_transform(),
+                         xytext=(0, 4), textcoords="offset points",
+                         ha="center", va="bottom", rotation=90)
+    if show_legend:
         ax1.legend(loc='best', frameon=False)
+
+    style_axes(ax1)
+    style_axes(ax2)
 
     if show_plot:
         plt.show()
@@ -92,7 +81,7 @@ def cpk_plot(data, usl, target, lsl, print_out=False,
             fname,
             transparent=transparent,
             dpi=200,
-            format='png')
+            format='png', bbox_inches='tight')
 
     return res
 
@@ -103,7 +92,7 @@ def hist_norm(data, ax=None, show_plot=False,
     if ax is not None:
         ax1 = ax
     else:
-        fig, ax1 = plt.subplots()
+        fig, ax1 = plt.subplots(layout='constrained')
     # Add y axis on the right side
     ax2 = ax1.twinx()
 
@@ -131,6 +120,9 @@ def hist_norm(data, ax=None, show_plot=False,
     ax1.set_ylabel('Density')
     # ax1.set_title(f'Histogram with Normal Distribution Fit (μ={mu:.2f}, σ={std:.2f})')
 
+    style_axes(ax1)
+    style_axes(ax2)
+
     if show_plot:
         plt.show()
 
@@ -139,7 +131,7 @@ def hist_norm(data, ax=None, show_plot=False,
         ax1.figure.savefig(
             fname,
             dpi=200,
-            format='png')
+            format='png', bbox_inches='tight')
 
     return
 

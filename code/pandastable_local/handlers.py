@@ -96,12 +96,9 @@ class DragHandler(object):
 
         fig = self.parent.fig
         #ax = fig.axes[0]
-        ax = self.parent.ax
-        xy = (event.xdata, event.ydata)
-        #xy = (event.x, event.y)
-        print (xy)
         #if annotation object moved we record new coords
         if isinstance(self.dragged, Annotation):
+            ax = self.parent.ax
             key = self.dragged._id
             #print (self.dragged.get_text(), key)
             d = self.parent.labelopts.textboxes[key]
@@ -135,7 +132,7 @@ class DragHandler(object):
             self.selected = None
             if self.selectedrect != None:
                 self.selectedrect.set_visible(False)
-        fig.canvas.draw()
+            fig.canvas.draw()
         return
 
     def drawSelectionRect(self):

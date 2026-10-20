@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import statistics as stat
+from chart_style import style_axes
 ####### Own modules ##########
 try: 
     from .ctrl_chart_const import df as Ctrl_Cht_Const
@@ -133,7 +134,7 @@ def limit_line(ax, y, color='black', **kwargs):
             y = y[0]
     if isinstance(y, (int, float)):
         ax.axhline(y, color=color, **kwargs)
-        add_Y_refs(ax, "%.2f" % y, color=color, label=True, draw_line=False)
+        value = y
     elif isinstance(y, (list)):
         xs = [-.5]
         for _ in range(len(y)):
@@ -148,15 +149,23 @@ def limit_line(ax, y, color='black', **kwargs):
             ys.append(_)
             ys.append(_)
         ax.plot(xs, ys, color=color, **kwargs)
-        add_Y_refs(ax, "%.2f" % ys[-1], color=color, label=True, draw_line=False)
+        value = ys[-1]
+    else:
+        return
+    name = kwargs.get("label", "")
+    if name:
+        ax.annotate(name + " = %.2f" % value,
+                    xy=(1, value), xycoords=ax.get_yaxis_transform(),
+                    xytext=(4, 0), textcoords="offset points",
+                    va="center", color=color)
     return
 
 
 def additional_SD(ax, sd, cl, ucl=None):
     if ucl is None:
         if isinstance(sd, (int, float)) and isinstance(cl, (int, float)):
-            limit_line(ax, cl + (sd - cl) / 3 * 2, color='red', linestyle='dashed')
-            limit_line(ax, cl + (sd - cl) / 3, color='red', linestyle='dashed')
+            limit_line(ax, cl + (sd - cl) / 3 * 2, color='gray', linestyle='dotted')
+            limit_line(ax, cl + (sd - cl) / 3, color='gray', linestyle='dotted')
         else:
             if isinstance(sd, list):
                 n = len(sd)
@@ -166,12 +175,12 @@ def additional_SD(ax, sd, cl, ucl=None):
                 sd = [sd] * n
             if not isinstance(cl, list):
                 cl = [cl] * n
-            limit_line(ax, [cli + (sdi - cli) / 3 * 2 for cli, sdi in zip(cl, sd)], color='red', linestyle='dashed')
-            limit_line(ax, [cli + (sdi - cli) / 3 for cli, sdi in zip(cl, sd)], color='red', linestyle='dashed')
+            limit_line(ax, [cli + (sdi - cli) / 3 * 2 for cli, sdi in zip(cl, sd)], color='gray', linestyle='dotted')
+            limit_line(ax, [cli + (sdi - cli) / 3 for cli, sdi in zip(cl, sd)], color='gray', linestyle='dotted')
     else:
         if isinstance(ucl, (int, float)) and isinstance(cl, (int, float)):
-            limit_line(ax, max(0, cl - (ucl - cl) / 3 * 2), color='red', linestyle='dashed')
-            limit_line(ax, max(0, cl - (ucl - cl) / 3), color='red', linestyle='dashed')
+            limit_line(ax, max(0, cl - (ucl - cl) / 3 * 2), color='gray', linestyle='dotted')
+            limit_line(ax, max(0, cl - (ucl - cl) / 3), color='gray', linestyle='dotted')
         else:
             if isinstance(ucl, list):
                 n = len(ucl)
@@ -181,8 +190,8 @@ def additional_SD(ax, sd, cl, ucl=None):
                 ucl = [ucl] * n
             if not isinstance(cl, list):
                 cl = [cl] * n
-            limit_line(ax, [max(0, cli - (sdi - cli) / 3 * 2) for cli, sdi in zip(cl, ucl)], color='red', linestyle='dashed')
-            limit_line(ax, [max(0, cli - (sdi - cli) / 3)for cli, sdi in zip(cl, ucl)], color='red', linestyle='dashed')
+            limit_line(ax, [max(0, cli - (sdi - cli) / 3 * 2) for cli, sdi in zip(cl, ucl)], color='gray', linestyle='dotted')
+            limit_line(ax, [max(0, cli - (sdi - cli) / 3)for cli, sdi in zip(cl, ucl)], color='gray', linestyle='dotted')
 
     return
 
@@ -224,14 +233,12 @@ def x_plot(data, bar1=None, pooled=False,
         #  one_chart = True
         axs = [ax, ax]
     elif one_chart:
-        fig, ax = plt.subplots(1)  # , figsize=(15, 15))
+        fig, ax = plt.subplots(1, layout='constrained')  # , figsize=(15, 15))
         axs = [ax, ax]
     else:
         if fig is None or axs is None:
             # , figsize=(15, 15), sharex=True)
-            fig, axs = plt.subplots(2)
-        # Remove vertical space between Axes
-        fig.subplots_adjust(hspace=0)
+            fig, axs = plt.subplots(2, layout='constrained')
 
     min_x = min(s["X"]) - (max(s["X"]) - min(s["X"])) * 0.05
     max_x = max(s["X"]) + (max(s["X"]) - min(s["X"])) * 0.05
@@ -241,9 +248,9 @@ def x_plot(data, bar1=None, pooled=False,
         #  axs[0].axhline(bar1, color='blue')
         #  axs[0].axhline(ucl1, color='red', linestyle='dashed')
         #  axs[0].axhline(lcl1, color='red', linestyle='dashed')
-        limit_line(axs[0], bar1, color='blue')
-        limit_line(axs[0], ucl1, color='red', linestyle='dashed')
-        limit_line(axs[0], lcl1, color='red', linestyle='dashed')
+        limit_line(axs[0], bar1, color='blue', label='CL')
+        limit_line(axs[0], ucl1, color='red', linestyle='dashed', label='UCL')
+        limit_line(axs[0], lcl1, color='red', linestyle='dashed', label='LCL')
         if all_SD_lines:
             additional_SD(axs[0], ucl1, bar1)
             additional_SD(axs[0], lcl1, bar1)
@@ -257,9 +264,9 @@ def x_plot(data, bar1=None, pooled=False,
         #  axs[1].axhline(bar2, color='blue')
         #  axs[1].axhline(ucl2, color='red', linestyle='dashed')
         #  axs[1].axhline(lcl2, color='red', linestyle='dashed')
-        limit_line(axs[1], bar2, color='blue')
-        limit_line(axs[1], ucl2, color='red', linestyle='dashed')
-        limit_line(axs[1], lcl2, color='red', linestyle='dashed')
+        limit_line(axs[1], bar2, color='blue', label='CL')
+        limit_line(axs[1], ucl2, color='red', linestyle='dashed', label='UCL')
+        limit_line(axs[1], lcl2, color='red', linestyle='dashed', label='LCL')
         if all_SD_lines:
             additional_SD(axs[1], ucl2, bar2)
             additional_SD(axs[1], lcl2, bar2, ucl=ucl2)
@@ -267,6 +274,9 @@ def x_plot(data, bar1=None, pooled=False,
         add_Y_refs(ax=axs[1], y_values=refY2, label=True)
         axs[1].set(ylabel=ylabel2)
         axs[1].set_xlim(left=min_x, right=max_x)
+
+    if not one_chart and axs[0] is not axs[1]:
+        axs[0].tick_params(axis="x", labelbottom=False)
 
     if xLabels is not None:
         step = 1
@@ -283,6 +293,9 @@ def x_plot(data, bar1=None, pooled=False,
     if xlabel is not None:
         axs[1].set(xlabel=xlabel)
 
+    for axis in dict.fromkeys(axs):
+        style_axes(axis)
+
     if show_plot:
         plt.show()
 
@@ -291,7 +304,7 @@ def x_plot(data, bar1=None, pooled=False,
         axs[0].figure.savefig(
             fname,
             dpi=200,
-            format='png')
+            format='png', bbox_inches='tight')
 
     if print_out:
         print = print_port
@@ -364,22 +377,22 @@ def p_np_plot(p=None, n=1,
         lcl_ys.append(lcl)
 
     if None in [ax, fig]:
-        fig, ax = plt.subplots(1, figsize=(15, 15))
+        fig, ax = plt.subplots(1, figsize=(15, 15), layout='constrained')
 
     ax.plot(p, linestyle='-', marker='o', color='black')
 
     if bar1 is not None:
         p_bar = bar1
-    ax.axhline(p_bar, color='blue')
+    ax.axhline(p_bar, color='blue', label='CL')
 
     if ucl1 is not None:
-        ax.axhline(ucl1, color='red', linestyle='dashed')
+        ax.axhline(ucl1, color='red', linestyle='dashed', label='UCL')
     else:
-        ax.plot(xs, ucl_ys, color='red')
+        ax.plot(xs, ucl_ys, color='red', linestyle='dashed', label='UCL')
     if lcl1 is not None:
-        ax.axhline(lcl1, color='red', linestyle='dashed')
+        ax.axhline(lcl1, color='red', linestyle='dashed', label='LCL')
     else:
-        ax.plot(xs, lcl_ys, color='red')
+        ax.plot(xs, lcl_ys, color='red', linestyle='dashed', label='LCL')
 
     ax.set(ylabel=ylabel)
     add_Y_refs(ax=ax, y_values=refY)
@@ -397,6 +410,8 @@ def p_np_plot(p=None, n=1,
         ax.set_xticks(ax.get_xticks()[::step])
     if xlabel is not None:
         ax.set(xlabel=xlabel)
+    ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1), frameon=False)
+    style_axes(ax)
     plt.show()
 
     if print_out:
@@ -441,22 +456,22 @@ def cu_plot(c=None, n=1,
         lcl_ys.append(lcl)
 
     if None in [ax, fig]:
-        fig, ax = plt.subplots(1, figsize=(15, 15))
+        fig, ax = plt.subplots(1, figsize=(15, 15), layout='constrained')
 
     ax.plot(c, linestyle='-', marker='o', color='black')
 
     if bar1 is not None:
         c_bar = bar1
-    ax.axhline(c_bar, color='blue')
+    ax.axhline(c_bar, color='blue', label='CL')
 
     if ucl1 is not None:
-        ax.axhline(ucl1, color='red', linestyle='dashed')
+        ax.axhline(ucl1, color='red', linestyle='dashed', label='UCL')
     else:
-        ax.plot(xs, ucl_ys, color='red')
+        ax.plot(xs, ucl_ys, color='red', linestyle='dashed', label='UCL')
     if lcl1 is not None:
-        ax.axhline(lcl1, color='red', linestyle='dashed')
+        ax.axhline(lcl1, color='red', linestyle='dashed', label='LCL')
     else:
-        ax.plot(xs, lcl_ys, color='red')
+        ax.plot(xs, lcl_ys, color='red', linestyle='dashed', label='LCL')
 
     ax.set(ylabel=ylabel)
     add_Y_refs(ax=ax, y_values=refY)
@@ -475,6 +490,8 @@ def cu_plot(c=None, n=1,
     if xlabel is not None:
         ax.set(xlabel=xlabel)
 
+    ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1), frameon=False)
+    style_axes(ax)
     plt.show()
 
     if print_out:

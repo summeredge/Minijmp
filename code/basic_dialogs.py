@@ -3,6 +3,7 @@ from tkinter import ttk
 import tkinter as tk
 from tkinter import TOP, LEFT, BOTH, X, W
 from scipy.stats import probplot
+from chart_style import style_axes
 ########### Own Modules ###########
 from dialog import Dialogs, addListBox
 from describe import describe, print_descriptive, print_percentiles
@@ -186,7 +187,8 @@ class NormTestDialog(Dialogs):
             #  fit_plot(x, y, ax=pf.ax, print_port=self.app.print,
             probplot(x, dist="norm", plot=pf.ax)
             pf.ax.set_xlabel('Theoretical quantiles')
-            pf.ax.set_ylabel('Observed Values')
+            pf.ax.set_ylabel(self.xvar.get())
+            style_axes(pf.ax)
         return
 
 
