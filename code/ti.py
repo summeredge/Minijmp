@@ -1,3 +1,4 @@
+from stat_table import StatTable
     
 import numpy as np
 from scipy import integrate
@@ -56,11 +57,16 @@ def ti_norm(data=None, alpha=0.05, P=0.9,
         print = print_port
         print("\n---- 统计容差区间（正态方法） ----")
         print("数据来源：" + ("原始样本" if None in [sample_mean, sample_n, sample_std] else "汇总数据"))
+        values = [[n, u, s]]
         table = gen_table([['N', '样本均值', '样本标准差'],
                            [n, format_stat(u), format_stat(s)]])
         table.align = 'r'
-        print(str(table))
+        print(StatTable(table, '样本统计', table.field_names, values,
+            display=[[str(cell) for cell in row] for row in table.rows]))
         pct, confidence = '%.1f%%' % (100 * P), '%.1f%%' % (100 * (1 - alpha))
+        values = [['正态', '双侧区间', P, 1 - alpha, ti[0], ti[1], k],
+                  ['正态', '单侧下限', P, 1 - alpha, ll, '*', k_one],
+                  ['正态', '单侧上限', P, 1 - alpha, '*', ul, k_one]]
         table = gen_table([
             ['方法', '限类型', '总体覆盖比例', '置信水平', '下容差限', '上容差限', '容差因子 k'],
             ['正态', '双侧区间', pct, confidence, format_stat(ti[0]), format_stat(ti[1]), format_stat(k)],
@@ -68,7 +74,9 @@ def ti_norm(data=None, alpha=0.05, P=0.9,
             ['正态', '单侧上限', pct, confidence, '*', format_stat(ul), format_stat(k_one)]])
         for col in table.field_names[2:]:
             table.align[col] = 'r'
-        print(str(table))
+        print(StatTable(table, '统计容差区间（正态方法）', table.field_names, values,
+            display=[[str(cell) for cell in row] for row in table.rows],
+            number_formats=['General', 'General', '0.0%', '0.0%', '0.000', '0.000', '0.000']))
         print("假设总体服从正态分布；限值单位与输入测量值一致，k 无量纲，* 表示不适用。")
         print("总体覆盖比例为至少需覆盖的个体比例，置信水平描述重复抽样时容差限达到该覆盖要求的长期比例。")
         print("单侧下限覆盖其上方总体，单侧上限覆盖其下方总体；两行是分别计算的单侧限，不能拼成双侧区间。")
