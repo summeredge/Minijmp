@@ -43,7 +43,7 @@ def computation_dump(source, function):
         body = []
         calls = 0
         for statement in node.body:
-            # 此入口的报告只使用 t/rows/table；清洗、概率校验和参考行计算全部保留。
+            # values 是 G9 新增的报告原值；清洗、概率校验和参考行计算全部保留。
             if isinstance(statement, ast.Assign):
                 target = statement.targets[0]
                 if isinstance(statement.value, ast.Call) and isinstance(statement.value.func, ast.Name) and statement.value.func.id == 'chi_square':
@@ -54,7 +54,7 @@ def computation_dump(source, function):
                             keyword.value = ast.Constant(False)
                     body.append(ast.Expr(call))
                     continue
-                if (isinstance(target, ast.Name) and target.id in {'t', 'rows', 'table'}
+                if (isinstance(target, ast.Name) and target.id in {'t', 'rows', 'table', 'values'}
                         or isinstance(target, (ast.Attribute, ast.Subscript)) and ast.unparse(target).startswith(('t.', 'table.'))):
                     continue
             if isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Call):
@@ -69,7 +69,7 @@ def computation_dump(source, function):
             if isinstance(statement, ast.For) and isinstance(statement.target, ast.Name) and statement.target.id == 'i':
                 assert ast.unparse(statement.iter) == 'range(len(cnts))'
                 assert all(isinstance(s, ast.Expr) and isinstance(s.value, ast.Call)
-                           and ast.unparse(s.value.func) in {'t.add_row', 'rows.append'} for s in statement.body)
+                           and ast.unparse(s.value.func) in {'t.add_row', 'rows.append', 'values.append'} for s in statement.body)
                 continue
             body.append(statement)
         assert calls == 1

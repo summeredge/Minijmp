@@ -1,3 +1,4 @@
+from stat_table import StatTable
 import statistics as stat
 import numpy as np
 from scipy.stats import f as f_dist
@@ -50,17 +51,23 @@ def one_way_anova(data, labels, print_out=False, print_port=print,
               (k, N, format_stat(alpha)))
         print("原假设 H0：各组总体均值相等；备择假设 H1：至少一组总体均值不同。")
         print("\n各组均值摘要（%.1f%% 总体均值双侧置信区间）" % ((1 - alpha) * 100))
+        values = []
         t = gen_table([["组别", "N", "均值", "均值标准误", "置信下限", "置信上限"]])
         for i in range(k):
+            values.append([groups[i], ns[i], means[i], stds[i], CIs[i][0], CIs[i][1]])
             t.add_row([groups[i], ns[i], format_stat(means[i]),
                        format_stat(stds[i]), format_stat(CIs[i][0]),
                        format_stat(CIs[i][1])])
         for column in t.field_names[1:]:
             t.align[column] = "r"
-        print(str(t))
+        print(StatTable(t, '各组均值摘要', t.field_names, values,
+            display=[[str(cell) for cell in row] for row in t.rows]))
         print("均值标准误及置信区间使用合并误差方差 = %s；区间为各组单独区间，非同时置信区间。" %
               format_stat(pooled_variance))
         print("\n方差分析表")
+        values = [['组间', df_between, SSB, MSB, F, p],
+                  ['组内（误差）', df_within, SSW, MSW, '*', '*'],
+                  ['总计', df_total, SST, '*', '*', '*']]
         t = gen_table([
             ["来源", "自由度", "平方和", "均方", "F 值", "p 值"],
             ["组间", df_between, format_stat(SSB), format_stat(MSB),
@@ -69,7 +76,8 @@ def one_way_anova(data, labels, print_out=False, print_port=print,
             ["总计", df_total, format_stat(SST), "*", "*", "*"]])
         for column in t.field_names[1:]:
             t.align[column] = "r"
-        print(str(t))
+        print(StatTable(t, '方差分析表', t.field_names, values,
+            display=[[str(cell) for cell in row] for row in t.rows]))
         print("模型假设：观测独立，组内误差近似正态且方差相等；本报告未检验这些条件。")
         print("* 表示不适用或不可用；p 值显示为 0.000 是舍入结果，不代表概率严格为零。")
 
@@ -195,13 +203,17 @@ def JMP_ANOVA_t_test(data, labels, print_out=False, print_port=print,
               (format_stat(alpha), df, format_stat(pooled_variance)))
         print("各对比较 H0：两组总体均值相等；H1：两组总体均值不同（双侧）。")
         print("所有组共用合并方差；以下 p 值未作多重比较校正，不控制整组比较的错误率。")
+        values = []
         t = gen_table([["组别 1", "组别 2", "p 值"]])
         for i in range(1, k):
             for j in range(i):
+                values.append([keys[i], keys[j], ps[i][j]])
                 t.add_row([keys[i], keys[j], format_stat(ps[i][j])])
         t.align["p 值"] = "r"
-        print(str(t))
+        print(StatTable(t, '均值逐对比较', t.field_names, values,
+            display=[[str(cell) for cell in row] for row in t.rows]))
         print("\n字母分组（按均值降序）")
+        values = []
         t = gen_table([["字母分组", "组别", "均值"]])
         for i in range(k):
             key_i = means[i][1]
@@ -211,9 +223,11 @@ def JMP_ANOVA_t_test(data, labels, print_out=False, print_port=print,
                     gt += chr(65 + j) + " "
                 else:
                     gt += "  "
+            values.append([gt, keys[key_i], means[i][0]])
             t.add_row([gt, keys[key_i], format_stat(means[i][0])])
         t.align["均值"] = "r"
-        print(str(t))
+        print(StatTable(t, '字母分组（按均值降序）', t.field_names, values,
+            display=[[str(cell) for cell in row] for row in t.rows]))
         print("字母分组沿用现有算法，具体差异以逐对 p 值为准；共享字母不代表总体均值相等。")
         print("模型假设：观测独立，组内误差近似正态且方差相等；本报告未检验这些条件。")
         print("p 值显示为 0.000 是舍入结果，不代表概率严格为零。")

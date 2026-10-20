@@ -1,0 +1,645 @@
+--- a/code/t_test.py
++++ b/code/t_test.py
+@@ -1,3 +1,4 @@
++from stat_table import StatTable
+ from scipy.stats import t as t_test
+ from scipy.stats import norm
+ import statistics as stat
+@@ -46,22 +47,30 @@
+         print("\n---- 单样本 t 检验 ----")
+         print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+         print(f'原假设 H0: μ = μ0；μ0 = {format_stat(u0)}')
+-        for title, rows in [
++        for title, rows, values in [
+             ('样本统计', [['样本', 'N', '均值', '标准差'],
+-                          ['样本', n, format_stat(mean), format_stat(stdev)]]),
++                          ['样本', n, format_stat(mean), format_stat(stdev)]], [
++                ['样本', n, mean, stdev]]),
+             ('检验结果', [['检验', '备择假设 H1', 't', '自由度', 'p 值'],
+                           ['双侧', 'mu != mu0', format_stat(t), format_stat(df), format_stat(p)],
+                           ['左尾', 'mu < mu0', format_stat(t), format_stat(df), format_stat(p_l)],
+-                          ['右尾', 'mu > mu0', format_stat(t), format_stat(df), format_stat(p_g)]]),
++                          ['右尾', 'mu > mu0', format_stat(t), format_stat(df), format_stat(p_g)]], [
++                ['双侧', 'mu != mu0', t, df, p],
++                ['左尾', 'mu < mu0', t, df, p_l],
++                ['右尾', 'mu > mu0', t, df, p_g]]),
+             ('总体均值的置信区间', [['区间', '下限', '上限'],
+                           ['双侧置信区间', format_stat(u0_95range[0]), format_stat(u0_95range[1])],
+                           ['单侧置信下限', format_stat(u0_lower), '*'],
+-                          ['单侧置信上限', '*', format_stat(u0_upper)]])]:
++                          ['单侧置信上限', '*', format_stat(u0_upper)]], [
++                ['双侧置信区间', u0_95range[0], u0_95range[1]],
++                ['单侧置信下限', u0_lower, '*'],
++                ['单侧置信上限', '*', u0_upper]])]:
+             print(title)
+             table = gen_table(rows)
+             table.align = 'r'
+             table.align[table.field_names[0]] = 'l'
+-            print(str(table))
++            print(StatTable(table, title, table.field_names, values,
++                display=[[str(cell) for cell in row] for row in table.rows]))
+         print("p 值是在原假设及检验模型成立时，得到当前或更极端检验统计量的概率。")
+         print('p 值保留三位小数，0.000 为舍入显示。')
+     return {
+@@ -114,22 +123,30 @@
+         print("\n---- 单样本 Z 检验 ----")
+         print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+         print(f'原假设 H0: μ = μ0；μ0 = {format_stat(u0)}')
+-        for title, rows in [
++        for title, rows, values in [
+             ('样本统计', [['样本', 'N', '均值', '已知总体标准差'],
+-                          ['样本', n, format_stat(mean), format_stat(s0)]]),
++                          ['样本', n, format_stat(mean), format_stat(s0)]], [
++                ['样本', n, mean, s0]]),
+             ('检验结果', [['检验', '备择假设 H1', 'Z', '自由度', 'p 值'],
+                           ['双侧', 'mu != mu0', format_stat(z), format_stat(df), format_stat(p)],
+                           ['左尾', 'mu < mu0', format_stat(z), format_stat(df), format_stat(p_l)],
+-                          ['右尾', 'mu > mu0', format_stat(z), format_stat(df), format_stat(p_u)]]),
++                          ['右尾', 'mu > mu0', format_stat(z), format_stat(df), format_stat(p_u)]], [
++                ['双侧', 'mu != mu0', z, df, p],
++                ['左尾', 'mu < mu0', z, df, p_l],
++                ['右尾', 'mu > mu0', z, df, p_u]]),
+             ('总体均值的置信区间', [['区间', '下限', '上限'],
+                           ['双侧置信区间', format_stat(CI_95[0]), format_stat(CI_95[1])],
+                           ['单侧置信下限', format_stat(CI_l), '*'],
+-                          ['单侧置信上限', '*', format_stat(CI_u)]])]:
++                          ['单侧置信上限', '*', format_stat(CI_u)]], [
++                ['双侧置信区间', CI_95[0], CI_95[1]],
++                ['单侧置信下限', CI_l, '*'],
++                ['单侧置信上限', '*', CI_u]])]:
+             print(title)
+             table = gen_table(rows)
+             table.align = 'r'
+             table.align[table.field_names[0]] = 'l'
+-            print(str(table))
++            print(StatTable(table, title, table.field_names, values,
++                display=[[str(cell) for cell in row] for row in table.rows]))
+         print("p 值是在原假设及检验模型成立时，得到当前或更极端检验统计量的概率。")
+         print('p 值保留三位小数，0.000 为舍入显示。')
+ 
+@@ -155,22 +172,30 @@
+         print("\n---- 配对 t 检验 ----")
+         print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+         print(f'差值 = 样本 1 - 样本 2；原假设 H0: μd = μ0；μ0 = {format_stat(u0)}')
+-        for title, rows in [
++        for title, rows, values in [
+             ('样本统计', [['样本', 'N', '均值', '标准差'],
+-                          ['配对差值', len(diff), format_stat(res['mean']), format_stat(res['stdev'])]]),
++                          ['配对差值', len(diff), format_stat(res['mean']), format_stat(res['stdev'])]], [
++                ['配对差值', len(diff), res['mean'], res['stdev']]]),
+             ('检验结果', [['检验', '备择假设 H1', 't', '自由度', 'p 值'],
+                           ['双侧', 'mu_d != mu0', format_stat(res['t']), format_stat(res['df']), format_stat(res['p'])],
+                           ['左尾', 'mu_d < mu0', format_stat(res['t']), format_stat(res['df']), format_stat(res['p lt'])],
+-                          ['右尾', 'mu_d > mu0', format_stat(res['t']), format_stat(res['df']), format_stat(res['p gt'])]]),
++                          ['右尾', 'mu_d > mu0', format_stat(res['t']), format_stat(res['df']), format_stat(res['p gt'])]], [
++                ['双侧', 'mu_d != mu0', res['t'], res['df'], res['p']],
++                ['左尾', 'mu_d < mu0', res['t'], res['df'], res['p lt']],
++                ['右尾', 'mu_d > mu0', res['t'], res['df'], res['p gt']]]),
+             ('配对差值总体均值的置信区间', [['区间', '下限', '上限'],
+                           ['双侧置信区间', format_stat(res['u0_95range'][0]), format_stat(res['u0_95range'][1])],
+                           ['单侧置信下限', format_stat(res['u0 lower']), '*'],
+-                          ['单侧置信上限', '*', format_stat(res['u0 upper'])]])]:
++                          ['单侧置信上限', '*', format_stat(res['u0 upper'])]], [
++                ['双侧置信区间', res['u0_95range'][0], res['u0_95range'][1]],
++                ['单侧置信下限', res['u0 lower'], '*'],
++                ['单侧置信上限', '*', res['u0 upper']]])]:
+             print(title)
+             table = gen_table(rows)
+             table.align = 'r'
+             table.align[table.field_names[0]] = 'l'
+-            print(str(table))
++            print(StatTable(table, title, table.field_names, values,
++                display=[[str(cell) for cell in row] for row in table.rows]))
+         print('p 值保留三位小数，0.000 为舍入显示。')
+     return res
+ 
+@@ -210,18 +235,23 @@
+             print = print_port
+             print('方法：合并方差 t（pooled）' if title == 'Equal variances, pooled t'
+                   else '方法：Welch t（JMP 17，不等方差）')
+-            for heading, rows in [
++            for heading, rows, values in [
+                 ('检验结果', [['检验', '备择假设 H1', 't', '自由度', 'p 值'],
+                               ['双侧', 'mu2 - mu1 != d0', format_stat(t), format_stat(df), format_stat(p)],
+                               ['左尾', 'mu2 - mu1 < d0', format_stat(t), format_stat(df), format_stat(pl)],
+-                              ['右尾', 'mu2 - mu1 > d0', format_stat(t), format_stat(df), format_stat(pu)]]),
++                              ['右尾', 'mu2 - mu1 > d0', format_stat(t), format_stat(df), format_stat(pu)]], [
++                    ['双侧', 'mu2 - mu1 != d0', t, df, p],
++                    ['左尾', 'mu2 - mu1 < d0', t, df, pl],
++                    ['右尾', 'mu2 - mu1 > d0', t, df, pu]]),
+                 ('总体均值差 μ2 - μ1 的置信区间', [['区间', '下限', '上限'],
+-                              ['双侧置信区间', format_stat(CI[0]), format_stat(CI[1])]])]:
++                              ['双侧置信区间', format_stat(CI[0]), format_stat(CI[1])]], [
++                    ['双侧置信区间', CI[0], CI[1]]])]:
+                 print(heading)
+                 table = gen_table(rows)
+                 table.align = 'r'
+                 table.align[table.field_names[0]] = 'l'
+-                print(str(table))
++                print(StatTable(table, heading, table.field_names, values,
++                    display=[[str(cell) for cell in row] for row in table.rows]))
+             print('p 值保留三位小数，0.000 为舍入显示。')
+         return {"CI": CI, "p": p, "p lower": pl, "p upper": pu, "t": t,
+                 "df": df}
+@@ -251,12 +281,15 @@
+         print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+         print(f'原假设 H0: μ2 - μ1 = d0；d0 = {format_stat(d0)}；样本均值差 u2 - u1 = {format_stat(u2 - u1)}')
+         print('样本统计')
++        values = [['样本 1', n1, u1, s1],
++                  ['样本 2', n2, u2, s2]]
+         table = gen_table([['样本', 'N', '均值', '标准差'],
+                            ['样本 1', n1, format_stat(u1), format_stat(s1)],
+                            ['样本 2', n2, format_stat(u2), format_stat(s2)]])
+         table.align = 'r'
+         table.align[table.field_names[0]] = 'l'
+-        print(str(table))
++        print(StatTable(table, '样本统计', table.field_names, values,
++            display=[[str(cell) for cell in row] for row in table.rows]))
+     # t = (x̄₁ - x̄₂) / √((s₁²/n₁) + (s₂²/n₂))
+     # df = (s1^2/n1 + s2^2/n2)^2 / [(s1^2/n1)^2/(n1-1) + (s2^2/n2)^2/(n2-1)]
+ 
+--- a/code/proportion_test.py
++++ b/code/proportion_test.py
+@@ -1,3 +1,4 @@
++from stat_table import StatTable
+ from scipy.stats import norm, binom, hypergeom
+ from scipy.stats import f as f_dist
+ #  from functools import lru_cache
+@@ -64,23 +65,33 @@
+         print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+         print(f'原假设 H0: p1 - p2 = 0；样本比例差 p1 - p2 = {format_stat(pd)}')
+         print('备择假设 H1：双侧 p1 - p2 ≠ 0；左尾 p1 - p2 < 0；右尾 p1 - p2 > 0。')
+-        for title, rows in [
++        for title, rows, values in [
+             ('样本统计', [['样本', 'N', '事件数', '比例'],
+                           ['样本 1', n1, e1, format_stat(p1)],
+-                          ['样本 2', n2, e2, format_stat(p2)]]),
++                          ['样本 2', n2, e2, format_stat(p2)]], [
++                ['样本 1', n1, e1, p1],
++                ['样本 2', n2, e2, p2]]),
+             ('检验结果', [['方法', 'Z', '双侧 p 值', '左尾 p 值', '右尾 p 值'],
+                           ['Fisher 精确', '*', format_stat(p_f), format_stat(pl_f), format_stat(pu_f)],
+                           ['正态近似（非合并）', format_stat(Zs), format_stat(p), format_stat(pl), format_stat(pu)],
+-                          ['正态近似（合并）', format_stat(Zp), format_stat(p_p), format_stat(pl_p), format_stat(pu_p)]]),
++                          ['正态近似（合并）', format_stat(Zp), format_stat(p_p), format_stat(pl_p), format_stat(pu_p)]], [
++                ['Fisher 精确', '*', p_f, pl_f, pu_f],
++                ['正态近似（非合并）', Zs, p, pl, pu],
++                ['正态近似（合并）', Zp, p_p, pl_p, pu_p]]),
+             ('总体比例差 p1 - p2 的置信区间（非合并正态近似）', [['区间', '下限', '上限'],
+                           ['双侧置信区间', format_stat(CI[0]), format_stat(CI[1])],
+                           ['单侧置信下限', format_stat(CI2[0]), '*'],
+-                          ['单侧置信上限', '*', format_stat(CI2[1])]])]:
++                          ['单侧置信上限', '*', format_stat(CI2[1])]], [
++                ['双侧置信区间', CI[0], CI[1]],
++                ['单侧置信下限', CI2[0], '*'],
++                ['单侧置信上限', '*', CI2[1]]])]:
+             print(title)
+             table = gen_table(rows)
+             table.align = 'r'
+             table.align[table.field_names[0]] = 'l'
+-            print(str(table))
++            print(StatTable(table, title, table.field_names, values,
++                display=[[str(cell) for cell in row] for row in table.rows],
++                number_formats=['0' if h in ('N', '事件数') else '0.000' for h in table.field_names]))
+         print('p 值保留三位小数，0.000 为舍入显示。')
+ 
+     return {"p sep": p, "p p1<p2": pl, "p p1>p2": pu,
+@@ -189,24 +200,35 @@
+         print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+         print(f'原假设 H0: p = p0；p0 = {format_stat(p0)}')
+         print('备择假设 H1：双侧 p ≠ p0；左尾 p < p0；右尾 p > p0。')
+-        for title, rows in [
++        for title, rows, values in [
+             ('样本统计', [['样本', 'N', '事件数', '比例'],
+-                          ['样本', N, events, format_stat(p)]]),
++                          ['样本', N, events, format_stat(p)]], [
++                ['样本', N, events, p]]),
+             ('检验结果', [['方法', '双侧 p 值', '左尾 p 值', '右尾 p 值'],
+                           ['正态近似', format_stat(p_norm), format_stat(p_norm_less), format_stat(1 - p_norm_less)],
+                           ['Sterne 精确', format_stat(p_s), '*', '*'],
+                           ['Blaker 精确', format_stat(p_b), '*', '*'],
+                           ['调整 Blaker 精确', format_stat(p_bi_uneq), '*', '*'],
+-                          ['二项精确', '*', format_stat(p_bi), format_stat(p_bi_r)]]),
++                          ['二项精确', '*', format_stat(p_bi), format_stat(p_bi_r)]], [
++                ['正态近似', p_norm, p_norm_less, 1 - p_norm_less],
++                ['Sterne 精确', p_s, '*', '*'],
++                ['Blaker 精确', p_b, '*', '*'],
++                ['调整 Blaker 精确', p_bi_uneq, '*', '*'],
++                ['二项精确', '*', p_bi, p_bi_r]]),
+             ('总体比例的置信区间', [['方法', '双侧下限', '双侧上限', '单侧置信下限', '单侧置信上限'],
+                           ['正态近似', format_stat(CI_l), format_stat(CI_u), format_stat(CI_low), format_stat(CI_high)],
+                           ['Clopper-Pearson', format_stat(p_exct_l), format_stat(p_exct_u), format_stat(p_exct_low), format_stat(p_exct_high)],
+-                          ['调整 Blaker', format_stat(b_CI[0]), format_stat(b_CI[1]), '*', '*']])]:
++                          ['调整 Blaker', format_stat(b_CI[0]), format_stat(b_CI[1]), '*', '*']], [
++                ['正态近似', CI_l, CI_u, CI_low, CI_high],
++                ['Clopper-Pearson', p_exct_l, p_exct_u, p_exct_low, p_exct_high],
++                ['调整 Blaker', b_CI[0], b_CI[1], '*', '*']])]:
+             print(title)
+             table = gen_table(rows)
+             table.align = 'r'
+             table.align[table.field_names[0]] = 'l'
+-            print(str(table))
++            print(StatTable(table, title, table.field_names, values,
++                display=[[str(cell) for cell in row] for row in table.rows],
++                number_formats=['0' if h in ('N', '事件数') else '0.000' for h in table.field_names]))
+         print("调整 Blaker 行报告双侧精确 p 值；单侧精确检验采用二项分布尾概率，单侧精确置信限采用 Clopper-Pearson 方法。")
+         print('p 值保留三位小数，0.000 为舍入显示。')
+         #  print("\nJMP Test Probabilities in Distributions")
+@@ -216,12 +238,15 @@
+                          print_out=False, print_port=print_port)
+     if print_out:
+         print('检验结果（JMP 列联表；备择假设 H1: p ≠ p0）')
++        values = [['Pearson', chi_res['chi sq Pearson'], chi_res['df'], chi_res['p Pearson']],
++                  ['似然比', chi_res['chi sq LR'], chi_res['df'], chi_res['p LR']]]
+         table = gen_table([['方法', '卡方统计量', '自由度', 'p 值'],
+                            ['Pearson', format_stat(chi_res['chi sq Pearson']), chi_res['df'], format_stat(chi_res['p Pearson'])],
+                            ['似然比', format_stat(chi_res['chi sq LR']), chi_res['df'], format_stat(chi_res['p LR'])]])
+         table.align = 'r'
+         table.align[table.field_names[0]] = 'l'
+-        print(str(table))
++        print(StatTable(table, '检验结果（JMP 列联表；备择假设 H1: p ≠ p0）', table.field_names, values,
++            display=[[str(cell) for cell in row] for row in table.rows]))
+ 
+     return {"p norm": p_norm, "p Binomial": p_bi,
+             "Z p less": p_norm_less,
+--- a/code/chi_sq.py
++++ b/code/chi_sq.py
+@@ -1,3 +1,4 @@
++from stat_table import StatTable
+ import statistics as stat
+ import numpy as np
+ from scipy.stats import chi2, norm, kurtosis
+@@ -39,21 +40,28 @@
+         print("\n---- 单样本标准差卡方检验 ----")
+         print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+         print(f'原假设 H0: σ = σ0；σ0 = {format_stat(s0)}；假定总体服从正态分布。')
+-        for title, rows in [
+-            ('样本统计', [['样本', 'N', '标准差'], ['样本', df + 1, format_stat(stdev)]]),
++        for title, rows, values in [
++            ('样本统计', [['样本', 'N', '标准差'], ['样本', df + 1, format_stat(stdev)]], [
++                ['样本', df + 1, stdev]]),
+             ('检验结果', [['检验', '备择假设 H1', '卡方统计量', '自由度', 'p 值'],
+-                          ['右尾', 'sigma > sigma0', format_stat(chi_sq), df, format_stat(p)]]),
++                          ['右尾', 'sigma > sigma0', format_stat(chi_sq), df, format_stat(p)]], [
++                ['右尾', 'sigma > sigma0', chi_sq, df, p]]),
+             ('总体标准差的置信区间', [['区间', '下限', '上限'],
+                           ['双侧置信区间', format_stat(std_range_from_S[0]), format_stat(std_range_from_S[1])],
+-                          ['单侧置信上限', '*', format_stat(std_from_S_high95)]]),
++                          ['单侧置信上限', '*', format_stat(std_from_S_high95)]], [
++                ['双侧置信区间', std_range_from_S[0], std_range_from_S[1]],
++                ['单侧置信上限', '*', std_from_S_high95]]),
+             ('抽样分布参考（不是总体参数的置信区间）', [['项目', '下限', '上限'],
+                           ['卡方分位点 (alpha/2, 1-alpha/2)', format_stat(chi2_low0025), format_stat(chi2_high0975)],
+-                          ['样本标准差的抽样分布中央区间', format_stat(stdev_range_low), format_stat(stdev_range_high)]])]:
++                          ['样本标准差的抽样分布中央区间', format_stat(stdev_range_low), format_stat(stdev_range_high)]], [
++                ['卡方分位点 (alpha/2, 1-alpha/2)', chi2_low0025, chi2_high0975],
++                ['样本标准差的抽样分布中央区间', stdev_range_low, stdev_range_high]])]:
+             print(title)
+             table = gen_table(rows)
+             table.align = 'r'
+             table.align[table.field_names[0]] = 'l'
+-            print(str(table))
++            print(StatTable(table, title, table.field_names, values,
++                display=[[str(cell) for cell in row] for row in table.rows]))
+         print('p 值保留三位小数，0.000 为舍入显示。')
+ 
+     return {
+@@ -195,15 +203,33 @@
+             table = gen_table(rows)
+             table.align = 'r'
+             table.align[table.field_names[0]] = 'l'
+-            print(str(table))
++            # 拆开观测/期望单元格，Excel 保留两个数值，TXT 仍使用原合并表。
++            headers = ['行 / 列'] + [f'{key}（{kind}）' for key in cKeys
++                                      for kind in ('观测', '期望')] + ['合计']
++            values = [[rkey] + [value for x in range(len(cKeys))
++                               for value in (a[y][x], e[y][x])] + [row_sum[y]]
++                      for y, rkey in enumerate(rKeys)]
++            values.append(['合计'] + [value for total in col_sum for value in (total, '*')]
++                          + [ttl_sum])
++            display = [[str(rkey)] + [text for x in range(len(cKeys))
++                        for text in (str(a[y][x]).removesuffix('.0'), format_stat(e[y][x]))]
++                       + [str(row_sum[y])] for y, rkey in enumerate(rKeys)]
++            display.append(['合计'] + [text for total in col_sum for text in (str(total), '*')]
++                           + [str(ttl_sum)])
++            print(StatTable(table, '列联表（观测频数 / 期望频数）', headers, values,
++                display=display,
++                number_formats=['General'] + ['General', '0.000'] * len(cKeys) + ['General']))
+ 
+         print('检验结果')
++        values = [['Pearson', chi_sq, df, p],
++                  ['似然比', LR, df, p_LR]]
+         table = gen_table([['方法', '卡方统计量', '自由度', 'p 值'],
+                            ['Pearson', format_stat(chi_sq), df, format_stat(p)],
+                            ['似然比', format_stat(LR), df, format_stat(p_LR)]])
+         table.align = 'r'
+         table.align[table.field_names[0]] = 'l'
+-        print(str(table))
++        print(StatTable(table, '检验结果', table.field_names, values,
++            display=[[str(cell) for cell in row] for row in table.rows]))
+         if np.all(np.isfinite(e)):
+             small = np.count_nonzero(e < 5)
+             if small:
+@@ -286,6 +312,7 @@
+         t = PT()
+         pct = "%.2f%%" % (100 - 100 * alpha)
+         t.field_names = ["Sample", "N", "SD", pct + " CI of std", "MAD to Mean", "MAD to Median"]
++        values, display = [], []
+         for i in range(len(data)):
+             chi2_r = chi2_test_stdev(
+                 data[i],
+@@ -302,12 +329,18 @@
+             median = stat.median(data[i])
+             mad = sum(abs(x - mean) for x in data[i]) / len(data[i])
+             mad2 = sum(abs(x - median) for x in data[i]) / len(data[i])
++            values.append([labels[i], len(data[i]), stat.stdev(data[i]),
++                           sr[0], sr[1], mad, mad2])
++            display.append([str(labels[i]), str(len(data[i])), '%.3f' % stat.stdev(data[i]),
++                            '%.3f' % sr[0], '%.3f' % sr[1], '%.3f' % mad, '%.3f' % mad2])
+             t.add_row([labels[i], len(data[i]),
+                        "%.3f" % stat.stdev(data[i]),
+                        "(%.3f, %.3f)" % sr,
+                        "%.3f" % (mad), "%.3f" % (mad2)
+                        ])
+-        print(str(t))
++        print(StatTable(t, 'Multi Sample Standard Deviation Test',
++            ['Sample', 'N', 'SD', pct + ' CI lower', pct + ' CI upper',
++             'MAD to Mean', 'MAD to Median'], values, display=display))
+         print("Note: MAD to Mean is Mean Absolute Difference to Mean. MAD to Median is Mean Absolute Difference to Median.\n")
+ 
+         print("H0: All variances are equal. H1: At least one variance is different.\n")
+@@ -374,21 +407,29 @@
+         print("\n---- 单样本标准差卡方检验 ----")
+         print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+         print(f'原假设 H0: σ = σ0；σ0 = {format_stat(s0)}；卡方方法假定总体服从正态分布。')
+-        for title, rows in [
+-            ('样本统计', [['样本', 'N', '标准差'], ['样本', n, format_stat(std)]]),
++        for title, rows, values in [
++            ('样本统计', [['样本', 'N', '标准差'], ['样本', n, format_stat(std)]], [
++                ['样本', n, std]]),
+             ('检验结果', [['检验', '备择假设 H1', '卡方统计量', '自由度', 'p 值'],
+                           ['双侧', 'sigma != sigma0', format_stat(chi_sq), df, format_stat(p)],
+                           ['左尾', 'sigma < sigma0', format_stat(chi_sq), df, format_stat(p_l)],
+-                          ['右尾', 'sigma > sigma0', format_stat(chi_sq), df, format_stat(p_u)]]),
++                          ['右尾', 'sigma > sigma0', format_stat(chi_sq), df, format_stat(p_u)]], [
++                ['双侧', 'sigma != sigma0', chi_sq, df, p],
++                ['左尾', 'sigma < sigma0', chi_sq, df, p_l],
++                ['右尾', 'sigma > sigma0', chi_sq, df, p_u]]),
+             ('总体标准差的置信区间', [['区间', '下限', '上限'],
+                           ['双侧置信区间', format_stat(CI_95[0]), format_stat(CI_95[1])],
+                           ['单侧置信下限', format_stat(CI_l), '*'],
+-                          ['单侧置信上限', '*', format_stat(CI_u)]])]:
++                          ['单侧置信上限', '*', format_stat(CI_u)]], [
++                ['双侧置信区间', CI_95[0], CI_95[1]],
++                ['单侧置信下限', CI_l, '*'],
++                ['单侧置信上限', '*', CI_u]])]:
+             print(title)
+             table = gen_table(rows)
+             table.align = 'r'
+             table.align[table.field_names[0]] = 'l'
+-            print(str(table))
++            print(StatTable(table, title, table.field_names, values,
++                display=[[str(cell) for cell in row] for row in table.rows]))
+         print('p 值保留三位小数，0.000 为舍入显示。')
+     return {
+         "p": p, "n": n,
+@@ -419,22 +460,28 @@
+         print("\n---- 单样本标准差检验 ----")
+         print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+         print(f'原假设 H0: σ = σ0；σ0 = {format_stat(s0)}；备择假设 H1: σ ≠ σ0')
+-        for title, rows in [
++        for title, rows, values in [
+             ('样本统计', [['样本', 'N', '标准差'],
+-                          ['样本', chi2_res['n'], format_stat(chi2_res['stdev'])]]),
++                          ['样本', chi2_res['n'], format_stat(chi2_res['stdev'])]], [
++                ['样本', chi2_res['n'], chi2_res['stdev']]]),
+             ('检验结果（双侧）', [['方法', 'p 值'],
+                           ['卡方', format_stat(chi2_res['p'])],
+-                          ['Bonett', format_stat(bonett_res['Bonett p'])]]),
++                          ['Bonett', format_stat(bonett_res['Bonett p'])]], [
++                ['卡方', chi2_res['p']],
++                ['Bonett', bonett_res['Bonett p']]]),
+             ('总体标准差的置信区间', [['方法', '双侧下限', '双侧上限', '单侧置信下限', '单侧置信上限'],
+                           ['卡方', format_stat(chi2_res['CI 95'][0]), format_stat(chi2_res['CI 95'][1]),
+                            format_stat(chi2_res['CI lower']), format_stat(chi2_res['CI upper'])],
+                           ['Bonett', format_stat(bonett_res['Bonett CI'][0]), format_stat(bonett_res['Bonett CI'][1]),
+-                           format_stat(bonett_res['One tail lower boundary']), format_stat(bonett_res['One tail upper boundary'])]])]:
++                           format_stat(bonett_res['One tail lower boundary']), format_stat(bonett_res['One tail upper boundary'])]], [
++                ['卡方', chi2_res['CI 95'][0], chi2_res['CI 95'][1], chi2_res['CI lower'], chi2_res['CI upper']],
++                ['Bonett', bonett_res['Bonett CI'][0], bonett_res['Bonett CI'][1], bonett_res['One tail lower boundary'], bonett_res['One tail upper boundary']]])]:
+             print(title)
+             table = gen_table(rows)
+             table.align = 'r'
+             table.align[table.field_names[0]] = 'l'
+-            print(str(table))
++            print(StatTable(table, title, table.field_names, values,
++                display=[[str(cell) for cell in row] for row in table.rows]))
+         print("Bonett 方法不要求总体服从正态分布，属于近似推断；小样本或重尾分布需谨慎。")
+         print("卡方方法假定总体服从正态分布。")
+         print('p 值保留三位小数，0.000 为舍入显示。')
+--- a/code/chi2_dialog.py
++++ b/code/chi2_dialog.py
+@@ -1,3 +1,4 @@
++from stat_table import StatTable
+ from tkinter import ttk
+ import tkinter as tk
+ from tkinter import TOP, LEFT, X, BOTH
+@@ -157,21 +158,28 @@
+         self.app.print('备择假设 H1：至少一个水平的总体概率不同于假设概率。')
+         self.app.print('方法：沿用观测频数与大样本参考行构成的列联表近似，未作连续性校正。')
+         rows = [['水平', '观测频数', '估计概率', '假设概率']]
++        values = []
+         for i in range(len(cnts)):
++            values.append([rKeys[i], cnts[i], cnts[i] / sum(cnts), res[i]])
+             rows.append([rKeys[i], cnts[i], format_stat(cnts[i] / sum(cnts)),
+                          format_stat(res[i])])
+         table = gen_table(rows)
+         table.align = 'r'
+         table.align[table.field_names[0]] = 'l'
+-        self.app.print(str(table))
++        self.app.print(StatTable(table, '各水平概率', table.field_names, values,
++            display=[[str(cell) for cell in row] for row in table.rows],
++            number_formats=['General', 'General', '0.000', '0.000']))
+         self.app.print('当前返回结果未提供各水平的期望频数；不另行推算。')
+         self.app.print('检验结果')
++        values = [['Pearson', result['chi sq Pearson'], result['df'], result['p Pearson']],
++                  ['似然比', result['chi sq LR'], result['df'], result['p LR']]]
+         table = gen_table([['方法', '卡方统计量', '自由度', 'p 值'],
+                            ['Pearson', format_stat(result['chi sq Pearson']), result['df'], format_stat(result['p Pearson'])],
+                            ['似然比', format_stat(result['chi sq LR']), result['df'], format_stat(result['p LR'])]])
+         table.align = 'r'
+         table.align[table.field_names[0]] = 'l'
+-        self.app.print(str(table))
++        self.app.print(StatTable(table, '检验结果', table.field_names, values,
++            display=[[str(cell) for cell in row] for row in table.rows]))
+         self.app.print('适用条件：观测独立，期望频数应足够大；本报告未对小期望频数作自动判断。')
+         self.app.print('p 值是在 H0 及检验模型成立时，得到当前或更极端统计量的概率，不是 H0 成立的概率。')
+         self.app.print('p 值保留三位小数，0.000 为舍入显示，不代表概率严格为零；* 表示不可用。')
+--- a/code/one_way_ANOVA.py
++++ b/code/one_way_ANOVA.py
+@@ -1,3 +1,4 @@
++from stat_table import StatTable
+ import statistics as stat
+ import numpy as np
+ from scipy.stats import f as f_dist
+@@ -50,17 +51,23 @@
+               (k, N, format_stat(alpha)))
+         print("原假设 H0：各组总体均值相等；备择假设 H1：至少一组总体均值不同。")
+         print("\n各组均值摘要（%.1f%% 总体均值双侧置信区间）" % ((1 - alpha) * 100))
++        values = []
+         t = gen_table([["组别", "N", "均值", "均值标准误", "置信下限", "置信上限"]])
+         for i in range(k):
++            values.append([groups[i], ns[i], means[i], stds[i], CIs[i][0], CIs[i][1]])
+             t.add_row([groups[i], ns[i], format_stat(means[i]),
+                        format_stat(stds[i]), format_stat(CIs[i][0]),
+                        format_stat(CIs[i][1])])
+         for column in t.field_names[1:]:
+             t.align[column] = "r"
+-        print(str(t))
++        print(StatTable(t, '各组均值摘要', t.field_names, values,
++            display=[[str(cell) for cell in row] for row in t.rows]))
+         print("均值标准误及置信区间使用合并误差方差 = %s；区间为各组单独区间，非同时置信区间。" %
+               format_stat(pooled_variance))
+         print("\n方差分析表")
++        values = [['组间', df_between, SSB, MSB, F, p],
++                  ['组内（误差）', df_within, SSW, MSW, '*', '*'],
++                  ['总计', df_total, SST, '*', '*', '*']]
+         t = gen_table([
+             ["来源", "自由度", "平方和", "均方", "F 值", "p 值"],
+             ["组间", df_between, format_stat(SSB), format_stat(MSB),
+@@ -69,7 +76,8 @@
+             ["总计", df_total, format_stat(SST), "*", "*", "*"]])
+         for column in t.field_names[1:]:
+             t.align[column] = "r"
+-        print(str(t))
++        print(StatTable(t, '方差分析表', t.field_names, values,
++            display=[[str(cell) for cell in row] for row in t.rows]))
+         print("模型假设：观测独立，组内误差近似正态且方差相等；本报告未检验这些条件。")
+         print("* 表示不适用或不可用；p 值显示为 0.000 是舍入结果，不代表概率严格为零。")
+ 
+@@ -195,13 +203,17 @@
+               (format_stat(alpha), df, format_stat(pooled_variance)))
+         print("各对比较 H0：两组总体均值相等；H1：两组总体均值不同（双侧）。")
+         print("所有组共用合并方差；以下 p 值未作多重比较校正，不控制整组比较的错误率。")
++        values = []
+         t = gen_table([["组别 1", "组别 2", "p 值"]])
+         for i in range(1, k):
+             for j in range(i):
++                values.append([keys[i], keys[j], ps[i][j]])
+                 t.add_row([keys[i], keys[j], format_stat(ps[i][j])])
+         t.align["p 值"] = "r"
+-        print(str(t))
++        print(StatTable(t, '均值逐对比较', t.field_names, values,
++            display=[[str(cell) for cell in row] for row in t.rows]))
+         print("\n字母分组（按均值降序）")
++        values = []
+         t = gen_table([["字母分组", "组别", "均值"]])
+         for i in range(k):
+             key_i = means[i][1]
+@@ -211,9 +223,11 @@
+                     gt += chr(65 + j) + " "
+                 else:
+                     gt += "  "
++            values.append([gt, keys[key_i], means[i][0]])
+             t.add_row([gt, keys[key_i], format_stat(means[i][0])])
+         t.align["均值"] = "r"
+-        print(str(t))
++        print(StatTable(t, '字母分组（按均值降序）', t.field_names, values,
++            display=[[str(cell) for cell in row] for row in t.rows]))
+         print("字母分组沿用现有算法，具体差异以逐对 p 值为准；共享字母不代表总体均值相等。")
+         print("模型假设：观测独立，组内误差近似正态且方差相等；本报告未检验这些条件。")
+         print("p 值显示为 0.000 是舍入结果，不代表概率严格为零。")
+--- a/code/two_way_anova.py
++++ b/code/two_way_anova.py
+@@ -1,3 +1,4 @@
++from stat_table import StatTable
+ from scipy.stats import f as f_stat
+ import statistics as stat
+ import statsmodels.api as sm
+@@ -128,22 +129,31 @@
+         print = print_port
+         print("\n---- 双因素方差分析（%s交互作用）----" % ("含" if interaction else "不含"))
+         print("总样本量 N = %d；调整平方和采用 III 型。" % n)
++        values = [[name_a, a],
++                  [name_b, b]]
+         t = gen_table([["因子", "水平数"], [name_a, a], [name_b, b]])
+         t.align["水平数"] = "r"
+-        print(str(t))
++        print(StatTable(t, '因子水平', t.field_names, values,
++            display=[[str(cell) for cell in row] for row in t.rows]))
+         print("\n方差分析表")
++        values = [[name_a, DFA, SSA, MSA, FA, PA],
++                  [name_b, DFB, SSB, MSB, FB, PB]]
+         t = gen_table([
+             ["来源", "自由度", "调整平方和", "调整均方", "F 值", "p 值"],
+             [name_a, DFA, format_stat(SSA), format_stat(MSA), format_stat(FA), format_stat(PA)],
+             [name_b, DFB, format_stat(SSB), format_stat(MSB), format_stat(FB), format_stat(PB)]])
+         if interaction:
++            values.append([name_a + '*' + name_b, DFAB, SSAB, MSAB, FAB, PAB])
+             t.add_row([name_a + "*" + name_b, DFAB, format_stat(SSAB),
+                        format_stat(MSAB), format_stat(FAB), format_stat(PAB)])
++        values.append(['误差', DFE, SSE, MSE, '*', '*'])
+         t.add_row(["误差", DFE, format_stat(SSE), format_stat(MSE), "*", "*"])
++        values.append(['总计', DFT, SST, '*', '*', '*'])
+         t.add_row(["总计", DFT, format_stat(SST), "*", "*", "*"])
+         for column in t.field_names[1:]:
+             t.align[column] = "r"
+-        print(str(t))
++        print(StatTable(t, '方差分析表', t.field_names, values,
++            display=[[str(cell) for cell in row] for row in t.rows]))
+         print("各项 F 检验的 H0 为对应模型项效应为零；主效应应结合所选模型解释。")
+         if interaction:
+             print("交互作用检验因子效应是否随另一因子的水平改变。")
+--- a/code/ti.py
++++ b/code/ti.py
+@@ -1,3 +1,4 @@
++from stat_table import StatTable
+     
+ import numpy as np
+ from scipy import integrate
+@@ -56,11 +57,16 @@
+         print = print_port
+         print("\n---- 统计容差区间（正态方法） ----")
+         print("数据来源：" + ("原始样本" if None in [sample_mean, sample_n, sample_std] else "汇总数据"))
++        values = [[n, u, s]]
+         table = gen_table([['N', '样本均值', '样本标准差'],
+                            [n, format_stat(u), format_stat(s)]])
+         table.align = 'r'
+-        print(str(table))
++        print(StatTable(table, '样本统计', table.field_names, values,
++            display=[[str(cell) for cell in row] for row in table.rows]))
+         pct, confidence = '%.1f%%' % (100 * P), '%.1f%%' % (100 * (1 - alpha))
++        values = [['正态', '双侧区间', P, 1 - alpha, ti[0], ti[1], k],
++                  ['正态', '单侧下限', P, 1 - alpha, ll, '*', k_one],
++                  ['正态', '单侧上限', P, 1 - alpha, '*', ul, k_one]]
+         table = gen_table([
+             ['方法', '限类型', '总体覆盖比例', '置信水平', '下容差限', '上容差限', '容差因子 k'],
+             ['正态', '双侧区间', pct, confidence, format_stat(ti[0]), format_stat(ti[1]), format_stat(k)],
+@@ -68,7 +74,9 @@
+             ['正态', '单侧上限', pct, confidence, '*', format_stat(ul), format_stat(k_one)]])
+         for col in table.field_names[2:]:
+             table.align[col] = 'r'
+-        print(str(table))
++        print(StatTable(table, '统计容差区间（正态方法）', table.field_names, values,
++            display=[[str(cell) for cell in row] for row in table.rows],
++            number_formats=['General', 'General', '0.0%', '0.0%', '0.000', '0.000', '0.000']))
+         print("假设总体服从正态分布；限值单位与输入测量值一致，k 无量纲，* 表示不适用。")
+         print("总体覆盖比例为至少需覆盖的个体比例，置信水平描述重复抽样时容差限达到该覆盖要求的长期比例。")
+         print("单侧下限覆盖其上方总体，单侧上限覆盖其下方总体；两行是分别计算的单侧限，不能拼成双侧区间。")
+--- a/tests/test_g4_quality_reports.py
++++ b/tests/test_g4_quality_reports.py
+@@ -474,6 +474,14 @@
+         # 仅两份绘图源码转为已验收的 G6 基线，其余共享模块仍保留原守卫。
+         baseline = '0320b7bdc49321eb7a54f67ddc89dc08edc32f3e' if name in {'cpk_plot.py', 'grr_plot.py'} else SHARED_BASELINE
+         old = subprocess.check_output(['git', 'show', f'{baseline}:code/{name}'], cwd=ROOT).decode('utf-8')
++        if name in {'one_way_ANOVA.py', 'two_way_anova.py'}:
++            # G9 仅迁移报告；计算守卫继续保留，完整 TXT 由 G9 固定夹具验证。
++            current = ast.parse((ROOT / 'code' / name).read_text(encoding='utf-8'))
++            current.body = [node for node in current.body if not (
++                isinstance(node, ast.ImportFrom) and node.module == 'stat_table')]
++            assert ast.dump(ComputationOnly().visit(current)) == ast.dump(
++                ComputationOnly().visit(ast.parse(old)))
++            continue
+         if name == 'utilities.py':
+             # P1/P2 仅授权 Pearson 舍入截断及完全相关区间方向，保留整文件其余守卫。
+             old = old.replace('\r\n', '\n')
