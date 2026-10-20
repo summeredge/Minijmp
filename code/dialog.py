@@ -9,6 +9,7 @@ from prettytable import PrettyTable as PT
 #  import pandas as pd
 ############### Own Modules ############
 from utilities import is_void, get_number
+from help_link import open_help
 
 
 class findRepDialog(FindReplaceDialog):
@@ -264,6 +265,7 @@ class Dialogs(BaseDialog):
         self.add_window_help(m)
         self.createWidgets(m)
         self.buttonsFrame()
+        self.main.bind('<F1>', self.help)
         apply_dialog_theme(self.main)
         print("Gen new dialog", self.title)
         return
@@ -285,9 +287,9 @@ class Dialogs(BaseDialog):
         w.pack(side=TOP, fill=BOTH, padx=3, pady=3)
         return
 
-    def help(self):
-        self.app.online_documentation(key=self.title)
-        return
+    def help(self, event=None):
+        open_help(self.__class__.__name__, parent=self.main)
+        return 'break'
 
     def buttonsFrame(self):
         bf = ttk.Frame(self.main)

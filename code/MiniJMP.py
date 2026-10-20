@@ -22,6 +22,7 @@ from sb_hist_dialog import singleHistoDialog, multiHistoDialog, xyHistoDialog
 from sb_box_dialog import singleBoxDialog, multiBoxDialog
 from sb_misc_dialog import countPlotDialog, linePlotDialog, dotPlotDialog
 from dist_plot_dialog import displayProbDialog, displayProb2xDialog
+from help_link import open_help
 
 
 class Minijmp(Minijmp_pre):
@@ -78,6 +79,7 @@ class Minijmp(Minijmp_pre):
                          '06sep': '',
                          '07Import CSV': {'cmd': self.import_csv},
                          '08Advanced Import': {'cmd': lambda: self.import_csv(advanced=True)},
+                         '09Import PI Data': {'cmd': self.import_pi_data},
                          '10Import Excel': {'cmd': self.load_excel},
                          '10Export CSV': {'cmd': lambda: self._call('doExport')},
                          '11sep': '',
@@ -229,13 +231,15 @@ class Minijmp(Minijmp_pre):
         self.debug_menu = self.createPulldown(self.menu, self.debug_menu)
         self.menu.add_cascade(label='Debug', menu=self.debug_menu['var'])
 
-        self.help_menu = {'01Online Help': {'cmd': self.online_documentation},
-                          '02View Error Log': {'cmd': self.showErrorLog},
-                          '03About': {'cmd': self.about}}
+        self.help_menu = {'01帮助文档': {'cmd': lambda: open_help(parent=self.main)},
+                          '02Online Help': {'cmd': self.online_documentation},
+                          '03View Error Log': {'cmd': self.showErrorLog},
+                          '04About': {'cmd': self.about}}
         self.help_menu = self.createPulldown(self.menu, self.help_menu)
         self.menu.add_cascade(label='Help', menu=self.help_menu['var'])
 
         self.main.config(menu=self.menu)
+        self.main.bind('<F1>', lambda event: open_help(parent=self.main))
         return
 
     def update_title(self):
@@ -272,6 +276,20 @@ class Minijmp(Minijmp_pre):
     def import_csv(self, advanced=False):
         self._call('importCSV', dialog=advanced)
         self.update_title()
+        return
+
+    def import_pi_data(self):
+        from pi_import import PIImportDialog
+        from pandastable_local.data import TableModel
+
+        dialog = PIImportDialog(self.main)
+        self.main.wait_window(dialog)
+        if dialog.df is not None:
+            self.table.updateModel(TableModel(dialog.df))
+            self.table.prevdf = None
+            self.table.filename = None
+            self.table.redraw()
+            self.update_title()
         return
 
     def load_excel(self):
