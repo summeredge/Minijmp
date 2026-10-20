@@ -179,32 +179,37 @@ def chi_square(data, print_out=True, print_port=print,
         p_LR = LR = np.nan
 
     if print_out:
+        from utilities import gen_table, format_stat
         print = print_port
+        print("\n---- 卡方独立性检验 ----")
+        print('原假设 H0：行变量与列变量相互独立。')
+        print('备择假设 H1：行变量与列变量不独立。')
+        print('方法：Pearson 卡方与似然比检验；沿用未作连续性校正的统计量。')
         if print_table and cKeys is not None and rKeys is not None:
-            print("\n---- Contingency Table ----")
-            t = PT()
-            l = ["Count/Expected"] + list(cKeys) + ["Total"]
-            t.field_names = l
+            print('列联表（观测频数 / 期望频数）')
+            rows = [['行 / 列'] + list(cKeys) + ['合计']]
             for y, rkey in enumerate(rKeys):
-                l = [rkey]
-                for x in range(len(cKeys)):
-                    l.append("%d / %.2f" % (a[y][x], e[y][x]))
-                l.append("%d" % row_sum[y])
-                t.add_row(l)
-            l = ["Total"]
-            for x in range(len(cKeys)):
-                l.append("%d" % col_sum[x])
-            l.append("%d" % ttl_sum)
-            t.add_row(l)
-            print(str(t))
+                rows.append([rkey] + [f'{str(a[y][x]).removesuffix(".0")} / {format_stat(e[y][x])}'
+                                      for x in range(len(cKeys))] + [str(row_sum[y])])
+            rows.append(['合计'] + [str(value) for value in col_sum] + [str(ttl_sum)])
+            table = gen_table(rows)
+            table.align = 'r'
+            table.align[table.field_names[0]] = 'l'
+            print(str(table))
 
-        print("\n---- Chi square test ----")
-        print("df = %d" % df)
-        t = PT()
-        t.field_names = ["Test", "Chi sq", "P > ChiSq"]
-        t.add_row(["Likelihood Ratio", "%.3f" % LR, "%.3f" % p_LR])
-        t.add_row(["Pearson", "%.3f" % chi_sq, "%.3f" % p])
-        print(str(t))
+        print('检验结果')
+        table = gen_table([['方法', '卡方统计量', '自由度', 'p 值'],
+                           ['Pearson', format_stat(chi_sq), df, format_stat(p)],
+                           ['似然比', format_stat(LR), df, format_stat(p_LR)]])
+        table.align = 'r'
+        table.align[table.field_names[0]] = 'l'
+        print(str(table))
+        if np.all(np.isfinite(e)):
+            small = np.count_nonzero(e < 5)
+            if small:
+                print(f'注意：{small}/{e.size} 个单元格的期望频数小于 5，卡方近似可能不可靠。')
+        print('p 值是在 H0 及检验模型成立时，得到当前或更极端统计量的概率，不是 H0 成立的概率。')
+        print('p 值保留三位小数，0.000 为舍入显示，不代表概率严格为零；* 表示不可用。')
 
     return {"p Pearson": p, "chi sq Pearson": chi_sq, "df": df,
             "p LR": p_LR, "chi sq LR": LR}

@@ -1,11 +1,10 @@
 from scipy.stats import f as f_stat
-from prettytable import PrettyTable as PT
 import statistics as stat
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from pandas import DataFrame as DF
 ######## Own Modules ##########
-from utilities import group_by2factors
+from utilities import group_by2factors, gen_table, format_stat
 
 
 def SSA_SSB(data):
@@ -127,41 +126,29 @@ def two_way_anova(data, factor_listA=None, print_port=print, interaction=True,
 
     if print_out:
         print = print_port
-        print(
-            "\n---- Two Way ANOVA " +
-            ("With" if interaction else "Without") +
-            " Interaction ----")
-        t = PT()
-        t.field_names = ["Factor", "Levels"]
-        t.add_row([name_a, a])
-        t.add_row([name_b, b])
+        print("\n---- 双因素方差分析（%s交互作用）----" % ("含" if interaction else "不含"))
+        print("总样本量 N = %d；调整平方和采用 III 型。" % n)
+        t = gen_table([["因子", "水平数"], [name_a, a], [name_b, b]])
+        t.align["水平数"] = "r"
         print(str(t))
-        print("\nAnalysis of Variance")
-        t = PT()
-        t.field_names = ["Source", "DF", "Adj SS", "Adj MS",
-                         "F-value", "p-value"]
-        t.add_row([name_a, DFA, "%.3f" %
-                   SSA, "%.3f" %
-                   MSA, "%.3f" %
-                   FA, "%.3f" %
-                   PA])
-        t.add_row([name_b, DFB, "%.3f" %
-                   SSB, "%.3f" %
-                   MSB, "%.3f" %
-                   FB, "%.3f" %
-                   PB])
+        print("\n方差分析表")
+        t = gen_table([
+            ["来源", "自由度", "调整平方和", "调整均方", "F 值", "p 值"],
+            [name_a, DFA, format_stat(SSA), format_stat(MSA), format_stat(FA), format_stat(PA)],
+            [name_b, DFB, format_stat(SSB), format_stat(MSB), format_stat(FB), format_stat(PB)]])
         if interaction:
-            t.add_row([name_a +
-                       "*" +
-                       name_b, DFAB, "%.3f" %
-                       SSAB, "%.3f" %
-                       MSAB, "%.3f" %
-                       FAB, "%.3f" %
-                       PAB])
-        t.add_row(["Error", DFE, "%.3f" % SSE, "%.3f" % MSE, " ", " "])
-        t.add_row(["Total", DFT, "%.3f" % SST, " ", " ", " "])
+            t.add_row([name_a + "*" + name_b, DFAB, format_stat(SSAB),
+                       format_stat(MSAB), format_stat(FAB), format_stat(PAB)])
+        t.add_row(["误差", DFE, format_stat(SSE), format_stat(MSE), "*", "*"])
+        t.add_row(["总计", DFT, format_stat(SST), "*", "*", "*"])
+        for column in t.field_names[1:]:
+            t.align[column] = "r"
         print(str(t))
-        #  print("Note: The algo is same to Minitab 20, not JMP 17.")
+        print("各项 F 检验的 H0 为对应模型项效应为零；主效应应结合所选模型解释。")
+        if interaction:
+            print("交互作用检验因子效应是否随另一因子的水平改变。")
+        print("模型假设：观测独立，误差近似正态且方差相等；本报告未检验这些条件。")
+        print("* 表示不适用或不可用；p 值显示为 0.000 是舍入结果，不代表概率严格为零。")
 
     return {"N": n, "SSE": SSE, "MSE": MSE, "SSA": SSA, "MSA": MSA,
             "SSB": SSB, "SSAB": SSAB, "MSB": MSB, "MSAB": MSAB, "DF A": DFA,

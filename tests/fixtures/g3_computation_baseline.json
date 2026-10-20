@@ -1,0 +1,132 @@
+[
+  {
+    "file": "linear_fit.py",
+    "function": "linear_fit",
+    "sha256": "5978159e8e36b50e5c6054b491f7948de45901f765b7d8f975d1bc5e4bf30743"
+  },
+  {
+    "file": "ortho_fit.py",
+    "function": "orthogonal_fit",
+    "sha256": "9c3dccc57445f51025f73ed72b9b92882f0b7c59c67c6408f94230bca68715bd"
+  },
+  {
+    "file": "linear_plot.py",
+    "function": "fit_plot",
+    "sha256": "e6ddf45c9a0365310c7886e6ad2ff21cfcb1727273e6803025a4239d83adf999"
+  },
+  {
+    "file": "linear_plot.py",
+    "function": "multi_fit",
+    "sha256": "6ab1055e3681b480b9bb49c08b2cd00dcddd313c6f96ca7087cd15f59ed35773"
+  },
+  {
+    "file": "linear_plot.py",
+    "function": "multi_fit_orig",
+    "sha256": "e22d0361bce9e5a91930a8576b1328aad56484626f5e4eec202ce5c24491d73b"
+  },
+  {
+    "file": "Residual.py",
+    "function": "linear_fit_resid_test",
+    "sha256": "426fb75f2a17ea79130bf2c644a9561e2fa0ce4164e8b8dc8983da9ddaadcb89"
+  },
+  {
+    "file": "Residual.py",
+    "function": "resid_test",
+    "sha256": "b2b909d00aac33c82f65795a4b5fa67a822d8c9153eeae2fdab6e536f04468fb"
+  },
+  {
+    "file": "one_way_ANOVA.py",
+    "function": "one_way_anova",
+    "sha256": "6ae5a39110956b2f45be1cead358c0ccfa0151da55f540c43967c04363fc65fb"
+  },
+  {
+    "file": "one_way_ANOVA.py",
+    "function": "JMP_ANOVA_t_test",
+    "sha256": "7f6e0a224ff9f8d6963fa3d32a049fb4d4563f5dfd1c4efca79f11d81d18e511"
+  },
+  {
+    "file": "two_way_anova.py",
+    "function": "two_way_anova",
+    "sha256": "84463ed6b292c8f240ee555baccd8cd5821aea0224db0eacc4f274a2e4784b70"
+  },
+  {
+    "file": "chi_sq.py",
+    "function": "chi_square",
+    "sha256": "0bea4054ce705fbe5c1fcd52801e81a2d28196322da4d8c6806839a2aa0abad4"
+  },
+  {
+    "file": "chi_sq.py",
+    "function": "chi2_test_stdev",
+    "sha256": "3a31e8415628e9506a02d97a8ab49ceaf1b184257d765ba80143ab4e99720608"
+  },
+  {
+    "file": "chi_sq.py",
+    "function": "chi2_var_1sample",
+    "sha256": "e08a47a0af987abbd140a058b8919c47afb158f2bec9e6f952f620b535b79545"
+  },
+  {
+    "file": "chi_sq.py",
+    "function": "var_1sample",
+    "sha256": "aebba35db30f629cb765b9903d9a2f4be0341dfb3d94355ff89ffe450ece13a6"
+  },
+  {
+    "file": "dist_fit.py",
+    "function": "fit_norm",
+    "sha256": "1b9324fba99bd805fd82a640a64e74c7c4b72e69f5d51f9ea9bba761d39c1b85"
+  },
+  {
+    "file": "dist_fit.py",
+    "function": "fit_t",
+    "sha256": "3e9db24c84df2edab75e0a7d8ee68436dd705e7d342d950881d18663816b7564"
+  },
+  {
+    "file": "dist_fit.py",
+    "function": "fit_gamma",
+    "sha256": "0b8114a2d90c6874bbdedf8bd70625c8b9ed2c802286cb18f7ae59ea39171208"
+  },
+  {
+    "file": "dist_fit.py",
+    "function": "fit_weibull",
+    "sha256": "7de1e71f45ebb605d6ad6124f8003ea5636da7c06ffb00d338471797bd8ec455"
+  },
+  {
+    "file": "dist_fit.py",
+    "function": "fit_lognorm",
+    "sha256": "9cc8ae57b721be1ae61c449505722aec56f0795a22b7b7b458b708989fadc9b7"
+  },
+  {
+    "file": "dist_fit.py",
+    "function": "fit_expon",
+    "sha256": "f8a7abb820ebcec6b96c7730d0cc5e795a29d74c4624f1aabe4b2b2a43713ed1"
+  },
+  {
+    "file": "dist_fit.py",
+    "function": "fit_jsu",
+    "sha256": "db58de69673ed448571b3d26385cb28bc9ac2463ee83c389c013528208af0984"
+  },
+  {
+    "file": "dist_fit.py",
+    "function": "compare_dist",
+    "sha256": "e77604d12aa867d992dea44db173ff65654b3b5b0372613837eb923bd556a41b"
+  },
+  {
+    "file": "GRR.py",
+    "function": "grr_nested",
+    "sha256": "0ffcb21f130f10891ca14f3497d758ad669a544390c7de15c8fb2322d0e4668b"
+  },
+  {
+    "file": "GRR.py",
+    "function": "grr_anova_EMP",
+    "sha256": "9d3d0fbdb265e19f371b2d9a8acc7e2b8c249885688a6cdd71508f48a4e239d0"
+  },
+  {
+    "file": "GRR.py",
+    "function": "grr_anova_AIAG",
+    "sha256": "e545ec1eb7b4f68ace93b4bdad0a3ccc1acba331b1563ca12eac70062ce637f9"
+  },
+  {
+    "file": "chi2_dialog.py",
+    "function": "Chi2PropDialog.apply",
+    "sha256": "514edbfe1168d65217b04d574400ec6b3ad081df39f7c675b3fb7ffe9aad6afe"
+  }
+]
