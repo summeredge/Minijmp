@@ -1,0 +1,2 @@
+config path C:\Users\shaoy\Documents\Minijmp\user_config
+GUI��TXT��Excel��PNG �����ɣ�2/10/31 �в˵����꣺ [48, 48, 48]

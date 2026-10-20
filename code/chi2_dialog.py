@@ -1,3 +1,4 @@
+from stat_table import StatTable
 from tkinter import ttk
 import tkinter as tk
 from tkinter import TOP, LEFT, X, BOTH
@@ -157,21 +158,28 @@ class Chi2PropDialog(Dialogs):
         self.app.print('备择假设 H1：至少一个水平的总体概率不同于假设概率。')
         self.app.print('方法：沿用观测频数与大样本参考行构成的列联表近似，未作连续性校正。')
         rows = [['水平', '观测频数', '估计概率', '假设概率']]
+        values = []
         for i in range(len(cnts)):
+            values.append([rKeys[i], cnts[i], cnts[i] / sum(cnts), res[i]])
             rows.append([rKeys[i], cnts[i], format_stat(cnts[i] / sum(cnts)),
                          format_stat(res[i])])
         table = gen_table(rows)
         table.align = 'r'
         table.align[table.field_names[0]] = 'l'
-        self.app.print(str(table))
+        self.app.print(StatTable(table, '各水平概率', table.field_names, values,
+            display=[[str(cell) for cell in row] for row in table.rows],
+            number_formats=['General', 'General', '0.000', '0.000']))
         self.app.print('当前返回结果未提供各水平的期望频数；不另行推算。')
         self.app.print('检验结果')
+        values = [['Pearson', result['chi sq Pearson'], result['df'], result['p Pearson']],
+                  ['似然比', result['chi sq LR'], result['df'], result['p LR']]]
         table = gen_table([['方法', '卡方统计量', '自由度', 'p 值'],
                            ['Pearson', format_stat(result['chi sq Pearson']), result['df'], format_stat(result['p Pearson'])],
                            ['似然比', format_stat(result['chi sq LR']), result['df'], format_stat(result['p LR'])]])
         table.align = 'r'
         table.align[table.field_names[0]] = 'l'
-        self.app.print(str(table))
+        self.app.print(StatTable(table, '检验结果', table.field_names, values,
+            display=[[str(cell) for cell in row] for row in table.rows]))
         self.app.print('适用条件：观测独立，期望频数应足够大；本报告未对小期望频数作自动判断。')
         self.app.print('p 值是在 H0 及检验模型成立时，得到当前或更极端统计量的概率，不是 H0 成立的概率。')
         self.app.print('p 值保留三位小数，0.000 为舍入显示，不代表概率严格为零；* 表示不可用。')

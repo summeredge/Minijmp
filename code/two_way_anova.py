@@ -1,3 +1,4 @@
+from stat_table import StatTable
 from scipy.stats import f as f_stat
 import statistics as stat
 import statsmodels.api as sm
@@ -128,22 +129,31 @@ def two_way_anova(data, factor_listA=None, print_port=print, interaction=True,
         print = print_port
         print("\n---- 双因素方差分析（%s交互作用）----" % ("含" if interaction else "不含"))
         print("总样本量 N = %d；调整平方和采用 III 型。" % n)
+        values = [[name_a, a],
+                  [name_b, b]]
         t = gen_table([["因子", "水平数"], [name_a, a], [name_b, b]])
         t.align["水平数"] = "r"
-        print(str(t))
+        print(StatTable(t, '因子水平', t.field_names, values,
+            display=[[str(cell) for cell in row] for row in t.rows]))
         print("\n方差分析表")
+        values = [[name_a, DFA, SSA, MSA, FA, PA],
+                  [name_b, DFB, SSB, MSB, FB, PB]]
         t = gen_table([
             ["来源", "自由度", "调整平方和", "调整均方", "F 值", "p 值"],
             [name_a, DFA, format_stat(SSA), format_stat(MSA), format_stat(FA), format_stat(PA)],
             [name_b, DFB, format_stat(SSB), format_stat(MSB), format_stat(FB), format_stat(PB)]])
         if interaction:
+            values.append([name_a + '*' + name_b, DFAB, SSAB, MSAB, FAB, PAB])
             t.add_row([name_a + "*" + name_b, DFAB, format_stat(SSAB),
                        format_stat(MSAB), format_stat(FAB), format_stat(PAB)])
+        values.append(['误差', DFE, SSE, MSE, '*', '*'])
         t.add_row(["误差", DFE, format_stat(SSE), format_stat(MSE), "*", "*"])
+        values.append(['总计', DFT, SST, '*', '*', '*'])
         t.add_row(["总计", DFT, format_stat(SST), "*", "*", "*"])
         for column in t.field_names[1:]:
             t.align[column] = "r"
-        print(str(t))
+        print(StatTable(t, '方差分析表', t.field_names, values,
+            display=[[str(cell) for cell in row] for row in t.rows]))
         print("各项 F 检验的 H0 为对应模型项效应为零；主效应应结合所选模型解释。")
         if interaction:
             print("交互作用检验因子效应是否随另一因子的水平改变。")

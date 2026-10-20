@@ -1,3 +1,4 @@
+from stat_table import StatTable
 from scipy.stats import norm, binom, hypergeom
 from scipy.stats import f as f_dist
 #  from functools import lru_cache
@@ -64,23 +65,33 @@ def prop_2sample(n1=None, n2=None, e1=None,
         print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
         print(f'原假设 H0: p1 - p2 = 0；样本比例差 p1 - p2 = {format_stat(pd)}')
         print('备择假设 H1：双侧 p1 - p2 ≠ 0；左尾 p1 - p2 < 0；右尾 p1 - p2 > 0。')
-        for title, rows in [
+        for title, rows, values in [
             ('样本统计', [['样本', 'N', '事件数', '比例'],
                           ['样本 1', n1, e1, format_stat(p1)],
-                          ['样本 2', n2, e2, format_stat(p2)]]),
+                          ['样本 2', n2, e2, format_stat(p2)]], [
+                ['样本 1', n1, e1, p1],
+                ['样本 2', n2, e2, p2]]),
             ('检验结果', [['方法', 'Z', '双侧 p 值', '左尾 p 值', '右尾 p 值'],
                           ['Fisher 精确', '*', format_stat(p_f), format_stat(pl_f), format_stat(pu_f)],
                           ['正态近似（非合并）', format_stat(Zs), format_stat(p), format_stat(pl), format_stat(pu)],
-                          ['正态近似（合并）', format_stat(Zp), format_stat(p_p), format_stat(pl_p), format_stat(pu_p)]]),
+                          ['正态近似（合并）', format_stat(Zp), format_stat(p_p), format_stat(pl_p), format_stat(pu_p)]], [
+                ['Fisher 精确', '*', p_f, pl_f, pu_f],
+                ['正态近似（非合并）', Zs, p, pl, pu],
+                ['正态近似（合并）', Zp, p_p, pl_p, pu_p]]),
             ('总体比例差 p1 - p2 的置信区间（非合并正态近似）', [['区间', '下限', '上限'],
                           ['双侧置信区间', format_stat(CI[0]), format_stat(CI[1])],
                           ['单侧置信下限', format_stat(CI2[0]), '*'],
-                          ['单侧置信上限', '*', format_stat(CI2[1])]])]:
+                          ['单侧置信上限', '*', format_stat(CI2[1])]], [
+                ['双侧置信区间', CI[0], CI[1]],
+                ['单侧置信下限', CI2[0], '*'],
+                ['单侧置信上限', '*', CI2[1]]])]:
             print(title)
             table = gen_table(rows)
             table.align = 'r'
             table.align[table.field_names[0]] = 'l'
-            print(str(table))
+            print(StatTable(table, title, table.field_names, values,
+                display=[[str(cell) for cell in row] for row in table.rows],
+                number_formats=['0' if h in ('N', '事件数') else '0.000' for h in table.field_names]))
         print('p 值保留三位小数，0.000 为舍入显示。')
 
     return {"p sep": p, "p p1<p2": pl, "p p1>p2": pu,
@@ -189,24 +200,35 @@ def prop_test_1sample(events=1, N=1, p0=1, print_port=print,
         print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
         print(f'原假设 H0: p = p0；p0 = {format_stat(p0)}')
         print('备择假设 H1：双侧 p ≠ p0；左尾 p < p0；右尾 p > p0。')
-        for title, rows in [
+        for title, rows, values in [
             ('样本统计', [['样本', 'N', '事件数', '比例'],
-                          ['样本', N, events, format_stat(p)]]),
+                          ['样本', N, events, format_stat(p)]], [
+                ['样本', N, events, p]]),
             ('检验结果', [['方法', '双侧 p 值', '左尾 p 值', '右尾 p 值'],
                           ['正态近似', format_stat(p_norm), format_stat(p_norm_less), format_stat(1 - p_norm_less)],
                           ['Sterne 精确', format_stat(p_s), '*', '*'],
                           ['Blaker 精确', format_stat(p_b), '*', '*'],
                           ['调整 Blaker 精确', format_stat(p_bi_uneq), '*', '*'],
-                          ['二项精确', '*', format_stat(p_bi), format_stat(p_bi_r)]]),
+                          ['二项精确', '*', format_stat(p_bi), format_stat(p_bi_r)]], [
+                ['正态近似', p_norm, p_norm_less, 1 - p_norm_less],
+                ['Sterne 精确', p_s, '*', '*'],
+                ['Blaker 精确', p_b, '*', '*'],
+                ['调整 Blaker 精确', p_bi_uneq, '*', '*'],
+                ['二项精确', '*', p_bi, p_bi_r]]),
             ('总体比例的置信区间', [['方法', '双侧下限', '双侧上限', '单侧置信下限', '单侧置信上限'],
                           ['正态近似', format_stat(CI_l), format_stat(CI_u), format_stat(CI_low), format_stat(CI_high)],
                           ['Clopper-Pearson', format_stat(p_exct_l), format_stat(p_exct_u), format_stat(p_exct_low), format_stat(p_exct_high)],
-                          ['调整 Blaker', format_stat(b_CI[0]), format_stat(b_CI[1]), '*', '*']])]:
+                          ['调整 Blaker', format_stat(b_CI[0]), format_stat(b_CI[1]), '*', '*']], [
+                ['正态近似', CI_l, CI_u, CI_low, CI_high],
+                ['Clopper-Pearson', p_exct_l, p_exct_u, p_exct_low, p_exct_high],
+                ['调整 Blaker', b_CI[0], b_CI[1], '*', '*']])]:
             print(title)
             table = gen_table(rows)
             table.align = 'r'
             table.align[table.field_names[0]] = 'l'
-            print(str(table))
+            print(StatTable(table, title, table.field_names, values,
+                display=[[str(cell) for cell in row] for row in table.rows],
+                number_formats=['0' if h in ('N', '事件数') else '0.000' for h in table.field_names]))
         print("调整 Blaker 行报告双侧精确 p 值；单侧精确检验采用二项分布尾概率，单侧精确置信限采用 Clopper-Pearson 方法。")
         print('p 值保留三位小数，0.000 为舍入显示。')
         #  print("\nJMP Test Probabilities in Distributions")
@@ -216,12 +238,15 @@ def prop_test_1sample(events=1, N=1, p0=1, print_port=print,
                          print_out=False, print_port=print_port)
     if print_out:
         print('检验结果（JMP 列联表；备择假设 H1: p ≠ p0）')
+        values = [['Pearson', chi_res['chi sq Pearson'], chi_res['df'], chi_res['p Pearson']],
+                  ['似然比', chi_res['chi sq LR'], chi_res['df'], chi_res['p LR']]]
         table = gen_table([['方法', '卡方统计量', '自由度', 'p 值'],
                            ['Pearson', format_stat(chi_res['chi sq Pearson']), chi_res['df'], format_stat(chi_res['p Pearson'])],
                            ['似然比', format_stat(chi_res['chi sq LR']), chi_res['df'], format_stat(chi_res['p LR'])]])
         table.align = 'r'
         table.align[table.field_names[0]] = 'l'
-        print(str(table))
+        print(StatTable(table, '检验结果（JMP 列联表；备择假设 H1: p ≠ p0）', table.field_names, values,
+            display=[[str(cell) for cell in row] for row in table.rows]))
 
     return {"p norm": p_norm, "p Binomial": p_bi,
             "Z p less": p_norm_less,

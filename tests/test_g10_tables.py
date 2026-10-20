@@ -272,4 +272,3 @@ def test_scoped_report_ports_do_not_stringify_tables(filename, names):
                    and arg.func.id == 'StatTable' for call in ports for arg in call.args)
         assert not any(isinstance(arg, ast.Call) and isinstance(arg.func, ast.Name)
                        and arg.func.id == 'str' for call in ports for arg in call.args)
-
