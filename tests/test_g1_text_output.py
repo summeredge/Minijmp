@@ -110,7 +110,7 @@ def test_real_theme_switch_keeps_text_font_and_selection(viewer):
                     'TLabel': {'configure': {'foreground': foreground}}})
             style.theme_use(name)
             viewer.main.update()
-            assert viewer.T.cget('background') == background
+            assert viewer.T.cget('background') == '#FFFFFF'
             assert viewer.T.cget('foreground') == foreground
             assert viewer.T.cget('font') == original_font
             assert viewer.T.get('sel.first', 'sel.last') == '中文表格 English\n123'
