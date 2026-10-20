@@ -1,4 +1,3 @@
-from prettytable import PrettyTable as PT
 import pandas as pd
 import statistics as stats
 from collections import Counter
@@ -6,10 +5,61 @@ from math import isfinite
 from scipy.stats import f as f_dist
 # ############# Own Modules ############
 from utilities import d2_2D as d2
-from utilities import gen_table
+from utilities import gen_table, format_stat
 from two_way_anova import two_way_anova
 from one_way_ANOVA import one_way_anova
 from utilities import grouping_by_labels
+
+
+def _grr_design(y, part, op, print_port):
+    counts = Counter(zip(op if op is not None else [0] * len(y), part))
+    repeats = sorted(set(counts.values()))
+    print_port("研究设计：N = %d；零件数 = %d；操作者数 = %d；每个操作者-零件组合的重复次数 = %s。" %
+               (len(y), len(set(part)), 1 if op is None else len(set(op)),
+                ", ".join(str(n) for n in repeats)))
+    if op is None:
+        print_port("未提供操作者列；再现性未单独估计。")
+
+
+def _grr_tables(components, total, print_port, hist_std=None, spec_gap=None, study=True):
+    # 四种 GRR 方法只共用呈现；分量及总方差由各自原算法提供。
+    print_port("\n方差分量")
+    rows = [['来源', '方差分量', '方差贡献率 (%)']]
+    for name, variance in components:
+        rows.append([name, format_stat(variance),
+                     format_stat(100 * variance / total if total > 0 else None)])
+    table = gen_table(rows)
+    for col in table.field_names[1:]:
+        table.align[col] = 'r'
+    print_port(str(table))
+    print_port("\n研究变异" if study else "\n分量标准差")
+    rows = [['来源', '标准差 SD']]
+    if study:
+        rows[0] += ['研究变异 (6 x SD)', '研究变异占比 (%)']
+        if hist_std is not None:
+            rows[0].append('历史过程占比 (%)')
+            print_port("历史过程标准差 = " + format_stat(hist_std))
+        if spec_gap is not None:
+            rows[0].append('公差占比 (%)')
+            print_port("规格公差 (USL - LSL) = " + format_stat(spec_gap))
+    for name, variance in components:
+        sd = variance**.5
+        row = [name, format_stat(sd)]
+        if study:
+            row += [format_stat(6 * sd), format_stat(100 * sd / total**.5 if total > 0 else None)]
+            if hist_std is not None:
+                row.append(format_stat(100 * sd / hist_std if hist_std > 0 else None))
+            if spec_gap is not None:
+                row.append(format_stat(600 * sd / spec_gap if spec_gap > 0 else None))
+        rows.append(row)
+    table = gen_table(rows)
+    for col in table.field_names[1:]:
+        table.align[col] = 'r'
+    print_port(str(table))
+    print_port("方差贡献率基于方差；标准差单位与输入测量值一致，方差单位为其平方。")
+    if study:
+        print_port("研究变异占比基于 SD / 总 SD；公差占比为 6 x SD / 规格公差，历史过程占比为 SD / 历史 SD。")
+    print_port("百分比不是测量误差概率；* 表示不可估计或不适用 (not estimable)。")
 
 
 def GRR_xbar(data, op_key="Operator", pt_key="Part", y_key="Y",
@@ -70,54 +120,16 @@ def GRR_xbar(data, op_key="Operator", pt_key="Part", y_key="Y",
 
     if print_out:
         print = print_port
-        print("\n---- GRR XBar/R ----")
-        print("Gage Evaluation")
-        t = [
-            ["Source", "Std Dev", "6 x SD", "%SV"],
-            ["Ttl GRR(EV&AV)", "%.3f" % GRR, "%.3f" % (6 * GRR),
-             "%.2f" % (GRR / TTL * 100)],
-            ["EV(repeatability)", "%.3f" % EV, "%.3f" % (EV * 6),
-             "%.2f" % (EV / TTL * 100)],
-            ["AV(reproducibility)", "%.3f" % AV, "%.3f" % (AV * 6),
-             "%.2f" % (AV / TTL * 100)],
-            ["PV(Part to Part)", "%.3f" % PV, "%.3f" % (PV * 6),
-             "%.2f" % (PV / TTL * 100)],
-            ["Total Variation", "%.3f" % TTL, "%.3f" % (TTL * 6),
-             "%.2f" % (100)]]
-
-        if hist_std is not None:
-            t[0] += ["%Process"]
-            t[1] += ["%.2f" % (100 * GRR / hist_std)]
-            t[2] += ["%.2f" % (100 * EV / hist_std)]
-            t[3] += ["%.2f" % (100 * AV / hist_std)]
-            t[4] += ["%.2f" % (100 * PV / hist_std)]
-            t[5] += ["%.2f" % (100 * TTL / hist_std)]
-
-        if spec_gap is not None:
-            t[0] += ["%Tolerance"]
-            t[1] += ["%.2f" % (600 * GRR / spec_gap)]
-            t[2] += ["%.2f" % (600 * EV / spec_gap)]
-            t[3] += ["%.2f" % (600 * AV / spec_gap)]
-            t[4] += ["%.2f" % (600 * PV / spec_gap)]
-            t[5] += ["%.2f" % (600 * TTL / spec_gap)]
-
-        print(str(gen_table(t)))
-
-        print("Number of Distinct Categories = %d" % (int(PV / GRR * 2**.5)))
-        print("\nVariance Components")
-        t = PT()
-        t.field_names = ["Source", "VarComp", "%Contribution"]
-        t.add_row(["Ttl GRR(EV&AV)", "%.3f" % GRR**2,
-                   "%.2f" % (GRR**2 / TTL**2 * 100)])
-        t.add_row(["EV(repeatability)", "%.3f" % EV**2,
-                   "%.2f" % (EV**2 / TTL**2 * 100)])
-        t.add_row(["AV(reproducibility)", "%.3f" % AV**2,
-                   "%.2f" % (AV**2 / TTL**2 * 100)])
-        t.add_row(["PV(Part to Part)", "%.3f" % PV**2,
-                   "%.2f" % (PV**2 / TTL**2 * 100)])
-        t.add_row(["Total Variation", "%.3f" % TTL**2,
-                   "%.2f" % (100)])
-        print(str(t))
+        print("\n---- 交叉型量具 R&R（均值极差法 Xbar/R） ----")
+        _grr_design(data[y_key], data[pt_key], data[op_key] if has_op_col else None, print_port)
+        components = [('总量具 R&R (GRR)', GRR**2), ('重复性 (EV)', EV**2)]
+        if has_op_col:
+            components.append(('再现性 (AV)', AV**2))
+        components += [('零件间 (PV)', PV**2), ('总变异', TTL**2)]
+        _grr_tables(components, TTL**2, print_port, hist_std=hist_std, spec_gap=spec_gap)
+        ndc = int(PV / GRR * 2**.5) if GRR > 0 else None
+        print("可区分类别数 ndc = " + (str(ndc) if ndc is not None else '*'))
+        print("ndc 描述可区分的零件类别数，不是样本量。")
 
     res = {"EV": EV**2, "AV": AV**2, "PV": PV**2, "RR": GRR**2, "TV": TTL**2,
            "INT": 0}
@@ -224,19 +236,6 @@ def grr_anova_EMP(y=None, op=None, part=None, inter=True,
     bias_impact = intraclass_no_bias - intraclass_w_bias
     bias_inter_impact = intraclass_no_bias - intraclass_bias_inter
 
-    guideline = """Classification Guidelines
-
-Classification    Intraclass     Attenuation of    Probability     Probability of
-                 Correlation    Process Signals    of Warning,     Warning, Tests*
-                                                   Test 1*
-----------------------------------------------------------------------------------
-First Class      0.80 - 1.00    Less than 11%     0.99 - 1.00     1.00
-Second Class     0.50 - 0.80    11 - 29%          0.88 - 0.99     1.00
-Third Class      0.20 - 0.50    29 - 55%          0.40 - 0.88     0.92 - 1.00
-Fourth Class     0.00 - 0.20    More than 55%     0.03 - 0.40     0.08 - 0.92
-
-* Probability of detecting a three-standard-deviation shift within 10 subgroups using test 1 or tests 1, 5, 6, and 8 of Nelson's Control Chart Rules. Find more info in HELP."""
-
     def classification(rho):
         if rho > 0.8:
             return "First"
@@ -248,52 +247,43 @@ Fourth Class     0.00 - 0.20    More than 55%     0.03 - 0.40     0.08 - 0.92
 
     if print_out:
         print = print_port
-        print("\n---- GRR EMP (ANOVA) ----")
-        print("Variance Components")
-        t = PT()
-        t.field_names = ["Source", "Std Dev", "VarComp", "%Contribution"]
-        t.add_row(["Ttl GRR", "%.3f" % GRR**.5, "%.3f" % GRR,
-                   "%.2f" % (GRR / TTL * 100)])
-        t.add_row(["Repeatability", "%.3f" % Rept**.5, "%.3f" % Rept,
-                   "%.2f" % (Rept / TTL * 100)])
+        print("\n---- 交叉型量具 R&R（EMP ANOVA 法） ----")
+        _grr_design(y, part, op, print_port)
+        components = [('总量具 R&R (GRR)', GRR), ('重复性 (EV)', Rept)]
         if op is not None:
-            t.add_row(["Reproducibility", "%.3f" % Repd**.5, "%.3f" % Repd,
-                       "%.2f" % (Repd / TTL * 100)])
-        t.add_row(["Product Var.", "%.3f" % PP**.5, "%.3f" % PP,
-                   "%.2f" % (PP / TTL * 100)])
+            components.append(('再现性（操作者）', Repd))
+        components.append(('零件间 (PV)', PP))
         if inter:
-            t.add_row(["Interaction", "%.3f" % OPP**.5, "%.3f" % OPP,
-                       "%.2f" % (OPP / TTL * 100)])
-        t.add_row(["Total Variation", "%.3f" % TTL**.5, "%.3f" % TTL,
-                   "%.2f" % (100)])
-        print(str(t))
-
-        print("\nEMP Statistics")
-        t = PT()
-        t.field_names = ["Statistic", "Value", "Classification"]
-        t.add_row(["Test-retest error", "%.3f" % Rept**.5, ""])
-        t.add_row(["Degrees of freedom", "%d" % DF, ""])
-        t.add_row(["Probable error", "%.3f" % (.674490 * Rept**.5), ""])
-        t.add_row(["Intraclass Correlation (no bias)",
-                   "%.3f" % intraclass_no_bias,
-                   classification(intraclass_no_bias) + " Class"])
+            components.append(('零件 x 操作者', OPP))
+        components.append(('总变异', TTL))
+        _grr_tables(components, TTL, print_port, study=False)
+        print("EMP 的 GRR 为重复性与操作者分量之和；交互分量单独计入总方差。")
+        print("\nEMP 补充统计")
+        rows = [['统计量', '结果', '原有 EMP 分类'],
+                ['自由度', str(DF), '*'],
+                ['可能误差', format_stat(.674490 * Rept**.5), '*'],
+                ['组内相关（无偏倚）', format_stat(intraclass_no_bias), classification(intraclass_no_bias) + ' Class']]
         if op is not None:
-            t.add_row(["Intraclass Correlation (with bias)",
-                       "%.3f" % intraclass_w_bias,
-                       classification(intraclass_w_bias) + " Class"])
+            rows += [['组内相关（含偏倚）', format_stat(intraclass_w_bias), classification(intraclass_w_bias) + ' Class'],
+                     ['偏倚影响', format_stat(bias_impact), '*']]
         if inter:
-            t.add_row(["Intraclass Correlation (with bias and interaction)",
-                       "%.3f" % intraclass_bias_inter,
-                       classification(intraclass_bias_inter) + " Class"])
-        if op is not None:
-            t.add_row(["Bias Impact", "%.3f" % bias_impact, " "])
-        if inter:
-            t.add_row(["Bias and Interaction Impact", "%.3f" % bias_inter_impact, ""])
-        t.align["Statistic"] = "l"
-        print(str(t))
-
-        print("\n")
-        print(guideline)
+            rows += [['组内相关（含偏倚及交互）', format_stat(intraclass_bias_inter), classification(intraclass_bias_inter) + ' Class'],
+                     ['偏倚及交互影响', format_stat(bias_inter_impact), '*']]
+        table = gen_table(rows)
+        table.align['结果'] = 'r'
+        print(str(table))
+        print("重测误差为重复性标准差，见分量标准差表。")
+        print("\n原有 EMP 分类参考（不新增 GRR 接受阈值）")
+        table = gen_table([
+            ['类别', '组内相关', '过程信号衰减', '检验 1 检出概率', '检验 1/5/6/8 检出概率'],
+            ['First', '0.80 - 1.00', '< 11%', '0.99 - 1.00', '1.00'],
+            ['Second', '0.50 - 0.80', '11 - 29%', '0.88 - 0.99', '1.00'],
+            ['Third', '0.20 - 0.50', '29 - 55%', '0.40 - 0.88', '0.92 - 1.00'],
+            ['Fourth', '0.00 - 0.20', '> 55%', '0.03 - 0.40', '0.08 - 0.92']])
+        for col in table.field_names[1:]:
+            table.align[col] = 'r'
+        print(str(table))
+        print("检出概率指使用 Nelson 控制图规则，在 10 个子组内检出 3 个标准差偏移的概率，详见帮助。")
 
     res = {"EV": Rept, "AV": Repd, "PV": PP, "RR": GRR, "TV": TTL,
            "INT": OPP}
@@ -318,83 +308,19 @@ def grr_anova_AIAG(y=None, op=None, part=None, inter=True,
 
     if print_out:
         print = print_port
-        print("\n---- GRR AIAG (ANOVA) ----")
-        print("Gage Evaluation")
-
-        def gen_t(GRR, EV, AV, OP, OPP, PV, TTL):
-
-            t = [
-                ["Source", "Std Dev", "6 x SD", "%SV"],
-                ["Ttl GRR(EV&AV)", "%.3f" % GRR, "%.3f" % (6 * GRR),
-                 "%.2f" % (GRR / TTL * 100)],
-                ["EV(repeatability)", "%.3f" % EV, "%.3f" % (EV * 6),
-                 "%.2f" % (EV / TTL * 100)],
-                ["AV(reproducibility)", "%.3f" % AV, "%.3f" % (AV * 6),
-                 "%.2f" % (AV / TTL * 100)],
-                ["Operator", "%.3f" % OP, "%.3f" % (OP * 6),
-                 "%.2f" % (OP / TTL * 100)],
-                ["Part x Operator", "%.3f" % OPP, "%.3f" % (OPP * 6),
-                 "%.2f" % (OPP / TTL * 100)],
-                ["PV(Part to Part)", "%.3f" % PV, "%.3f" % (PV * 6),
-                 "%.2f" % (PV / TTL * 100)],
-                ["Total Variation", "%.3f" % TTL, "%.3f" % (TTL * 6),
-                 "%.2f" % (100)]]
-
-            if hist_std is not None:
-                t[0] += ["%Process"]
-                t[1] += ["%.2f" % (100 * GRR / hist_std)]
-                t[2] += ["%.2f" % (100 * EV / hist_std)]
-                t[3] += ["%.2f" % (100 * AV / hist_std)]
-                t[4] += ["%.2f" % (100 * OP / hist_std)]
-                t[5] += ["%.2f" % (100 * OPP / hist_std)]
-                t[6] += ["%.2f" % (100 * PV / hist_std)]
-                t[7] += ["%.2f" % (100 * TTL / hist_std)]
-
-            if spec_gap is not None:
-                t[0] += ["%Tolerance"]
-                t[1] += ["%.2f" % (600 * GRR / spec_gap)]
-                t[2] += ["%.2f" % (600 * EV / spec_gap)]
-                t[3] += ["%.2f" % (600 * AV / spec_gap)]
-                t[4] += ["%.2f" % (100 * OP / spec_gap)]
-                t[5] += ["%.2f" % (100 * OPP / spec_gap)]
-                t[6] += ["%.2f" % (600 * PV / spec_gap)]
-                t[7] += ["%.2f" % (600 * TTL / spec_gap)]
-            return t if inter else t[:5] + t[6:]
-
-        print(str(gen_table(
-            gen_t(GRR**.5, Rept**.5, Repd**.5, OP**.5, OPP**.5, PP**.5, TTL**.5)
-        )))
-        #  print("Variance Components")
-        #  t = PT()
-        #  t.field_names = ["Source", "6 x SD", ""]
-        #  t.add_row(["Repeatability", "%.2f" % (6 * Rept**.5),
-        #             "Equipment Variation"])
-        #  if op is not None:
-        #      t.add_row(["Reproducibility", "%.2f" % (6 * Repd**.5),
-        #                 "Appraiser Variation"])
-        #      t.add_row(["Operator", "%.2f" % (6 * OP**.5), ""])
-        #      if inter:
-        #          t.add_row(["Op. x Part", "%.2f" % (6 * OPP**.5), ""])
-        #  t.add_row(["Gage R&R", "%.2f" % (6 * GRR**.5), ""])
-        #  t.add_row(["Part Variation", "%.2f" % (6 * PP**.5),
-        #             "Part Variation"])
-        #  t.add_row(["Total Variation", "%.2f" % (TTL**.5 * 6), ""])
-        #  print(str(t))
-        print("Gage R&R / Total Variation = %.1f%%" % ((GRR / TTL)**.5 * 100))
-        print("Number of Distinct Categories = %d" % (int((2 * PP / GRR)**.5)))
-        print("\nVariance Components of GRR")
-        t = PT()
-        t.field_names = ["Source", "SD", "VarComp", "%Contribution"]
-        t.add_row(["Ttl GRR", "%.3f" % GRR**.5, "%.3f" % GRR,
-                   "%.2f" % (GRR / TTL * 100)])
-        t.add_row(["Repeatability", "%.3f" % Rept**.5, "%.3f" % Rept,
-                   "%.2f" % (Rept / TTL * 100)])
+        print("\n---- 交叉型量具 R&R（AIAG ANOVA 法） ----")
+        _grr_design(y, part, op, print_port)
+        components = [('总量具 R&R (GRR)', GRR), ('重复性 (EV)', Rept)]
         if op is not None:
-            t.add_row(["Reproducibility", "%.3f" % Repd**.5, "%.3f" % Repd,
-                       "%.2f" % (Repd / TTL * 100)])
-        t.add_row(["Product Var.", "%.3f" % PP**.5, "%.3f" % PP,
-                   "%.2f" % (PP / TTL * 100)])
-        print(str(t))
+            components += [('再现性 (AV)', Repd), ('操作者', OP)]
+            if inter:
+                components.append(('零件 x 操作者', OPP))
+        components += [('零件间 (PV)', PP), ('总变异', TTL)]
+        _grr_tables(components, TTL, print_port, hist_std=hist_std, spec_gap=spec_gap)
+        ndc = int((2 * PP / GRR)**.5) if GRR > 0 else None
+        print("可区分类别数 ndc = " + (str(ndc) if ndc is not None else '*'))
+        print("再现性包含操作者及保留的交互分量；细分行不应与再现性重复相加。ndc 不是样本量。")
+
     res = {"EV": Rept, "AV": Repd, "PV": PP, "RR": GRR, "TV": TTL,
            "INT": OPP}
     return res
@@ -412,12 +338,28 @@ def grr_master(y=None, op=None, part=None, mode="aiag", alpha=0.05,
     if op is not None and inter.upper() == "AUTO":
         res = two_way_anova(y, factor_listA=part, factor_listB=op,
                             print_port=print_port, interaction=True,
-                            print_out=print_out, name_a="Part",
+                            print_out=False, name_a="Part",
                             name_b="Operator")
         inter = (res['p AB'] <= alpha)
         if print_out:
             print = print_port
-            print("alpha to remove interaction term: %.3f" % alpha)
+            print("\n---- GRR 交互项筛选：完整模型 ANOVA ----")
+            print("筛选显著性水平 alpha = " + format_stat(alpha) +
+                  ("；交互项达到保留条件。" if inter else "；交互项未达到保留条件。"))
+            rows = [['来源', '自由度', '平方和 SS', '均方 MS', 'F 值', 'p 值']]
+            for key, label in [('A', '零件'), ('B', '操作者'), ('AB', '零件 x 操作者')]:
+                rows.append([label, res['DF ' + key], format_stat(res['SS' + key]),
+                             format_stat(res['MS' + key]), format_stat(res['F ' + key]),
+                             format_stat(res['p ' + key])])
+            grand_mean = stats.mean(y)
+            rows += [['误差', res['N'] - 1 - res['DF A'] - res['DF B'] - res['DF AB'],
+                      format_stat(res['SSE']), format_stat(res['MSE']), '*', '*'],
+                     ['合计', res['N'] - 1, format_stat(sum((value - grand_mean)**2 for value in y)), '*', '*', '*']]
+            table = gen_table(rows)
+            for col in table.field_names[1:]:
+                table.align[col] = 'r'
+            print(str(table))
+            print("此表用于交互项筛选；后续分量仍按原方法及其交互项处理规则估计。")
     elif op is None:
         inter = False
     else:
@@ -512,49 +454,29 @@ def grr_nested(y=None, op=None, part=None, print_out=False, print_port=print,
 
     if print_out:
         print = print_port
-        print("\n---- Gage R&R Nested ANOVA ----\n\nGage R&R Nested for Response")
-        print("nan = not estimable (zero denominator).")
-        t = PT()
-        t.field_names = ["Source", "DF", "SS", "MS", "F Ratio", "P Value"]
-        t.add_row(["Operator", "%d" % DFO, "%.3f" % SSO, "%.3f" % MSO,
-                   "%.3f" % FO, "%.3f" % p_o])
-        t.add_row(["Part(Operator)", "%d" % DFPO, "%.3f" % SSPO, "%.3f" % MSPO,
-                   "%.3f" % FPO, "%.3f" % p_po])
-        t.add_row(["Repeatability", "%d" % DFR, "%.3f" % SSR, "%.3f" % MSR, " ", " "])
-        t.add_row(["Total", "%d" % DFTTL, "%.3f" % SST, "", "", ""])
-        print(str(t))
-
-        print("\nVariance Components")
-        t = PT()
-        t.field_names = ["Source", "VarComp", "%Contribution"]
-        t.add_row(["Total Gage R&R", "%.3f" % GRR_var_comp, "%.2f" % (100 * GRR_var_comp / ttl_var_comp if ttl_var_comp > 0 else float("nan"))])
-        t.add_row(["  Repeatability", "%.3f" % Repeatability, "%.2f" % (100 * Repeatability / ttl_var_comp if ttl_var_comp > 0 else float("nan"))])
-        t.add_row(["  Reproducibility", "%.3f" % Reproducibility, "%.2f" % (100 * Reproducibility / ttl_var_comp if ttl_var_comp > 0 else float("nan"))])
-        t.add_row(["Part-to-part", "%.3f" % part_var_comp, "%.2f" % (100 * part_var_comp / ttl_var_comp if ttl_var_comp > 0 else float("nan"))])
-        t.add_row(["Total Variation", "%.3f" % ttl_var_comp, ("100.00" if ttl_var_comp > 0 else "nan")])
-        t.align["Source"] = "l"
-        print(str(t))
-
+        print("\n---- 嵌套型量具 R&R（ANOVA 法） ----")
+        _grr_design(y, part, op, print_port)
+        print("每名操作者的零件数 = %d；零件嵌套于操作者。" % a)
+        print("\n方差分析 ANOVA")
+        table = gen_table([
+            ['来源', '自由度', '平方和 SS', '均方 MS', 'F 值', 'p 值'],
+            ['操作者', DFO, format_stat(SSO), format_stat(MSO), format_stat(FO), format_stat(p_o)],
+            ['零件（操作者内）', DFPO, format_stat(SSPO), format_stat(MSPO), format_stat(FPO), format_stat(p_po)],
+            ['重复性', DFR, format_stat(SSR), format_stat(MSR), '*', '*'],
+            ['合计', DFTTL, format_stat(SST), '*', '*', '*']])
+        for col in table.field_names[1:]:
+            table.align[col] = 'r'
+        print(str(table))
+        components = [('总量具 R&R (GRR)', GRR_var_comp), ('重复性 (EV)', Repeatability),
+                      ('再现性 (AV)', Reproducibility), ('零件间 (PV)', part_var_comp),
+                      ('总变异', ttl_var_comp)]
+        _grr_tables(components, ttl_var_comp, print_port)
         if hist_std is not None:
-            print("Historical Standard Deviation = %.3f" % hist_std)
-        if hist_std_used:
-            print("Total Variance = historical stdDev squared")
-
-        print("\nGage Evaluation")
-        t = PT()
-        t.field_names = ["Source", "Std Dev(SD)", "6 x SD", "SV%"]
-        t.align["Source"] = "l"
-        t.add_row(["Total Gage R&R", "%.3f" % std_grr, "%.3f" % (6 * std_grr), "%.2f" % (100 * std_grr / std_ttl if std_ttl > 0 else float("nan"))])
-        t.add_row(["  Repeatability", "%.3f" % std_repeat, "%.3f" % (6 * std_repeat), "%.2f" % (100 * std_repeat / std_ttl if std_ttl > 0 else float("nan"))])
-        t.add_row(["  Reproducibility", "%.3f" % std_reproduce, "%.3f" % (6 * std_reproduce), "%.2f" % (100 * std_reproduce / std_ttl if std_ttl > 0 else float("nan"))])
-        t.add_row(["Part-to-part", "%.3f" % std_part, "%.3f" % (6 * std_part), "%.2f" % (100 * std_part / std_ttl if std_ttl > 0 else float("nan"))])
-        t.add_row(["Total Variation", "%.3f" % std_ttl, "%.3f" % (6 * std_ttl), ("100.00" if ttl_var_comp > 0 else "nan")])
-        print(str(t))
-
-        if hist_std_used:
-            print("Historical standard deviation is used to calculate values of some sources.")
-
-        print("\nNumber of Distinct Categories = %s" % distinct)
+            print("历史过程标准差 = " + format_stat(hist_std))
+            print("历史标准差已用于估计零件分量及总方差。" if hist_std_used else
+                  "历史标准差小于 GRR 标准差，原方法未使用该历史值。")
+        print("可区分类别数 ndc = " + (str(distinct) if isfinite(distinct) else '*'))
+        print("ndc 描述可区分的零件类别数，不是样本量。")
 
     return {"Distinct Categories": distinct, "P value operator": p_o,
             "P value part": p_po, "GRR%": (100 * std_grr / std_ttl if std_ttl > 0 else float("nan")),

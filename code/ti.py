@@ -3,7 +3,7 @@ import numpy as np
 from scipy import integrate
 from scipy.stats import chi2, ncx2, norm, nct
 from statistics import mean, stdev
-from prettytable import PrettyTable as PT
+from utilities import gen_table, format_stat
 
 
 def ti_norm(data=None, alpha=0.05, P=0.9,
@@ -47,34 +47,32 @@ def ti_norm(data=None, alpha=0.05, P=0.9,
     ul = u + k * s
     ll = u - k * s
 
+    if print_out:
+        k_one = k
     k = solve(alpha=alpha)
     ti = (u - k * s, u + k * s)
 
     if print_out:
         print = print_port
-        print("\n---- Tolerance Interval ----")
-        pct = "%.2f%%" % (100 - 100 * alpha)
-        Pct = "%.2f%%" % (100 * P)
-        print(
-            pct +
-            " confident that at least " +
-            Pct +
-            " of the population's values for this characteristic will fall between %.2f and %.2f" %
-            ti)
-        t = PT()
-        t.field_names = ["Proportion", "Lower TI", "Upper TI", "1-Alpha"]
-        t.add_row(["%.2f" %
-                   P, "%.2f" %
-                   ti[0], "%.2f" %
-                   ti[1], "%.3f" %
-                   (1 - alpha)])
-        print(str(t))
-        print("\nOne-Sided Tolerance Interval")
-        t = PT()
-        t.field_names = ["Proportion", "Lower TI", "Upper TI", "1-Alpha"]
-        t.add_row(["%.2f" % P, "%.2f" % ll, "-", "%.3f" % (1 - alpha)])
-        t.add_row(["%.2f" % P, "-", "%.2f" % ul, "%.3f" % (1 - alpha)])
-        print(str(t))
+        print("\n---- 统计容差区间（正态方法） ----")
+        print("数据来源：" + ("原始样本" if None in [sample_mean, sample_n, sample_std] else "汇总数据"))
+        table = gen_table([['N', '样本均值', '样本标准差'],
+                           [n, format_stat(u), format_stat(s)]])
+        table.align = 'r'
+        print(str(table))
+        pct, confidence = '%.1f%%' % (100 * P), '%.1f%%' % (100 * (1 - alpha))
+        table = gen_table([
+            ['方法', '限类型', '总体覆盖比例', '置信水平', '下容差限', '上容差限', '容差因子 k'],
+            ['正态', '双侧区间', pct, confidence, format_stat(ti[0]), format_stat(ti[1]), format_stat(k)],
+            ['正态', '单侧下限', pct, confidence, format_stat(ll), '*', format_stat(k_one)],
+            ['正态', '单侧上限', pct, confidence, '*', format_stat(ul), format_stat(k_one)]])
+        for col in table.field_names[2:]:
+            table.align[col] = 'r'
+        print(str(table))
+        print("假设总体服从正态分布；限值单位与输入测量值一致，k 无量纲，* 表示不适用。")
+        print("总体覆盖比例为至少需覆盖的个体比例，置信水平描述重复抽样时容差限达到该覆盖要求的长期比例。")
+        print("单侧下限覆盖其上方总体，单侧上限覆盖其下方总体；两行是分别计算的单侧限，不能拼成双侧区间。")
+        print("容差区间针对总体个体的覆盖，不是总体参数的置信区间，也不是未来观测值的预测区间。")
 
     return {"TI": ti, "Upper Bound": ul, "Lower Bound": ll}
 

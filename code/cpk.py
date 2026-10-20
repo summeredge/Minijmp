@@ -9,10 +9,9 @@
 from scipy.stats import chi2, norm, nct
 from scipy.optimize import root_scalar
 import statistics as stat
-from prettytable import PrettyTable as PT
 ############ Own Modules ##############
 from utilities import d2_values, scale_factor_f, c4_values, grouping_by_labels, calculate_d3, calculate_d2
-from utilities import gen_table, transpose_2D_list
+from utilities import gen_table, format_stat
 
 
 def cpl_cpu_95(cpx, n, df, alpha=0.05):
@@ -68,22 +67,23 @@ def cpk_calc(mean, std, T, usl, lsl, df, N, print_port=print,
 
     if print_out:
         print = print_port
-        pct = "%.2f%%" % (100 - 100 * alpha)
-        print("\n" + name)
-        t = PT()
-        t.field_names = ["Index", "Estimate", "Lower " + pct, "Upper " + pct]
-        t.add_row(['Cpk', "%.3f" % cpk, "%.3f" % cpk_l, "%.3f" % cpk_u])
-        t.add_row(['Cpl', "%.3f" % cpl, "%.3f" % cpl_l, "%.3f" % cpl_u])
-        t.add_row(['Cpu', "%.3f" % cpu, "%.3f" % cpu_l, "%.3f" % cpu_u])
-        t.add_row(['Cp', "%.3f" % cp, "%.3f" % cp_l, "%.3f" % cp_u])
-        t.add_row(['Cpm', "%.3f" % cpm, "", ""])
+        overall = name.startswith("Overall")
+        prefix = "P" if overall else "C"
+        section = "整体性能" if overall else "组内能力" if name == "Within" else "过程能力指标"
+        print("\n" + section +
+              "（正态模型，置信水平 %.1f%%）" % (100 * (1 - alpha)))
+        t = gen_table([["指标", "估计值", "置信下限", "置信上限"],
+                       [prefix + "p", format_stat(cp), format_stat(cp_l), format_stat(cp_u)],
+                       [prefix + "pk", format_stat(cpk), format_stat(cpk_l), format_stat(cpk_u)],
+                       [prefix + "pl", format_stat(cpl), format_stat(cpl_l), format_stat(cpl_u)],
+                       [prefix + "pu", format_stat(cpu), format_stat(cpu_l), format_stat(cpu_u)],
+                       ['Cpm', format_stat(cpm), '*', '*']])
+        for col in t.field_names[1:]:
+            t.align[col] = 'r'
         print(str(t))
-        #  print("Cpk\tEst: %.3f\tLower: %.3f\tUpper: %.3f" % (cpk, cpk_l, cpk_u))
-        #  print("Cpl\tEst: %.3f\tLower: %.3f\tUpper: %.3f" % (cpl, cpl_l, cpl_u))
-        #  print("Cpu\tEst: %.3f\tLower: %.3f\tUpper: %.3f" % (cpu, cpu_l, cpu_u))
-        #  print("Cp\tEst: %.3f\tLower: %.3f\tUpper: %.3f" % (cp, cp_l, cp_u))
-        #  print("Cpm\tEst: %.3f" % cpm)
-        #  print("Cpm\tEst: %.3f\tLower: %.3f\tUpper: %.3f" % (cpm, cpm_l, cpm_u))
+        print("Cpm 使用本节标准差并考虑均值偏离目标值；原报告不提供其置信限。")
+        if name and name not in ("Within", "Overall (AKA Ppk in JMP)"):
+            print("分析标签：" + name)
     return {"cp": cp, "cpl": cpl, "cpu": cpu, "cpk": cpk, "cpm": cpm,
             "cp_l": cp_l, "cp_u": cp_u, "cpk_u": cpk_u, "cpk_l": cpk_l,
             "cpm_u": cpm_u, "cpm_l": cpm_l, "cpl_l": cpl_l, "cpl_u": cpl_u,
@@ -101,39 +101,19 @@ def nonconformance(data, t, lsl, usl, u, sw, so, print_out=True,
     ol = norm.cdf((lsl - u) / so)
     if print_out:
         print = print_port
-        print("\n" + "Nonconformance (Observation and Expected)")
-        #  t = PT()
-        t = [['Portion', 'Below LSL', 'Above USL', 'Total Out'],
-             ['Observed%', "%.2f" % (below / N * 100), "%.2f" % (above / N * 100), "%.2f" % ((below + above) / N * 100)]]
+        print("\n不合格比例（单位：%）")
+        rows = [['来源', '低于 LSL', '高于 USL', '合计'],
+                ['实际观测', format_stat(below / N * 100), format_stat(above / N * 100),
+                 format_stat((below + above) / N * 100)]]
         if within:
-            t.append(['Expected Within%', "%.2f" % (wl * 100), "%.2f" % (wu * 100), "%.2f" % (wu * 100 + 100 * wl)])
-        t.append(['Expected Overall%', "%.2f" % (ol * 100), "%.2f" % (ou * 100), "%.2f" % ((ol + ou) * 100)])
-        print(str(gen_table(transpose_2D_list(t))))
-
-        #  t.field_names = [
-        #      'Portion',
-        #      'Observed%',
-        #      "Expected Within%",
-        #      "Expected Overall%"]
-        #  t.add_row(["Below LSL", "%.2f" %
-        #             (below / N * 100), "%.2f" %
-        #             (wl * 100), "%.2f" %
-        #             (ol * 100)])
-        #  t.add_row(["Above USL", "%.2f" %
-        #             (above / N * 100), "%.2f" %
-        #             (wu * 100), "%.2f" %
-        #             (ou * 100)])
-        #  t.add_row(["Total Out", "%.2f" %
-        #             ((below + above) / N * 100), "%.2f" %
-        #             ((wl + wu) * 100), "%.2f" %
-        #             ((ol + ou) * 100)])
-        #  print(str(t))
-        #  print(
-        #      "Above USL Obs. %.2f%%\tExp. Within %.2f%%\tExp. Overall %.2f%%" %
-        #      (above / N * 100, wu * 100, ou * 100))
-        #  print(
-        #      "Total Out Obs. %.2f%%\tExp. Within %.2f%%\tExp. Overall %.2f%%" %
-        #      ((below + above) / N * 100, (wu + wl) * 100, (ou + ol) * 100))
+            rows.append(['正态预测（组内）', format_stat(wl * 100), format_stat(wu * 100),
+                         format_stat((wl + wu) * 100)])
+        rows.append(['正态预测（整体）', format_stat(ol * 100), format_stat(ou * 100),
+                     format_stat((ol + ou) * 100)])
+        table = gen_table(rows)
+        for col in table.field_names[1:]:
+            table.align[col] = 'r'
+        print(str(table))
 
     return {
         "below_s": below / N,
@@ -196,19 +176,27 @@ def cpk(data, target, usl, lsl, print_port=print, within=True,
            "N": N, "N Subgroups": sub_grps, "Stability Index": stability}
     if print_out:
         print = print_port
-        print("\n---- Process Capabilities ----")
-        for key in res:
-            if (not within) and key == "Within Sigma":
-                continue
-            if (not within) and key == "Stability Index":
-                continue
-            if "N" in key:
-                print(key + " = %d" % int(res[key]))
-            else:
-                print(str(key) + " = %.3f" % res[key]
-                      if isinstance(res[key], float) else str(res[key]))
+        print("\n---- 正态过程能力分析 ----")
+        rows = [['N', '子组数', 'LSL', '目标值 Target', 'USL', '过程均值', '整体标准差'],
+                [N, sub_grps, format_stat(lsl), format_stat(target), format_stat(usl),
+                 format_stat(mean), format_stat(std_overall)]]
         if within:
-            print(within_msg)
+            rows[0] += ['组内标准差', '整体/组内标准差比']
+            rows[1] += [format_stat(std_within), format_stat(stability)]
+        table = gen_table(rows)
+        table.align = 'r'
+        print(str(table))
+        if within:
+            methods = {
+                "Within sigma estimated by the average of ranges over d2.": "子组极差除以 d2 后取平均",
+                "Within sigma estimated by the average of unbiased SD.": "子组无偏标准差的平均值",
+                "Within sigma estimated by averaging moving ranges of 2.": "相邻两个观测值的移动极差均值除以 d2",
+            }
+            print("组内标准差估计：" + methods[within_msg] + "。")
+        print("整体标准差使用全部观测值的样本标准差；规格为双侧规格。")
+        print("Cp/Pp 描述规格宽度相对波动，Cpk/Ppk 另考虑均值到两侧规格的距离。")
+        print("组内波动与整体波动分别用于 C 系列和 P 系列；能力指数及标准差比不证明过程稳定。")
+        print("* 表示不适用或未提供；数值单位与输入测量值一致，能力指数及标准差比无量纲。")
 
     if within:
         res["Within"] = cpk_calc(mean, std_within, target,

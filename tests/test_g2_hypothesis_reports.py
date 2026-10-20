@@ -344,17 +344,21 @@ def test_signatures_and_defaults_preserved(function, signature):
     assert str(inspect.signature(function)) == signature
 
 
-def test_scoped_old_report_builders_removed_and_lf_preserved():
+def test_scoped_old_report_builders_removed_and_line_endings_consistent():
     targets = {'t_test.py': ['t_test_1sample', 'z_test_1sample', 'paired_t_test', 't_test_2samples'],
                'chi_sq.py': ['chi2_test_stdev', 'chi2_var_1sample', 'var_1sample'],
                'proportion_test.py': ['prop_test_1sample', 'prop_2sample']}
     for filename, functions in targets.items():
         raw = (ROOT/'code'/filename).read_bytes()
-        assert b'\r\n' not in raw
+        # 接受 Git 自动检出的完整 CRLF，同时拒绝混合换行和孤立 CR。
+        assert b'\r' not in raw.replace(b'\r\n', b'')
+        assert b'\r\n' not in raw or raw.count(b'\r\n') == raw.count(b'\n')
         for node in ast.parse(raw).body:
             if isinstance(node, ast.FunctionDef) and node.name in functions:
                 assert not any(isinstance(call, ast.Call) and isinstance(call.func, ast.Name)
                                and call.func.id == 'PT' for call in ast.walk(node))
                 assert any(isinstance(item, ast.ImportFrom) and item.module == 'utilities'
                            for item in ast.walk(node))
-    assert b'\r\n' not in Path(__file__).read_bytes()
+    raw = Path(__file__).read_bytes()
+    assert b'\r' not in raw.replace(b'\r\n', b'')
+    assert b'\r\n' not in raw or raw.count(b'\r\n') == raw.count(b'\n')

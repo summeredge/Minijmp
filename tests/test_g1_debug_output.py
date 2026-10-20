@@ -179,5 +179,8 @@ def test_each_named_function_and_each_duplicate_has_no_direct_debug_print(filena
 
 @pytest.mark.parametrize('filename', ['chi_sq.py', 'linear_fit.py', 'nonpara_cor.py',
     'plots.py', 'proportion_test.py', 't_test.py', 'txt_output.py', 'utilities.py'])
-def test_g1_files_keep_verified_head_lf_style(filename):
-    assert b'\r' not in (ROOT/'code'/filename).read_bytes()
+def test_g1_files_keep_consistent_line_endings(filename):
+    # Windows Git 的 core.autocrlf 会把仓库 LF 检出为 CRLF；禁止混合换行。
+    raw = (ROOT/'code'/filename).read_bytes()
+    assert b'\r' not in raw.replace(b'\r\n', b'')
+    assert b'\r\n' not in raw or raw.count(b'\r\n') == raw.count(b'\n')

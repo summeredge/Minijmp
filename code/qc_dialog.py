@@ -78,6 +78,7 @@ class GRR_Nested_Dialog(Dialogs):
             return
 
         try:
+            self.app.print(f"分析变量：{self.xvar.get()}；零件列：{self.yvar.get()}；操作者列：{self.ovar.get()}。")
             grr_nested(
                 y=r[0], part=r[1],
                 op=r[2],  # if has_op else None,
@@ -222,6 +223,7 @@ class GRRDialog(Dialogs):
             spec_gap = spec_gap if spec_gap >= 0 else None
         #  use_hist = ("hist" in self.hist_std_use.get())
 
+        self.app.print(f"分析变量：{self.xvar.get()}；零件列：{self.yvar.get()}；操作者列：{self.ovar.get() or '未提供'}。")
         grr_master(
             y=r[0], part=r[1],
             op=r[2] if has_op else None,
@@ -327,6 +329,7 @@ class CpkDialog(Dialogs):
         pf = self.app.showPlotViewer()
         pf.ax = pf.fig.add_subplot(111)
 
+        self.app.print(f"分析变量：{self.xvar.get()}。")
         cpk_plot(
             data,
             lsl,
@@ -456,7 +459,7 @@ class CpkSubDialog(Dialogs):
                     id_r.append(i)
                     y_r.append(float(j))
             self.app.print(
-                "Received %d valid data pairs for group ID and measurement." %
+                "子组标识与测量值的有效配对数 = %d。" %
                 len(y_r))
             data = grouping_by_labels(y_r, id_r)
         elif "ize" in m:
@@ -467,7 +470,7 @@ class CpkSubDialog(Dialogs):
                 return
             data = [y[i:i + size] for i in range(0, len(y), size)]
             if len(y) % size > 0:
-                self.app.print("WARNING: Unbalanced subgrouping.")
+                self.app.print("警告：子组大小不相等。")
         else:
             data = number_list(self.df[self.xvar.get()])
 
@@ -487,6 +490,7 @@ class CpkSubDialog(Dialogs):
         pf = self.app.showPlotViewer()
         pf.ax = pf.fig.add_subplot(111)
 
+        self.app.print(f"分析变量：{self.xvar.get()}。")
         cpk_plot(
             data,
             lsl,
@@ -574,6 +578,7 @@ class TIDialog(Dialogs):
         if P > 1 or P <= 0:
             P = 0.9
 
+        self.app.print(f"分析变量：{self.xvar.get() if None in [mean, n, std] else '汇总数据（未指定变量名）'}。")
         ti_norm(data=data, sample_n=n, sample_std=std,
                 sample_mean=mean, alpha=alpha,
                 P=P, print_out=True, print_port=self.app.print)
