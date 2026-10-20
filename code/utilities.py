@@ -1,3 +1,4 @@
+from stat_table import StatTable
 from scipy.special import gamma
 from scipy import integrate
 from scipy.stats import norm, shapiro, chi2
@@ -263,12 +264,14 @@ def pearson_correlation(x, y, alpha=0.05, print_out=True, print_port=print):
             ['X / Y', 'Pearson', n, format_stat(r), format_stat(p)]])
         table.align = 'r'
         table.align['变量组合'] = table.align['方法'] = 'l'
-        print(str(table))
+        print(StatTable(table, 'Pearson 相关分析', table.field_names,
+            [['X / Y', 'Pearson', n, r, p]], display=[[str(v) for v in row] for row in table.rows]))
         table = gen_table([
             ['协方差', '双侧置信下限 (rho)', '双侧置信上限 (rho)'],
             [format_stat(cov), format_stat(lo), format_stat(hi)]])
         table.align = 'r'
-        print(str(table))
+        print(StatTable(table, 'Pearson 协方差及置信区间', table.field_names,
+            [[cov, lo, hi]], display=[[str(v) for v in row] for row in table.rows]))
         print("原假设 H0：总体 Pearson 相关系数 ρ = 0；备择假设 H1：ρ ≠ 0。")
         print("p 值是在原假设及检验模型成立时，得到当前或更极端检验统计量的概率。")
 
@@ -485,7 +488,9 @@ def norm_test(data, print_out=False, print_port=print):
             ['Anderson-Darling', format_stat(s2), format_stat(p2)]])
         table.align = 'r'
         table.align['检验方法'] = 'l'
-        print(str(table))
+        print(StatTable(table, '正态性检验', table.field_names,
+            [['Shapiro-Wilk', s1, p1], ['Anderson-Darling', s2, p2]],
+            display=[[str(v) for v in row] for row in table.rows]))
         print("原假设 H0：总体服从正态分布；备择假设 H1：总体不服从正态分布。")
         print("未拒绝 H0 不代表证明数据正态；请结合显著性水平和有效性警告判断。")
         print("p 值是在原假设及检验模型成立时，得到当前或更极端检验统计量的概率。")

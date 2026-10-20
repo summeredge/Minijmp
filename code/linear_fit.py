@@ -1,3 +1,4 @@
+from stat_table import StatTable
 import statistics as stat
 from scipy.stats import f as f_dist
 from scipy.stats import t as t_dist
@@ -156,32 +157,36 @@ def linear_fit(x, y, print_out=True, print_port=print):
         print(f"回归方程：Y = {format_stat(b0)} {b1:+.3f} * X")
         sections = [
             ('模型摘要', [['N', 'R-sq', '调整 R-sq', '残差标准误 S', '响应均值'],
-                [n, format_stat(R_sq), format_stat(R_sq_adj), format_stat(S), format_stat(y_est_u)]]),
+                [n, R_sq, R_sq_adj, S, y_est_u]]),
             ('回归系数', [['参数', '系数', '标准误', 't 绝对值', 'p 值'],
-                ['截距', format_stat(b0), format_stat(SEb0),
-                 format_stat(int_t) if int_t >= 0 else '*', format_stat(p_int) if int_t >= 0 else '*'],
-                ['X（斜率）', format_stat(b1), format_stat(SEb1),
-                 format_stat(slope_t) if slope_t >= 0 else '*', format_stat(p_slope) if slope_t >= 0 else '*']]),
+                ['截距', b0, SEb0,
+                 int_t if int_t >= 0 else '*', p_int if int_t >= 0 else '*'],
+                ['X（斜率）', b1, SEb1,
+                 slope_t if slope_t >= 0 else '*', p_slope if slope_t >= 0 else '*']]),
             ('方差分析（ANOVA）', [['来源', '自由度', '平方和 SS', '均方 MS', 'F 值', 'p 值'],
-                ['回归', 1, format_stat(SSR), format_stat(MSR),
-                 format_stat(F_reg) if F_reg >= 0 else '*', format_stat(p_reg) if F_reg >= 0 else '*'],
-                ['误差', n - 2, format_stat(SSE), format_stat(MSE), '*', '*'],
-                ['总计', n - 1, format_stat(SST), '*', '*', '*']])]
+                ['回归', 1, SSR, MSR,
+                 F_reg if F_reg >= 0 else '*', p_reg if F_reg >= 0 else '*'],
+                ['误差', n - 2, SSE, MSE, '*', '*'],
+                ['总计', n - 1, SST, '*', '*', '*']])]
         if p_lack >= 0:
             sections.append(('失拟检验', [['来源', '自由度', '平方和 SS', '均方 MS', 'F 值', 'p 值'],
-                ['失拟', DFLF, format_stat(SSLF), format_stat(MSLF), format_stat(F_lack), format_stat(p_lack)],
-                ['纯误差', DFPE, format_stat(SSPE), format_stat(MSPE), '*', '*'],
-                ['误差合计', n - 2, format_stat(SSE), format_stat(MSE), '*', '*']]))
+                ['失拟', DFLF, SSLF, MSLF, F_lack, p_lack],
+                ['纯误差', DFPE, SSPE, MSPE, '*', '*'],
+                ['误差合计', n - 2, SSE, MSE, '*', '*']]))
         sections.append(('残差正态性诊断', [['检验方法', '统计量', 'p 值'],
-            ['Shapiro-Wilk', format_stat(ntest_e['shapiro s']), format_stat(ntest_e['shapiro p'])],
-            ['Anderson-Darling', format_stat(ntest_e['AD s']), format_stat(ntest_e['AD p'])]]))
+            ['Shapiro-Wilk', ntest_e['shapiro s'], ntest_e['shapiro p']],
+            ['Anderson-Darling', ntest_e['AD s'], ntest_e['AD p']]]))
         for title, rows in sections:
             print("\n" + title)
-            table = gen_table(rows)
+            display = [[cell if isinstance(cell, str) or header in ('N', '自由度')
+                        else format_stat(cell) for header, cell in zip(rows[0], row)]
+                       for row in rows[1:]]
+            table = gen_table([rows[0]] + display)
             table.align = 'r'
             if title != '模型摘要':
                 table.align[rows[0][0]] = 'l'
-            print(str(table))
+            print(StatTable(table, title, rows[0], rows[1:], display=[[str(v) for v in row] for row in display],
+                            number_formats=['0' if h in ('N', '自由度') else '0.000' for h in rows[0]]))
         print("各项系数检验：原假设 H0：该总体回归系数 = 0；备择假设 H1：该系数 ≠ 0。")
         print("回归 F 检验：原假设 H0：总体斜率 = 0；备择假设 H1：总体斜率 ≠ 0。")
         if p_lack >= 0:

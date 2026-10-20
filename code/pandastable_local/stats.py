@@ -43,6 +43,48 @@ try:
 except:
     print('statsmodel not installed')
 
+def model_summary_tables(fit, summary):
+    """原生摘要提供显示文本，模型结果提供未舍入的 Excel 原值。"""
+    from stat_table import StatTable
+    attributes = {
+        'No. Observations': 'nobs', 'Df Residuals': 'df_resid', 'Df Model': 'df_model',
+        'R-squared': 'rsquared', 'Adj. R-squared': 'rsquared_adj',
+        'R-squared (uncentered)': 'rsquared', 'Adj. R-squared (uncentered)': 'rsquared_adj',
+        'F-statistic': 'fvalue', 'Prob (F-statistic)': 'f_pvalue',
+        'Log-Likelihood': 'llf', 'AIC': 'aic', 'BIC': 'bic',
+        'Pseudo R-squ.': 'prsquared', 'LL-Null': 'llnull', 'LLR p-value': 'llr_pvalue',
+    }
+    diagnostics = {'Omnibus': 'omni', 'Prob(Omnibus)': 'omnipv', 'Skew': 'skew',
+                   'Kurtosis': 'kurtosis', 'Jarque-Bera (JB)': 'jb', 'Prob(JB)': 'jbpv',
+                   'Cond. No.': 'condno'}
+    for index, native in enumerate(summary.tables):
+        display = [[str(cell) for cell in row] for row in native.data]
+        if index == 1:
+            headers, display = display[0], display[1:]
+            headers[0] = '参数'
+            values = [[label, coef, se, test, p, low, high] for label, coef, se, test, p, (low, high)
+                      in zip(fit.model.exog_names, fit.params, fit.bse, fit.tvalues,
+                             fit.pvalues, np.asarray(fit.conf_int()))]
+            title = '回归系数'
+        else:
+            headers = ['项目', '数值', '项目（续）', '数值（续）']
+            values = [row.copy() for row in display]
+            for row in values:
+                for col in (0, 2):
+                    label = row[col].strip().rstrip(':')
+                    if label in attributes:
+                        row[col+1] = getattr(fit, attributes[label])
+                    elif label in diagnostics:
+                        row[col+1] = fit.diagn[diagnostics[label]]
+                    elif label == 'Durbin-Watson':
+                        row[col+1] = sm.stats.durbin_watson(fit.wresid)
+            title = native.title or '残差诊断'
+        # 与 statsmodels Summary.as_text 的表间分隔规则相同。
+        text = str(native).rsplit('\n', 1)[0] if index < len(summary.tables)-1 else str(native)
+        yield StatTable(text, title, headers, values, display=display,
+                        number_formats=['General'] * len(headers))
+
+
 class StatsViewer(Frame):
     """Provides a frame for model viewing interaction"""
 
@@ -321,17 +363,20 @@ class StatsViewer(Frame):
         """Fit summary"""
 
         s = self.fit.summary()
-        from .dialogs import SimpleEditor
+        from txt_output import txt_viewer
         if not hasattr(self, 'fitinfo') or self.fitinfo == None:
             self.w = w = Toplevel(self.parent)
             def deletewin():
                 self.fitinfo = None
                 self.w.destroy()
             w.protocol("WM_DELETE_WINDOW", deletewin)
-            self.fitinfo = SimpleEditor(w, height=25, width=85)
+            self.fitinfo = txt_viewer(None, parent=w)
             self.fitinfo.pack(in_=w, fill=BOTH, expand=Y)
-        self.fitinfo.text.insert(END, s)
-        self.fitinfo.text.see(END)
+        for i, table in enumerate(model_summary_tables(self.fit, s)):
+            self.fitinfo.add_table(table, '\n' if i < len(s.tables)-1 else '')
+        if s.extra_txt is not None:
+            self.fitinfo.add_txt('\n\n' + s.extra_txt)
+        self.fitinfo.to_end()
         return
 
     @classmethod

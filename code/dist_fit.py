@@ -1,3 +1,4 @@
+from stat_table import StatTable
 from scipy.stats import norm, gamma, weibull_min, lognorm, johnsonsu, expon
 #  from scipy.stats import gamma as gamma
 from scipy.stats import t as t_dist
@@ -38,17 +39,20 @@ def print_table(fit_name, para_names, paras, abl, a2, p, print_port=print):
     for i, j in zip(para_names, paras):
         t.add_row([i, format_stat(j)])
     t.align['估计值'] = 'r'
-    print(str(t))
+    print(StatTable(t, fit_name + ' 参数估计', t.field_names,
+        [[name, value] for name, value in zip(para_names, paras)], display=[[str(v) for v in row] for row in t.rows]))
     print("参数置信区间：现有方法未计算。")
     t = gen_table([['-2*LogLikelihood', 'AICc', 'BIC'],
                    [format_stat(value) for value in abl]])
     t.align = 'r'
-    print(str(t))
+    print(StatTable(t, fit_name + ' 拟合指标', t.field_names,
+        [list(abl)], display=[[str(v) for v in row] for row in t.rows]))
     t = gen_table([['拟合优度方法', 'AD 统计量', '近似 p 值'],
                    ['Anderson-Darling', format_stat(a2), format_stat(p)]])
     t.align['AD 统计量'] = 'r'
     t.align['近似 p 值'] = 'r'
-    print(str(t))
+    print(StatTable(t, fit_name + ' 拟合优度', t.field_names,
+        [['Anderson-Darling', a2, p]], display=[[str(v) for v in row] for row in t.rows]))
     print("H0：样本来自所拟合的分布；小 p 值提示与该分布不符，未拒绝 H0 不等于证明分布正确。")
     print("p 值不是 H0 成立的概率；p = 0.000 为三位小数舍入结果，不代表概率严格为零。")
     print("AD 的 p 值为近似值；非正态分布沿用现有近似，未进行分布专用校准。")
@@ -289,7 +293,9 @@ def compare_dist(
                            format_stat(r[1][2]), format_stat(r[1][0])])
             for column in t.field_names[1:]:
                 t.align[column] = 'r'
-            print(str(t))
+            print(StatTable(t, '分布比较', t.field_names,
+                [[r[0], r[1][1], r[-1], r[1][2], r[1][0]] for r in res],
+                display=[[str(v) for v in row] for row in t.rows]))
             print("排序沿用 AICc 权重降序；权重表示当前候选集合中的相对支持度，不是模型为真或必为最佳模型的概率。")
             print("AICc、BIC 在同一数据下越小越优；AD 用于检验分布相容性，不参与此处排序。")
             print("* 表示不可用的统计量；未成功拟合的分布不进入比较。")

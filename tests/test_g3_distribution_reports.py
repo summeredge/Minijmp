@@ -246,6 +246,8 @@ def test_fit_dialog_apply_cleans_selected_data_and_routes_actual_reports(monkeyp
         picks={case[0]: variable(case[0] in selected) for case in CASES},
         app=SimpleNamespace(print=lines.append))
     assert basic_dialogs.FitDistDialog.apply(dialog) is None
+    from stat_table import StatTable
+    assert sum(isinstance(line, StatTable) for line in lines) == 10
     assert calls.call_args.args == ([*DATA, 5.],)
     assert calls.call_args.kwargs == dict(print_out=True, print_port=lines.append, selected=selected)
     pd.testing.assert_frame_equal(frame, original)
@@ -293,6 +295,8 @@ def test_histogram_apply_uses_same_frozen_rv_and_curve_without_changing_source(m
             assert rv is None and len(figure.axes) == 1
             assert any('拟合失败' in line for line in lines)
             return
+        from stat_table import StatTable
+        assert sum(isinstance(line, StatTable) for line in lines) == 3
         expected = dist_fit.fit_lognorm([*DATA, 5.], print_out=False)['rv']
         np.testing.assert_array_equal(rv.pdf(DATA), expected.pdf(DATA))
         assert len(figure.axes) == 2

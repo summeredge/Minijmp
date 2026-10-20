@@ -188,6 +188,8 @@ def test_actual_dialog_apply_keeps_cleaning_and_reaches_report(dialog_class):
         d.get_plot_settings = lambda: None
     dialog_class.apply(d)
     d.error.assert_not_called()
+    from stat_table import StatTable
+    assert any(isinstance(line, StatTable) for line in lines)
     text = '\n'.join(lines)
     expected = {fit_dialog.LinearFitDialog: '普通最小二乘线性回归',
         fit_dialog.OrthoFitDialog: '正交回归', fit_dialog.ResidDialog: '残差正态性诊断'}[dialog_class]
@@ -212,17 +214,21 @@ def test_scoped_report_source_and_public_signature(filename, function, old):
 
 
 @pytest.mark.parametrize('model_name', ['OLS', 'GLS', 'Logit'])
-def test_statsviewer_reuses_complete_native_model_summary(model_name):
+def test_statsviewer_reuses_complete_native_model_summary(model_name, monkeypatch):
     import statsmodels.api as sm
     from pandastable_local.stats import StatsViewer
     x = np.arange(12.)
     y = np.array([0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1]) if model_name == 'Logit' else x + np.sin(x)
     model = getattr(sm, model_name)(y, sm.add_constant(x))
     result = model.fit(disp=False) if model_name == 'Logit' else model.fit()
+    expected_summary = result.summary()
+    monkeypatch.setattr(result, 'summary', lambda: expected_summary)
     before = result.params.copy()
-    text_widget = Mock()
-    StatsViewer.summary(SimpleNamespace(fit=result, fitinfo=SimpleNamespace(text=text_widget)))
-    summary = text_widget.insert.call_args.args[1]
-    assert str(summary) == str(result.summary())
+    outputs = []
+    viewer = SimpleNamespace(add_table=lambda table, end: outputs.append(str(table)+end),
+                             add_txt=outputs.append, to_end=Mock())
+    StatsViewer.summary(SimpleNamespace(fit=result, fitinfo=viewer))
+    summary = ''.join(outputs)
+    assert summary == str(result.summary())
     assert model_name in str(summary) and 'coef' in str(summary) and '[0.025' in str(summary)
     np.testing.assert_array_equal(result.params, before)
