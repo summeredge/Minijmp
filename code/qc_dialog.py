@@ -1,3 +1,4 @@
+from dialog import option_combobox
 from tkinter import ttk
 import tkinter as tk
 from tkinter import TOP, LEFT, X, BOTH
@@ -14,19 +15,19 @@ from grr_plot import grr_plot
 
 class GRR_Nested_Dialog(Dialogs):
     def createWidgets(self, m):
-        ff = tk.LabelFrame(m, text='Input Columns')
+        ff = tk.LabelFrame(m, text='输入列')
         ff.pack(side=TOP, fill=BOTH, padx=2, pady=2)
         f = tk.Frame(ff)
         f.pack(side=TOP, fill=BOTH, padx=2, pady=2)
         self.xvar = tk.StringVar(value="")
         self.yvar = tk.StringVar(value="")
-        w = tk.Label(f, text="Measurement")
+        w = tk.Label(f, text='测量值')
         w.pack(side=LEFT, fill=X, padx=2, pady=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(f, text="Part #")
+        w = tk.Label(f, text='部件编号')
         w.pack(side=LEFT, fill=X, padx=2, pady=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.yvar,
@@ -36,17 +37,17 @@ class GRR_Nested_Dialog(Dialogs):
         f = tk.Frame(ff)
         f.pack(side=TOP, fill=BOTH, padx=2, pady=2)
         self.ovar = tk.StringVar(value="")
-        w = tk.Label(f, text="Operators")
+        w = tk.Label(f, text='操作员')
         w.pack(side=LEFT, fill=X, padx=2, pady=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.ovar,
             width=14)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        f = tk.LabelFrame(m, text='Optional Input')
+        f = tk.LabelFrame(m, text='可选输入')
         f.pack(side=TOP, fill=BOTH, padx=2, pady=2)
         self.hist_std = tk.StringVar(value="")
-        w = tk.Label(f, text="Historical Process(total) Std Dev")
+        w = tk.Label(f, text='历史过程标准差（整体）')
         w.pack(side=LEFT, fill=X, padx=2, pady=2)
         w = tk.Entry(f, textvariable=self.hist_std,
                      bg='white', width=10)
@@ -60,7 +61,7 @@ class GRR_Nested_Dialog(Dialogs):
             p = self.df[self.yvar.get()]
             o = self.df[self.ovar.get()]
         except BaseException:
-            self.error(msg="Input error or too few input items.")
+            self.error(msg='输入有误或输入项过少。')
             return
 
         r = [[], [], []]
@@ -73,7 +74,7 @@ class GRR_Nested_Dialog(Dialogs):
                 r[2].append(k)
 
         if len(r[0]) < 4:
-            self.error(msg="Input error: too few data points.")
+            self.error(msg='输入有误：数据点过少。')
             return
 
         try:
@@ -84,78 +85,85 @@ class GRR_Nested_Dialog(Dialogs):
                 print_out=True,
                 print_port=self.app.print)
         except ValueError as e:
-            self.error(msg=e)
+            self.error(msg={
+                'Measurements, parts and operators must have equal nonzero lengths.': '测量值、部件和操作员的数据长度必须相等且不为空。',
+                'Measurements must be finite numbers.': '测量值必须为有限数值。',
+                'Historical standard deviation must be finite and positive.': '历史标准差必须为有限正数。',
+                'Each part must have equal replicates and belong to only one operator.': '每个部件的重复测量次数必须相等，且只能属于一名操作员。',
+                'The experiment design is not balanced.': '试验设计不平衡。',
+                'Nested GRR requires at least two operators, two parts per operator and two replicates per part.': '嵌套量具 R&R 至少需要两名操作员，每名操作员测量两个部件，每个部件重复测量两次。',
+            }.get(str(e), str(e)))
         return
 
 
 class GRRDialog(Dialogs):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Input Columns')
+        f = tk.LabelFrame(m, text='输入列')
         f.pack(side=TOP, fill=BOTH, padx=2, pady=2)
         self.xvar = tk.StringVar(value="")
         self.yvar = tk.StringVar(value="")
-        w = tk.Label(f, text="Measurement")
+        w = tk.Label(f, text='测量值')
         w.pack(side=LEFT, fill=X, padx=2, pady=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(f, text="Part #")
+        w = tk.Label(f, text='部件编号')
         w.pack(side=LEFT, fill=X, padx=2, pady=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.yvar,
             width=14)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        f = tk.LabelFrame(m, text='Optional Input')
+        f = tk.LabelFrame(m, text='可选输入')
         f.pack(side=TOP, fill=BOTH, padx=2, pady=2)
         self.ovar = tk.StringVar(value="")
-        w = tk.Label(f, text="Operators")
+        w = tk.Label(f, text='操作员')
         w.pack(side=LEFT, fill=X, padx=2, pady=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.ovar,
             width=14)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        f = tk.LabelFrame(m, text='Algo Setting')
+        f = tk.LabelFrame(m, text='分析方法设置')
         f.pack(side=TOP, fill=BOTH, padx=2, pady=2)
         self.mvar = tk.StringVar(value="AIAG (ANOVA)")
-        w = tk.Label(f, text="Method")
+        w = tk.Label(f, text='方法')
         w.pack(side=LEFT, fill=X, padx=2, pady=2)
-        w = ttk.Combobox(
+        w = option_combobox(
             f,
             values=[
                 "AIAG (ANOVA)",
                 "EMP (ANOVA)",
                 "XBAR/R"],
             textvariable=self.mvar,
-            width=14)
+            width=18)
         w.pack(side=LEFT, padx=2, pady=2)
 
         self.inter = tk.StringVar(value="Auto")
-        w = tk.Label(f, text='Operator x Part Interaction')
+        w = tk.Label(f, text='操作员与部件交互作用')
         w.pack(side=LEFT, padx=2, pady=2)
-        w = ttk.Combobox(
+        w = option_combobox(
             f,
             values=["Auto", "On", "Off"],
             textvariable=self.inter,
             width=5)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        f = tk.LabelFrame(m, text='AIAG and Xbar/R setting (optional)')
+        f = tk.LabelFrame(m, text='AIAG 和 Xbar/R 设置（可选）')
         f.pack(side=TOP, fill=BOTH, padx=2, pady=2)
         slave = tk.Frame(f)
         slave.pack(side=TOP, fill=BOTH, padx=0, pady=2)
 
         self.spec_gap = tk.StringVar(value="")
-        w = tk.Label(slave, text="USL - LSL")
+        w = tk.Label(slave, text='规格宽度（USL - LSL）')
         w.pack(side=LEFT, fill=X, padx=2, pady=2)
         w = tk.Entry(slave, textvariable=self.spec_gap,
                      bg='white', width=15)
         w.pack(side=LEFT, padx=2, pady=2)
 
         self.hist_std = tk.StringVar(value="")
-        w = tk.Label(slave, text="Historical SD")
+        w = tk.Label(slave, text='历史标准差')
         w.pack(side=LEFT, fill=X, padx=2, pady=2)
         w = tk.Entry(slave, textvariable=self.hist_std,
                      bg='white', width=15)
@@ -172,9 +180,9 @@ class GRRDialog(Dialogs):
         #  w.pack(side=LEFT, padx=10, pady=2)
 
         self.ylabel = tk.StringVar(value="")
-        master = tk.LabelFrame(m, text='Plot Setting')
+        master = tk.LabelFrame(m, text='绘图设置')
         master.pack(side=TOP, fill=BOTH, padx=2)
-        w = tk.Label(master, text="Y Label")
+        w = tk.Label(master, text='Y 轴标签')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.ylabel,
                      bg='white', width=15)
@@ -238,32 +246,32 @@ class GRRDialog(Dialogs):
 
 class CpkDialog(Dialogs):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Input Column')
+        f = tk.LabelFrame(m, text='输入列')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
-        w = tk.Label(f, text="Measurement")
+        w = tk.Label(f, text='测量值')
         w.pack(side=LEFT, fill=X, padx=2, pady=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        master = tk.LabelFrame(m, text='Enter Spec Limits')
+        master = tk.LabelFrame(m, text='输入规格限')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.target = tk.DoubleVar(value=0)
         self.lsl = tk.DoubleVar(value=0)
         self.usl = tk.DoubleVar(value=0)
-        w = tk.Label(master, text="LSL")
+        w = tk.Label(master, text='规格下限（LSL）')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.lsl,
                      bg='white', width=10)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="Target")
+        w = tk.Label(master, text='目标值')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.target,
                      bg='white', width=10)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="USL")
+        w = tk.Label(master, text='规格上限（USL）')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.usl,
                      bg='white', width=10)
@@ -272,24 +280,24 @@ class CpkDialog(Dialogs):
         self.show_within = tk.BooleanVar(value=False)
         w = tk.Checkbutton(
             m,
-            text='Show within sigma of moving average of neighbor observations.',
+            text='显示由相邻观测值移动极差估计的组内标准差',
             variable=self.show_within)
         w.pack(side=TOP, fill=BOTH, padx=2, pady=2)
 
         self.xlabel = tk.StringVar(value="")
         self.show_legend = tk.BooleanVar(value=True)
         self.show_spec = tk.BooleanVar(value=True)
-        master = tk.LabelFrame(m, text='Plot Setting')
+        master = tk.LabelFrame(m, text='绘图设置')
         master.pack(side=TOP, fill=BOTH, padx=2)
-        w = tk.Label(master, text="X Label")
+        w = tk.Label(master, text='X 轴标签')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.xlabel,
                      bg='white', width=15)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Checkbutton(master, text='Show Spec Limits',
+        w = tk.Checkbutton(master, text='显示规格限',
                            variable=self.show_spec)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Checkbutton(master, text='Show Legend',
+        w = tk.Checkbutton(master, text='显示图例',
                            variable=self.show_legend)
         w.pack(side=LEFT, padx=2, pady=2)
 
@@ -299,7 +307,7 @@ class CpkDialog(Dialogs):
     def apply(self):
         data = number_list(self.df[self.xvar.get()])
         if len(data) < 2 or len(set(data)) < 2:
-            self.error("Capability analysis requires at least two observations and positive variation.")
+            self.error('过程能力分析至少需要两个观测值，且变异大于 0。')
             return
 
         alpha = self.alpha.get()
@@ -310,10 +318,10 @@ class CpkDialog(Dialogs):
         if lsl < tgt < usl:
             pass
         elif tgt == 0 and lsl < usl:
-            self.error("Missing target spec. Use the average of LSL and USL instead.")
+            self.error('未指定目标值，将使用规格下限与规格上限的平均值。')
             tgt = (lsl + usl) / 2
         else:
-            self.error("Spec limits input error.")
+            self.error('规格限输入有误。')
             return
 
         pf = self.app.showPlotViewer()
@@ -338,43 +346,43 @@ class CpkDialog(Dialogs):
 
 class CpkSubDialog(Dialogs):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Input Column')
+        f = tk.LabelFrame(m, text='输入列')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
-        w = tk.Label(f, text="Measurement")
+        w = tk.Label(f, text='测量值')
         w.pack(side=LEFT, fill=X, padx=2, pady=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        master = tk.LabelFrame(m, text='Enter Spec Limits')
+        master = tk.LabelFrame(m, text='输入规格限')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.target = tk.DoubleVar(value=0)
         self.lsl = tk.DoubleVar(value=0)
         self.usl = tk.DoubleVar(value=0)
-        w = tk.Label(master, text="LSL")
+        w = tk.Label(master, text='规格下限（LSL）')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.lsl,
                      bg='white', width=10)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="Target")
+        w = tk.Label(master, text='目标值')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.target,
                      bg='white', width=10)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="USL")
+        w = tk.Label(master, text='规格上限（USL）')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.usl,
                      bg='white', width=10)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        f = tk.LabelFrame(m, text='Subgroup')
+        f = tk.LabelFrame(m, text='子组')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.mvar = tk.StringVar(value="Use Subgrp Size")
-        w = tk.Label(f, text="Option")
+        w = tk.Label(f, text='选项')
         w.pack(side=LEFT, fill=X, padx=2)
-        w = ttk.Combobox(
+        w = option_combobox(
             f,
             values=[
                 #  "No Subgroups",
@@ -384,25 +392,25 @@ class CpkSubDialog(Dialogs):
             width=14)
         w.pack(side=LEFT, padx=2)
         self.subid = tk.StringVar(value="")
-        w = tk.Label(f, text="ID Col.")
+        w = tk.Label(f, text='子组标识列')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.subid,
             width=14)
         w.pack(side=LEFT, padx=2)
         self.subsize = tk.DoubleVar(value=2)
-        w = tk.Label(f, text="Subgroup Size")
+        w = tk.Label(f, text='子组大小')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(f, textvariable=self.subsize,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        f = tk.LabelFrame(m, text='Within-Subgroup Variation')
+        f = tk.LabelFrame(m, text='子组内变异')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.subm = tk.StringVar(value="Unbiased Std Dev")
-        w = tk.Label(f, text="Average of")
+        w = tk.Label(f, text='平均值的计算依据')
         w.pack(side=LEFT, fill=X, padx=2)
-        w = ttk.Combobox(
+        w = option_combobox(
             f,
             values=[
                 "Unbiased Std Dev",
@@ -415,20 +423,20 @@ class CpkSubDialog(Dialogs):
         self.show_legend = tk.BooleanVar(value=True)
         self.show_spec = tk.BooleanVar(value=True)
         self.show_within = tk.BooleanVar(value=True)
-        master = tk.LabelFrame(m, text='Plot Setting')
+        master = tk.LabelFrame(m, text='绘图设置')
         master.pack(side=TOP, fill=BOTH, padx=2)
-        w = tk.Label(master, text="X Label")
+        w = tk.Label(master, text='X 轴标签')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.xlabel,
                      bg='white', width=15)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Checkbutton(master, text='Show Spec Limits',
+        w = tk.Checkbutton(master, text='显示规格限',
                            variable=self.show_spec)
         w.pack(side=LEFT, padx=2, pady=2)
         #  w = tk.Checkbutton(master, text='Show Within',
         #                     variable=self.show_within)
         #  w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Checkbutton(master, text='Show Legend',
+        w = tk.Checkbutton(master, text='显示图例',
                            variable=self.show_legend)
         w.pack(side=LEFT, padx=2, pady=2)
 
@@ -455,7 +463,7 @@ class CpkSubDialog(Dialogs):
             y = number_list(self.df[self.xvar.get()])
             size = int(self.subsize.get())
             if size < 2:
-                self.error("Subgroup size input error.")
+                self.error('子组大小输入有误。')
                 return
             data = [y[i:i + size] for i in range(0, len(y), size)]
             if len(y) % size > 0:
@@ -473,7 +481,7 @@ class CpkSubDialog(Dialogs):
         if lsl < tgt < usl:
             pass
         else:
-            self.error("Spec limits input error.")
+            self.error('规格限输入有误。')
             return
 
         pf = self.app.showPlotViewer()
@@ -499,7 +507,7 @@ class CpkSubDialog(Dialogs):
 
 class TIDialog(Dialogs):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Sample Values')
+        f = tk.LabelFrame(m, text='样本值')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
         w = ttk.Combobox(
@@ -507,7 +515,7 @@ class TIDialog(Dialogs):
             width=14)
         w.pack(side=LEFT, padx=2)
 
-        master = tk.LabelFrame(m, text='Summarized Data (Overriding)')
+        master = tk.LabelFrame(m, text='汇总数据（优先使用）')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.sample_mean = tk.StringVar(value="")
         self.sample_std = tk.StringVar(value="")
@@ -517,12 +525,12 @@ class TIDialog(Dialogs):
         w = tk.Entry(master, textvariable=self.sample_n,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="SD")
+        w = tk.Label(master, text='标准差')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.sample_std,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="Mean")
+        w = tk.Label(master, text='均值')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.sample_mean,
                      bg='white', width=5)
@@ -538,10 +546,10 @@ class TIDialog(Dialogs):
         #      " Normal Distribution.")
         #  w.pack(side=TOP, fill=BOTH, padx=2)
 
-        master = tk.LabelFrame(m, text='Proportion Setting')
+        master = tk.LabelFrame(m, text='比例设置')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.prop = tk.DoubleVar(value=0.9)
-        w = tk.Label(master, text="Specify Proportion to cover")
+        w = tk.Label(master, text='指定要覆盖的总体比例')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.prop,
                      bg='white', width=5)

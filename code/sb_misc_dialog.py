@@ -1,3 +1,4 @@
+from dialog import option_combobox
 from tkinter import ttk
 import tkinter as tk
 from tkinter import TOP, LEFT, X, BOTH
@@ -11,47 +12,46 @@ from sbplot_dialog import SBDialog
 
 class countPlotDialog(singleBoxDialog):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Data in one column')
+        f = tk.LabelFrame(m, text='数据位于一列')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
-        w = tk.Label(f, text="Data Col.")
+        w = tk.Label(f, text='数据列')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2)
         self.grouping = tk.StringVar(value="")
-        w = tk.Label(f, text="Group Col.(optional)")
+        w = tk.Label(f, text='分组变量（可选）')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.grouping,
             width=14)
         w.pack(side=LEFT, padx=2)
 
-        f = tk.LabelFrame(m, text='Data in its own column')
+        f = tk.LabelFrame(m, text='各组数据位于不同列')
         f.pack(side=TOP, fill=BOTH, padx=2)
-        w = tk.Label(f, text="Overriding selections above"
-                     + "\nESC to deselect.")  # ,
+        w = tk.Label(f, text='优先使用此处选择\n按 Esc 取消选择。')  # ,
         #  anchor="e", justify=LEFT, wraplength=100)
         w.pack(side=LEFT, fill=X, padx=10)
         f.pack(side=TOP, fill=BOTH, padx=2)
         w, self.grpvar = addListBox(
-            f, values=self.cols, width=20, label='columns')
+            f, values=self.cols, width=20, label='列')
         w.pack(side=LEFT, fill=X, padx=10)
 
         self.xlabel = tk.StringVar(value="")
-        master = tk.LabelFrame(m, text='Plot Settings')
+        master = tk.LabelFrame(m, text='绘图设置')
         master.pack(side=TOP, fill=BOTH, padx=2)
-        w = tk.Label(master, text="Label")
+        w = tk.Label(master, text='标签')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.xlabel,
                      bg='white', width=15)
         w.pack(side=LEFT, padx=2, pady=2)
         stat_list = ['count', 'probability', 'proportion', 'percent']
         self.stat = tk.StringVar(value=stat_list[0])
-        w = tk.Label(master, text="Stats.")
+        w = tk.Label(master, text='统计量')
         w.pack(side=LEFT, fill=X, padx=2)
-        w = ttk.Combobox(
+        w = option_combobox(
             master, values=stat_list, textvariable=self.stat,
             width=14)
         w.pack(side=LEFT, padx=2)
@@ -67,12 +67,12 @@ class countPlotDialog(singleBoxDialog):
         self.show_legend = tk.BooleanVar(value=False)
         self.ax_margin = tk.DoubleVar(value=0.1)
 
-        master = tk.LabelFrame(m, text='Plot Setting')
+        master = tk.LabelFrame(m, text='绘图设置')
         master.pack(side=TOP, fill=BOTH, padx=2)
-        w = tk.Checkbutton(master, text='Show Grid',
+        w = tk.Checkbutton(master, text='显示网格线',
                            variable=self.grid)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Checkbutton(master, text='Show Legend',
+        w = tk.Checkbutton(master, text='显示图例',
                            variable=self.show_legend)
         w.pack(side=LEFT, padx=2, pady=2)
         return
@@ -100,7 +100,7 @@ class countPlotDialog(singleBoxDialog):
             grp = "Labels"
         else:
             if xvar == "":
-                self.error("Missing input data.")
+                self.error('缺少输入数据。')
                 return
             grp = self.grouping.get()
             if grp != "":
@@ -136,38 +136,37 @@ class countPlotDialog(singleBoxDialog):
 
 class linePlotDialog(SBDialog):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Y Data in one column')
+        f = tk.LabelFrame(m, text='Y 数据位于一列')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
-        w = tk.Label(f, text="Y Data Col.")
+        w = tk.Label(f, text='Y 数据列')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2)
         self.grouping = tk.StringVar(value="")
-        w = tk.Label(f, text="Group Col.(optional)")
+        w = tk.Label(f, text='分组变量（可选）')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.grouping,
             width=14)
         w.pack(side=LEFT, padx=2)
 
-        f = tk.LabelFrame(m, text='Y Data in its own column')
+        f = tk.LabelFrame(m, text='各组 Y 数据位于不同列')
         f.pack(side=TOP, fill=BOTH, padx=2)
-        w = tk.Label(f, text="Overriding selections above"
-                     + "\nESC to deselect.")  # ,
+        w = tk.Label(f, text='优先使用此处选择\n按 Esc 取消选择。')  # ,
         #  anchor="e", justify=LEFT, wraplength=100)
         w.pack(side=LEFT, fill=X, padx=10)
         f.pack(side=TOP, fill=BOTH, padx=2)
         w, self.grpvar = addListBox(
-            f, values=self.cols, width=20, label='columns')
+            f, values=self.cols, width=20, label='列')
         w.pack(side=LEFT, fill=X, padx=10)
 
-        f = tk.LabelFrame(m, text='X Data')
+        f = tk.LabelFrame(m, text='X 数据')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.yvar = tk.StringVar(value="")
-        w = tk.Label(f, text="X Data Col.")
+        w = tk.Label(f, text='X 数据列')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.yvar,
@@ -192,7 +191,7 @@ class linePlotDialog(SBDialog):
         xvar = self.xvar.get()
         yvar = self.yvar.get()
         if yvar == "":
-            self.error("Missing input X data.")
+            self.error('缺少 X 输入数据。')
             return
         if len(self.grpcols) > 0:
             cols = self.grpcols
@@ -202,7 +201,7 @@ class linePlotDialog(SBDialog):
             grp = "Labels"
         else:
             if xvar == "":
-                self.error("Missing input Y data.")
+                self.error('缺少 Y 输入数据。')
                 return
             grp = self.grouping.get()
             if grp != "":
@@ -239,38 +238,37 @@ class linePlotDialog(SBDialog):
 
 class dotPlotDialog(SBDialog):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Y Data in one column')
+        f = tk.LabelFrame(m, text='Y 数据位于一列')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
-        w = tk.Label(f, text="Y Data Col.")
+        w = tk.Label(f, text='Y 数据列')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2)
         self.grouping = tk.StringVar(value="")
-        w = tk.Label(f, text="Group Col.(optional)")
+        w = tk.Label(f, text='分组变量（可选）')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.grouping,
             width=14)
         w.pack(side=LEFT, padx=2)
 
-        f = tk.LabelFrame(m, text='Y Data in its own column')
+        f = tk.LabelFrame(m, text='各组 Y 数据位于不同列')
         f.pack(side=TOP, fill=BOTH, padx=2)
-        w = tk.Label(f, text="Overriding selections above"
-                     + "\nESC to deselect.")  # ,
+        w = tk.Label(f, text='优先使用此处选择\n按 Esc 取消选择。')  # ,
         #  anchor="e", justify=LEFT, wraplength=100)
         w.pack(side=LEFT, fill=X, padx=10)
         f.pack(side=TOP, fill=BOTH, padx=2)
         w, self.grpvar = addListBox(
-            f, values=self.cols, width=20, label='columns')
+            f, values=self.cols, width=20, label='列')
         w.pack(side=LEFT, fill=X, padx=10)
 
-        f = tk.LabelFrame(m, text='X Data')
+        f = tk.LabelFrame(m, text='X 数据')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.yvar = tk.StringVar(value="")
-        w = tk.Label(f, text="X Data Col.")
+        w = tk.Label(f, text='X 数据列')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.yvar,
@@ -295,7 +293,7 @@ class dotPlotDialog(SBDialog):
         xvar = self.xvar.get()
         yvar = self.yvar.get()
         if yvar == "":
-            self.error("Missing input X data.")
+            self.error('缺少 X 输入数据。')
             return
         if len(self.grpcols) > 0:
             cols = self.grpcols
@@ -305,7 +303,7 @@ class dotPlotDialog(SBDialog):
             grp = "Labels"
         else:
             if xvar == "":
-                self.error("Missing input Y data.")
+                self.error('缺少 Y 输入数据。')
                 return
             grp = self.grouping.get()
             if grp != "":

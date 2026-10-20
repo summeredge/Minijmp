@@ -1,3 +1,4 @@
+from dialog import option_combobox, display_text
 from tkinter import ttk
 import tkinter as tk
 from tkinter import TOP, LEFT, X, BOTH
@@ -15,10 +16,10 @@ class comboNEntries:
                  entry_name_list, master_frame):
         f = ttk.Frame(master_frame)
         f.pack(side=TOP, padx=2, pady=2)
-        w = tk.Label(f, text=combo_name)
+        w = tk.Label(f, text=display_text(combo_name))
         w.pack(side=LEFT, padx=2)
         self.combo_select = tk.StringVar(value=combo_list[0])
-        self.combo = ttk.Combobox(
+        self.combo = option_combobox(
             f, values=combo_list, textvariable=self.combo_select,
             width=14)
         self.combo.pack(side=LEFT, fill=X, padx=2)
@@ -31,7 +32,7 @@ class comboNEntries:
             entry["input"] = tk.StringVar(value="")
             f = ttk.Frame(master_frame)
             f.pack(side=TOP, padx=2, pady=2)
-            w = tk.Label(f, text=label)
+            w = tk.Label(f, text=display_text(label))
             w.pack(side=LEFT, padx=2)
             entry["label"] = w
             w = tk.Entry(f, textvariable=entry["input"],
@@ -50,7 +51,7 @@ class comboNEntries:
         idx = self.combo_list.index(combo_select)
         for i in range(self.N):
             label = self.entry_name_list[idx][i] if i < len(self.entry_name_list[idx]) else "NA"
-            self.entries[i]["label"].config(text=label)
+            self.entries[i]["label"].config(text=display_text(label))
             self.entries[i]["input"].set("")
             if label == "NA":
                 self.entries[i]["entry"].config(state='disabled')
@@ -78,16 +79,16 @@ class displayProbDialog(SBDialog):
                              ["Scale"],
                              ["Degrees of freedom"],
                              ["Number of trials", "Event probability"], ["Mean"]]
-        f = tk.LabelFrame(m, text='Distribution')
+        f = tk.LabelFrame(m, text='分布')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.dist = comboNEntries("Distribution",
                                   self.dist_list, self.dist_entries, f)
 
-        f = tk.LabelFrame(m, text='Show the area corresponding to the following')
+        f = tk.LabelFrame(m, text='显示以下指定值对应的区域')
         f.pack(side=TOP, fill=BOTH, padx=2)
         master = ttk.Frame(f)
         master.pack(side=TOP, padx=2, pady=2)
-        w = tk.Label(master, text="A specified probability")
+        w = tk.Label(master, text='指定概率')
         w.pack(side=LEFT, padx=2)
         self.P = tk.StringVar(value="")
         w = tk.Entry(master, textvariable=self.P,
@@ -96,7 +97,7 @@ class displayProbDialog(SBDialog):
 
         master = ttk.Frame(f)
         master.pack(side=TOP, padx=2, pady=2)
-        w = tk.Label(master, text="A specified x value (overriding)")
+        w = tk.Label(master, text='指定 X 值（优先使用）')
         w.pack(side=LEFT, padx=2)
         self.X = tk.StringVar(value="")
         w = tk.Entry(master, textvariable=self.X,
@@ -104,7 +105,7 @@ class displayProbDialog(SBDialog):
         w.pack(side=LEFT, padx=2, pady=2)
 
         self.plot_out = tk.BooleanVar(value=True)
-        w = tk.Checkbutton(f, text='Show Plot',
+        w = tk.Checkbutton(f, text='显示图形',
                            variable=self.plot_out)
         w.pack(side=TOP, padx=2, pady=2)
         return
@@ -143,11 +144,11 @@ class displayProb2xDialog(SBDialog):
                              ["Scale"],
                              ["Degrees of freedom"],
                              ["Number of trials", "Event probability"], ["Mean"]]
-        f = tk.LabelFrame(m, text='Distribution 1')
+        f = tk.LabelFrame(m, text='分布 1')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.dist1 = comboNEntries("Distribution",
                                    self.dist_list, self.dist_entries, f)
-        f = tk.LabelFrame(m, text='Distribution 2')
+        f = tk.LabelFrame(m, text='分布 2')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.dist2 = comboNEntries("Distribution",
                                    self.dist_list, self.dist_entries, f)

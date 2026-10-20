@@ -27,6 +27,7 @@ try:
 except:
     from Tkinter import *
     from ttk import *
+import tkinter
 import types, time
 import numpy as np
 import pandas as pd
@@ -92,6 +93,377 @@ def get_defaults(name):
     elif name == 'labelopts':
         return AnnotationOptions().opts
 
+
+PLOT_LABELS = {'Base Options': '基本选项',
+ 'Annotation': '注释',
+ 'Grid Layout': '网格布局',
+ 'Other Options': '其他选项',
+ '3D Options': '三维选项',
+ 'Animate': '动画',
+ 'Plot Viewer': '绘图查看器',
+ 'Plot Selected': '绘制所选数据',
+ 'Apply Options': '应用选项',
+ 'Zoom Out': '缩小',
+ 'Zoom In': '放大',
+ 'Clear': '清除',
+ 'Save': '保存',
+ 'plot current data': '绘制当前数据',
+ 'refresh plot with current options': '按当前选项更新图形',
+ 'zoom out': '缩小',
+ 'zoom in': '放大',
+ 'clear plot': '清除图形',
+ 'save plot': '保存图形',
+ 'grid layout': '网格布局',
+ '3D plot': '三维图形',
+ 'general': '常规',
+ 'data': '数据',
+ 'axes': '坐标轴',
+ 'sizes': '大小',
+ 'formats': '格式',
+ 'colors': '颜色',
+ 'font': '字体',
+ 'font size': '字号',
+ 'marker': '标记',
+ 'linestyle': '线型',
+ 'marker size': '标记大小',
+ 'show grid': '显示网格线',
+ 'log x': 'X 轴对数刻度',
+ 'log y': 'Y 轴对数刻度',
+ 'use index': '使用索引',
+ 'errorbar column': '误差线列',
+ 'color by value': '按值着色',
+ 'color scale': '颜色刻度',
+ 'show colorbar': '显示颜色标尺',
+ 'black & white': '黑白',
+ 'x tick labels': 'X 轴刻度标签',
+ 'y tick labels': 'Y 轴刻度标签',
+ 'share x': '共享 X 轴',
+ 'share y': '共享 Y 轴',
+ 'legend': '图例',
+ 'plot type': '图形类型',
+ 'stacked': '堆叠',
+ 'line width': '线宽',
+ 'alpha': '不透明度',
+ 'multiple subplots': '多个子图',
+ 'colormap': '色图',
+ 'bins': '组数',
+ 'group by': '分组变量',
+ 'group by 2': '第二分组变量',
+ 'point labels': '数据点标签',
+ 'point sizes': '数据点大小',
+ 'kind': '图形类型',
+ 'rstride': '行步长',
+ 'cstride': '列步长',
+ 'show points': '显示数据点',
+ 'mode': '模式',
+ 'rows': '行数',
+ 'cols': '列数',
+ 'modes': '模式',
+ 'normal': '常规',
+ 'split data': '拆分数据',
+ 'multi views': '多视图',
+ 'plot types:': '图形类型：',
+ 'subplots': '子图',
+ 'plot list:': '图形列表：',
+ 'remove axis': '删除坐标轴',
+ 'set title': '设置标题',
+ 'global labels': '全局标签',
+ 'textbox': '文本框',
+ 'textbox format': '文本框格式',
+ 'text to add': '待添加文本',
+ 'title': '标题',
+ 'xlabel': 'X 轴标签',
+ 'ylabel': 'Y 轴标签',
+ 'facecolor': '填充颜色',
+ 'linecolor': '线条颜色',
+ 'rotate': '旋转',
+ 'boxstyle': '文本框形状',
+ 'text': '文本',
+ 'align': '对齐方式',
+ 'fontweight': '字重',
+ 'ticklabel angle': '刻度标签角度',
+ 'add objects': '添加对象',
+ 'add object': '添加对象',
+ 'coord system': '坐标系',
+ 'Create': '创建',
+ 'axis ranges': '坐标轴范围',
+ 'axis tick positions': '坐标轴刻度位置',
+ 'tick label format': '刻度标签格式',
+ 'x min': 'X 轴最小值',
+ 'x max': 'X 轴最大值',
+ 'y min': 'Y 轴最小值',
+ 'y max': 'Y 轴最大值',
+ 'major x-ticks': 'X 轴主刻度',
+ 'major y-ticks': 'Y 轴主刻度',
+ 'minor x-ticks': 'X 轴次刻度',
+ 'minor y-ticks': 'Y 轴次刻度',
+ 'formatter': '数字格式',
+ 'symbol': '符号',
+ 'precision': '精度',
+ 'date format': '日期格式',
+ 'styles': '样式',
+ 'Apply': '应用',
+ 'Reset': '重置',
+ 'apply': '应用',
+ 'reset': '重置',
+ 'data window': '数据窗口',
+ 'display': '显示',
+ 'record video': '录制视频',
+ 'increment': '增量',
+ 'window': '窗口大小',
+ 'start row': '起始行',
+ 'delay': '延迟',
+ 'update table': '更新表格',
+ 'expanding view': '扩展视图',
+ 'use full x range': '使用完整 X 轴范围',
+ 'use full y range': '使用完整 Y 轴范围',
+ 'smoothing': '平滑',
+ 'column data as title': '以列数据作为标题',
+ 'save as video': '保存为视频',
+ 'codec': '编码器',
+ 'fps': '帧率',
+ 'filename': '文件名',
+ 'Run': '运行',
+ 'START': '开始',
+ 'STOP': '停止',
+ 'Subplot title': '子图标题',
+ 'Title:': '标题：'}
+PLOT_OPTIONS = {'line': '折线图',
+ 'scatter': '散点图',
+ 'bar': '条形图',
+ 'barh': '水平条形图',
+ 'pie': '饼图',
+ 'histogram': '直方图',
+ 'boxplot': '箱线图',
+ 'violinplot': '小提琴图',
+ 'dotplot': '点图',
+ 'heatmap': '热图',
+ 'area': '面积图',
+ 'hexbin': '六边形分箱图',
+ 'contour': '等高线图',
+ 'imshow': '图像',
+ 'scatter_matrix': '散点图矩阵',
+ 'density': '密度图',
+ 'radviz': '径向可视化',
+ 'venn': '维恩图',
+ 'wireframe': '线框图',
+ 'surface': '曲面图',
+ 'linear': '线性',
+ 'log': '对数',
+ 'parametric': '参数式',
+ 'steps': '阶梯线',
+ 'normal': '常规',
+ 'bold': '粗体',
+ 'heavy': '特粗',
+ 'light': '细体',
+ 'ultrabold': '超粗',
+ 'ultralight': '超细',
+ 'left': '左对齐',
+ 'center': '居中',
+ 'right': '右对齐',
+ 'square': '方形',
+ 'round': '圆角',
+ 'round4': '四角圆角',
+ 'circle': '圆形',
+ 'rarrow': '右箭头',
+ 'larrow': '左箭头',
+ 'sawtooth': '锯齿',
+ 'textbox': '文本框',
+ 'data': '数据坐标',
+ 'axes fraction': '坐标轴比例',
+ 'figure fraction': '图窗比例',
+ 'auto': '自动',
+ 'percent': '百分比',
+ 'eng': '工程计数法',
+ 'sci notation': '科学计数法',
+ 'default': '默认'}
+
+PLOT_COLORS = {'aliceblue': '爱丽丝蓝',
+ 'antiquewhite': '古董白',
+ 'aqua': '水青',
+ 'aquamarine': '碧绿',
+ 'azure': '蔚蓝',
+ 'beige': '米色',
+ 'bisque': '陶坯色',
+ 'black': '黑色',
+ 'blanchedalmond': '杏仁白',
+ 'blue': '蓝色',
+ 'blueviolet': '蓝紫',
+ 'brown': '棕色',
+ 'burlywood': '实木色',
+ 'cadetblue': '军校蓝',
+ 'chartreuse': '黄绿',
+ 'chocolate': '巧克力色',
+ 'coral': '珊瑚色',
+ 'cornflowerblue': '矢车菊蓝',
+ 'cornsilk': '玉米丝色',
+ 'crimson': '猩红',
+ 'cyan': '青色',
+ 'darkblue': '深蓝',
+ 'darkcyan': '深青',
+ 'darkgoldenrod': '深金菊色',
+ 'darkgray': '深灰',
+ 'darkgrey': '深灰（别名）',
+ 'darkgreen': '深绿',
+ 'darkkhaki': '深卡其色',
+ 'darkmagenta': '深洋红',
+ 'darkolivegreen': '深橄榄绿',
+ 'darkorange': '深橙',
+ 'darkorchid': '深兰花紫',
+ 'darkred': '深红',
+ 'darksalmon': '深鲑红',
+ 'darkseagreen': '深海绿',
+ 'darkslateblue': '深岩蓝',
+ 'darkslategray': '深岩灰',
+ 'darkslategrey': '深岩灰（别名）',
+ 'darkturquoise': '深绿松石色',
+ 'darkviolet': '深紫',
+ 'deeppink': '深粉红',
+ 'deepskyblue': '深天蓝',
+ 'dimgray': '暗灰',
+ 'dimgrey': '暗灰（别名）',
+ 'dodgerblue': '道奇蓝',
+ 'firebrick': '砖红',
+ 'floralwhite': '花白',
+ 'forestgreen': '森林绿',
+ 'fuchsia': '紫红',
+ 'gainsboro': '淡灰',
+ 'ghostwhite': '幽灵白',
+ 'gold': '金色',
+ 'goldenrod': '金菊色',
+ 'gray': '灰色',
+ 'grey': '灰色（别名）',
+ 'green': '绿色',
+ 'greenyellow': '绿黄',
+ 'honeydew': '蜜瓜色',
+ 'hotpink': '亮粉红',
+ 'indianred': '印度红',
+ 'indigo': '靛蓝',
+ 'ivory': '象牙白',
+ 'khaki': '卡其色',
+ 'lavender': '薰衣草紫',
+ 'lavenderblush': '薰衣草红',
+ 'lawngreen': '草坪绿',
+ 'lemonchiffon': '柠檬绸色',
+ 'lightblue': '浅蓝',
+ 'lightcoral': '浅珊瑚色',
+ 'lightcyan': '浅青',
+ 'lightgoldenrodyellow': '浅金菊黄',
+ 'lightgray': '浅灰',
+ 'lightgrey': '浅灰（别名）',
+ 'lightgreen': '浅绿',
+ 'lightpink': '浅粉红',
+ 'lightsalmon': '浅鲑红',
+ 'lightseagreen': '浅海绿',
+ 'lightskyblue': '浅天蓝',
+ 'lightslategray': '浅岩灰',
+ 'lightslategrey': '浅岩灰（别名）',
+ 'lightsteelblue': '浅钢蓝',
+ 'lightyellow': '浅黄',
+ 'lime': '鲜绿',
+ 'limegreen': '酸橙绿',
+ 'linen': '亚麻色',
+ 'magenta': '洋红',
+ 'maroon': '栗色',
+ 'mediumaquamarine': '中碧绿',
+ 'mediumblue': '中蓝',
+ 'mediumorchid': '中兰花紫',
+ 'mediumpurple': '中紫',
+ 'mediumseagreen': '中海绿',
+ 'mediumslateblue': '中岩蓝',
+ 'mediumspringgreen': '中春绿',
+ 'mediumturquoise': '中绿松石色',
+ 'mediumvioletred': '中紫红',
+ 'midnightblue': '午夜蓝',
+ 'mintcream': '薄荷乳白',
+ 'mistyrose': '雾玫瑰色',
+ 'moccasin': '鹿皮色',
+ 'navajowhite': '纳瓦霍白',
+ 'navy': '海军蓝',
+ 'oldlace': '旧蕾丝色',
+ 'olive': '橄榄色',
+ 'olivedrab': '橄榄褐',
+ 'orange': '橙色',
+ 'orangered': '橙红',
+ 'orchid': '兰花紫',
+ 'palegoldenrod': '淡金菊色',
+ 'palegreen': '淡绿',
+ 'paleturquoise': '淡绿松石色',
+ 'palevioletred': '淡紫红',
+ 'papayawhip': '番木瓜色',
+ 'peachpuff': '桃色',
+ 'peru': '秘鲁棕',
+ 'pink': '粉红',
+ 'plum': '梅紫',
+ 'powderblue': '粉蓝',
+ 'purple': '紫色',
+ 'rebeccapurple': '丽贝卡紫',
+ 'red': '红色',
+ 'rosybrown': '玫瑰棕',
+ 'royalblue': '宝蓝',
+ 'saddlebrown': '马鞍棕',
+ 'salmon': '鲑红',
+ 'sandybrown': '沙棕',
+ 'seagreen': '海绿',
+ 'seashell': '贝壳白',
+ 'sienna': '赭色',
+ 'silver': '银色',
+ 'skyblue': '天蓝',
+ 'slateblue': '岩蓝',
+ 'slategray': '岩灰',
+ 'slategrey': '岩灰（别名）',
+ 'snow': '雪白',
+ 'springgreen': '春绿',
+ 'steelblue': '钢蓝',
+ 'tan': '棕褐',
+ 'teal': '蓝绿',
+ 'thistle': '蓟紫',
+ 'tomato': '番茄红',
+ 'turquoise': '绿松石色',
+ 'violet': '紫罗兰色',
+ 'wheat': '小麦色',
+ 'white': '白色',
+ 'whitesmoke': '烟白',
+ 'yellow': '黄色',
+ 'yellowgreen': '黄绿色'}
+
+def plot_dialog_options(parent, opts, groups, **kwargs):
+    from dialog import display_variable
+    frame, variables, widgets = dialogFromOptions(parent, opts, groups, **kwargs)
+    for widget in _plot_widgets(frame):
+        for key in ('text', 'label'):
+            if key in widget.keys():
+                text = str(widget.cget(key))
+                widget.configure(**{key: PLOT_LABELS.get(text, text)})
+    for key, widget in widgets.items():
+        if opts[key]['type'] == 'combobox' and key not in (
+                'by', 'by2', 'clrcol', 'labelcol', 'pointsizes', 'columntitle', 'font',
+                'date format'):
+            values = opts[key]['items']
+            labels = PLOT_COLORS if key in ('facecolor', 'linecolor') else (
+                {v: '色图（' + v + '）' for v in values} if key == 'colormap' else PLOT_OPTIONS)
+            shown = display_variable(variables[key], values, labels, owner=widget)
+            widget.configure(values=[labels.get(v, v) for v in values], textvariable=shown)
+            widget.display_variable = shown
+    return frame, variables, widgets
+
+
+def _plot_widgets(parent):
+    for widget in parent.winfo_children():
+        yield widget
+        yield from _plot_widgets(widget)
+
+
+class PlotTitleDialog(simpledialog._QueryString):
+    def buttonbox(self):
+        super().buttonbox()
+        for frame in self.winfo_children():
+            for widget in frame.winfo_children():
+                if isinstance(widget, tkinter.Button):
+                    widget.configure(text={'OK': '确定', 'Cancel': '取消'}.get(
+                        widget.cget('text'), widget.cget('text')))
+
+
 class PlotViewer(Frame):
     """Provides a frame for figure canvas and MPL settings.
 
@@ -116,7 +488,7 @@ class PlotViewer(Frame):
         else:
             self.main = Toplevel()
             self.master = self.main
-            self.main.title('Plot Viewer')
+            self.main.title('绘图查看器')
             self.main.protocol("WM_DELETE_WINDOW", self.close)
             g = '800x700+900+200'
             self.main.geometry(g)
@@ -165,19 +537,19 @@ class PlotViewer(Frame):
 
         side = LEFT
         #add button toolbar
-        addButton(bf, 'Plot Selected', self.replot, images.plot(),
-                  'plot current data', side=side, compound="left", width=16)
-        addButton(bf, 'Apply Options', self.updatePlot, images.refresh(),
-                  'refresh plot with current options', side=side,
+        addButton(bf, '绘制所选数据', self.replot, images.plot(),
+                  '绘制当前数据', side=side, compound="left", width=16)
+        addButton(bf, '应用选项', self.updatePlot, images.refresh(),
+                  '按当前选项更新图形', side=side,
                    width=20)
-        addButton(bf, 'Zoom Out', lambda: self.zoom(False), images.zoom_out(),
-                  'zoom out', side=side)
-        addButton(bf, 'Zoom In', self.zoom, images.zoom_in(),
-                  'zoom in', side=side)
-        addButton(bf, 'Clear', self.clear, images.plot_clear(),
-                  'clear plot', side=side)
-        addButton(bf, 'Save', self.savePlot, images.save(),
-                  'save plot', side=side)
+        addButton(bf, '缩小', lambda: self.zoom(False), images.zoom_out(),
+                  '缩小', side=side)
+        addButton(bf, '放大', self.zoom, images.zoom_in(),
+                  '放大', side=side)
+        addButton(bf, '清除', self.clear, images.plot_clear(),
+                  '清除图形', side=side)
+        addButton(bf, '保存', self.savePlot, images.save(),
+                  '保存图形', side=side)
 
         #dicts to store global options, can be saved with projects
         self.globalvars = {}
@@ -188,11 +560,11 @@ class PlotViewer(Frame):
             if type(val) is bool:
                 v = self.globalvars[n] = BooleanVar()
                 v.set(val)
-                b = Checkbutton(bf,text=n, variable=v, command=partial(self.setGlobalOption, n))
+                b = Checkbutton(bf,text=PLOT_LABELS.get(n, n), variable=v, command=partial(self.setGlobalOption, n))
             else:
                 v = self.globalvars[n] = IntVar()
                 v.set(val)
-                Label(bf, text=n).pack(side=LEFT,fill=X,padx=2)
+                Label(bf, text=PLOT_LABELS.get(n, n)).pack(side=LEFT,fill=X,padx=2)
                 b = Entry(bf,textvariable=v, width=5)
                 util.trace_write(v, partial(self.setGlobalOption, n))
             b.pack(side=LEFT,padx=2)
@@ -218,24 +590,24 @@ class PlotViewer(Frame):
 
         #add plotter tool dialogs
         w1 = self.mplopts.showDialog(self.nb)
-        self.nb.add(w1, text='Base Options', sticky='news')
+        self.nb.add(w1, text='基本选项', sticky='news')
         #reload tkvars again from stored kwds variable
         self.mplopts.updateFromDict()
         self.styleopts = ExtraOptions(parent=self)
         self.animateopts = AnimateOptions(parent=self)
 
         w3 = self.labelopts.showDialog(self.nb)
-        self.nb.add(w3, text='Annotation', sticky='news')
+        self.nb.add(w3, text='注释', sticky='news')
         self.labelopts.updateFromDict()
         w4 = self.layoutopts.showDialog(self.nb)
-        self.nb.add(w4, text='Grid Layout', sticky='news')
+        self.nb.add(w4, text='网格布局', sticky='news')
         w2 = self.styleopts.showDialog(self.nb)
-        self.nb.add(w2, text='Other Options', sticky='news')
+        self.nb.add(w2, text='其他选项', sticky='news')
         w5 = self.mplopts3d.showDialog(self.nb)
-        self.nb.add(w5, text='3D Options', sticky='news')
+        self.nb.add(w5, text='三维选项', sticky='news')
         self.mplopts3d.updateFromDict()
         w6 = self.animateopts.showDialog(self.nb)
-        self.nb.add(w6, text='Animate', sticky='news')
+        self.nb.add(w6, text='动画', sticky='news')
         return
 
     def setGlobalOption(self, name='', *args):
@@ -417,9 +789,9 @@ class PlotViewer(Frame):
         if not axname in self.gridaxes:
             return
         ax = self.gridaxes[axname]
-        label = simpledialog.askstring("Subplot title",
-                                      "Title:",initialvalue='',
-                                       parent=self.parent)
+        label = PlotTitleDialog('子图标题',
+                                      '标题：',initialvalue='',
+                                       parent=self.parent).result
         if label:
             ax.set_title(label)
             self.canvas.show()
@@ -433,7 +805,8 @@ class PlotViewer(Frame):
         self.fig.clear()
         gs = self.gridspec
         gl = self.layoutopts
-        plot_types = getListBoxSelection(gl.plottypeslistbox)
+        plot_types = [{v: k for k, v in PLOT_OPTIONS.items()}.get(v, v)
+                      for v in getListBoxSelection(gl.plottypeslistbox)]
         kwds = self.mplopts.kwds
         rows = gl.rows
         cols = gl.cols
@@ -1427,7 +1800,7 @@ class TkOptions(object):
         """Auto create tk vars, widgets for corresponding options and
            and return the frame"""
 
-        dialog, self.tkvars, self.widgets = dialogFromOptions(parent,
+        dialog, self.tkvars, self.widgets = plot_dialog_options(parent,
                                                               self.opts, self.groups,
                                                               layout=layout)
         self.setWidgetStyles()
@@ -1607,7 +1980,7 @@ class PlotLayoutOptions(TkOptions):
         frame.pack(side=LEFT,fill=Y)
         v = self.rowsvar = IntVar()
         v.set(self.rows)
-        w = Scale(frame,label='rows',
+        w = Scale(frame,label='行数',
                  from_=1,to=6,
                  orient='vertical',
                  resolution=1,
@@ -1616,7 +1989,7 @@ class PlotLayoutOptions(TkOptions):
         w.pack(fill=X,pady=2)
         v = self.colsvar = IntVar()
         v.set(self.cols)
-        w = Scale(frame,label='cols',
+        w = Scale(frame,label='列数',
                  from_=1,to=6,
                  orient='horizontal',
                  resolution=1,
@@ -1626,36 +1999,36 @@ class PlotLayoutOptions(TkOptions):
 
         self.modevar = StringVar()
         self.modevar.set('normal')
-        frame = LabelFrame(self.main, text='modes')
-        Radiobutton(frame, text='normal', variable=self.modevar, value='normal').pack(fill=X)
-        Radiobutton(frame, text='split data', variable=self.modevar, value='splitdata').pack(fill=X)
-        Radiobutton(frame, text='multi views', variable=self.modevar, value='multiviews').pack(fill=X)
+        frame = LabelFrame(self.main, text='模式')
+        Radiobutton(frame, text='常规', variable=self.modevar, value='normal').pack(fill=X)
+        Radiobutton(frame, text='拆分数据', variable=self.modevar, value='splitdata').pack(fill=X)
+        Radiobutton(frame, text='多视图', variable=self.modevar, value='multiviews').pack(fill=X)
         frame.pack(side=LEFT,fill=Y)
 
-        frame = LabelFrame(self.main, text='multi views')
+        frame = LabelFrame(self.main, text='多视图')
         #v = self.multiviewsvar = BooleanVar()
         plot_types = ['histogram','line','scatter','boxplot','dotplot','area','density','bar','barh',
                       'heatmap','contour','hexbin','imshow']
-        Label(frame,text='plot types:').pack(fill=X)
-        w,v = addListBox(frame, values=plot_types,width=12,height=8)
+        Label(frame,text='图形类型：').pack(fill=X)
+        w,v = addListBox(frame, values=[PLOT_OPTIONS[k] for k in plot_types],width=12,height=8)
         w.pack(fill=X)
         self.plottypeslistbox = v
         frame.pack(side=LEFT,fill=Y)
 
-        frame = LabelFrame(self.main, text='split data')
+        frame = LabelFrame(self.main, text='拆分数据')
         frame.pack(side=LEFT,fill=Y)
 
-        frame = LabelFrame(self.main, text='subplots')
+        frame = LabelFrame(self.main, text='子图')
         v = self.axeslistvar = StringVar()
         v.set('')
         axes = []
         self.axeslist = Combobox(frame, values=axes,
                         textvariable=v,width=14)
-        Label(frame,text='plot list:').pack()
+        Label(frame,text='图形列表：').pack()
         self.axeslist.pack(fill=BOTH,pady=2)
-        b = Button(frame, text='remove axis', command=self.parent.removeSubplot)
+        b = Button(frame, text='删除坐标轴', command=self.parent.removeSubplot)
         b.pack(fill=X,pady=2)
-        b = Button(frame, text='set title', command=self.parent.setSubplotTitle)
+        b = Button(frame, text='设置标题', command=self.parent.setSubplotTitle)
         b.pack(fill=X,pady=2)
         frame.pack(side=LEFT,fill=Y)
         self.updateFromGrid()
@@ -1753,7 +2126,7 @@ class AnnotationOptions(TkOptions):
     def showDialog(self, parent, layout='horizontal'):
         """Override because we need to add custom widgets"""
 
-        dialog, self.tkvars, self.widgets = dialogFromOptions(parent,
+        dialog, self.tkvars, self.widgets = plot_dialog_options(parent,
                                                               self.opts, self.groups,
                                                               layout=layout)
         self.main = dialog
@@ -1764,23 +2137,24 @@ class AnnotationOptions(TkOptions):
     def addWidgets(self):
         """Custom dialogs for manually adding annotation items like text"""
 
-        frame = LabelFrame(self.main, text='add objects')
+        frame = LabelFrame(self.main, text='添加对象')
         v = self.objectvar = StringVar()
         v.set('textbox')
-        w = Combobox(frame, values=['textbox'],#'arrow'],
+        from dialog import option_combobox
+        w = option_combobox(frame, labels=PLOT_OPTIONS, values=['textbox'],#'arrow'],
                          textvariable=v,width=14)
-        Label(frame,text='add object').pack()
+        Label(frame,text='添加对象').pack()
         w.pack(fill=BOTH,pady=2)
         self.coordsvar = StringVar()
         self.coordsvar.set('data')
-        w = Combobox(frame, values=['data','axes fraction','figure fraction'],
+        w = option_combobox(frame, labels=PLOT_OPTIONS, values=['data','axes fraction','figure fraction'],
                          textvariable=self.coordsvar,width=14)
-        Label(frame,text='coord system').pack()
+        Label(frame,text='坐标系').pack()
         w.pack(fill=BOTH,pady=2)
 
-        b = Button(frame, text='Create', command=self.addObject)
+        b = Button(frame, text='创建', command=self.addObject)
         b.pack(fill=X,pady=2)
-        b = Button(frame, text='Clear', command=self.clear)
+        b = Button(frame, text='清除', command=self.clear)
         b.pack(fill=X,pady=2)
         frame.pack(side=LEFT,fill=Y)
         return
@@ -1915,7 +2289,7 @@ class ExtraOptions(TkOptions):
     def showDialog(self, parent, layout='horizontal'):
         """Create dialog widgets"""
 
-        dialog, self.tkvars, self.widgets = dialogFromOptions(parent,
+        dialog, self.tkvars, self.widgets = plot_dialog_options(parent,
                                                               self.opts, self.groups,
                                                               layout=layout)
         self.main = dialog
@@ -1927,16 +2301,18 @@ class ExtraOptions(TkOptions):
         """Custom dialogs for manually adding annotation items like text"""
 
         main = self.main
-        frame = LabelFrame(main, text='styles')
+        frame = LabelFrame(main, text='样式')
         v = self.stylevar = StringVar()
         v.set('ggplot')
-        w = Combobox(frame, values=self.styles,
-                         textvariable=v,width=14)
+        from dialog import option_combobox
+        w = option_combobox(frame, values=self.styles,
+                         textvariable=v, width=14,
+                         labels={name: '样式（' + name + '）' for name in self.styles})
         w.pack(side=TOP,pady=2)
-        addButton(frame, 'Apply', self.apply, None,
-                  'apply', side=TOP, compound="left", width=20, padding=2)
-        addButton(frame, 'Reset', self.reset, None,
-                  'reset', side=TOP, compound="left", width=20, padding=2)
+        addButton(frame, '应用', self.apply, None,
+                  '应用', side=TOP, compound="left", width=20, padding=2)
+        addButton(frame, '重置', self.reset, None,
+                  '重置', side=TOP, compound="left", width=20, padding=2)
         frame.pack(side=LEFT,fill='y')
         return main
 
@@ -1992,7 +2368,7 @@ class AnimateOptions(TkOptions):
     def showDialog(self, parent, layout='horizontal'):
         """Create dialog widgets"""
 
-        dialog, self.tkvars, self.widgets = dialogFromOptions(parent,
+        dialog, self.tkvars, self.widgets = plot_dialog_options(parent,
                                                               self.opts, self.groups,
                                                               layout=layout)
         self.main = dialog
@@ -2003,11 +2379,11 @@ class AnimateOptions(TkOptions):
         """Custom dialogs for manually adding annotation items like text"""
 
         main = self.main
-        frame = LabelFrame(main, text='Run')
-        addButton(frame, 'START', self.start, None,
-                  'apply', side=TOP, compound="left", width=20, padding=2)
-        addButton(frame, 'STOP', self.stop, None,
-                  'reset', side=TOP, compound="left", width=20, padding=2)
+        frame = LabelFrame(main, text='运行')
+        addButton(frame, '开始', self.start, None,
+                  '应用', side=TOP, compound="left", width=20, padding=2)
+        addButton(frame, '停止', self.stop, None,
+                  '重置', side=TOP, compound="left", width=20, padding=2)
         frame.pack(side=LEFT,fill='y')
         return main
 
