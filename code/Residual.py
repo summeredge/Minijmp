@@ -24,6 +24,10 @@ def linear_fit_resid_test(x, y, print_out=False, show_plot=False,
 def resid_test(data, y_est, print_out=False, show_plot=False,
                axs=None, print_port=print, filename=None):
 
+    if print_out:
+        print_port("\n---- 残差正态性诊断 ----")
+        print_port("以下检验针对残差；请同时结合残差图检查独立性及方差恒定性。")
+        print_port("p 值显示 0.000 是舍入结果，不代表概率严格为零。")
     res = norm_test(data, print_out=print_out, print_port=print_port)
 
     if axs is None:

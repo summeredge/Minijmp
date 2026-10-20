@@ -67,6 +67,15 @@ def fit_plot(x, y, alpha=0.05, print_out=False,
         if red_ellipse:
             ax.plot(x_line, y_line, color='red', linewidth=1)
 
+    if print_out and (linear or ortho):
+        print(f"\n回归变量：响应 Y = {ylabel if ylabel is not None else 'Y'}；预测 X = {xlabel if xlabel is not None else 'X'}")
+        if linear and (show_CI or show_PI):
+            print(f"图中区间水平：{(1-alpha)*100:.1f}%。")
+            if show_CI:
+                print("CI：给定 X 时总体平均响应的置信区间。")
+            if show_PI:
+                print("PI：给定 X 时单次新观测的预测区间。")
+
     if ortho:
         ortho_res = orthogonal_fit(
             x,

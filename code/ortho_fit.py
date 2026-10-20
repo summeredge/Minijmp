@@ -1,11 +1,10 @@
 import numpy as np
 from scipy.stats import norm
-from prettytable import PrettyTable as PT
 ###### own modules #####
 try:
-    from .utilities import norm_test
+    from .utilities import norm_test, gen_table, format_stat
 except ImportError:
-    from utilities import norm_test
+    from utilities import norm_test, gen_table, format_stat
 
 
 def orthogonal_fit(x, y, error_ratio=1.0, alpha=0.05,
@@ -90,29 +89,38 @@ def orthogonal_fit(x, y, error_ratio=1.0, alpha=0.05,
 # They are propotionally same values
 
     if print_out:
-        print("\n---- Orthogonal Regression alpha = %.3f ----" % alpha)
-        print("Slope %.3f CI(%.3f, %.3f)" % (b1, slope_l, slope_u))
-        print("Intercept %.3f CI(%.3f, %.3f)" % (b0, int_l, int_u))
-        #  print("\nError Variance")
-        print("\nError Variance Ratio %.3f" % w)
-        print("X error variance %.3f" % var_u)
-        print("Y error variance %.3f" % var_e)
-
-    if print_out:
-        print("\nNormality of Residuals")
-        #  print("Shaprio-Wilk p %.3f\tAnderson Darling p %.3f" % (
-        #      ntest_resid["shapiro p"], ntest_resid["AD p"]))
+        print("\n---- 正交回归 ----")
+        print("响应变量：Y；预测变量：X；X 和 Y 均存在测量误差。")
+        print(f"回归方程：Y = {format_stat(b0)} {b1:+.3f} * X")
+        print(f"样本量 N = {n}；测量误差方差比 Var(Y误差) / Var(X误差) = {format_stat(w)}")
+        print(f"系数的 {(1-alpha)*100:.1f}% 双侧置信区间（正态近似）")
+        for title, rows in [
+            ('参数估计', [['参数', '系数', '置信下限', '置信上限'],
+                ['截距', format_stat(b0), format_stat(int_l), format_stat(int_u)],
+                ['X（斜率）', format_stat(b1), format_stat(slope_l), format_stat(slope_u)]]),
+            ('测量误差方差估计', [['变量', '误差方差'],
+                ['X', format_stat(var_u)], ['Y', format_stat(var_e)]])]:
+            print("\n" + title)
+            table = gen_table(rows)
+            table.align = 'r'
+            table.align[rows[0][0]] = 'l'
+            print(str(table))
+        print("系数置信区间用于总体截距与斜率，不是单次观测的预测区间。")
+        print("本方法不报告普通最小二乘的 R²、t 检验或 ANOVA F 检验。")
+        print("推断依赖所指定的测量误差方差比及模型假设；相关关系不代表因果关系。")
+        print("\n残差正态性诊断（Y - 截距 - 斜率 * X）")
+        print("p 值显示 0.000 是舍入结果，不代表概率严格为零。")
     # Normalitiy of the residuals
     ntest_resid = norm_test(vt_est, print_out=print_out, print_port=print_port)
 
     if print_residual:
-        t = PT()
-        t.field_names = ['Obs', 'X', 'X Fit', 'Y', 'Y Fit', 'Resid', 'Std Resid']
+        t = gen_table([['观测', 'X', '拟合 X', 'Y', '拟合 Y', '残差', '标准化残差']])
+        t.align = 'r'
         for i, xx in enumerate(x):
-            t.add_row(['%d' % (i + 1), '%.2f' % xx, '%.2f' % x_est[i],
-                       '%.2f' % y[i], '%.2f' % y_est[i], '%.2f' % vt_est[i],
-                       '%.2f' % std_vt_est[i]])
-        print(" ")
+            t.add_row([i + 1, format_stat(xx), format_stat(x_est[i]),
+                       format_stat(y[i]), format_stat(y_est[i]), format_stat(vt_est[i]),
+                       format_stat(std_vt_est[i])])
+        print("\n逐观测诊断")
         print(str(t))
 
     return {"slope": slope, "intercept": intercept,

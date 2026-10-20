@@ -1,12 +1,11 @@
 import statistics as stat
 from scipy.stats import f as f_dist
 from scipy.stats import t as t_dist
-from prettytable import PrettyTable as PT
 ######## Own Module ###########
 try:
-    from .utilities import norm_test
+    from .utilities import norm_test, gen_table, format_stat
 except ImportError:
-    from utilities import norm_test
+    from utilities import norm_test, gen_table, format_stat
 
 
 def linear_fit(x, y, print_out=True, print_port=print):
@@ -152,63 +151,50 @@ def linear_fit(x, y, print_out=True, print_port=print):
         p_int = 1 if b0 == 0 else 0
 
     if print_out:
-        print("\n---- Linear Regression ----")
-        print("Summary of Fit")
-        print(f"RSquare {R_sq:.3f}\t\t\tRSquare Adj {R_sq_adj:.3f}")
-        print(
-            f"Root Mean Square Error {S:.3f}\tMean of Response {y_est_u:.3f}")
-        print("N = %d" % len(x))
-        print("\nParameter Estimates")
-        t = PT()
-        t.field_names = ["Item", "Est.", "Std Error", "t Ratio", "Prob > |t|"]
-        t.add_row(["Slope", "%.3f" %
-                   b1, "%.3f" %
-                   SEb1, "%.3f" %
-                   slope_t, "%.3f" %
-                   p_slope])
-        t.add_row(["Intercept", "%.3f" %
-                   b0, "%.3f" %
-                   SEb0, "%.3f" %
-                   int_t, "%.3f" %
-                   p_int])
-        print(str(t))
-        #  print(f"Slope Est. {b1:.3f}\tStd Error {SEb1:.3f}")
-        #  print(f"t ratio {slope_t:.3f}\tProb>|t| {p_slope:.3f}")
-        #  print(f"Intercept Est. {b0:.3f}\tStd Error {SEb0:.3f}")
-        #  print(f"t ratio {int_t:.3f}\tProb>|t| {p_int:.3f}")
+        print("\n---- 普通最小二乘线性回归 ----")
+        print("响应变量：Y；预测变量：X；模型包含截距。")
+        print(f"回归方程：Y = {format_stat(b0)} {b1:+.3f} * X")
+        sections = [
+            ('模型摘要', [['N', 'R-sq', '调整 R-sq', '残差标准误 S', '响应均值'],
+                [n, format_stat(R_sq), format_stat(R_sq_adj), format_stat(S), format_stat(y_est_u)]]),
+            ('回归系数', [['参数', '系数', '标准误', 't 绝对值', 'p 值'],
+                ['截距', format_stat(b0), format_stat(SEb0),
+                 format_stat(int_t) if int_t >= 0 else '*', format_stat(p_int) if int_t >= 0 else '*'],
+                ['X（斜率）', format_stat(b1), format_stat(SEb1),
+                 format_stat(slope_t) if slope_t >= 0 else '*', format_stat(p_slope) if slope_t >= 0 else '*']]),
+            ('方差分析（ANOVA）', [['来源', '自由度', '平方和 SS', '均方 MS', 'F 值', 'p 值'],
+                ['回归', 1, format_stat(SSR), format_stat(MSR),
+                 format_stat(F_reg) if F_reg >= 0 else '*', format_stat(p_reg) if F_reg >= 0 else '*'],
+                ['误差', n - 2, format_stat(SSE), format_stat(MSE), '*', '*'],
+                ['总计', n - 1, format_stat(SST), '*', '*', '*']])]
+        if p_lack >= 0:
+            sections.append(('失拟检验', [['来源', '自由度', '平方和 SS', '均方 MS', 'F 值', 'p 值'],
+                ['失拟', DFLF, format_stat(SSLF), format_stat(MSLF), format_stat(F_lack), format_stat(p_lack)],
+                ['纯误差', DFPE, format_stat(SSPE), format_stat(MSPE), '*', '*'],
+                ['误差合计', n - 2, format_stat(SSE), format_stat(MSE), '*', '*']]))
+        sections.append(('残差正态性诊断', [['检验方法', '统计量', 'p 值'],
+            ['Shapiro-Wilk', format_stat(ntest_e['shapiro s']), format_stat(ntest_e['shapiro p'])],
+            ['Anderson-Darling', format_stat(ntest_e['AD s']), format_stat(ntest_e['AD p'])]]))
+        for title, rows in sections:
+            print("\n" + title)
+            table = gen_table(rows)
+            table.align = 'r'
+            if title != '模型摘要':
+                table.align[rows[0][0]] = 'l'
+            print(str(table))
         print("各项系数检验：原假设 H0：该总体回归系数 = 0；备择假设 H1：该系数 ≠ 0。")
-        print("p 值是在原假设及检验模型成立时，得到当前或更极端检验统计量的概率。")
-        print("\nAnalysis of Variances")
-        t = PT()
-        t.field_names = ["Item", "DF", "Sum of Sq.", "Mean Sq."]
-        t.add_row(["Model", "1", "%.3f" % SSR, "%.3f" % MSR])
-        t.add_row(["Error", "%d" % (n - 2), "%.3f" % SSE, "%.3f" % MSE])
-        t.add_row(["Total", "%d" % (n - 1), "%.3f" % SST, " "])
-        print(str(t))
-        #  print(f"Model DF 1\tSum of Sq {SSR:.3f}\tMean Sq {MSR:.3f}")
-        #  print("Error DF %d\tSum of Sq %.3f\tMean Sq %.3f" % (n - 2, SSE, MSE))
-        #  print("Total DF %d\tSum of Sq %.3f" % (n - 1, SST))
-        print(f"F Ratio {F_reg:.3f}\tProb > F {p_reg:.3f}")
         print("回归 F 检验：原假设 H0：总体斜率 = 0；备择假设 H1：总体斜率 ≠ 0。")
-        if p_lack>=0:
-            print("\nLack of Fit")
-            t = PT()
-            t.field_names = ["Item", "DF", "Sum of Sq.", "Mean Sq."]
-            t.add_row(["Lack of fit", "%d" % DFLF, "%.3f" % SSLF, "%.3f" % MSLF])
-            t.add_row(["Pure Error", "%d" % DFPE, "%.3f" % SSPE, "%.3f" % MSPE])
-            t.add_row(["Total", "%d" % (n - 1), "%.3f" % SST, " "])
-            print(str(t))
-            print(
-                f"F Ratio {F_lack:.3f}\tProb > F {p_lack:.3f}\tMax R Square {max_r_sq:.3f}")
+        if p_lack >= 0:
+            print(f"最大 R²（重复 X 水平的饱和模型）= {format_stat(max_r_sq)}")
             print("失拟检验：原假设 H0：总体均值与自变量呈线性关系；备择假设 H1：存在失拟。")
-        #  print(f"Max R Square {max_r_sq:.3f}")
-        print("\nNormality of Residuals")
-        print("Shapiro-Wilk Statistics %.3f\tp-value %.3f" %
-              (ntest_e["shapiro s"], ntest_e["shapiro p"]))
-        print(
-            "Anderson Darling Stats. %.3f\tp-value %.3f" %
-            (ntest_e["AD s"], ntest_e["AD p"]))
+        else:
+            print("失拟检验不可用：需要足够的不同 X 水平、重复观测及非零纯误差。")
         print("残差正态性检验：原假设 H0：误差服从正态分布；备择假设 H1：误差不服从正态分布。")
+        print("推断假定误差独立、方差恒定且服从正态分布；正态性检验未拒绝 H0 不等于证明正态。")
+        print("R² 和调整 R² 是不同指标；拟合优度高不保证模型正确，相关关系不代表因果关系。")
+        print("本方法未计算系数置信区间；* 表示不适用或无法估计（如标准误为零）。")
+        print("p 值是在原假设及检验模型成立时，得到当前或更极端检验统计量的概率。")
+        print("p 值显示 0.000 是舍入结果，不代表概率严格为零。")
 
     return {"slope": b1, "intercept": b0,
             "R Square": R_sq, "R Square Adj": R_sq_adj,

@@ -6,7 +6,7 @@ from math import isfinite
 from scipy.stats import f as f_dist
 # ############# Own Modules ############
 from utilities import d2_2D as d2
-from utilities import gen_table
+from utilities import gen_table, format_stat
 from two_way_anova import two_way_anova
 from one_way_ANOVA import one_way_anova
 from utilities import grouping_by_labels
@@ -512,17 +512,24 @@ def grr_nested(y=None, op=None, part=None, print_out=False, print_port=print,
 
     if print_out:
         print = print_port
-        print("\n---- Gage R&R Nested ANOVA ----\n\nGage R&R Nested for Response")
-        print("nan = not estimable (zero denominator).")
-        t = PT()
-        t.field_names = ["Source", "DF", "SS", "MS", "F Ratio", "P Value"]
-        t.add_row(["Operator", "%d" % DFO, "%.3f" % SSO, "%.3f" % MSO,
-                   "%.3f" % FO, "%.3f" % p_o])
-        t.add_row(["Part(Operator)", "%d" % DFPO, "%.3f" % SSPO, "%.3f" % MSPO,
-                   "%.3f" % FPO, "%.3f" % p_po])
-        t.add_row(["Repeatability", "%d" % DFR, "%.3f" % SSR, "%.3f" % MSR, " ", " "])
-        t.add_row(["Total", "%d" % DFTTL, "%.3f" % SST, "", "", ""])
+        print("\n---- 嵌套方差分析（Gage R&R）----")
+        print("零件嵌套于操作员；操作员数 = %d；每位操作员零件数 = %d；每件重复测量数 = %d。" %
+              (b, a, n))
+        print("\n方差分析表")
+        t = gen_table([
+            ["来源", "自由度", "平方和", "均方", "F 值", "p 值"],
+            ["操作员", DFO, format_stat(SSO), format_stat(MSO), format_stat(FO), format_stat(p_o)],
+            ["零件（操作员内）", DFPO, format_stat(SSPO), format_stat(MSPO),
+             format_stat(FPO), format_stat(p_po)],
+            ["重复性（误差）", DFR, format_stat(SSR), format_stat(MSR), "*", "*"],
+            ["总计", DFTTL, format_stat(SST), "*", "*", "*"]])
+        for column in t.field_names[1:]:
+            t.align[column] = "r"
         print(str(t))
+        print("操作员 F 值 = 操作员均方 / 操作员内零件均方；零件 F 值 = 操作员内零件均方 / 误差均方。")
+        print("H0：相应随机效应的方差分量为零；模型要求平衡嵌套设计、独立正态随机效应及等方差误差。")
+        print("* 表示不适用或不可估计（not estimable）；后续计量报告的 nan 也表示不可估计。")
+        print("p 值显示为 0.000 是舍入结果，不代表概率严格为零。")
 
         print("\nVariance Components")
         t = PT()
