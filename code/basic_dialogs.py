@@ -1,3 +1,4 @@
+from dialog import display_text
 from tkinter import ttk
 import tkinter as tk
 from tkinter import TOP, LEFT, BOTH, X, W
@@ -12,7 +13,7 @@ from dist_fit import compare_dist
 
 class FitDistDialog(Dialogs):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Data Col. Select')
+        f = tk.LabelFrame(m, text='选择数据列')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
         w = ttk.Combobox(
@@ -30,16 +31,16 @@ class FitDistDialog(Dialogs):
         self.picks = dict()
 
         notes = ["", "",
-                 ": Input values > 0",
-                 ": Input values > 0",
-                 ": Input values >=0",
-                 ": Input values > 0"]
+                 "：输入值 > 0",
+                 "：输入值 > 0",
+                 "：输入值 >=0",
+                 "：输入值 > 0"]
 
-        f = tk.LabelFrame(m, text='Models')
+        f = tk.LabelFrame(m, text='分布模型')
         f.pack(side=TOP, fill=BOTH, padx=2)
         for i, name in enumerate(self.dists):
             self.picks[name] = tk.BooleanVar(value=False)
-            w = tk.Checkbutton(f, text=name + " " + notes[i],
+            w = tk.Checkbutton(f, text=display_text(name) + " " + notes[i],
                                variable=self.picks[name])
             w.pack(side=TOP, anchor=W)
         return
@@ -62,10 +63,10 @@ class FitDistDialog(Dialogs):
 
 class MultiDescribeDialog(Dialogs):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Data')
+        f = tk.LabelFrame(m, text='数据')
         f.pack(side=TOP, fill=BOTH, padx=2)
         w, self.grpvar = addListBox(
-            f, values=self.cols, width=20, label='columns')
+            f, values=self.cols, width=20, label='列')
         w.pack(side=LEFT, fill=X, padx=10)
 
         self.picks = dict()
@@ -76,7 +77,7 @@ class MultiDescribeDialog(Dialogs):
                       "Range", "Interquartile Range",
                       "Skewness", "Kurtosis", "Mode", "N of Mode"]
 
-        f = tk.LabelFrame(m, text='Statistics')
+        f = tk.LabelFrame(m, text='统计量')
         f.pack(side=TOP, fill=BOTH, padx=2)
         for i, name in enumerate(self.names):
             self.picks[name] = tk.BooleanVar(value=True)
@@ -85,7 +86,7 @@ class MultiDescribeDialog(Dialogs):
                 master.pack(side=LEFT, padx=2)
             slave = ttk.Frame(master)
             slave.pack(side=TOP, fill=BOTH, padx=2, pady=2)
-            w = tk.Checkbutton(slave, text=name,
+            w = tk.Checkbutton(slave, text=display_text(name),
                                variable=self.picks[name])
             w.pack(side=LEFT)
         return
@@ -107,7 +108,7 @@ class MultiDescribeDialog(Dialogs):
                     print_port=self.app.print),
                 print_out=False)
             if res[col] is None:
-                self.error("At least two numeric observations are required: " + str(col))
+                self.error('至少需要两个数值观测值：' + str(col))
                 return
         self.app.print("\n---- Statitstics ----")
         t = PT()
@@ -128,7 +129,7 @@ class MultiDescribeDialog(Dialogs):
 class DescribeDialog(Dialogs):
     def createWidgets(self, m):
 
-        f = tk.LabelFrame(m, text='Stats Summary')
+        f = tk.LabelFrame(m, text='描述性统计')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
         w = ttk.Combobox(
@@ -138,7 +139,7 @@ class DescribeDialog(Dialogs):
 
         self.pct = tk.StringVar(
             value="100, 99.5, 97.5, 90, 75, 50,25, 10, 2.5, 0.5, 0")
-        f = tk.LabelFrame(m, text='Percentiles')
+        f = tk.LabelFrame(m, text='百分位数')
         f.pack(side=TOP, fill=BOTH, padx=2)
         w = tk.Entry(f, textvariable=self.pct,
                      bg='white', width=35)
@@ -151,7 +152,7 @@ class DescribeDialog(Dialogs):
                         col_name=self.xvar.get(),
                         print_out=True, print_port=self.app.print)
         if len(x) < 2:
-            self.error("At least two numeric observations are required.")
+            self.error('至少需要两个数值观测值。')
             return
         print(x)
         pct = self.pct.get()
@@ -166,17 +167,17 @@ class DescribeDialog(Dialogs):
 
 class NormTestDialog(Dialogs):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Data Col. Select')
+        f = tk.LabelFrame(m, text='选择数据列')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2)
-        f = tk.LabelFrame(m, text='Plot')
+        f = tk.LabelFrame(m, text='绘图')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.qq = tk.BooleanVar(value=False)
-        w = tk.Checkbutton(f, text='Show QQ Plot',
+        w = tk.Checkbutton(f, text='显示 QQ 图',
                            variable=self.qq)
         w.pack(side=LEFT, padx=2, pady=2)
         return
@@ -200,7 +201,7 @@ class NormTestDialog(Dialogs):
 
 class CIDialog(Dialogs):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Data Col. Select')
+        f = tk.LabelFrame(m, text='选择数据列')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
         w = ttk.Combobox(

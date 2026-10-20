@@ -20,7 +20,7 @@ class Mean1SampleDialog(Dialogs):
         #      "standard deviation given, Z-test will be performed, otherwise, " +
         #      "t-test will be performed.")
         #  w.pack(side=TOP, fill=BOTH, padx=2)
-        f = tk.LabelFrame(m, text='Sample Values')
+        f = tk.LabelFrame(m, text='样本值')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
         w = ttk.Combobox(
@@ -28,7 +28,7 @@ class Mean1SampleDialog(Dialogs):
             width=14)
         w.pack(side=LEFT, padx=2)
 
-        master = tk.LabelFrame(m, text='Summarized Data (Overriding)')
+        master = tk.LabelFrame(m, text='汇总数据（优先使用）')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.sample_mean = tk.StringVar(value="")
         self.sample_std = tk.StringVar(value="")
@@ -38,21 +38,21 @@ class Mean1SampleDialog(Dialogs):
         w = tk.Entry(master, textvariable=self.sample_n,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="Std Dev")
+        w = tk.Label(master, text='标准差')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.sample_std,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="Mean")
+        w = tk.Label(master, text='均值')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.sample_mean,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        master = tk.LabelFrame(m, text='Hypothesis Test')
+        master = tk.LabelFrame(m, text='假设检验')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.u0 = tk.StringVar(value="")
-        w = tk.Label(master, text="Mean")
+        w = tk.Label(master, text='均值')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.u0,
                      bg='white', width=5)
@@ -85,7 +85,7 @@ class Mean1SampleDialog(Dialogs):
         if ((n is None and (len(x) < 2 or len(set(x)) < 2))
                 or (n is not None and (n < 2 or std <= 0))
                 or alpha is None or not 0 < alpha < 1):
-            self.error("t test requires N >= 2, positive standard deviation and 0 < alpha < 1.")
+            self.error('t 检验要求 N ≥ 2、标准差大于 0 且 0 < α < 1。')
             return
         t_test_1sample(x, u0, print_out=True,
                        sample_mean=mean, sample_n=n,
@@ -96,7 +96,7 @@ class Mean1SampleDialog(Dialogs):
 
 class Mean1SampleZDialog(Dialogs):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Sample Values')
+        f = tk.LabelFrame(m, text='样本值')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
         w = ttk.Combobox(
@@ -104,7 +104,7 @@ class Mean1SampleZDialog(Dialogs):
             width=14)
         w.pack(side=LEFT, padx=2)
 
-        master = tk.LabelFrame(m, text='Summarized Data (Overriding)')
+        master = tk.LabelFrame(m, text='汇总数据（优先使用）')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.sample_mean = tk.StringVar(value="")
         self.sample_n = tk.StringVar(value="")
@@ -113,24 +113,24 @@ class Mean1SampleZDialog(Dialogs):
         w = tk.Entry(master, textvariable=self.sample_n,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="Mean")
+        w = tk.Label(master, text='均值')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.sample_mean,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        master = tk.LabelFrame(m, text='Hypothesis Test')
+        master = tk.LabelFrame(m, text='假设检验')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.u0 = tk.StringVar(value="")
         self.s0 = tk.StringVar(value="")
-        w = tk.Label(master, text="Mean")
+        w = tk.Label(master, text='均值')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.u0,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        master = tk.LabelFrame(m, text='Known Value')
+        master = tk.LabelFrame(m, text='已知参数')
         master.pack(side=TOP, fill=BOTH, padx=2)
-        w = tk.Label(master, text="Std Dev")
+        w = tk.Label(master, text='标准差')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.s0,
                      bg='white', width=5)
@@ -163,7 +163,7 @@ class Mean1SampleZDialog(Dialogs):
         alpha = get_number(self.alpha)
         if (s0 <= 0 or (n is None and not x) or (n is not None and n < 1)
                 or alpha is None or not 0 < alpha < 1):
-            self.error("Z test requires N >= 1, positive known standard deviation and 0 < alpha < 1.")
+            self.error('Z 检验要求 N ≥ 1、已知标准差大于 0 且 0 < α < 1。')
             return
         z_test_1sample(x, u0, s0, print_out=True,
                        sample_mean=mean, sample_n=n,
@@ -175,7 +175,7 @@ class Mean1SampleZDialog(Dialogs):
 class Var1SampleDialog(Dialogs):
     def createWidgets(self, m):
         """Create a set of grp-agg-func options together"""
-        f = tk.LabelFrame(m, text='Sample Values')
+        f = tk.LabelFrame(m, text='样本值')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
         w = ttk.Combobox(
@@ -183,7 +183,7 @@ class Var1SampleDialog(Dialogs):
             width=14)
         w.pack(side=LEFT, padx=2)
 
-        master = tk.LabelFrame(m, text='Summarized Data (Overriding)')
+        master = tk.LabelFrame(m, text='汇总数据（优先使用）')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.sample_n = tk.StringVar(value="")
         self.sample_std = tk.StringVar(value="")
@@ -192,16 +192,16 @@ class Var1SampleDialog(Dialogs):
         w = tk.Entry(master, textvariable=self.sample_n,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="Std Dev")
+        w = tk.Label(master, text='标准差')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.sample_std,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        master = tk.LabelFrame(m, text='Hypothesis Test')
+        master = tk.LabelFrame(m, text='假设检验')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.s0 = tk.StringVar(value="")
-        w = tk.Label(master, text="Std Dev")
+        w = tk.Label(master, text='标准差')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.s0,
                      bg='white', width=5)
@@ -239,26 +239,26 @@ class Var1SampleDialog(Dialogs):
 class Mean2SampleDialog(Dialogs):
     def createWidgets(self, m):
         """Create a set of grp-agg-func options together"""
-        master = tk.LabelFrame(m, text='Sample Values')
+        master = tk.LabelFrame(m, text='样本值')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
         self.yvar = tk.StringVar(value="")
-        w = tk.Label(master, text="Sample 1")
+        w = tk.Label(master, text='样本 1')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             master, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2)
-        w = tk.Label(master, text="Sample 2")
+        w = tk.Label(master, text='样本 2')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             master, values=self.cols, textvariable=self.yvar,
             width=14)
         w.pack(side=LEFT, padx=2)
 
-        f = tk.LabelFrame(m, text='Summarized Data (Overriding)')
+        f = tk.LabelFrame(m, text='汇总数据（优先使用）')
         f.pack(side=TOP, fill=BOTH, padx=2)
-        master = tk.LabelFrame(f, text='Sample 1')
+        master = tk.LabelFrame(f, text='样本 1')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.u1 = tk.StringVar(value="")
         self.s1 = tk.StringVar(value="")
@@ -268,17 +268,17 @@ class Mean2SampleDialog(Dialogs):
         w = tk.Entry(master, textvariable=self.n1,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="Std Dev")
+        w = tk.Label(master, text='标准差')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.s1,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="Mean (u1)")
+        w = tk.Label(master, text='均值（u1）')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.u1,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        master = tk.LabelFrame(f, text='Sample 2')
+        master = tk.LabelFrame(f, text='样本 2')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.u2 = tk.StringVar(value="")
         self.s2 = tk.StringVar(value="")
@@ -288,18 +288,18 @@ class Mean2SampleDialog(Dialogs):
         w = tk.Entry(master, textvariable=self.n2,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="Std Dev")
+        w = tk.Label(master, text='标准差')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.s2,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="Mean (u2)")
+        w = tk.Label(master, text='均值（u2）')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.u2,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        master = tk.LabelFrame(m, text='Hypothesis Test')
+        master = tk.LabelFrame(m, text='假设检验')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.d0 = tk.StringVar(value="0")
         w = tk.Label(master, text="u2 - u1 = ")
@@ -308,7 +308,7 @@ class Mean2SampleDialog(Dialogs):
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
         self.pooled = tk.BooleanVar(value=False)
-        w = tk.Checkbutton(master, text=' Assume Equal Variances',
+        w = tk.Checkbutton(master, text='假定方差相等',
                            variable=self.pooled)
         w.pack(side=LEFT, padx=2, pady=2)
 
@@ -352,17 +352,17 @@ class Mean2SampleDialog(Dialogs):
 
 class PairedTDialog(Dialogs):
     def createWidgets(self, m):
-        master = tk.LabelFrame(m, text='Sample Values')
+        master = tk.LabelFrame(m, text='样本值')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
         self.yvar = tk.StringVar(value="")
-        w = tk.Label(master, text="Sample 1")
+        w = tk.Label(master, text='样本 1')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             master, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2)
-        w = tk.Label(master, text="Sample 2")
+        w = tk.Label(master, text='样本 2')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             master, values=self.cols, textvariable=self.yvar,
@@ -370,10 +370,10 @@ class PairedTDialog(Dialogs):
         w.pack(side=LEFT, padx=2)
 
         master = tk.LabelFrame(
-            m, text='Hypothesized mean of the differences')
+            m, text='假设差值均值')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.d0 = tk.StringVar(value="0")
-        w = tk.Label(master, text="Sample 1 - Sample 2")
+        w = tk.Label(master, text='样本 1 - 样本 2')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.d0,
                      bg='white', width=5)
@@ -389,7 +389,7 @@ class PairedTDialog(Dialogs):
                                  col_name1=self.xvar.get(),
                                  print_out=True, print_port=self.app.print)
         else:
-            self.error(msg="Invalid sample values received.")
+            self.error(msg='输入的样本值无效。')
             return
         #      x = number_list(self.df[self.xvar.get()],
         #                      col_name=self.xvar.get(),
@@ -415,10 +415,10 @@ class PairedTDialog(Dialogs):
 
 class MultiVarDialog(Dialogs):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Variables')
+        f = tk.LabelFrame(m, text='变量')
         f.pack(side=TOP, fill=BOTH, padx=2)
         w, self.grpvar = addListBox(
-            f, values=self.cols, width=20, label='columns')
+            f, values=self.cols, width=20, label='列')
         w.pack(side=LEFT, fill=X, padx=10)
 
         self.add_alpha(m)
@@ -453,41 +453,41 @@ class MultiVarDialog(Dialogs):
 
 class Prop1SDialog(Dialogs):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Sample Values')
+        f = tk.LabelFrame(m, text='样本值')
         f.pack(side=TOP, fill=BOTH, padx=2)
-        w = tk.Label(f, text="Sample")
+        w = tk.Label(f, text='样本')
         w.pack(side=LEFT, fill=X, padx=2)
         self.xvar = tk.StringVar(value="")
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2)
-        w = tk.Label(f, text="Name of Event")
+        w = tk.Label(f, text='事件名称')
         w.pack(side=LEFT, fill=X, padx=2)
         self.event_name = tk.StringVar(value="")
         w = tk.Entry(f, textvariable=self.event_name,
                      bg='white', width=15)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        master = tk.LabelFrame(m, text='Summarized Data (Overriding)')
+        master = tk.LabelFrame(m, text='汇总数据（优先使用）')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.ttl_cnt = tk.StringVar(value="")
         self.event_cnt = tk.StringVar(value="")
-        w = tk.Label(master, text="Number of events")
+        w = tk.Label(master, text='事件数')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.event_cnt,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="Number of trials")
+        w = tk.Label(master, text='试验次数')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.ttl_cnt,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        master = tk.LabelFrame(m, text='Hypothesis Test')
+        master = tk.LabelFrame(m, text='假设检验')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.p0 = tk.DoubleVar(value=0.5)
-        w = tk.Label(master, text="Hypothesized proportion")
+        w = tk.Label(master, text='假设比例')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.p0,
                      bg='white', width=5)
@@ -523,25 +523,25 @@ class Prop1SDialog(Dialogs):
 
 class Prop2SDialog(Dialogs):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Sample 1')
+        f = tk.LabelFrame(m, text='样本 1')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
-        w = tk.Label(f, text="Col.")
+        w = tk.Label(f, text='数据列')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2)
         self.event_name = tk.StringVar(value="")
-        w = tk.Label(f, text="Name of Event")
+        w = tk.Label(f, text='事件名称')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(f, textvariable=self.event_name,
                      bg='white', width=15)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        f = tk.LabelFrame(m, text='Sample 2')
+        f = tk.LabelFrame(m, text='样本 2')
         f.pack(side=TOP, fill=BOTH, padx=2)
-        w = tk.Label(f, text="Col.")
+        w = tk.Label(f, text='数据列')
         w.pack(side=LEFT, fill=X, padx=2)
         self.yvar = tk.StringVar(value="")
         w = ttk.Combobox(
@@ -549,37 +549,37 @@ class Prop2SDialog(Dialogs):
             width=14)
         w.pack(side=LEFT, padx=2)
         self.event_name2 = tk.StringVar(value="")
-        w = tk.Label(f, text="Name of Event")
+        w = tk.Label(f, text='事件名称')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(f, textvariable=self.event_name2,
                      bg='white', width=15)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        master = tk.LabelFrame(m, text='Summarized Sample 1 (Overriding)')
+        master = tk.LabelFrame(m, text='样本 1 汇总数据（优先使用）')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.ttl_cnt = tk.StringVar(value="")
         self.event_cnt = tk.StringVar(value="")
-        w = tk.Label(master, text="Number of events")
+        w = tk.Label(master, text='事件数')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.event_cnt,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="Number of trials")
+        w = tk.Label(master, text='试验次数')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.ttl_cnt,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        master = tk.LabelFrame(m, text='Summarized Sample 2 (Overriding)')
+        master = tk.LabelFrame(m, text='样本 2 汇总数据（优先使用）')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.ttl_cnt2 = tk.StringVar(value="")
         self.event_cnt2 = tk.StringVar(value="")
-        w = tk.Label(master, text="Number of events")
+        w = tk.Label(master, text='事件数')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.event_cnt2,
                      bg='white', width=5)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(master, text="Number of trials")
+        w = tk.Label(master, text='试验次数')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.ttl_cnt2,
                      bg='white', width=5)

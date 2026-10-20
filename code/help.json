@@ -5,120 +5,120 @@
         "window": ""},
     "Stats Summary": {
         "link": "https://minijmp.readthedocs.io/en/latest/usage/describe.html",
-        "window": "Generate statistical summaries such as Mean and Median for a single dataset, i.e. one column of data. The statistical measures are set by default, while percentile positions can be customized."},
+        "window": "为单列数据生成均值、中位数等描述性统计。统计量使用默认设置，可自定义百分位数位置。"},
     "Stats Summary Multi Datasets": {
         "link": "https://minijmp.readthedocs.io/en/latest/usage/describe_multivar.html",
-        "window": "Generate statistical summaries, including measures such as Mean and Median, for multiple datasets (several columns of data). Users can select which statistical measures to include in the final output table."},
+        "window": "为多列数据生成均值、中位数等描述性统计，可选择输出表中包含的统计量。"},
     "Normality Test": {
         "link": "https://minijmp.readthedocs.io/en/latest/usage/normality.html",
-        "window": "Perform normality test to one column of data. Shapiro-Wilk and Anderson-Darling tests will be performed." 
+        "window": "对一列数据执行 Shapiro-Wilk 和 Anderson-Darling 正态性检验。"
     },
     "Confidence Intervals": {
         "link": "https://minijmp.readthedocs.io/en/latest/usage/ci.html",
-        "window": "Calculate and display the confidence intervals for the population mean and standard deviation using the sampling dataset, assuming the underlying population follows a normal distribution."
+        "window": "假定总体服从正态分布，根据样本计算总体均值和标准差的置信区间。"
     },
     "Fit Distributions": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/fit_dist.html",
-        "window": "A fitted distribution is a theoretical distribution calculated using parameter estimates derived from a sample that you enter. This dialog can help to find the most suitable distribution to the sample. If plotting required, please use Plots>Histogram & Dist. Fit, however which can't compare across distributions."
+        "window": "根据样本估计分布参数并比较分布的拟合效果。若需绘图，请使用“绘图”菜单中的“直方图与分布拟合”；该功能不比较多个分布。"
     },
     "Correlation": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/cor.html",
-        "window":"Calculate correlation between two data columns and draw a scatter plot. Correlation ellipse can be drawn when Pearson's Correlation is selected."
+        "window":"计算两列数据的相关性并绘制散点图。选择 Pearson 相关时可绘制相关椭圆。"
     },
     "Linear Regression": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/linear_fit.html",
-        "window":"Find the linear model that best describes how the response variable (Y) changes with the predictor variable (X), using the least squares estimation method which minimizes the sum of the squared distances between the points and the fitted line. "
+        "window":"使用最小二乘法拟合响应变量（Y）与预测变量（X）的线性关系，使观测点到拟合直线的残差平方和最小。"
     },
     "Residual Plots": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/residuals.html",
-        "window":"A supplimental tool of Linear Regression to plot Residuals versus fits, Residuals versus order, Histogram of residuals and QQ plot of normality test.\nChoose the predictor variable (X) and the response variable (Y) of the Linear Regression."
+        "window":"绘制残差与拟合值图、残差与顺序图、残差直方图及正态 QQ 图。\n请选择线性回归的预测变量（X）和响应变量（Y）。"
     },
     "Orthogonal Regression": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/orthogonal.html",
-        "window":"Calculate the orthogonal regression of the variables, which considering both predictor and response carrying measurement errors."
+        "window":"计算正交回归，同时考虑预测变量和响应变量的测量误差。"
     },
     "Multi Column Correlation": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/multi_cor.html",
-        "window":"Select multiple variables using CTRL-click for individual selections or SHIFT-click for ranges. Calculate correlations simultaneously using one or multiple algorithm(s) of your choice."
+        "window":"按住 Ctrl 单击选择多个变量，按住 Shift 单击选择连续范围。可选择一种或多种方法同时计算相关性。"
     },
     "One sample mean t-test": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/1sample_t.html",
-        "window":"Testing whether the population mean (estimated using the sample mean) is likely to be equal to a hypothesized value."
+        "window":"检验总体均值是否等于假设值，使用样本均值估计总体均值。"
 },
     "One sample mean Z-test": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/1sample_z.html",
-        "window":"Testing whether the population mean (estimated using the sample mean) is likely to be equal to a hypothesized value, when the population standard deviation is known."
+        "window":"总体标准差已知时，检验总体均值是否等于假设值。"
 },
     "One sample Std Dev test": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/1sample_dev.html",
-        "window":"Testing whether the population standard deviation (estimated using the sample) is likely to be equal to a hypothesized value. Both Chi sq and Bonett tests will be performed."
+        "window":"检验总体标准差是否等于假设值，同时执行卡方检验和 Bonett 检验。"
 },
     "One Proportion Test": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/1sample_prop.html",
-        "window":"Use 1 Proportion to estimate a population proportion and to compare the proportion to a target value. The test includes binomial exact, normal approximate and chi square results."
+        "window":"估计总体比例并与目标值比较，包括二项精确检验、正态近似检验和卡方检验。"
 },
     "Two samples t-test": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/2sample_t.html",
-        "window":"Test whether mean values of two sample sets have their difference being equal to the hypothesized value."
+        "window":"检验两个总体均值的差是否等于假设值。"
 },
     "Paired t-test": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/paired_t.html",
-        "window":"A paired t-test determines if there is a significant difference between the means of two related groups of measurements (like before and after scores from the same subjects) by analyzing the differences between each pair of observations."
+        "window":"根据每对观测值的差，检验两组相关测量（如同一对象的前后测量）的均值是否存在显著差异。"
 },
     "Two Proportions Test": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/2sample_prop.html",
-        "window":"When your data contain only two categories, such as pass/fail, use the two proportions test to determine whether the population proportions of two groups differ."
+        "window":"当数据仅含两个类别（如合格/不合格）时，检验两组的总体比例是否存在差异。"
 },
     "Mutli-sample Std Dev Test": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/multi_sample_dev.html",
-        "window":"Test if standard deviations of all the samples are equal. Data need to be in separated columns. If data are stacked in one column, use Split Data Column in Data Menu. Select multiple columns with CTRL+click and SHIFT+click."
+        "window":"检验各样本的标准差是否相等。各样本须位于不同列；堆叠数据请先使用“数据”菜单中的“拆分数据列”。按住 Ctrl 或 Shift 单击可选择多列。"
 },
     "One-Way ANOVA": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/anova_1way.html",
-        "window":"Use One-Way ANOVA to determine whether the population means of two or more groups differ. If the ANOVA finds that at least one group is different, perform a comparisons analysis to identify pairs of groups that are significantly different. The input data can be a stack of continuous responses and corresponding a categorical factor column, or separated columns of continuous samples."
+        "window":"检验两个或多个总体均值是否存在差异。发现显著差异后，可比较各对组的均值。输入可为堆叠的连续响应变量和对应的分类因子，也可为位于不同列的样本。"
 },
     "Two-Way ANOVA": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/anova_2way.html",
-        "window":"The two-way ANOVA compares the mean differences between groups that have been split on two independent variables (called factors). Use a two-way ANOVA when you want to know how two independent categorical variables (factors), in combination, affect a dependent variable (response)."
+        "window":"比较按两个因子划分的组之间的均值差异，研究两个分类因子及其组合对响应变量的影响。"
 },
 "Contingency Table and Chi SQ Test": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/chi2.html",
-        "window":"Use Cross Tabulation and Chi-Square analysis when your data is categorized by two categorical variables. Input the categorical data with two columns. Use a summarized table when the rows and columns contain total counts for each cross-category."
+        "window":"对两个分类变量执行交叉表与卡方分析。可输入两列原始分类数据，或输入各交叉类别计数构成的汇总表。"
 },
 "Propabilities Chi SQ Test": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/chi2_prob.html",
-        "window":"Test the estimated probabilities of the levels of a categorical variable against the specified hypothesized probabilities."
+        "window":"将分类变量各水平的估计概率与指定的假设概率进行比较。"
 },
 "Crossed Gage R&R": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/grr.html",
-        "window":"Gage R&R (Repeatability and Reproducibility) is a statistical tool used to assess measurement system reliability, evaluating both equipment precision and operator consistency. This study requires a balanced design where all operators measure all parts, with each part measured an equal number of times. The study can be conducted with one or multiple operators. Various algorithms are available, aligning with different commercial software."
+        "window":"量具 R&R 用于评估测量系统的重复性和再现性，包括设备精度及操作员一致性。要求平衡设计：所有操作员测量所有部件，各部件测量次数相同。可使用一名或多名操作员，并选择不同的分析方法。"
 },
 "Nested Gage R&R": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/grr_nst.html",
-        "window":"Nested Gage R&R is used when parts cannot be measured by multiple operators, typically in destructive testing. Each part is measured by a single operator, potentially multiple times, with the requirement that all operators measure an equal number of parts to ensure statistical balance and reliability of the measurement system variation analysis."
+        "window":"当部件无法由多名操作员重复测量（如破坏性试验）时使用嵌套量具 R&R。每个部件只由一名操作员测量，可重复测量多次。各操作员测量的部件数须相等。"
 },
 "Process Capability": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/cpk.html",
-        "window":"Process capability measurement is a statistical method used to evaluate how well a manufacturing process can produce parts within specified limits consistently. The main indices used for this measurement are Cp, Cpk, Pp, and Ppk. The function is to evaluate data without subgrouping, for example, lot, machine, etc.. Use the function of 'Cpk with subgroups' for subgrouped data instead."
+        "window":"评估过程持续生产满足规格限的产品的能力，主要指标包括 Cp、Cpk、Pp 和 Ppk。本功能用于无子组数据；按批次、设备等划分子组的数据请使用“含子组的过程能力分析”。"
 },
 "Process Capability with Subgroups": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/cpk_sub.html",
-        "window":"Process capability measurement is a statistical method used to evaluate how well a manufacturing process can produce parts within specified limits consistently. The function requires samples having subgroups, like lot, shift, equipment etc.. Use the function of 'Process Capability' for data without subgroups instead."
+        "window":"评估过程持续生产满足规格限的产品的能力。数据须包含批次、班次、设备等子组；无子组数据请使用“过程能力分析”。"
 },
 "Normal Dist TI": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/ti.html",
-        "window":"A tolerance interval defines the upper and/or lower bounds within which a certain percent of the process output falls with a stated confidence. Computes an interval that contains at least the specified proportion of the population with (1-alpha) confidence, assuming Normal Distribution."
+        "window":"假定总体服从正态分布，以 1−α 的置信水平计算至少覆盖指定总体比例的公差区间上下限。"
 },
 "Control Chart I/MR": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/ctrl_chart_imr.html",
-        "window":"An I/MR control chart is a process control tool designed for situations where data is collected one observation at a time, without traditional subgrouping. Instead, it uses a moving window to group neighboring data points into pseudo subgroups. To use the chart, select the 'value' as the process measurement to be controlled, and specify the moving range to determine how many neighboring points are included in each pseudo subgroup."
+        "window":"单值-移动极差控制图适用于每次采集一个观测值的过程。选择要监控的测量值，并指定移动极差长度，以相邻观测值构成移动子组。"
 },
 "Control Chart I": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/ctrl_chart_i.html",
-        "window":"An Individuals control chart is a process control tool designed for situations where data is collected one observation at a time, without traditional subgrouping. This function will solely draw the control chart with individual observations without a moving range control chart. To use the chart, select the 'value' as the process measurement to be controlled." 
+        "window":"单值控制图适用于每次采集一个观测值的过程。仅绘制单值控制图，不绘制移动极差控制图。请选择要监控的测量值。"
 },
 "Control Chart MR": {
         "link":"https://minijmp.readthedocs.io/en/latest/usage/ctrl_chart_mr.html",
-        "window":"An MR control chart is a process control tool designed for situations where data is collected one observation at a time, without traditional subgrouping. It uses a moving window to group neighboring data points into pseudo subgroups. To use the chart, select the 'value' as the process measurement to be controlled, and specify the moving range to determine how many neighboring points are included in each pseudo subgroup."
+        "window":"移动极差控制图适用于每次采集一个观测值的过程。选择测量值并指定移动极差长度，以相邻观测值构成移动子组。"
 }
 }

@@ -17,24 +17,24 @@ from sbplot_dialog import SBDialog
 class Anova2WayDialog(Dialogs):
     def createWidgets(self, m):
 
-        f = tk.LabelFrame(m, text='Factors')
+        f = tk.LabelFrame(m, text='因子')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
         self.yvar = tk.StringVar(value="")
-        w = tk.Label(f, text="A")
+        w = tk.Label(f, text="因子 A")
         w.pack(side=LEFT, fill=X, padx=2, pady=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2, pady=2)
-        w = tk.Label(f, text="B")
+        w = tk.Label(f, text="因子 B")
         w.pack(side=LEFT, fill=X, padx=2, pady=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.yvar,
             width=14)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        f = tk.LabelFrame(m, text='Response')
+        f = tk.LabelFrame(m, text='响应变量')
         f.pack(side=TOP, fill=BOTH, padx=2, pady=2)
         self.zvar = tk.StringVar(value="")
         w = ttk.Combobox(
@@ -42,10 +42,10 @@ class Anova2WayDialog(Dialogs):
             width=14)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        f = tk.LabelFrame(m, text='Options')
+        f = tk.LabelFrame(m, text='选项')
         f.pack(side=TOP, fill=BOTH, padx=2, pady=2)
         self.inter = tk.BooleanVar(value=True)
-        w = tk.Checkbutton(f, text="With Interaction",
+        w = tk.Checkbutton(f, text='包含交互作用',
                            variable=self.inter)
         w.pack(side=LEFT, padx=2, pady=2)
         return
@@ -111,57 +111,57 @@ class Anova1WayDialog(Dialogs):
     make_working_df = SBDialog.make_working_df
 
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Stacked Data')
+        f = tk.LabelFrame(m, text='堆叠数据')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
-        w = tk.Label(f, text="Data Col.")
+        w = tk.Label(f, text='数据列')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2)
         self.grouping = tk.StringVar(value="")
-        w = tk.Label(f, text="Group Col.")
+        w = tk.Label(f, text='分组变量')
         w.pack(side=LEFT, fill=X, padx=2)
         w = ttk.Combobox(
             f, values=self.cols, textvariable=self.grouping,
             width=14)
         w.pack(side=LEFT, padx=2)
 
-        f = tk.LabelFrame(m, text='Data in separated columns')
+        f = tk.LabelFrame(m, text='数据位于不同列')
         f.pack(side=TOP, fill=BOTH, padx=2)
-        w = tk.Label(f, text="Overriding selections above" + "\nESC to deselect.")  # ,
+        w = tk.Label(f, text='优先使用此处选择\n按 Esc 取消选择。')  # ,
         w.pack(side=LEFT, fill=X, padx=10)
         f.pack(side=TOP, fill=BOTH, padx=2)
         w, self.grpvar = addListBox(
-            f, values=self.cols, width=20, label='columns')
+            f, values=self.cols, width=20, label='列')
         w.pack(side=LEFT, fill=X, padx=10)
 
         self.add_alpha(m)
 
-        master = tk.LabelFrame(m, text='Mean Comparison')
+        master = tk.LabelFrame(m, text='均值比较')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.comp_mean = tk.BooleanVar(value=False)
-        w = tk.Checkbutton(master, text="Each Pair, Student's t",
+        w = tk.Checkbutton(master, text='逐对比较（t 检验）',
                            variable=self.comp_mean)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        plot_setting = tk.LabelFrame(m, text='Interval Plot Setting')
+        plot_setting = tk.LabelFrame(m, text='区间图设置')
         plot_setting.pack(side=TOP, fill=BOTH, padx=2, pady=2)
         master = tk.Frame(plot_setting)
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.show_plot = tk.BooleanVar(value=True)
-        w = tk.Checkbutton(master, text="Show Plot",
+        w = tk.Checkbutton(master, text='显示图形',
                            variable=self.show_plot)
         w.pack(side=LEFT, padx=2, pady=2)
         self.show_grid = tk.BooleanVar(value=False)
-        w = tk.Checkbutton(master, text="Show Grid",
+        w = tk.Checkbutton(master, text='显示网格线',
                            variable=self.show_grid)
         w.pack(side=LEFT, padx=2, pady=2)
 
-        master = tk.LabelFrame(plot_setting, text='X Axis')
+        master = tk.LabelFrame(plot_setting, text='X 轴')
         master.pack(side=TOP, fill=BOTH, padx=2)
-        w = tk.Label(master, text="Label")
+        w = tk.Label(master, text='标签')
         self.xlabel = tk.StringVar(value="")
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(master, textvariable=self.xlabel,
@@ -205,7 +205,7 @@ class Anova1WayDialog(Dialogs):
             groups = self.grpcols
         else:
             if xvar == "" or grp == "":
-                self.error("Missing input data.")
+                self.error('缺少输入数据。')
                 return
             else:
                 self.make_working_df(cols=[grp], numcols=[xvar])
@@ -215,7 +215,7 @@ class Anova1WayDialog(Dialogs):
 
         if (len(data) < 2 or any(len(g) < 2 for g in data)
                 or not any(len(set(g)) > 1 for g in data)):
-            self.error("ANOVA requires two groups with at least two observations and positive within-group variation.")
+            self.error('ANOVA 要求至少两组，每组至少两个观测值，且组内变异大于 0。')
             return
         res = one_way_anova(data, groups, print_out=True,
                             print_port=self.app.print,
@@ -258,10 +258,10 @@ class Anova1WayDialog(Dialogs):
 
 class TtestDialog(Dialogs):
     def createWidgets(self, m):
-        f = tk.LabelFrame(m, text='Variables')
+        f = tk.LabelFrame(m, text='变量')
         f.pack(side=TOP, fill=BOTH, padx=2)
         w, self.grpvar = addListBox(
-            f, values=self.cols, width=20, label='columns')
+            f, values=self.cols, width=20, label='列')
         w.pack(side=LEFT, fill=X, padx=10)
 
         self.add_alpha(m)
