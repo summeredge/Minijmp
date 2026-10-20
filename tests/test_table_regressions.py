@@ -43,6 +43,34 @@ def event(table, row=0, col=0):
                            keysym='Down')
 
 
+def header_event_generate(table, sequence, canvas_x, y=10, state=None):
+    header = table.colheader
+    args = {'x': round(canvas_x - header.canvasx(0)), 'y': y}
+    if state is not None:
+        args['state'] = state
+    header.event_generate(sequence, **args)
+    header.update()
+
+
+@pytest.fixture
+def visible_table(table):
+    root = table.winfo_toplevel()
+    root.geometry('900x650+0+0')
+    root.deiconify()
+    root.update()
+    yield table
+    root.withdraw()
+
+
+def header_double_click(table, canvas_x, y=10):
+    reset_x = table.colheader.canvasx(0)
+    header_event_generate(table, '<Button-1>', reset_x, y)
+    header_event_generate(table, '<ButtonRelease-1>', reset_x, y)
+    for _ in range(2):
+        header_event_generate(table, '<Button-1>', canvas_x, y)
+        header_event_generate(table, '<ButtonRelease-1>', canvas_x, y)
+
+
 @pytest.mark.parametrize('shape', [(1, 1), (1, 3), (0, 1), (1, 0), (0, 0)])
 def test_switch_model_clears_stale_state_and_mouse_events(table, shape):
     table.setSelectedRow(12)
@@ -470,3 +498,223 @@ def test_resource_paths_do_not_depend_on_cwd(tmp_path, monkeypatch):
     assert Path(config.configpath) == repo / 'user_config'
     monkeypatch.chdir(tmp_path)
     assert Path(config.write_default_config()) == repo / 'user_config/default.conf'
+
+
+@pytest.mark.parametrize('column', [0, 1, 2])
+def test_column_header_drag_resizes_first_middle_and_last_columns(visible_table, column):
+    table = visible_table
+    replace(table, pd.DataFrame({'a': [1], 'b': [2], 'c': [3]}))
+    header = table.colheader
+    old_widths = [table.col_positions[i + 1] - table.col_positions[i]
+                  for i in range(table.cols)]
+    edge = table.col_positions[column + 1]
+
+    header_event_generate(table, '<Motion>', edge)
+    header_event_generate(table, '<Button-1>', edge)
+    header_event_generate(table, '<B1-Motion>', edge + 25, state=0x100)
+    assert header.find_withtag('resizeline')
+    assert table.find_withtag('resizeline')
+    header_event_generate(table, '<ButtonRelease-1>', edge + 25)
+
+    widths = [table.col_positions[i + 1] - table.col_positions[i]
+              for i in range(table.cols)]
+    assert widths[column] == old_widths[column] + 25
+    assert [width for i, width in enumerate(widths) if i != column] == [
+        width for i, width in enumerate(old_widths) if i != column]
+    assert not header.find_withtag('resizeline')
+    assert not table.find_withtag('resizeline')
+    header_event_generate(table, '<Motion>', table.col_positions[column] + 10)
+    assert header.cget('cursor') == ''
+    header_event_generate(table, '<Motion>', table.col_positions[column + 1])
+    header_event_generate(table, '<Leave>', table.col_positions[column + 1])
+    assert not header.atdivider
+    assert header.cget('cursor') == ''
+
+    edge = table.col_positions[column + 1]
+    before_width = edge - table.col_positions[column]
+    header_event_generate(table, '<Motion>', edge - 3)
+    header_event_generate(table, '<Button-1>', edge - 3)
+    header_event_generate(table, '<B1-Motion>', edge - 2, state=0x100)
+    header_event_generate(table, '<ButtonRelease-1>', edge - 2)
+    assert table.col_positions[column + 1] - table.col_positions[column] == before_width + 1
+
+    before = dict(table.columnwidths)
+    edge = table.col_positions[1] + 3
+    header_event_generate(table, '<Motion>', edge)
+    header_event_generate(table, '<Button-1>', edge)
+    header_event_generate(table, '<ButtonRelease-1>', edge)
+    assert table.columnwidths == before
+    assert header.atdivider
+    assert header.cget('cursor') == 'sb_h_double_arrow'
+
+
+def test_column_header_drag_clamps_width_and_survives_redraw_and_resize(visible_table):
+    table = visible_table
+    replace(table, pd.DataFrame({'a': [1], 'b': [2]}))
+    table.mincellwidth = 35
+    table.maxcellwidth = 150
+    header = table.colheader
+
+    def drag_first_column(target_x):
+        edge = table.col_positions[1]
+        header_event_generate(table, '<Motion>', edge)
+        header_event_generate(table, '<Button-1>', edge)
+        header_event_generate(table, '<B1-Motion>', target_x, state=0x100)
+        header_event_generate(table, '<ButtonRelease-1>', target_x)
+
+    drag_first_column(5)
+    assert table.columnwidths['a'] == 35
+    drag_first_column(400)
+    assert table.columnwidths['a'] == 150
+
+    table.redraw()
+    header_event_generate(table, '<Button-1>', table.col_positions[1] + 20)
+    header_event_generate(table, '<ButtonRelease-1>', table.col_positions[1] + 20)
+    table.currwidth = table.parentframe.winfo_width() + 1
+    table.parentframe.event_generate('<Configure>')
+    table.parentframe.update()
+
+    assert table.columnwidths['a'] == 150
+    assert table.col_positions[1] - table.col_positions[0] == 150
+    grid_x = [table.colheader.coords(item)[0]
+              for item in table.colheader.find_withtag('gridline')]
+    assert all(any(abs(x - pos) <= 1 for x in grid_x)
+               for pos in table.col_positions[1:])
+
+
+def test_column_header_drag_targets_correct_column_after_horizontal_scroll(visible_table):
+    table = visible_table
+    replace(table, pd.DataFrame({f'column_{i}': [i] for i in range(24)}))
+    table.set_xviews('moveto', 0.6)
+    header = table.colheader
+    left = header.canvasx(0)
+    right = header.canvasx(header.winfo_width())
+    col = next(i for i, edge in enumerate(table.col_positions[1:])
+               if left + 10 < edge < right - 40)
+    edge = table.col_positions[col + 1]
+    before = table.col_positions[col + 1] - table.col_positions[col]
+    other_widths = [table.col_positions[i + 1] - table.col_positions[i]
+                    for i in range(table.cols)]
+
+    header_event_generate(table, '<Motion>', edge)
+    header_event_generate(table, '<Button-1>', edge)
+    header_event_generate(table, '<B1-Motion>', edge + 25, state=0x100)
+    header_event_generate(table, '<ButtonRelease-1>', edge + 25)
+
+    widths = [table.col_positions[i + 1] - table.col_positions[i]
+              for i in range(table.cols)]
+    assert widths[col] == before + 25
+    assert [width for i, width in enumerate(widths) if i != col] == [
+        width for i, width in enumerate(other_widths) if i != col]
+    assert table.xview()[0] == pytest.approx(header.xview()[0])
+
+
+def test_column_header_double_click_fits_font_measured_contents(visible_table, monkeypatch):
+    from tkinter import font as tkfont
+    from unittest.mock import Mock
+    table = visible_table
+    rename = Mock()
+    monkeypatch.setattr(table.colheader, 'renameColumn', rename)
+    dataframe = pd.DataFrame({
+        '客户姓名': ['', None, '张晓明', '王小明'],
+        'Timestamp': pd.to_datetime([
+            '2025-01-02 03:04:05.123456', None,
+            '2026-10-20 12:30:45.654321', '2024-09-08 08:00:00.000000']),
+        '说明': ['简短', None, '', '长文本' * 100],
+        '数值': [1e15, None, 1234.5, 1.2],
+    })
+    before = dataframe.copy(deep=True)
+    replace(table, dataframe)
+    table.mincellwidth = 35
+    table.maxcellwidth = 220
+    table.floatprecision = 2
+    table.thousandseparator = ','
+    for name in dataframe.columns:
+        table.columnwidths[name] = table.cellwidth
+    table.setColPositions()
+    table.redraw()
+    measure = tkfont.Font(root=table.winfo_toplevel(), font=table.thefont).measure
+
+    for col, name in enumerate(dataframe.columns):
+        values = dataframe[name].dropna()
+        if name == '数值':
+            values = values.apply(lambda value: table.setPrecision(value, 2))
+        values = [str(value) for value in values]
+        expected = max([measure(str(name))] + [measure(value) for value in values])
+        edge = table.col_positions[col + 1]
+        header_double_click(table, edge)
+        rename.assert_not_called()
+        width = table.col_positions[col + 1] - table.col_positions[col]
+        assert min(expected, table.maxcellwidth) <= width <= table.maxcellwidth
+
+    assert table.columnwidths['说明'] == table.maxcellwidth
+    assert_frame_equal(table.model.df, before)
+
+    later_text = pd.DataFrame({'长文本': ['短'] * 200 + ['末尾文本' * 100]})
+    replace(table, later_text)
+    table.columnwidths['长文本'] = table.cellwidth
+    table.setColPositions()
+    table.redraw()
+    header_double_click(table, table.col_positions[1])
+    rename.assert_not_called()
+    assert table.columnwidths['长文本'] == table.maxcellwidth
+    assert_frame_equal(table.model.df, later_text)
+
+    long_label = '第二级长标题' * 2
+    multi = pd.DataFrame([[1, 2]], columns=pd.MultiIndex.from_tuples([
+        ('组一', long_label), ('组二', '短')]))
+    replace(table, multi)
+    table.columnwidths[str(multi.columns[0])] = table.cellwidth
+    table.setColPositions()
+    table.redraw()
+    header_double_click(table, table.col_positions[1])
+    rename.assert_not_called()
+    assert table.columnwidths[str(multi.columns[0])] >= measure(long_label)
+    rename.assert_not_called()
+    header_text = [table.colheader.itemcget(item, 'text')
+                   for item in table.colheader.find_withtag('text')]
+    assert long_label in header_text
+    assert_frame_equal(table.model.df, multi)
+
+
+def test_column_header_body_double_click_rename_and_multiselect_context_menu(visible_table, monkeypatch):
+    from unittest.mock import Mock
+    table = visible_table
+    replace(table, pd.DataFrame({f'column_{i}': [i] for i in range(4)}))
+    header = table.colheader
+    rename = Mock()
+    popup = Mock(return_value=SimpleNamespace(destroy=Mock()))
+    monkeypatch.setattr(header, 'renameColumn', rename)
+    monkeypatch.setattr(header, 'popupMenu', popup)
+
+    selected_x = (table.col_positions[1] + table.col_positions[2]) / 2
+    header_event_generate(table, '<Button-1>', selected_x)
+    header_event_generate(table, '<ButtonRelease-1>', selected_x)
+    assert table.currentcol == 1
+    assert header.resizecol is None
+
+    body_x = (table.col_positions[0] + table.col_positions[1]) / 2
+    header_double_click(table, body_x)
+    rename.assert_called_once_with()
+
+    edge = table.col_positions[1]
+    header_event_generate(table, '<Motion>', edge)
+    header_event_generate(table, '<Button-3>', edge)
+    assert table.currentcol == 0
+    assert header.find_withtag('rect')
+
+    first_x = (table.col_positions[0] + table.col_positions[1]) / 2
+    third_x = (table.col_positions[2] + table.col_positions[3]) / 2
+    fourth_x = (table.col_positions[3] + table.col_positions[4]) / 2
+    header_event_generate(table, '<Button-1>', first_x)
+    header_event_generate(table, '<ButtonRelease-1>', first_x)
+    header_event_generate(table, '<Control-Button-1>', third_x)
+    assert 2 in table.multiplecollist
+    current = table.currentcol
+    header_event_generate(table, '<Shift-Button-1>', fourth_x)
+    assert table.multiplecollist == list(range(min(current, 3), max(current, 3) + 1))
+
+    table.enable_menus = True
+    header_event_generate(table, '<Button-3>', fourth_x)
+    popup.assert_called()
+    assert table.multiplecollist == list(range(min(current, 3), max(current, 3) + 1))

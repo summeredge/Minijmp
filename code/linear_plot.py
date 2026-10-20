@@ -2,16 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import statistics as stat
 from scipy.stats import t as t_dist
-from prettytable import PrettyTable as PT
 ###### Own modules #######
 try:
     from .linear_fit import linear_fit
     from .ortho_fit import orthogonal_fit
-    from .utilities import pearson_correlation
+    from .utilities import pearson_correlation, gen_table, format_stat
 except ImportError:
     from linear_fit import linear_fit
     from ortho_fit import orthogonal_fit
-    from utilities import pearson_correlation
+    from utilities import pearson_correlation, gen_table, format_stat
 
 
 def fit_plot(x, y, alpha=0.05, print_out=False,
@@ -163,8 +162,8 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
                    show_plot=False, filename=None, ax_margin=0.1,
                    ellipse=True):
 
-    t = PT(["\\"] + labels)
-    t2 = PT(["\\"] + labels)
+    t = gen_table([["\\"] + labels])
+    t2 = gen_table([["\\"] + labels])
     cor_res = []
     n = len(data)
     for y in range(n):
@@ -173,8 +172,8 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
         row2 = [labels[y]]
         for x in range(n):
             r = pearson_correlation(data[x], data[y], print_out=False)
-            row.append("%.3f" % r["r"])
-            row2.append("%.3f" % r["p"])
+            row.append(format_stat(r["r"]))
+            row2.append(format_stat(r["p"]))
             res_tmp.append(r)
         cor_res.append(res_tmp)
         t.add_row(row)
@@ -183,9 +182,11 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
 
     if print_out:
         print = print_port
-        print("\n---- Pearson correlation coefficient ----")
+        t.align = t2.align = 'r'
+        t.align['\\'] = t2.align['\\'] = 'l'
+        print(f"\n---- Pearson 相关系数矩阵（N = {len(data[0])}） ----")
         print(str(t))
-        print("\n---- Pearson correlation p-value  ----")
+        print("\n---- Pearson p 值矩阵 ----")
         print(str(t2))
 
     if axs is None or fig is None:
@@ -267,8 +268,8 @@ def multi_fit(data, labels, print_out=False, print_port=print,
               ellipse=True, ylabel_0deg=False, xlabel_45deg=False ,
               xtick_45deg=False):
 
-    t = PT(["\\"] + labels)
-    t2 = PT(["\\"] + labels)
+    t = gen_table([["\\"] + labels])
+    t2 = gen_table([["\\"] + labels])
     cor_res = []
     n = len(data)
     for y in range(n):
@@ -277,8 +278,8 @@ def multi_fit(data, labels, print_out=False, print_port=print,
         row2 = [labels[y]]
         for x in range(n):
             r = pearson_correlation(data[x], data[y], print_out=False)
-            row.append("%.3f" % r["r"])
-            row2.append("%.3f" % r["p"])
+            row.append(format_stat(r["r"]))
+            row2.append(format_stat(r["p"]))
             res_tmp.append(r)
         cor_res.append(res_tmp)
         t.add_row(row)
@@ -287,9 +288,11 @@ def multi_fit(data, labels, print_out=False, print_port=print,
 
     if print_out:
         print = print_port
-        print("\n---- Pearson correlation coefficient ----")
+        t.align = t2.align = 'r'
+        t.align['\\'] = t2.align['\\'] = 'l'
+        print(f"\n---- Pearson 相关系数矩阵（N = {len(data[0])}） ----")
         print(str(t))
-        print("\n---- Pearson correlation p-value  ----")
+        print("\n---- Pearson p 值矩阵 ----")
         print(str(t2))
 
     if ax is None or fig is None:

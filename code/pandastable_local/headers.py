@@ -67,6 +67,10 @@ class ColumnHeader(Canvas):
             self.config(width=self.table.width, height=self.height)
             self.columnlabels = self.model.df.columns
             self.draggedcol = None
+            self.atdivider = 0
+            self.resizecol = None
+            self.resize_start_x = None
+            self.resize_start_width = None
             self.bind('<Button-1>', self.handle_left_click)
             self.bind("<ButtonRelease-1>", self.handle_left_release)
             self.bind('<B1-Motion>', self.handle_mouse_drag)
@@ -139,10 +143,10 @@ class ColumnHeader(Canvas):
                 self.table.x_start,
                 self.height))
         self.config(height=self.height, bg=self.bgcolor)
+        self.clearResize()
         self.delete('gridline', 'text')
         self.delete('rect')
         self.delete('dragrect')
-        self.atdivider = None
         font = self.thefont
         anchor = align
         pad = 5
@@ -174,8 +178,9 @@ class ColumnHeader(Canvas):
                 except BaseException:
                     colstr = str(colname)
 
-                if colstr in colwidths:
-                    w = colwidths[colstr]
+                colwidth = self.model.getColumnName(col)
+                if colwidth in colwidths:
+                    w = colwidths[colwidth]
                 else:
                     w = self.table.cellwidth
 
@@ -215,8 +220,20 @@ class ColumnHeader(Canvas):
         self.config(height=self.height)
         return
 
-    def handle_left_click(self, event):
+    def handle_left_click(self, event, allow_resize=True):
         """Does cell selection when left mouse button is clicked"""
+
+        if allow_resize:
+            col = self.getDividerCol(self.canvasx(event.x))
+            if col is not None:
+                self.resizecol = col
+                self.resize_start_x = int(self.canvasx(event.x))
+                self.resize_start_width = (
+                    self.table.col_positions[col + 1] -
+                    self.table.col_positions[col])
+                self.atdivider = 1
+                self.config(cursor='sb_h_double_arrow')
+                return
 
         self.delete('rect')
         self.table.delete('entry')
@@ -229,8 +246,6 @@ class ColumnHeader(Canvas):
             self.table.allrows = True
 
         self.table.setSelectedCol(colclicked)
-        if self.atdivider == 1:
-            return
         self.drawRect(self.table.currentcol)
         # also draw a copy of the rect to be dragged
         self.draggedcol = None
@@ -247,32 +262,20 @@ class ColumnHeader(Canvas):
     def handle_left_release(self, event):
         """When mouse released implement resize or col move"""
 
-        #  self.delete('dragrect')
-        #  #if ctrl selection return
-        #  if len(self.table.multiplecollist) > 1:
-        #      return
-        #  #column resized
-        #  if self.atdivider == 1:
-        #      x = int(self.canvasx(event.x))
-        #      col = self.nearestcol
-        #      x1,y1,x2,y2 = self.table.getCellCoords(0,col)
-        #      newwidth = x - x1
-        #      if newwidth < 5:
-        #          newwidth=5
-        #      self.table.resizeColumn(col, newwidth)
-        #      self.table.delete('resizeline')
-        #      self.delete('resizeline')
-        #      self.delete('resizesymbol')
-        #      self.atdivider = 0
-        #      return
-        #  self.delete('resizesymbol')
-        #  #move column
-        #  if self.draggedcol != None and self.table.currentcol != self.draggedcol:
-        #      self.model.moveColumn(self.table.currentcol, self.draggedcol)
-        #      self.table.setSelectedCol(self.draggedcol)
-        #      self.table.redraw()
-        #      self.table.drawSelectedCol(self.table.currentcol)
-        #      self.drawRect(self.table.currentcol)
+        col = self.resizecol
+        if col is None:
+            return
+        try:
+            x = int(self.canvasx(event.x))
+            positions = self.table.col_positions
+            if (x != self.resize_start_x and
+                    0 <= col < len(self.model.df.columns) and
+                    col + 1 < len(positions)):
+                width = self.resize_start_width + x - self.resize_start_x
+                self.table.resizeColumn(col, max(5, width))
+        finally:
+            self.clearResize()
+        self.handle_mouse_move(event)
         return
 
     def handle_right_click(self, event):
@@ -285,7 +288,7 @@ class ColumnHeader(Canvas):
         if len(multicollist) > 1:
             pass
         else:
-            self.handle_left_click(event)
+            self.handle_left_click(event, allow_resize=False)
         self.rightmenu = self.popupMenu(event)
 
             # ADD THESE 3 LINES HERE
@@ -297,25 +300,16 @@ class ColumnHeader(Canvas):
     def handle_mouse_drag(self, event):
         """Handle column drag, will be either to move cols or resize"""
 
-        #  x=int(self.canvasx(event.x))
-        #  if self.atdivider == 1:
-        #      self.table.delete('resizeline')
-        #      self.delete('resizeline')
-        #      self.table.create_line(x, 0, x, self.table.rowheight*self.table.rows,
-        #                          width=2, fill='gray', tag='resizeline')
-        #      self.create_line(x, 0, x, self.height,
-        #                          width=2, fill='gray', tag='resizeline')
-        #      return
-        #  else:
-        #      w = self.table.cellwidth
-        #      self.draggedcol = self.table.get_col_clicked(event)
-        #      coords = self.coords('dragrect')
-        #      if len(coords)==0:
-        #          return
-        #      x1, y1, x2, y2 = coords
-        #      x=int(self.canvasx(event.x))
-        #      y = self.canvasy(event.y)
-        #      self.move('dragrect', x-x1-w/2, 0)
+        if self.resizecol is None:
+            return
+        x = int(self.canvasx(event.x))
+        self.delete('resizeline')
+        self.table.delete('resizeline')
+        self.create_line(x, 0, x, self.height, width=2, fill='gray',
+                         tag='resizeline')
+        self.table.create_line(x, 0, x, self.table.rowheight * self.table.rows,
+                               width=2, fill='gray', tag='resizeline')
+        self.config(cursor='sb_h_double_arrow')
 
         return
 
@@ -328,40 +322,50 @@ class ColumnHeader(Canvas):
                 return v
         return None
 
+    def getDividerCol(self, x):
+        """Return the column to the left of a nearby divider."""
+
+        count = len(self.model.df.columns)
+        boundaries = self.table.col_positions[1:count + 1]
+        if len(boundaries) != count:
+            return None
+        nearest = self.within(x, boundaries, 4)
+        return boundaries.index(nearest) if nearest is not None else None
+
+    def clearResize(self):
+        """Clear temporary resize graphics and state."""
+
+        self.delete('resizeline', 'resizesymbol')
+        self.table.delete('resizeline')
+        self.resizecol = None
+        self.resize_start_x = None
+        self.resize_start_width = None
+        self.atdivider = 0
+        self.config(cursor='')
+        return
+
     def leave(self, event):
         """Mouse left canvas event"""
         self.delete('resizesymbol')
+        if self.resizecol is None:
+            self.atdivider = 0
+            self.config(cursor='')
         return
 
     def handle_mouse_move(self, event):
         """Handle mouse moved in header, if near divider draw resize symbol"""
 
-        #  if len(self.model.df.columns) == 0:
-        #      return
-        #  self.delete('resizesymbol')
-        #  w = self.table.cellwidth
-        #  h = self.height
-        #  x_start = self.table.x_start
-        #  #x = event.x
-        #  x = int(self.canvasx(event.x))
-        #  if not hasattr(self, 'tablewidth'):
-        #      return
-        #  if x > self.tablewidth+w:
-        #      return
-        #  #if event x is within x pixels of divider, draw resize symbol
-        #  nearest = self.within(x, self.table.col_positions, 4)
-        #
-        #  if x != x_start and nearest != None:
-        #      #col = self.table.get_col_clicked(event)
-        #      col = self.table.col_positions.index(nearest)-1
-        #      self.nearestcol = col
-        #      #print (nearest,col,self.model.df.columns[col])
-        #      if col == None:
-        #          return
-        #      self.draw_resize_symbol(col)
-        #      self.atdivider = 1
-        #  else:
-        #      self.atdivider = 0
+        if self.resizecol is not None:
+            return
+        col = self.getDividerCol(self.canvasx(event.x))
+        self.delete('resizesymbol')
+        if col is None:
+            self.atdivider = 0
+            self.config(cursor='')
+        else:
+            self.atdivider = 1
+            self.draw_resize_symbol(col)
+            self.config(cursor='sb_h_double_arrow')
         return
 
     def handle_right_release(self, event):
@@ -406,19 +410,37 @@ class ColumnHeader(Canvas):
         self.table.drawMultipleCells()
         return
 
-    #  def handle_double_click(self, event):
-    #      """Double click sorts by this column. """
-    #
-    #      colclicked = self.table.get_col_clicked(event)
-    #      if self.sort_ascending == 1:
-    #          self.sort_ascending = 0
-    #      else:
-    #          self.sort_ascending = 1
-    #      self.table.sortTable(ascending=self.sort_ascending)
-    #      return
     def handle_double_click(self, event):
-        """Modified original Double click sorts by this column. """
-        self.renameColumn()
+        """Fit a column at its divider, or rename it in the header body."""
+
+        col = self.getDividerCol(self.canvasx(event.x))
+        if col is None:
+            if 0 <= self.table.currentcol < len(self.model.df.columns):
+                self.renameColumn()
+            return
+
+        self.clearResize()
+        df = self.model.df
+        if util.check_multiindex(df.columns):
+            labels = list(df.columns[col])
+        else:
+            labels = [df.columns[col]]
+        width = 0
+        # shortcut: samples 100 rows across the column; isolated outliers may be missed.
+        sample_rows = np.linspace(0, len(df) - 1, min(100, len(df)), dtype=int)
+        values = df.iloc[sample_rows, col]
+        if self.table.floatprecision and values.dtype == 'float64':
+            values = values.astype(object).apply(
+                lambda value: self.table.setPrecision(value, self.table.floatprecision))
+        for value in labels + list(values.dropna()):
+            text = str(value)
+            if text:
+                width = max(width, util.getTextLength(
+                    text, self.table.maxcellwidth, font=self.table.thefont)[0])
+        width = min(self.table.maxcellwidth,
+                    max(self.table.mincellwidth, width + 10))
+        self.table.resizeColumn(col, width)
+        self.handle_mouse_move(event)
         return
 
     #  def popupMenu(self, event):

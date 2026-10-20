@@ -20,11 +20,22 @@ except BaseException:
     from t_test import t_test_1sample
 
 def gen_table(input_list):
+    """Return a PrettyTable; widths include full-width Chinese characters.
+
+    Keep values unchanged and leave precision/column overrides to callers.
+    """
     t = PT()
     t.field_names = input_list[0]
+    t.align = 'l'
+    t.valign = 't'
     for l in input_list[1:]:
         t.add_row(l)
     return t
+
+
+def format_stat(value):
+    """报告中的数值保留三位小数，缺失或不可用值显示为 *。"""
+    return '*' if value is None or np.isnan(value) else '%.3f' % value
 
 
 def split_string(text, delimiters):
@@ -49,7 +60,6 @@ def add_Y_refs(ax, y_values=[], color='gray', linestyle='dashed', label=False,
             if draw_line:
                 ax.axhline(y, color=color, linestyle=linestyle)
             if label:
-                print("label x range", ax.get_xlim())
                 ax.text(ax.get_xlim()[1] * 1.01, y, f'{y}',
                         verticalalignment='center',
                         horizontalalignment='left',
@@ -174,28 +184,19 @@ def mean_std_CIs(data, alpha=0.05, print_out=False, print_port=print):
 
     if print_out:
         print = print_port
-        print("\n---- Confidence Intervals ----")
-        pct = "%.1f%% " % (100 - 100 * alpha)
-        print("For the population where the samples came from:\n")
-        print(
-            pct +
-            "Prob that mean is in the range of (%.3f, %.3f)" %
-            mean_2side_range)
-        print(pct + "Prob that mean is less than %.3f." % mean_1side_range[1])
-        print(
-            pct +
-            "Prob that mean is greater than %.3f.\n" %
-            mean_1side_range[0])
-        print(
-            pct +
-            "Prob that SD is in the range of (%.3f, %.3f)" %
-            std_2side_range)
-        print(pct + "Prob that SD is less than %.3f." % std_1side_range[1])
-        print(
-            pct +
-            "Prob that SD is greater than %.3f." %
-            std_1side_range[0])
-        print("SD CI method is same to JMP but different from Minitab.")
+        print("\n---- 置信区间 ----")
+        print(f"样本量 N = {len(data)}；置信水平 = {1-alpha:.1%}")
+        table = gen_table([
+            ['参数', '点估计', '双侧下限', '双侧上限', '单侧置信下限', '单侧置信上限'],
+            ['总体均值', format_stat(t_r['mean']),
+             *map(format_stat, mean_2side_range), *map(format_stat, mean_1side_range)],
+            ['总体标准差', format_stat(chi2_r['stdev']),
+             *map(format_stat, std_2side_range), *map(format_stat, std_1side_range)]])
+        table.align = 'r'
+        table.align['参数'] = 'l'
+        print(str(table))
+        print("均值采用 t 方法；标准差采用卡方方法，假定总体服从正态分布。")
+        print("置信水平指重复抽样时按此方法构造的区间覆盖总体参数的长期比例。")
     return {"std 2side": std_2side_range, "std 1side": std_1side_range,
             "mean 2side": mean_2side_range, "mean 1side": mean_1side_range}
 
@@ -254,12 +255,21 @@ def pearson_correlation(x, y, alpha=0.05, print_out=True, print_port=print):
         theta = np.arctan(x1 / y1)
 
     if print_out:
-        print("\n---- Pearson correlation alpha = %.3f ----" % alpha)
-        print("Correlation coefficient: %.3f" % r)
-        print("Confidence Interval (%.3f, %.3f)" % (lo, hi))
-        print("Covariance: %.3f" % cov)
-        print("p-value = %.3f\tN = %d" % (p, n))
-        print("P-value is the probability of there is no linear relationship betweent the two populations.")
+        print("\n---- Pearson 相关分析 ----")
+        print(f"显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}")
+        table = gen_table([
+            ['变量组合', '方法', 'N', '相关系数', 'p 值'],
+            ['X / Y', 'Pearson', n, format_stat(r), format_stat(p)]])
+        table.align = 'r'
+        table.align['变量组合'] = table.align['方法'] = 'l'
+        print(str(table))
+        table = gen_table([
+            ['协方差', '双侧置信下限 (rho)', '双侧置信上限 (rho)'],
+            [format_stat(cov), format_stat(lo), format_stat(hi)]])
+        table.align = 'r'
+        print(str(table))
+        print("原假设 H0：总体 Pearson 相关系数 ρ = 0；备择假设 H1：ρ ≠ 0。")
+        print("p 值是在原假设及检验模型成立时，得到当前或更极端检验统计量的概率。")
 
     return {"r": r, "r_l": lo, "r_u": hi, "cov": cov, "p": p, "N": n,
             "ellipse": {"a": a, "b": b, "theta": theta}}
@@ -466,10 +476,18 @@ def norm_test(data, print_out=False, print_port=print):
     s2, p2 = normal_ad(np.array(data, dtype=float))
     if print_out:
         print = print_port
-        print("\n---- Normality Test ----")
-        print(f"Shapiro-Wilk test\tstats {s1:.3f}\tp-value {p1:.3f}")
-        print(f"Anderson Darling test\tstats {s2:.3f}\tp-value {p2:.3f}")
-        print("P-value indicates the probability of sampling from a normal distributed population.")
+        print("\n---- 正态性检验 ----")
+        print(f"样本量 N = {len(data)}")
+        table = gen_table([
+            ['检验方法', '统计量', 'p 值'],
+            ['Shapiro-Wilk', format_stat(s1), format_stat(p1)],
+            ['Anderson-Darling', format_stat(s2), format_stat(p2)]])
+        table.align = 'r'
+        table.align['检验方法'] = 'l'
+        print(str(table))
+        print("原假设 H0：总体服从正态分布；备择假设 H1：总体不服从正态分布。")
+        print("未拒绝 H0 不代表证明数据正态；请结合显著性水平和有效性警告判断。")
+        print("p 值是在原假设及检验模型成立时，得到当前或更极端检验统计量的概率。")
     return {"shapiro s": s1, "shapiro p": p1, "AD s": s2, "AD p": p2}
 
 

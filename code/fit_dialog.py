@@ -1,14 +1,13 @@
 from tkinter import ttk
 import tkinter as tk
 from tkinter import TOP, LEFT, X, BOTH, W
-from prettytable import PrettyTable as PT
 ###################################
 #  from pandastable_local.dialogs import addListBox
 ########### Own Modules ###########
 from linear_plot import fit_plot, multi_fit
 from dialog import Dialogs, addListBox
 from Residual import linear_fit_resid_test
-from utilities import number_2lists, number_2Dlist
+from utilities import number_2lists, number_2Dlist, gen_table, format_stat
 from nonpara_cor import spearman, kendall, hoeffding
 
 
@@ -111,7 +110,6 @@ class LinearFitDialog(Dialogs):
         ylabel = self.yvar.get() if self.ylabel is None else self.ylabel
         #  xlabel = self.xlabel if self.xlabel != "" or self.xlabel is not None else self.xvar.get()
         #  ylabel = self.ylabel if self.ylabel != "" or self.ylabel is not None else self.yvar.get()
-        print("xlabel", xlabel, "y", ylabel)
 
         fit_plot(
             x,
@@ -242,7 +240,6 @@ class CorrelationDialog(LinearFitDialog):
         ylabel = self.yvar.get() if self.ylabel is None else self.ylabel
         #  xlabel = self.xlabel if self.xlabel != "" or self.xlabel is not None else self.xvar.get()
         #  ylabel = self.ylabel if self.ylabel != "" or self.ylabel is not None else self.yvar.get()
-        print("xlabel", xlabel, "y", ylabel)
 
         #  cor = self.cor.get()
         print_out = False
@@ -468,8 +465,8 @@ class MCorDialog(Dialogs):
 
 def print_multi_col_tables(
         data, labels, func, print_port=print, name=""):
-    t = PT(["\\"] + labels)
-    t2 = PT(["\\"] + labels)
+    t = gen_table([["\\"] + labels])
+    t2 = gen_table([["\\"] + labels])
     #  cor_res = []
     n = len(data)
     for y in range(n):
@@ -478,8 +475,8 @@ def print_multi_col_tables(
         row2 = [labels[y]]
         for x in range(n):
             r = func(data[x], data[y], print_out=False)
-            row.append("%.3f" % r["cor"])
-            row2.append("%.3f" % r["p"])
+            row.append(format_stat(r["cor"]))
+            row2.append(format_stat(r["p"]))
             res_tmp.append(r)
         #  cor_res.append(res_tmp)
         t.add_row(row)
@@ -487,8 +484,10 @@ def print_multi_col_tables(
     #  res = {"pearson": cor_res}
 
     print = print_port
-    print("\n---- " + name + " correlation coefficient ----")
+    t.align = t2.align = 'r'
+    t.align['\\'] = t2.align['\\'] = 'l'
+    print(f"\n---- {name} 相关系数矩阵（N = {len(data[0])}） ----")
     print(str(t))
-    print("\n---- " + name + " correlation p-value  ----")
+    print("\n---- " + name + " p 值矩阵 ----")
     print(str(t2))
     return

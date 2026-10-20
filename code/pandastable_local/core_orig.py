@@ -2338,6 +2338,7 @@ class Table(Canvas):
         """Resize a column by dragging"""
 
         colname = self.model.getColumnName(col)
+        width = max(self.mincellwidth, min(width, self.maxcellwidth))
         if self.colheader.wrap:
             if width < 40:
                 width = 40

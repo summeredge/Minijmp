@@ -46,7 +46,6 @@ class plot_viewer(PlotViewer):
         # frame for figure
         self.plotfr = Frame(self.m)
         # add it to the panedwindow
-        print(self.figsize)
         self.fig, self.canvas = addFigure(
             self.plotfr, figure=Figure(
                 figsize=self.figsize, dpi=100, facecolor='white'))
@@ -94,7 +93,6 @@ class plot_viewer(PlotViewer):
 
     def close(self):
         """Close the window"""
-        print('plot close')
         for table in (self.table, getattr(self.table, 'child', None)):
             if table is not None and getattr(table, 'pf', None) is self:
                 table.pf = None

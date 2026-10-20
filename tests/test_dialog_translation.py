@@ -225,7 +225,7 @@ def test_real_confirm_calls_statistics_and_invalid_input_is_chinese(tk_root):
     dialog.xvar.set('测量')
     next(w for w in widgets(dialog.main) if 'text' in w.keys() and w.cget('text') == '确定').invoke()
     assert not dialog.main.winfo_exists()
-    assert any('Mean' in str(row) for row in app.output)
+    assert any('均值' in str(row) for row in app.output)
     app.output.clear()
     from sample_test_dialog import Mean1SampleDialog
     dialog = Mean1SampleDialog(app.table, df=app.table.model.df, app=app, title='One sample mean t-test')
@@ -329,7 +329,7 @@ def test_actual_menu_commands_open_original_dialogs(tk_root):
 
 
 def test_original_analysis_code_is_unchanged():
-    """Only user-facing error constants may differ inside analysis methods."""
+    """除 G2 明确接管的两个报告 apply 外，保留原分析方法的完整 AST 守卫。"""
     import subprocess
     class ErrorsToMarker(ast.NodeTransformer):
         def visit_Call(self, node):
@@ -346,12 +346,28 @@ def test_original_analysis_code_is_unchanged():
     for path in paths:
         file = 'code/' + str(path).replace('\\','/') + '.py'
         baseline = subprocess.check_output(['git','show','87281643b7fd0caaedb50ff561720b221c489a07:' + file]).decode('utf-8')
+        debug_lines = {
+            'code/basic_dialogs.py': ('        print(x)\n', 1),
+            'code/ctrlchart_dialog.py': ('        print(NP)\n', 1),
+            'code/fit_dialog.py': ('        print("xlabel", xlabel, "y", ylabel)\n', 2),
+        }
+        if file in debug_lines:
+            statement, count = debug_lines[file]
+            assert baseline.count(statement) == count, file
+            baseline = baseline.replace(statement, '')
         current = (ROOT / file).read_text(encoding='utf-8')
         def methods(source):
             tree = ErrorsToMarker().visit(ast.parse(source))
             return {c.name + '.' + m.name: ast.dump(m, include_attributes=False) for c in tree.body if isinstance(c, ast.ClassDef)
                     for m in c.body if isinstance(m, ast.FunctionDef) and m.name in ('apply','ok','preview','get_values','get_box_settings','get_histo_setting')}
-        assert methods(current) == methods(baseline), file
+        actual, original = methods(current), methods(baseline)
+        if file == 'code/basic_dialogs.py':
+            # 两个输出编排由 G2 逐入口数据、清洗及百分位数测试保护。
+            for method in ('DescribeDialog.apply', 'MultiDescribeDialog.apply'):
+                assert method in actual and method in original
+                actual.pop(method)
+                original.pop(method)
+        assert actual == original, file
 
 
 @pytest.mark.skipif(sys.platform != 'win32', reason='验证 Windows Tk 中文字体回退')

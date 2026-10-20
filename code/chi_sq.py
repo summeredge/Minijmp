@@ -34,30 +34,27 @@ def chi2_test_stdev(data_list, s0, print_out=False, alpha=0.05,
     pct = "%.2f%%" % (100 - alpha * 100)
 
     if print_out:
+        from utilities import gen_table, format_stat
         print = print_port
-        print("Population SD: %.2f\nSampled SD: %.2f" % (s0, stdev))
-        print("df = %d" % df)
-        print("chi square = %.2f" % chi_sq)
-        print("Prob of variation is greater than the sample. p = %.2f" % p)
-        print(
-            "Lower %.2f%% Chi square = %.2f  Top %.2f%% Chi square = %.2f" %
-            (alpha * 50, chi2_low0025, alpha * 50, chi2_high0975))
-        print(
-            pct +
-            " confidence range of SD: (%.2f, %.2f), when sampling %d times from a population with SD of %.2f." %
-            (stdev_range_low,
-             stdev_range_high,
-             df +
-             1,
-             s0))
-        print(
-            pct +
-            " confidence range of the population SD: (%.2f, %.2f), where the samples came from." %
-            std_range_from_S)
-        print(
-            pct +
-            " confidence the population SD lower than %.2f, where the samples came from." %
-            std_from_S_high95)
+        print("\n---- 单样本标准差卡方检验 ----")
+        print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+        print(f'原假设 H0: σ = σ0；σ0 = {format_stat(s0)}；假定总体服从正态分布。')
+        for title, rows in [
+            ('样本统计', [['样本', 'N', '标准差'], ['样本', df + 1, format_stat(stdev)]]),
+            ('检验结果', [['检验', '备择假设 H1', '卡方统计量', '自由度', 'p 值'],
+                          ['右尾', 'sigma > sigma0', format_stat(chi_sq), df, format_stat(p)]]),
+            ('总体标准差的置信区间', [['区间', '下限', '上限'],
+                          ['双侧置信区间', format_stat(std_range_from_S[0]), format_stat(std_range_from_S[1])],
+                          ['单侧置信上限', '*', format_stat(std_from_S_high95)]]),
+            ('抽样分布参考（不是总体参数的置信区间）', [['项目', '下限', '上限'],
+                          ['卡方分位点 (alpha/2, 1-alpha/2)', format_stat(chi2_low0025), format_stat(chi2_high0975)],
+                          ['样本标准差的抽样分布中央区间', format_stat(stdev_range_low), format_stat(stdev_range_high)]])]:
+            print(title)
+            table = gen_table(rows)
+            table.align = 'r'
+            table.align[table.field_names[0]] = 'l'
+            print(str(table))
+        print('p 值保留三位小数，0.000 为舍入显示。')
 
     return {
         "p": p,
@@ -367,17 +364,27 @@ def chi2_var_1sample(data=None, sample_n=None, sample_std=None,
     p = 2 * min(p_l, p_u)
 
     if print_out:
+        from utilities import gen_table, format_stat
         print = print_port
-        pct = "%.2f%%" % (100 - 100 * alpha)
-        print("\n---- 1 Sample SD test ----")
-        print("N = %d\tstd = %.3f" % (n, std))
-        print("s0 = %.3f" % s0)
-        print("H0 s==s0, H1 s!=s0: p = %.3f" % p)
-        print("Chi sq CI " + pct + " (%.3f, %.3f)" % CI_95)
-        print("H0 s==s0, H1 s>s0: p = %.3f" % p_l)
-        print(pct + " Upper bound chi sq of population std: %.3f" % CI_u)
-        print("H0 s==s0, H1 s>s0: p = %.3f" % p_u)
-        print(pct + " Lower bound chi sq of population std: %.3f" % CI_l)
+        print("\n---- 单样本标准差卡方检验 ----")
+        print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+        print(f'原假设 H0: σ = σ0；σ0 = {format_stat(s0)}；卡方方法假定总体服从正态分布。')
+        for title, rows in [
+            ('样本统计', [['样本', 'N', '标准差'], ['样本', n, format_stat(std)]]),
+            ('检验结果', [['检验', '备择假设 H1', '卡方统计量', '自由度', 'p 值'],
+                          ['双侧', 'sigma != sigma0', format_stat(chi_sq), df, format_stat(p)],
+                          ['左尾', 'sigma < sigma0', format_stat(chi_sq), df, format_stat(p_l)],
+                          ['右尾', 'sigma > sigma0', format_stat(chi_sq), df, format_stat(p_u)]]),
+            ('总体标准差的置信区间', [['区间', '下限', '上限'],
+                          ['双侧置信区间', format_stat(CI_95[0]), format_stat(CI_95[1])],
+                          ['单侧置信下限', format_stat(CI_l), '*'],
+                          ['单侧置信上限', '*', format_stat(CI_u)]])]:
+            print(title)
+            table = gen_table(rows)
+            table.align = 'r'
+            table.align[table.field_names[0]] = 'l'
+            print(str(table))
+        print('p 值保留三位小数，0.000 为舍入显示。')
     return {
         "p": p, "n": n,
         "df": df,
@@ -402,21 +409,30 @@ def var_1sample(data=None, sample_n=None, sample_std=None,
             bonett_res = b_res
     res = {**chi2_res, **bonett_res}
     if print_out:
+        from utilities import gen_table, format_stat
         print = print_port
-        print("\n---- 1 sample standard deviation test ----")
-        print("N = %d\tSD: s = %.3f" % (chi2_res['n'], chi2_res['stdev']))
-        print("s0 = %.3f" % s0)
-        t = PT()
-        t.field_names = [' ', 'Chi Sq', 'Bonett']
-        t.add_row(['P-value *', "%.3f" % chi2_res['p'], "%.3f" % bonett_res['Bonett p']])
-        pct = "%.1f%%" % (100 - 100 * alpha)
-        t.add_row(['SD CI ' + pct, '(%.3f, %.3f)' % chi2_res['CI 95'], '(%.3f, %.3f)' % bonett_res['Bonett CI']])
-        t.add_row([pct + ' upper bound', "%.3f" % chi2_res['CI upper'], "%.3f" % bonett_res['One tail upper boundary']])
-        t.add_row([pct + ' lower bound', "%.3f" % chi2_res['CI lower'], "%.3f" % bonett_res['One tail lower boundary']])
-        print(str(t))
-        print("* H0 s==s0, H1 s!=s0")
-        print("The Bonett method is valid for any continuous distribution.")
-        print("The chi-square method is valid only for the normal distribution.")
+        print("\n---- 单样本标准差检验 ----")
+        print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
+        print(f'原假设 H0: σ = σ0；σ0 = {format_stat(s0)}；备择假设 H1: σ ≠ σ0')
+        for title, rows in [
+            ('样本统计', [['样本', 'N', '标准差'],
+                          ['样本', chi2_res['n'], format_stat(chi2_res['stdev'])]]),
+            ('检验结果（双侧）', [['方法', 'p 值'],
+                          ['卡方', format_stat(chi2_res['p'])],
+                          ['Bonett', format_stat(bonett_res['Bonett p'])]]),
+            ('总体标准差的置信区间', [['方法', '双侧下限', '双侧上限', '单侧置信下限', '单侧置信上限'],
+                          ['卡方', format_stat(chi2_res['CI 95'][0]), format_stat(chi2_res['CI 95'][1]),
+                           format_stat(chi2_res['CI lower']), format_stat(chi2_res['CI upper'])],
+                          ['Bonett', format_stat(bonett_res['Bonett CI'][0]), format_stat(bonett_res['Bonett CI'][1]),
+                           format_stat(bonett_res['One tail lower boundary']), format_stat(bonett_res['One tail upper boundary'])]])]:
+            print(title)
+            table = gen_table(rows)
+            table.align = 'r'
+            table.align[table.field_names[0]] = 'l'
+            print(str(table))
+        print("Bonett 方法不要求总体服从正态分布，属于近似推断；小样本或重尾分布需谨慎。")
+        print("卡方方法假定总体服从正态分布。")
+        print('p 值保留三位小数，0.000 为舍入显示。')
     return res
 
 

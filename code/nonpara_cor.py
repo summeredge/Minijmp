@@ -1,6 +1,16 @@
 import numpy as np
 from scipy import stats
 from scipy.stats import rankdata
+from utilities import gen_table, format_stat
+
+
+def print_correlation(method, n, coefficient, p, print_port):
+    print_port(f'\n---- {method} 相关分析 ----')
+    table = gen_table([['变量组合', '方法', 'N', '相关系数', 'p 值'],
+                       ['X / Y', method, n, format_stat(coefficient), format_stat(p)]])
+    table.align = 'r'
+    table.align['变量组合'] = table.align['方法'] = 'l'
+    print_port(str(table))
 
 
 def spearman(x, y, print_out=False, print_port=print):
@@ -9,10 +19,9 @@ def spearman(x, y, print_out=False, print_port=print):
     spearman_result = stats.spearmanr(x, y)
     if print_out:
         print = print_port
-        print("\n---- Spearman's rho Correlation ----")
-        print("Spearman's rho correlation: " + "%.3f" % spearman_result.correlation)
-        print("Spearman's rho p-value: " + "%.3f" % spearman_result.pvalue)
-        print("H0: The population Spearman's rho = 0, which means no monotonic relationship between the two variables.")
+        print_correlation('Spearman', len(x), spearman_result.correlation,
+                          spearman_result.pvalue, print_port)
+        print("原假设 H0：总体 Spearman 秩相关系数 ρs = 0；备择假设 H1：ρs ≠ 0。秩相关系数为零不等同于变量独立。")
     return {"cor": spearman_result.correlation, "p": spearman_result.pvalue}
 
 
@@ -23,10 +32,9 @@ def kendall(x, y, print_out=False, print_port=print):
     kendall_result = stats.kendalltau(x, y)
     if print_out:
         print = print_port
-        print("\n---- Kendall's tau Correlation ----")
-        print("Kendall's tau: " + "%.3f" % kendall_result.correlation)
-        print("Kendall's tau p-value: " + "%.3f" % kendall_result.pvalue)
-        print("H0: The population Kendall's tau = 0, which means no monotonic association between the two variables.")
+        print_correlation('Kendall', len(x), kendall_result.correlation,
+                          kendall_result.pvalue, print_port)
+        print("原假设 H0：总体 Kendall 秩相关系数 τ = 0；备择假设 H1：τ ≠ 0。秩相关系数为零不等同于变量独立。")
     return {"cor": kendall_result.correlation, "p": kendall_result.pvalue}
 
 
@@ -147,10 +155,8 @@ def hoeffding(x, y, print_out=False, print_port=print):
     p = phoeffd(D, len(x))
     if print_out:
         print = print_port
-        print("\n---- Hoeffding's D Correlation ----")
-        print("Hoeffding's D: " + "%.3f" % D)
-        print("Hoeffding's D p-value: " + "%.3f" % p)
-        print("H0: The two variables are independent.")
+        print_correlation("Hoeffding's D", len(x), D, p, print_port)
+        print("原假设 H0：两变量独立；备择假设 H1：两变量不独立。")
         #  print("
     return {"cor": D, "p": p}
 
