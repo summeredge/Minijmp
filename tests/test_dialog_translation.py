@@ -12,6 +12,7 @@ import pytest
 
 import MiniJMP
 from modified_app import Minijmp_pre
+from dialog import Dialogs
 
 ROOT = Path(__file__).resolve().parents[1]
 TREE = ast.parse((ROOT / 'code/MiniJMP.py').read_text(encoding='utf-8'))
@@ -20,7 +21,9 @@ for method in next(n for n in TREE.body if isinstance(n, ast.ClassDef)).body:
     if not isinstance(method, ast.FunctionDef):
         continue
     for n in ast.walk(method):
-        if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id.endswith('Dialog'):
+        if (isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
+                and isinstance(getattr(MiniJMP, n.func.id, None), type)
+                and issubclass(getattr(MiniJMP, n.func.id), Dialogs)):
             title = next(k.value.value for k in n.keywords if k.arg == 'title')
             CALLS.append((method.name, n.func.id, title))
 

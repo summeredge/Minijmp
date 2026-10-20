@@ -187,3 +187,10 @@ $python = 'C:\Users\shaoy\Documents\PythonEnvs\minijmp\Scripts\python.exe'
 - 修复后执行 `tests/test_dialog_translation.py`：**119 passed、0 failed**，两条既有绘图依赖弃用警告。基线 fixture 未改。
 - 在内存中分别模拟量具方法绑定到错误变量、缺失显示映射，两种回归均触发增强测试的断言失败；实验结束即恢复，未修改项目文件。
 - 本轮只改 `code/ctrlchart_dialog.py`、`tests/test_dialog_translation.py` 和本文档；未提交、推送或合并。
+
+## main 整合验证
+
+- 用户随后授权合并到 main，本任务变更已提交。先在 `codex/dialog-zh-cn` 整合 main 的 `c3afc9b`（离线帮助与 PI 导入），自动合并公共 `dialog.py`，保留离线帮助入口及 F1 绑定。
+- 测试入口收集改为按 `Dialogs` 实际继承关系识别统计参数窗口，避免将新增的 PI 导入窗口误当成本次目标；原有统计参数弹窗覆盖不减少。
+- 整合后执行本地化、离线帮助、PI 导入/读取、统计及边界回归六个测试文件：**233 passed、0 failed**，9 条既有警告。
+- 合入 main 前记录其主菜单汉化任务的 6 个未提交文件及 SHA-256，本次合并不包含这些修改，不执行远端推送。
