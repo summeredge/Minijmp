@@ -1,4 +1,5 @@
 from scipy.stats import binom
+from chart_style import style_axes
 
 
 def binomial(n, p, x=None, pvalue=None, print_out=False, print_port=print, ax=None, grid=True, color='black'):
@@ -120,6 +121,7 @@ def binomial(n, p, x=None, pvalue=None, print_out=False, print_port=print, ax=No
         except BaseException:
             pass
         ax.legend(loc='best', frameon=True)
+        style_axes(ax)
 
     return res
 

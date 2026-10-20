@@ -1,4 +1,5 @@
 from scipy.stats import poisson as ps
+from chart_style import style_axes
 
 
 def poisson(mu, x=None, pvalue=None, print_out=False, print_port=print, ax=None, grid=True, color='black'):
@@ -132,6 +133,7 @@ def poisson(mu, x=None, pvalue=None, print_out=False, print_port=print, ax=None,
         except BaseException:
             pass
         ax.legend(loc='best', frameon=True)
+        style_axes(ax)
 
         return res
 

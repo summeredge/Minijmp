@@ -36,6 +36,7 @@ try:
 except ImportError:
     from pandas.tools import plotting
 import matplotlib as mpl
+from chart_style import font_families
 #mpl.use("TkAgg")
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -1719,7 +1720,7 @@ class PlotViewer(Frame):
         if filename:
             self.currentdir = os.path.dirname(os.path.abspath(filename))
             dpi = self.globalopts['dpi']
-            self.fig.savefig(filename, dpi=dpi)
+            self.fig.savefig(filename, dpi=dpi, bbox_inches='tight')
         return
 
     def showWarning(self, text='plot error', ax=None):
@@ -1900,7 +1901,7 @@ class MPLBaseOptions(TkOptions):
 
         TkOptions.applyOptions(self)
         size = self.kwds['fontsize']
-        plt.rc("font", family=self.kwds['font'], size=size)
+        plt.rc("font", family=font_families(self.kwds['font']), size=size)
         plt.rc('legend', fontsize=size-1)
         return
 
@@ -2535,5 +2536,6 @@ def addFigure(parent, figure=None, resize_callback=None):
     canvas.get_tk_widget().configure(highlightcolor='gray75',
                                    highlightbackground='gray75')
     #canvas._tkcanvas.pack(side=TOP, fill=BOTH, expand=1)
-    figure.subplots_adjust(bottom=0.15)
+    if figure.get_layout_engine() is None:
+        figure.subplots_adjust(bottom=0.15)
     return figure, canvas

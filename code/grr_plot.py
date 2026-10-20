@@ -1,6 +1,7 @@
 from seaborn import stripplot
 import matplotlib.pyplot as plt
 import pandas as pd
+from chart_style import style_axes
 
 
 def create_inset_grid(ax, n):
@@ -13,7 +14,7 @@ def create_inset_grid(ax, n):
         x0 = j * inset_size
         #  y0 = 1 - (i + 1) * inset_size
         inset_ax = ax.inset_axes(
-            [x0, 0, inset_size, 1], transform=ax.transAxes)
+            [x0 + inset_size * 0.04, 0, inset_size * 0.92, 1], transform=ax.transAxes)
 
         #  Example plot for each inset
         #  x = np.linspace(0, 10, 100)
@@ -47,10 +48,12 @@ def grr_plot(y=None, part=None, op=None,
 
     if ax is None:  # or fig is None:
         # n - 1, n - 1)  # , sharex=True, sharey=True)
-        _, ax = plt.subplots(1)
+        _, ax = plt.subplots(1, layout='constrained')
 
     if op is None:
         subplot(df, ax)
+        ax.set_ylabel(ylabel)
+        style_axes(ax)
     else:
         top = max(y) + (max(y) - min(y)) / 10
         bottom = min(y) - (max(y) - min(y)) / 10
@@ -65,5 +68,7 @@ def grr_plot(y=None, part=None, op=None,
             subax.set_ylabel("")
         axs[0].set_ylabel(ylabel)
         axs[0].tick_params(axis='y', which='both', left=True, labelleft=True)
+        for subax in axs:
+            style_axes(subax)
 
     return

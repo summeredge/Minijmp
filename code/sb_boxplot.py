@@ -1,6 +1,7 @@
 import seaborn as sb
 #  import numpy as np
 from matplotlib import pyplot as plt
+from chart_style import style_axes
 ########## Own Modules ###########
 from utilities import add_Y_refs
 
@@ -12,7 +13,7 @@ def single_boxplot(xlabel=None, y_max=None, y_min=None, grid=False,
                    y_ref=None, add_swarm=False, **kwargs):
 
     if ax is None:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(layout="constrained")
     if not hide_box:
         sb.boxplot(ax=ax, zorder=2, whis=whis,
                    fliersize=0 if add_swarm else fliersize,
@@ -30,6 +31,7 @@ def single_boxplot(xlabel=None, y_max=None, y_min=None, grid=False,
     if grid:
         ax.grid(grid, zorder=1)
     add_Y_refs(ax, y_values=y_ref, label=show_y_ref_label)
+    style_axes(ax)
     return
 
 
@@ -41,7 +43,7 @@ def multi_boxplot(xlabel=None, y_max=None, y_min=None, grid=False,
                   y_ref=None, add_swarm=False, **kwargs):
 
     if ax is None:
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(layout="constrained")
     if not hide_box:
         sb.boxplot(ax=ax, zorder=2, whis=whis,  # fill=(not add_swarm),
                    palette=palette,
@@ -62,4 +64,5 @@ def multi_boxplot(xlabel=None, y_max=None, y_min=None, grid=False,
     if grid:
         ax.grid(grid, zorder=1)
     add_Y_refs(ax, y_values=y_ref, label=show_y_ref_label)
+    style_axes(ax)
     return
