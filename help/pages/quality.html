@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>质量分析帮助 | Minijmp</title>
+  <link rel="stylesheet" href="../assets/content.css">
+</head>
+<body>
+<main>
+  <h1>质量分析</h1>
+  <p>本页按 Minijmp 当前实现说明 14 个质量分析窗口。能力分析比较数据与规格限；控制图用控制限监视过程稳定性，两类限值用途不同。</p>
+
+  <nav class="page-toc" aria-label="本页目录">
+    <a href="#quality.grr_crossed">交叉 Gage R&amp;R</a>
+    <a href="#quality.grr_nested">嵌套 Gage R&amp;R</a>
+    <a href="#quality.capability">过程能力</a>
+    <a href="#quality.capability_subgroups">含子组的过程能力</a>
+    <a href="#quality.tolerance_interval">正态公差区间</a>
+    <a href="#quality.control_chart_imr">I/MR 图</a>
+    <a href="#quality.control_chart_i">I 图</a>
+    <a href="#quality.control_chart_mr">MR 图</a>
+    <a href="#quality.control_chart_xbar_r">Xbar-R 图</a>
+    <a href="#quality.control_chart_xbar_s">Xbar-S 图</a>
+    <a href="#quality.control_chart_np">NP 图</a>
+    <a href="#quality.control_chart_p">P 图</a>
+    <a href="#quality.control_chart_c">C 图</a>
+    <a href="#quality.control_chart_u">U 图</a>
+  </nav>
+
+  <section class="topic" id="quality.grr_crossed">
+    <h2>交叉 Gage R&amp;R</h2>
+    <p><strong>用途：</strong>估计测量系统的重复性、再现性，以及零件之间的变差。</p>
+    <ul>
+      <li><strong>数据：</strong>选择数值型测量列、零件列和操作员列。操作员列可留空；留空时按无操作员因素分析。零件和操作员按类别处理。</li>
+      <li><strong>方法：</strong>可选 AIAG (ANOVA)、EMP (ANOVA) 或 XBAR/R，默认 AIAG (ANOVA)。交互项可选 Auto、On、Off，默认 Auto；Auto 在 ANOVA 方法下按显著性分析决定是否保留交互项，Alpha 默认 0.05。XBAR/R 不使用交互项或 Alpha 判定。</li>
+      <li><strong>可选输入：</strong>USL - LSL 是一个公差宽度值，不是分别输入上下规格限；Historical SD 是已知的过程总标准差。Y Label 为空时使用测量列名。</li>
+    </ul>
+    <p><strong>操作：</strong>选测量、零件和（如有）操作员列，选择方法与交互项；按需填写公差宽度、历史标准差和 Alpha，然后运行。</p>
+    <p><strong>结果：</strong>按所选方法显示方差来源和量具评估。AIAG 与 XBAR/R 还显示研究变差、方差贡献及 NDC；有公差宽度或历史 SD 时，相关方法会给出对应的比例列。窗口同时绘制测量分布图。</p>
+    <p><strong>注意：</strong>试验应采用交叉且平衡的设计：每位操作员测量每个零件，且每个“操作员 × 零件”组合的重复次数相同；建议随机安排测量顺序。嵌套试验请使用下方的嵌套分析。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/measurement-system-analysis/how-to/gage-study/crossed-gage-r-r-study/interpret-the-results/key-results/" target="_blank" rel="noopener noreferrer">Minitab 官方帮助：交叉量具 R&amp;R 结果解读</a>（外部概念参考；Minijmp 的方法和选项以本页为准）。</p>
+  </section>
+
+  <section class="topic" id="quality.grr_nested">
+    <h2>嵌套 Gage R&amp;R</h2>
+    <p><strong>用途：</strong>用于零件不能被不同操作员重复测量的嵌套设计，例如破坏性测量。每个零件只归属一位操作员，不能估计操作员与零件交互作用。</p>
+    <ul>
+      <li><strong>数据：</strong>选择数值型测量列、零件列和操作员列；测量值为数值，零件与操作员为类别。至少需要两位操作员、每位至少两个零件、每个零件至少两次重复测量；设计需平衡。</li>
+      <li><strong>可选输入：</strong>Historical Process (total) Std Dev 填入已知过程总标准差；留空时由本次数据估计。</li>
+    </ul>
+    <p><strong>操作：</strong>按嵌套关系选择三列，确认各操作员下的零件数和重复数一致；需要时输入历史总标准差，再运行。</p>
+    <p><strong>结果：</strong>输出嵌套 ANOVA 表（操作员、零件(操作员)、重复性）、方差分量、标准差评估、P 值和 NDC。历史标准差可能影响零件间变差的估计。</p>
+    <p><strong>注意：</strong>有效测量行还需至少 4 条；每个零件标签只能属于一位操作员。无法满足这些设计条件时，分析会报错。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/measurement-system-analysis/how-to/gage-study/nested-gage-r-r-study/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab 嵌套量具 R&amp;R 概述</a>（外部概念参考；具体对话框选项以 Minijmp 为准）。</p>
+  </section>
+
+  <section class="topic" id="quality.capability">
+    <h2>过程能力</h2>
+    <p><strong>用途：</strong>评估未分组的连续测量数据相对于上下规格限的能力；计算假定数据近似正态。</p>
+    <ul>
+      <li><strong>数据与规格：</strong>选择测量列，输入 LSL、Target、USL，需满足 LSL &lt; Target &lt; USL。Target 初值为 0；若保持为 0 且 LSL &lt; USL，程序会提示并以两规格限中点代入。</li>
+      <li><strong>参数：</strong>Alpha 默认 0.05，用于能力指数置信区间。Show within sigma 默认关闭；开启后按相邻观测的两点移动极差估计组内变差，数据应按时间或生产顺序排列。X Label 默认使用测量列名；Show Spec Limits 与 Show Legend 默认开启。</li>
+    </ul>
+    <p><strong>操作：</strong>选测量列，输入规格限和目标；若数据有顺序且要估计组内能力，再开启 Show within sigma，设置 Alpha 后运行。</p>
+    <p><strong>结果：</strong>显示总体能力指数 Cp、Cpk、Cpu、Cpl、Cpm 及其置信区间、观测与正态模型估计的不合格比例，并绘制直方图和正态拟合曲线；开启组内估计后还显示组内指数和曲线。</p>
+    <p><strong>注意：</strong>规格限是产品要求；本分析不提供非正态分布选项。图上的规格线只是标记，不是控制限。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-analysis/normal-capability-analysis/methods-and-formulas/potential-capability/" target="_blank" rel="noopener noreferrer">Minitab 官方帮助：潜在能力指标</a>（外部概念参考；Minijmp 的显示项以本页为准）。</p>
+  </section>
+
+  <section class="topic" id="quality.capability_subgroups">
+    <h2>含子组的过程能力</h2>
+    <p><strong>用途：</strong>在总体能力之外估计子组内变差，适合按批次、班次、设备等分组的连续测量数据；计算假定数据近似正态。</p>
+    <ul>
+      <li><strong>数据与规格：</strong>选择测量列并输入 LSL、Target、USL，需满足 LSL &lt; Target &lt; USL。与普通过程能力窗口不同，这里不会把零目标自动替换为规格中点。</li>
+      <li><strong>分组：</strong>Option 默认 Use Subgrp Size，Subgroup Size 默认 2，按数据顺序切分；也可选 Use Subgrp ID Col. 并指定 ID Col.，按类别列分组，此时不使用组大小设置。</li>
+      <li><strong>组内变差：</strong>默认 Unbiased Std Dev，也可选 Ranges。Alpha 默认 0.05；X Label 为空时使用测量列名；Show Spec Limits 和 Show Legend 默认开启。</li>
+    </ul>
+    <p><strong>操作：</strong>选择测量列和一种分组方式，检查组内变差估计方法，输入规格限及目标，再运行。</p>
+    <p><strong>结果：</strong>显示组内与总体能力指数、置信区间、样本和子组数、稳定性指数及不合格比例；图中叠加总体和组内拟合曲线。</p>
+    <p><strong>注意：</strong>组大小方式按当前行顺序切分；末组不完整时会提示不平衡。按 ID 分组时应确保标签代表有意义的过程子组。规格限仍是产品要求，不是控制限。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-analysis/normal-capability-analysis/methods-and-formulas/potential-capability/" target="_blank" rel="noopener noreferrer">Minitab 过程能力指标概念说明</a>（概念参考；分组方式和参数以 Minijmp 为准）。</p>
+  </section>
+
+  <section class="topic" id="quality.tolerance_interval">
+    <h2>正态公差区间</h2>
+    <p><strong>用途：</strong>估计总体中至少指定比例的数据可能落入的区间，并给出相应置信度。计算假定总体服从正态分布。</p>
+    <ul>
+      <li><strong>样本：</strong>可选 Sample Values 数值列；也可填写汇总数据 N、SD、Mean。三项汇总值都填入时使用汇总值；缺少任一项时使用样本列。</li>
+      <li><strong>参数：</strong>Specify Proportion to cover 默认 0.90；Alpha 默认 0.05，对应 95% 置信度。</li>
+    </ul>
+    <p><strong>操作：</strong>选择样本列，或同时填写 N、SD、Mean；设置覆盖比例和 Alpha 后运行。</p>
+    <p><strong>结果：</strong>分别给出双侧公差区间，以及单侧下限和单侧上限。覆盖比例表示目标总体覆盖率，置信度由 1 − Alpha 决定。</p>
+    <p><strong>注意：</strong>仅实现正态分布算法；它回答的是总体中指定比例落在哪个范围，不等同于均值置信区间或单个未来观测的预测区间。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/quality-tools/how-to/tolerance-intervals-normal-distribution/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab 官方帮助：正态公差区间概述</a>（外部概念参考；Minijmp 的参数以本页为准）。</p>
+  </section>
+
+  <aside class="note">
+    <p><strong>共同说明：</strong>控制图的中心线与 UCL/LCL 用于判断过程稳定性，不是产品规格限；额外填写的 Y 参考线只作图示标记，不参与限值计算。变量图按 3 个标准差计算控制限；All SD lines 默认关闭，只影响变量图。历史均值和 SD 留空时由当前数据估计，填入时可分别指定；这两个字段在 NP、P、C、U 图中虽显示但当前计算不使用。Pooled SD 只用于 Xbar-R/S 图。当前控制图绘制数据和控制限，不执行 Western Electric 等运行规则判定。</p>
+    <p>变量图和属性图均可设置 X Label、Axis Label Col.、Max Axes Labels（默认 25）、Y Label 和 Y 参考线。横轴标签列用于显示批次或时间等标签；不要将其与测量列或子组 ID 混淆。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/" target="_blank" rel="noopener noreferrer">Minitab 官方帮助首页</a>（具体菜单、参数和实现以 Minijmp 为准）。</p>
+  </aside>
+
+  <section class="topic" id="quality.control_chart_imr">
+    <h2>I/MR 图</h2>
+    <p><strong>用途：</strong>对按时间顺序记录的单个连续测量值，同时观察个体值和相邻观测的移动极差。</p>
+    <ul>
+      <li><strong>数据：</strong>Values 选择数值测量列；可选 Moving Range 窗口，默认 2。</li>
+      <li><strong>参数：</strong>Process Mean 和 Process SD 为可选历史值；All SD lines 默认关闭。X Label、Axis Label Col.、Max Axes Labels、两张图各自的 Y Label 和 Y 参考线用于显示设置。</li>
+    </ul>
+    <p><strong>操作：</strong>确保测量列按采集顺序排列，选 Values；有历史参数或时间标签时再填写，然后运行。</p>
+    <p><strong>结果：</strong>上图为 Individuals，下图为 Moving Range；分别显示中心线和控制限，并在文本结果中列出 LCL、Center、UCL。</p>
+    <p><strong>注意：</strong>移动极差窗口至少为 2；小于 2 或大于数据长度时，计算会回退到 2。先查看移动极差是否稳定，再解释个体值图。不要把控制限当作规格限。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/variables-charts-for-individuals/i-mr-chart/interpret-the-results/all-statistics-and-graphs/" target="_blank" rel="noopener noreferrer">Minitab 官方帮助：I-MR 图统计量与图形</a>（外部概念参考；控制图选项以 Minijmp 为准）。</p>
+  </section>
+
+  <section class="topic" id="quality.control_chart_i">
+    <h2>I 图</h2>
+    <p><strong>用途：</strong>只显示个体值控制图，适用于按顺序记录的单个连续测量值。</p>
+    <ul>
+      <li><strong>数据：</strong>Values 选择测量列。该窗口未提供可编辑的移动极差大小；组内标准差估计固定使用相邻两点。</li>
+      <li><strong>参数：</strong>可选历史 Process Mean、Process SD；All SD lines 默认关闭。横轴标签、最多显示的刻度数、Y Label 和 Y 参考线可调整。</li>
+    </ul>
+    <p><strong>操作：</strong>按时间顺序准备数据，选择 Values；按需设置历史参数和图形标签后运行。</p>
+    <p><strong>结果：</strong>显示个体值及中心线、控制限，并输出 LCL、Center、UCL 汇总；不绘制移动极差图。</p>
+    <p><strong>注意：</strong>虽然只显示 I 图，限值估计仍使用相邻两点移动极差。控制限用于过程稳定性分析，不是规格限。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/variables-charts-for-individuals/i-mr-chart/interpret-the-results/all-statistics-and-graphs/" target="_blank" rel="noopener noreferrer">Minitab 个体值控制图概念说明</a>（Minijmp 的 I 图限值按本页说明计算）。</p>
+  </section>
+
+  <section class="topic" id="quality.control_chart_mr">
+    <h2>MR 图</h2>
+    <p><strong>用途：</strong>只显示连续测量值的移动极差图，用相邻窗口的范围观察短期波动。</p>
+    <ul>
+      <li><strong>数据：</strong>Values 选择按顺序记录的数值测量列；Moving Range 窗口默认 2，可编辑。</li>
+      <li><strong>参数：</strong>可选历史 Process Mean、Process SD；All SD lines 默认关闭。可调整横轴标签、Y Label 和 Y 参考线。</li>
+    </ul>
+    <p><strong>操作：</strong>选择 Values 和移动极差窗口，按需设置标签及历史参数后运行。</p>
+    <p><strong>结果：</strong>绘制各连续窗口的极差、中心线和控制限，并输出 LCL、Center、UCL 汇总；不绘制个体值图。</p>
+    <p><strong>注意：</strong>窗口大小至少为 2；超出数据长度时程序改用 2。数据行顺序必须对应实际采集顺序。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/variables-charts-for-individuals/i-mr-chart/interpret-the-results/all-statistics-and-graphs/" target="_blank" rel="noopener noreferrer">Minitab 移动极差控制图概念说明</a>（Minijmp 的 MR 图限值按本页说明计算）。</p>
+  </section>
+
+  <section class="topic" id="quality.control_chart_xbar_r">
+    <h2>Xbar-R 图</h2>
+    <p><strong>用途：</strong>用子组均值和子组极差监视连续数据的过程中心与组内波动。</p>
+    <ul>
+      <li><strong>数据：</strong>Values 选择测量列；通过 Grouping By 的 Size 按行顺序分组，或选择 ID Col. 按类别分组。Size 留空时使用 ID Col.。</li>
+      <li><strong>参数：</strong>每组至少 2 个值，R 图每组最多 25 个值。Pooled SD 默认关闭；可选历史 Process Mean、Process SD。All SD lines 默认关闭；X Label、轴标签列、最多标签数、两张图的 Y Label 和参考线可调整。</li>
+    </ul>
+    <p><strong>操作：</strong>选测量列和一种分组方式，确认每组数据顺序与样本归属，再运行。</p>
+    <p><strong>结果：</strong>上图显示 Xbar，下图显示 Range；各图给出中心线和控制限汇总。若子组大小不同，限值可能按组变化。</p>
+    <p><strong>注意：</strong>Size 模式按当前行顺序切分。建议采用一致的子组设计；末组不足时会产生不平衡提示或因组内数据不足而无法计算。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/variables-charts-for-subgroups/xbar-r-chart/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab Xbar-R 控制图概述</a>（分组和选项以 Minijmp 为准）。</p>
+  </section>
+
+  <section class="topic" id="quality.control_chart_xbar_s">
+    <h2>Xbar-S 图</h2>
+    <p><strong>用途：</strong>以子组均值和子组标准差监视连续过程，适用于以标准差刻画组内变差的子组数据。</p>
+    <ul>
+      <li><strong>数据：</strong>Values 选择测量列；用 Size 按行顺序分组，或用 ID Col. 按类别分组。每组至少 2 个观测。</li>
+      <li><strong>参数：</strong>Pooled SD 默认关闭；可选历史 Process Mean、Process SD。All SD lines 默认关闭；横轴标签、标签数量、两张图的 Y Label 和参考线可调整。</li>
+    </ul>
+    <p><strong>操作：</strong>按采集顺序准备同一子组的连续记录，选择测量列和分组方式，再运行。</p>
+    <p><strong>结果：</strong>上图为 Xbar，下图为 Std Dev；分别显示中心线与控制限。不同子组大小时，限值可随组大小变化。</p>
+    <p><strong>注意：</strong>Size 模式会顺序切分数据，末组不足时可能形成不平衡子组；建议先核对分组方式和每组样本数。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/variables-charts-for-subgroups/xbar-s-chart/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab Xbar-S 控制图概述</a>（分组和选项以 Minijmp 为准）。</p>
+  </section>
+
+  <section class="topic" id="quality.control_chart_np">
+    <h2>NP 图</h2>
+    <p><strong>用途：</strong>监视每个固定样本中不合格品的件数。这里计数的是不合格单位，不是单位内缺陷数。</p>
+    <ul>
+      <li><strong>数据：</strong>选择不合格品数列；n Trials 输入每组固定检验数，默认为 200。当前窗口使用一个固定样本量，不接受逐组样本量列。</li>
+      <li><strong>参数：</strong>可设置横轴标签、标签列、最多标签数（默认 25）、Y Label 和参考线。</li>
+    </ul>
+    <p><strong>操作：</strong>确认计数是每组不合格品件数，并为所有子组填写相同的 n Trials，然后运行。</p>
+    <p><strong>结果：</strong>绘制不合格品件数、中心线和控制限；文本结果列出中心值及 UCL/LCL。</p>
+    <p><strong>注意：</strong>样本量应固定；样本量不同时应使用 P 图。图中的限值是过程控制限，不是产品规格要求。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/attributes-charts/np-chart/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab NP 控制图概述</a>（Minijmp 的参数以本页为准）。</p>
+  </section>
+
+  <section class="topic" id="quality.control_chart_p">
+    <h2>P 图</h2>
+    <p><strong>用途：</strong>监视各子组不合格品比例，支持每组样本量不同。</p>
+    <ul>
+      <li><strong>数据：</strong>分别选择不合格品数列和 n Trials 样本量列；两列按行配对。每行表示一个子组。</li>
+      <li><strong>参数：</strong>可设置横轴标签、标签列、最多标签数（默认 25）、Y Label 和参考线。</li>
+    </ul>
+    <p><strong>操作：</strong>确认缺陷品计数不超过对应样本量，选择计数列与样本量列，再运行。</p>
+    <p><strong>结果：</strong>绘制各组不合格品比例；中心线按样本量加权，控制限随各组样本量变化。文本结果显示中心值，图上显示控制限。</p>
+    <p><strong>注意：</strong>P 图的分子是每组不合格品件数；若记录的是一件产品上的缺陷个数，应考虑 C/U 图。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/attributes-charts/p-chart/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab P 控制图概述</a>（Minijmp 的参数以本页为准）。</p>
+  </section>
+
+  <section class="topic" id="quality.control_chart_c">
+    <h2>C 图</h2>
+    <p><strong>用途：</strong>监视固定检验单位或固定机会数中的缺陷总数。</p>
+    <ul>
+      <li><strong>数据：</strong>选择每个子组的缺陷计数列。窗口没有机会数或单位大小输入，按每组一个固定单位处理。</li>
+      <li><strong>参数：</strong>可设置横轴标签、标签列、最多标签数（默认 25）、Y Label 和参考线。</li>
+    </ul>
+    <p><strong>操作：</strong>仅当各子组的检验单位或机会数相同，才直接使用 C 图；选择计数列后运行。</p>
+    <p><strong>结果：</strong>绘制缺陷计数、中心线和控制限；文本结果列出中心值及 UCL/LCL。</p>
+    <p><strong>注意：</strong>机会数变化时，应使用 U 图并提供每组单位大小。C 图限值与规格限无关。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/attributes-charts/c-chart/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab C 控制图概述</a>（Minijmp 的参数以本页为准）。</p>
+  </section>
+
+  <section class="topic" id="quality.control_chart_u">
+    <h2>U 图</h2>
+    <p><strong>用途：</strong>监视每个子组的单位缺陷数，适用于检验机会数或单位大小可变的情形。</p>
+    <ul>
+      <li><strong>数据：</strong>选择缺陷计数列和 Unit Size 单位大小列；两列按行配对。单位大小应为正数。</li>
+      <li><strong>参数：</strong>可设置横轴标签、标签列、最多标签数（默认 25）、Y Label 和参考线。</li>
+    </ul>
+    <p><strong>操作：</strong>确认计数为缺陷数而不是不合格品件数，选择计数列与单位大小列，再运行。</p>
+    <p><strong>结果：</strong>绘制单位缺陷率，中心线按单位大小加权，控制限随单位大小变化；文本结果显示中心值。</p>
+    <p><strong>注意：</strong>当前实现中，填写 Axis Label Col. 与留空该列会走不同的 U 图数据缩放路径；未选标签列时可能重复按单位大小缩放。请核对输入与图上比率，必要时选择标签列后再比较结果。</p>
+    <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/attributes-charts/u-chart/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab U 控制图概述</a>（Minijmp 的参数以本页为准）。</p>
+  </section>
+</main>
+</body>
+</html>
