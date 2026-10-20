@@ -1,0 +1,2480 @@
+{
+  "schema_version": 1,
+  "baseline_head": "c0c2c2aa316e7e0f236e551bf4cd2f60f2e30df3",
+  "counting_rules": {
+    "source_positions": "constructor_calls 统计所有 gen_table/PrettyTable(含 PT)/StatTable AST 调用位置；同一表的兼容文本构造和载体各计一处。statistical_source_positions 仅计报告层 StatTable 位置。",
+    "logical_tables": "固定章节循环逐标题展开；可选章节计入；参数化的分布/方法/面板/组内整体共享模板只计一次，不按调用者、分支参数或运行次数重复。原生模型取 OLS/GLS/Logit 联合集合三种表模板。",
+    "identity": "文件路径 + 限定函数名 + 同类构造或输出序号；不冻结行号、普通 print_port 计数、全文件 hash 或普通文本。",
+    "bounds": "追踪显式导入/构造别名、本函数赋值、字符串包装、原生表方法及多行 ASCII/tab 字面量；静态审计不模拟任意跨函数动态对象流。所有现有字符串格式、join、原生 summary、DataFrame 文本与控制台数据路径已人工复核。"
+  },
+  "summary": {
+    "python_files": 69,
+    "files_with_production_sites": 23,
+    "producer_scopes": 46,
+    "constructor_calls": 114,
+    "constructors": {
+      "gen_table": 54,
+      "StatTable": 56,
+      "PrettyTable": 4
+    },
+    "statistical_source_positions": 56,
+    "logical_statistical_tables": 82,
+    "table_text_conversions": {
+      "to_string": 2,
+      "pred_table": 1,
+      "summary": 1
+    },
+    "nonstructured_emits": {
+      "emit:legacy:print": 1,
+      "emit:legacy:insert": 2,
+      "emit:matrix:print": 1
+    }
+  },
+  "files": [
+    "GRR.py",
+    "MiniJMP.py",
+    "Residual.py",
+    "anova_dialog.py",
+    "basic_dialogs.py",
+    "binomial.py",
+    "blakerCI.py",
+    "bonett.py",
+    "chart_style.py",
+    "chi2_dialog.py",
+    "chi_sq.py",
+    "cont_plot.py",
+    "control_chart.py",
+    "cpk.py",
+    "cpk_plot.py",
+    "ctrl_chart_const.py",
+    "ctrlchart_dialog.py",
+    "describe.py",
+    "df_combine.py",
+    "dialog.py",
+    "dist_fit.py",
+    "dist_plot_dialog.py",
+    "fit_dialog.py",
+    "freeze.py",
+    "grr_plot.py",
+    "help_link.py",
+    "linear_fit.py",
+    "linear_plot.py",
+    "modified_app.py",
+    "modified_table.py",
+    "nonpara_cor.py",
+    "one_way_ANOVA.py",
+    "ortho_fit.py",
+    "pandastable_local/app.py",
+    "pandastable_local/config.py",
+    "pandastable_local/core.py",
+    "pandastable_local/core_orig.py",
+    "pandastable_local/csv_import.py",
+    "pandastable_local/data.py",
+    "pandastable_local/data_orig.py",
+    "pandastable_local/dialogs.py",
+    "pandastable_local/handlers.py",
+    "pandastable_local/headers.py",
+    "pandastable_local/images.py",
+    "pandastable_local/plotting.py",
+    "pandastable_local/plugin.py",
+    "pandastable_local/stats.py",
+    "pandastable_local/util.py",
+    "pi_import.py",
+    "pi_reader.py",
+    "plots.py",
+    "poisson.py",
+    "proportion_test.py",
+    "qc_dialog.py",
+    "sample_test_dialog.py",
+    "sb_box_dialog.py",
+    "sb_boxplot.py",
+    "sb_hist_dialog.py",
+    "sb_histo.py",
+    "sb_misc.py",
+    "sb_misc_dialog.py",
+    "sb_palette_dialog.py",
+    "sbplot_dialog.py",
+    "stat_table.py",
+    "t_test.py",
+    "ti.py",
+    "two_way_anova.py",
+    "txt_output.py",
+    "utilities.py"
+  ],
+  "file_reviews": {
+    "GRR.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "MiniJMP.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "Residual.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "anova_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "basic_dialogs.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "binomial.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "blakerCI.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "bonett.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "chart_style.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "chi2_dialog.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "chi_sq.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "cont_plot.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "control_chart.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "cpk.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "cpk_plot.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "ctrl_chart_const.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "ctrlchart_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "describe.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "df_combine.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "dialog.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "dist_fit.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "dist_plot_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "fit_dialog.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "freeze.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "grr_plot.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "help_link.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "linear_fit.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "linear_plot.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "modified_app.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "modified_table.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "nonpara_cor.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "one_way_ANOVA.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "ortho_fit.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "pandastable_local/app.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pandastable_local/config.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pandastable_local/core.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pandastable_local/core_orig.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "pandastable_local/csv_import.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pandastable_local/data.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pandastable_local/data_orig.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pandastable_local/dialogs.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "pandastable_local/handlers.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pandastable_local/headers.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pandastable_local/images.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pandastable_local/plotting.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pandastable_local/plugin.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pandastable_local/stats.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "pandastable_local/util.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pi_import.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pi_reader.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "plots.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "poisson.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "proportion_test.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "qc_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "sample_test_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "sb_box_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "sb_boxplot.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "sb_hist_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "sb_histo.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "sb_misc.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "sb_misc_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "sb_palette_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "sbplot_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "stat_table.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "t_test.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "ti.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "two_way_anova.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "txt_output.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "utilities.py": "存在已逐函数分类的表格生产位置；见 producers。"
+  },
+  "producers": {
+    "GRR.py::_grr_tables": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "方差分量",
+        "研究变异 / 分量标准差"
+      ],
+      "entry_points": [
+        "GRR_xbar",
+        "grr_anova_AIAG",
+        "grr_anova_EMP",
+        "grr_nested",
+        "GRRDialog.apply",
+        "GRR_Nested_Dialog.apply"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g11_quality_tables.py::test_all_report_producers_keep_txt_results_and_export_real_files"
+      ],
+      "exception_reason": "",
+      "title_variants": [
+        "study=True：研究变异",
+        "study=False：分量标准差"
+      ]
+    },
+    "GRR.py::grr_anova_EMP": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "EMP 补充统计",
+        "原有 EMP 分类参考（不新增 GRR 接受阈值）"
+      ],
+      "entry_points": [
+        "grr_master(mode=EMP) → GRRDialog.apply",
+        "grr_anova_EMP"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g11_quality_tables.py::test_all_report_producers_keep_txt_results_and_export_real_files"
+      ],
+      "exception_reason": ""
+    },
+    "GRR.py::grr_master": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "GRR 交互项筛选：完整模型 ANOVA"
+      ],
+      "entry_points": [
+        "GRRDialog.apply",
+        "grr_master(inter=Auto 且有操作者)"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g11_quality_tables.py::test_all_report_producers_keep_txt_results_and_export_real_files"
+      ],
+      "exception_reason": ""
+    },
+    "GRR.py::grr_nested": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "方差分析 ANOVA"
+      ],
+      "entry_points": [
+        "GRR_Nested_Dialog.apply",
+        "grr_nested"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g11_quality_tables.py::test_all_report_producers_keep_txt_results_and_export_real_files"
+      ],
+      "exception_reason": ""
+    },
+    "chi2_dialog.py::Chi2PropDialog.apply": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print#1",
+        "construct:StatTable#1",
+        "construct:gen_table#2",
+        "emit:structured:print#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "各水平概率",
+        "检验结果"
+      ],
+      "entry_points": [
+        "Chi2PropDialog.apply（原始/汇总/归一化）"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "chi_sq.py::chi2_test_stdev": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 4,
+      "titles": [
+        "样本统计",
+        "检验结果",
+        "总体标准差的置信区间",
+        "抽样分布参考（不是总体参数的置信区间）"
+      ],
+      "entry_points": [
+        "chi2_test_stdev",
+        "single_pop_var_test 别名；直接调用"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "chi_sq.py::chi2_var_1sample": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "样本统计",
+        "检验结果",
+        "总体标准差的置信区间"
+      ],
+      "entry_points": [
+        "chi2_var_1sample",
+        "var_1sample 内部静默调用；直接调用"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "chi_sq.py::chi_square": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "列联表（观测频数 / 期望频数）",
+        "检验结果"
+      ],
+      "entry_points": [
+        "Chi2TableDialog.apply（原始/汇总）",
+        "chi_square；比例/拟合优度内部静默调用"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "chi_sq.py::multi_pop_var_test": {
+      "sites": [
+        "construct:PrettyTable#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "Multi Sample Standard Deviation Test"
+      ],
+      "entry_points": [
+        "MultiVarDialog.apply",
+        "multi_pop_var_test",
+        "two_pop_var_test 旧转发入口"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "chi_sq.py::var_1sample": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "样本统计",
+        "检验结果（双侧）",
+        "总体标准差的置信区间"
+      ],
+      "entry_points": [
+        "var_1sample",
+        "Var1SampleDialog.apply（原始/汇总）"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "control_chart.py::_print_spc_report": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "控制限汇总",
+        "{面板名称} 逐点明细"
+      ],
+      "entry_points": [
+        "x_plot → IMRDialog/IDialog/MRDialog/XBRDialog/XBSDialog.apply",
+        "p_np_plot → PDialog/NPDialog.apply",
+        "cu_plot → CDialog/UDialog.apply"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g11_quality_tables.py::test_all_report_producers_keep_txt_results_and_export_real_files"
+      ],
+      "exception_reason": "",
+      "title_variants": [
+        "I-MR",
+        "I",
+        "MR",
+        "Xbar-R",
+        "Xbar-S",
+        "P",
+        "NP",
+        "C",
+        "U"
+      ]
+    },
+    "cpk.py::cpk": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "正态过程能力分析"
+      ],
+      "entry_points": [
+        "CpkDialog.apply / CpkSubDialog.apply → cpk_plot → cpk",
+        "cpk"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g11_quality_tables.py::test_all_report_producers_keep_txt_results_and_export_real_files"
+      ],
+      "exception_reason": ""
+    },
+    "cpk.py::cpk_calc": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "{section}（正态模型，置信水平 {confidence}%）"
+      ],
+      "entry_points": [
+        "cpk（组内/整体）",
+        "cpk_calc"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g11_quality_tables.py::test_all_report_producers_keep_txt_results_and_export_real_files"
+      ],
+      "exception_reason": "",
+      "title_variants": [
+        "组内 Cp/Cpk/Cpl/Cpu/Cpm",
+        "整体 Pp/Ppk/Ppl/Ppu/Cpm"
+      ]
+    },
+    "cpk.py::nonconformance": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "不合格比例（单位：%）"
+      ],
+      "entry_points": [
+        "cpk",
+        "nonconformance"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g11_quality_tables.py::test_all_report_producers_keep_txt_results_and_export_real_files"
+      ],
+      "exception_reason": ""
+    },
+    "describe.py::print_descriptive": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "描述性统计",
+        "补充统计"
+      ],
+      "entry_points": [
+        "describe(print_out=True)",
+        "DescribeDialog.apply",
+        "MultiDescribeDialog.apply"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g7_tables.py::test_structured_fallback"
+      ],
+      "exception_reason": ""
+    },
+    "describe.py::print_percentiles": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "百分位数"
+      ],
+      "entry_points": [
+        "describe(print_out=True)",
+        "DescribeDialog.apply"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g7_tables.py::test_structured_fallback"
+      ],
+      "exception_reason": ""
+    },
+    "dialog.py::Dialogs.error": {
+      "sites": [
+        "construct:PrettyTable#1",
+        "emit:legacy:print#1"
+      ],
+      "classification": "error_box",
+      "logical_tables": 0,
+      "titles": [
+        "ERROR"
+      ],
+      "entry_points": [
+        "全部继承 Dialogs 的 error(msg) 调用者"
+      ],
+      "status": "保留例外",
+      "tests": [
+        "tests/test_g12_inventory.py::test_all_python_files_and_production_sites_are_classified"
+      ],
+      "exception_reason": "单列单行 ERROR 消息框；消息文本不是统计结果或可导出分析表，保留原字符串输出。"
+    },
+    "dist_fit.py::compare_dist": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "分布比较"
+      ],
+      "entry_points": [
+        "FitDistDialog.apply",
+        "compare_dist（多模型成功分支）"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g10_tables.py::test_text_values_and_real_exports"
+      ],
+      "exception_reason": ""
+    },
+    "dist_fit.py::print_table": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2",
+        "construct:gen_table#3",
+        "emit:structured:print_port#3",
+        "construct:StatTable#3"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "{fit_name} 参数估计",
+        "{fit_name} 拟合指标",
+        "{fit_name} 拟合优度"
+      ],
+      "entry_points": [
+        "fit_norm/fit_t/fit_gamma/fit_lognorm/fit_expon/fit_weibull",
+        "FitDistDialog.apply",
+        "singleHistoDialog.apply"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g10_tables.py::test_text_values_and_real_exports"
+      ],
+      "exception_reason": ""
+    },
+    "fit_dialog.py::print_multi_col_tables": {
+      "sites": [
+        "construct:gen_table#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "{name} 相关系数矩阵（N = {N}）",
+        "{name} p 值矩阵"
+      ],
+      "entry_points": [
+        "MCorDialog.apply 的 Spearman/Kendall/Hoeffding 分支",
+        "print_multi_col_tables"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g10_tables.py::test_text_values_and_real_exports"
+      ],
+      "exception_reason": ""
+    },
+    "linear_fit.py::linear_fit": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 5,
+      "titles": [
+        "模型摘要",
+        "回归系数",
+        "方差分析（ANOVA）",
+        "失拟检验（有重复 X 且可估计时）",
+        "残差正态性诊断"
+      ],
+      "entry_points": [
+        "LinearFitDialog.apply → fit_plot",
+        "linear_fit"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g10_tables.py::test_text_values_and_real_exports"
+      ],
+      "exception_reason": ""
+    },
+    "linear_plot.py::multi_fit": {
+      "sites": [
+        "construct:gen_table#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "Pearson 相关系数矩阵（N = {N}）",
+        "Pearson p 值矩阵"
+      ],
+      "entry_points": [
+        "multi_fit",
+        "MCorDialog.apply → multi_fit"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g10_tables.py::test_text_values_and_real_exports"
+      ],
+      "exception_reason": ""
+    },
+    "linear_plot.py::multi_fit_orig": {
+      "sites": [
+        "construct:gen_table#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "Pearson 相关系数矩阵（N = {N}）",
+        "Pearson p 值矩阵"
+      ],
+      "entry_points": [
+        "multi_fit_orig",
+        "公开旧直接入口，独立报告副本"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g10_tables.py::test_text_values_and_real_exports"
+      ],
+      "exception_reason": ""
+    },
+    "nonpara_cor.py::print_correlation": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "{method} 相关分析"
+      ],
+      "entry_points": [
+        "spearman/kendall/hoeffding",
+        "CorrelationDialog.apply"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g10_tables.py::test_text_values_and_real_exports"
+      ],
+      "exception_reason": "",
+      "title_variants": [
+        "Spearman",
+        "Kendall",
+        "Hoeffding"
+      ]
+    },
+    "one_way_ANOVA.py::JMP_ANOVA_t_test": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "均值逐对比较",
+        "字母分组（按均值降序）"
+      ],
+      "entry_points": [
+        "TtestDialog.apply",
+        "Anova1WayDialog.apply(comp_mean=True)",
+        "JMP_ANOVA_t_test"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "one_way_ANOVA.py::one_way_anova": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "各组均值摘要",
+        "方差分析表"
+      ],
+      "entry_points": [
+        "Anova1WayDialog.apply（列/堆叠）",
+        "Anova1WayDialog_old.apply",
+        "one_way_anova；GRR 内部静默调用"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "ortho_fit.py::orthogonal_fit": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "参数估计",
+        "测量误差方差估计",
+        "逐观测诊断（print_residual 独立开关）"
+      ],
+      "entry_points": [
+        "OrthoFitDialog → LinearFitDialog.apply → fit_plot",
+        "orthogonal_fit"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g10_tables.py::test_text_values_and_real_exports"
+      ],
+      "exception_reason": ""
+    },
+    "pandastable_local/core_orig.py::Table.showasText": {
+      "sites": [
+        "table_text:to_string#1",
+        "emit:legacy:insert#1"
+      ],
+      "classification": "data_matrix",
+      "logical_tables": 0,
+      "titles": [
+        "Table to Text"
+      ],
+      "entry_points": [
+        "Table.showasText → SimpleEditor.text.insert"
+      ],
+      "status": "保留例外",
+      "tests": [
+        "tests/test_g12_inventory.py::test_all_python_files_and_production_sites_are_classified"
+      ],
+      "exception_reason": "DataFrame 的原始数据转文本工具；保留用户选择行列、表头、索引及缺失标记选项，不是统计摘要。"
+    },
+    "pandastable_local/dialogs.py::CSVPreviewDialog.update_preview": {
+      "sites": [
+        "table_text:to_string#1",
+        "emit:legacy:insert#1"
+      ],
+      "classification": "data_matrix",
+      "logical_tables": 0,
+      "titles": [
+        "确认 CSV 导入预览"
+      ],
+      "entry_points": [
+        "CSVPreviewDialog.__init__",
+        "编码/分隔符/表头选项变更"
+      ],
+      "status": "保留例外",
+      "tests": [
+        "tests/test_csv_import.py::test_real_preview_header_toggle_and_import"
+      ],
+      "exception_reason": "frame.head(10).to_string(index=False) 是 CSV 原始数据预览，写入专用 ScrolledText，不进入统计报告窗口。"
+    },
+    "pandastable_local/stats.py::StatsViewer.plotLogit": {
+      "sites": [
+        "emit:matrix:print#1",
+        "table_text:pred_table#1"
+      ],
+      "classification": "data_matrix",
+      "logical_tables": 0,
+      "titles": [
+        "Logit pred_table(0.5)"
+      ],
+      "entry_points": [
+        "StatsViewer.showPlot → plotLogit"
+      ],
+      "status": "保留例外",
+      "tests": [
+        "tests/test_g12_inventory.py::test_all_python_files_and_production_sites_are_classified"
+      ],
+      "exception_reason": "绘图方法的控制台诊断预测矩阵，不走 StatsViewer.summary 或 app.print；不虚构新的 GUI 统计报告。"
+    },
+    "pandastable_local/stats.py::StatsViewer.summary": {
+      "sites": [
+        "table_text:summary#1",
+        "emit:structured:add_table#1"
+      ],
+      "classification": "compatibility",
+      "logical_tables": 0,
+      "titles": [
+        "statsmodels Summary / SimpleTable 原生文本"
+      ],
+      "entry_points": [
+        "StatsViewer.doFit",
+        "Summary 按钮"
+      ],
+      "status": "保留例外",
+      "tests": [
+        "tests/test_g10_tables.py::test_native_models_keep_text_and_unrounded_values"
+      ],
+      "exception_reason": "self.fit.summary() 返回原生 SimpleTable；model_summary_tables 逐表保留 str(native) 的分隔规则，并将原值包装为 StatTable。此处不是第二套逻辑表。"
+    },
+    "pandastable_local/stats.py::model_summary_tables": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "原生模型摘要（native.title）",
+        "回归系数",
+        "残差诊断（OLS/GLS）"
+      ],
+      "entry_points": [
+        "StatsViewer.doFit → StatsViewer.summary → model_summary_tables",
+        "Summary 按钮；OLS/GLS 三表，Logit 两表"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g10_tables.py::test_native_models_keep_text_and_unrounded_values"
+      ],
+      "exception_reason": ""
+    },
+    "proportion_test.py::prop_2sample": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "样本统计",
+        "检验结果",
+        "总体比例差 p1 - p2 的置信区间（非合并正态近似）"
+      ],
+      "entry_points": [
+        "prop_2sample",
+        "Prop2SDialog.apply（原始/汇总）"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "proportion_test.py::prop_test_1sample": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 4,
+      "titles": [
+        "样本统计",
+        "检验结果",
+        "总体比例的置信区间",
+        "检验结果（JMP 列联表；备择假设 H1: p ≠ p0）"
+      ],
+      "entry_points": [
+        "prop_test_1sample",
+        "Prop1SDialog.apply（原始/汇总）"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "stat_table.py::StatTable.__new__": {
+      "sites": [
+        "construct:PrettyTable#1"
+      ],
+      "classification": "compatibility",
+      "logical_tables": 0,
+      "titles": [
+        "调用者 title"
+      ],
+      "entry_points": [
+        "StatTable(text=None, ...)"
+      ],
+      "status": "保留例外",
+      "tests": [
+        "tests/test_g8_tables.py::test_public_interface_and_legacy_text"
+      ],
+      "exception_reason": "公共载体内部的 PrettyTable 自动文本后备构造；不构成新增统计报告。"
+    },
+    "t_test.py::paired_t_test": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "样本统计",
+        "检验结果",
+        "配对差值总体均值的置信区间"
+      ],
+      "entry_points": [
+        "paired_t_test",
+        "PairedTDialog.apply"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "t_test.py::t_test_1sample": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "样本统计",
+        "检验结果",
+        "总体均值的置信区间"
+      ],
+      "entry_points": [
+        "t_test_1sample",
+        "Mean1SampleDialog.apply"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "t_test.py::t_test_2samples": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "样本统计"
+      ],
+      "entry_points": [
+        "Mean2SampleDialog.apply（原始/汇总）",
+        "t_test_2samples"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "t_test.py::t_test_2samples.tTest": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "检验结果",
+        "总体均值差 μ2 - μ1 的置信区间"
+      ],
+      "entry_points": [
+        "t_test_2samples.tTest",
+        "Mean2SampleDialog.apply → t_test_2samples（pooled/Welch）"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "t_test.py::z_test_1sample": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "样本统计",
+        "检验结果",
+        "总体均值的置信区间"
+      ],
+      "entry_points": [
+        "z_test_1sample",
+        "Mean1SampleZDialog.apply"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "ti.py::ti_norm": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "样本统计",
+        "统计容差区间（正态方法）"
+      ],
+      "entry_points": [
+        "TIDialog.apply（原始/汇总）",
+        "ti_norm"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "two_way_anova.py::two_way_anova": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "因子水平",
+        "方差分析表"
+      ],
+      "entry_points": [
+        "Anova2WayDialog.apply（交互/加法）",
+        "two_way_anova"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "utilities.py::gen_table": {
+      "sites": [
+        "construct:PrettyTable#1"
+      ],
+      "classification": "compatibility",
+      "logical_tables": 0,
+      "titles": [
+        "调用者提供的兼容 TXT 表"
+      ],
+      "entry_points": [
+        "全部 gen_table 调用者"
+      ],
+      "status": "保留例外",
+      "tests": [
+        "tests/test_g8_tables.py::test_public_interface_and_legacy_text"
+      ],
+      "exception_reason": "通用 PrettyTable 工厂，返回对象供报告包装。与调用者的 StatTable 共属同一逻辑表，不重复计数。"
+    },
+    "utilities.py::mean_std_CIs": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "置信区间"
+      ],
+      "entry_points": [
+        "CIDialog.apply",
+        "mean_std_CIs"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g12_tables.py::test_interval_report_keeps_txt_computation_and_exports"
+      ],
+      "exception_reason": ""
+    },
+    "utilities.py::norm_test": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "正态性检验"
+      ],
+      "entry_points": [
+        "NormTestDialog.apply",
+        "orthogonal_fit",
+        "Residual.resid_test",
+        "Residual.linear_fit_resid_test",
+        "ResidDialog.apply",
+        "norm_test"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g10_tables.py::test_text_values_and_real_exports"
+      ],
+      "exception_reason": ""
+    },
+    "utilities.py::pearson_correlation": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1",
+        "construct:gen_table#2",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "Pearson 相关分析",
+        "Pearson 协方差及置信区间"
+      ],
+      "entry_points": [
+        "CorrelationDialog.apply → fit_plot",
+        "pearson_correlation"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_g10_tables.py::test_text_values_and_real_exports"
+      ],
+      "exception_reason": ""
+    }
+  },
+  "output_entry_review": {
+    "GRR.py::GRR_xbar": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "GRR.py::_grr_design": {
+      "ports": [
+        "print_port"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "GRR.py::_grr_tables": {
+      "ports": [
+        "print_port"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "GRR.py::grr_anova_AIAG": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "GRR.py::grr_anova_EMP": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "GRR.py::grr_master": {
+      "ports": [
+        "forward:print_port",
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "GRR.py::grr_nested": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "GRR.py::grr_xbar_r": {
+      "ports": [
+        "forward:print_port"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "MiniJMP.py::Minijmp.printDF": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "Residual.py::linear_fit_resid_test": {
+      "ports": [
+        "forward:print_port"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "Residual.py::resid_test": {
+      "ports": [
+        "forward:print_port",
+        "print_port"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "anova_dialog.py::Anova1WayDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "anova_dialog.py::Anova1WayDialog_old.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "anova_dialog.py::Anova2WayDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "anova_dialog.py::TtestDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "basic_dialogs.py::CIDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "basic_dialogs.py::DescribeDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "basic_dialogs.py::FitDistDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "basic_dialogs.py::MultiDescribeDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "basic_dialogs.py::NormTestDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "binomial.py::binomial": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "binomial.py::binomial.acc_p": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "blakerCI.py::<module>": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "blakerCI.py::binom_blaker_lower_limit": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "bonett.py::<module>": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "chi2_dialog.py::Chi2PropDialog.apply": {
+      "ports": [
+        "forward:self.app.print",
+        "self.app.print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "chi2_dialog.py::Chi2TableDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "chi_sq.py::<module>": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "chi_sq.py::chi2_test_stdev": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "chi_sq.py::chi2_var_1sample": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "chi_sq.py::chi_square": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "chi_sq.py::multi_pop_var_test": {
+      "ports": [
+        "forward:print_port",
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "chi_sq.py::several_tests_stdev_2sided": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "chi_sq.py::two_pop_var_test": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "chi_sq.py::var_1sample": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "cont_plot.py::cont_dist": {
+      "ports": [
+        "forward:print_port",
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "cont_plot.py::cont_dist.process": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "control_chart.py::_print_spc_report": {
+      "ports": [
+        "print_port"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "cpk.py::cpk": {
+      "ports": [
+        "forward:print_port",
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "cpk.py::cpk_calc": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "cpk.py::nonconformance": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "cpk_plot.py::cpk_plot": {
+      "ports": [
+        "forward:print_port"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "ctrl_chart_const.py::<module>": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "ctrlchart_dialog.py::CDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "ctrlchart_dialog.py::IMRDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "ctrlchart_dialog.py::NPDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "describe.py::<module>": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "describe.py::describe": {
+      "ports": [
+        "forward:print_port"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "describe.py::print_descriptive": {
+      "ports": [
+        "print_port"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "describe.py::print_percentiles": {
+      "ports": [
+        "print_port"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "df_combine.py::<module>": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "dialog.py::Dialogs.error": {
+      "ports": [
+        "self.app.print"
+      ],
+      "classification": "error_box",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "dist_fit.py::compare_dist": {
+      "ports": [
+        "forward:print_port",
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "dist_fit.py::fit_expon": {
+      "ports": [
+        "forward:print_port",
+        "print_port"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "dist_fit.py::fit_gamma": {
+      "ports": [
+        "forward:print_port",
+        "print_port"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "dist_fit.py::fit_jsu": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "dist_fit.py::fit_lognorm": {
+      "ports": [
+        "forward:print_port",
+        "print_port"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "dist_fit.py::fit_norm": {
+      "ports": [
+        "forward:print_port",
+        "print_port"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "dist_fit.py::fit_t": {
+      "ports": [
+        "forward:print_port",
+        "print_port"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "dist_fit.py::fit_weibull": {
+      "ports": [
+        "forward:print_port",
+        "print_port"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "dist_fit.py::print_table": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "dist_plot_dialog.py::displayProb2xDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "dist_plot_dialog.py::displayProbDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "fit_dialog.py::CorrelationDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "fit_dialog.py::LinearFitDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "fit_dialog.py::MCorDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "fit_dialog.py::ResidDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "fit_dialog.py::print_multi_col_tables": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "help_link.py::<module>": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "linear_fit.py::linear_fit": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "linear_plot.py::fit_plot": {
+      "ports": [
+        "forward:print",
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "linear_plot.py::multi_fit": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "linear_plot.py::multi_fit_orig": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "modified_app.py::Minijmp_pre.online_documentation": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "modified_app.py::get_tkver": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "modified_table.py::MTable.gotonextCell": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "modified_table.py::MTable.handle_double_click": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "modified_table.py::MTable.redo": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "modified_table.py::MTable.sortAll": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "modified_table.py::MTable.sortSelected": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "modified_table.py::MTable.storeCurrent": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "modified_table.py::MTable.undo": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "nonpara_cor.py::hoeffding": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "nonpara_cor.py::kendall": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "nonpara_cor.py::print_correlation": {
+      "ports": [
+        "print_port"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "nonpara_cor.py::spearman": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "one_way_ANOVA.py::JMP_ANOVA_t_test": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "one_way_ANOVA.py::JMP_ANOVA_t_test.t_test_anova": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "one_way_ANOVA.py::one_way_anova": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "ortho_fit.py::orthogonal_fit": {
+      "ports": [
+        "forward:print_port",
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/app.py::DataExplore._check_snap": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/app.py::DataExplore.loadProject": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/app.py::DataExplore.load_msgpack": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/app.py::main": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/config.py::<module>": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/config.py::parse_config": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/config.py::print_options": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/config.py::write_config": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/core.py::Table.init_reserved": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/core_orig.py::Table.cleanData": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/core_orig.py::Table.evalFunction": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/core_orig.py::Table.functionsBar.apply": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/core_orig.py::Table.getSelectedDataFrame": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/core_orig.py::Table.load": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/core_orig.py::Table.paste": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/core_orig.py::Table.recalculateFunctions": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/core_orig.py::Table.setColumnType": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/core_orig.py::Table.sortTable": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/data_orig.py::TableModel.setValueAt": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/dialogs.py::CombineDialog.apply": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/handlers.py::DragHandler.drawSelectionRect": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/handlers.py::DragHandler.on_pick_event": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/handlers.py::DragHandler.on_release_event": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/headers.py::ColumnHeader.__init__": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/plotting.py::AnimateOptions.stream": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/plotting.py::AnnotationOptions.addTextBox": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/plotting.py::PlotViewer._setAxisTickFormat": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/plotting.py::PlotViewer.autoscale": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/plotting.py::PlotViewer.plot2D": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/plugin.py::describe_class": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/plugin.py::get_plugins_instances": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/plugin.py::load_plugins": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/plugin.py::parsefolder": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/stats.py::<module>": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/stats.py::StatsViewer._doimport": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/stats.py::StatsViewer.plotLogit": {
+      "ports": [
+        "print"
+      ],
+      "classification": "data_matrix",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "pandastable_local/util.py::setAttributes": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "poisson.py::poisson": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "proportion_test.py::<module>": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "proportion_test.py::prop_2sample": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "proportion_test.py::prop_test_1sample": {
+      "ports": [
+        "forward:print_port",
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "qc_dialog.py::CpkDialog.apply": {
+      "ports": [
+        "forward:self.app.print",
+        "self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "qc_dialog.py::CpkSubDialog.apply": {
+      "ports": [
+        "forward:self.app.print",
+        "self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "qc_dialog.py::GRRDialog.apply": {
+      "ports": [
+        "forward:self.app.print",
+        "self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "qc_dialog.py::GRR_Nested_Dialog.apply": {
+      "ports": [
+        "forward:self.app.print",
+        "self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "qc_dialog.py::TIDialog.apply": {
+      "ports": [
+        "forward:self.app.print",
+        "self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "sample_test_dialog.py::Mean1SampleDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "sample_test_dialog.py::Mean1SampleZDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "sample_test_dialog.py::Mean2SampleDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "sample_test_dialog.py::MultiVarDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "sample_test_dialog.py::PairedTDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "sample_test_dialog.py::Prop1SDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "sample_test_dialog.py::Prop2SDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "sample_test_dialog.py::Var1SampleDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "sb_hist_dialog.py::singleHistoDialog.apply": {
+      "ports": [
+        "forward:self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "sb_palette_dialog.py::on_palette_selected": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "t_test.py::paired_t_test": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "t_test.py::t_test_1sample": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "t_test.py::t_test_2samples": {
+      "ports": [
+        "forward:print_port",
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "t_test.py::t_test_2samples.tTest": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "t_test.py::z_test_1sample": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "ti.py::ti_norm": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "two_way_anova.py::two_way_anova": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "utilities.py::<module>": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "utilities.py::mean_std_CIs": {
+      "ports": [
+        "forward:print_port",
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "utilities.py::norm_test": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "utilities.py::number_2Dlist": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "utilities.py::number_2lists": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "utilities.py::number_list": {
+      "ports": [
+        "print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "utilities.py::pearson_correlation": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    }
+  },
+  "exceptions": [
+    {
+      "scope": "MiniJMP.py::Minijmp.printDF",
+      "classification": "data_matrix",
+      "reason": "直接输出 self.table.model.df 的调试数据矩阵，不是统计报告。"
+    },
+    {
+      "scope": "modified_table.py::MTable.sortSelected",
+      "classification": "data_matrix",
+      "reason": "print(dfSub) 为排序数据片段诊断；编辑、撤销及重做日志是坐标/行数，不是统计表。"
+    },
+    {
+      "scope": "df_combine.py::<module>",
+      "classification": "demo",
+      "reason": "__main__ 打印 DataFrame 合并示例，不是报告生产入口。"
+    },
+    {
+      "scope": "pandastable_local/plotting.py::AnimateOptions.stream",
+      "classification": "data_matrix",
+      "reason": "数据源 raw/df 控制台输出；不是统计分析表。"
+    },
+    {
+      "scope": "pandastable_local/handlers.py::DragHandler.on_pick_event",
+      "classification": "data_matrix",
+      "reason": "绘图拾取记录、数组切片、索引及坐标日志，不是报告。"
+    },
+    {
+      "scope": "linear_plot.py::multi_fit / multi_fit_orig",
+      "classification": "data_matrix",
+      "reason": "cor_res 内部相关结果字典矩阵及椭圆参数；其报告投影已分别列为两个 StatTable 位置，不把内部矩阵另计为表。"
+    },
+    {
+      "scope": "Residual.py::resid_test / linear_fit_resid_test",
+      "classification": "data_matrix",
+      "reason": "残差/拟合值向量用于检验与绘图；转发 norm_test，无另建逐观测表。"
+    },
+    {
+      "scope": "chi_sq.py::several_tests_stdev_2sided / multi_pop_var_test",
+      "classification": "plain_text",
+      "reason": "逐行 u/s/n、F/Bonett、O Brien/Levene/Brown-Forsythe 诊断是原有标量说明，不按 tab 字符强行认定为表。"
+    },
+    {
+      "scope": "binomial.py::binomial / poisson.py::poisson / cont_plot.py::cont_dist",
+      "classification": "plain_text",
+      "reason": "mean/variance/SD、偏度/峰度与尾部概率为单行标量和解释；不存在多行表格结构。"
+    },
+    {
+      "scope": "dist_fit.py::fit_jsu",
+      "classification": "demo",
+      "reason": "johnsonsu.fit 的参数元组调试输出，不是 Dialog 统计报告。"
+    },
+    {
+      "scope": "code/**/*.py::__main__",
+      "classification": "demo",
+      "reason": "所有模块主程序示例、计时/URL/版本/颜色/数值字典输出为演示或普通文本；其中实际调用报告函数的表仍由对应生产函数计数。"
+    },
+    {
+      "scope": "pi_import.py / pi_reader.py / pandastable_local/plugin.py",
+      "classification": "plain_text",
+      "reason": "join 构造标签列表、PI 请求/错误详情及插件帮助缩进，不是统计表。"
+    },
+    {
+      "scope": "pandastable_local/stats.py::model_summary_tables",
+      "classification": "compatibility",
+      "reason": "原生 SimpleTable str(native).rsplit 只用于兼容文本；OLS/GLS/Logit 所有类型已由 G10 native_models 测试覆盖。"
+    }
+  ],
+  "confirmed_omissions": [
+    {
+      "scope": "utilities.py::mean_std_CIs",
+      "before": "print(str(table))，G8-G11 未迁移",
+      "after": "由主线程迁移 StatTable；Pearson 与 norm_test 已在 G10 迁移，不列为新增遗漏",
+      "tests": [
+        "tests/test_g12_tables.py::test_interval_report_keeps_txt_computation_and_exports"
+      ]
+    }
+  ]
+}

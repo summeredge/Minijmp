@@ -497,8 +497,8 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
                 isinstance(node, ast.ImportFrom) and node.module == 'stat_table')]
             for tree in (current, original):
                 for node in tree.body:
-                    if isinstance(node, ast.FunctionDef) and node.name in {'pearson_correlation', 'norm_test'}:
-                        # G10 只放行报告块，计算与其余共享函数仍完整比较。
+                    if isinstance(node, ast.FunctionDef) and node.name in {'pearson_correlation', 'norm_test', 'mean_std_CIs'}:
+                        # G10/G12 只放行报告块，计算与其余共享函数仍完整比较。
                         ComputationOnly().visit(node)
             assert ast.dump(current) == ast.dump(original)
             continue

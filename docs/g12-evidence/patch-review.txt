@@ -1,0 +1,4 @@
+Production diff: utilities.mean_std_CIs report block only; no plot/dependency/launcher changes.
+Tracked diff whitespace, audit-document links and new-document whitespace: PASS
+Read-only review: utilities.py, G4/G11 guards, G12 inventory scanner/fixture, G12 report tests, evidence renderer and audit document; no blocking finding.
+Complexity audit: test-only source inventory required by G12; no new production abstraction/state/cache/fallback/dependency.

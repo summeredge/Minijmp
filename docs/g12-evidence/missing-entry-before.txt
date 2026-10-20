@@ -1,0 +1,16 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+______ test_interval_report_keeps_txt_computation_and_exports[1.0-0.05] _______
+tests\test_g12_tables.py:46: in test_interval_report_keeps_txt_computation_and_exports
+    assert len(tables) == 1
+E   assert 0 == 1
+E    +  where 0 = len([])
+_______ test_interval_report_keeps_txt_computation_and_exports[1.0-0.1] _______
+tests\test_g12_tables.py:46: in test_interval_report_keeps_txt_computation_and_exports
+    assert len(tables) == 1
+E   assert 0 == 1
+E    +  where 0 = len([])
+=========================== short test summary info ===========================
+FAILED tests/test_g12_tables.py::test_interval_report_keeps_txt_computation_and_exports[1.0-0.05]
+FAILED tests/test_g12_tables.py::test_interval_report_keeps_txt_computation_and_exports[1.0-0.1]
+2 failed, 7 deselected in 11.48s

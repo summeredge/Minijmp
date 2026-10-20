@@ -195,7 +195,10 @@ def mean_std_CIs(data, alpha=0.05, print_out=False, print_port=print):
              *map(format_stat, std_2side_range), *map(format_stat, std_1side_range)]])
         table.align = 'r'
         table.align['参数'] = 'l'
-        print(str(table))
+        print(StatTable(table, '置信区间', table.field_names,
+            [['总体均值', t_r['mean'], *mean_2side_range, *mean_1side_range],
+             ['总体标准差', chi2_r['stdev'], *std_2side_range, *std_1side_range]],
+            display=[[str(v) for v in row] for row in table.rows]))
         print("均值采用 t 方法；标准差采用卡方方法，假定总体服从正态分布。")
         print("置信水平指重复抽样时按此方法构造的区间覆盖总体参数的长期比例。")
     return {"std 2side": std_2side_range, "std 1side": std_1side_range,
