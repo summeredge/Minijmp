@@ -474,6 +474,14 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
         # 仅两份绘图源码转为已验收的 G6 基线，其余共享模块仍保留原守卫。
         baseline = '0320b7bdc49321eb7a54f67ddc89dc08edc32f3e' if name in {'cpk_plot.py', 'grr_plot.py'} else SHARED_BASELINE
         old = subprocess.check_output(['git', 'show', f'{baseline}:code/{name}'], cwd=ROOT).decode('utf-8')
+        if name == 'utilities.py':
+            # P1/P2 仅授权 Pearson 舍入截断及完全相关区间方向，保留整文件其余守卫。
+            old = old.replace('\r\n', '\n')
+            statement = '    cov = sum('
+            assert old.count(statement) == 1
+            old = old.replace(statement, '    r = np.clip(r, -1, 1)\n' + statement)
+            assert old.count('r_z = 10000') == 1
+            old = old.replace('r_z = 10000', 'r_z = np.copysign(np.inf, r)')
         assert (ROOT / 'code' / name).read_text(encoding='utf-8') == old.replace('\r\n', '\n')
 
 

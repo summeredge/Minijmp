@@ -40,7 +40,7 @@ def prop_2sample(n1=None, n2=None, e1=None,
 
     rv = hypergeom(n1 + n2, e1 + e2, n1)
     pl_f = rv.cdf(e1)
-    pu_f = 1 - rv.cdf(max(e1 - 1, 0))
+    pu_f = rv.sf(e1 - 1)
 
     mode = int((n1 + 1) * (e1 + e2 + 1) / (n1 + n2 + 2))
 
@@ -92,25 +92,32 @@ def p_blaker(n, p, k):
     rv = binom(n, p)
     psl = []
     s = 0
+    # 全事件边界用稳定尾概率；内部点保留原累计算法。
     for i in range(n + 1):
         s += rv.pmf(i)
-        psl.append(s)
+        psl.append(rv.cdf(i) if k in (0, n) else s)
 
     def pt_le_k(n, p, k):
         return psl[k] if k >= 0 else 0
 
-    def pt_ge_k(n, p, k):
-        return 1 - pt_le_k(n, p, k - 1)
+    def pt_ge_k(n, p, i):
+        if k in (0, n):
+            return rv.sf(i - 1)
+        return 0 if i > n else 1 - pt_le_k(n, p, i - 1)
 
     if pt_ge_k(n, p, k) < pt_le_k(n, p, k):
-        k_modified = max([i for i in range(n + 1)
-                          if pt_le_k(n, p, i) <= pt_ge_k(n, p, k)])
+        # 无匹配左尾时取空事件 X <= -1，其概率为 0。
+        k_modified = max((i for i in range(n + 1)
+                          if pt_le_k(n, p, i) <= pt_ge_k(n, p, k)), default=-1)
+        if k_modified == -1:
+            return rv.sf(k - 1)
         return pt_ge_k(n, p, k) + pt_le_k(n, p, k_modified)
     elif pt_ge_k(n, p, k) == pt_le_k(n, p, k):
         return 1
     else:
-        k_modified = min([i for i in range(n + 1)
-                          if pt_ge_k(n, p, i) <= pt_le_k(n, p, k)])
+        # 无匹配右尾时取空事件 X >= n+1，其概率为 0。
+        k_modified = min((i for i in range(n + 1)
+                          if pt_ge_k(n, p, i) <= pt_le_k(n, p, k)), default=n + 1)
         return pt_le_k(n, p, k) + pt_ge_k(n, p, k_modified)
 
 
