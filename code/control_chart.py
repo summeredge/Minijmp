@@ -187,6 +187,61 @@ def additional_SD(ax, sd, cl, ucl=None):
     return
 
 
+def _print_spc_report(title, charts, sizes, size_label, labels, notes, print_port):
+    """只呈现调用方已有的统计量和实际使用的控制限，不执行异常判定。"""
+    def at(value, index):
+        if isinstance(value, (list, tuple, np.ndarray)):
+            return value[index] if index < len(value) else None
+        return value
+
+    def number(value):
+        return '*' if value is None or np.isnan(value) else '%.6g' % value
+
+    def limit_summary(value):
+        if isinstance(value, (list, tuple, np.ndarray)):
+            if not all(item == value[0] or (np.isnan(item) and np.isnan(value[0])) for item in value):
+                return '逐点变化（见明细）'
+            value = value[0]
+        return number(value)
+
+    print_port('\n---- SPC 控制图报告：%s ----' % title)
+    if not charts:
+        print_port('未选择可报告的图表。')
+        return
+    print_port('\n控制图信息')
+    print_port('点数/子组数：%d；%s：%s' % (
+        len(charts[0][1]), size_label, limit_summary(sizes)))
+    for note in notes:
+        print_port(note)
+    print_port('\n控制限汇总')
+    table = gen_table([['图表', 'LCL', 'CL', 'UCL']] + [
+        [name, limit_summary(lcl), limit_summary(cl), limit_summary(ucl)]
+        for name, values, lcl, cl, ucl in charts])
+    for column in ['LCL', 'CL', 'UCL']:
+        table.align[column] = 'r'
+    print_port(str(table))
+    print_port('LCL = 下控制限；CL = 中心线；UCL = 上控制限。控制限不是产品规格限。')
+    print_port('\n过程统计摘要与逐点明细')
+    for name, values, lcl, cl, ucl in charts:
+        print_port(name)
+        # 与 limit_line 一样将常量列表视为水平线，每张图只归并一次。
+        lcl, cl, ucl = [value[0] if isinstance(value, (list, tuple, np.ndarray))
+                       and len(set(value)) == 1 else value for value in (lcl, cl, ucl)]
+        table = gen_table([['点号', '子组/时间标识', size_label, '统计值', 'LCL', 'CL', 'UCL']] + [
+            [i + 1, labels[i] if labels is not None and i < len(labels) else '*',
+             number(at(sizes, i)), number(value), number(at(lcl, i)),
+             number(at(cl, i)), number(at(ucl, i))]
+            for i, value in enumerate(values)])
+        for column in ['点号', size_label, '统计值', 'LCL', 'CL', 'UCL']:
+            table.align[column] = 'r'
+        print_port(str(table))
+    print_port('* 表示缺失、未提供或不适用；点号从 1 开始，按本次输入顺序列示。')
+    print_port('\n特殊原因及异常点')
+    print_port('当前实现未执行特殊原因规则判定，未提供异常点索引或规则明细。')
+    print_port('\n结论说明')
+    print_port('本报告仅汇总统计量与控制限，不能据此认定过程受控或满足产品规格。')
+
+
 def x_plot(data, bar1=None, pooled=False,
            mean=None, k=3, sigma=None,
            all_SD_lines=True,
@@ -294,31 +349,34 @@ def x_plot(data, bar1=None, pooled=False,
             format='png')
 
     if print_out:
-        print = print_port
-        print("\n---- Control Chart ----")
+        if isinstance(n, list):
+            is_range = s['ylabel2'] == 'Range'
+            title = 'Xbar-R' if is_range else 'Xbar-S'
+            name1, name2 = 'Xbar 图（子组均值）', 'R 图（子组极差）' if is_range else 'S 图（子组标准差）'
+            sizes = n
+            notes = ['观测总数：%d' % sum(n),
+                     '过程标准差来源：' + ('指定 sigma = %.6g' % sigma if sigma is not None else
+                     ('合并标准差估计' if pooled else '子组极差估计' if is_range else '子组标准差估计'))]
+        else:
+            title = 'I' if one_chart else 'MR' if chart_two_only else 'I-MR'
+            name1, name2 = 'I 图（单值）', 'MR 图（移动极差）'
+            sizes = 1
+            notes = ['移动极差跨度：%d；前 %d 个移动极差未定义。' % (mr_range, mr_range - 1),
+                     '过程标准差来源：' + ('指定 sigma = %.6g' % sigma if sigma is not None else '移动极差估计')]
+        notes += ['控制限计算参数：k = %.6g；均值来源：%s。' % (
+            k, '输入数据估计' if mean is None else '指定 mean = %.6g' % mean),
+            '控制限汇总及明细使用实际绘图值（含调用方指定的中心线或控制限）。']
+        if xlabel is not None:
+            notes.append('输入标签（X 轴）：%s' % xlabel)
+        charts = []
         if not chart_two_only:
-            print("\n" + ylabel1)
-            t = [["LCL", "Center", "UCL"], []]
-            for i in [lcl1, bar1, ucl1]:
-                if isinstance(i, (int, float,)):
-                    t[1].append("%.2f" % i)
-                else:
-                    t[1].append("Multiple")
-            print(str(gen_table(t)))
-            #  print("LCL=%.2f\tmean = %.2f\tUCL=%.2f" % (
-            #      lcl1, bar1, ucl1))
+            charts.append((name1, s['Y1'], lcl1, bar1, ucl1))
+            notes.append('%s显示标签：%s' % (name1, ylabel1))
         if not one_chart:
-            print("\n" + ylabel2)
-            #  print("LCL=%.2f\tmean = %.2f\tUCL=%.2f" % (
-            #      lcl2, bar2, ucl2))
-            t = [["LCL", "Center", "UCL"], []]
-            for i in [lcl2, bar2, ucl2]:
-                if isinstance(i, (int, float,)):
-                    t[1].append("%.2f" % i)
-                else:
-                    t[1].append("Multiple")
-            print(str(gen_table(t)))
-        #  print("n = %d" % n)
+            charts.append((name2, s['Y2'], lcl2, bar2, ucl2))
+            notes.append('%s显示标签：%s' % (name2, ylabel2))
+        _print_spc_report(title, charts, sizes, '子组大小' if isinstance(n, list) else '每点观测数',
+                          xLabels, notes, print_port)
 
     res = {"lcl1": lcl1, "bar1": bar1, "ucl1": ucl1,
            "lcl2": lcl2, "bar2": bar2, "ucl2": ucl2,
@@ -400,12 +458,15 @@ def p_np_plot(p=None, n=1,
     plt.show()
 
     if print_out:
-        print = print_port
-        print("\n---- Control Chart ----")
-        print(ylabel)
-        print("mean = %.4f" % (p_bar))
-        if NP:
-            print("UCL = %.3f   LCL=%.3f" % (ucl_list[0], lcl_list[0]))
+        name = 'NP 图（不合格品数）' if NP else 'P 图（不合格比例）'
+        _print_spc_report('NP' if NP else 'P', [(
+            name, p, lcl1 if lcl1 is not None else lcl_list,
+            p_bar, ucl1 if ucl1 is not None else ucl_list)], nlist, '检验数量', xLabels,
+            ['输入标签（Y 轴）：%s' % ylabel,
+             '控制限方法：二项分布的 3 倍标准差；比例中心按检验数量加权；原计算下限截为 0。',
+             'NP 图统计值为不合格品数量；原计算按首组检验数量缩放。' if NP else
+             'P 图统计值为不合格比例；检验数量不同时逐点列示实际控制限。',
+             '中心线与控制限采用实际绘图值（含调用方指定值）。'], print_port)
 
     return
 
@@ -478,11 +539,14 @@ def cu_plot(c=None, n=1,
     plt.show()
 
     if print_out:
-        print = print_port
-        print("\n---- Control Chart ----")
-        print(ylabel)
-        print("mean = %.4f" % (c_bar))
-        if C:
-            print("UCL = %.3f   LCL=%.3f" % (ucl_list[0], lcl_list[0]))
+        name = 'C 图（缺陷数）' if C else 'U 图（单位缺陷数）'
+        _print_spc_report('C' if C else 'U', [(
+            name, c, lcl1 if lcl1 is not None else lcl_list,
+            c_bar, ucl1 if ucl1 is not None else ucl_list)], nlist, '检查单位/机会数', xLabels,
+            ['输入标签（Y 轴）：%s' % ylabel,
+             '控制限方法：泊松分布的 3 倍标准差；中心线为输入缺陷总数 / 检查单位总数；原计算下限截为 0。',
+             'C 图在 GUI 中每次使用一个检查单位；本表按原实现列示输入缺陷数 / 检查单位数，缺陷数不同于不合格品数。' if C else
+             'U 图统计值为输入缺陷数 / 检查单位数；单位数不同时逐点列示实际控制限。',
+             '中心线与控制限采用实际绘图值（含调用方指定值）。'], print_port)
 
     return
