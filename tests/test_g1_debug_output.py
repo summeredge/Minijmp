@@ -102,8 +102,8 @@ def test_np_p_apply_keeps_plot_data_labels_and_report(dialog_type, n, capsys, mo
     assert original(**dict(options, fig=other, ax=other.subplots(),
                            print_port=expected_output.append)) is None
     assert output == expected_output
-    assert output[0] == '\n---- Control Chart ----'
-    assert output[1] == expected_label
+    assert output[0] == f'\n---- SPC 控制图报告：{chart} ----'
+    assert f'输入标签（Y 轴）：{expected_label}' in output
     assert capsys.readouterr().out == ''
 
 
