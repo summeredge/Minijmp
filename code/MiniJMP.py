@@ -22,6 +22,7 @@ from sb_hist_dialog import singleHistoDialog, multiHistoDialog, xyHistoDialog
 from sb_box_dialog import singleBoxDialog, multiBoxDialog
 from sb_misc_dialog import countPlotDialog, linePlotDialog, dotPlotDialog
 from dist_plot_dialog import displayProbDialog, displayProb2xDialog
+from help_link import open_help
 
 
 class Minijmp(Minijmp_pre):
@@ -229,13 +230,15 @@ class Minijmp(Minijmp_pre):
         self.debug_menu = self.createPulldown(self.menu, self.debug_menu)
         self.menu.add_cascade(label='Debug', menu=self.debug_menu['var'])
 
-        self.help_menu = {'01Online Help': {'cmd': self.online_documentation},
-                          '02View Error Log': {'cmd': self.showErrorLog},
-                          '03About': {'cmd': self.about}}
+        self.help_menu = {'01帮助文档': {'cmd': lambda: open_help(parent=self.main)},
+                          '02Online Help': {'cmd': self.online_documentation},
+                          '03View Error Log': {'cmd': self.showErrorLog},
+                          '04About': {'cmd': self.about}}
         self.help_menu = self.createPulldown(self.menu, self.help_menu)
         self.menu.add_cascade(label='Help', menu=self.help_menu['var'])
 
         self.main.config(menu=self.menu)
+        self.main.bind('<F1>', lambda event: open_help(parent=self.main))
         return
 
     def update_title(self):
