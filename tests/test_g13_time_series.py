@@ -315,7 +315,7 @@ def test_menu_entry_reaches_real_dialog(tk_root, monkeypatch):
         menu = app.plots_menu['var']
         labels = {menu.entrycget(i, 'label').strip(): i for i in range(menu.index('end') + 1)
                   if menu.type(i) == 'command'}
-        assert '分组线图' in labels and '时间序列图' in labels
+        assert '线条图' in labels and '时间序列图' in labels
         menu.invoke(labels['时间序列图'])
         tk_root.update()
         tops = [w for w in tk_root.winfo_children() if isinstance(w, tk.Toplevel)]

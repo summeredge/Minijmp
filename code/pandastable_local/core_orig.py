@@ -301,9 +301,9 @@ class Table(Canvas):
         self.bind("<Left>", self.handle_arrow_keys)
         self.bind("<Up>", self.handle_arrow_keys)
         self.bind("<Down>", self.handle_arrow_keys)
-        self.parentframe.master.bind_all("<KP_8>", self.handle_arrow_keys)
-        self.parentframe.master.bind_all("<Return>", self.handle_arrow_keys)
-        self.parentframe.master.bind_all("<Tab>", self.handle_arrow_keys)
+        self.bind("<KP_8>", self.handle_arrow_keys)
+        self.bind("<Return>", self.handle_arrow_keys)
+        self.bind("<Tab>", self.handle_arrow_keys)
         # if 'windows' in self.platform:
         self.bind("<MouseWheel>", self.mouse_wheel)
         self.bind('<Button-4>', self.mouse_wheel)
@@ -2734,7 +2734,7 @@ class Table(Canvas):
         self.allrows = False
         self.drawSelectedRect(self.currentrow, self.currentcol)
         coltype = self.model.getColumnType(self.currentcol)
-        return
+        return 'break'
 
     def handle_double_click(self, event):
         """Do double click stuff. Selected row/cols will already have

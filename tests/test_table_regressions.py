@@ -13,6 +13,7 @@ from pandastable_local.core import Table
 from pandastable_local.core_orig import Table as OriginalTable
 from pandastable_local.data import TableModel
 from pandastable_local import config, core_orig
+from test_csv_import import csv_app
 
 
 @pytest.fixture(params=[OriginalTable, Table, MTable])
@@ -115,12 +116,16 @@ def test_official_csv_import_then_click_and_edit(table, name, options, shape):
 
 
 @pytest.mark.parametrize('advanced', [False, True])
-def test_csv_menu_exposes_smart_and_advanced_import(advanced):
-    from MiniJMP import Minijmp
+def test_csv_menu_exposes_smart_and_advanced_import(advanced, csv_app, monkeypatch):
     from unittest.mock import Mock
-    app = SimpleNamespace(_call=Mock(), update_title=Mock())
-    Minijmp.import_csv(app, advanced=advanced)
-    app._call.assert_called_once_with('importCSV', dialog=advanced)
+    app, error = csv_app
+    command = Mock()
+    monkeypatch.setattr(app, 'import_csv', command)
+    app.createMenuBar()
+    from test_csv_import import invoke_csv_menu
+    invoke_csv_menu(app, advanced=advanced)
+    command.assert_called_once_with(**({'advanced': True} if advanced else {}))
+    error.assert_not_called()
 
 
 def test_real_import_dialog_preserves_hash_text_and_default_rows(table, tmp_path, monkeypatch):

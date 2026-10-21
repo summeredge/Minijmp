@@ -105,7 +105,7 @@ def test_menu_import_updates_real_table_and_statistics(csv_app, monkeypatch, tmp
     assert list(app.table.model.df.columns) == ['Timestamp', 'B', 'A']
     assert app.table.colheader.model is app.table.model
     assert app.table.filename is None and app.table.prevdf is None
-    assert app.main.title() == 'Untitled - Minijmp'
+    assert app.main.title() == f'未命名项目 — {app.getCurrentSheet()} - Minijmp'
     assert number_list(app.table.model.df['B']) == [2, 6]
     assert number_list(app.table.model.df['A']) == [4, 8]
     assert read.call_args.args == (['B', 'A'], '*-1h', '*', '10m')
@@ -160,7 +160,7 @@ def test_failed_or_canceled_query_preserves_sheet(csv_app, monkeypatch, failure)
     assert_frame_equal(app.table.model.df, old)
     assert_frame_equal(app.table.prevdf, old)
     assert app.table.filename == 'old.pickle'
-    assert app.main.title() == 'old.pickle - Minijmp'
+    assert app.main.title() == f'未命名项目 — {app.getCurrentSheet()} - Minijmp'
     error.assert_not_called()
 
 

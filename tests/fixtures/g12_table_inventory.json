@@ -8,7 +8,7 @@
     "bounds": "追踪显式导入/构造别名、本函数赋值、字符串包装、原生表方法及多行 ASCII/tab 字面量；静态审计不模拟任意跨函数动态对象流。所有现有字符串格式、join、原生 summary、DataFrame 文本与控制台数据路径已人工复核。"
   },
   "summary": {
-    "python_files": 71,
+    "python_files": 73,
     "files_with_production_sites": 23,
     "producer_scopes": 46,
     "constructor_calls": 114,
@@ -94,6 +94,7 @@
     "sb_misc_dialog.py",
     "sb_palette_dialog.py",
     "sbplot_dialog.py",
+    "sheet_context.py",
     "stat_table.py",
     "t_test.py",
     "ti.py",
@@ -101,7 +102,8 @@
     "time_series_dialog.py",
     "two_way_anova.py",
     "txt_output.py",
-    "utilities.py"
+    "utilities.py",
+    "worksheets.py"
   ],
   "file_reviews": {
     "GRR.py": "存在已逐函数分类的表格生产位置；见 producers。",
@@ -167,6 +169,7 @@
     "sb_misc_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "sb_palette_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "sbplot_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "sheet_context.py": "工作表来源输出代理；转发原有统计结果，无独立统计表构造。",
     "stat_table.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "t_test.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "ti.py": "存在已逐函数分类的表格生产位置；见 producers。",
@@ -174,7 +177,8 @@
     "time_series_dialog.py": "G13 变量选择和坐标轴配置界面；复用 Dialogs.error 展示错误，不新增统计表生产位置。",
     "two_way_anova.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "txt_output.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
-    "utilities.py": "存在已逐函数分类的表格生产位置；见 producers。"
+    "utilities.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "worksheets.py": "工作表生命周期及工程/导入管理；无独立统计表构造或报告输出。"
   },
   "producers": {
     "GRR.py::_grr_tables": {
@@ -2302,6 +2306,13 @@
       ],
       "classification": "plain_text_or_forwarding",
       "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "sheet_context.py::SheetApp.print": {
+      "ports": [
+        "self._app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "将已有统计载体原样转发到来源工作表的输出端口，不构造独立统计表。"
     },
     "t_test.py::paired_t_test": {
       "ports": [

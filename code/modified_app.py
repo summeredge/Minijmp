@@ -51,7 +51,7 @@ class Minijmp_pre(DataExplore):
         abwin = Toplevel()
         x, y, w, h = getParentGeometry(self.main)
         abwin.geometry('+%d+%d' % (x + w / 2 - 200, y + h / 2 - 200))
-        abwin.title('About')
+        abwin.title('关于 MiniJMP')
         abwin.transient(self)
         abwin.grab_set()
         abwin.resizable(width=False, height=False)
@@ -71,7 +71,9 @@ class Minijmp_pre(DataExplore):
 
         text = 'Minijmp\n'\
             + 'version 0.1\n'\
-            + 'Copyright (C) G.Du 2024-\n'
+            + 'Copyright (C) G.Du 2024-\n'\
+            + '本版本基于原作者 G.Du 发布的开源软件 Minijmp 进行二次开发。\n'\
+            + '保留原作者署名及版权声明，并继续遵循 GNU GPL 开源许可。\n'
         tmp = Label(abwin, text=text, anchor=CENTER, justify=CENTER)
         tmp.grid(row=1, column=0, sticky='news', pady=2, padx=4)
         text = 'This program is free software; you can redistribute it and/or\n'\

@@ -11,7 +11,7 @@ from modified_table import MTable
 from pandastable_local.data import TableModel
 
 
-CASCADES = ['文件', '编辑', '视图', '数据', '工具',
+CASCADES = ['文件', '工作表', '编辑', '视图', '数据', '工具',
             '统计', '质量', '图形', '调试', '帮助']
 
 
@@ -102,7 +102,8 @@ def test_every_pulldown_entry_is_chinese(app):
 
 EXPECTED_LAYOUT = {
     '文件': ['新建项目', '打开项目', '保存', '另存为', 'sep',
-            '导入 CSV', '高级导入', '导入 PI 数据', '导入 Excel', '导出 CSV', 'sep', '退出'],
+            '导入 CSV', '高级导入', '导入 PI 数据', '导入 Excel', '导出 CSV', '导出当前表（单表 / Excel）', 'sep', '退出'],
+    '工作表': ['新增工作表', '复制工作表', '重命名工作表', '删除工作表'],
     '编辑': ['撤销 (Ctrl+Z)', '重做', '粘贴（不含表头）(Ctrl+V)', '粘贴（含表头）',
             '复制整表', '复制所选 (Ctrl+C)', '删除所选并上移', '清除所选 (Del)',
             '查找/替换 (Ctrl+F)', 'sep', '首选项'],
@@ -126,10 +127,10 @@ EXPECTED_LAYOUT = {
             '控制图 C', '控制图 U'],
     '图形': ['绘图向导（旧版）', 'sep', '直方图与分布拟合', '分组直方图',
             '二维直方图', '多变量箱线图', '分组箱线图', '分组计数图',
-            '分组线图', '时间序列图', '分组点图', 'sep', '概率图', '概率图对比', 'sep',
+            '线条图', '时间序列图', '散点图', 'sep', '概率图', '概率图对比', 'sep',
             '保存图形', '清除图形', 'PDF 报告', 'sep'],
     '调试': ['打印数据框', 'sep'],
-    '帮助': ['帮助文档', '在线帮助', '查看错误日志', '关于'],
+    '帮助': ['帮助文档', '查看错误日志', '关于'],
 }
 
 
@@ -143,11 +144,11 @@ def test_pulldown_keeps_original_order_separators_and_count(app, cascade):
 
 # (cascade, label, table method, keyword arguments the table must receive)
 COMMANDS = [
-    ('文件', '新建项目', 'new', {}),
-    ('文件', '打开项目', 'load', {}),
-    ('文件', '导入 CSV', 'importCSV', {'dialog': False}),
-    ('文件', '高级导入', 'importCSV', {'dialog': True}),
-    ('文件', '导入 Excel', 'loadExcel', {}),
+    ('文件', '新建项目', 'new_file', {}),
+    ('文件', '打开项目', 'load_file', {}),
+    ('文件', '导入 CSV', 'import_csv', {}),
+    ('文件', '高级导入', 'import_csv', {'advanced': True}),
+    ('文件', '导入 Excel', 'load_excel', {}),
     ('文件', '导出 CSV', 'doExport', {}),
     ('编辑', '重做', 'redo', {}),
     ('编辑', '粘贴（含表头）', 'paste_header', {}),
@@ -163,7 +164,11 @@ COMMANDS = [
 def test_translated_item_invokes_its_original_command(
         app, monkeypatch, cascade, label, method, expected):
     sentinel = Mock()
-    monkeypatch.setattr(app.table, method, sentinel)
+    if method in ('new_file', 'load_file', 'import_csv', 'load_excel'):
+        monkeypatch.setattr(app, method, sentinel)
+        app.createMenuBar()
+    else:
+        monkeypatch.setattr(app.table, method, sentinel)
     menu = pulldown(app, cascade)
     index = next(i for i, kind, text in read_menu(menu)
                  if kind == 'command' and text.strip() == label)
@@ -284,7 +289,6 @@ def test_dynamic_column_label_uses_chinese_suffix(app, unposted):
 
 
 @pytest.mark.parametrize('label,method', [
-    ('在线帮助', 'online_documentation'),
     ('查看错误日志', 'showErrorLog'), ('关于', 'about'),
 ])
 def test_help_commands_keep_their_callbacks(app, monkeypatch, label, method):

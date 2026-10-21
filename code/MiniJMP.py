@@ -7,6 +7,7 @@ import time
 ###############################
 from pandastable_local import config, plotting
 # ####### Own Module ###########
+from worksheets import Worksheets
 from modified_app import Minijmp_pre
 from modified_table import MTable as Table
 from plots import plot_viewer
@@ -25,7 +26,7 @@ from dist_plot_dialog import displayProbDialog, displayProb2xDialog
 from help_link import open_help
 
 
-class Minijmp(Minijmp_pre):
+class Minijmp(Worksheets, Minijmp_pre):
     """Basic test frame for the table"""
 
     def __init__(self, parent=None):
@@ -44,14 +45,7 @@ class Minijmp(Minijmp_pre):
         # start logging
         self.start_logging()
 
-        f = Frame(self.main)
-        f.pack(fill=BOTH, expand=1)
-        self.table = Table(f, showtoolbar=False, showstatusbar=True,
-                           enable_menus=True)
-        options = {'colheadercolor': 'green', 'floatprecision': 3,
-                   'rowheaderfgcolor': 'black', 'rowheaderbgcolor': 'gray'}
-        config.apply_options(options, self.table)
-        self.table.show()
+        self.init_worksheets()
         self.createMenuBar()
         self.setStyles()
         self.clipboarddf = None
@@ -82,12 +76,20 @@ class Minijmp(Minijmp_pre):
                          '09导入 PI 数据': {'cmd': self.import_pi_data},
                          '10导入 Excel': {'cmd': self.load_excel},
                          '10导出 CSV': {'cmd': lambda: self._call('doExport')},
+                         '10导出当前表（单表 / Excel）': {'cmd': self.export_sheet},
                          '11sep': '',
                          '12退出': {'cmd': self.quit}}
 
         self.file_menu = self.createPulldown(
             self.menu, filemenuitems, var=file_menu)
         self.menu.add_cascade(label='文件', menu=self.file_menu['var'])
+
+        sheetmenu = {'01新增工作表': {'cmd': self.addSheet},
+                     '02复制工作表': {'cmd': self.copySheet},
+                     '03重命名工作表': {'cmd': self.renameSheet},
+                     '04删除工作表': {'cmd': self.deleteSheet}}
+        self.sheet_menu = self.createPulldown(self.menu, sheetmenu)
+        self.menu.add_cascade(label='工作表', menu=self.sheet_menu['var'])
 
         editmenuitems = {'01撤销 (Ctrl+Z)': {'cmd': self.undo},
                          '02重做': {'cmd': lambda: self._call('redo')},
@@ -215,9 +217,9 @@ class Minijmp(Minijmp_pre):
             '15多变量箱线图': {'cmd': self.singleBox},
             '16分组箱线图': {'cmd': self.multiBox},
             '18分组计数图': {'cmd': self.countPlot},
-            '20分组线图': {'cmd': self.linePlot},
+            '20线条图': {'cmd': self.linePlot},
             '21时间序列图': {'cmd': self.timeSeriesPlot},
-            '22分组点图': {'cmd': self.dotPlot},
+            '22散点图': {'cmd': self.dotPlot},
             '30sep': '',
             '32概率图': {'cmd': self.distDPPlot},
             '33概率图对比': {'cmd': self.dist2XPlot},
@@ -233,7 +235,6 @@ class Minijmp(Minijmp_pre):
         self.menu.add_cascade(label='调试', menu=self.debug_menu['var'])
 
         self.help_menu = {'01帮助文档': {'cmd': lambda: open_help(parent=self.main)},
-                          '02在线帮助': {'cmd': self.online_documentation},
                           '03查看错误日志': {'cmd': self.showErrorLog},
                           '04关于': {'cmd': self.about}}
         self.help_menu = self.createPulldown(self.menu, self.help_menu)
@@ -243,77 +244,22 @@ class Minijmp(Minijmp_pre):
         self.main.bind('<F1>', lambda event: open_help(parent=self.main))
         return
 
-    def update_title(self):
-        self.pickle_fname = self.table.filename
-        if self.pickle_fname is not None:
-            file_name_with_extension = os.path.basename(self.pickle_fname)
-            self.main.title(file_name_with_extension + " - Minijmp")
-        else:
-            self.main.title("Untitled - Minijmp")
-        return
-
-    def new_file(self):
-        self._call('new')
-        self.update_title()
-        return
-
-    def load_file(self):
-        self._call('load')
-        self.update_title()
-        return
-
-    def save_file(self):
-        if self.pickle_fname is None:
-            self.save_as_file()
-        else:
-            self._call('save')
-        return
-
-    def save_as_file(self):
-        self._call('saveAs')
-        self.update_title()
-        return
-
-    def import_csv(self, advanced=False):
-        self._call('importCSV', dialog=advanced)
-        self.update_title()
-        return
-
-    def import_pi_data(self):
-        from pi_import import PIImportDialog
-        from pandastable_local.data import TableModel
-
-        dialog = PIImportDialog(self.main)
-        self.main.wait_window(dialog)
-        if dialog.df is not None:
-            self.table.updateModel(TableModel(dialog.df))
-            self.table.prevdf = None
-            self.table.filename = None
-            self.table.redraw()
-            self.update_title()
-        return
-
-    def load_excel(self):
-        self._call('loadExcel')
-        self.update_title()
-        return
-
     def printDF(self):
         print(self.table.model.df)
         return
 
-    def getCurrentTable(self):
-        return self.table
-
-    def addPlot(self):
+    def addPlot(self, table=None):
         """Store the current plot so it can be re-loaded"""
 
-        #  name = self.getCurrentSheet()
-        #  table = self.sheets[name]
-        table = self.getCurrentTable()
+        table = table if table is not None else self.table
+        if getattr(table, 'pf', None) is None:
+            from tkinter import messagebox
+            messagebox.showinfo('保存图形', '当前工作表还没有图形。', parent=self.main)
+            return
         fig = table.pf.fig
         t = time.strftime("%H:%M:%S")
-        label = t
+        source = next(name for name, item in self.sheets.items() if item is table)
+        label = f'{source} {t} ({len(self.plots) + 1})'
         # dump and reload the figure to get a new object
         p = pickle.dumps(fig)
         fig = pickle.loads(p)
@@ -345,32 +291,28 @@ class Minijmp(Minijmp_pre):
         self._call('plotSelected')
         return
 
-    def showPlotViewer(self, parent=None, figsize=(10, 7), save_last=True):
-        """Create plot frame"""
-
-        if hasattr(self.table, 'pf') and self.table.pf is not None:
+    def showPlotViewer(self, parent=None, figsize=(10, 7), save_last=True, table=None):
+        table = table if table is not None else self.table
+        if getattr(table, 'pf', None) is not None:
             if save_last:
-                self.addPlot()
-            self.table.pf.close()
+                self.addPlot(table=table)
+            table.pf.close()
+        table.pf = plot_viewer(table=table, parent=parent, figsize=figsize)
+        if getattr(table, 'child', None) is not None:
+            table.child.pf = table.pf
+        return table.pf
 
-        self.table.pf = plot_viewer(
-            table=self.table,
-            parent=parent,
-            figsize=figsize)
-        if hasattr(self.table, 'child') and self.table.child is not None:
-            self.table.child.pf = self.table.pf
-        return self.table.pf
-
-    def print(self, txt, end="\n"):
-        if self.table.tOut is None:
-            self.tOut = txt_viewer(table=self.table)
+    def print(self, txt, end="\n", table=None):
+        table = table if table is not None else self.table
+        if table.tOut is None:
+            table.tOut = txt_viewer(table=table)
+        self.tOut = table.tOut
         from stat_table import StatTable
         if isinstance(txt, StatTable):
-            self.tOut.add_table(txt, end)
+            table.tOut.add_table(txt, end)
         else:
-            self.tOut.add_txt(txt + end)
-        self.tOut.to_end(defer=True)
-        return
+            table.tOut.add_txt(txt + end)
+        table.tOut.to_end(defer=True)
 
     def linear_fit(self):
 
