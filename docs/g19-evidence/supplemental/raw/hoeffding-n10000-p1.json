@@ -1,0 +1,68 @@
+{
+  "scenario": {
+    "name": "hoeffding",
+    "n": 10000,
+    "timeout": 180,
+    "id": "hoeffding-n10000-p1",
+    "profile": false
+  },
+  "pid": 33756,
+  "rows": [
+    {
+      "phase": "compute",
+      "repeat": 0,
+      "wall_seconds": 0.17240619999938644,
+      "cpu_seconds": 0.171875,
+      "rss_before_mib": 154.8046875,
+      "rss_after_mib": 155.77734375,
+      "process_peak_rss_mib": 155.77734375,
+      "private_commit_mib": 126.8515625,
+      "status": "ok",
+      "warmup": true
+    },
+    {
+      "phase": "compute",
+      "repeat": 1,
+      "wall_seconds": 0.16764810000313446,
+      "cpu_seconds": 0.171875,
+      "rss_before_mib": 155.78125,
+      "rss_after_mib": 155.828125,
+      "process_peak_rss_mib": 155.828125,
+      "private_commit_mib": 126.91796875,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "compute",
+      "repeat": 2,
+      "wall_seconds": 0.1622948999865912,
+      "cpu_seconds": 0.15625,
+      "rss_before_mib": 155.828125,
+      "rss_after_mib": 155.828125,
+      "process_peak_rss_mib": 155.828125,
+      "private_commit_mib": 126.91796875,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "compute",
+      "repeat": 3,
+      "wall_seconds": 0.1647172000084538,
+      "cpu_seconds": 0.15625,
+      "rss_before_mib": 155.828125,
+      "rss_after_mib": 155.828125,
+      "process_peak_rss_mib": 155.828125,
+      "private_commit_mib": 126.91796875,
+      "status": "ok",
+      "warmup": false
+    }
+  ],
+  "stage": "complete",
+  "memory_scope": "cumulative_process_peak_including_imports_warmup_inputs",
+  "repeat": 3,
+  "status": "ok",
+  "exit_code": 0,
+  "process_seconds": 2.6956895000184886,
+  "timeout_seconds": 180,
+  "job_memory_limit_mib": 1536
+}

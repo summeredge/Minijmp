@@ -1,6 +1,7 @@
 from stat_table import StatTable
 from scipy.stats import norm, binom, hypergeom
 from scipy.stats import f as f_dist
+from scipy.special import rel_entr
 #  from functools import lru_cache
 import numpy as np
 ####### Own Modules ########
@@ -45,17 +46,18 @@ def prop_2sample(n1=None, n2=None, e1=None,
 
     mode = int((n1 + 1) * (e1 + e2 + 1) / (n1 + n2 + 2))
     observed_probability = rv.pmf(e1)
+    lower, upper = rv.support()
 
     if e1 == mode:
         p_f = 1
     elif e1 < mode:
         y = mode
-        while rv.pmf(y) >= observed_probability:
+        while y <= upper and rv.pmf(y) >= observed_probability:
             y += 1
         p_f = rv.cdf(e1) + 1 - rv.cdf(y - 1)
     else:
         y = mode
-        while rv.pmf(y) >= observed_probability:
+        while y >= lower and rv.pmf(y) >= observed_probability:
             y -= 1
         p_f = 1 - rv.cdf(e1 - 1) + rv.cdf(y)
 
@@ -146,17 +148,22 @@ def _p_sterne(probabilities, PTK):
 
 
 def p_likelihood_ratio(n, p0, x):
-    p = x / n
-    rv = binom(n, p0)
-
-    def LR(i):
-        ii = min(i, n - i)
-        return (p / p0)**ii * ((1 - p) / (1 - p0))**(n - ii)
-
-    threshold = LR(x)
-    probabilities = rv.pmf(np.arange(n + 1))
-    return sum(probability for y, probability in enumerate(probabilities)
-               if LR(y) >= threshold)
+    """Exact two-sided binomial test ordered by L(p0) / L(y/n)."""
+    if n < 0 or int(n) != n or not 0 <= x <= n or int(x) != x or not 0 <= p0 <= 1:
+        raise ValueError('Require integer n >= 0, integer 0 <= x <= n, and 0 <= p0 <= 1')
+    if n == 0:
+        return 1.0
+    if p0 in (0, 1):
+        return float(x == n * p0)
+    support = np.arange(n + 1)
+    fitted = support / n
+    # n*KL is log L(y/n)-log L(p0); rel_entr handles zero counts.
+    log_lr = n * (rel_entr(fitted, p0) + rel_entr(1 - fitted, 1 - p0))
+    threshold = log_lr[int(x)]
+    # Include mathematical ties despite roundoff, without a broad relative tolerance.
+    tolerance = 32 * np.finfo(float).eps * max(1.0, abs(threshold))
+    probabilities = binom(n, p0).pmf(support)
+    return float(min(1.0, np.sum(probabilities[log_lr >= threshold - tolerance])))
 
 
 def prop_test_1sample(events=1, N=1, p0=1, print_port=print,

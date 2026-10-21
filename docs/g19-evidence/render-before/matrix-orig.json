@@ -1,0 +1,184 @@
+{
+  "scenario": "matrix-orig",
+  "n": 1000,
+  "p": 20,
+  "seed": 20261021,
+  "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+  "versions": {
+    "numpy": "2.4.6",
+    "pandas": "3.0.6",
+    "matplotlib": "3.11.2"
+  },
+  "source": "C:\\Users\\shaoy\\Documents\\Minijmp\\docs\\g18-evidence\\before",
+  "source_sha256": {
+    "control_chart.py": "98c960329c6ec6696a45a05b152e67196980eacee866bb30ff6ebd46266fad10",
+    "linear_plot.py": "ab24921e7c6ffb4d1d7154c728ed5ea6ed0299ecab3b4e340f810b246f87d250",
+    "stat_table.py": "a66ba1e8632a37f71a1ebf406650df759e7514fd6934f795b7a33aef4b0f1124",
+    "time_series.py": "75ff6467e3a7705066f06b69dccd28d76884e287c5a25d5edee64ea1283eb6bf",
+    "time_series_dialog.py": "630de7e10e0bb796441ae3a2bec6672dff1e636108b4b4bf010b15b472a55bad",
+    "txt_output.py": "e2ab1688e355f6665ae9a380de3fcc510433e629a40b11ccd75d20288fed93c3"
+  },
+  "rows": [
+    {
+      "phase": "matrix_and_artists",
+      "repeat": 0,
+      "warmup": true,
+      "seconds": 5.880177399987588,
+      "cpu_seconds": 5.625,
+      "memory_mib": {
+        "WorkingSetSize": 279.65234375,
+        "PeakWorkingSetSize": 279.65234375,
+        "PagefileUsage": 283.8671875
+      },
+      "pearson_seconds": 1.08463959992514,
+      "axes_artists_and_report_seconds": 4.795537800062448,
+      "pearson_calls": 590,
+      "axes": 361
+    },
+    {
+      "phase": "agg_first_draw",
+      "repeat": 0,
+      "warmup": true,
+      "seconds": 3.582551900006365,
+      "cpu_seconds": 3.4375,
+      "memory_mib": {
+        "WorkingSetSize": 286.53125,
+        "PeakWorkingSetSize": 286.53125,
+        "PagefileUsage": 289.05078125
+      }
+    },
+    {
+      "phase": "agg_redraw",
+      "repeat": 0,
+      "warmup": true,
+      "seconds": 1.5071803000173531,
+      "cpu_seconds": 1.4375,
+      "memory_mib": {
+        "WorkingSetSize": 286.6015625,
+        "PeakWorkingSetSize": 286.6015625,
+        "PagefileUsage": 289.05078125
+      }
+    },
+    {
+      "phase": "matrix_and_artists",
+      "repeat": 1,
+      "warmup": false,
+      "seconds": 5.578123000013875,
+      "cpu_seconds": 5.328125,
+      "memory_mib": {
+        "WorkingSetSize": 283.64453125,
+        "PeakWorkingSetSize": 286.6875,
+        "PagefileUsage": 286.83984375
+      },
+      "pearson_seconds": 1.1474560998613015,
+      "axes_artists_and_report_seconds": 4.430666900152573,
+      "pearson_calls": 590,
+      "axes": 361
+    },
+    {
+      "phase": "agg_first_draw",
+      "repeat": 1,
+      "warmup": false,
+      "seconds": 3.0672839999897406,
+      "cpu_seconds": 2.96875,
+      "memory_mib": {
+        "WorkingSetSize": 286.8203125,
+        "PeakWorkingSetSize": 286.8203125,
+        "PagefileUsage": 290.5078125
+      }
+    },
+    {
+      "phase": "agg_redraw",
+      "repeat": 1,
+      "warmup": false,
+      "seconds": 1.6987632000236772,
+      "cpu_seconds": 1.578125,
+      "memory_mib": {
+        "WorkingSetSize": 287.02734375,
+        "PeakWorkingSetSize": 287.02734375,
+        "PagefileUsage": 290.76953125
+      }
+    },
+    {
+      "phase": "matrix_and_artists",
+      "repeat": 2,
+      "warmup": false,
+      "seconds": 4.810116199980257,
+      "cpu_seconds": 4.578125,
+      "memory_mib": {
+        "WorkingSetSize": 285.21875,
+        "PeakWorkingSetSize": 287.13671875,
+        "PagefileUsage": 288.2265625
+      },
+      "pearson_seconds": 0.9066427000507247,
+      "axes_artists_and_report_seconds": 3.9034734999295324,
+      "pearson_calls": 590,
+      "axes": 361
+    },
+    {
+      "phase": "agg_first_draw",
+      "repeat": 2,
+      "warmup": false,
+      "seconds": 2.893478900019545,
+      "cpu_seconds": 2.828125,
+      "memory_mib": {
+        "WorkingSetSize": 287.890625,
+        "PeakWorkingSetSize": 287.89453125,
+        "PagefileUsage": 290.6171875
+      }
+    },
+    {
+      "phase": "agg_redraw",
+      "repeat": 2,
+      "warmup": false,
+      "seconds": 1.1954657000023872,
+      "cpu_seconds": 1.09375,
+      "memory_mib": {
+        "WorkingSetSize": 288.20703125,
+        "PeakWorkingSetSize": 288.20703125,
+        "PagefileUsage": 291.01171875
+      }
+    },
+    {
+      "phase": "matrix_and_artists",
+      "repeat": 3,
+      "warmup": false,
+      "seconds": 6.2746684000012465,
+      "cpu_seconds": 6.140625,
+      "memory_mib": {
+        "WorkingSetSize": 285.25,
+        "PeakWorkingSetSize": 288.20703125,
+        "PagefileUsage": 288.71484375
+      },
+      "pearson_seconds": 1.3338155995879788,
+      "axes_artists_and_report_seconds": 4.940852800413268,
+      "pearson_calls": 590,
+      "axes": 361
+    },
+    {
+      "phase": "agg_first_draw",
+      "repeat": 3,
+      "warmup": false,
+      "seconds": 3.2620814999972936,
+      "cpu_seconds": 3.109375,
+      "memory_mib": {
+        "WorkingSetSize": 287.90625,
+        "PeakWorkingSetSize": 288.20703125,
+        "PagefileUsage": 290.80078125
+      }
+    },
+    {
+      "phase": "agg_redraw",
+      "repeat": 3,
+      "warmup": false,
+      "seconds": 1.3817101999884471,
+      "cpu_seconds": 1.359375,
+      "memory_mib": {
+        "WorkingSetSize": 288.12109375,
+        "PeakWorkingSetSize": 288.20703125,
+        "PagefileUsage": 291.0625
+      }
+    }
+  ],
+  "status": "ok"
+}

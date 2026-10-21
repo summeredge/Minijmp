@@ -1,0 +1,2 @@
+PASS: new B-01 regression rejects unchanged HEAD implementation
+old result: 0.9785156249999998

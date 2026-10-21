@@ -1,0 +1,550 @@
+{
+  "baseline-pytest": {
+    "suites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "2096",
+        "time": "472.835",
+        "timestamp": "2026-10-21T13:03:28.993127+08:00",
+        "hostname": "YOGA"
+      }
+    ],
+    "by_module": {
+      "tests.test_csv_import": 41,
+      "tests.test_dialog_translation": 119,
+      "tests.test_file_io": 43,
+      "tests.test_g10_tables": 41,
+      "tests.test_g11_quality_tables": 122,
+      "tests.test_g12_inventory": 15,
+      "tests.test_g12_tables": 9,
+      "tests.test_g13_time_series": 37,
+      "tests.test_g14_rendering": 15,
+      "tests.test_g16_statistics": 117,
+      "tests.test_g17_csv": 71,
+      "tests.test_g17_data_processing": 123,
+      "tests.test_g18_performance": 17,
+      "tests.test_g1_debug_output": 24,
+      "tests.test_g1_statistics_output": 33,
+      "tests.test_g1_text_output": 13,
+      "tests.test_g2_basic_reports": 67,
+      "tests.test_g2_hypothesis_reports": 74,
+      "tests.test_g3_anova_reports": 49,
+      "tests.test_g3_chi_square_reports": 36,
+      "tests.test_g3_computation_contracts": 26,
+      "tests.test_g3_distribution_reports": 30,
+      "tests.test_g3_regression_reports": 23,
+      "tests.test_g3_report_display": 16,
+      "tests.test_g4_quality_reports": 144,
+      "tests.test_g5_spc_reports": 73,
+      "tests.test_g6_chart_presentation": 49,
+      "tests.test_g6_quality_charts": 53,
+      "tests.test_g7_tables": 12,
+      "tests.test_g8_tables": 32,
+      "tests.test_g9_tables": 111,
+      "tests.test_help_center": 11,
+      "tests.test_menu_localization": 47,
+      "tests.test_p1_p2_statistical_fixes": 78,
+      "tests.test_pi_import": 17,
+      "tests.test_pi_reader": 12,
+      "tests.test_result_background": 35,
+      "tests.test_startup": 17,
+      "tests.test_statistical_edges": 15,
+      "tests.test_statistics_regressions": 60,
+      "tests.test_supplemental_stability": 39,
+      "tests.test_table_regressions": 130
+    },
+    "failed": [],
+    "skipped": [],
+    "warning_groups": [
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_axis_nan_policy.py:586",
+        "UserWarning",
+        "scipy.stats.shapiro: Input data has range zero. The results may not be accurate."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\statsmodels\\stats\\_adnorm.py:48",
+        "RuntimeWarning",
+        "invalid value encountered in divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\statsmodels\\regression\\linear_model.py:3158",
+        "ValueWarning",
+        "omni_normtest is not valid with less than 8 observations; 6 samples were given."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\utilities.py:482",
+        "SmallSampleWarning",
+        "One or more sample arguments is too small; all returned values will be NaN. See documentation for sample size requirements."
+      ],
+      [
+        "g16_before/chi_sq.py:275",
+        "RuntimeWarning",
+        "invalid value encountered in scalar divide"
+      ],
+      [
+        "g16_before/chi_sq.py:93",
+        "RuntimeWarning",
+        "Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable."
+      ],
+      [
+        "g16_before/chi_sq.py:94",
+        "RuntimeWarning",
+        "Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\chi_sq.py:280",
+        "RuntimeWarning",
+        "invalid value encountered in scalar divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\chi_sq.py:93",
+        "RuntimeWarning",
+        "Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\chi_sq.py:94",
+        "RuntimeWarning",
+        "Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable."
+      ],
+      [
+        "g16_before/nonpara_cor.py:98",
+        "RuntimeWarning",
+        "invalid value encountered in scalar divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\nonpara_cor.py:100",
+        "RuntimeWarning",
+        "invalid value encountered in scalar divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\nonpara_cor.py:21",
+        "ConstantInputWarning",
+        "An input array is constant; the correlation coefficient is not defined."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_discrete_distns.py:108",
+        "RuntimeWarning",
+        "divide by zero encountered in reciprocal"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_discrete_distns.py:109",
+        "RuntimeWarning",
+        "invalid value encountered in divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_discrete_distns.py:114",
+        "RuntimeWarning",
+        "divide by zero encountered in reciprocal"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_discrete_distns.py:109",
+        "RuntimeWarning",
+        "divide by zero encountered in divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_discrete_distns.py:110",
+        "RuntimeWarning",
+        "invalid value encountered in subtract"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_discrete_distns.py:115",
+        "RuntimeWarning",
+        "divide by zero encountered in divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_discrete_distns.py:116",
+        "RuntimeWarning",
+        "invalid value encountered in subtract"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_distn_infrastructure.py:2046",
+        "RuntimeWarning",
+        "invalid value encountered in divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_distn_infrastructure.py:2129",
+        "RuntimeWarning",
+        "invalid value encountered in divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_continuous_distns.py:2757",
+        "RuntimeWarning",
+        "divide by zero encountered in power"
+      ],
+      [
+        "g16_before/dist_fit.py:70",
+        "RuntimeWarning",
+        "divide by zero encountered in log"
+      ],
+      [
+        "g16_before/dist_fit.py:90",
+        "RuntimeWarning",
+        "invalid value encountered in scalar add"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\dist_fit.py:70",
+        "RuntimeWarning",
+        "divide by zero encountered in log"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\dist_fit.py:90",
+        "RuntimeWarning",
+        "invalid value encountered in scalar add"
+      ],
+      [
+        "g16_before/two_way_anova.py:24",
+        "SingularMatrixWarning",
+        "The design matrix is rank-deficient. The model parameters are not uniquely determined."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\two_way_anova.py:24",
+        "SingularMatrixWarning",
+        "The design matrix is rank-deficient. The model parameters are not uniquely determined."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\statsmodels\\regression\\linear_model.py:1954",
+        "RuntimeWarning",
+        "divide by zero encountered in scalar divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\statsmodels\\base\\model.py:1727",
+        "RuntimeWarning",
+        "invalid value encountered in multiply"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\statsmodels\\base\\model.py:1743",
+        "RuntimeWarning",
+        "invalid value encountered in dot"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\fit_dialog.py:328",
+        "PendingDeprecationWarning",
+        "The set_tight_layout function will be deprecated in a future version. Use set_layout_engine instead."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_axis_nan_policy.py:430",
+        "UserWarning",
+        "`kurtosistest` p-value may be inaccurate with fewer than 20 observations; only n=12 observations were given."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\seaborn\\categorical.py:700",
+        "MatplotlibDeprecationWarning",
+        "vert: bool was deprecated in Matplotlib 3.11 and will be removed in 3.13. Use orientation: {'vertical', 'horizontal'} instead."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\utilities.py:254",
+        "RuntimeWarning",
+        "invalid value encountered in scalar power"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\utilities.py:255",
+        "RuntimeWarning",
+        "invalid value encountered in scalar power"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\utilities.py:256",
+        "RuntimeWarning",
+        "invalid value encountered in scalar power"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\utilities.py:257",
+        "RuntimeWarning",
+        "invalid value encountered in scalar power"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pi_import.py:23",
+        "Pandas4Warning",
+        "'d' is deprecated and will be removed in a future version. Please use 'D' instead of 'd'."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\linear_plot.py:156",
+        "UserWarning",
+        "Attempting to set identical low and high xlims makes transformation singular; automatically expanding."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\linear_plot.py:157",
+        "UserWarning",
+        "Attempting to set identical low and high ylims makes transformation singular; automatically expanding."
+      ]
+    ],
+    "warning_section_sha256": "9375139e1f05f13f9c9b4b9f09e19a13f7b27de6f718146ed8eca181c8826fcb"
+  },
+  "final-pytest": {
+    "suites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "2098",
+        "time": "435.594",
+        "timestamp": "2026-10-21T13:38:37.790725+08:00",
+        "hostname": "YOGA"
+      }
+    ],
+    "by_module": {
+      "tests.test_csv_import": 41,
+      "tests.test_dialog_translation": 119,
+      "tests.test_file_io": 43,
+      "tests.test_g10_tables": 41,
+      "tests.test_g11_quality_tables": 122,
+      "tests.test_g12_inventory": 15,
+      "tests.test_g12_tables": 9,
+      "tests.test_g13_time_series": 37,
+      "tests.test_g14_rendering": 15,
+      "tests.test_g16_statistics": 117,
+      "tests.test_g17_csv": 71,
+      "tests.test_g17_data_processing": 123,
+      "tests.test_g18_performance": 17,
+      "tests.test_g19_integration": 2,
+      "tests.test_g1_debug_output": 24,
+      "tests.test_g1_statistics_output": 33,
+      "tests.test_g1_text_output": 13,
+      "tests.test_g2_basic_reports": 67,
+      "tests.test_g2_hypothesis_reports": 74,
+      "tests.test_g3_anova_reports": 49,
+      "tests.test_g3_chi_square_reports": 36,
+      "tests.test_g3_computation_contracts": 26,
+      "tests.test_g3_distribution_reports": 30,
+      "tests.test_g3_regression_reports": 23,
+      "tests.test_g3_report_display": 16,
+      "tests.test_g4_quality_reports": 144,
+      "tests.test_g5_spc_reports": 73,
+      "tests.test_g6_chart_presentation": 49,
+      "tests.test_g6_quality_charts": 53,
+      "tests.test_g7_tables": 12,
+      "tests.test_g8_tables": 32,
+      "tests.test_g9_tables": 111,
+      "tests.test_help_center": 11,
+      "tests.test_menu_localization": 47,
+      "tests.test_p1_p2_statistical_fixes": 78,
+      "tests.test_pi_import": 17,
+      "tests.test_pi_reader": 12,
+      "tests.test_result_background": 35,
+      "tests.test_startup": 17,
+      "tests.test_statistical_edges": 15,
+      "tests.test_statistics_regressions": 60,
+      "tests.test_supplemental_stability": 39,
+      "tests.test_table_regressions": 130
+    },
+    "failed": [],
+    "skipped": [],
+    "warning_groups": [
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_axis_nan_policy.py:586",
+        "UserWarning",
+        "scipy.stats.shapiro: Input data has range zero. The results may not be accurate."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\statsmodels\\stats\\_adnorm.py:48",
+        "RuntimeWarning",
+        "invalid value encountered in divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\statsmodels\\regression\\linear_model.py:3158",
+        "ValueWarning",
+        "omni_normtest is not valid with less than 8 observations; 6 samples were given."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\utilities.py:482",
+        "SmallSampleWarning",
+        "One or more sample arguments is too small; all returned values will be NaN. See documentation for sample size requirements."
+      ],
+      [
+        "g16_before/chi_sq.py:275",
+        "RuntimeWarning",
+        "invalid value encountered in scalar divide"
+      ],
+      [
+        "g16_before/chi_sq.py:93",
+        "RuntimeWarning",
+        "Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable."
+      ],
+      [
+        "g16_before/chi_sq.py:94",
+        "RuntimeWarning",
+        "Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\chi_sq.py:280",
+        "RuntimeWarning",
+        "invalid value encountered in scalar divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\chi_sq.py:93",
+        "RuntimeWarning",
+        "Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\chi_sq.py:94",
+        "RuntimeWarning",
+        "Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable."
+      ],
+      [
+        "g16_before/nonpara_cor.py:98",
+        "RuntimeWarning",
+        "invalid value encountered in scalar divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\nonpara_cor.py:100",
+        "RuntimeWarning",
+        "invalid value encountered in scalar divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\nonpara_cor.py:21",
+        "ConstantInputWarning",
+        "An input array is constant; the correlation coefficient is not defined."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_discrete_distns.py:108",
+        "RuntimeWarning",
+        "divide by zero encountered in reciprocal"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_discrete_distns.py:109",
+        "RuntimeWarning",
+        "invalid value encountered in divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_discrete_distns.py:114",
+        "RuntimeWarning",
+        "divide by zero encountered in reciprocal"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_discrete_distns.py:109",
+        "RuntimeWarning",
+        "divide by zero encountered in divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_discrete_distns.py:110",
+        "RuntimeWarning",
+        "invalid value encountered in subtract"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_discrete_distns.py:115",
+        "RuntimeWarning",
+        "divide by zero encountered in divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_discrete_distns.py:116",
+        "RuntimeWarning",
+        "invalid value encountered in subtract"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_distn_infrastructure.py:2046",
+        "RuntimeWarning",
+        "invalid value encountered in divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_distn_infrastructure.py:2129",
+        "RuntimeWarning",
+        "invalid value encountered in divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_continuous_distns.py:2757",
+        "RuntimeWarning",
+        "divide by zero encountered in power"
+      ],
+      [
+        "g16_before/dist_fit.py:70",
+        "RuntimeWarning",
+        "divide by zero encountered in log"
+      ],
+      [
+        "g16_before/dist_fit.py:90",
+        "RuntimeWarning",
+        "invalid value encountered in scalar add"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\dist_fit.py:70",
+        "RuntimeWarning",
+        "divide by zero encountered in log"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\dist_fit.py:90",
+        "RuntimeWarning",
+        "invalid value encountered in scalar add"
+      ],
+      [
+        "g16_before/two_way_anova.py:24",
+        "SingularMatrixWarning",
+        "The design matrix is rank-deficient. The model parameters are not uniquely determined."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\two_way_anova.py:24",
+        "SingularMatrixWarning",
+        "The design matrix is rank-deficient. The model parameters are not uniquely determined."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\statsmodels\\regression\\linear_model.py:1954",
+        "RuntimeWarning",
+        "divide by zero encountered in scalar divide"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\statsmodels\\base\\model.py:1727",
+        "RuntimeWarning",
+        "invalid value encountered in multiply"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\statsmodels\\base\\model.py:1743",
+        "RuntimeWarning",
+        "invalid value encountered in dot"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\fit_dialog.py:328",
+        "PendingDeprecationWarning",
+        "The set_tight_layout function will be deprecated in a future version. Use set_layout_engine instead."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy\\stats\\_axis_nan_policy.py:430",
+        "UserWarning",
+        "`kurtosistest` p-value may be inaccurate with fewer than 20 observations; only n=12 observations were given."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\seaborn\\categorical.py:700",
+        "MatplotlibDeprecationWarning",
+        "vert: bool was deprecated in Matplotlib 3.11 and will be removed in 3.13. Use orientation: {'vertical', 'horizontal'} instead."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\utilities.py:254",
+        "RuntimeWarning",
+        "invalid value encountered in scalar power"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\utilities.py:255",
+        "RuntimeWarning",
+        "invalid value encountered in scalar power"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\utilities.py:256",
+        "RuntimeWarning",
+        "invalid value encountered in scalar power"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\utilities.py:257",
+        "RuntimeWarning",
+        "invalid value encountered in scalar power"
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pi_import.py:23",
+        "Pandas4Warning",
+        "'d' is deprecated and will be removed in a future version. Please use 'D' instead of 'd'."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\linear_plot.py:156",
+        "UserWarning",
+        "Attempting to set identical low and high xlims makes transformation singular; automatically expanding."
+      ],
+      [
+        "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\linear_plot.py:157",
+        "UserWarning",
+        "Attempting to set identical low and high ylims makes transformation singular; automatically expanding."
+      ]
+    ],
+    "warning_section_sha256": "9375139e1f05f13f9c9b4b9f09e19a13f7b27de6f718146ed8eca181c8826fcb"
+  },
+  "warning_sections_equal": true
+}

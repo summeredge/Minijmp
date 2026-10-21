@@ -1,0 +1,2 @@
+warning: in the working copy of 'code/proportion_test.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/test_g9_tables.py', LF will be replaced by CRLF the next time Git touches it

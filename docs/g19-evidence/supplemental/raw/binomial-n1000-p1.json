@@ -1,0 +1,68 @@
+{
+  "scenario": {
+    "name": "binomial",
+    "n": 1000,
+    "timeout": 180,
+    "id": "binomial-n1000-p1",
+    "profile": false
+  },
+  "pid": 48100,
+  "rows": [
+    {
+      "phase": "compute",
+      "repeat": 0,
+      "wall_seconds": 0.0020087000157218426,
+      "cpu_seconds": 0.0,
+      "rss_before_mib": 138.8125,
+      "rss_after_mib": 138.99609375,
+      "process_peak_rss_mib": 138.99609375,
+      "private_commit_mib": 112.53515625,
+      "status": "ok",
+      "warmup": true
+    },
+    {
+      "phase": "compute",
+      "repeat": 1,
+      "wall_seconds": 0.001204100000904873,
+      "cpu_seconds": 0.0,
+      "rss_before_mib": 138.99609375,
+      "rss_after_mib": 139.0,
+      "process_peak_rss_mib": 139.0,
+      "private_commit_mib": 112.53515625,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "compute",
+      "repeat": 2,
+      "wall_seconds": 0.0012088000075891614,
+      "cpu_seconds": 0.0,
+      "rss_before_mib": 139.00390625,
+      "rss_after_mib": 139.0078125,
+      "process_peak_rss_mib": 139.0078125,
+      "private_commit_mib": 112.53515625,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "compute",
+      "repeat": 3,
+      "wall_seconds": 0.00120749999769032,
+      "cpu_seconds": 0.0,
+      "rss_before_mib": 139.0078125,
+      "rss_after_mib": 139.0078125,
+      "process_peak_rss_mib": 139.0078125,
+      "private_commit_mib": 112.53515625,
+      "status": "ok",
+      "warmup": false
+    }
+  ],
+  "stage": "complete",
+  "memory_scope": "cumulative_process_peak_including_imports_warmup_inputs",
+  "repeat": 3,
+  "status": "ok",
+  "exit_code": 0,
+  "process_seconds": 2.29447419999633,
+  "timeout_seconds": 180,
+  "job_memory_limit_mib": 1536
+}

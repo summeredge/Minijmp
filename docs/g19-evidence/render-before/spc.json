@@ -1,0 +1,72 @@
+{
+  "scenario": "spc",
+  "n": 50000,
+  "p": 1,
+  "seed": 20261021,
+  "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+  "versions": {
+    "numpy": "2.4.6",
+    "pandas": "3.0.6",
+    "matplotlib": "3.11.2"
+  },
+  "source": "C:\\Users\\shaoy\\Documents\\Minijmp\\docs\\g18-evidence\\before",
+  "source_sha256": {
+    "control_chart.py": "98c960329c6ec6696a45a05b152e67196980eacee866bb30ff6ebd46266fad10",
+    "linear_plot.py": "ab24921e7c6ffb4d1d7154c728ed5ea6ed0299ecab3b4e340f810b246f87d250",
+    "stat_table.py": "a66ba1e8632a37f71a1ebf406650df759e7514fd6934f795b7a33aef4b0f1124",
+    "time_series.py": "75ff6467e3a7705066f06b69dccd28d76884e287c5a25d5edee64ea1283eb6bf",
+    "time_series_dialog.py": "630de7e10e0bb796441ae3a2bec6672dff1e636108b4b4bf010b15b472a55bad",
+    "txt_output.py": "e2ab1688e355f6665ae9a380de3fcc510433e629a40b11ccd75d20288fed93c3"
+  },
+  "rows": [
+    {
+      "phase": "report_build",
+      "repeat": 0,
+      "warmup": true,
+      "seconds": 1.9895649999962188,
+      "cpu_seconds": 1.953125,
+      "memory_mib": {
+        "WorkingSetSize": 195.40625,
+        "PeakWorkingSetSize": 235.4765625,
+        "PagefileUsage": 166.06640625
+      }
+    },
+    {
+      "phase": "report_build",
+      "repeat": 1,
+      "warmup": false,
+      "seconds": 1.9130320000112988,
+      "cpu_seconds": 1.859375,
+      "memory_mib": {
+        "WorkingSetSize": 194.46875,
+        "PeakWorkingSetSize": 236.05859375,
+        "PagefileUsage": 165.06640625
+      }
+    },
+    {
+      "phase": "report_build",
+      "repeat": 2,
+      "warmup": false,
+      "seconds": 2.050914499995997,
+      "cpu_seconds": 2.0,
+      "memory_mib": {
+        "WorkingSetSize": 195.015625,
+        "PeakWorkingSetSize": 236.05859375,
+        "PagefileUsage": 165.69921875
+      }
+    },
+    {
+      "phase": "report_build",
+      "repeat": 3,
+      "warmup": false,
+      "seconds": 2.003986399999121,
+      "cpu_seconds": 1.984375,
+      "memory_mib": {
+        "WorkingSetSize": 195.5078125,
+        "PeakWorkingSetSize": 236.05859375,
+        "PagefileUsage": 166.4765625
+      }
+    }
+  ],
+  "status": "ok"
+}

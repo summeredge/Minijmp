@@ -4,6 +4,7 @@ import hashlib
 import importlib
 import json
 import math
+import subprocess
 from numbers import Real
 from pathlib import Path
 from types import SimpleNamespace
@@ -145,6 +146,24 @@ class ComputationOnly(ast.NodeTransformer):
 
 def computation_hash(module):
     tree = ast.parse((ROOT / 'code' / f'{module}.py').read_bytes())
+    if module == 'proportion_test':
+        # G20 LR has an independent oracle; freeze every other computation as before.
+        frozen = ast.parse(subprocess.check_output([
+            'git', 'show', '11c4a7569f5b80836de04f06e4049c99ed1d084c:code/proportion_test.py'], cwd=ROOT))
+        old_lr = next(n for n in frozen.body if isinstance(n, ast.FunctionDef)
+                      and n.name == 'p_likelihood_ratio')
+        tree.body = [old_lr if isinstance(n, ast.FunctionDef) and n.name == 'p_likelihood_ratio'
+                     else n for n in tree.body
+                     if not (isinstance(n, ast.ImportFrom) and n.module == 'scipy.special'
+                             and [(a.name, a.asname) for a in n.names] == [('rel_entr', None)])]
+        # G19 只放行 Fisher 支持集终止保护；数值/报告旧基线和其余 AST 保持冻结。
+        function = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'prop_2sample')
+        function.body = [n for n in function.body if ast.unparse(n) != 'lower, upper = rv.support()']
+        for node in ast.walk(function):
+            if isinstance(node, ast.While) and ast.unparse(node.test) in (
+                    'y <= upper and rv.pmf(y) >= observed_probability',
+                    'y >= lower and rv.pmf(y) >= observed_probability'):
+                node.test = node.test.values[1]
     if module == 'chi2_dialog':
         # 此 Dialog 的报告没有 print_out 分支；由固定 TXT 和原有路由测试验证。
         return None

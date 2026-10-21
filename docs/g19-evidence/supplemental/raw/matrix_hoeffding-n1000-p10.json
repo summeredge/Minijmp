@@ -1,0 +1,69 @@
+{
+  "scenario": {
+    "name": "matrix_hoeffding",
+    "n": 1000,
+    "p": 10,
+    "timeout": 180,
+    "id": "matrix_hoeffding-n1000-p10",
+    "profile": false
+  },
+  "pid": 40160,
+  "rows": [
+    {
+      "phase": "compute",
+      "repeat": 0,
+      "wall_seconds": 0.7473419000161812,
+      "cpu_seconds": 0.734375,
+      "rss_before_mib": 156.33984375,
+      "rss_after_mib": 157.7265625,
+      "process_peak_rss_mib": 157.7265625,
+      "private_commit_mib": 128.17578125,
+      "status": "ok",
+      "warmup": true
+    },
+    {
+      "phase": "compute",
+      "repeat": 1,
+      "wall_seconds": 0.8038838000211399,
+      "cpu_seconds": 0.796875,
+      "rss_before_mib": 157.7265625,
+      "rss_after_mib": 157.734375,
+      "process_peak_rss_mib": 157.734375,
+      "private_commit_mib": 128.17578125,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "compute",
+      "repeat": 2,
+      "wall_seconds": 0.6793688999896403,
+      "cpu_seconds": 0.625,
+      "rss_before_mib": 157.73828125,
+      "rss_after_mib": 157.73828125,
+      "process_peak_rss_mib": 157.73828125,
+      "private_commit_mib": 128.17578125,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "compute",
+      "repeat": 3,
+      "wall_seconds": 0.6131128999986686,
+      "cpu_seconds": 0.59375,
+      "rss_before_mib": 157.73828125,
+      "rss_after_mib": 157.73828125,
+      "process_peak_rss_mib": 157.73828125,
+      "private_commit_mib": 128.17578125,
+      "status": "ok",
+      "warmup": false
+    }
+  ],
+  "stage": "complete",
+  "memory_scope": "cumulative_process_peak_including_imports_warmup_inputs",
+  "repeat": 3,
+  "status": "ok",
+  "exit_code": 0,
+  "process_seconds": 4.970989699999336,
+  "timeout_seconds": 180,
+  "job_memory_limit_mib": 1536
+}

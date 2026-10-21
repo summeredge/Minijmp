@@ -1,0 +1,68 @@
+{
+  "scenario": {
+    "name": "text_gui",
+    "n": 1000,
+    "timeout": 180,
+    "id": "text_gui-n1000-p1",
+    "profile": false
+  },
+  "pid": 12900,
+  "rows": [
+    {
+      "phase": "tk_add_txt_to_updated",
+      "repeat": 0,
+      "wall_seconds": 0.026830700022401288,
+      "cpu_seconds": 0.015625,
+      "rss_before_mib": 107.5859375,
+      "rss_after_mib": 107.8203125,
+      "process_peak_rss_mib": 107.8203125,
+      "private_commit_mib": 80.72265625,
+      "status": "ok",
+      "warmup": true
+    },
+    {
+      "phase": "tk_add_txt_to_updated",
+      "repeat": 1,
+      "wall_seconds": 0.03951859998051077,
+      "cpu_seconds": 0.015625,
+      "rss_before_mib": 107.90625,
+      "rss_after_mib": 107.90625,
+      "process_peak_rss_mib": 107.90625,
+      "private_commit_mib": 80.72265625,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "tk_add_txt_to_updated",
+      "repeat": 2,
+      "wall_seconds": 0.023339400009717792,
+      "cpu_seconds": 0.03125,
+      "rss_before_mib": 107.91015625,
+      "rss_after_mib": 107.91015625,
+      "process_peak_rss_mib": 107.91015625,
+      "private_commit_mib": 80.72265625,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "tk_add_txt_to_updated",
+      "repeat": 3,
+      "wall_seconds": 0.040186199999880046,
+      "cpu_seconds": 0.015625,
+      "rss_before_mib": 107.91015625,
+      "rss_after_mib": 107.91015625,
+      "process_peak_rss_mib": 107.91015625,
+      "private_commit_mib": 80.72265625,
+      "status": "ok",
+      "warmup": false
+    }
+  ],
+  "stage": "complete",
+  "memory_scope": "cumulative_process_peak_including_imports_warmup_inputs",
+  "repeat": 3,
+  "status": "ok",
+  "exit_code": 0,
+  "process_seconds": 1.706837200006703,
+  "timeout_seconds": 180,
+  "job_memory_limit_mib": 1536
+}

@@ -1,0 +1,230 @@
+{
+  "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+  "code_dir": "C:\\Users\\shaoy\\Documents\\Minijmp\\code",
+  "seed": 20261021,
+  "source_hashes": {
+    "anova_dialog.py": "009ab5e41000fa75c74d1dc1dc08665adea02cd6425dffee64bb35fb73cfa15d",
+    "basic_dialogs.py": "88530f380273a7e50bcbda88c5084384857109e02d848103ad8cb271c6a9d0d5",
+    "binomial.py": "a6aab6318550079a65261fb324b1882b6f0787d38d5c0c8067dfd1dbe396c98a",
+    "blakerCI.py": "cda9f16f5ea61445fe154c25a177f4d920d55ddf51144351526758d99dd78f43",
+    "bonett.py": "35ac7eb458224b1b6b8ecb5183f50896734351b006c9751e7a2ddbf5a2a21716",
+    "chart_style.py": "497dcdd5e292390337b3f6c91a3e65052ccd1136d3b76c4c62260910b4441373",
+    "chi2_dialog.py": "909627f4396e8baf00dbcb1b116ce1ab65cf43475ea43cf5bec21ae814ad6805",
+    "chi_sq.py": "dd1da0ba942ae37db2f611b5bd0acc4240860673b4f06ab6b68f813af0314348",
+    "control_chart.py": "f19e6f24981be8d41d49a2fdf83300fac4254c88c9238969b143606d822b7af6",
+    "cont_plot.py": "f74dec339f4d9a883c70bff8f6d0705b151b407b8d11d6b7d7023726eb22d8b2",
+    "cpk.py": "f774121126ea858b7ffa9959d6f536e005559eb6b6792b353e48907585bb3495",
+    "cpk_plot.py": "5bbe74dd87614feaba2b87f08d2cd3c01509c74d69bb556a812bd9d80978dccf",
+    "ctrlchart_dialog.py": "c28ccf208f5cfc6b85206023a023d7675f4859bf1dbdea6ef693d6bbfb9b5bdf",
+    "ctrl_chart_const.py": "7acd851f6123d5e24048dda10c6f56c33a4304d465afd2271e1792641d57313b",
+    "describe.py": "710ab0b75930752aa72160da52df926ab017cd494d1b19f52d0198797ab69852",
+    "df_combine.py": "8b14898fe94e09efdecd669342424529a5fa12365ee83e43c52005984d52d0b3",
+    "dialog.py": "38f171855e80c792b58fb2df69aaa354194506be774b8eaec6ef32fd853b9b8e",
+    "dist_fit.py": "9d17468be476558d7e59091d956ee1eaa977a15a28d723973147cc0843ef5725",
+    "dist_plot_dialog.py": "6f4ad10c1a4b62911f785067d09414ad0b08d98943f5fe2232a367f2c6a37fdd",
+    "fit_dialog.py": "1ec9010dc5b88d78aeb9ad670db7c5ad8f8c72e5a7593d696c626784ea09494e",
+    "freeze.py": "af32d7887dd8918f2962e4e4829da45eab64fb0fbc8331eaae82e0f6474e67e4",
+    "GRR.py": "499735d9cf9dc7e9dec41c3d5a836d67ed6088b9211580036a8b9b17b2763f20",
+    "grr_plot.py": "2a292cbd7e30c05e1cd5521459e3504bada86309a4b1525c8cc245dd2c935a8e",
+    "help_link.py": "9ec4dad9cc02c74445e6d983e5f6b5e3d37bad3e13fe67d28a895ded6effa4f8",
+    "linear_fit.py": "e2955d5bd3997859c726930b75b399e1008325f91b01cd91f55b02f73a1ce8bc",
+    "linear_plot.py": "6ce30d5b8d38182e82d4c9c441a2d85dcbe8068c5ed73edf2e83c445fb093a9a",
+    "MiniJMP.py": "f5d58a4ff87dd61a2400be402fa27c5445b929b5d237b24d607867eb260b8198",
+    "modified_app.py": "d942abef1129f45c4479127821c1413e464e5b8779acef4dc623e5a28a502f28",
+    "modified_table.py": "b773389f3a8521930ebbb8bc17b281404853a1dd20d2ebcd3c3e23e19a210a18",
+    "nonpara_cor.py": "9f03cdc49e4aef1de6b00fbf4c9ce5f4b148d0d703d279b4a029da46b4a0d549",
+    "one_way_ANOVA.py": "15fa65912eeb77d8beb606839be867b0addcb23b14efff1bfccde61e88a07f68",
+    "ortho_fit.py": "d70d429e35fa68b5b0bd5e0c50099976deff8d8dc4709843259672be8081c811",
+    "pi_import.py": "2ea19259704e84668aaa04d311a1f6e7810a65b100446e966a1a594fde9c9460",
+    "pi_reader.py": "4b6ff53ea728368d25dcd820301f5da7f6e79f0d8d54e2cfd74f5347ed0c93e1",
+    "plots.py": "5be59a0515db421815e685c35958571e98ff4a1f1b7b85e6067e41333d08637e",
+    "poisson.py": "aed0c7f9931febe9757b2b2d17b567d32c8d9a3ed0f37f212b9e0f4e30233089",
+    "proportion_test.py": "f7e68a0301642cef57f5b7954953b6e97ab354f7c0e44675717da4215b01b846",
+    "qc_dialog.py": "86bca55c960d412de5540a1eb757b96f547cdbbc293d0a3361e3973fe71108f8",
+    "Residual.py": "a5f514b7a3fff71fe623fb97777c8e51fcb3be75742d6ee7e81e778e7cf1fdbc",
+    "sample_test_dialog.py": "1fb757d10dd6d3b7dcf0d96dcb2ed1448b727e02b1e3303ed98486d7aec9c188",
+    "sbplot_dialog.py": "83b68c95b23b2ccba308a1197654dd5e6e78c0cda63808728d623fbc1adf7fd4",
+    "sb_boxplot.py": "f930845b0b7e0d7102f3cde826a2dd1b6bc5c3b84647deea2abe2524f2c69435",
+    "sb_box_dialog.py": "38123f3aefd0f29edc8ef1e9174850aa5e0de0f2b58a81364ece9143a98d1c69",
+    "sb_histo.py": "d4bebb8950ac16f3ee4f2f0234e4f439b0c8220ef52fd664a9509efb85a58ec8",
+    "sb_hist_dialog.py": "dd968bdaa88e3601138f0fd5311adfca5dd2e5fcc700ba3951b851fe0c4a00d0",
+    "sb_misc.py": "a9103dbb3433440d63ec4369c7805ff8f3ca9a3b79d3df217863ba9d74ffad80",
+    "sb_misc_dialog.py": "47607b776b1d18449ca892236ab60af4f1f03b75f411054a4bda1fca54e7d0bc",
+    "sb_palette_dialog.py": "0a1a41524a81dc668a6787d120ef08608dd3c03884a076c06fb769c68a3ff306",
+    "stat_table.py": "1feb1b79f86ba3ce8b9d4630a2b0f3ea19d251ec62f8db5b1dca808945e2d602",
+    "ti.py": "87091d35a4ff35d8f4fa97eae7ce66ef6c2eb8c12762f77bc43019e1f119fa0a",
+    "time_series.py": "93f589dd0c8c84def75cbc4d41de0bbb81b4f5498fcf80c2b2a58c3d65a772a8",
+    "time_series_dialog.py": "c495c54c67cad9b761878be1738a8fc1be972a36c9b707da793ccc8df209cec3",
+    "two_way_anova.py": "216a12eb83c8b5007618c65bbcb0e4723a47fa002b110ff011593fb6cbc31406",
+    "txt_output.py": "e2ab1688e355f6665ae9a380de3fcc510433e629a40b11ccd75d20288fed93c3",
+    "t_test.py": "d99e72d9332509800eda0cc452718b170e504b2b84f445e119b0bdd56d39bb43",
+    "utilities.py": "d041e29b86333f252eb134632ab9e06cbed782db18dbf582f79bdd07359a2d11"
+  },
+  "rows": [
+    {
+      "name": "binomial",
+      "n": 1000,
+      "p": 1,
+      "samples": [
+        0.0014026999997440726,
+        0.0011054000060539693,
+        0.0011319000041112304
+      ],
+      "median": 0.0011319000041112304
+    },
+    {
+      "name": "binomial",
+      "n": 10000,
+      "p": 1,
+      "samples": [
+        0.0043304999999236315,
+        0.004411999980220571,
+        0.004379299993161112
+      ],
+      "median": 0.004379299993161112
+    },
+    {
+      "name": "binomial",
+      "n": 50000,
+      "p": 1,
+      "samples": [
+        0.018985999980941415,
+        0.019418200012296438,
+        0.02055289997952059
+      ],
+      "median": 0.019418200012296438
+    },
+    {
+      "name": "p_blaker",
+      "n": 1000,
+      "p": 1,
+      "samples": [
+        0.0007851000118535012,
+        0.0008840000082273036,
+        0.0008042999834287912
+      ],
+      "median": 0.0008042999834287912
+    },
+    {
+      "name": "p_blaker",
+      "n": 10000,
+      "p": 1,
+      "samples": [
+        0.006537599983857945,
+        0.006153900001663715,
+        0.006219100003363565
+      ],
+      "median": 0.006219100003363565
+    },
+    {
+      "name": "p_blaker",
+      "n": 50000,
+      "p": 1,
+      "samples": [
+        0.029093699995428324,
+        0.02818020002450794,
+        0.027918200008571148
+      ],
+      "median": 0.02818020002450794
+    },
+    {
+      "name": "p_sterne",
+      "n": 1000,
+      "p": 1,
+      "samples": [
+        0.0008763000078033656,
+        0.0008669000235386193,
+        0.0009310999885201454
+      ],
+      "median": 0.0008763000078033656
+    },
+    {
+      "name": "p_sterne",
+      "n": 10000,
+      "p": 1,
+      "samples": [
+        0.0035282000026199967,
+        0.0037298000243026763,
+        0.003677500004414469
+      ],
+      "median": 0.003677500004414469
+    },
+    {
+      "name": "p_sterne",
+      "n": 50000,
+      "p": 1,
+      "samples": [
+        0.015062600024975836,
+        0.01540409997687675,
+        0.015863300010096282
+      ],
+      "median": 0.01540409997687675
+    },
+    {
+      "name": "p_likelihood_ratio",
+      "n": 1000,
+      "p": 1,
+      "samples": [
+        0.0012905000185128301,
+        0.0012933999823872,
+        0.0012663999805226922
+      ],
+      "median": 0.0012905000185128301
+    },
+    {
+      "name": "p_likelihood_ratio",
+      "n": 10000,
+      "p": 1,
+      "samples": [
+        0.0065627000003587455,
+        0.0068510000128299,
+        0.008167499996488914
+      ],
+      "median": 0.0068510000128299
+    },
+    {
+      "name": "p_likelihood_ratio",
+      "n": 50000,
+      "p": 1,
+      "samples": [
+        0.0321710999996867,
+        0.032157300011022016,
+        0.03236169999581762
+      ],
+      "median": 0.0321710999996867
+    },
+    {
+      "name": "prop_test_1sample",
+      "n": 1000,
+      "p": 1,
+      "samples": [
+        0.03492100001312792,
+        0.037984499998856336,
+        0.03448289999505505
+      ],
+      "median": 0.03492100001312792
+    },
+    {
+      "name": "prop_test_1sample",
+      "n": 10000,
+      "p": 1,
+      "samples": [
+        0.04260939999949187,
+        0.04614109999965876,
+        0.043700700014596805
+      ],
+      "median": 0.043700700014596805
+    },
+    {
+      "name": "prop_test_1sample",
+      "n": 50000,
+      "p": 1,
+      "samples": [
+        0.07636429998092353,
+        0.07745989999966696,
+        0.07321120001142845
+      ],
+      "median": 0.07636429998092353
+    }
+  ]
+}
