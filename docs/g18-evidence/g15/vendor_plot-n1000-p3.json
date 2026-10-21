@@ -1,0 +1,44 @@
+{
+  "scenario": {
+    "name": "vendor_plot",
+    "n": 1000,
+    "p": 3,
+    "timeout": 45,
+    "id": "vendor_plot-n1000-p3"
+  },
+  "pid": 40548,
+  "rows": [
+    {
+      "phase": "tk_vendor_viewer_create",
+      "repeat": 0,
+      "wall_seconds": 1.3298561999981757,
+      "cpu_seconds": 1.265625,
+      "rss_before_mib": 165.3359375,
+      "rss_after_mib": 182.37109375,
+      "process_peak_rss_mib": 193.609375,
+      "private_commit_mib": 178.08984375,
+      "status": "ok",
+      "warmup": true
+    },
+    {
+      "phase": "tk_vendor_replot_to_updated",
+      "repeat": 0,
+      "wall_seconds": 0.09717439999803901,
+      "cpu_seconds": 0.078125,
+      "rss_before_mib": 186.93359375,
+      "rss_after_mib": 187.859375,
+      "process_peak_rss_mib": 193.609375,
+      "private_commit_mib": 182.984375,
+      "status": "ok",
+      "warmup": true
+    }
+  ],
+  "stage": "tk_vendor_replot_to_updated",
+  "memory_scope": "cumulative_process_peak_including_imports_warmup_inputs",
+  "repeat": 0,
+  "status": "error",
+  "exit_code": 1,
+  "process_seconds": 3.5607656000065617,
+  "timeout_seconds": 45,
+  "job_memory_limit_mib": 1536
+}

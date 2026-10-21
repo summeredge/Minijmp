@@ -88,33 +88,48 @@ class StatTable(str):
 
 
 def export_excel(table, filename):
+    from copy import copy
     from openpyxl import Workbook
+    from openpyxl.cell import Cell
     from openpyxl.styles import Font, Alignment
     from openpyxl.utils import get_column_letter
     book = Workbook()
     sheet = book.active
     sheet.title = '统计结果'
-    sheet.append([table.title])
-    sheet.append(table.headers)
-    for row, shown in zip(table.values, table.display):
-        sheet.append([v if isinstance(v, Real) and math.isfinite(v) else text
-                      for v, text in zip(row, shown)])
     heading_font = Font(name='Microsoft YaHei', bold=True)
     body_font = Font(name='Microsoft YaHei')
     left = Alignment(horizontal='left')
     right = Alignment(horizontal='right')
-    for row in sheet:
-        for cell in row:
-            cell.font = heading_font if cell.row <= 2 else body_font
-            cell.alignment = right if cell.column > 1 else left
+    styles = []
+    for i, fmt in enumerate(table.number_formats):
+        heading, text, numeric = (Cell(sheet) for _ in range(3))
+        heading.font = heading_font
+        text.font = numeric.font = body_font
+        heading.alignment = text.alignment = numeric.alignment = right if i else left
+        numeric.number_format = fmt
+        styles.append((heading, text, numeric))
+
+    def append(values, heading=False):
+        cells = []
+        for i, value in enumerate(values):
+            # 原型只读，复用已绑定的样式；避免每个单元格再查找/注册样式。
+            kind = 0 if heading else 2 if isinstance(value, Real) and not isinstance(value, bool) else 1
+            cell = copy(styles[i][kind])
+            cell.value = value
             if cell.data_type == 'f':  # 标签永远作为文本，避免 Excel 将其解释为公式。
                 cell.data_type = 's'
-            if cell.row > 2 and cell.data_type == 'n':
-                cell.number_format = table.number_formats[cell.column-1]
+            cells.append(cell)
+        sheet.append(cells)
+
     for i, header in enumerate(table.headers, 1):
         sheet.column_dimensions[get_column_letter(i)].width = max(12, len(header)*2+2,
             max((len(row[i-1])*2+2 for row in table.display), default=0))
     sheet.freeze_panes = 'B3'
+    append([table.title] + [None]*(len(table.headers)-1), heading=True)
+    append(table.headers, heading=True)
+    for row, shown in zip(table.values, table.display):
+        append([v if isinstance(v, Real) and math.isfinite(v) else text
+                for v, text in zip(row, shown)])
     book.save(filename)
     book.close()
 

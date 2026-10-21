@@ -1,4 +1,4 @@
-"""固定计算和返回 AST；四个绘图函数的展示基线随 G6 更新，数值由专项测试保护。"""
+"""固定计算和返回 AST；G6 展示及 G18 绘图性能变更由专项数值/协议测试保护。"""
 import ast
 import hashlib
 import json
