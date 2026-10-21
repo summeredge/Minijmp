@@ -9,7 +9,7 @@ from pandastable_local.dialogs import (
     apply_dialog_theme, dialog_style, text_widget_colors)
 ############# Own Modules ###########
 from plots import plot_viewer
-from stat_table import RESULT_BACKGROUND, configure_result_styles
+from stat_table import RESULT_BACKGROUND, LABEL_CELL_LIMIT, configure_result_styles
 
 
 class txt_viewer(plot_viewer):
@@ -33,6 +33,7 @@ class txt_viewer(plot_viewer):
             self.main.minsize(480, 320)
         self.orient = VERTICAL
         self.ui_style = dialog_style(self.main)
+        self._scroll_job = None
         self.setupGUI()
         self._apply_theme()
         self.table_blocks = []
@@ -82,6 +83,7 @@ class txt_viewer(plot_viewer):
         self.plotfr.rowconfigure(0, weight=1)
         self.plotfr.columnconfigure(0, weight=1)
         self.T.bind('<Control-a>', self.select_all)
+        self.T.bind('<<Copy>>', self.copy)
         self.T.bind('<<ThemeChanged>>', lambda event: self._apply_result_colors())
         self.plotfr.pack(side=TOP, fill=BOTH, expand=1)
 
@@ -110,7 +112,8 @@ class txt_viewer(plot_viewer):
         start = self.T.index('end-1c')
         stop = start
         line = self.T.index(f'{stop} linestart')
-        while self.T.compare(line, '>', '1.0') and not self.T.get(line, stop).strip():
+        while (self.T.compare(line, '>', '1.0') and not self.T.get(line, stop).strip()
+               and not self.T.dump(line, stop, window=True)):
             stop = self.T.index(f'{line}-1c')
             line = self.T.index(f'{stop} linestart')
         heading = self.T.get(line, stop).strip()
@@ -119,12 +122,38 @@ class txt_viewer(plot_viewer):
             # 仅隐藏紧邻的重复标题，保存和复制仍包含原报告的全部字符。
             self.T.tag_add('table_heading', line, f'{stop}+1c')
             self.T.tag_configure('table_heading', elide=True)
-        self.T.insert(END, str(table), 'table_ascii')
+        # 累计预算避免多张小表耗尽 Windows 控件句柄；不额外缓存数据或计数。
+        cells = (len(table.display)+1)*len(table.headers)
+        labels = sum((len(b.table.display)+1)*len(b.table.headers)
+                     for b in self.table_blocks if b.table is not None and not b.paged)
+        block = TableBlock(self.T, table, paginate=labels+cells > 2*LABEL_CELL_LIMIT)
+        if block.paged:
+            block.tree.bind('<Control-a>', self.select_all)
+            block.tree.bind('<<Copy>>', self.copy)
+        if not block.paged:
+            self.T.insert(END, table, 'table_ascii')
         self.T.insert(END, end, ())
         self.T.tag_configure('table_ascii', elide=True)
-        block = TableBlock(self.T, table)
         self.table_blocks.append(block)
         self.T.window_create(start, window=block)
+
+    def _text_chunks(self, start='1.0', stop='end-1c'):
+        """按 Text 中的实际顺序重建报告，分页窗口代表整张原始文本表。"""
+        for kind, value, index in self.T.dump(start, stop, text=True, window=True):
+            if kind == 'text':
+                yield value
+            elif value:
+                block = self.T.nametowidget(value)
+                if block.paged:
+                    yield block.table
+
+    def copy(self, event=None):
+        ranges = self.T.tag_ranges('sel')
+        if ranges:
+            text = ''.join(self._text_chunks(*ranges))
+            self.T.clipboard_clear()
+            self.T.clipboard_append(text)
+        return 'break'
 
     def select_all(self, event=None):
         self.T.tag_add('sel', '1.0', 'end-1c')
@@ -144,13 +173,15 @@ class txt_viewer(plot_viewer):
             self.currentdir = os.path.dirname(os.path.abspath(filename))
             try:
                 with open(filename, 'w', encoding='utf-8') as file:
-                    text_content = self.T.get("1.0", "end-1c")
-                    file.write(text_content)
+                    file.writelines(self._text_chunks())
             except OSError as error:
                 messagebox.showerror('保存失败', str(error), parent=self.master)
         return
 
     def clear(self):
+        if self._scroll_job is not None:
+            self.T.after_cancel(self._scroll_job)
+            self._scroll_job = None
         for block in self.table_blocks:
             block.destroy()
         self.table_blocks.clear()
@@ -158,6 +189,7 @@ class txt_viewer(plot_viewer):
         return
 
     def close(self):
+        self.clear()
         try:
             self.table.tOut = None
         except BaseException:
@@ -165,5 +197,12 @@ class txt_viewer(plot_viewer):
         self.main.destroy()
         return
 
-    def to_end(self):
+    def to_end(self, defer=False):
+        if defer:
+            if self._scroll_job is None:
+                self._scroll_job = self.T.after_idle(self.to_end)
+            return
+        if self._scroll_job is not None:
+            self.T.after_cancel(self._scroll_job)
+            self._scroll_job = None
         self.T.see("end")

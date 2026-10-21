@@ -50,7 +50,7 @@ class PIImportDialog(tk.Toplevel):
         self.rowconfigure(0, weight=1)
         body.columnconfigure(1, weight=1)
         body.rowconfigure(3, weight=1)
-        base = Path(__file__).resolve().parent.parent
+        base = Path(__file__).resolve().parent.parent / 'PIReader'
         self.exe = tk.StringVar(value=os.environ.get('PI_READER_EXE', str(base / 'PIReader.exe')))
         self.config = tk.StringVar(value=os.environ.get('PI_CONFIG', str(base / 'config.txt')))
         self.start = tk.StringVar(value='*-1d')

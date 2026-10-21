@@ -27,6 +27,7 @@
       <li><a href="#plots.boxplot_grouped">分组箱线图</a></li>
       <li><a href="#plots.count_grouped">分组计数图</a></li>
       <li><a href="#plots.line_grouped">分组线图</a></li>
+      <li><a href="#plots.time_series">时间序列图</a></li>
       <li><a href="#plots.dot_grouped">分组点图</a></li>
       <li><a href="#plots.display_probability">概率图</a></li>
       <li><a href="#plots.compare_probability">概率图对比</a></li>
@@ -124,6 +125,14 @@
     <p><strong>参数：</strong>X、Y 轴标签，Y 轴 Min/Max，水平参考线及标签，网格、图例、边距和调色板。X 轴 Min/Max 虽显示在弹窗中，但当前源码未将其传给绘图函数；分组列或宽表原列名用来区分线条。</p>
     <p><strong>步骤与读图：</strong>选择 Y、X 和可选组别，或选择多列 Y 并指定共同 X，设置参数后点 Plot。线条显示 Y 随 X 的变化；重复 X 值会按绘图库的 lineplot 默认规则汇总。</p>
     <p><strong>注意：</strong>确认 X 列的顺序和取值含义；连线会影响趋势观感。Margin 字段目前不参与坐标范围计算；X 轴范围自动，Y 轴可用 Min/Max 设置。<a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/graphs/graphs-in-minitab/" target="_blank" rel="noopener noreferrer">Minitab 官方图形帮助（概念参考）</a></p>
+  </section>
+
+  <section id="plots.time_series">
+    <h2>时间序列图</h2>
+    <p><strong>用途：</strong>绘制连续采样数据的原始趋势，保留重复时间戳和缺失值，不聚合、插值或平滑。</p>
+    <p><strong>步骤：</strong>选择 图形 → 时间序列图。选择时间列，或勾选样本序号；在数值列列表中按 Ctrl/Shift 多选 Y 变量。选择单 Y 轴、双 Y 轴或多 Y 轴，在右侧表格选中变量后，用下方下拉框指定所属 Y 轴，点“绘图”。</p>
+    <p><strong>轴与标题：</strong>单轴模式全部归 Y1；切到双轴时 Y3 及以上归 Y2；多轴模式保留有效归属。切换模式不会取消变量选择。Y1 在左侧，Y2 及后续轴在右侧依次外移，只创建实际使用的轴。可设置图形、X 轴和各 Y 轴标题；Y 轴标题留空时使用变量名。</p>
+    <p><strong>数据与操作：</strong>时间列按升序稳定排序，重复时间保留原有相对顺序；样本序号从 1 开始，保持原行顺序。无效或缺失时间须先修正；Y 缺失值显示为断线。窗口内可用工具栏平移、框选缩放、返回原视图及保存图像。重新绘图会替换上次预览。</p>
   </section>
 
   <section id="plots.dot_grouped">

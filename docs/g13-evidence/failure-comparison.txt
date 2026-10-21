@@ -1,0 +1,8 @@
+Baseline: 1712 passed, 4 failed, 53 warnings
+Final: 1749 passed, 4 failed, 53 warnings
+Same four pre-existing startup failures; new failures: 0
+
+FAILED tests/test_startup.py::test_windows_launchers_resolve_their_directory_and_propagate_exit_code[0-win_start_no_cmd_win.vbs]
+FAILED tests/test_startup.py::test_windows_launchers_resolve_their_directory_and_propagate_exit_code[0-win_start.bat]
+FAILED tests/test_startup.py::test_windows_launchers_resolve_their_directory_and_propagate_exit_code[7-win_start_no_cmd_win.vbs]
+FAILED tests/test_startup.py::test_windows_launchers_resolve_their_directory_and_propagate_exit_code[7-win_start.bat]

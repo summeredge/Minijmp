@@ -1,0 +1,1 @@
+50000 rows, 3 curves, 3 axes: prepare+plot=0.075s; first Agg draw=0.168s

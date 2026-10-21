@@ -110,18 +110,23 @@ def test_real_launcher_with_chinese_path_and_unrelated_cwd(tmp_path, returncode)
 @pytest.mark.skipif(os.name != 'nt', reason='Windows launchers')
 @pytest.mark.parametrize('launcher', ['win_start.bat', 'win_start_no_cmd_win.vbs'])
 @pytest.mark.parametrize('returncode', [0, 7])
-def test_windows_launchers_resolve_their_directory_and_propagate_exit_code(tmp_path, launcher, returncode):
+def test_windows_launchers_resolve_their_directory_and_propagate_exit_code(tmp_path, launcher, returncode, request):
     project = tmp_path / '中文 project'
     project.mkdir()
     for name in ['win_start.bat', 'win_start_no_cmd_win.vbs']:
         shutil.copyfile(ROOT / name, project / name)
     (project / 'start.py').write_text(f'import sys\nsys.exit({returncode})\n', encoding='utf-8')
-    env = dict(os.environ, PATH=str(Path(sys.executable).parent) + os.pathsep + os.environ['PATH'])
+    # The BAT resolves .venv beside itself, independently of PATH.
+    environment = project / '.venv'
+    subprocess.run(
+        ['cmd.exe', '/d', '/c', 'mklink', '/J', str(environment), sys.prefix],
+        capture_output=True, check=True, timeout=20)
+    request.addfinalizer(environment.rmdir)
     if launcher.endswith('.vbs'):
         command = ['cscript.exe', '//nologo', str(project / launcher)]
     else:
         command = ['cmd.exe', '/d', '/c', str(project / launcher)]
-    result = subprocess.run(command, cwd=tmp_path, env=env, capture_output=True, timeout=20)
+    result = subprocess.run(command, cwd=tmp_path, capture_output=True, timeout=20)
     assert result.returncode == returncode, result.stderr
 
 

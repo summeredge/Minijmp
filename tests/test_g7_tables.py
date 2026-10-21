@@ -102,8 +102,10 @@ def test_missing_wide_long_negative_and_formula(tmp_path, viewer):
         [['=危险标签']+[-1.234567, None, float('nan')]+list(range(27)) for _ in range(100)])
     viewer.add_table(table)
     viewer.main.update()
-    assert viewer.T.xview()[1] < 1
-    assert viewer.T.yview()[1] < 1
+    block = viewer.table_blocks[0]
+    assert block.paged and block.page_count > 1
+    assert block.tree.xview()[1] < 1
+    assert block.tree.yview()[1] < 1
     stat_table.export_png(table,tmp_path/'宽长.png')
     with Image.open(tmp_path/'宽长.png') as image:
         assert image.width > 2500 and image.height > 3600
