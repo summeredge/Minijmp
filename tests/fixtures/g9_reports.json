@@ -117,11 +117,11 @@
   },
   "computation": {
     "t_test": "47a67bf0ca645724c513a289b2024c91274164d2945fbfda75ff4a5bd3b25eb8",
-    "proportion_test": "982e508dfe51c8bfb8a2b2c60a2008e0369a8a5baf99b557175b13a2a98575c2",
-    "chi_sq": "26439f41afd46d67985b51e6bc1a039fef99f69e86f62d2f53176f093a8f9b74",
+    "proportion_test": "d518bcf39a8bf0f7ad69c95ee0fd638f1e8b6f9a9ece61955425485c962fd516",
+    "chi_sq": "67c555838aff83358dc9078a1715b37b876c0afd6a85089b0c56813fc318937e",
     "chi2_dialog": null,
     "one_way_ANOVA": "e1ab56452220cc357160629b4aa1f72fb816f4290752094dc2af34482a88dfb6",
-    "two_way_anova": "10d3c2edc6fef53619cdc3d62e7444197c366808683f9608cf881b81998b1c04",
+    "two_way_anova": "4105ee16a76427612ca67576406a8fa57c698aecc9dfd7d57ceb0a99ac1868bb",
     "ti": "6ce24e047f956d7a3a18380c2deafcfcb4a15612f348c7f6772e360ab12fb9be"
   }
 }

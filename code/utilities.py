@@ -581,18 +581,22 @@ def stack_df_num_cols(df=None, cols=None, x=None):
 def number_2Dlist(df=None, cols=None,
                   print_out=False, print_port=print):
     n = df[cols[0]].shape[0]
-    res = []
-    for i in range(n):
-        r = []
-        for col in cols:
+    columns = []
+    for col in cols:
+        values = df[col]
+        converted = []
+        # A duplicate label selects a frame; the original float(Series) rejects it.
+        if values.ndim != 1:
+            columns.append([np.nan] * n)
+            continue
+        for value in values.array:
             try:
-                _ = float(df[col].iloc[i])
-                if _ > 0 or _ <= 0:
-                    r.append(_)
+                converted.append(float(value))
             except BaseException:
-                pass
-        if len(r) == len(cols):
-            res.append(r)
+                converted.append(np.nan)
+        columns.append(converted)
+    numbers = np.array(columns, dtype=float).T
+    res = numbers[~np.isnan(numbers).any(axis=1)].tolist()
     if print_out:
         print = print_port
         print("Received %d cols of data. Found %d rows valid." % (

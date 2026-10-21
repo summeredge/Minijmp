@@ -18,8 +18,8 @@ def ABL(rv, data, k):
     rv is the frozen dist function
     k is the number of parameters of the dist funciton.
     """
-    log_likelihood = sum(
-        ln(rv.pdf(i)) for i in data)
+    # Keep ln(pdf), including its zero-density error, while evaluating pdf in bulk.
+    log_likelihood = sum(ln(density) for density in rv.pdf(data))
     n = len(data)
     if n - k > 1:
         AICc = -2 * log_likelihood + 2 * k * n / (n - k - 1)
@@ -276,9 +276,11 @@ def compare_dist(
                 print("---- 分布拟合：" + name + " ----")
                 print("拟合失败：请检查输入值及所选分布的适用条件。")
             pass
-    delta_AICc = [i - min(aiccs) for i in aiccs]
+    best_AICc = min(aiccs, default=nan)
+    delta_AICc = [i - best_AICc for i in aiccs]
     rel_likelihood = [exp(-.5 * i) for i in delta_AICc]
-    AICc_weight = [i / sum(rel_likelihood) for i in rel_likelihood]
+    total_likelihood = sum(rel_likelihood)
+    AICc_weight = [i / total_likelihood for i in rel_likelihood]
     for r, i in zip(res, AICc_weight):
         r.append(i)
     res.sort(key=lambda x: -x[-1])

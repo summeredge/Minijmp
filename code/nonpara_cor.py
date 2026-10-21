@@ -57,18 +57,20 @@ def hoeffd_example(X, Y):
     Q = np.zeros(N)
     # Loop through each data point to calculate its Q value.
     for i in range(N):
+        lower_r, lower_s = R < R[i], S < S[i]
+        equal_r, equal_s = R == R[i], S == S[i]
         # For each data point 'i', count how many points have both a lower height and weight rank (concordant pairs).
-        Q[i] = 1 + sum(np.logical_and(R < R[i], S < S[i]))
+        Q[i] = 1 + np.count_nonzero(lower_r & lower_s)
 
         # Adjust Q[i] for ties: when both ranks are equal, it contributes partially (1/4) to the Q[i] value.
         # The "- 1" accounts for not including the point itself in its own comparison.
-        Q[i] += (1 / 4) * (sum(np.logical_and(R == R[i], S == S[i])) - 1)
+        Q[i] += (1 / 4) * (np.count_nonzero(equal_r & equal_s) - 1)
 
         # When only the height rank is tied but the weight rank is lower, it contributes half (1/2) to the Q[i] value.
-        Q[i] += (1 / 2) * sum(np.logical_and(R == R[i], S < S[i]))
+        Q[i] += (1 / 2) * np.count_nonzero(equal_r & lower_s)
 
         # Similarly, when only the weight rank is tied but the height rank is lower, it also contributes half (1/2).
-        Q[i] += (1 / 2) * sum(np.logical_and(R < R[i], S == S[i]))
+        Q[i] += (1 / 2) * np.count_nonzero(lower_r & equal_s)
     # Print the Q values for each data point, indicating the weighted count of points considered "lower" or "equal".
     #  print(f"Q values: {Q}")
     # Calculate intermediate sums required for Hoeffding's D formula:

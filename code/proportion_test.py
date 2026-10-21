@@ -2,7 +2,7 @@ from stat_table import StatTable
 from scipy.stats import norm, binom, hypergeom
 from scipy.stats import f as f_dist
 #  from functools import lru_cache
-#  import numpy as np
+import numpy as np
 ####### Own Modules ########
 from binomial import binomial
 from chi_sq import chi_square
@@ -44,17 +44,18 @@ def prop_2sample(n1=None, n2=None, e1=None,
     pu_f = rv.sf(e1 - 1)
 
     mode = int((n1 + 1) * (e1 + e2 + 1) / (n1 + n2 + 2))
+    observed_probability = rv.pmf(e1)
 
     if e1 == mode:
         p_f = 1
     elif e1 < mode:
         y = mode
-        while rv.pmf(y) >= rv.pmf(e1):
+        while rv.pmf(y) >= observed_probability:
             y += 1
         p_f = rv.cdf(e1) + 1 - rv.cdf(y - 1)
     else:
         y = mode
-        while rv.pmf(y) >= rv.pmf(e1):
+        while rv.pmf(y) >= observed_probability:
             y -= 1
         p_f = 1 - rv.cdf(e1 - 1) + rv.cdf(y)
 
@@ -101,19 +102,20 @@ def prop_2sample(n1=None, n2=None, e1=None,
 
 def p_blaker(n, p, k):
     rv = binom(n, p)
-    psl = []
-    s = 0
+    return _p_blaker(n, p, k, rv, rv.pmf(np.arange(n + 1)))
+
+
+def _p_blaker(n, p, k, rv, probabilities):
     # 全事件边界用稳定尾概率；内部点保留原累计算法。
-    for i in range(n + 1):
-        s += rv.pmf(i)
-        psl.append(rv.cdf(i) if k in (0, n) else s)
+    psl = rv.cdf(np.arange(n + 1)) if k in (0, n) else np.cumsum(probabilities)
+    psr = rv.sf(np.arange(n + 1) - 1) if k in (0, n) else None
 
     def pt_le_k(n, p, k):
         return psl[k] if k >= 0 else 0
 
     def pt_ge_k(n, p, i):
         if k in (0, n):
-            return rv.sf(i - 1)
+            return psr[i] if i <= n else 0
         return 0 if i > n else 1 - pt_le_k(n, p, i - 1)
 
     if pt_ge_k(n, p, k) < pt_le_k(n, p, k):
@@ -134,8 +136,13 @@ def p_blaker(n, p, k):
 
 def p_sterne(n, p, k):
     rv = binom(n, p)
-    PTK = rv.pmf(k)
-    return sum([rv.pmf(i) for i in range(n + 1) if rv.pmf(i) <= PTK])
+    probabilities = rv.pmf(np.arange(n + 1))
+    PTK = probabilities[k] if 0 <= k <= n else 0.0
+    return _p_sterne(probabilities, PTK)
+
+
+def _p_sterne(probabilities, PTK):
+    return sum(probability for probability in probabilities if probability <= PTK)
 
 
 def p_likelihood_ratio(n, p0, x):
@@ -146,8 +153,10 @@ def p_likelihood_ratio(n, p0, x):
         ii = min(i, n - i)
         return (p / p0)**ii * ((1 - p) / (1 - p0))**(n - ii)
 
-    return sum(rv.pmf(y) for y in range(n + 1)
-               if LR(y) >= LR(x))
+    threshold = LR(x)
+    probabilities = rv.pmf(np.arange(n + 1))
+    return sum(probability for y, probability in enumerate(probabilities)
+               if LR(y) >= threshold)
 
 
 def prop_test_1sample(events=1, N=1, p0=1, print_port=print,
@@ -190,8 +199,8 @@ def prop_test_1sample(events=1, N=1, p0=1, print_port=print,
     F = f_dist.ppf(1 - alpha, dfn, dfd)
     p_exct_high = dfn * F / (dfd + dfn * F)
 
-    p_s = p_sterne(N, p0, events)
-    p_b = p_blaker(N, p0, events)
+    p_s = _p_sterne(b_res['pmf'], b_res['px'])
+    p_b = _p_blaker(N, p0, events, binom(N, p0), b_res['pmf'])
 
     if print_out:
         from utilities import gen_table, format_stat

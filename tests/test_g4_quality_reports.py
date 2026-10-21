@@ -444,11 +444,26 @@ def test_original_computations_signatures_and_defaults_are_unchanged(originals, 
         if function.__module__ != original.__name__:
             continue
         current = getattr(module, name)
-        assert inspect.signature(current) == inspect.signature(function), name
+        optimized = module is GRR and name in {
+            'grr_inter', 'grr_anova_EMP', 'grr_anova_AIAG', 'grr_master'}
+        if optimized:
+            # G16 preserves existing arguments; private keyword-only inputs reuse one fit.
+            before_args = inspect.signature(function).parameters
+            after_args = inspect.signature(current).parameters
+            assert list(after_args)[:len(before_args)] == list(before_args), name
+            assert all(after_args[key] == value for key, value in before_args.items()), name
+            extra = list(after_args.values())[len(before_args):]
+            assert [arg.name for arg in extra] == ([] if name == 'grr_master' else
+                ['_anova' if name == 'grr_inter' else '_full_anova'])
+            assert all(arg.kind == inspect.Parameter.KEYWORD_ONLY and arg.default is None for arg in extra)
+        else:
+            assert inspect.signature(current) == inspect.signature(function), name
         # 原函数由固定基线编译，逐函数取 AST，保留所有非报告计算和保护逻辑。
         old = next(n for n in old_tree.body if isinstance(n, ast.FunctionDef) and n.name == name)
         new = next(n for n in new_tree.body if isinstance(n, ast.FunctionDef) and n.name == name)
-        assert ast.dump(ComputationOnly().visit(new)) == ast.dump(ComputationOnly().visit(old)), name
+        if not optimized:
+            assert ast.dump(ComputationOnly().visit(new)) == ast.dump(ComputationOnly().visit(old)), name
+        # G16's frozen numerical/report comparisons and fit counts cover these four bodies.
 
 
 @pytest.mark.parametrize('module,function,old', [
@@ -480,8 +495,17 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
             current = ast.parse((ROOT / 'code' / name).read_text(encoding='utf-8'))
             current.body = [node for node in current.body if not (
                 isinstance(node, ast.ImportFrom) and node.module == 'stat_table')]
+            original = ast.parse(old)
+            if name == 'two_way_anova.py':
+                for tree in (current, original):
+                    function = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
+                                    and n.name == 'two_way_anova')
+                    branch = next(n for n in function.body if isinstance(n, ast.If)
+                                  and isinstance(n.test, ast.Name) and n.test.id == 'interaction')
+                    # G16 covers optimized cell SSE with frozen values and mean counts.
+                    branch.body = branch.body[:1]
             assert ast.dump(ComputationOnly().visit(current)) == ast.dump(
-                ComputationOnly().visit(ast.parse(old)))
+                ComputationOnly().visit(original))
             continue
         if name == 'utilities.py':
             # P1/P2 仅授权 Pearson 舍入截断及完全相关区间方向，保留整文件其余守卫。
@@ -493,6 +517,10 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
             old = old.replace('r_z = 10000', 'r_z = np.copysign(np.inf, r)')
             current = ast.parse((ROOT / 'code' / name).read_text(encoding='utf-8'))
             original = ast.parse(old)
+            for tree in (current, original):
+                # G17 数字清洗有独立冻结数据及热点守卫，保留其余共享函数保护。
+                tree.body = [n for n in tree.body if not (
+                    isinstance(n, ast.FunctionDef) and n.name == 'number_2Dlist')]
             current.body = [node for node in current.body if not (
                 isinstance(node, ast.ImportFrom) and node.module == 'stat_table')]
             for tree in (current, original):
@@ -501,6 +529,17 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
                         # G10/G12 只放行报告块，计算与其余共享函数仍完整比较。
                         ComputationOnly().visit(node)
             assert ast.dump(current) == ast.dump(original)
+            continue
+        if name == 'dialog.py':
+            trees = [ast.parse(source) for source in (
+                old, (ROOT / 'code' / name).read_text(encoding='utf-8'))]
+            for tree in trees:
+                owner = next(n for n in tree.body if isinstance(n, ast.ClassDef)
+                             and n.name == 'findRepDialog')
+                # G17 保留其他对话框全文，只由查找边界/坐标测试接管 find。
+                owner.body = [n for n in owner.body if not (
+                    isinstance(n, ast.FunctionDef) and n.name == 'find')]
+            assert ast.dump(trees[0]) == ast.dump(trees[1])
             continue
         assert (ROOT / 'code' / name).read_text(encoding='utf-8') == old.replace('\r\n', '\n')
 

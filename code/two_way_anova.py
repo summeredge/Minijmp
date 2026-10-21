@@ -97,8 +97,12 @@ def two_way_anova(data, factor_listA=None, print_port=print, interaction=True,
 #    print(SST-Re_SS_B)
     if interaction:
         SSA, SSB, SSAB = SSA_SSB(d)
-        SSE = sum([sum((x - stat.mean(k))**2 for x in k)
-                   for j in d for k in j])
+        SSE = 0
+        for row in d:
+            for cell in row:
+                if len(cell) > 0:
+                    mean = stat.mean(cell)
+                    SSE += sum((x - mean)**2 for x in cell)
     else:
         SSA, SSB = SSA_SSB_simple(d)
         SSAB = 0

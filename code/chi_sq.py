@@ -264,6 +264,10 @@ def chi_square(data, print_out=True, print_port=print,
 def multi_pop_var_test(data, labels, print_out=False, print_port=print,
                        alpha=0.05):
     # data in a list of lists
+    ns = [len(group) for group in data]
+    means = [stat.mean(group) for group in data]
+    variances = [stat.variance(group) for group in data]
+    medians = [stat.median(group) for group in data]
 
     def one_way_anova(data):
         ns = [len(l) for l in data]
@@ -271,7 +275,8 @@ def multi_pop_var_test(data, labels, print_out=False, print_port=print,
         means = [stat.mean(l) for l in data]
         mean = np.concatenate(data).mean()
         SSB = sum([n * (x - mean)**2 for n, x in zip(ns, means)])
-        SSW = sum([sum([(v - stat.mean(l))**2 for v in l]) for l in data])
+        SSW = sum(sum((v - mean)**2 for v in group)
+                  for group, mean in zip(data, means))
         F = (SSB / (k - 1)) / (SSW / (N - k))
         p = 1 - f_dist.cdf(F, k - 1, N - k)
         return {"F": F, "p": p}
@@ -285,21 +290,22 @@ def multi_pop_var_test(data, labels, print_out=False, print_port=print,
         #         Mj is the mean of group j
         #         SSj is the sum of squared deviations from the mean for group j
         #     Do one way ANOVA to uij
-        Zij = [[((len(l) - 1.5) * len(l) * (v - stat.mean(l))**2 -
-                 stat.variance(l) * (len(l) - 1) / 2) / (len(l) - 1) / (len(l) - 2)
-                for v in l] for l in data]
+        Zij = [[((n - 1.5) * n * (v - mean)**2 -
+                 variance * (n - 1) / 2) / (n - 1) / (n - 2)
+                for v in group]
+               for group, n, mean, variance in zip(data, ns, means, variances)]
         return one_way_anova(Zij)
 
     def Levene(data):
         #    Calculate the absolute deviation from the group mean for each data point:
         #   Zij=|X_ij - X̄_i|, where X_ij is the jth observation in the ith group,
         # and X̄_i is the mean of the ith group.
-        Zij = [[abs(v - stat.mean(l)) for v in l] for l in data]
+        Zij = [[abs(v - mean) for v in group] for group, mean in zip(data, means)]
         return one_way_anova(Zij)
 
     def Brown_Forsythe(data):
         #   Zij=|X_ij - median of the group |
-        Zij = [[abs(v - stat.median(l)) for v in l] for l in data]
+        Zij = [[abs(v - median) for v in group] for group, median in zip(data, medians)]
         return one_way_anova(Zij)
 
     res = {"OBrien": OBrien(data)}
@@ -325,16 +331,17 @@ def multi_pop_var_test(data, labels, print_out=False, print_port=print,
             #                           alpha=alpha / len(data),
             #                           print_out=False)
             #  sr2 = chi2_r["95_range_from_S"]
-            mean = stat.mean(data[i])
-            median = stat.median(data[i])
+            mean = means[i]
+            median = medians[i]
+            sd = stat.stdev(data[i])
             mad = sum(abs(x - mean) for x in data[i]) / len(data[i])
             mad2 = sum(abs(x - median) for x in data[i]) / len(data[i])
-            values.append([labels[i], len(data[i]), stat.stdev(data[i]),
+            values.append([labels[i], len(data[i]), sd,
                            sr[0], sr[1], mad, mad2])
-            display.append([str(labels[i]), str(len(data[i])), '%.3f' % stat.stdev(data[i]),
+            display.append([str(labels[i]), str(len(data[i])), '%.3f' % sd,
                             '%.3f' % sr[0], '%.3f' % sr[1], '%.3f' % mad, '%.3f' % mad2])
             t.add_row([labels[i], len(data[i]),
-                       "%.3f" % stat.stdev(data[i]),
+                       "%.3f" % sd,
                        "(%.3f, %.3f)" % sr,
                        "%.3f" % (mad), "%.3f" % (mad2)
                        ])

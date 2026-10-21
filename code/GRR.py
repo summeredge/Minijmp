@@ -165,9 +165,11 @@ def grr_xbar_r(y=None, op=None, part=None,
                     print_out=print_out, print_port=print_port)
 
 
-def grr_inter(y, op, part):
-    res = two_way_anova(y, factor_listA=part, factor_listB=op,
-                        print_out=False)
+def grr_inter(y, op, part, *, _anova=None):
+    res = _anova
+    if res is None:
+        res = two_way_anova(y, factor_listA=part, factor_listB=op,
+                            print_out=False)
 
     a = len(set(part))  # number of parts
     b = len(set(op))  # number of operators
@@ -204,12 +206,12 @@ def grr_no_op(y, part):
 
 
 def grr_anova_EMP(y=None, op=None, part=None, inter=True,
-                  print_out=False, print_port=print):
+                  print_out=False, print_port=print, *, _full_anova=None):
     if op is None:
         inter = False
         Rept, OP, OPP, PP = grr_no_op(y, part)
     else:
-        Rept, OP, OPP, PP = grr_inter(y, op, part)
+        Rept, OP, OPP, PP = grr_inter(y, op, part, _anova=_full_anova)
         if OPP == 0 or not inter:
             Rept, OP, OPP, PP = grr_simple(y, op, part)
 
@@ -312,12 +314,12 @@ def grr_anova_EMP(y=None, op=None, part=None, inter=True,
 
 def grr_anova_AIAG(y=None, op=None, part=None, inter=True,
                    hist_std=None, use_hist=False, spec_gap=None,
-                   print_out=False, print_port=print):
+                   print_out=False, print_port=print, *, _full_anova=None):
     if op is None:
         inter = False
         Rept, OP, OPP, PP = grr_no_op(y, part)
     else:
-        Rept, OP, OPP, PP = grr_inter(y, op, part)
+        Rept, OP, OPP, PP = grr_inter(y, op, part, _anova=_full_anova)
         if OPP == 0 or not inter:
             Rept, OP, OPP, PP = grr_simple(y, op, part)
 
@@ -355,11 +357,13 @@ def grr_master(y=None, op=None, part=None, mode="aiag", alpha=0.05,
                           hist_std=hist_std, use_hist=use_hist, spec_gap=spec_gap,
                           print_out=print_out, print_port=print_port)
 
+    full_anova = None
     if op is not None and inter.upper() == "AUTO":
         res = two_way_anova(y, factor_listA=part, factor_listB=op,
                             print_port=print_port, interaction=True,
                             print_out=False, name_a="Part",
                             name_b="Operator")
+        full_anova = res
         inter = (res['p AB'] <= alpha)
         if print_out:
             print = print_port
@@ -395,11 +399,13 @@ def grr_master(y=None, op=None, part=None, mode="aiag", alpha=0.05,
 
     if "EMP" in mode:
         return grr_anova_EMP(y=y, op=op, part=part, inter=inter,
-                             print_out=print_out, print_port=print_port)
+                             print_out=print_out, print_port=print_port,
+                             _full_anova=full_anova)
     if "AIAG" in mode:
         return grr_anova_AIAG(y=y, op=op, part=part, inter=inter,
                               hist_std=hist_std, use_hist=use_hist, spec_gap=spec_gap,
-                              print_out=print_out, print_port=print_port)
+                              print_out=print_out, print_port=print_port,
+                              _full_anova=full_anova)
 
 
 def grr_nested(y=None, op=None, part=None, print_out=False, print_port=print,

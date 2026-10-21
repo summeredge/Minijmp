@@ -5,6 +5,7 @@ from chart_style import style_axes
 def binomial(n, p, x=None, pvalue=None, print_out=False, print_port=print, ax=None, grid=True, color='black'):
     rv = binom(n, p)
     res = dict()
+    probabilities = list(rv.pmf(range(n + 1)))
 
     mean, var, skew, kurt = rv.stats(moments='mvsk')
     stdev = var**.5
@@ -21,17 +22,18 @@ def binomial(n, p, x=None, pvalue=None, print_out=False, print_port=print, ax=No
     def acc_p(h, t, s, threshold):
         pp = 0
         for i in range(h, t, s):
-            pp += rv.pmf(i)
+            probability = probabilities[i] if 0 <= i <= n else 0.0
+            pp += probability
             if pp > threshold:
-                return pp - rv.pmf(i), i - s
-        print(h, t, s, threshold, n, p, x)
-        print(res["left_acc_p"], res["right_acc_p"])
+                return pp - probability, i - s
+        # An exactly attained threshold includes the last scanned support point.
+        return pp, t - s
 
     if x is not None:
         x = int(x)
-        res["px"] = rv.pmf(x)
-        res["left_acc_p"] = sum([rv.pmf(i) for i in range(x + 1)])
-        res["right_acc_p"] = sum([rv.pmf(i) for i in range(x, n + 1)])
+        res["px"] = probabilities[x] if 0 <= x <= n else 0.0
+        res["left_acc_p"] = sum(probabilities[:max(0, x + 1)])
+        res["right_acc_p"] = sum(probabilities[max(0, x):])
         if res["left_acc_p"] < res["right_acc_p"]:
             right_acc_p, right_x = acc_p(n, x - 1, -1, res["left_acc_p"])
             left_acc_p, left_x = res["left_acc_p"], x
@@ -44,8 +46,8 @@ def binomial(n, p, x=None, pvalue=None, print_out=False, print_port=print, ax=No
         }
         prop_test_y = min(x, n - x)
         #  print(prop_test_y)
-        res['not equal p'] = sum(rv.pmf(i) for i in range(prop_test_y + 1)) +\
-            sum(rv.pmf(i) for i in range(n - prop_test_y, n + 1))
+        res['not equal p'] = sum(probabilities[:max(0, prop_test_y + 1)]) +\
+            sum(probabilities[max(0, n - prop_test_y):])
 
         if print_out:
             print("Prob at x = %d is %.3f." % (x, res["px"]))
@@ -79,7 +81,7 @@ def binomial(n, p, x=None, pvalue=None, print_out=False, print_port=print, ax=No
                 (left_x, left_acc_p))
             print("Right at %d, acc. prob is %.3f." % (right_x, right_acc_p))
 
-    res["pmf"] = [rv.pmf(i) for i in range(n + 1)]
+    res["pmf"] = probabilities
     if ax is not None:
         def triangle(x_input, ax, color, offset, xlist, ylist, label):
             x, y = [], []
@@ -95,8 +97,9 @@ def binomial(n, p, x=None, pvalue=None, print_out=False, print_port=print, ax=No
                     color='none')
 
         x, y = [], []
+        cutoff = max(res["pmf"]) / 100
         for xx, yy in zip(list(range(n + 1)), res["pmf"]):
-            if yy > max(res["pmf"]) / 100:
+            if yy > cutoff:
                 x.append(xx)
                 y.append(yy)
         ax.bar(x, y, facecolor='none', edgecolor=color, linewidth=1)

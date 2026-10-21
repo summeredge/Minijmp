@@ -476,7 +476,11 @@ def print_multi_col_tables(
         row = [labels[y]]
         row2 = [labels[y]]
         for x in range(n):
-            r = func(data[x], data[y], print_out=False)
+            # Correlation methods are symmetric; evaluate their real diagonals too.
+            if x < y:
+                r = {'cor': values[x][y + 1], 'p': p_values[x][y + 1]}
+            else:
+                r = func(data[x], data[y], print_out=False)
             row.append(format_stat(r["cor"]))
             row2.append(format_stat(r["p"]))
             res_tmp.append(r)

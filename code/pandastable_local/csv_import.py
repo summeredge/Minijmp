@@ -31,41 +31,53 @@ def detect_csv(filename):
     uncertain_encoding = False
     if raw.startswith((codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE)):
         encoding = "utf-16"
+        text = raw.decode(encoding)
     else:
         encoding = "utf-8-sig"
         try:
-            raw.decode(encoding)
+            text = raw.decode(encoding)
         except UnicodeDecodeError:
             uncertain_encoding = True
             try:
-                raw.decode("gb18030")
+                text = raw.decode("gb18030")
                 encoding = "gb18030"
             except UnicodeDecodeError:
                 encoding = "cp1252"
-    text = raw.decode(encoding)
+                text = raw.decode(encoding)
     candidates = []
+    rows = None
     for delimiter in DELIMITERS.values():
         try:
-            rows = read_records(text, delimiter)
+            records = read_records(text, delimiter)
         except (ValueError, csv.Error):
             continue
-        if len(rows[0]) > 1:
+        if delimiter == ",":
+            rows = records
+        if len(records[0]) > 1:
+            if not candidates:
+                rows = records
             candidates.append(delimiter)
     delimiter = candidates[0] if candidates else ","
     # Validate the entire file before a worksheet can be replaced.
-    rows = read_records(text, delimiter)
+    if rows is None:
+        rows = read_records(text, delimiter)
     header = None
     if len(rows) > 1:
         first = rows[0]
-        numeric = lambda value: bool(NUMBER.fullmatch(value))
-        if all(numeric(v) for row in rows for v in row):
-            header = False
+        numeric = [bool(NUMBER.fullmatch(value)) for value in first]
+        body = rows[1:]
+        if all(numeric):
+            if all(all(NUMBER.fullmatch(value) for value in
+                       {row[col] for row in body})
+                   for col in range(len(first))):
+                header = False
         elif (all(first) and len(set(first)) == len(first)
-              and not any(numeric(v) for v in first)
-              and any(all(not row[col] or numeric(row[col]) for row in rows[1:])
-                      and any(row[col] for row in rows[1:])
-                      for col in range(len(first)))):
-            header = True
+              and not any(numeric)):
+            for col in range(len(first)):
+                present = {row[col] for row in body if row[col]}
+                if present and all(NUMBER.fullmatch(value) for value in present):
+                    header = True
+                    break
     return dict(encoding=encoding, delimiter=delimiter, header=header,
                 confirm=uncertain_encoding or len(candidates) != 1 or header is None)
 
@@ -80,13 +92,14 @@ def read_csv(filename, encoding, delimiter, header):
     for col in frame:
         values = frame[col]
         present = values[values != ""]
+        cleaned = values.replace("", float("nan"))
         # Preserve identifiers and long integers instead of rounding them as floats.
-        if len(present) and all(NUMBER.fullmatch(v) and
+        if len(present) and NUMBER.fullmatch(next(iter(present))) and all(NUMBER.fullmatch(v) and
                                 ("." in v or "e" in v.lower() or
-                                 len(v.lstrip("+-")) <= 15) for v in present):
-            converted = pd.to_numeric(values.replace("", float("nan")), errors="coerce")
+                                 len(v.lstrip("+-")) <= 15) for v in pd.unique(present.to_numpy())):
+            converted = pd.to_numeric(cleaned, errors="coerce")
             if converted[present.index].notna().all() and not converted.isin([float("inf"), -float("inf")]).any():
                 frame[col] = converted
                 continue
-        frame[col] = values.replace("", float("nan"))
+        frame[col] = cleaned
     return frame

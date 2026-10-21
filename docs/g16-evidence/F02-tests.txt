@@ -1,0 +1,15 @@
+...............                                                          [100%]
+============================== warnings summary ===============================
+tests/test_g16_statistics.py::test_f02_scalar_ties_constants_small_and_nonfinite[x6-y6]
+  g16_before/nonpara_cor.py:98: RuntimeWarning: invalid value encountered in scalar divide
+
+tests/test_g16_statistics.py::test_f02_scalar_ties_constants_small_and_nonfinite[x6-y6]
+  C:\Users\shaoy\Documents\Minijmp\code\nonpara_cor.py:100: RuntimeWarning: invalid value encountered in scalar divide
+    D = 30 * ((N - 2) * (N - 3) * D1 + D2 - 2 * (N - 2) * D3) / (N * (N - 1) * (N - 2) * (N - 3) * (N - 4))
+
+tests/test_g16_statistics.py::test_f02_matrix_values_reports_and_unordered_pairs[spearman]
+  C:\Users\shaoy\Documents\Minijmp\code\nonpara_cor.py:21: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+    spearman_result = stats.spearmanr(x, y)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+15 passed, 159 deselected, 3 warnings in 3.07s

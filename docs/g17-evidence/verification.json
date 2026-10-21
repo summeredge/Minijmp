@@ -1,0 +1,43 @@
+{
+  "scenarios": 26,
+  "records": 208,
+  "formal_samples": 156,
+  "formal_samples_per_variant": 3,
+  "current_function_hashes": {
+    "df_combine.df_combine": "774d885f89a377b820e8ad9181c5e984ee79e685e39ed2d736448552c1a6001d",
+    "utilities.number_2Dlist": "8b6d94b1307ceae2a5f29fefc47ac4eeadc1cf3abc9e682c3d7e07febc495529",
+    "dialog.findRepDialog.find": "7a459d1db24cbbd8e19350a8eca74175cb612d5f27dd8eee2eadae90544679dd",
+    "pandastable_local.dialogs.FindReplaceDialog.find": "ca8112a1a2b6c42aac1c4c2d80d660436f5569ebfd82741cecb2bb85a35a3510",
+    "pandastable_local.csv_import.detect_csv": "acf1a6b9f9d048b40c32c53cb3319e0b65a2d3cdb02d54c956d7f96915dd887f",
+    "pandastable_local.csv_import.read_csv": "566b974be56f45175db782fc8a84ccc3a9dddd36d517c27138672e0140802128"
+  },
+  "g17_snapshot_sha256": {
+    "code/df_combine.py": "8b14898fe94e09efdecd669342424529a5fa12365ee83e43c52005984d52d0b3",
+    "code/dialog.py": "38f171855e80c792b58fb2df69aaa354194506be774b8eaec6ef32fd853b9b8e",
+    "code/utilities.py": "d041e29b86333f252eb134632ab9e06cbed782db18dbf582f79bdd07359a2d11",
+    "code/pandastable_local/dialogs.py": "8bc8398112d9d82fa0e039b0c60b859f4b9fa7cab43bf84c4740fc6edc7900f1",
+    "code/pandastable_local/csv_import.py": "4514b2eb11c6b6ee6baa04f8a6a98d8e5934b8bac92d3717884a0eb6c46609d4",
+    "tests/test_g11_quality_tables.py": "70d472def9c15339319292f19c17190a4b1bf126551bbb99dc6e8b6c5ab39b2a",
+    "tests/test_g12_tables.py": "48514e77c98a1619ee950c456a75a92520c151743163401e94bcafa8bab20695",
+    "tests/test_g4_quality_reports.py": "7bbb0ffc06ebeedb5b24a9571adb74c0affb856960b2f36d64d89159d3de5221",
+    "tests/test_g17_data_processing.py": "73f5e9f6ffda716f0a999db56912eb9fdf6f04076512603ced84caa53469cda8",
+    "tests/test_g17_csv.py": "0eb50e008450a1f512f0cacae1f7671a72d7cab20e275ffb8e3319a7de94d2b2",
+    "tests/fixtures/g17_before.json": "8f071d1a395d85d3928b812064dcfd91a06b65c82825051c0a3fd3aed20c47f9",
+    "tools/benchmark_data_processing.py": "8ec9d3ec92a064240f735bf17c70716b4e0e7846ade61110b7dee41f11a8117a"
+  },
+  "production_and_exclusive_files_match_workspace": true,
+  "shared_test_files_with_later_parallel_changes": [
+    "tests/test_g11_quality_tables.py",
+    "tests/test_g12_tables.py",
+    "tests/test_g4_quality_reports.py"
+  ],
+  "patch_source": "isolated G17 snapshot vs 38b907f; excludes later G16 shared test edits",
+  "full_pytest": {
+    "baseline": "1768 passed, 53 warnings",
+    "final": "1962 passed, 53 warnings",
+    "seconds": 387.96,
+    "scope": "38b907f plus G17-only patch; parallel G16 excluded"
+  },
+  "patch_sha256": "05c05013c4e9fb04d832eb94e4dc7f3cb4befda9f56fe51e94d3509943f4efca",
+  "report_sha256": "ca334774e3becfbd266652c549a39aa10e60a0c690825c263988a693d9b0b11a"
+}
