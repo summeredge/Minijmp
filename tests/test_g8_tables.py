@@ -156,7 +156,7 @@ def test_menu_position_independent_of_columns_and_scroll(viewer, geometry):
     viewer.main.update()
     assert len({block.menu_button.winfo_rootx() for block in viewer.table_blocks}) == 1
     for block in viewer.table_blocks:
-        assert block.menu_button.winfo_x() < block.title_label.winfo_x()
+        assert block.menu_button.winfo_x() > block.title_label.winfo_x()
         assert block.menu_button.winfo_width() > 20
     assert viewer.T.yview()[1] < 1
     viewer.T.yview_moveto(1)
@@ -244,7 +244,50 @@ def test_titlebar_at_double_dpi(viewer):
         viewer.main.update()
         assert len({block.menu_button.winfo_rootx() for block in viewer.table_blocks}) == 1
         for block in viewer.table_blocks:
-            assert block.menu_button.winfo_x() + block.menu_button.winfo_width() <= block.title_label.winfo_x()
-            assert block.title_label.winfo_width() >= block.title_label.winfo_reqwidth()
+            assert block.title_label.winfo_x() + block.title_label.winfo_width() <= block.menu_button.winfo_x()
+            assert block.menu_button.winfo_rootx() + block.menu_button.winfo_width() <= viewer.T.winfo_rootx() + viewer.T.winfo_width()
     finally:
         interp.call('tk', 'scaling', original)
+
+
+@pytest.mark.parametrize('paged', [False, True])
+def test_copy_to_excel_uses_full_display_and_only_this_table(viewer, paged):
+    import csv
+    import io
+
+    rows = [['中文\t带制表', '12.35%', '*', '1.23e-09'],
+            ['含\r\n换行与"引号"', '0.00%', '*', '-2.00e+08']]
+    rows = rows * (125 if paged else 1)
+    table = StatTable('保留原 ASCII', '表标题', ['变量', '百分比', '缺失', '科学计数'],
+                      rows, display=rows)
+    viewer.add_table(table)
+    viewer.add_table(StatTable('相邻原文', '相邻表', ['其他列'], [['不要复制']]))
+    viewer.main.update()
+    block = viewer.table_blocks[0]
+    assert block.paged == paged
+    assert [block.menu.entrycget(i, 'label') for i in range(3)] == [
+        '导出 Excel', '导出 PNG', '复制到 Excel']
+    if paged:
+        block.show_page(block.page_count)
+        block.tree.selection_set(block.tree.get_children()[-1])
+    block.menu.invoke(2)
+    copied = viewer.T.clipboard_get()
+    assert list(csv.reader(io.StringIO(copied, newline=''), delimiter='\t')) == [table.headers] + rows
+    assert '不要复制' not in copied and '保留原 ASCII' not in copied
+    viewer.select_all()
+    viewer.copy()
+    assert viewer.T.clipboard_get() == '保留原 ASCII\n相邻原文\n'
+
+
+def test_right_menu_survives_resize_and_long_title(viewer):
+    viewer.add_table(StatTable(title='很长的统计结果标题' * 30,
+        headers=[f'列{i}' for i in range(31)], values=[list(range(31))]))
+    block = viewer.table_blocks[0]
+    for geometry in ('1100x800', '480x320', '720x700'):
+        viewer.main.geometry(geometry)
+        viewer.T.xview_moveto(0)
+        viewer.main.update()
+        button = block.menu_button
+        assert block.title_label.winfo_rootx() < button.winfo_rootx()
+        assert button.winfo_width() == button.winfo_reqwidth()
+        assert button.winfo_rootx() + button.winfo_width() <= viewer.T.winfo_rootx() + viewer.T.winfo_width()

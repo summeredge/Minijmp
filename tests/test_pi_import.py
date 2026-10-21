@@ -43,6 +43,49 @@ def frame():
         ['2026-10-20 01:10:00', 6, 8]]})
 
 
+def test_pi_strings_reach_real_y_candidates_and_plot(csv_app, monkeypatch):
+    import numpy as np
+    from time_series_dialog import TimeSeriesDialog
+
+    app, error = csv_app
+    payload = {'columns': ['Timestamp', 'Tag', 'Mixed', 'Precise'], 'data': [
+        ['2026-10-20 01:10:00', '6.5', 'Bad Input', '0.123456789012345678901'],
+        ['2026-10-20 01:00:00', '2', '4', '1'],
+        ['2026-10-20 01:00:00', None, None, None],
+        ['2026-10-20 01:05:00', '4e0', 'Shutdown', '2']]}
+    monkeypatch.setattr(pi_reader, 'read_pi_data', lambda *a, **kw: pi_reader._read_reader_json(payload))
+
+    def action(window):
+        window.tags.insert('1.0', 'Tag\nMixed\nPrecise')
+        window.query()
+        pump(app.main, lambda: not window.winfo_exists())
+
+    open_menu(app, monkeypatch, action)
+    data = app.table.model.df
+    assert data['Mixed'].tolist() == ['Bad Input', '4', None, 'Shutdown']
+    assert data['Precise'].iloc[0] == '0.123456789012345678901'
+    dialog = TimeSeriesDialog(app.table, df=data, app=app, title='时间序列图')
+    try:
+        assert dialog.xvar.get() == 'Timestamp'
+        assert dialog.ylist.get(0, 'end') == ('Tag',)
+        dialog.ylist.selection_set(0)
+        dialog.update_variables()
+        dialog.apply()
+        viewer = app.table.pf
+        viewer.canvas.draw()
+        line = viewer.fig.axes[0].lines[0]
+        np.testing.assert_equal(line.get_ydata(), [2., np.nan, 4., 6.5])
+        np.testing.assert_array_equal(line.get_xdata(), pd.to_datetime([
+            '2026-10-20 01:00:00', '2026-10-20 01:00:00',
+            '2026-10-20 01:05:00', '2026-10-20 01:10:00']).to_numpy())
+        assert len(line.get_xdata()) == len(data) == 4
+        error.assert_not_called()
+    finally:
+        if app.table.pf is not None:
+            app.table.pf.close()
+        dialog.main.destroy()
+
+
 def test_menu_import_updates_real_table_and_statistics(csv_app, monkeypatch, tmp_path):
     app, error = csv_app
     expected = frame().reset_index()
