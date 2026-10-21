@@ -1,0 +1,216 @@
+{
+  "scenario": "reports",
+  "n": 100,
+  "p": 7,
+  "seed": 20261021,
+  "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+  "versions": {
+    "numpy": "2.4.6",
+    "pandas": "3.0.6",
+    "matplotlib": "3.11.2"
+  },
+  "source": "C:\\Users\\shaoy\\.codex\\worktrees\\2878\\Minijmp\\docs\\g18-evidence\\before",
+  "source_sha256": {
+    "control_chart.py": "98c960329c6ec6696a45a05b152e67196980eacee866bb30ff6ebd46266fad10",
+    "linear_plot.py": "ab24921e7c6ffb4d1d7154c728ed5ea6ed0299ecab3b4e340f810b246f87d250",
+    "stat_table.py": "a66ba1e8632a37f71a1ebf406650df759e7514fd6934f795b7a33aef4b0f1124",
+    "time_series.py": "75ff6467e3a7705066f06b69dccd28d76884e287c5a25d5edee64ea1283eb6bf",
+    "time_series_dialog.py": "630de7e10e0bb796441ae3a2bec6672dff1e636108b4b4bf010b15b472a55bad",
+    "txt_output.py": "e2ab1688e355f6665ae9a380de3fcc510433e629a40b11ccd75d20288fed93c3"
+  },
+  "rows": [
+    {
+      "phase": "tk_print_to_updated",
+      "repeat": 0,
+      "warmup": true,
+      "seconds": 10.863932900014333,
+      "cpu_seconds": 3.203125,
+      "memory_mib": {
+        "WorkingSetSize": 205.00390625,
+        "PeakWorkingSetSize": 205.00390625,
+        "PagefileUsage": 165.81640625
+      }
+    },
+    {
+      "phase": "tk_last_page_to_updated",
+      "repeat": 0,
+      "warmup": true,
+      "seconds": 0.001477500016335398,
+      "cpu_seconds": 0.0,
+      "memory_mib": {
+        "WorkingSetSize": 205.01953125,
+        "PeakWorkingSetSize": 205.01953125,
+        "PagefileUsage": 165.81640625
+      }
+    },
+    {
+      "phase": "gui_txt_save",
+      "repeat": 0,
+      "warmup": true,
+      "seconds": 0.0023173999798018485,
+      "cpu_seconds": 0.0,
+      "memory_mib": {
+        "WorkingSetSize": 205.12890625,
+        "PeakWorkingSetSize": 205.12890625,
+        "PagefileUsage": 165.81640625
+      }
+    },
+    {
+      "phase": "tk_clear_to_updated",
+      "repeat": 0,
+      "warmup": true,
+      "seconds": 4.1693333000002895,
+      "cpu_seconds": 1.0,
+      "memory_mib": {
+        "WorkingSetSize": 205.671875,
+        "PeakWorkingSetSize": 205.671875,
+        "PagefileUsage": 166.28125
+      }
+    },
+    {
+      "phase": "tk_print_to_updated",
+      "repeat": 1,
+      "warmup": false,
+      "seconds": 9.47036270002718,
+      "cpu_seconds": 2.78125,
+      "memory_mib": {
+        "WorkingSetSize": 206.3671875,
+        "PeakWorkingSetSize": 206.3671875,
+        "PagefileUsage": 166.28125
+      }
+    },
+    {
+      "phase": "tk_last_page_to_updated",
+      "repeat": 1,
+      "warmup": false,
+      "seconds": 0.0023922999971546233,
+      "cpu_seconds": 0.0,
+      "memory_mib": {
+        "WorkingSetSize": 206.3671875,
+        "PeakWorkingSetSize": 206.3671875,
+        "PagefileUsage": 166.28125
+      }
+    },
+    {
+      "phase": "gui_txt_save",
+      "repeat": 1,
+      "warmup": false,
+      "seconds": 0.00191269998322241,
+      "cpu_seconds": 0.015625,
+      "memory_mib": {
+        "WorkingSetSize": 206.37890625,
+        "PeakWorkingSetSize": 206.37890625,
+        "PagefileUsage": 166.28125
+      }
+    },
+    {
+      "phase": "tk_clear_to_updated",
+      "repeat": 1,
+      "warmup": false,
+      "seconds": 2.8057252000144217,
+      "cpu_seconds": 0.765625,
+      "memory_mib": {
+        "WorkingSetSize": 206.51171875,
+        "PeakWorkingSetSize": 206.51171875,
+        "PagefileUsage": 166.41796875
+      }
+    },
+    {
+      "phase": "tk_print_to_updated",
+      "repeat": 2,
+      "warmup": false,
+      "seconds": 5.926452699990477,
+      "cpu_seconds": 2.421875,
+      "memory_mib": {
+        "WorkingSetSize": 206.62109375,
+        "PeakWorkingSetSize": 206.62109375,
+        "PagefileUsage": 166.48828125
+      }
+    },
+    {
+      "phase": "tk_last_page_to_updated",
+      "repeat": 2,
+      "warmup": false,
+      "seconds": 0.0021781999967060983,
+      "cpu_seconds": 0.0,
+      "memory_mib": {
+        "WorkingSetSize": 206.62109375,
+        "PeakWorkingSetSize": 206.62109375,
+        "PagefileUsage": 166.48828125
+      }
+    },
+    {
+      "phase": "gui_txt_save",
+      "repeat": 2,
+      "warmup": false,
+      "seconds": 0.004319600004237145,
+      "cpu_seconds": 0.015625,
+      "memory_mib": {
+        "WorkingSetSize": 206.63671875,
+        "PeakWorkingSetSize": 206.63671875,
+        "PagefileUsage": 166.48828125
+      }
+    },
+    {
+      "phase": "tk_clear_to_updated",
+      "repeat": 2,
+      "warmup": false,
+      "seconds": 2.2171609999786597,
+      "cpu_seconds": 0.6875,
+      "memory_mib": {
+        "WorkingSetSize": 206.84765625,
+        "PeakWorkingSetSize": 206.84765625,
+        "PagefileUsage": 166.75390625
+      }
+    },
+    {
+      "phase": "tk_print_to_updated",
+      "repeat": 3,
+      "warmup": false,
+      "seconds": 6.1711005000106525,
+      "cpu_seconds": 2.625,
+      "memory_mib": {
+        "WorkingSetSize": 206.85546875,
+        "PeakWorkingSetSize": 206.85546875,
+        "PagefileUsage": 166.75390625
+      }
+    },
+    {
+      "phase": "tk_last_page_to_updated",
+      "repeat": 3,
+      "warmup": false,
+      "seconds": 0.0015617000171914697,
+      "cpu_seconds": 0.0,
+      "memory_mib": {
+        "WorkingSetSize": 206.8671875,
+        "PeakWorkingSetSize": 206.8671875,
+        "PagefileUsage": 166.75390625
+      }
+    },
+    {
+      "phase": "gui_txt_save",
+      "repeat": 3,
+      "warmup": false,
+      "seconds": 0.0017615999968256801,
+      "cpu_seconds": 0.0,
+      "memory_mib": {
+        "WorkingSetSize": 206.87109375,
+        "PeakWorkingSetSize": 206.87109375,
+        "PagefileUsage": 166.75390625
+      }
+    },
+    {
+      "phase": "tk_clear_to_updated",
+      "repeat": 3,
+      "warmup": false,
+      "seconds": 2.0468623000197113,
+      "cpu_seconds": 0.765625,
+      "memory_mib": {
+        "WorkingSetSize": 207.0,
+        "PeakWorkingSetSize": 207.0,
+        "PagefileUsage": 166.88671875
+      }
+    }
+  ],
+  "status": "ok"
+}

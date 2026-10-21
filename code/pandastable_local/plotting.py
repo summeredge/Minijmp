@@ -955,7 +955,7 @@ class PlotViewer(Frame):
                 #the remainder are not supported
                 axs = self.ax
                 labels = []; handles=[]
-                cmap = plt.cm.get_cmap(kwargs['colormap'])
+                cmap = mpl.colormaps.get_cmap(kwargs['colormap'])
                 #handle as pivoted data for some line, bar
                 if kind in ['line','bar','barh']:
                     df = pd.pivot_table(data,index=by)
@@ -1115,7 +1115,7 @@ class PlotViewer(Frame):
         if len(data.columns) == 1 and kind not in ['pie']:
             kwargs['subplots'] = False
         if 'colormap' in kwargs:
-            cmap = plt.cm.get_cmap(kwargs['colormap'])
+            cmap = mpl.colormaps.get_cmap(kwargs['colormap'])
         else:
             cmap = None
         #change some things if we are plotting in b&w
@@ -1309,7 +1309,7 @@ class PlotViewer(Frame):
         cols = list(df.columns)
         x = df[cols[0]]
         s=1
-        cmap = plt.cm.get_cmap(kwds['colormap'])
+        cmap = mpl.colormaps.get_cmap(kwds['colormap'])
         lw = kwds['linewidth']
         clrcol = kwds['clrcol']  #color by values in a column
         cscale = kwds['cscale']
@@ -1415,7 +1415,7 @@ class PlotViewer(Frame):
         data=[]
         clrs=[]
         cols = len(df.columns)
-        cmap = plt.cm.get_cmap(kwds['colormap'])
+        cmap = mpl.colormaps.get_cmap(kwds['colormap'])
         for i,d in enumerate(df):
             clrs.append(cmap(float(i)/cols))
             data.append(df[d].values)
@@ -1440,7 +1440,7 @@ class PlotViewer(Frame):
         marker = kwds['marker']
         if marker == '':
             marker = 'o'
-        cmap = plt.cm.get_cmap(kwds['colormap'])
+        cmap = mpl.colormaps.get_cmap(kwds['colormap'])
         ms = kwds['ms']
         lw = kwds['linewidth']
         alpha = kwds['alpha']
@@ -1548,9 +1548,9 @@ class PlotViewer(Frame):
 
     def getcmap(self, name):
         try:
-            return plt.cm.get_cmap(name)
+            return mpl.colormaps.get_cmap(name)
         except:
-            return plt.cm.get_cmap('Spectral')
+            return mpl.colormaps.get_cmap('Spectral')
 
     def plot3D(self, redraw=True):
         """3D plot"""
@@ -1623,7 +1623,7 @@ class PlotViewer(Frame):
 
         i=0
         plots=len(data.columns)
-        cmap = plt.cm.get_cmap(kwds['colormap'])
+        cmap = mpl.colormaps.get_cmap(kwds['colormap'])
         for c in data.columns:
             h = data[c]
             c = cmap(float(i)/(plots))

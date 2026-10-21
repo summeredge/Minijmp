@@ -67,7 +67,10 @@ def prepare_time_series(data, columns, time_column=None):
         if (column not in data or not is_numeric_dtype(data[column].dtype)
                 or is_complex_dtype(data[column].dtype) or is_bool_dtype(data[column].dtype)):
             raise ValueError(f'Y 变量“{column}”必须是实数数值列。')
-        values = data[column].to_numpy(dtype=object, na_value=np.nan)
+        # 原生数值数组无需装箱；扩展类型保留 object 以免大整数缺失值转成浮点。
+        dtype = data[column].dtype
+        values = data[column].to_numpy(dtype=None if isinstance(dtype, np.dtype) else object,
+                                       na_value=np.nan)
         if pd.isna(values).all():
             raise ValueError(f'Y 变量“{column}”全部缺失。')
         if np.isinf(data[column]).any():
@@ -84,8 +87,9 @@ def prepare_time_series(data, columns, time_column=None):
 
 def time_series_plot(figure, data, columns, time_column=None, assignments=None,
                      mode=AXIS_MODES[0], title='', xlabel='', ylabels=None,
-                     legend=True, grid=True):
-    x, ys = prepare_time_series(data, columns, time_column)
+                     legend=True, grid=True, *, prepared=None):
+    # 对话框在替换旧窗口前验证；同一次同步绘图直接使用该结果。
+    x, ys = prepare_time_series(data, columns, time_column) if prepared is None else prepared
     assigned = axis_assignments(columns, assignments, mode)
     used = sorted(set(assigned.values()))
     figure.clear()

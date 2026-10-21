@@ -27,7 +27,7 @@ def fit_plot(x, y, alpha=0.05, print_out=False,
              scatter=True, ax=None,
              ortho_resid=False,
              red_ellipse=False, dot_size=20,
-             ax_margin=0.1, print_port=print):
+             ax_margin=0.1, print_port=print, pearson_result=None):
 
     print = print_port
     #  print("test")
@@ -50,8 +50,8 @@ def fit_plot(x, y, alpha=0.05, print_out=False,
 
     if ellipse or red_ellipse:
         ax.set_box_aspect(1)
-        correlation = pearson_correlation(x, y, alpha=alpha, print_port=print,
-                                          print_out=print_out)
+        correlation = pearson_result if pearson_result is not None else pearson_correlation(
+            x, y, alpha=alpha, print_port=print, print_out=print_out)
         res["Pearson"] = correlation
         # Use parametric equations to generate points on the ellipse:
         # x(t) = x̄ + a * cos(t) * cos(θ) - b * sin(t) * sin(θ)
@@ -174,26 +174,22 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
                    show_plot=False, filename=None, ax_margin=0.1,
                    ellipse=True):
 
-    t = gen_table([["\\"] + labels])
-    t2 = gen_table([["\\"] + labels])
     cor_res = []
     n = len(data)
     for y in range(n):
         res_tmp = []
-        row = [labels[y]]
-        row2 = [labels[y]]
         for x in range(n):
-            r = pearson_correlation(data[x], data[y], print_out=False)
-            row.append(format_stat(r["r"]))
-            row2.append(format_stat(r["p"]))
+            r = pearson_correlation(data[x], data[y], alpha=alpha, print_out=False)
             res_tmp.append(r)
         cor_res.append(res_tmp)
-        t.add_row(row)
-        t2.add_row(row2)
     res = {"pearson": cor_res}
 
     if print_out:
         print = print_port
+        t = gen_table([["\\"] + labels] + [
+            [label] + [format_stat(r['r']) for r in row] for label, row in zip(labels, cor_res)])
+        t2 = gen_table([["\\"] + labels] + [
+            [label] + [format_stat(r['p']) for r in row] for label, row in zip(labels, cor_res)])
         t.align = t2.align = 'r'
         t.align['\\'] = t2.align['\\'] = 'l'
         print(f"\n---- Pearson 相关系数矩阵（N = {len(data[0])}） ----")
@@ -206,7 +202,10 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
             display=[[str(v) for v in row] for row in t2.rows]))
 
     if axs is None or fig is None:
-        fig, axs = plt.subplots(n - 1, n - 1, squeeze=False, layout="constrained")  # , sharex=True, sharey=True)
+        fig = plt.figure(layout="constrained")
+        grid = fig.add_gridspec(n - 1, n - 1)
+        axs = [[fig.add_subplot(grid[y, x]) if x <= y else None
+                for x in range(n - 1)] for y in range(n - 1)]
     # Remove vertical space between Axes
     dot_size = max(20 * (1 / n)**.25, 1)
     #  fig.set_size_inches(7, 7)
@@ -216,14 +215,16 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
         for y in range(1, len(data)):
             fx, fy = x, y - 1
             if x >= y:
-                axs[fy][fx].axis('off')
+                if axs[fy][fx] is not None:
+                    axs[fy][fx].axis('off')
             else:
                 #  axs[fy][fx].set_aspect('equal')
                 fit_plot(data[x], data[y], ax_margin=ax_margin,
                          ellipse=ellipse, ax=axs[fy][fx], alpha=alpha,
                          xlabel=labels[x] if y == n - 1 else None,
                          ylabel=labels[y] if x == 0 else None,
-                         red_ellipse=red_ellipse, dot_size=dot_size)
+                         red_ellipse=red_ellipse, dot_size=dot_size,
+                         pearson_result=cor_res[y][x])
                 if x > 0:
                     axs[fy][fx].get_yaxis().set_visible(False)
                 #      axs[fy][fx].tick_params(
@@ -248,6 +249,7 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
 
 
 def create_inset_grid(ax, n):
+    """保留下三角单元的位置，空白上三角不创建 Axes。"""
     # Calculate the size of each inset subplot
     inset_size = 1.0 / n  # Size of each subplot as a fraction of the main Axes
     inset_axes = []  # 2D list to store inset Axes
@@ -255,6 +257,9 @@ def create_inset_grid(ax, n):
     for i in range(n):
         row_axes = []
         for j in range(n):
+            if j > i:
+                row_axes.append(None)
+                continue
             # Calculate the position of each inset subplot
             x0 = j * inset_size
             y0 = 1 - (i + 1) * inset_size
@@ -283,26 +288,22 @@ def multi_fit(data, labels, print_out=False, print_port=print,
               ellipse=True, ylabel_0deg=False, xlabel_45deg=False ,
               xtick_45deg=False):
 
-    t = gen_table([["\\"] + labels])
-    t2 = gen_table([["\\"] + labels])
     cor_res = []
     n = len(data)
     for y in range(n):
         res_tmp = []
-        row = [labels[y]]
-        row2 = [labels[y]]
         for x in range(n):
-            r = pearson_correlation(data[x], data[y], print_out=False)
-            row.append(format_stat(r["r"]))
-            row2.append(format_stat(r["p"]))
+            r = pearson_correlation(data[x], data[y], alpha=alpha, print_out=False)
             res_tmp.append(r)
         cor_res.append(res_tmp)
-        t.add_row(row)
-        t2.add_row(row2)
     res = {"pearson": cor_res}
 
     if print_out:
         print = print_port
+        t = gen_table([["\\"] + labels] + [
+            [label] + [format_stat(r['r']) for r in row] for label, row in zip(labels, cor_res)])
+        t2 = gen_table([["\\"] + labels] + [
+            [label] + [format_stat(r['p']) for r in row] for label, row in zip(labels, cor_res)])
         t.align = t2.align = 'r'
         t.align['\\'] = t2.align['\\'] = 'l'
         print(f"\n---- Pearson 相关系数矩阵（N = {len(data[0])}） ----")
@@ -329,15 +330,14 @@ def multi_fit(data, labels, print_out=False, print_port=print,
     for x in range(len(data) - 1):
         for y in range(1, len(data)):
             fx, fy = x, y - 1
-            if x >= y:
-                axs[fy][fx].axis('off')
-            else:
+            if x < y:
                 #  axs[fy][fx].set_aspect('equal')
                 fit_plot(data[x], data[y], ax_margin=ax_margin,
                          ellipse=ellipse, ax=axs[fy][fx], alpha=alpha,
                          xlabel=labels[x] if y == n - 1 else None,
                          ylabel=labels[y] if x == 0 else None,
-                         red_ellipse=red_ellipse, dot_size=dot_size)
+                         red_ellipse=red_ellipse, dot_size=dot_size,
+                         pearson_result=cor_res[y][x])
                 if x > 0:
                     axs[fy][fx].get_yaxis().set_visible(False)
                 elif ylabel_0deg:

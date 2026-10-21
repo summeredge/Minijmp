@@ -199,9 +199,9 @@ def additional_SD(ax, sd, cl, ucl=None):
 
 def _print_spc_report(title, charts, sizes, size_label, labels, notes, print_port):
     """只呈现调用方已有的统计量和实际使用的控制限，不执行异常判定。"""
-    def at(value, index):
+    def at(value, index, missing=None):
         if isinstance(value, (list, tuple, np.ndarray)):
-            return value[index] if index < len(value) else None
+            return value[index] if index < len(value) else missing
         return value
 
     def number(value):
@@ -244,18 +244,21 @@ def _print_spc_report(title, charts, sizes, size_label, labels, notes, print_por
         # 与 limit_line 一样将常量列表视为水平线，每张图只归并一次。
         lcl, cl, ucl = [value[0] if isinstance(value, (list, tuple, np.ndarray))
                        and len(set(value)) == 1 else value for value in (lcl, cl, ucl)]
-        table = gen_table([['点号', '子组/时间标识', size_label, '统计值', 'LCL', 'CL', 'UCL']] + [
-            [i + 1, labels[i] if labels is not None and i < len(labels) else '*',
-             number(at(sizes, i)), number(value), number(at(lcl, i)),
-             number(at(cl, i)), number(at(ucl, i))]
-            for i, value in enumerate(values)])
+        rows = [[i + 1, labels[i] if labels is not None and i < len(labels) else '*',
+                 at(sizes, i), value, at(lcl, i), at(cl, i), at(ucl, i)]
+                for i, value in enumerate(values)]
+        shown = [[number(item) for item in value] if isinstance(value, (list, tuple, np.ndarray))
+                 else number(value) for value in (sizes, lcl, cl, ucl)]
+        display = [[str(row[0]), str(row[1]), at(shown[0], i, '*'), number(row[3]),
+                    at(shown[1], i, '*'), at(shown[2], i, '*'), at(shown[3], i, '*')]
+                   for i, row in enumerate(rows)]
+        table = gen_table([['点号', '子组/时间标识', size_label, '统计值', 'LCL', 'CL', 'UCL']])
+        for raw, shown_row in zip(rows, display):
+            table.add_row(raw[:2] + shown_row[2:])
         for column in ['点号', size_label, '统计值', 'LCL', 'CL', 'UCL']:
             table.align[column] = 'r'
         print_port(StatTable(table, name, table.field_names,
-                             [[i + 1, labels[i] if labels is not None and i < len(labels) else '*',
-                               at(sizes, i), value, at(lcl, i), at(cl, i), at(ucl, i)]
-                              for i, value in enumerate(values)],
-                             display=[[str(cell) for cell in row] for row in table.rows],
+                             rows, display=display,
                              number_formats=['0', 'General', '0.######'] + ['0.00000E+00'] * 4))
     print_port('* 表示缺失、未提供或不适用；点号从 1 开始，按本次输入顺序列示。')
     print_port('\n特殊原因及异常点')

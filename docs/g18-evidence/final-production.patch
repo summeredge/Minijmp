@@ -1,0 +1,387 @@
+diff --git a/code/control_chart.py b/code/control_chart.py
+index d1a72e7..ee3bd6c 100644
+--- a/code/control_chart.py
++++ b/code/control_chart.py
+@@ -199,9 +199,9 @@ def additional_SD(ax, sd, cl, ucl=None):
+ 
+ def _print_spc_report(title, charts, sizes, size_label, labels, notes, print_port):
+     """只呈现调用方已有的统计量和实际使用的控制限，不执行异常判定。"""
+-    def at(value, index):
++    def at(value, index, missing=None):
+         if isinstance(value, (list, tuple, np.ndarray)):
+-            return value[index] if index < len(value) else None
++            return value[index] if index < len(value) else missing
+         return value
+ 
+     def number(value):
+@@ -244,18 +244,21 @@ def _print_spc_report(title, charts, sizes, size_label, labels, notes, print_por
+         # 与 limit_line 一样将常量列表视为水平线，每张图只归并一次。
+         lcl, cl, ucl = [value[0] if isinstance(value, (list, tuple, np.ndarray))
+                        and len(set(value)) == 1 else value for value in (lcl, cl, ucl)]
+-        table = gen_table([['点号', '子组/时间标识', size_label, '统计值', 'LCL', 'CL', 'UCL']] + [
+-            [i + 1, labels[i] if labels is not None and i < len(labels) else '*',
+-             number(at(sizes, i)), number(value), number(at(lcl, i)),
+-             number(at(cl, i)), number(at(ucl, i))]
+-            for i, value in enumerate(values)])
++        rows = [[i + 1, labels[i] if labels is not None and i < len(labels) else '*',
++                 at(sizes, i), value, at(lcl, i), at(cl, i), at(ucl, i)]
++                for i, value in enumerate(values)]
++        shown = [[number(item) for item in value] if isinstance(value, (list, tuple, np.ndarray))
++                 else number(value) for value in (sizes, lcl, cl, ucl)]
++        display = [[str(row[0]), str(row[1]), at(shown[0], i, '*'), number(row[3]),
++                    at(shown[1], i, '*'), at(shown[2], i, '*'), at(shown[3], i, '*')]
++                   for i, row in enumerate(rows)]
++        table = gen_table([['点号', '子组/时间标识', size_label, '统计值', 'LCL', 'CL', 'UCL']])
++        for raw, shown_row in zip(rows, display):
++            table.add_row(raw[:2] + shown_row[2:])
+         for column in ['点号', size_label, '统计值', 'LCL', 'CL', 'UCL']:
+             table.align[column] = 'r'
+         print_port(StatTable(table, name, table.field_names,
+-                             [[i + 1, labels[i] if labels is not None and i < len(labels) else '*',
+-                               at(sizes, i), value, at(lcl, i), at(cl, i), at(ucl, i)]
+-                              for i, value in enumerate(values)],
+-                             display=[[str(cell) for cell in row] for row in table.rows],
++                             rows, display=display,
+                              number_formats=['0', 'General', '0.######'] + ['0.00000E+00'] * 4))
+     print_port('* 表示缺失、未提供或不适用；点号从 1 开始，按本次输入顺序列示。')
+     print_port('\n特殊原因及异常点')
+diff --git a/code/linear_plot.py b/code/linear_plot.py
+index 2941d76..0574879 100644
+--- a/code/linear_plot.py
++++ b/code/linear_plot.py
+@@ -27,7 +27,7 @@ def fit_plot(x, y, alpha=0.05, print_out=False,
+              scatter=True, ax=None,
+              ortho_resid=False,
+              red_ellipse=False, dot_size=20,
+-             ax_margin=0.1, print_port=print):
++             ax_margin=0.1, print_port=print, pearson_result=None):
+ 
+     print = print_port
+     #  print("test")
+@@ -50,8 +50,8 @@ def fit_plot(x, y, alpha=0.05, print_out=False,
+ 
+     if ellipse or red_ellipse:
+         ax.set_box_aspect(1)
+-        correlation = pearson_correlation(x, y, alpha=alpha, print_port=print,
+-                                          print_out=print_out)
++        correlation = pearson_result if pearson_result is not None else pearson_correlation(
++            x, y, alpha=alpha, print_port=print, print_out=print_out)
+         res["Pearson"] = correlation
+         # Use parametric equations to generate points on the ellipse:
+         # x(t) = x̄ + a * cos(t) * cos(θ) - b * sin(t) * sin(θ)
+@@ -174,26 +174,22 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
+                    show_plot=False, filename=None, ax_margin=0.1,
+                    ellipse=True):
+ 
+-    t = gen_table([["\\"] + labels])
+-    t2 = gen_table([["\\"] + labels])
+     cor_res = []
+     n = len(data)
+     for y in range(n):
+         res_tmp = []
+-        row = [labels[y]]
+-        row2 = [labels[y]]
+         for x in range(n):
+-            r = pearson_correlation(data[x], data[y], print_out=False)
+-            row.append(format_stat(r["r"]))
+-            row2.append(format_stat(r["p"]))
++            r = pearson_correlation(data[x], data[y], alpha=alpha, print_out=False)
+             res_tmp.append(r)
+         cor_res.append(res_tmp)
+-        t.add_row(row)
+-        t2.add_row(row2)
+     res = {"pearson": cor_res}
+ 
+     if print_out:
+         print = print_port
++        t = gen_table([["\\"] + labels] + [
++            [label] + [format_stat(r['r']) for r in row] for label, row in zip(labels, cor_res)])
++        t2 = gen_table([["\\"] + labels] + [
++            [label] + [format_stat(r['p']) for r in row] for label, row in zip(labels, cor_res)])
+         t.align = t2.align = 'r'
+         t.align['\\'] = t2.align['\\'] = 'l'
+         print(f"\n---- Pearson 相关系数矩阵（N = {len(data[0])}） ----")
+@@ -206,7 +202,10 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
+             display=[[str(v) for v in row] for row in t2.rows]))
+ 
+     if axs is None or fig is None:
+-        fig, axs = plt.subplots(n - 1, n - 1, squeeze=False, layout="constrained")  # , sharex=True, sharey=True)
++        fig = plt.figure(layout="constrained")
++        grid = fig.add_gridspec(n - 1, n - 1)
++        axs = [[fig.add_subplot(grid[y, x]) if x <= y else None
++                for x in range(n - 1)] for y in range(n - 1)]
+     # Remove vertical space between Axes
+     dot_size = max(20 * (1 / n)**.25, 1)
+     #  fig.set_size_inches(7, 7)
+@@ -216,14 +215,16 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
+         for y in range(1, len(data)):
+             fx, fy = x, y - 1
+             if x >= y:
+-                axs[fy][fx].axis('off')
++                if axs[fy][fx] is not None:
++                    axs[fy][fx].axis('off')
+             else:
+                 #  axs[fy][fx].set_aspect('equal')
+                 fit_plot(data[x], data[y], ax_margin=ax_margin,
+                          ellipse=ellipse, ax=axs[fy][fx], alpha=alpha,
+                          xlabel=labels[x] if y == n - 1 else None,
+                          ylabel=labels[y] if x == 0 else None,
+-                         red_ellipse=red_ellipse, dot_size=dot_size)
++                         red_ellipse=red_ellipse, dot_size=dot_size,
++                         pearson_result=cor_res[y][x])
+                 if x > 0:
+                     axs[fy][fx].get_yaxis().set_visible(False)
+                 #      axs[fy][fx].tick_params(
+@@ -248,6 +249,7 @@ def multi_fit_orig(data, labels, print_out=False, print_port=print,
+ 
+ 
+ def create_inset_grid(ax, n):
++    """保留下三角单元的位置，空白上三角不创建 Axes。"""
+     # Calculate the size of each inset subplot
+     inset_size = 1.0 / n  # Size of each subplot as a fraction of the main Axes
+     inset_axes = []  # 2D list to store inset Axes
+@@ -255,6 +257,9 @@ def create_inset_grid(ax, n):
+     for i in range(n):
+         row_axes = []
+         for j in range(n):
++            if j > i:
++                row_axes.append(None)
++                continue
+             # Calculate the position of each inset subplot
+             x0 = j * inset_size
+             y0 = 1 - (i + 1) * inset_size
+@@ -283,26 +288,22 @@ def multi_fit(data, labels, print_out=False, print_port=print,
+               ellipse=True, ylabel_0deg=False, xlabel_45deg=False ,
+               xtick_45deg=False):
+ 
+-    t = gen_table([["\\"] + labels])
+-    t2 = gen_table([["\\"] + labels])
+     cor_res = []
+     n = len(data)
+     for y in range(n):
+         res_tmp = []
+-        row = [labels[y]]
+-        row2 = [labels[y]]
+         for x in range(n):
+-            r = pearson_correlation(data[x], data[y], print_out=False)
+-            row.append(format_stat(r["r"]))
+-            row2.append(format_stat(r["p"]))
++            r = pearson_correlation(data[x], data[y], alpha=alpha, print_out=False)
+             res_tmp.append(r)
+         cor_res.append(res_tmp)
+-        t.add_row(row)
+-        t2.add_row(row2)
+     res = {"pearson": cor_res}
+ 
+     if print_out:
+         print = print_port
++        t = gen_table([["\\"] + labels] + [
++            [label] + [format_stat(r['r']) for r in row] for label, row in zip(labels, cor_res)])
++        t2 = gen_table([["\\"] + labels] + [
++            [label] + [format_stat(r['p']) for r in row] for label, row in zip(labels, cor_res)])
+         t.align = t2.align = 'r'
+         t.align['\\'] = t2.align['\\'] = 'l'
+         print(f"\n---- Pearson 相关系数矩阵（N = {len(data[0])}） ----")
+@@ -329,15 +330,14 @@ def multi_fit(data, labels, print_out=False, print_port=print,
+     for x in range(len(data) - 1):
+         for y in range(1, len(data)):
+             fx, fy = x, y - 1
+-            if x >= y:
+-                axs[fy][fx].axis('off')
+-            else:
++            if x < y:
+                 #  axs[fy][fx].set_aspect('equal')
+                 fit_plot(data[x], data[y], ax_margin=ax_margin,
+                          ellipse=ellipse, ax=axs[fy][fx], alpha=alpha,
+                          xlabel=labels[x] if y == n - 1 else None,
+                          ylabel=labels[y] if x == 0 else None,
+-                         red_ellipse=red_ellipse, dot_size=dot_size)
++                         red_ellipse=red_ellipse, dot_size=dot_size,
++                         pearson_result=cor_res[y][x])
+                 if x > 0:
+                     axs[fy][fx].get_yaxis().set_visible(False)
+                 elif ylabel_0deg:
+diff --git a/code/pandastable_local/plotting.py b/code/pandastable_local/plotting.py
+index 709d065..5fb6ed2 100644
+--- a/code/pandastable_local/plotting.py
++++ b/code/pandastable_local/plotting.py
+@@ -955,7 +955,7 @@ class PlotViewer(Frame):
+                 #the remainder are not supported
+                 axs = self.ax
+                 labels = []; handles=[]
+-                cmap = plt.cm.get_cmap(kwargs['colormap'])
++                cmap = mpl.colormaps.get_cmap(kwargs['colormap'])
+                 #handle as pivoted data for some line, bar
+                 if kind in ['line','bar','barh']:
+                     df = pd.pivot_table(data,index=by)
+@@ -1115,7 +1115,7 @@ class PlotViewer(Frame):
+         if len(data.columns) == 1 and kind not in ['pie']:
+             kwargs['subplots'] = False
+         if 'colormap' in kwargs:
+-            cmap = plt.cm.get_cmap(kwargs['colormap'])
++            cmap = mpl.colormaps.get_cmap(kwargs['colormap'])
+         else:
+             cmap = None
+         #change some things if we are plotting in b&w
+@@ -1309,7 +1309,7 @@ class PlotViewer(Frame):
+         cols = list(df.columns)
+         x = df[cols[0]]
+         s=1
+-        cmap = plt.cm.get_cmap(kwds['colormap'])
++        cmap = mpl.colormaps.get_cmap(kwds['colormap'])
+         lw = kwds['linewidth']
+         clrcol = kwds['clrcol']  #color by values in a column
+         cscale = kwds['cscale']
+@@ -1415,7 +1415,7 @@ class PlotViewer(Frame):
+         data=[]
+         clrs=[]
+         cols = len(df.columns)
+-        cmap = plt.cm.get_cmap(kwds['colormap'])
++        cmap = mpl.colormaps.get_cmap(kwds['colormap'])
+         for i,d in enumerate(df):
+             clrs.append(cmap(float(i)/cols))
+             data.append(df[d].values)
+@@ -1440,7 +1440,7 @@ class PlotViewer(Frame):
+         marker = kwds['marker']
+         if marker == '':
+             marker = 'o'
+-        cmap = plt.cm.get_cmap(kwds['colormap'])
++        cmap = mpl.colormaps.get_cmap(kwds['colormap'])
+         ms = kwds['ms']
+         lw = kwds['linewidth']
+         alpha = kwds['alpha']
+@@ -1548,9 +1548,9 @@ class PlotViewer(Frame):
+ 
+     def getcmap(self, name):
+         try:
+-            return plt.cm.get_cmap(name)
++            return mpl.colormaps.get_cmap(name)
+         except:
+-            return plt.cm.get_cmap('Spectral')
++            return mpl.colormaps.get_cmap('Spectral')
+ 
+     def plot3D(self, redraw=True):
+         """3D plot"""
+@@ -1623,7 +1623,7 @@ class PlotViewer(Frame):
+ 
+         i=0
+         plots=len(data.columns)
+-        cmap = plt.cm.get_cmap(kwds['colormap'])
++        cmap = mpl.colormaps.get_cmap(kwds['colormap'])
+         for c in data.columns:
+             h = data[c]
+             c = cmap(float(i)/(plots))
+diff --git a/code/stat_table.py b/code/stat_table.py
+index 8f07998..5a111ac 100644
+--- a/code/stat_table.py
++++ b/code/stat_table.py
+@@ -88,33 +88,48 @@ class StatTable(str):
+ 
+ 
+ def export_excel(table, filename):
++    from copy import copy
+     from openpyxl import Workbook
++    from openpyxl.cell import Cell
+     from openpyxl.styles import Font, Alignment
+     from openpyxl.utils import get_column_letter
+     book = Workbook()
+     sheet = book.active
+     sheet.title = '统计结果'
+-    sheet.append([table.title])
+-    sheet.append(table.headers)
+-    for row, shown in zip(table.values, table.display):
+-        sheet.append([v if isinstance(v, Real) and math.isfinite(v) else text
+-                      for v, text in zip(row, shown)])
+     heading_font = Font(name='Microsoft YaHei', bold=True)
+     body_font = Font(name='Microsoft YaHei')
+     left = Alignment(horizontal='left')
+     right = Alignment(horizontal='right')
+-    for row in sheet:
+-        for cell in row:
+-            cell.font = heading_font if cell.row <= 2 else body_font
+-            cell.alignment = right if cell.column > 1 else left
++    styles = []
++    for i, fmt in enumerate(table.number_formats):
++        heading, text, numeric = (Cell(sheet) for _ in range(3))
++        heading.font = heading_font
++        text.font = numeric.font = body_font
++        heading.alignment = text.alignment = numeric.alignment = right if i else left
++        numeric.number_format = fmt
++        styles.append((heading, text, numeric))
++
++    def append(values, heading=False):
++        cells = []
++        for i, value in enumerate(values):
++            # 原型只读，复用已绑定的样式；避免每个单元格再查找/注册样式。
++            kind = 0 if heading else 2 if isinstance(value, Real) and not isinstance(value, bool) else 1
++            cell = copy(styles[i][kind])
++            cell.value = value
+             if cell.data_type == 'f':  # 标签永远作为文本，避免 Excel 将其解释为公式。
+                 cell.data_type = 's'
+-            if cell.row > 2 and cell.data_type == 'n':
+-                cell.number_format = table.number_formats[cell.column-1]
++            cells.append(cell)
++        sheet.append(cells)
++
+     for i, header in enumerate(table.headers, 1):
+         sheet.column_dimensions[get_column_letter(i)].width = max(12, len(header)*2+2,
+             max((len(row[i-1])*2+2 for row in table.display), default=0))
+     sheet.freeze_panes = 'B3'
++    append([table.title] + [None]*(len(table.headers)-1), heading=True)
++    append(table.headers, heading=True)
++    for row, shown in zip(table.values, table.display):
++        append([v if isinstance(v, Real) and math.isfinite(v) else text
++                for v, text in zip(row, shown)])
+     book.save(filename)
+     book.close()
+ 
+diff --git a/code/time_series.py b/code/time_series.py
+index 51051c7..71558b8 100644
+--- a/code/time_series.py
++++ b/code/time_series.py
+@@ -67,7 +67,10 @@ def prepare_time_series(data, columns, time_column=None):
+         if (column not in data or not is_numeric_dtype(data[column].dtype)
+                 or is_complex_dtype(data[column].dtype) or is_bool_dtype(data[column].dtype)):
+             raise ValueError(f'Y 变量“{column}”必须是实数数值列。')
+-        values = data[column].to_numpy(dtype=object, na_value=np.nan)
++        # 原生数值数组无需装箱；扩展类型保留 object 以免大整数缺失值转成浮点。
++        dtype = data[column].dtype
++        values = data[column].to_numpy(dtype=None if isinstance(dtype, np.dtype) else object,
++                                       na_value=np.nan)
+         if pd.isna(values).all():
+             raise ValueError(f'Y 变量“{column}”全部缺失。')
+         if np.isinf(data[column]).any():
+@@ -84,8 +87,9 @@ def prepare_time_series(data, columns, time_column=None):
+ 
+ def time_series_plot(figure, data, columns, time_column=None, assignments=None,
+                      mode=AXIS_MODES[0], title='', xlabel='', ylabels=None,
+-                     legend=True, grid=True):
+-    x, ys = prepare_time_series(data, columns, time_column)
++                     legend=True, grid=True, *, prepared=None):
++    # 对话框在替换旧窗口前验证；同一次同步绘图直接使用该结果。
++    x, ys = prepare_time_series(data, columns, time_column) if prepared is None else prepared
+     assigned = axis_assignments(columns, assignments, mode)
+     used = sorted(set(assigned.values()))
+     figure.clear()
+diff --git a/code/time_series_dialog.py b/code/time_series_dialog.py
+index 6919971..2d8167f 100644
+--- a/code/time_series_dialog.py
++++ b/code/time_series_dialog.py
+@@ -140,14 +140,15 @@ class TimeSeriesDialog(SBDialog):
+         self.save_axis_title()
+         try:
+             # Validate before replacing the user's previous plot window.
+-            prepare_time_series(self.df, columns, time_column)
++            prepared = prepare_time_series(self.df, columns, time_column)
+         except ValueError as exc:
+             self.error(str(exc))
+             return
+         viewer = self.showPlotViewer()
+         axes = time_series_plot(viewer.fig, self.df, columns, time_column,
+                                 self.assignments, self.mode.get(), self.titlevar.get(),
+-                                self.xlabel.get(), self.ylabels, self.show_legend.get(), self.grid.get())
++                                self.xlabel.get(), self.ylabels, self.show_legend.get(), self.grid.get(),
++                                prepared=prepared)
+         viewer.ax = next(iter(axes.values()))
+         viewer.toolbar = NavigationToolbar2Tk(viewer.canvas, viewer.ctrlfr)
+         viewer.ctrlfr.pack_configure(before=viewer.m)

@@ -1,0 +1,28 @@
+{
+  "baseline_passed": 1768,
+  "final_passed": 1785,
+  "failed": 0,
+  "warnings_before": 53,
+  "warnings_after": 53,
+  "g7_g14_passed": 394,
+  "production_files": [
+    "code/linear_plot.py",
+    "code/control_chart.py",
+    "code/stat_table.py",
+    "code/time_series.py",
+    "code/time_series_dialog.py",
+    "code/pandastable_local/plotting.py"
+  ],
+  "g3_hashes_changed": [
+    "linear_plot.py::fit_plot",
+    "linear_plot.py::multi_fit",
+    "linear_plot.py::multi_fit_orig"
+  ],
+  "head_unchanged": true,
+  "reviewed_production_unchanged_after_tests": true,
+  "patch_review": "no_blocking_findings",
+  "source_patch_files": 20,
+  "source_patch_reverse_check": true,
+  "production_patch_reverse_check": true,
+  "git_diff_check": true
+}

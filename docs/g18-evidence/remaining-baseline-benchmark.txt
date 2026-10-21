@@ -1,0 +1,11 @@
+table
+spc
+excel
+series
+series-tk
+dialog
+config path C:\Users\shaoy\.codex\worktrees\2878\Minijmp\user_config
+reports
+config path C:\Users\shaoy\.codex\worktrees\2878\Minijmp\user_config
+wide
+config path C:\Users\shaoy\.codex\worktrees\2878\Minijmp\user_config

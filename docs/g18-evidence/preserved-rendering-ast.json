@@ -1,0 +1,7 @@
+{
+  "stat_table.py::StatTable": true,
+  "stat_table.py::TableBlock": true,
+  "stat_table.py::configure_result_styles": true,
+  "stat_table.py::export_png": true,
+  "txt_output.py::txt_viewer": true
+}
