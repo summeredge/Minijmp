@@ -15,7 +15,7 @@
 | [baseline-pytest.xml](baseline-pytest.xml)、[baseline-pytest.txt](baseline-pytest.txt) | XML 含 2096 个 testcase，failures=0、errors=0、skipped=0；日志尾部为 **2096 passed、112 warnings** | G19 修改前完整回归已通过；没有 `tests.test_g19_integration`，不能证明 Fisher 修复后最终全套状态 |
 | [fisher-related-final.xml](fisher-related-final.xml)、[fisher-related-final.txt](fisher-related-final.txt) | XML 含 308 个 testcase，failures=0、errors=0、skipped=0；日志为 **308 passed、59 warnings** | 修复后局部回归通过：G16 117 项、G9 111 项、P1/P2 78 项及 G19 2 项；这些集合与 baseline 重叠，不能累加成唯一通过数，也不能据 112→59 推断警告减少 |
 | [gui-export-acceptance.json](gui-export-acceptance.json)、[acceptance.py](acceptance.py) | `report.rows=1003`，TXT/copy 精确、Excel 全行核对、关闭清理均为 true；三轴各 1000 点，稳定排序/NaN=true；vendor 三曲线；Tk 回调错误为空；大表 PNG 因预计高度 36,216 超过 32,768 明确拒绝 | 主任务真实 Tk/导出脚本验收已成功；copy 写入仍被拦截。两版矩阵 axes 记录为 before/after 10/7 和 9/6，计数含布局对象，不能解释成缺失数据曲线 |
-| 八张截图复核 | 主任务已确认共 8 张截图目视复核；新增 `report-first-page.png`、`report-small-window.png`、`small-report.png`、`multi_fit_orig-after.png` | 本子任务按主任务确认记录，没有重复打开截图；此前四张未在通知中逐一列名，不擅自把全部生成图片标为已目视复核 |
+| 八张截图复核 | 主任务已确认共 8 张截图目视复核；其中记录的四张为 `report-first-page.png`、`report-small-window.png`、`small-report.png`、`multi_fit_orig-after.png`。与 G18 同名文件 SHA-256 完全一致；清理后保留的图像原件为 [首页](../g18-evidence/report-first-page.png)、[小窗口](../g18-evidence/report-small-window.png)、[小表](../g18-evidence/small-report.png)、[矩阵图](../g18-evidence/multi_fit_orig-after.png) | 本子任务按主任务确认记录，没有重复打开截图；此前四张未在通知中逐一列名，不擅自把全部生成图片标为已目视复核。G19 中字节相同的截图副本已去重；相同的完整 TXT 输出见 [G18 原件](../g18-evidence/full-report.txt) |
 | [performance-summary.json](performance-summary.json)、[G19-performance-results.csv](G19-performance-results.csv) | **性能记录完成：165 个有效阶段、495 个阶段样本，failures 为空**；CSV 165 行、repeats 合计 495，与 JSON 一致 | 包含实测累计计时及拆分派生阶段；不是 495 个独立分析调用，也不是所有功能达到统一延迟门槛 |
 | [performance-integrity.json](performance-integrity.json) | **严格完整性检查通过**：38 统计、26 数据配对、12 render current、11 render before、39 supplemental；exact_repeat_ids、finite_samples、planned_phases_complete 均为 true；冷场景两规模 5/10 各 3 个独立 PID | 这些是场景类别计数，不与 165 阶段或 495 阶段样本混加；没有缺失计划阶段，不代表样本相互独立或每项功能均有有效前后基线 |
 | [gui-acceptance-final.log](gui-acceptance-final.log)、最新 [gui-export-acceptance.json](gui-export-acceptance.json)、更新后的 `acceptance.py` | **严格三轴复跑已通过**：断言 3 个选中变量对应 3 个轴、每轴恰好 1 条线；主任务通过 write_stdin session 70542 确认 exit 0，最新 JSON 记录三轴各 1,000 点、稳定排序/NaN、完整导出及清理成功，Tk 回调错误为空 | 本子任务读取日志/JSON，退出码来自主任务明确确认；日志正文没有单独打印退出码。八图目视复核记录保留，真实剪贴板/PI/全平台仍按既有限制披露 |
@@ -122,7 +122,7 @@ B-02 同步导出/完整 ASCII/原始点成本已由本轮性能记录量化，�
 
 - [x] 主任务真实 Tk 脚本：1,003 行报告完整 TXT 回读、拦截后的完整 copy 字符串、Excel 全行原值/格式核对、末页/小窗口截图生成、小表 PNG 导出和超大 PNG 拒绝、清空/关闭清理。
 - [x] 主任务真实 Tk 脚本：三轴时序各 1,000 原始点、重复时间稳定排序/NaN 保留、窗口及图形保存；vendor 三条真实曲线和保存；未记录 Tk 回调异常。
-- [x] 主任务已累计打开 8 张截图目视复核；新增四张为 `report-first-page.png`、`report-small-window.png`、`small-report.png`、`multi_fit_orig-after.png`。不将其扩展为所有图片、DPI/主题或物理交互验收。
+- [x] 主任务已累计打开 8 张截图目视复核；记录的四张为 `report-first-page.png`、`report-small-window.png`、`small-report.png`、`multi_fit_orig-after.png`。对应图像原件及 G19/G18 内容相同的 TXT 输出保留在 [G18 证据目录](../g18-evidence/)。G19 的重复副本已删除；不将其扩展为所有图片、DPI/主题或物理交互验收。
 
 - [ ] 从中文路径和无关当前目录运行实际入口，确认主窗口、资源图标、中文菜单和退出；异常应可见且返回码符合现有协议。
 - [ ] 真实导入 UTF-8/GB18030/UTF-16、引号内逗号/换行、无表头、长 ID CSV；检查歧义确认/高级入口。损坏尾行、取消和无效选项应保留原工程及标题/历史。
