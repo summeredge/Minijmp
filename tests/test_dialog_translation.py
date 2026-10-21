@@ -481,7 +481,7 @@ def test_real_legacy_menu_entry_opens_all_six_panels(tk_root):
     try:
         MiniJMP.Minijmp.plot_selected(app)
         tk_root.update()
-        assert table.pf.main.title() == '绘图查看器'
+        assert table.pf.main.title() == '通用绘图器'
         assert [table.pf.nb.tab(tab, 'text') for tab in table.pf.nb.tabs()] == ['基本选项','注释','网格布局','其他选项','三维选项','动画']
         table.pf.close()
         assert table.pf is None

@@ -248,7 +248,7 @@ def addButton(frame, name, callback, img=None, tooltip=None,
     b.pack(side=side,fill=X,padx=padding)
     if tooltip != None:
         ToolTip.createToolTip(b, tooltip)
-    return
+    return b
 
 def dialog_style(master):
     """Return a ttk.Style for this window; aqua on macOS follows system light/dark."""

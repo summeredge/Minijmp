@@ -207,7 +207,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         self.menu.add_cascade(label='质量', menu=self.quality_menu['var'])
 
         self.plots_menu = {
-            '01绘图向导（旧版）': {'cmd': self.plot_selected},
+            '01通用绘图器': {'cmd': self.plot_selected},
             '53保存图形': {'cmd': self.addPlot},
             '54清除图形': {'cmd': self.updatePlotsMenu},
             '55PDF 报告': {'cmd': self.pdfReport},

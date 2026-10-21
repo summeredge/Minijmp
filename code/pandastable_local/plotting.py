@@ -102,6 +102,7 @@ PLOT_LABELS = {'Base Options': '基本选项',
  '3D Options': '三维选项',
  'Animate': '动画',
  'Plot Viewer': '绘图查看器',
+ 'General Plotter': '通用绘图器',
  'Plot Selected': '绘制所选数据',
  'Apply Options': '应用选项',
  'Zoom Out': '缩小',
@@ -114,6 +115,9 @@ PLOT_LABELS = {'Base Options': '基本选项',
  'zoom in': '放大',
  'clear plot': '清除图形',
  'save plot': '保存图形',
+ 'redraw from table selection': '重新取用工作表选区数据',
+ 'apply options to current data': '沿用当前数据应用选项',
+ 'show/hide plot options': '显示或隐藏参数区',
  'grid layout': '网格布局',
  '3D plot': '三维图形',
  'general': '常规',
@@ -489,10 +493,11 @@ class PlotViewer(Frame):
         else:
             self.main = Toplevel()
             self.master = self.main
-            self.main.title('绘图查看器')
+            self.main.title(PLOT_LABELS['General Plotter'])
             self.main.protocol("WM_DELETE_WINDOW", self.close)
-            g = '800x700+900+200'
+            g = '900x720+600+40'
             self.main.geometry(g)
+            self.main.minsize(640, 480)
         #self.toolslayout = layout
         #if layout == 'horizontal':
         self.orient = VERTICAL
@@ -516,6 +521,9 @@ class PlotViewer(Frame):
 
         #import tkinter as tk
         #self.m = PanedWindow(self.main, orient=self.orient)
+        #pack the controls first so a short window clips the figure, not settings
+        self.ctrlfr = Frame(self.main)
+        self.ctrlfr.pack(side=BOTTOM,fill=X)
         self.m = Frame(self.main)
         self.m.pack(fill=BOTH,expand=1)
         #frame for figure
@@ -527,22 +535,18 @@ class PlotViewer(Frame):
         #self.m.add(self.plotfr, weight=12)
         self.plotfr.pack(side=TOP,fill=BOTH, expand=1)
 
-        #frame for controls
-        self.ctrlfr = Frame(self.main)
-        #self.m.add(self.ctrlfr, weight=4)
-        self.ctrlfr.pack(side=BOTTOM,fill=BOTH)
-
         #button frame
         bf = Frame(self.ctrlfr, padding=2)
         bf.pack(side=TOP,fill=BOTH)
 
         side = LEFT
         #add button toolbar
-        addButton(bf, '绘制所选数据', self.replot, images.plot(),
-                  '绘制当前数据', side=side, compound="left", width=16)
-        addButton(bf, '应用选项', self.updatePlot, images.refresh(),
-                  '按当前选项更新图形', side=side,
-                   width=20)
+        addButton(bf, '从选区重新绘图', self.replot, images.plot(),
+                  PLOT_LABELS['redraw from table selection'], side=side,
+                  compound="left")
+        addButton(bf, '应用设置并重绘', self.updatePlot, images.refresh(),
+                  PLOT_LABELS['apply options to current data'], side=side,
+                  compound="left")
         addButton(bf, '缩小', lambda: self.zoom(False), images.zoom_out(),
                   '缩小', side=side)
         addButton(bf, '放大', self.zoom, images.zoom_in(),
@@ -569,8 +573,16 @@ class PlotViewer(Frame):
                 b = Entry(bf,textvariable=v, width=5)
                 util.trace_write(v, partial(self.setGlobalOption, n))
             b.pack(side=LEFT,padx=2)
-        addButton(bf, 'Hide', self.toggle_options, images.prefs(),
-                  'show/hide plot options', side=RIGHT)
+        self.options_visible = bool(self.showoptions)
+        self.options_button = addButton(
+                  bf, '隐藏参数区' if self.options_visible else '显示参数区',
+                  self.toggle_options,
+                  images.prefs(), PLOT_LABELS['show/hide plot options'],
+                  side=RIGHT)
+        self.inputvar = StringVar(value='当前绘图数据：尚未绘图')
+        self.inputlabel = Label(self.ctrlfr, textvariable=self.inputvar,
+                                anchor='w')
+        self.inputlabel.pack(side=TOP, fill=X, padx=4, pady=1)
         self.addWidgets()
 
         #def onpick(event):
@@ -585,10 +597,7 @@ class PlotViewer(Frame):
     def addWidgets(self):
         """Add option widgets to control panel"""
 
-        self.nb = Notebook(self.ctrlfr, height=210)
-        if self.showoptions == 1:
-            self.nb.pack(side=TOP,fill=BOTH,expand=0)
-
+        self.nb = Notebook(self.ctrlfr)
         #add plotter tool dialogs
         w1 = self.mplopts.showDialog(self.nb)
         self.nb.add(w1, text='基本选项', sticky='news')
@@ -609,6 +618,8 @@ class PlotViewer(Frame):
         self.mplopts3d.updateFromDict()
         w6 = self.animateopts.showDialog(self.nb)
         self.nb.add(w6, text='动画', sticky='news')
+        if self.showoptions == 1:
+            self.nb.pack(side=TOP,fill=BOTH,expand=0)
         return
 
     def setGlobalOption(self, name='', *args):
@@ -648,10 +659,28 @@ class PlotViewer(Frame):
             self.data = self.table.getSelectedDataFrame()
         else:
             self.data = data
+        self.updateInputSummary()
         self.updateStyle()
         self.applyPlotoptions()
         self.plotCurrent()
         return
+
+    def updateInputSummary(self, data=None):
+        """Describe the exact dataframe the current plot is drawn from."""
+
+        data = getattr(self, 'data', None) if data is None else data
+        if data is None:
+            text = '当前绘图数据：尚未绘图'
+        elif getattr(data, 'empty', True):
+            text = '当前绘图数据：无可用选区（0 行，0 列）'
+        else:
+            names = '、'.join(str(c) for c in data.columns[:6])
+            if len(data.columns) > 6:
+                names += ' 等 %d 列' % len(data.columns)
+            text = '当前绘图数据（工作表选区）：%d 行 × %d 列｜%s' % (
+                len(data), len(data.columns), names)
+        self.inputvar.set(text)
+        return text
 
     def applyPlotoptions(self):
         """Apply the current plotter/options"""
@@ -664,10 +693,11 @@ class PlotViewer(Frame):
         return
 
     def updatePlot(self):
-        """Update the current plot with new options"""
+        """Update the current plot with new options, keeping its data."""
 
         self.applyPlotoptions()
         self.plotCurrent()
+        self.updateInputSummary()
         return
 
     def plotCurrent(self, redraw=True):
@@ -1758,10 +1788,13 @@ class PlotViewer(Frame):
     def toggle_options(self):
         """Show/hide plot options"""
 
-        if self.nb.winfo_ismapped() == 1:
+        self.options_visible = not self.options_visible
+        if not self.options_visible:
             self.nb.pack_forget()
+            self.options_button.configure(text='显示参数区')
         else:
-            self.nb.pack(fill=BOTH,expand=1)
+            self.nb.pack(side=TOP,fill=BOTH,expand=0)
+            self.options_button.configure(text='隐藏参数区')
         return
 
     def close(self):
