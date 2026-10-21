@@ -10,6 +10,36 @@ import pytest
 import pi_reader
 
 
+@pytest.mark.parametrize('values,expected', [
+    (['85.2', None, '1.26'], [85.2, float('nan'), 1.26]),
+    ([85.2, None, 1.26], [85.2, float('nan'), 1.26]),
+    ([' 1.5 ', '', '-2e2'], [1.5, float('nan'), -200.]),
+    ([1, '2', None], [1., 2., float('nan')]),
+])
+def test_reader_numeric_types(values, expected):
+    frame = pi_reader._read_reader_json({
+        'columns': ['Timestamp', 'Tag'],
+        'data': [[f'2026-10-21 00:0{i}:00', value] for i, value in enumerate(values)]})
+    assert pd.api.types.is_numeric_dtype(frame['Tag'])
+    pd.testing.assert_series_equal(frame['Tag'].reset_index(drop=True),
+                                   pd.Series(expected, name='Tag'))
+
+
+@pytest.mark.parametrize('values', [
+    ['1.5', 'Bad Input', None], ['Shutdown', 'No Data', 'I/O Timeout'],
+    ['0.123456789012345678901', '1', None],
+    ['9007199254740993', '1.5', None],
+    [9007199254740993, None, 1.5],
+    ['1e400', '1', None], ['1e-400', '1', None],
+    [True, False, None], [None, None, None],
+])
+def test_reader_preserves_unsafe_columns(values):
+    frame = pi_reader._read_reader_json({
+        'columns': ['Timestamp', 'Tag'],
+        'data': [[f'2026-10-21 00:0{i}:00', value] for i, value in enumerate(values)]})
+    assert frame['Tag'].tolist() == values
+
+
 def test_read_pi_data_uses_pi_reader_json(monkeypatch, tmp_path):
     config_path = tmp_path / "config.txt"
     config_path.write_text("shared PIExport-format config", encoding="utf-8")

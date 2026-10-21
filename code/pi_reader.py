@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+from decimal import Decimal
 from pathlib import Path
 
 import pandas as pd
@@ -213,10 +214,27 @@ def _read_reader_json(payload) -> pd.DataFrame:
     if any(not isinstance(row, list) or len(row) != len(columns) for row in data):
         raise ValueError("PIReader JSON 行宽与列数不一致")
 
-    frame = pd.DataFrame(data, columns=columns)
+    # Avoid rounding native large integers with nulls before checking conversion.
+    frame = pd.DataFrame(data, columns=columns, dtype=object)
     # The protocol's first column is time; a tag may also be named Timestamp.
     timestamps = pd.to_datetime(frame.iloc[:, 0], errors="raise")
     frame = frame.iloc[:, 1:]
+    for position in range(frame.shape[1]):
+        values = frame.iloc[:, position]
+        cleaned = values.replace(r"^\s*$", None, regex=True)
+        present = cleaned.dropna()
+        if present.empty or any(isinstance(value, bool) for value in present):
+            continue
+        try:
+            converted = pd.to_numeric(cleaned, errors="raise")
+        except (ValueError, TypeError, OverflowError):
+            continue
+        # Keep the whole original column if conversion loses precision or status text.
+        if (converted.isin([float("inf"), -float("inf")]).any()
+                or not all(Decimal(str(original)) == Decimal(str(number))
+                           for original, number in zip(present, converted.loc[present.index]))):
+            continue
+        frame.isetitem(position, converted)
     frame.index = pd.DatetimeIndex(timestamps)
     frame.index.name = "Timestamp"
     return frame

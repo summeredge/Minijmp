@@ -146,9 +146,9 @@ def test_all_modules_mixed_report_copy_save_scroll_clear_close_reopen(viewer, tm
         viewer.main.update()
         assert block.winfo_ismapped()
         menu_positions.append(block.menu_button.winfo_rootx())
-        assert block.menu_button.winfo_x() < block.title_label.winfo_x()
+        assert block.menu_button.winfo_x() > block.title_label.winfo_x()
         assert block.title_label.cget('text') == block.table.title
-        assert block.menu.index('end') == 1
+        assert block.menu.index('end') == 2
         body = block.winfo_children()[1]
         for label in body.winfo_children():
             column = label.grid_info()['column']

@@ -82,6 +82,7 @@ class txt_viewer(plot_viewer):
         self.hsb.grid(row=1, column=0, sticky='ew')
         self.plotfr.rowconfigure(0, weight=1)
         self.plotfr.columnconfigure(0, weight=1)
+        self.T.bind('<Configure>', self._resize_table_titles)
         self.T.bind('<Control-a>', self.select_all)
         self.T.bind('<<Copy>>', self.copy)
         self.T.bind('<<ThemeChanged>>', lambda event: self._apply_result_colors())
@@ -102,6 +103,10 @@ class txt_viewer(plot_viewer):
         self.m.pack(fill=BOTH, expand=1)
 
         return
+
+    def _resize_table_titles(self, event):
+        for block in self.table_blocks:
+            block.fit_titlebar(event.width)
 
     def add_txt(self, txt):
         self.T.insert(END, txt, ())

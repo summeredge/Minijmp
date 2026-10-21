@@ -185,7 +185,7 @@ def test_fixed_txt_and_every_table_reaches_viewer(viewer, tmp_path, case):
     target = tmp_path / '原报告.txt'
     viewer.save(target)
     assert target.read_text(encoding='utf-8') == baseline['text'][case]
-    assert all(block.menu.index('end') == 1 for block in viewer.table_blocks)
+    assert all(block.menu.index('end') == 2 for block in viewer.table_blocks)
 
 
 @pytest.mark.parametrize('case', list(DIRECT) + ['gof_summary'])

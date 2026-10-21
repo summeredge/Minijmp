@@ -1,4 +1,6 @@
 """可复用统计表格；str(table) 保留 print_port / TXT 的文本协议。"""
+import csv
+import io
 import math
 from numbers import Real
 from tkinter import ttk, filedialog, messagebox
@@ -174,16 +176,20 @@ class TableBlock(ttk.Frame):
         super().__init__(parent, padding=8, style='Result.TFrame')
         self.table = table
         self.paged = paginate or (len(table.display)+1)*len(table.headers) > LABEL_CELL_LIMIT
-        titlebar = ttk.Frame(self, style='Result.TFrame')
+        self.titlebar = titlebar = ttk.Frame(self, style='Result.TFrame')
         titlebar.grid(row=0, column=0, sticky='w')
         self.menu_button = button = ttk.Menubutton(titlebar, text='导出', style='Result.TMenubutton')
-        button.pack(side='left')
+        button.grid(row=0, column=1, sticky='e', padx=(8, 0))
         self.title_label = ttk.Label(titlebar, text=table.title, style='Result.TLabel',
                                     font=('Microsoft YaHei', 11, 'bold'))
-        self.title_label.pack(side='left', padx=(8, 0))
+        self.title_label.grid(row=0, column=0, sticky='ew')
+        titlebar.columnconfigure(0, weight=1)
+        titlebar.grid_propagate(False)
+        self.fit_titlebar(parent.winfo_width())
         self.menu = tk.Menu(button, tearoff=False)
         for kind in ('Excel', 'PNG'):
             self.menu.add_command(label='导出 '+kind, command=lambda k=kind: self.export(k))
+        self.menu.add_command(label='复制到 Excel', command=self.copy_to_excel)
         button.configure(menu=self.menu)
         body = ttk.Frame(self, style='Result.TFrame')
         body.grid(row=1, column=0, sticky='w')
@@ -195,6 +201,23 @@ class TableBlock(ttk.Frame):
                 ttk.Label(body, text=text, anchor='e' if c else 'w', style='Result.TLabel',
                           font=('Microsoft YaHei', 10, 'bold' if r == 0 else 'normal')).grid(
                     row=r, column=c, sticky='ew', padx=10, pady=3)
+
+    def fit_titlebar(self, width):
+        # Text 内嵌宽表仍可横向滚动；标题栏只占当前视口宽度，给菜单保留空间。
+        self.titlebar.configure(width=max(1, width - 24),
+                               height=max(self.title_label.winfo_reqheight(),
+                                          self.menu_button.winfo_reqheight()))
+
+    def copy_to_excel(self):
+        output = io.StringIO(newline='')
+        writer = csv.writer(output, delimiter='\t', lineterminator='\r\n')
+        writer.writerow(self.table.headers)
+        writer.writerows(self.table.display)
+        try:
+            self.clipboard_clear()
+            self.clipboard_append(output.getvalue())
+        except tk.TclError as error:
+            messagebox.showerror('复制失败', str(error), parent=self)
 
     def _setup_pages(self, body):
         # 同时限制行数与单页单元格数，不向 Tcl 装载整张表。
