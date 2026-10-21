@@ -7,17 +7,17 @@ def df_combine(df1, df2, ins_x=0, ins_y=0):
     df2h, df2w = df2.shape
     h = max(df1h, ins_y + df2h)
     w = max(df1w, ins_x + df2w)
-    res = [[np.nan] * w for i in range(h)]
-    for y in range(df1h):
-        for x in range(df1w):
-            res[y][x] = df1.iloc[y, x]
-    for y in range(df2h):
-        for x in range(df2w):
-            res[y + ins_y][x + ins_x] = df2.iloc[y, x]
+    # Keep NumPy scalar types so rebuilding columns preserves narrow dtypes too.
+    res = np.full((h, w), np.nan, dtype=object)
+    for x, (_, values) in enumerate(df1.items()):
+        res[:df1h, x] = list(values.array)
+    if df2h:
+        for x, (_, values) in enumerate(df2.items()):
+            res[range(ins_y, ins_y + df2h), ins_x + x] = list(values.array)
     cols = df1.columns.tolist()
     for i in range(w - df1w):
         cols.append("C%d" % (i + 1 + df1w))
-    return pd.DataFrame(res, columns=cols, index=range(h))
+    return pd.DataFrame(res.tolist(), columns=cols, index=range(h))
 
 
 if __name__ == "__main__":

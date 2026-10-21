@@ -1,0 +1,1150 @@
+diff --git a/code/linear_fit.py b/code/linear_fit.py
+--- a/code/linear_fit.py
++++ b/code/linear_fit.py
+@@ -81,7 +81,8 @@
+ 
+     # Lack of fit
+     # c is number of distinct x values
+-    c = len(set(x))
++    x_levels = set(x)
++    c = len(x_levels)
+     # DF Pure Error
+     DFPE = n - c
+     # DF lack of fit
+@@ -91,10 +92,14 @@
+ #     SSPE = Σ Σ (yij - y̅i)²
+ # Where yij is the jth y value for the ith x value,
+ # and y̅i is the mean y for the ith x value.
+-    SSPE = sum([sum([(y[i] - stat.mean([y[i]
+-                                        for i in range(n) if x[i] == uni_x]))**2
+-                     for i in range(n) if x[i] == uni_x
+-                     ]) for uni_x in set(x)])
++    groups = {xi: [] for xi in x_levels}
++    for xi, yi in zip(x, y):
++        # NaN never matched a level in the original equality-based grouping.
++        if xi == xi:
++            groups[xi].append(yi)
++    group_means = {xi: stat.mean(values) for xi, values in groups.items() if values}
++    SSPE = sum(sum((yi - group_means[xi])**2 for yi in groups[xi])
++               for xi in x_levels)
+ 
+     SSLF = SSE - SSPE
+ 
+@@ -117,10 +122,8 @@
+ #     Calculate sum of squares for the saturated model (SSM):
+ # SSM = Σni(ȳi - ȳ)², where ȳi is the mean of each group and
+ # ni is the number of observations in each group.
+-    SSM = sum([sum([(y_u - stat.mean([y[i]
+-                                      for i in range(n) if x[i] == uni_x]))**2
+-                    for i in range(n) if x[i] == uni_x
+-                    ]) for uni_x in set(x)])
++    SSM = sum(sum((y_u - group_means[xi])**2 for _ in groups[xi])
++              for xi in x_levels)
+ 
+     max_r_sq = SSM / SST
+ 
+diff --git a/code/chi_sq.py b/code/chi_sq.py
+--- a/code/chi_sq.py
++++ b/code/chi_sq.py
+@@ -264,6 +264,10 @@
+ def multi_pop_var_test(data, labels, print_out=False, print_port=print,
+                        alpha=0.05):
+     # data in a list of lists
++    ns = [len(group) for group in data]
++    means = [stat.mean(group) for group in data]
++    variances = [stat.variance(group) for group in data]
++    medians = [stat.median(group) for group in data]
+ 
+     def one_way_anova(data):
+         ns = [len(l) for l in data]
+@@ -271,7 +275,8 @@
+         means = [stat.mean(l) for l in data]
+         mean = np.concatenate(data).mean()
+         SSB = sum([n * (x - mean)**2 for n, x in zip(ns, means)])
+-        SSW = sum([sum([(v - stat.mean(l))**2 for v in l]) for l in data])
++        SSW = sum(sum((v - mean)**2 for v in group)
++                  for group, mean in zip(data, means))
+         F = (SSB / (k - 1)) / (SSW / (N - k))
+         p = 1 - f_dist.cdf(F, k - 1, N - k)
+         return {"F": F, "p": p}
+@@ -285,21 +290,22 @@
+         #         Mj is the mean of group j
+         #         SSj is the sum of squared deviations from the mean for group j
+         #     Do one way ANOVA to uij
+-        Zij = [[((len(l) - 1.5) * len(l) * (v - stat.mean(l))**2 -
+-                 stat.variance(l) * (len(l) - 1) / 2) / (len(l) - 1) / (len(l) - 2)
+-                for v in l] for l in data]
++        Zij = [[((n - 1.5) * n * (v - mean)**2 -
++                 variance * (n - 1) / 2) / (n - 1) / (n - 2)
++                for v in group]
++               for group, n, mean, variance in zip(data, ns, means, variances)]
+         return one_way_anova(Zij)
+ 
+     def Levene(data):
+         #    Calculate the absolute deviation from the group mean for each data point:
+         #   Zij=|X_ij - X̄_i|, where X_ij is the jth observation in the ith group,
+         # and X̄_i is the mean of the ith group.
+-        Zij = [[abs(v - stat.mean(l)) for v in l] for l in data]
++        Zij = [[abs(v - mean) for v in group] for group, mean in zip(data, means)]
+         return one_way_anova(Zij)
+ 
+     def Brown_Forsythe(data):
+         #   Zij=|X_ij - median of the group |
+-        Zij = [[abs(v - stat.median(l)) for v in l] for l in data]
++        Zij = [[abs(v - median) for v in group] for group, median in zip(data, medians)]
+         return one_way_anova(Zij)
+ 
+     res = {"OBrien": OBrien(data)}
+@@ -325,16 +331,17 @@
+             #                           alpha=alpha / len(data),
+             #                           print_out=False)
+             #  sr2 = chi2_r["95_range_from_S"]
+-            mean = stat.mean(data[i])
+-            median = stat.median(data[i])
++            mean = means[i]
++            median = medians[i]
++            sd = stat.stdev(data[i])
+             mad = sum(abs(x - mean) for x in data[i]) / len(data[i])
+             mad2 = sum(abs(x - median) for x in data[i]) / len(data[i])
+-            values.append([labels[i], len(data[i]), stat.stdev(data[i]),
++            values.append([labels[i], len(data[i]), sd,
+                            sr[0], sr[1], mad, mad2])
+-            display.append([str(labels[i]), str(len(data[i])), '%.3f' % stat.stdev(data[i]),
++            display.append([str(labels[i]), str(len(data[i])), '%.3f' % sd,
+                             '%.3f' % sr[0], '%.3f' % sr[1], '%.3f' % mad, '%.3f' % mad2])
+             t.add_row([labels[i], len(data[i]),
+-                       "%.3f" % stat.stdev(data[i]),
++                       "%.3f" % sd,
+                        "(%.3f, %.3f)" % sr,
+                        "%.3f" % (mad), "%.3f" % (mad2)
+                        ])
+diff --git a/code/nonpara_cor.py b/code/nonpara_cor.py
+--- a/code/nonpara_cor.py
++++ b/code/nonpara_cor.py
+@@ -57,18 +57,20 @@
+     Q = np.zeros(N)
+     # Loop through each data point to calculate its Q value.
+     for i in range(N):
++        lower_r, lower_s = R < R[i], S < S[i]
++        equal_r, equal_s = R == R[i], S == S[i]
+         # For each data point 'i', count how many points have both a lower height and weight rank (concordant pairs).
+-        Q[i] = 1 + sum(np.logical_and(R < R[i], S < S[i]))
++        Q[i] = 1 + np.count_nonzero(lower_r & lower_s)
+ 
+         # Adjust Q[i] for ties: when both ranks are equal, it contributes partially (1/4) to the Q[i] value.
+         # The "- 1" accounts for not including the point itself in its own comparison.
+-        Q[i] += (1 / 4) * (sum(np.logical_and(R == R[i], S == S[i])) - 1)
++        Q[i] += (1 / 4) * (np.count_nonzero(equal_r & equal_s) - 1)
+ 
+         # When only the height rank is tied but the weight rank is lower, it contributes half (1/2) to the Q[i] value.
+-        Q[i] += (1 / 2) * sum(np.logical_and(R == R[i], S < S[i]))
++        Q[i] += (1 / 2) * np.count_nonzero(equal_r & lower_s)
+ 
+         # Similarly, when only the weight rank is tied but the height rank is lower, it also contributes half (1/2).
+-        Q[i] += (1 / 2) * sum(np.logical_and(R < R[i], S == S[i]))
++        Q[i] += (1 / 2) * np.count_nonzero(lower_r & equal_s)
+     # Print the Q values for each data point, indicating the weighted count of points considered "lower" or "equal".
+     #  print(f"Q values: {Q}")
+     # Calculate intermediate sums required for Hoeffding's D formula:
+diff --git a/code/fit_dialog.py b/code/fit_dialog.py
+--- a/code/fit_dialog.py
++++ b/code/fit_dialog.py
+@@ -476,7 +476,11 @@
+         row = [labels[y]]
+         row2 = [labels[y]]
+         for x in range(n):
+-            r = func(data[x], data[y], print_out=False)
++            # Correlation methods are symmetric; evaluate their real diagonals too.
++            if x < y:
++                r = {'cor': values[x][y + 1], 'p': p_values[x][y + 1]}
++            else:
++                r = func(data[x], data[y], print_out=False)
+             row.append(format_stat(r["cor"]))
+             row2.append(format_stat(r["p"]))
+             res_tmp.append(r)
+diff --git a/code/binomial.py b/code/binomial.py
+--- a/code/binomial.py
++++ b/code/binomial.py
+@@ -5,6 +5,7 @@
+ def binomial(n, p, x=None, pvalue=None, print_out=False, print_port=print, ax=None, grid=True, color='black'):
+     rv = binom(n, p)
+     res = dict()
++    probabilities = list(rv.pmf(range(n + 1)))
+ 
+     mean, var, skew, kurt = rv.stats(moments='mvsk')
+     stdev = var**.5
+@@ -21,17 +22,18 @@
+     def acc_p(h, t, s, threshold):
+         pp = 0
+         for i in range(h, t, s):
+-            pp += rv.pmf(i)
++            probability = probabilities[i] if 0 <= i <= n else 0.0
++            pp += probability
+             if pp > threshold:
+-                return pp - rv.pmf(i), i - s
+-        print(h, t, s, threshold, n, p, x)
+-        print(res["left_acc_p"], res["right_acc_p"])
++                return pp - probability, i - s
++        # An exactly attained threshold includes the last scanned support point.
++        return pp, t - s
+ 
+     if x is not None:
+         x = int(x)
+-        res["px"] = rv.pmf(x)
+-        res["left_acc_p"] = sum([rv.pmf(i) for i in range(x + 1)])
+-        res["right_acc_p"] = sum([rv.pmf(i) for i in range(x, n + 1)])
++        res["px"] = probabilities[x] if 0 <= x <= n else 0.0
++        res["left_acc_p"] = sum(probabilities[:max(0, x + 1)])
++        res["right_acc_p"] = sum(probabilities[max(0, x):])
+         if res["left_acc_p"] < res["right_acc_p"]:
+             right_acc_p, right_x = acc_p(n, x - 1, -1, res["left_acc_p"])
+             left_acc_p, left_x = res["left_acc_p"], x
+@@ -44,8 +46,8 @@
+         }
+         prop_test_y = min(x, n - x)
+         #  print(prop_test_y)
+-        res['not equal p'] = sum(rv.pmf(i) for i in range(prop_test_y + 1)) +\
+-            sum(rv.pmf(i) for i in range(n - prop_test_y, n + 1))
++        res['not equal p'] = sum(probabilities[:max(0, prop_test_y + 1)]) +\
++            sum(probabilities[max(0, n - prop_test_y):])
+ 
+         if print_out:
+             print("Prob at x = %d is %.3f." % (x, res["px"]))
+@@ -79,7 +81,7 @@
+                 (left_x, left_acc_p))
+             print("Right at %d, acc. prob is %.3f." % (right_x, right_acc_p))
+ 
+-    res["pmf"] = [rv.pmf(i) for i in range(n + 1)]
++    res["pmf"] = probabilities
+     if ax is not None:
+         def triangle(x_input, ax, color, offset, xlist, ylist, label):
+             x, y = [], []
+@@ -95,8 +97,9 @@
+                     color='none')
+ 
+         x, y = [], []
++        cutoff = max(res["pmf"]) / 100
+         for xx, yy in zip(list(range(n + 1)), res["pmf"]):
+-            if yy > max(res["pmf"]) / 100:
++            if yy > cutoff:
+                 x.append(xx)
+                 y.append(yy)
+         ax.bar(x, y, facecolor='none', edgecolor=color, linewidth=1)
+diff --git a/code/proportion_test.py b/code/proportion_test.py
+--- a/code/proportion_test.py
++++ b/code/proportion_test.py
+@@ -2,7 +2,7 @@
+ from scipy.stats import norm, binom, hypergeom
+ from scipy.stats import f as f_dist
+ #  from functools import lru_cache
+-#  import numpy as np
++import numpy as np
+ ####### Own Modules ########
+ from binomial import binomial
+ from chi_sq import chi_square
+@@ -44,17 +44,18 @@
+     pu_f = rv.sf(e1 - 1)
+ 
+     mode = int((n1 + 1) * (e1 + e2 + 1) / (n1 + n2 + 2))
++    observed_probability = rv.pmf(e1)
+ 
+     if e1 == mode:
+         p_f = 1
+     elif e1 < mode:
+         y = mode
+-        while rv.pmf(y) >= rv.pmf(e1):
++        while rv.pmf(y) >= observed_probability:
+             y += 1
+         p_f = rv.cdf(e1) + 1 - rv.cdf(y - 1)
+     else:
+         y = mode
+-        while rv.pmf(y) >= rv.pmf(e1):
++        while rv.pmf(y) >= observed_probability:
+             y -= 1
+         p_f = 1 - rv.cdf(e1 - 1) + rv.cdf(y)
+ 
+@@ -101,19 +102,20 @@
+ 
+ def p_blaker(n, p, k):
+     rv = binom(n, p)
+-    psl = []
+-    s = 0
++    return _p_blaker(n, p, k, rv, rv.pmf(np.arange(n + 1)))
++
++
++def _p_blaker(n, p, k, rv, probabilities):
+     # 全事件边界用稳定尾概率；内部点保留原累计算法。
+-    for i in range(n + 1):
+-        s += rv.pmf(i)
+-        psl.append(rv.cdf(i) if k in (0, n) else s)
++    psl = rv.cdf(np.arange(n + 1)) if k in (0, n) else np.cumsum(probabilities)
++    psr = rv.sf(np.arange(n + 1) - 1) if k in (0, n) else None
+ 
+     def pt_le_k(n, p, k):
+         return psl[k] if k >= 0 else 0
+ 
+     def pt_ge_k(n, p, i):
+         if k in (0, n):
+-            return rv.sf(i - 1)
++            return psr[i] if i <= n else 0
+         return 0 if i > n else 1 - pt_le_k(n, p, i - 1)
+ 
+     if pt_ge_k(n, p, k) < pt_le_k(n, p, k):
+@@ -134,8 +136,13 @@
+ 
+ def p_sterne(n, p, k):
+     rv = binom(n, p)
+-    PTK = rv.pmf(k)
+-    return sum([rv.pmf(i) for i in range(n + 1) if rv.pmf(i) <= PTK])
++    probabilities = rv.pmf(np.arange(n + 1))
++    PTK = probabilities[k] if 0 <= k <= n else 0.0
++    return _p_sterne(probabilities, PTK)
++
++
++def _p_sterne(probabilities, PTK):
++    return sum(probability for probability in probabilities if probability <= PTK)
+ 
+ 
+ def p_likelihood_ratio(n, p0, x):
+@@ -146,8 +153,10 @@
+         ii = min(i, n - i)
+         return (p / p0)**ii * ((1 - p) / (1 - p0))**(n - ii)
+ 
+-    return sum(rv.pmf(y) for y in range(n + 1)
+-               if LR(y) >= LR(x))
++    threshold = LR(x)
++    probabilities = rv.pmf(np.arange(n + 1))
++    return sum(probability for y, probability in enumerate(probabilities)
++               if LR(y) >= threshold)
+ 
+ 
+ def prop_test_1sample(events=1, N=1, p0=1, print_port=print,
+@@ -190,8 +199,8 @@
+     F = f_dist.ppf(1 - alpha, dfn, dfd)
+     p_exct_high = dfn * F / (dfd + dfn * F)
+ 
+-    p_s = p_sterne(N, p0, events)
+-    p_b = p_blaker(N, p0, events)
++    p_s = _p_sterne(b_res['pmf'], b_res['px'])
++    p_b = _p_blaker(N, p0, events, binom(N, p0), b_res['pmf'])
+ 
+     if print_out:
+         from utilities import gen_table, format_stat
+diff --git a/code/dist_fit.py b/code/dist_fit.py
+--- a/code/dist_fit.py
++++ b/code/dist_fit.py
+@@ -18,8 +18,8 @@
+     rv is the frozen dist function
+     k is the number of parameters of the dist funciton.
+     """
+-    log_likelihood = sum(
+-        ln(rv.pdf(i)) for i in data)
++    # Keep ln(pdf), including its zero-density error, while evaluating pdf in bulk.
++    log_likelihood = sum(ln(density) for density in rv.pdf(data))
+     n = len(data)
+     if n - k > 1:
+         AICc = -2 * log_likelihood + 2 * k * n / (n - k - 1)
+@@ -276,9 +276,11 @@
+                 print("---- 分布拟合：" + name + " ----")
+                 print("拟合失败：请检查输入值及所选分布的适用条件。")
+             pass
+-    delta_AICc = [i - min(aiccs) for i in aiccs]
++    best_AICc = min(aiccs, default=nan)
++    delta_AICc = [i - best_AICc for i in aiccs]
+     rel_likelihood = [exp(-.5 * i) for i in delta_AICc]
+-    AICc_weight = [i / sum(rel_likelihood) for i in rel_likelihood]
++    total_likelihood = sum(rel_likelihood)
++    AICc_weight = [i / total_likelihood for i in rel_likelihood]
+     for r, i in zip(res, AICc_weight):
+         r.append(i)
+     res.sort(key=lambda x: -x[-1])
+diff --git a/code/two_way_anova.py b/code/two_way_anova.py
+--- a/code/two_way_anova.py
++++ b/code/two_way_anova.py
+@@ -97,8 +97,12 @@
+ #    print(SST-Re_SS_B)
+     if interaction:
+         SSA, SSB, SSAB = SSA_SSB(d)
+-        SSE = sum([sum((x - stat.mean(k))**2 for x in k)
+-                   for j in d for k in j])
++        SSE = 0
++        for row in d:
++            for cell in row:
++                if len(cell) > 0:
++                    mean = stat.mean(cell)
++                    SSE += sum((x - mean)**2 for x in cell)
+     else:
+         SSA, SSB = SSA_SSB_simple(d)
+         SSAB = 0
+diff --git a/code/GRR.py b/code/GRR.py
+--- a/code/GRR.py
++++ b/code/GRR.py
+@@ -165,9 +165,11 @@
+                     print_out=print_out, print_port=print_port)
+ 
+ 
+-def grr_inter(y, op, part):
+-    res = two_way_anova(y, factor_listA=part, factor_listB=op,
+-                        print_out=False)
++def grr_inter(y, op, part, *, _anova=None):
++    res = _anova
++    if res is None:
++        res = two_way_anova(y, factor_listA=part, factor_listB=op,
++                            print_out=False)
+ 
+     a = len(set(part))  # number of parts
+     b = len(set(op))  # number of operators
+@@ -204,12 +206,12 @@
+ 
+ 
+ def grr_anova_EMP(y=None, op=None, part=None, inter=True,
+-                  print_out=False, print_port=print):
++                  print_out=False, print_port=print, *, _full_anova=None):
+     if op is None:
+         inter = False
+         Rept, OP, OPP, PP = grr_no_op(y, part)
+     else:
+-        Rept, OP, OPP, PP = grr_inter(y, op, part)
++        Rept, OP, OPP, PP = grr_inter(y, op, part, _anova=_full_anova)
+         if OPP == 0 or not inter:
+             Rept, OP, OPP, PP = grr_simple(y, op, part)
+ 
+@@ -312,12 +314,12 @@
+ 
+ def grr_anova_AIAG(y=None, op=None, part=None, inter=True,
+                    hist_std=None, use_hist=False, spec_gap=None,
+-                   print_out=False, print_port=print):
++                   print_out=False, print_port=print, *, _full_anova=None):
+     if op is None:
+         inter = False
+         Rept, OP, OPP, PP = grr_no_op(y, part)
+     else:
+-        Rept, OP, OPP, PP = grr_inter(y, op, part)
++        Rept, OP, OPP, PP = grr_inter(y, op, part, _anova=_full_anova)
+         if OPP == 0 or not inter:
+             Rept, OP, OPP, PP = grr_simple(y, op, part)
+ 
+@@ -355,11 +357,13 @@
+                           hist_std=hist_std, use_hist=use_hist, spec_gap=spec_gap,
+                           print_out=print_out, print_port=print_port)
+ 
++    full_anova = None
+     if op is not None and inter.upper() == "AUTO":
+         res = two_way_anova(y, factor_listA=part, factor_listB=op,
+                             print_port=print_port, interaction=True,
+                             print_out=False, name_a="Part",
+                             name_b="Operator")
++        full_anova = res
+         inter = (res['p AB'] <= alpha)
+         if print_out:
+             print = print_port
+@@ -395,11 +399,13 @@
+ 
+     if "EMP" in mode:
+         return grr_anova_EMP(y=y, op=op, part=part, inter=inter,
+-                             print_out=print_out, print_port=print_port)
++                             print_out=print_out, print_port=print_port,
++                             _full_anova=full_anova)
+     if "AIAG" in mode:
+         return grr_anova_AIAG(y=y, op=op, part=part, inter=inter,
+                               hist_std=hist_std, use_hist=use_hist, spec_gap=spec_gap,
+-                              print_out=print_out, print_port=print_port)
++                              print_out=print_out, print_port=print_port,
++                              _full_anova=full_anova)
+ 
+ 
+ def grr_nested(y=None, op=None, part=None, print_out=False, print_port=print,
+diff --git a/tests/fixtures/g3_computation_baseline.json b/tests/fixtures/g3_computation_baseline.json
+--- a/tests/fixtures/g3_computation_baseline.json
++++ b/tests/fixtures/g3_computation_baseline.json
+@@ -2,7 +2,7 @@
+   {
+     "file": "linear_fit.py",
+     "function": "linear_fit",
+-    "sha256": "5978159e8e36b50e5c6054b491f7948de45901f765b7d8f975d1bc5e4bf30743"
++    "sha256": "40cf548f3454861e6f841bbd0c91a721be4070c56d657821747732583f1e7d95"
+   },
+   {
+     "file": "ortho_fit.py",
+@@ -47,7 +47,7 @@
+   {
+     "file": "two_way_anova.py",
+     "function": "two_way_anova",
+-    "sha256": "84463ed6b292c8f240ee555baccd8cd5821aea0224db0eacc4f274a2e4784b70"
++    "sha256": "8f5b5d94425f9f7fd742f42da953da514b96ff1671df09a7adfc8e260c707648"
+   },
+   {
+     "file": "chi_sq.py",
+@@ -107,7 +107,7 @@
+   {
+     "file": "dist_fit.py",
+     "function": "compare_dist",
+-    "sha256": "e77604d12aa867d992dea44db173ff65654b3b5b0372613837eb923bd556a41b"
++    "sha256": "e22b67dc4a0f27fbaed95b26df0ad88f795201c6d898a6629bdce87606336c73"
+   },
+   {
+     "file": "GRR.py",
+@@ -117,12 +117,12 @@
+   {
+     "file": "GRR.py",
+     "function": "grr_anova_EMP",
+-    "sha256": "27fe673294463937abda9c28e132d09bc28d83d55cfe84f4f058f2a055712e41"
++    "sha256": "6cfb1274315082af8be660c1e22e8451df263ee22ade6d10d76a11553c8a56be"
+   },
+   {
+     "file": "GRR.py",
+     "function": "grr_anova_AIAG",
+-    "sha256": "e545ec1eb7b4f68ace93b4bdad0a3ccc1acba331b1563ca12eac70062ce637f9"
++    "sha256": "39f60a6200a949e78b7c1b6bd556aa6dc327cb99df30c350ca6d7c08886e725a"
+   },
+   {
+     "file": "chi2_dialog.py",
+diff --git a/tests/fixtures/g9_reports.json b/tests/fixtures/g9_reports.json
+index eda07e9..4629f7d 100644
+--- a/tests/fixtures/g9_reports.json
++++ b/tests/fixtures/g9_reports.json
+@@ -117,11 +117,11 @@
+   },
+   "computation": {
+     "t_test": "47a67bf0ca645724c513a289b2024c91274164d2945fbfda75ff4a5bd3b25eb8",
+-    "proportion_test": "982e508dfe51c8bfb8a2b2c60a2008e0369a8a5baf99b557175b13a2a98575c2",
+-    "chi_sq": "26439f41afd46d67985b51e6bc1a039fef99f69e86f62d2f53176f093a8f9b74",
++    "proportion_test": "d518bcf39a8bf0f7ad69c95ee0fd638f1e8b6f9a9ece61955425485c962fd516",
++    "chi_sq": "67c555838aff83358dc9078a1715b37b876c0afd6a85089b0c56813fc318937e",
+     "chi2_dialog": null,
+     "one_way_ANOVA": "e1ab56452220cc357160629b4aa1f72fb816f4290752094dc2af34482a88dfb6",
+-    "two_way_anova": "10d3c2edc6fef53619cdc3d62e7444197c366808683f9608cf881b81998b1c04",
++    "two_way_anova": "4105ee16a76427612ca67576406a8fa57c698aecc9dfd7d57ceb0a99ac1868bb",
+     "ti": "6ce24e047f956d7a3a18380c2deafcfcb4a15612f348c7f6772e360ab12fb9be"
+   }
+ }
+\ No newline at end of file
+diff --git a/tests/test_g4_quality_reports.py b/tests/test_g4_quality_reports.py
+--- a/tests/test_g4_quality_reports.py
++++ b/tests/test_g4_quality_reports.py
+@@ -444,11 +444,26 @@
+         if function.__module__ != original.__name__:
+             continue
+         current = getattr(module, name)
+-        assert inspect.signature(current) == inspect.signature(function), name
++        optimized = module is GRR and name in {
++            'grr_inter', 'grr_anova_EMP', 'grr_anova_AIAG', 'grr_master'}
++        if optimized:
++            # G16 preserves existing arguments; private keyword-only inputs reuse one fit.
++            before_args = inspect.signature(function).parameters
++            after_args = inspect.signature(current).parameters
++            assert list(after_args)[:len(before_args)] == list(before_args), name
++            assert all(after_args[key] == value for key, value in before_args.items()), name
++            extra = list(after_args.values())[len(before_args):]
++            assert [arg.name for arg in extra] == ([] if name == 'grr_master' else
++                ['_anova' if name == 'grr_inter' else '_full_anova'])
++            assert all(arg.kind == inspect.Parameter.KEYWORD_ONLY and arg.default is None for arg in extra)
++        else:
++            assert inspect.signature(current) == inspect.signature(function), name
+         # 原函数由固定基线编译，逐函数取 AST，保留所有非报告计算和保护逻辑。
+         old = next(n for n in old_tree.body if isinstance(n, ast.FunctionDef) and n.name == name)
+         new = next(n for n in new_tree.body if isinstance(n, ast.FunctionDef) and n.name == name)
+-        assert ast.dump(ComputationOnly().visit(new)) == ast.dump(ComputationOnly().visit(old)), name
++        if not optimized:
++            assert ast.dump(ComputationOnly().visit(new)) == ast.dump(ComputationOnly().visit(old)), name
++        # G16's frozen numerical/report comparisons and fit counts cover these four bodies.
+ 
+ 
+ @pytest.mark.parametrize('module,function,old', [
+@@ -480,8 +495,17 @@
+             current = ast.parse((ROOT / 'code' / name).read_text(encoding='utf-8'))
+             current.body = [node for node in current.body if not (
+                 isinstance(node, ast.ImportFrom) and node.module == 'stat_table')]
++            original = ast.parse(old)
++            if name == 'two_way_anova.py':
++                for tree in (current, original):
++                    function = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
++                                    and n.name == 'two_way_anova')
++                    branch = next(n for n in function.body if isinstance(n, ast.If)
++                                  and isinstance(n.test, ast.Name) and n.test.id == 'interaction')
++                    # G16 covers optimized cell SSE with frozen values and mean counts.
++                    branch.body = branch.body[:1]
+             assert ast.dump(ComputationOnly().visit(current)) == ast.dump(
+-                ComputationOnly().visit(ast.parse(old)))
++                ComputationOnly().visit(original))
+             continue
+         if name == 'utilities.py':
+             # P1/P2 仅授权 Pearson 舍入截断及完全相关区间方向，保留整文件其余守卫。
+diff --git a/tests/test_g11_quality_tables.py b/tests/test_g11_quality_tables.py
+--- a/tests/test_g11_quality_tables.py
++++ b/tests/test_g11_quality_tables.py
+@@ -273,6 +273,16 @@
+                 function.body = [n for n in function.body if not (
+                     isinstance(n, ast.If) and isinstance(n.test, ast.Name) and n.test.id == 'print_out')]
+             assert ast.dump(trees[0]) == ast.dump(trees[1])
++        elif name == 'two_way_anova.py':
++            trees = [ast.parse(source) for source in (before, current)]
++            for tree in trees:
++                function = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
++                                and n.name == 'two_way_anova')
++                branch = next(n for n in function.body if isinstance(n, ast.If)
++                              and isinstance(n.test, ast.Name) and n.test.id == 'interaction')
++                # G16 verifies the optimized cell SSE numerically and counts cell means.
++                branch.body = branch.body[:1]
++            assert ast.dump(trees[0]) == ast.dump(trees[1])
+         else:
+             assert current == before.replace('\r\n', '\n')
+ 
+diff --git a/tests/test_g16_statistics.py b/tests/test_g16_statistics.py
+new file mode 100644
+--- /dev/null
++++ b/tests/test_g16_statistics.py
+@@ -0,0 +1,423 @@
++"""G16 numerical/protocol oracles use the immutable, pre-optimization HEAD.
++
++Independent formula and work-count tests supplement the legacy comparisons.
++"""
++import ast
++import inspect
++from pathlib import Path
++import statistics as stat
++import subprocess
++import types
++from unittest.mock import Mock
++
++import numpy as np
++import pytest
++from scipy import stats
++
++ROOT = Path(__file__).resolve().parents[1]
++BEFORE = '38b907f0dcf62f234561838f3cca93ad0a8545ef'
++
++
++@pytest.fixture(scope='module')
++def old():
++    modules = {}
++    for name in ('linear_fit', 'chi_sq', 'nonpara_cor', 'fit_dialog', 'binomial',
++                 'proportion_test', 'dist_fit', 'two_way_anova', 'GRR'):
++        source = subprocess.check_output(['git', 'show', f'{BEFORE}:code/{name}.py'],
++                                         cwd=ROOT).decode('utf-8')
++        module = types.ModuleType('g16_before_' + name)
++        exec(compile(source, f'g16_before/{name}.py', 'exec'), module.__dict__)
++        modules[name] = module
++    modules['proportion_test'].binomial = modules['binomial'].binomial
++    modules['GRR'].two_way_anova = modules['two_way_anova'].two_way_anova
++    return types.SimpleNamespace(**modules)
++
++
++def equal(actual, expected):
++    if isinstance(expected, dict):
++        assert actual.keys() == expected.keys()
++        for key in expected:
++            equal(actual[key], expected[key])
++    elif isinstance(expected, (list, tuple)):
++        assert type(actual) is type(expected)
++        assert len(actual) == len(expected)
++        for a, b in zip(actual, expected):
++            equal(a, b)
++    elif isinstance(expected, (int, float, np.number)):
++        assert actual == pytest.approx(expected, rel=2e-12, abs=1e-12, nan_ok=True)
++    else:
++        assert actual == expected
++
++
++def same_call(actual, expected, *args, **kwargs):
++    before_lines, after_lines = [], []
++    result = expected(*args, print_port=before_lines.append, **kwargs)
++    equal(actual(*args, print_port=after_lines.append, **kwargs), result)
++    assert list(map(str, after_lines)) == list(map(str, before_lines))
++
++
++@pytest.mark.parametrize('x,y', [
++    ([1., 1., 2., 2., 3., 3.], [2., 3., 4., 6., 5., 8.]),
++    ([1., 1., 2., 2., 3., 3.], [3., 3., 5., 5., 7., 7.]),
++    ([1., 2., 3., 4., 5., 6.], [2., 3., 4., 6., 5., 8.]),
++    ([1., 1., 1., 2., 2., 2.], [2., 3., 4., 6., 5., 8.]),
++    ([1e9 + x for x in [1, 1, 2, 2, 3, 3]], [2., 3., 4., 6., 5., 8.]),
++    ([1., 1., 2., 2., np.nan, np.nan], [1., 2., 3., 4., 5., 6.]),
++    ([np.nan] * 6, [1., 2., 3., 4., 5., 6.]),
++    ([1., 1., 2., 2., np.inf, np.inf], [1., 2., 3., 4., 5., 6.]),
++])
++def test_f01_numerical_and_report(old, x, y):
++    from linear_fit import linear_fit
++    same_call(linear_fit, old.linear_fit.linear_fit, x, y, print_out=True)
++    result = linear_fit(x, y, print_out=False)
++    groups = [[b for a, b in zip(x, y) if a == v] for v in set(x)]
++    pe = sum(sum((v - stat.mean(g))**2 for v in g) for g in groups)
++    assert result['SSPE'] == pytest.approx(pe)
++
++
++@pytest.mark.parametrize('x,y', [([], []), ([1, 1, 1], [2, 3, 4]),
++                                ([1, 2], [2, 4]), ([1, 2, 3], [1, 1, 1])])
++def test_f01_degenerate_errors(old, x, y):
++    from linear_fit import linear_fit
++    with pytest.raises(Exception) as before:
++        old.linear_fit.linear_fit(x, y, print_out=False)
++    with pytest.raises(type(before.value)):
++        linear_fit(x, y, print_out=False)
++
++
++def test_f01_group_mean_work(monkeypatch):
++    import linear_fit
++    mean = Mock(wraps=stat.mean)
++    monkeypatch.setattr(linear_fit.stat, 'mean', mean)
++    x = [1., 2., 3.] * 20
++    linear_fit.linear_fit(x, list(range(60)), print_out=False)
++    assert mean.call_count == 6  # Three overall means, one per X level.
++
++
++@pytest.mark.parametrize('groups', [
++    [[1., 2., 4.], [2., 5., 9.], [1., 5., 7.]],
++    [[1., 1., 1., 5.], [2., 2., 8., 20., 25.]],
++    [[-5., -4., -2., 0.], [1., 3., 6., 10., 15.], [2., 3., 5.]],
++])
++def test_f11_numerical_report_and_scipy(old, groups):
++    from chi_sq import multi_pop_var_test
++    labels = list('ABC')[:len(groups)]
++    same_call(multi_pop_var_test, old.chi_sq.multi_pop_var_test, groups, labels, print_out=True)
++    result = multi_pop_var_test(groups, labels)
++    for name, center in [('Levene', 'mean'), ('Brown_Forsythe', 'median')]:
++        reference = stats.levene(*groups, center=center)
++        assert result[name]['F'] == pytest.approx(reference.statistic)
++        assert result[name]['p'] == pytest.approx(reference.pvalue)
++    reference = stats.f_oneway(*stats.obrientransform(*groups)) if len(set(map(len, groups))) == 1 else None
++    if reference:
++        assert result['OBrien']['F'] == pytest.approx(reference.statistic)
++
++
++@pytest.mark.parametrize('groups', [[], [[1.], [2.]], [[1., 2.], [3., 4.]],
++                                     [[1., 1., 1.], [2., 2., 2.]]])
++def test_f11_degenerate(old, groups):
++    from chi_sq import multi_pop_var_test
++    try:
++        expected = old.chi_sq.multi_pop_var_test(groups, list('ABC'))
++    except Exception as before:
++        with pytest.raises(type(before)):
++            multi_pop_var_test(groups, list('ABC'))
++    else:
++        equal(multi_pop_var_test(groups, list('ABC')), expected)
++
++
++def test_f11_statistics_count(monkeypatch):
++    import chi_sq
++    spies = {name: Mock(wraps=getattr(stat, name)) for name in ('mean', 'variance', 'median')}
++    for name, spy in spies.items():
++        monkeypatch.setattr(chi_sq.stat, name, spy)
++    groups = [list(np.random.default_rng(i).normal(size=20)) for i in range(3)]
++    chi_sq.multi_pop_var_test(groups, list('ABC'))
++    assert spies['mean'].call_count == 12  # 3 original + 3*3 transformed.
++    assert spies['variance'].call_count == spies['median'].call_count == 3
++
++
++@pytest.mark.parametrize('x,y', [
++    ([1., 2., 3., 4., 5.], [5., 2., 4., 1., 3.]),
++    ([1., 1., 2., 2., 3., 3.], [1., 2., 1., 2., 3., 3.]),
++    ([1.] * 6, [1., 2., 3., 4., 5., 6.]),
++    ([1.] * 6, [2.] * 6),
++    ([1., 2., np.nan, 4., 5.], [5., 4., 3., 2., 1.]),
++    ([1., 2., np.inf, 4., 5.], [5., 4., 3., 2., 1.]),
++    ([1., 2., 3., 4.], [4., 3., 2., 1.]),
++])
++def test_f02_scalar_ties_constants_small_and_nonfinite(old, x, y):
++    import nonpara_cor
++    same_call(nonpara_cor.hoeffding, old.nonpara_cor.hoeffding, x, y, print_out=True)
++    equal(nonpara_cor.hoeffd_example(x, y), old.nonpara_cor.hoeffd_example(x, y))
++
++
++@pytest.mark.parametrize('method', ['spearman', 'kendall', 'hoeffding'])
++def test_f02_matrix_values_reports_and_unordered_pairs(old, monkeypatch, method):
++    import fit_dialog
++    import nonpara_cor
++    data = [[1., 1., 2., 2., 3., 4.], [1., 4., 2., 5., 3., 2.], [3.] * 6]
++    before, after = [], []
++    func = getattr(nonpara_cor, method)
++    old.fit_dialog.print_multi_col_tables(data, ['甲', '乙', '丙'], func,
++        print_port=before.append, name=method)
++    spy = Mock(wraps=func)
++    fit_dialog.print_multi_col_tables(data, ['甲', '乙', '丙'], spy,
++        print_port=after.append, name=method)
++    assert spy.call_count == 6  # Includes real diagonal evaluations for constant inputs.
++    assert list(map(str, after)) == list(map(str, before))
++    for a, b in zip(after, before):
++        if hasattr(a, 'values'):
++            equal(a.values, b.values)
++
++
++def test_f02_no_python_boolean_sum_or_repeated_comparison():
++    import nonpara_cor
++    tree = ast.parse(inspect.getsource(nonpara_cor.hoeffd_example))
++    loop = next(n for n in ast.walk(tree) if isinstance(n, ast.For))
++    assert not any(isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
++                   and n.func.id == 'sum' for n in ast.walk(loop))
++    assert len([n for n in ast.walk(loop) if isinstance(n, ast.Compare)]) == 4
++
++
++@pytest.mark.parametrize('n,p,x', [(12, .3, 0), (12, .3, 12), (15, .4, 4),
++                                  (17, .7, 14), (20, .5, 9), (20, .5, 11)])
++def test_f04_binomial_legacy(old, n, p, x):
++    from binomial import binomial
++    same_call(binomial, old.binomial.binomial, n, p, x=x, print_out=True)
++
++
++@pytest.mark.parametrize('n,p,x', [(1000, .5, 500), (10, 0., 0), (10, 1., 10),
++                                  (0, .5, 0), (20, .3, 0), (20, .3, 20)])
++def test_f04_binomial_center_and_boundaries(old, n, p, x):
++    from binomial import binomial
++    if n == 1000:
++        with pytest.raises(NameError):
++            old.binomial.binomial(n, p, x=x)
++    result = binomial(n, p, x=x)
++    assert result['px'] == pytest.approx(stats.binom.pmf(x, n, p))
++    assert result['left_acc_p'] == pytest.approx(stats.binom.cdf(x, n, p))
++    assert result['right_acc_p'] == pytest.approx(stats.binom.sf(x - 1, n, p))
++    tail = result['equal_tail']
++    for side in ('left', 'right'):
++        boundary = tail['x_' + side]
++        expected = stats.binom.cdf(boundary, n, p) if side == 'left' else stats.binom.sf(boundary - 1, n, p)
++        assert tail['acc_p_' + side] == pytest.approx(expected, abs=1e-14)
++
++
++@pytest.mark.parametrize('pvalue', [0., .001, .05, .5, 1.])
++def test_f04_binomial_probability_mode(old, pvalue):
++    from binomial import binomial
++    if pvalue < 1:
++        same_call(binomial, old.binomial.binomial, 20, .3, pvalue=pvalue, print_out=True)
++    else:
++        result = binomial(20, .3, pvalue=pvalue)
++        assert result['x_left'] == 20 and result['x_right'] == 0
++
++
++@pytest.mark.parametrize('n,p,k', [(5, .5, 2), (7, .3, 0), (7, .3, 7),
++                                  (20, .4, 9), (20, .4, 0), (20, .4, 20)])
++def test_f04_proportion_functions(old, n, p, k):
++    import proportion_test as prop
++    for name in ('p_blaker', 'p_sterne', 'p_likelihood_ratio'):
++        equal(getattr(prop, name)(n, p, k), getattr(old.proportion_test, name)(n, p, k))
++    same_call(prop.prop_test_1sample, old.proportion_test.prop_test_1sample,
++              k, n, p, print_out=True)
++
++
++def test_f04_one_support_evaluation_for_entire_single_proportion(monkeypatch):
++    import binomial
++    import proportion_test
++    rv = stats.binom(100, .4)
++    rv.pmf = Mock(wraps=rv.pmf)
++    monkeypatch.setattr(binomial, 'binom', lambda *a: rv)
++    monkeypatch.setattr(proportion_test, 'binom', lambda *a: rv)
++    proportion_test.prop_test_1sample(39, 100, .4)
++    assert rv.pmf.call_count == 1
++    np.testing.assert_array_equal(rv.pmf.call_args.args[0], np.arange(101))
++
++
++def test_f04_individual_pmf_call_counts(monkeypatch):
++    import proportion_test as prop
++    rv = stats.binom(20, .4)
++    rv.pmf = Mock(wraps=rv.pmf)
++    monkeypatch.setattr(prop, 'binom', lambda *a: rv)
++    for name in ('p_blaker', 'p_sterne', 'p_likelihood_ratio'):
++        rv.pmf.reset_mock()
++        getattr(prop, name)(20, .4, 7)
++        assert rv.pmf.call_count == 1
++
++
++def test_f04_empty_tail_guards_remain():
++    import proportion_test as prop
++    tree = ast.parse(inspect.getsource(prop._p_blaker))
++    calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call)
++             and isinstance(node.func, ast.Name) and node.func.id in ('min', 'max')]
++    assert len(calls) == 2
++    assert all(any(kw.arg == 'default' for kw in node.keywords) for node in calls)
++
++
++@pytest.mark.parametrize('p', [1e-8, .03, .5, .99, 1 - 1e-8])
++def test_f04_sterne_and_blaker_extreme_tails(old, p):
++    import proportion_test as prop
++    for k in (0, 1, 99, 100):
++        equal(prop.p_sterne(100, p, k), old.proportion_test.p_sterne(100, p, k))
++        equal(prop.p_blaker(100, p, k), old.proportion_test.p_blaker(100, p, k))
++
++
++@pytest.mark.parametrize('rv,k,data', [
++    (stats.norm(1, 2), 2, [-3., 1., 2., 5.]),
++    (stats.gamma(2, scale=3), 2, [1., 2., 4., 8., 12.]),
++    (stats.expon(scale=2), 1, [0., 1., 2., 3.]),
++    (stats.norm(), 2, []), (stats.norm(), 2, [0., 1., 2.]),
++    (stats.norm(), 2, [np.nan]),
++])
++def test_f06_abl_numeric_small_empty_and_nan(old, rv, k, data):
++    import dist_fit
++    equal(dist_fit.ABL(rv, data, k), old.dist_fit.ABL(rv, data, k))
++
++
++@pytest.mark.parametrize('rv,data', [(stats.norm(), [1e3]),
++                                    (stats.expon(), [-1.]), (stats.norm(), [np.inf])])
++def test_f06_zero_density_still_raises(old, rv, data):
++    import dist_fit
++    with pytest.raises(ValueError):
++        old.dist_fit.ABL(rv, data, 2)
++    with pytest.raises(ValueError):
++        dist_fit.ABL(rv, data, 2)
++
++
++def test_f06_pdf_dispatch_count():
++    from dist_fit import ABL
++    rv = stats.norm()
++    rv.pdf = Mock(wraps=rv.pdf)
++    rv.logpdf = Mock(side_effect=AssertionError('Must retain ln(pdf) underflow contract'))
++    ABL(rv, list(range(20)), 2)
++    assert rv.pdf.call_count == 1
++    assert not rv.logpdf.called
++
++
++@pytest.mark.parametrize('data', [[1., 2., 3., 5., 8., 13.], [1., 2., 3.],
++                                 [-2., -1., 0., 1., 2.], [0.] * 6])
++def test_f06_all_fits_and_model_selection(old, data):
++    import dist_fit
++    before, after = [], []
++    expected = old.dist_fit.compare_dist(data, print_port=before.append)
++    actual = dist_fit.compare_dist(data, print_port=after.append)
++    assert [r[0] for r in actual] == [r[0] for r in expected]
++    for a, b in zip(actual, expected):
++        equal(a[1], b[1])
++        equal(a[2]['fits'], b[2]['fits'])
++        equal(a[3], b[3])
++    assert list(map(str, after)) == list(map(str, before))
++
++
++@pytest.mark.parametrize('interaction', [True, False])
++@pytest.mark.parametrize('data', [
++    [[[1., 2., 4.], [3., 4., 8.]], [[2., 4., 5.], [5., 8., 9.]]],
++    [[[1., 2.], [3., 4.]], [[2., 4.], [5., 8., 10.]]],
++    [[[1., 2., 3.], []], [[2., 4.], [5., 8.]]],
++    np.array([[[1., 2.], [3., 4.]], [[2., 4.], [5., 8.]]]),
++])
++def test_f08_two_way_balanced_and_unbalanced(old, data, interaction):
++    from two_way_anova import two_way_anova
++    same_call(two_way_anova, old.two_way_anova.two_way_anova,
++              data, interaction=interaction, print_out=True)
++
++
++def test_f08_cell_means_count(monkeypatch):
++    import two_way_anova as two
++    mean = Mock(wraps=stat.mean)
++    monkeypatch.setattr(two.stat, 'mean', mean)
++    data = [[[float(i + j + k % 3) for k in range(20)] for j in range(2)] for i in range(3)]
++    two.two_way_anova(data)
++    assert mean.call_count == 7  # Overall and each of six cells once.
++
++
++@pytest.mark.parametrize('mode', ['AIAG', 'EMP'])
++@pytest.mark.parametrize('inter', ['Auto', 'On', 'Off'])
++@pytest.mark.parametrize('unbalanced', [False, True])
++def test_f08_grr_all_decisions_reports_and_variance_clamps(old, mode, inter, unbalanced):
++    import GRR
++    part = [p for p in 'ABC' for op in 'XY' for _ in range(3)]
++    ops = [op for p in 'ABC' for op in 'XY' for _ in range(3)]
++    y = np.random.default_rng(81).normal(size=len(part)).tolist()
++    if unbalanced:
++        y, part, ops = y[:-1], part[:-1], ops[:-1]
++    same_call(GRR.grr_master, old.GRR.grr_master, y=y, part=part, op=ops,
++              mode=mode, inter=inter, print_out=True)
++
++
++@pytest.mark.parametrize('mode', ['AIAG', 'EMP'])
++@pytest.mark.parametrize('inter', ['Auto', 'On', 'Off'])
++def test_f08_grr_full_model_never_refitted(monkeypatch, mode, inter):
++    import GRR
++    spy = Mock(wraps=GRR.two_way_anova)
++    monkeypatch.setattr(GRR, 'two_way_anova', spy)
++    part = ['A', 'A', 'B', 'B', 'C', 'C'] * 2
++    op = ['X'] * 6 + ['Y'] * 6
++    y = [1., 3., 4., 6., 7., 9., 2., 2., 5., 5., 8., 8.]
++    GRR.grr_master(y=y, part=part, op=op, mode=mode, inter=inter)
++    full = [c for c in spy.call_args_list if c.kwargs.get('interaction', True)]
++    simple = [c for c in spy.call_args_list if not c.kwargs.get('interaction', True)]
++    assert len(full) == 1
++    assert len(simple) <= 1
++
++
++@pytest.mark.parametrize('data', [[], [[[]]], [[[1.], [2.]], [[3.], [4.]]]])
++def test_f08_degenerate_errors(old, data):
++    from two_way_anova import two_way_anova
++    with pytest.raises(Exception) as before:
++        old.two_way_anova.two_way_anova(data)
++    with pytest.raises(type(before.value)):
++        two_way_anova(data)
++
++
++@pytest.mark.parametrize('name', ['grr_inter', 'grr_simple', 'grr_anova_AIAG', 'grr_anova_EMP'])
++def test_f08_direct_entrypoints(old, name):
++    import GRR
++    part = ['A', 'A', 'B', 'B', 'C', 'C'] * 2
++    op = ['X'] * 6 + ['Y'] * 6
++    y = [1., 3., 4., 6., 7., 9., 2., 2., 5., 5., 8., 8.]
++    equal(getattr(GRR, name)(y, op, part), getattr(old.GRR, name)(y, op, part))
++
++
++@pytest.mark.parametrize('mode', ['AIAG', 'EMP'])
++def test_f08_no_operator(old, mode):
++    import GRR
++    same_call(GRR.grr_master, old.GRR.grr_master,
++              y=[1., 3., 4., 6., 7., 9.], part=['A', 'A', 'B', 'B', 'C', 'C'],
++              mode=mode, print_out=True)
++
++
++@pytest.mark.parametrize('mode', ['AIAG', 'EMP'])
++def test_f08_retained_interaction_and_exact_threshold(old, mode):
++    import GRR
++    part = ['A', 'A', 'B', 'B', 'C', 'C'] * 2
++    op = ['X'] * 6 + ['Y'] * 6
++    strong = [1., 1.2, 10., 10.2, 20., 20.2, 20., 20.2, 10., 10.2, 1., 1.2]
++    result = GRR.grr_master(y=strong, part=part, op=op, mode=mode)
++    assert result['INT'] > 0
++    same_call(GRR.grr_master, old.GRR.grr_master, y=strong, part=part, op=op,
++              mode=mode, print_out=True)
++    y = np.random.default_rng(81).normal(size=12).tolist()
++    p_ab = GRR.two_way_anova(y, factor_listA=part, factor_listB=op)['p AB']
++    assert 0 < p_ab < 1
++    for alpha in (np.nextafter(p_ab, 0), p_ab, np.nextafter(p_ab, 1)):
++        same_call(GRR.grr_master, old.GRR.grr_master, y=y, part=part, op=op,
++                  mode=mode, alpha=alpha, print_out=True)
++
++
++def test_f01_mismatched_lengths(old):
++    from linear_fit import linear_fit
++    assert linear_fit([1., 2., 3.], [1., 2.], print_out=False) is None
++    assert old.linear_fit.linear_fit([1., 2., 3.], [1., 2.], print_out=False) is None
++
++
++def test_benchmark_case_matrix_and_self_check():
++    from tools.benchmark_statistics import cases, measure
++    for hotspot in ('F01', 'F11', 'F02', 'F04', 'F06', 'F08'):
++        matrix = cases(hotspot)
++        assert matrix and len(set(matrix)) == len(matrix)
++        assert all(n > 0 and p > 0 for _, n, p in matrix)
++    assert len(measure(lambda: sum(range(10)))) == 3
+diff --git a/tools/benchmark_statistics.py b/tools/benchmark_statistics.py
+new file mode 100644
+--- /dev/null
++++ b/tools/benchmark_statistics.py
+@@ -0,0 +1,125 @@
++"""G16: reproduce G15 inputs; one warmup and three serial timed calls per case.
++
++Run each hotspot in a fresh process, with PYTHONHASHSEED=0 and BLAS threads=1.
++--code-dir can point to the verified G15 source-snapshot/code for the baseline.
++"""
++import argparse
++import gc
++import hashlib
++import json
++from pathlib import Path
++import statistics
++import sys
++import time
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++def cases(hotspot):
++    if hotspot == 'F01':
++        return [('linear_fit', n, 1) for n in (1000, 3000, 10000)]
++    if hotspot == 'F11':
++        return [('multi_var', n, 3) for n in (100, 1000)]
++    if hotspot == 'F02':
++        return ([('hoeffding', n, 1) for n in (100, 1000, 3000)]
++                + [('matrix_hoeffding', n, p) for n, p in ((100, 5), (100, 10), (1000, 5))])
++    if hotspot == 'F04':
++        return [(name, n, 1) for name in ('binomial', 'p_blaker', 'p_sterne',
++                'p_likelihood_ratio', 'prop_test_1sample') for n in (1000, 10000, 50000)]
++    if hotspot == 'F06':
++        return ([('fit_norm', n, 1) for n in (1000, 10000, 50000)]
++                + [('compare_dist', n, 1) for n in (1000, 5000, 10000)])
++    if hotspot == 'F08':
++        return ([('two_way', n, 5) for n in (150, 1500, 15000)]
++                + [('grr', n, 10) for n in (300, 3000, 30000)])
++    raise ValueError(hotspot)
++
++
++def make_case(name, n, p):
++    import numpy as np
++    rng = np.random.default_rng(20261021)
++    data = rng.normal(10, 1, n).tolist()  # Also consumed by G15 before all cases.
++    if name == 'linear_fit':
++        from linear_fit import linear_fit
++        x = (np.arange(n) % max(5, n // 5)).astype(float).tolist()
++        y = (2 * np.array(x) + rng.normal(size=n)).tolist()
++        return lambda: linear_fit(x, y, print_out=False)
++    if name == 'multi_var':
++        from chi_sq import multi_pop_var_test
++        groups = [rng.normal(i, .8 + i * .1, n).tolist() for i in range(3)]
++        return lambda: multi_pop_var_test(groups, ['A', 'B', 'C'])
++    if name == 'hoeffding':
++        from nonpara_cor import hoeffding
++        other = rng.normal(size=n).tolist()
++        return lambda: hoeffding(data, other)
++    if name == 'matrix_hoeffding':
++        from fit_dialog import print_multi_col_tables
++        from nonpara_cor import hoeffding
++        values = rng.normal(size=(p, n)).tolist()
++        labels = [f'V{i}' for i in range(p)]
++        return lambda: print_multi_col_tables(values, labels, hoeffding,
++                                             print_port=lambda *a: None, name=name)
++    if name == 'binomial':
++        from binomial import binomial
++        # G15's valid noncentral scenario; central failures are correctness tests.
++        return lambda: binomial(n, .5, x=int(n * .49))
++    if name in ('p_blaker', 'p_sterne', 'p_likelihood_ratio', 'prop_test_1sample'):
++        import proportion_test as mod
++        if name == 'prop_test_1sample':
++            return lambda: mod.prop_test_1sample(events=int(n * .49), N=n, p0=.5)
++        return lambda: getattr(mod, name)(n, .5, n // 2)
++    if name == 'fit_norm':
++        from dist_fit import fit_norm
++        return lambda: fit_norm(data, print_out=False)
++    if name == 'compare_dist':
++        from dist_fit import compare_dist
++        positive = rng.lognormal(1, .25, n).tolist()
++        def compare():
++            result = compare_dist(positive, print_out=False)
++            assert len(result) == 6, 'Six-model benchmark requires six successful fits'
++            return result
++        return compare
++    if name in ('two_way', 'grr'):
++        a = (np.arange(n) % p).astype(str).tolist()
++        b = ((np.arange(n) // p) % 3).astype(str).tolist()
++        if name == 'two_way':
++            from two_way_anova import two_way_anova
++            return lambda: two_way_anova(data, factor_listA=a, factor_listB=b)
++        from GRR import grr_master
++        return lambda: grr_master(y=data, part=a, op=b)
++    raise ValueError(name)
++
++
++def measure(fn):
++    fn()
++    samples = []
++    for _ in range(3):
++        gc.collect()
++        start = time.perf_counter()
++        fn()
++        samples.append(time.perf_counter() - start)
++    assert len(samples) == 3 and min(samples) > 0
++    return samples
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('hotspot', choices=['F01', 'F11', 'F02', 'F04', 'F06', 'F08'])
++    parser.add_argument('--code-dir', type=Path, default=ROOT / 'code')
++    parser.add_argument('--output', type=Path, required=True)
++    args = parser.parse_args()
++    sys.path.insert(0, str(args.code_dir.resolve()))
++    rows = []
++    for name, n, p in cases(args.hotspot):
++        samples = measure(make_case(name, n, p))
++        row = dict(name=name, n=n, p=p, samples=samples, median=statistics.median(samples))
++        rows.append(row)
++        print(f'{name} n={n} p={p}: {row["median"]:.6f}s', flush=True)
++        args.output.write_text(json.dumps(dict(
++            python=sys.executable, code_dir=str(args.code_dir.resolve()), seed=20261021,
++            source_hashes={f.name: hashlib.sha256(f.read_bytes()).hexdigest()
++                           for f in args.code_dir.glob('*.py')}, rows=rows), indent=2), encoding='utf-8')
++
++
++if __name__ == '__main__':
++    main()

@@ -1414,21 +1414,12 @@ class FindReplaceDialog(Frame):
         self.clear()
         if s == '':
             return
-        found = pd.DataFrame()
-        for col in df:
-            found[col] = df[col].str.contains(s, na=False, case=case)
+        found = df.apply(lambda col: col.str.contains(s, na=False, case=case))
+        found = found.fillna(False).astype(bool)
         #set the masked dataframe so that highlighted cells are shown on redraw
         table.highlighted = found
-        i=0
-        self.coords = []
-        for r,row in found.iterrows():
-            j=0
-            for col,val in row.iteritems():
-                if val is True:
-                    #print (r,col,val, i, j)
-                    self.coords.append((i,j))
-                j+=1
-            i+=1
+        rows, cols = np.nonzero(found.to_numpy())
+        self.coords = list(zip(rows.tolist(), cols.tolist()))
         self.current = 0
         return
 

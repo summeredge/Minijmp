@@ -1,0 +1,44 @@
+.............                                                            [100%]
+============================== warnings summary ===============================
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_distn_infrastructure.py:2046: RuntimeWarning: invalid value encountered in divide
+    x = np.asarray((x - loc)/scale, dtype=dtyp)
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_axis_nan_policy.py:586: UserWarning: scipy.stats.shapiro: Input data has range zero. The results may not be accurate.
+    res = hypotest_fun_out(*samples, **kwds)
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\statsmodels\stats\_adnorm.py:48: RuntimeWarning: invalid value encountered in divide
+    w = (y - xbar) / s
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_distn_infrastructure.py:2129: RuntimeWarning: invalid value encountered in divide
+    x = np.asarray((x - loc)/scale, dtype=dtyp)
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_continuous_distns.py:2757: RuntimeWarning: divide by zero encountered in power
+    return c*pow(x, c-1)*np.exp(-pow(x, c))
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  g16_before/dist_fit.py:70: RuntimeWarning: divide by zero encountered in log
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  g16_before/dist_fit.py:90: RuntimeWarning: invalid value encountered in scalar add
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\code\dist_fit.py:70: RuntimeWarning: divide by zero encountered in log
+    ad_stat = -n - np.sum((2 * np.arange(1, n + 1) - 1) * (np.log(cdf) + np.log(1 - cdf[::-1]))) / n
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\code\dist_fit.py:90: RuntimeWarning: invalid value encountered in scalar add
+    p = np.exp(1.2937 - 5.709 * ad_adjusted + 0.0186 * ad_adjusted**2)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+13 passed, 95 deselected, 15 warnings in 5.10s

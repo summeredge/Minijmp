@@ -1,0 +1,38 @@
+...............................                                          [100%]
+============================== warnings summary ===============================
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-0.0-0]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-1.0-10]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:108: RuntimeWarning: divide by zero encountered in reciprocal
+    t1 = np.reciprocal(npq_sqrt)
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-0.0-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:109: RuntimeWarning: invalid value encountered in divide
+    t2 = (2.0 * p) / npq_sqrt
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-0.0-0]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-1.0-10]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:114: RuntimeWarning: divide by zero encountered in reciprocal
+    t1 = np.reciprocal(npq)
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-1.0-10]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:109: RuntimeWarning: divide by zero encountered in divide
+    t2 = (2.0 * p) / npq_sqrt
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-1.0-10]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:110: RuntimeWarning: invalid value encountered in subtract
+    g1 = t1 - t2
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:115: RuntimeWarning: divide by zero encountered in divide
+    t2 = 6.0/n
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:116: RuntimeWarning: invalid value encountered in subtract
+    g2 = t1 - t2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+31 passed, 77 deselected, 13 warnings in 4.24s

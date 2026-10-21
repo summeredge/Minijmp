@@ -28,18 +28,15 @@ class findRepDialog(FindReplaceDialog):
         if s == '':
             return
         s = s if case else s.upper()
-        found = df.copy()
-        for y in range(df.shape[0]):
-            for x in range(df.shape[1]):
-                found.iloc[y, x] = False
-                if is_void(df.iloc[y, x]):
-                    continue
-                a = str(df.iloc[y, x]) if case else str(df.iloc[y, x]).upper()
-                found.iloc[y, x] = (a == s)
+        # Build a boolean mask rather than assigning booleans into string columns.
+        found = (df if case else df.apply(lambda col: col.str.upper())).eq(s)
+        found = found.fillna(False).astype(bool)
+        if not s.replace(' ', ''):
+            found[:] = False
 
         table.highlighted = found
-        self.coords = [(x, y) for y in range(df.shape[0])
-                       for x in range(df.shape[1]) if found.iloc[y, x]]
+        rows, cols = np.nonzero(found.to_numpy())
+        self.coords = list(zip(cols.tolist(), rows.tolist()))
         self.current = 0
         return
 

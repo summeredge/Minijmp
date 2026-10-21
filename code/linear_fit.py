@@ -81,7 +81,8 @@ def linear_fit(x, y, print_out=True, print_port=print):
 
     # Lack of fit
     # c is number of distinct x values
-    c = len(set(x))
+    x_levels = set(x)
+    c = len(x_levels)
     # DF Pure Error
     DFPE = n - c
     # DF lack of fit
@@ -91,10 +92,14 @@ def linear_fit(x, y, print_out=True, print_port=print):
 #     SSPE = Σ Σ (yij - y̅i)²
 # Where yij is the jth y value for the ith x value,
 # and y̅i is the mean y for the ith x value.
-    SSPE = sum([sum([(y[i] - stat.mean([y[i]
-                                        for i in range(n) if x[i] == uni_x]))**2
-                     for i in range(n) if x[i] == uni_x
-                     ]) for uni_x in set(x)])
+    groups = {xi: [] for xi in x_levels}
+    for xi, yi in zip(x, y):
+        # NaN never matched a level in the original equality-based grouping.
+        if xi == xi:
+            groups[xi].append(yi)
+    group_means = {xi: stat.mean(values) for xi, values in groups.items() if values}
+    SSPE = sum(sum((yi - group_means[xi])**2 for yi in groups[xi])
+               for xi in x_levels)
 
     SSLF = SSE - SSPE
 
@@ -117,10 +122,8 @@ def linear_fit(x, y, print_out=True, print_port=print):
 #     Calculate sum of squares for the saturated model (SSM):
 # SSM = Σni(ȳi - ȳ)², where ȳi is the mean of each group and
 # ni is the number of observations in each group.
-    SSM = sum([sum([(y_u - stat.mean([y[i]
-                                      for i in range(n) if x[i] == uni_x]))**2
-                    for i in range(n) if x[i] == uni_x
-                    ]) for uni_x in set(x)])
+    SSM = sum(sum((y_u - group_means[xi])**2 for _ in groups[xi])
+              for xi in x_levels)
 
     max_r_sq = SSM / SST
 

@@ -2,7 +2,7 @@
   {
     "file": "linear_fit.py",
     "function": "linear_fit",
-    "sha256": "5978159e8e36b50e5c6054b491f7948de45901f765b7d8f975d1bc5e4bf30743"
+    "sha256": "40cf548f3454861e6f841bbd0c91a721be4070c56d657821747732583f1e7d95"
   },
   {
     "file": "ortho_fit.py",
@@ -47,7 +47,7 @@
   {
     "file": "two_way_anova.py",
     "function": "two_way_anova",
-    "sha256": "84463ed6b292c8f240ee555baccd8cd5821aea0224db0eacc4f274a2e4784b70"
+    "sha256": "8f5b5d94425f9f7fd742f42da953da514b96ff1671df09a7adfc8e260c707648"
   },
   {
     "file": "chi_sq.py",
@@ -107,7 +107,7 @@
   {
     "file": "dist_fit.py",
     "function": "compare_dist",
-    "sha256": "e77604d12aa867d992dea44db173ff65654b3b5b0372613837eb923bd556a41b"
+    "sha256": "e22b67dc4a0f27fbaed95b26df0ad88f795201c6d898a6629bdce87606336c73"
   },
   {
     "file": "GRR.py",
@@ -117,12 +117,12 @@
   {
     "file": "GRR.py",
     "function": "grr_anova_EMP",
-    "sha256": "27fe673294463937abda9c28e132d09bc28d83d55cfe84f4f058f2a055712e41"
+    "sha256": "6cfb1274315082af8be660c1e22e8451df263ee22ade6d10d76a11553c8a56be"
   },
   {
     "file": "GRR.py",
     "function": "grr_anova_AIAG",
-    "sha256": "e545ec1eb7b4f68ace93b4bdad0a3ccc1acba331b1563ca12eac70062ce637f9"
+    "sha256": "39f60a6200a949e78b7c1b6bd556aa6dc327cb99df30c350ca6d7c08886e725a"
   },
   {
     "file": "chi2_dialog.py",
