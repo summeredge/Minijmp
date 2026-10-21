@@ -12,17 +12,17 @@
   {
     "file": "linear_plot.py",
     "function": "fit_plot",
-    "sha256": "9c86967571200a93d3c05bc0adc6a6e116b9663ec71a88aca1428f547d79cadd"
+    "sha256": "0ed8fbf805463e6b45df3522687b589302d2ca6d09e3e5cef2eeb13b861cb5f9"
   },
   {
     "file": "linear_plot.py",
     "function": "multi_fit",
-    "sha256": "c0d2e2567431e9c697c5b8d3ce7a741b2219d5b62836dc2c199483ddc080db6b"
+    "sha256": "f68851822147a80a6005c3c9aa8947d0ffbf792226e93af7386a8233fa38cef6"
   },
   {
     "file": "linear_plot.py",
     "function": "multi_fit_orig",
-    "sha256": "51e0f5c126d82c587cac180fc25895f21c749e1c7a6d0d0f863bdef8445cf843"
+    "sha256": "82794663b58ca1b4d1623f64cd0af74218258ea2dfff65e480ca5bf87f1eeac2"
   },
   {
     "file": "Residual.py",

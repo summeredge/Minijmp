@@ -1,0 +1,53 @@
+         198723 function calls (198669 primitive calls) in 3.463 seconds
+
+   Ordered by: cumulative time
+   List reduced from 124 to 45 due to restriction <45>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+6311/6257    3.361    0.001    3.362    0.001 {method 'call' of '_tkinter.tkapp' objects}
+        1    0.000    0.000    2.326    2.326 __init__.py:1370(update)
+       20    0.000    0.000    1.137    0.057 MiniJMP.py:364(print)
+       20    0.000    0.000    1.136    0.057 txt_output.py:110(add_table)
+       20    0.007    0.000    1.133    0.057 stat_table.py:157(__init__)
+     1750    0.007    0.000    1.052    0.001 __init__.py:2635(__init__)
+     1730    0.002    0.000    1.051    0.001 ttk.py:506(__init__)
+     1488    0.001    0.000    0.926    0.001 ttk.py:716(__init__)
+       18    0.002    0.000    0.159    0.009 stat_table.py:184(_setup_pages)
+       72    0.000    0.000    0.045    0.001 ttk.py:570(__init__)
+     3651    0.019    0.000    0.038    0.000 __init__.py:1543(_options)
+       78    0.000    0.000    0.037    0.000 ttk.py:699(__init__)
+     1526    0.002    0.000    0.032    0.000 __init__.py:2553(grid_configure)
+       18    0.001    0.000    0.027    0.001 stat_table.py:231(show_page)
+     1800    0.001    0.000    0.022    0.000 ttk.py:1321(insert)
+       36    0.000    0.000    0.020    0.001 ttk.py:1077(__init__)
+     2136    0.003    0.000    0.019    0.000 ttk.py:42(_format_optdict)
+    15762    0.011    0.000    0.018    0.000 __init__.py:62(_stringify)
+     2640    0.001    0.000    0.015    0.000 ttk.py:32(_format_optvalue)
+     1884    0.001    0.000    0.014    0.000 __init__.py:57(_join)
+     3374    0.003    0.000    0.014    0.000 {method 'join' of 'str' objects}
+       18    0.000    0.000    0.011    0.001 ttk.py:1130(__init__)
+       18    0.000    0.000    0.011    0.001 ttk.py:623(__init__)
+     5496    0.006    0.000    0.010    0.000 __init__.py:102(_cnfmerge)
+     1750    0.007    0.000    0.008    0.000 __init__.py:2605(_setup)
+       18    0.000    0.000    0.007    0.000 ttk.py:1157(__init__)
+       20    0.000    0.000    0.007    0.000 ttk.py:757(__init__)
+    31398    0.006    0.000    0.006    0.000 {method 'search' of 're.Pattern' objects}
+    55828    0.005    0.000    0.005    0.000 {built-in method builtins.isinstance}
+      336    0.000    0.000    0.004    0.000 ttk.py:272(_val_or_dict)
+       20    0.000    0.000    0.003    0.000 __init__.py:3358(__init__)
+      184    0.000    0.000    0.002    0.000 __init__.py:2455(pack_configure)
+     1750    0.002    0.000    0.002    0.000 __init__.py:2644(<listcomp>)
+       95    0.000    0.000    0.002    0.000 __init__.py:1701(_configure)
+      126    0.000    0.000    0.002    0.000 ttk.py:1207(column)
+       75    0.000    0.000    0.002    0.000 __init__.py:1714(configure)
+      365    0.001    0.000    0.002    0.000 __init__.py:1588(_register)
+       21    0.000    0.000    0.002    0.000 stat_table.py:13(configure_result_styles)
+       18    0.000    0.000    0.001    0.000 __init__.py:2005(yview_moveto)
+     7127    0.001    0.000    0.001    0.000 {method 'update' of 'dict' objects}
+      126    0.000    0.000    0.001    0.000 __init__.py:1411(bind)
+      126    0.000    0.000    0.001    0.000 __init__.py:1393(_bind)
+     5905    0.001    0.000    0.001    0.000 {built-in method _tkinter._flatten}
+       36    0.000    0.000    0.001    0.000 __init__.py:422(set)
+    10294    0.001    0.000    0.001    0.000 {method 'append' of 'list' objects}
+
+
