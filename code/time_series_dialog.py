@@ -140,14 +140,15 @@ class TimeSeriesDialog(SBDialog):
         self.save_axis_title()
         try:
             # Validate before replacing the user's previous plot window.
-            prepare_time_series(self.df, columns, time_column)
+            prepared = prepare_time_series(self.df, columns, time_column)
         except ValueError as exc:
             self.error(str(exc))
             return
         viewer = self.showPlotViewer()
         axes = time_series_plot(viewer.fig, self.df, columns, time_column,
                                 self.assignments, self.mode.get(), self.titlevar.get(),
-                                self.xlabel.get(), self.ylabels, self.show_legend.get(), self.grid.get())
+                                self.xlabel.get(), self.ylabels, self.show_legend.get(), self.grid.get(),
+                                prepared=prepared)
         viewer.ax = next(iter(axes.values()))
         viewer.toolbar = NavigationToolbar2Tk(viewer.canvas, viewer.ctrlfr)
         viewer.ctrlfr.pack_configure(before=viewer.m)
