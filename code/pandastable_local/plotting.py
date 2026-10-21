@@ -884,7 +884,7 @@ class PlotViewer(Frame):
         if not hasattr(self, 'data'):
             return
 
-        data = self.data
+        data = self.data.copy()
         data.columns = self.checkColumnNames(data.columns)
         #print (data)
         #get all options from the mpl options object
@@ -1180,7 +1180,9 @@ class PlotViewer(Frame):
         elif kind == 'bootstrap':
             axs = plotting.bootstrap_plot(data)
         elif kind == 'scatter_matrix':
-            axs = pd.scatter_matrix(data, ax=ax, **kwargs)
+            if not kwargs.get('marker'):
+                kwargs['marker'] = 'o'
+            axs = plotting.scatter_matrix(data, ax=ax, **kwargs)
         elif kind == 'hexbin':
             x = cols[0]
             y = cols[1]
@@ -1202,7 +1204,7 @@ class PlotViewer(Frame):
         elif kind == 'pie':
             if useindex == False:
                 x=data.columns[0]
-                data.set_index(x,inplace=True)
+                data = data.set_index(x)
             if kwargs['legend'] == True:
                 lbls=None
             else:
@@ -1223,7 +1225,7 @@ class PlotViewer(Frame):
             #line, bar and area plots
             if useindex == False:
                 x=data.columns[0]
-                data.set_index(x,inplace=True)
+                data = data.set_index(x)
             if len(data.columns) == 0:
                 msg = "Not enough data.\nIf 'use index' is off select at least 2 columns"
                 self.showWarning(msg)
@@ -1515,24 +1517,35 @@ class PlotViewer(Frame):
     def contourData(self, data):
         """Get data for contour plot"""
 
-        #from matplotlib.mlab import griddata
-        from scipy.interpolate import griddata
-        x = data.values[:,0]
-        y = data.values[:,1]
-        z = data.values[:,2]
-        xi = np.linspace(x.min(), x.max())
-        yi = np.linspace(y.min(), y.max())
-        zi = griddata((x, y), z, (xi[None,:], yi[:,None]), method='cubic')
-        return xi,yi,zi
+        if len(data.columns) < 3:
+            raise ValueError('等值线/曲面图需要 X、Y、Z 三列数值。')
+        X, Y, zi = self.meshData(*data.iloc[:, :3].to_numpy(dtype=float).T)
+        return X[0], Y[:, 0], zi
 
     def meshData(self, x,y,z):
         """Prepare 1D data for plotting in the form (x,y)->Z"""
 
         from scipy.interpolate import griddata
+        from scipy.spatial import QhullError
+        points = np.column_stack((x, y, z)).astype(float)
+        points = points[np.isfinite(points).all(axis=1)]
+        if len(points) < 3:
+            raise ValueError('等值线/曲面图至少需要三个完整的有限数值点。')
+        xy = points[:, :2]
+        if len(np.unique(xy, axis=0)) != len(xy):
+            raise ValueError('X、Y 坐标重复；请明确处理重复点后再绘图，不会自动聚合。')
+        if np.linalg.matrix_rank(xy - xy[0]) < 2:
+            raise ValueError('X、Y 点共线，无法生成等值线或曲面。')
+        x, y, z = points.T
         xi = np.linspace(x.min(), x.max())
         yi = np.linspace(y.min(), y.max())
         #zi = griddata(x, y, z, xi, yi, interp='linear')
-        zi = griddata((x, y), z, (xi[None,:], yi[:,None]), method='cubic')
+        try:
+            zi = griddata((x, y), z, (xi[None,:], yi[:,None]), method='cubic')
+        except (QhullError, ValueError) as error:
+            raise ValueError('插值失败，请检查 X、Y 的分布和数值尺度。') from error
+        if not np.isfinite(zi).any():
+            raise ValueError('插值未产生有效曲面，请检查输入数据。')
         X, Y = np.meshgrid(xi, yi)
         return X,Y,zi
 
@@ -1541,7 +1554,7 @@ class PlotViewer(Frame):
         if hasattr(ax,'azim'):
             azm=ax.azim
             ele=ax.elev
-            dst=ax.dist
+            dst=None
         else:
             return None,None,None
         return azm,ele,dst
@@ -1599,12 +1612,16 @@ class PlotViewer(Frame):
             w = ax.plot_wireframe(X, Y, zi, rstride=rstride, cstride=cstride,
                                   linewidth=lw)
         elif kind == 'surface':
-            X,Y,zi = self.meshData(x,y,z)
+            try:
+                X,Y,zi = self.meshData(x,y,z)
+            except ValueError as error:
+                self.showWarning(str(error))
+                return
             surf = ax.plot_surface(X, Y, zi, rstride=rstride, cstride=cstride,
                                    cmap=cmap, alpha=alpha,
                                    linewidth=lw)
             cb = self.fig.colorbar(surf, shrink=0.5, aspect=5)
-            surf.set_clim(vmin=zi.min(), vmax=zi.max())
+            surf.set_clim(vmin=np.nanmin(zi), vmax=np.nanmax(zi))
         if kwds['points'] == True:
             self.scatter3D(data, ax, kwds)
 
@@ -1612,7 +1629,6 @@ class PlotViewer(Frame):
         if azm!=None:
             self.ax.azim = azm
             self.ax.elev = ele
-            self.ax.dist = dst
         #handles, labels = self.ax.get_legend_handles_labels()
         #self.fig.legend(handles, labels)
         self.canvas.draw()
@@ -1649,7 +1665,7 @@ class PlotViewer(Frame):
                     c = cmap(float(i)/(l))
                 else:
                     c = color
-                h=ax.scatter(x, y, z, edgecolor='black', c=c, linewidth=lw,
+                h=ax.scatter(x, y, z, edgecolor='black', color=c, linewidth=lw,
                            alpha=alpha, marker=marker, s=ms)
                 handles.append(h)
             if pointlabels is not None:

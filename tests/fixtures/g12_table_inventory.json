@@ -8,7 +8,7 @@
     "bounds": "追踪显式导入/构造别名、本函数赋值、字符串包装、原生表方法及多行 ASCII/tab 字面量；静态审计不模拟任意跨函数动态对象流。所有现有字符串格式、join、原生 summary、DataFrame 文本与控制台数据路径已人工复核。"
   },
   "summary": {
-    "python_files": 73,
+    "python_files": 75,
     "files_with_production_sites": 23,
     "producer_scopes": 46,
     "constructor_calls": 114,
@@ -36,6 +36,7 @@
     "Residual.py",
     "anova_dialog.py",
     "basic_dialogs.py",
+    "basic_plot_dialog.py",
     "binomial.py",
     "blakerCI.py",
     "bonett.py",
@@ -95,6 +96,7 @@
     "sb_palette_dialog.py",
     "sbplot_dialog.py",
     "sheet_context.py",
+    "stat_plot_dialog.py",
     "stat_table.py",
     "t_test.py",
     "ti.py",
@@ -111,6 +113,7 @@
     "Residual.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "anova_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "basic_dialogs.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "basic_plot_dialog.py": "第一阶段独立绘图参数对话框，负责数据选择、验证和图形展示；不产生独立统计报告表格，无统计表格构造或表格输出事件，无需纳入 producers。",
     "binomial.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "blakerCI.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "bonett.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
@@ -178,7 +181,8 @@
     "two_way_anova.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "txt_output.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "utilities.py": "存在已逐函数分类的表格生产位置；见 producers。",
-    "worksheets.py": "工作表生命周期及工程/导入管理；无独立统计表构造或报告输出。"
+    "worksheets.py": "工作表生命周期及工程/导入管理；无独立统计表构造或报告输出。",
+    "stat_plot_dialog.py": "第二阶段统计图形参数、数据验证与展示；茎叶输出为文本统计图而非逻辑统计报告表，不使用表格载体；无表格生产位置，保持 82 张逻辑统计报告表。"
   },
   "producers": {
     "GRR.py::_grr_tables": {
@@ -2413,6 +2417,13 @@
       ],
       "classification": "statistical",
       "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "stat_plot_dialog.py::StatPlotDialog.apply": {
+      "ports": [
+        "self.app.print"
+      ],
+      "classification": "plain_text_or_forwarding",
+      "review": "茎叶为文本统计图，输出叶单位、样本数、茎和叶，非统计报告表，不新增逻辑报告表。"
     }
   },
   "exceptions": [

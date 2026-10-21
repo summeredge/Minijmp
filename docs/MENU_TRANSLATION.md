@@ -166,11 +166,26 @@
 | Box Plot Multiple Y | 多变量箱线图 |
 | Box Plot w/ Groups | 分组箱线图 |
 | Count Plot w/ Grps | 分组计数图 |
+| Bar Plot | 条形图 |
+| Pie Plot | 饼图 |
+| Area Plot | 区域图 |
+| Dot Plot | 点图 |
+| Scatter Matrix | 矩阵图 |
+| Contour Plot | 等值线图 |
+| 3D Scatter | 三维散点图 |
+| 3D Surface | 三维曲面图 |
 | Line Plot w/ Grps | 线条图 |
 | Time Series Plot | 时间序列图 |
 | Dot Plot w/ Groups | 散点图 |
 | Display Probability | 概率图 |
 | Prob. Plot Compare | 概率图对比 |
+| Bubble Plot | 气泡图 |
+| Empirical CDF | 经验累积分布函数图 |
+| Individual Value Plot | 单值图 |
+| Interval Plot | 区间图 |
+| Marginal Plot | 边际图 |
+| Stem-and-Leaf Plot | 茎叶图 |
+| Sample Probability Plot | 样本概率图 |
 
 ## 调试（Debug）
 
