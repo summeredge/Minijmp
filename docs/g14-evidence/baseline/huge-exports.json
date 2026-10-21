@@ -1,0 +1,34 @@
+{
+  "scenario": "huge",
+  "shape": [
+    50000,
+    7
+  ],
+  "tables": 1,
+  "phase": "exports",
+  "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+  "source_dir": "C:\\Users\\shaoy\\Documents\\Minijmp\\docs\\g14-evidence\\before",
+  "memory_imported_mib": {
+    "WorkingSetSize": 186.6953125,
+    "PeakWorkingSetSize": 186.6953125,
+    "PagefileUsage": 1373.51171875
+  },
+  "stage": "complete",
+  "build_seconds": 3.565429599984782,
+  "memory_built_mib": {
+    "WorkingSetSize": 271.1171875,
+    "PeakWorkingSetSize": 279.12890625,
+    "PagefileUsage": 1458.1640625
+  },
+  "txt_write_seconds": 0.024081299983663484,
+  "excel_seconds": 50.32569329999387,
+  "memory_export_mib": {
+    "WorkingSetSize": 385.24609375,
+    "PeakWorkingSetSize": 414.95703125,
+    "PagefileUsage": 1571.24609375
+  },
+  "status": "ok",
+  "error": "",
+  "process_seconds": 56.965562400000636,
+  "timeout_seconds": 90
+}

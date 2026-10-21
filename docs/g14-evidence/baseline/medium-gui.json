@@ -1,0 +1,34 @@
+{
+  "scenario": "medium",
+  "shape": [
+    1000,
+    7
+  ],
+  "tables": 1,
+  "phase": "gui",
+  "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+  "worker_pid": 28440,
+  "source_dir": "C:\\Users\\shaoy\\Documents\\Minijmp\\docs\\g14-evidence\\before",
+  "memory_imported_mib": {
+    "WorkingSetSize": 185.58203125,
+    "PeakWorkingSetSize": 185.58203125,
+    "PagefileUsage": 1372.89453125
+  },
+  "stage": "rendering",
+  "build_seconds": 0.05288040000596084,
+  "memory_built_mib": {
+    "WorkingSetSize": 188.67578125,
+    "PeakWorkingSetSize": 188.67578125,
+    "PagefileUsage": 1375.53515625
+  },
+  "memory_before_gui_mib": {
+    "WorkingSetSize": 198.01171875,
+    "PeakWorkingSetSize": 198.01171875,
+    "PagefileUsage": 1379.09765625
+  },
+  "status": "timeout",
+  "error": "进程超过 20s，已终止；未完成的指标不作推算。",
+  "process_seconds": 23.956262099993182,
+  "timeout_seconds": 20,
+  "sampled_process_peak_rss_mib": 225.95703125
+}

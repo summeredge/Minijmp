@@ -1,0 +1,36 @@
+{
+  "scenario": "wide",
+  "shape": [
+    100,
+    100
+  ],
+  "tables": 1,
+  "phase": "exports",
+  "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+  "worker_pid": 42640,
+  "source_dir": "C:\\Users\\shaoy\\Documents\\Minijmp\\code",
+  "memory_imported_mib": {
+    "WorkingSetSize": 185.79296875,
+    "PeakWorkingSetSize": 185.79296875,
+    "PagefileUsage": 1373.0625
+  },
+  "stage": "complete",
+  "build_seconds": 0.04445960000157356,
+  "memory_built_mib": {
+    "WorkingSetSize": 188.77734375,
+    "PeakWorkingSetSize": 188.77734375,
+    "PagefileUsage": 1376.15234375
+  },
+  "txt_write_seconds": 0.0005896999791730195,
+  "excel_seconds": 0.37346219999017194,
+  "memory_export_mib": {
+    "WorkingSetSize": 200.140625,
+    "PeakWorkingSetSize": 200.140625,
+    "PagefileUsage": 1387.0390625
+  },
+  "status": "ok",
+  "error": "",
+  "process_seconds": 2.546011099999305,
+  "timeout_seconds": 90,
+  "sampled_process_peak_rss_mib": 200.15234375
+}

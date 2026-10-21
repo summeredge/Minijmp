@@ -1,0 +1,2 @@
+config path C:\Users\shaoy\Documents\Minijmp\user_config
+Native dialog, 1000x750 and 760x560 viewer screenshots and PNG export generated.

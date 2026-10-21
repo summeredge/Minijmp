@@ -156,6 +156,7 @@
 | Box Plot w/ Groups | 分组箱线图 |
 | Count Plot w/ Grps | 分组计数图 |
 | Line Plot w/ Grps | 分组线图 |
+| Time Series Plot | 时间序列图 |
 | Dot Plot w/ Groups | 分组点图 |
 | Display Probability | 概率图 |
 | Prob. Plot Compare | 概率图对比 |

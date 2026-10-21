@@ -216,6 +216,7 @@ class Minijmp(Minijmp_pre):
             '16分组箱线图': {'cmd': self.multiBox},
             '18分组计数图': {'cmd': self.countPlot},
             '20分组线图': {'cmd': self.linePlot},
+            '21时间序列图': {'cmd': self.timeSeriesPlot},
             '22分组点图': {'cmd': self.dotPlot},
             '30sep': '',
             '32概率图': {'cmd': self.distDPPlot},
@@ -368,7 +369,7 @@ class Minijmp(Minijmp_pre):
             self.tOut.add_table(txt, end)
         else:
             self.tOut.add_txt(txt + end)
-        self.tOut.to_end()
+        self.tOut.to_end(defer=True)
         return
 
     def linear_fit(self):
@@ -680,6 +681,14 @@ class Minijmp(Minijmp_pre):
             self.table, app=self,
             df=self.table.model.df,
             title='Line Plot with Groups')
+        return
+
+    def timeSeriesPlot(self):
+        from time_series_dialog import TimeSeriesDialog
+        _ = TimeSeriesDialog(
+            self.table, app=self,
+            df=self.table.model.df,
+            title='时间序列图')
         return
 
     def dotPlot(self):

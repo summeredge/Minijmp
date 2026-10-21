@@ -8,7 +8,7 @@
     "bounds": "追踪显式导入/构造别名、本函数赋值、字符串包装、原生表方法及多行 ASCII/tab 字面量；静态审计不模拟任意跨函数动态对象流。所有现有字符串格式、join、原生 summary、DataFrame 文本与控制台数据路径已人工复核。"
   },
   "summary": {
-    "python_files": 69,
+    "python_files": 71,
     "files_with_production_sites": 23,
     "producer_scopes": 46,
     "constructor_calls": 114,
@@ -97,6 +97,8 @@
     "stat_table.py",
     "t_test.py",
     "ti.py",
+    "time_series.py",
+    "time_series_dialog.py",
     "two_way_anova.py",
     "txt_output.py",
     "utilities.py"
@@ -168,6 +170,8 @@
     "stat_table.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "t_test.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "ti.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "time_series.py": "G13 原始时间序列校验与 Matplotlib 绘图，无统计表构造、聚合或报告输出。",
+    "time_series_dialog.py": "G13 变量选择和坐标轴配置界面；复用 Dialogs.error 展示错误，不新增统计表生产位置。",
     "two_way_anova.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "txt_output.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "utilities.py": "存在已逐函数分类的表格生产位置；见 producers。"

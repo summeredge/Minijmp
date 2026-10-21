@@ -1,0 +1,16 @@
+.....F............F..................................................... [ 81%]
+................                                                         [100%]
+================================== FAILURES ===================================
+_______________ test_pages_keyboard_spinbox_scroll_and_no_loss ________________
+tests\test_g14_rendering.py:94: in test_pages_keyboard_spinbox_scroll_and_no_loss
+    assert block.page == 2
+E   assert 11 == 2
+E    +  where 11 = <stat_table.TableBlock object .!toplevel6.!frame.!frame.!text.!tableblock>.page
+_________________ test_missing_wide_long_negative_and_formula _________________
+tests\test_g7_tables.py:105: in test_missing_wide_long_negative_and_formula
+    assert viewer.T.xview()[1] < 1
+E   assert 1.0 < 1
+=========================== short test summary info ===========================
+FAILED tests/test_g14_rendering.py::test_pages_keyboard_spinbox_scroll_and_no_loss
+FAILED tests/test_g7_tables.py::test_missing_wide_long_negative_and_formula
+2 failed, 86 passed in 37.04s
