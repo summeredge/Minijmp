@@ -86,6 +86,8 @@ def test_menu_inventory_and_dialog_ids_match_the_source():
                     and key.value[:2].isdigit() and isinstance(value, ast.Dict)):
                 command = next((v for k, v in zip(value.keys, value.values)
                                 if isinstance(k, ast.Constant) and k.value == "cmd"), None)
+                if isinstance(command, ast.Lambda) and isinstance(command.body, ast.Call):
+                    command = command.body.func
                 if isinstance(command, ast.Attribute) and isinstance(command.value, ast.Name) and command.value.id == "self":
                     menu_callbacks[command.attr] = key.value[2:]
     class_sources = "\n".join(
@@ -113,8 +115,8 @@ def test_menu_inventory_and_dialog_ids_match_the_source():
             callback = topic["entry"].split(".", 1)[1].split("(", 1)[0]
             assert callback in menu_callbacks, topic["id"]
             assert any("\u4e00" <= char <= "\u9fff" for char in menu_callbacks[callback]), topic["id"]
-    assert len(seen_classes - {"PIImportDialog"}) == 47
-    assert len(seen_classes) == 48
+    assert len(seen_classes - {"PIImportDialog"}) == 48
+    assert len(seen_classes) == 49
 
 
 def test_generated_search_index_matches_every_nonempty_help_section():
@@ -259,7 +261,7 @@ def test_help_paths_stay_relative_after_project_relocation(monkeypatch, tmp_path
 
 def test_pi_import_topic_is_unique_searchable_and_available_offline(monkeypatch):
     topics = help_topics()
-    assert len(topics) == 62
+    assert len(topics) == 77
     assert len({topic['id'] for topic in topics}) == len(topics)
     topic, = [item for item in topics if item['id'] == 'files.pi_import']
     assert topic['entry'] == 'MiniJMP.import_pi_data'

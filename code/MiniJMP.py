@@ -217,10 +217,25 @@ class Minijmp(Worksheets, Minijmp_pre):
             '15多变量箱线图': {'cmd': self.singleBox},
             '16分组箱线图': {'cmd': self.multiBox},
             '18分组计数图': {'cmd': self.countPlot},
+            '17条形图': {'cmd': lambda: self.basicPlot('bar')},
+            '19饼图': {'cmd': lambda: self.basicPlot('pie')},
             '20线条图': {'cmd': self.linePlot},
             '21时间序列图': {'cmd': self.timeSeriesPlot},
             '22散点图': {'cmd': self.dotPlot},
+            '23区域图': {'cmd': lambda: self.basicPlot('area')},
+            '24点图': {'cmd': lambda: self.basicPlot('dotplot')},
+            '25矩阵图': {'cmd': lambda: self.basicPlot('scatter_matrix')},
+            '26等值线图': {'cmd': lambda: self.basicPlot('contour')},
+            '27三维散点图': {'cmd': lambda: self.basicPlot('scatter3d')},
+            '28三维曲面图': {'cmd': lambda: self.basicPlot('surface')},
             '30sep': '',
+            '34气泡图': {'cmd': lambda: self.statPlot('bubble')},
+            '35经验累积分布函数图': {'cmd': lambda: self.statPlot('ecdf')},
+            '36单值图': {'cmd': lambda: self.statPlot('individual')},
+            '37区间图': {'cmd': lambda: self.statPlot('interval')},
+            '38边际图': {'cmd': lambda: self.statPlot('marginal')},
+            '39茎叶图': {'cmd': lambda: self.statPlot('stem')},
+            '40样本概率图': {'cmd': lambda: self.statPlot('probability')},
             '32概率图': {'cmd': self.distDPPlot},
             '33概率图对比': {'cmd': self.dist2XPlot},
             '02sep': '', '50sep': '', '60sep': ''}
@@ -617,6 +632,14 @@ class Minijmp(Worksheets, Minijmp_pre):
             df=self.table.model.df,
             title='Count Plot with Groups')
         return
+
+    def statPlot(self, kind):
+        from stat_plot_dialog import StatPlotDialog
+        StatPlotDialog(self.table, app=self, df=self.table.model.df, kind=kind)
+
+    def basicPlot(self, kind):
+        from basic_plot_dialog import BasicPlotDialog
+        BasicPlotDialog(self.table, app=self, df=self.table.model.df, kind=kind)
 
     def linePlot(self):
         _ = linePlotDialog(

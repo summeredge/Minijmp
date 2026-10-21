@@ -26,11 +26,26 @@
       <li><a href="#plots.boxplot_multiple">多变量箱线图</a></li>
       <li><a href="#plots.boxplot_grouped">分组箱线图</a></li>
       <li><a href="#plots.count_grouped">分组计数图</a></li>
-      <li><a href="#plots.line_grouped">分组线图</a></li>
+      <li><a href="#plots.line_grouped">线条图</a></li>
       <li><a href="#plots.time_series">时间序列图</a></li>
-      <li><a href="#plots.dot_grouped">分组点图</a></li>
+      <li><a href="#plots.dot_grouped">散点图</a></li>
       <li><a href="#plots.display_probability">概率图</a></li>
       <li><a href="#plots.compare_probability">概率图对比</a></li>
+      <li><a href="#plots.basic">条形图</a></li>
+      <li><a href="#plots.pie">饼图</a></li>
+      <li><a href="#plots.area">区域图</a></li>
+      <li><a href="#plots.dot">点图</a></li>
+      <li><a href="#plots.matrix">矩阵图</a></li>
+      <li><a href="#plots.contour">等值线图</a></li>
+      <li><a href="#plots.scatter3d">三维散点图</a></li>
+      <li><a href="#plots.surface">三维曲面图</a></li>
+      <li><a href="#plots.bubble">气泡图</a></li>
+      <li><a href="#plots.ecdf">经验累积分布函数图</a></li>
+      <li><a href="#plots.individual">单值图</a></li>
+      <li><a href="#plots.interval">区间图</a></li>
+      <li><a href="#plots.marginal">边际图</a></li>
+      <li><a href="#plots.stem">茎叶图</a></li>
+      <li><a href="#plots.probability">样本概率图</a></li>
     </ul>
   </nav>
 
@@ -119,7 +134,7 @@
   </section>
 
   <section id="plots.line_grouped">
-    <h2>分组线图</h2>
+    <h2>线条图</h2>
     <p><strong>用途：</strong>按 X 值展示 Y 值变化；可按组绘制多条线，或比较多个 Y 列。</p>
     <p><strong>数据：</strong>长表使用 Y Data Col.、必选 X Data Col. 和可选 Group Col.；宽表可在 Y Data in its own column 列表中选多个 Y 列，列表选择覆盖上方 Y/Group 输入，X Data Col. 仍需指定。</p>
     <p><strong>参数：</strong>X、Y 轴标签，Y 轴 Min/Max，水平参考线及标签，网格、图例、边距和调色板。X 轴 Min/Max 虽显示在弹窗中，但当前源码未将其传给绘图函数；分组列或宽表原列名用来区分线条。</p>
@@ -136,7 +151,7 @@
   </section>
 
   <section id="plots.dot_grouped">
-    <h2>分组点图</h2>
+    <h2>散点图</h2>
     <p><strong>用途：</strong>以点展示 X 与 Y 的观测关系，并可按组或多个 Y 列区分数据。</p>
     <p><strong>数据：</strong>长表使用 Y Data Col.、必选 X Data Col. 和可选 Group Col.；宽表可在 Y Data in its own column 列表中选多个 Y 列，列表选择覆盖上方 Y/Group 输入，X Data Col. 仍需指定。</p>
     <p><strong>参数：</strong>X、Y 轴标签，Y 轴 Min/Max，水平参考线及标签，网格、图例、边距和调色板。X 轴 Min/Max 虽显示在弹窗中，但当前源码未将其传给绘图函数。</p>
@@ -161,6 +176,28 @@
     <p><strong>注意：</strong>虽然菜单名称为“概率图对比”，此实现是两种分布的理论曲线叠加，不是概率图，也不执行拟合优度或两分布差异检验。</p>
     <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/graphs/graphs-in-minitab/" target="_blank" rel="noopener noreferrer">Minitab 图形类型概览</a>（仅作分布图的概念参考）。</p>
   </section>
+  <section id="plots.basic">
+    <h2>条形图</h2>
+    <p>从“图形”菜单分别打开所需图形，选择数值列后点“绘图”。可重复调整，使用原有查看器的保存按钮输出图片。原工作表不会被修改。</p>
+    <p><strong>条形图：</strong>每一行的数值直接决定条形高度，可选水平条形；不是类别频数统计。饼图选择一列非负数值，合计须大于零。条形、饼图和区域图可选择标签列，默认使用行索引；重复标签仍按独立行绘制，不自动求和或取平均。区域图按工作表行顺序叠加非堆叠区域。</p>
+    <p><strong>点图：</strong>每个所选列为一组，显示全部有限观测值及箱线摘要，水平方向轻微抖动以区分重叠点；不要求 X-Y 配对。原“散点图”仍使用 X-Y 成对数据。矩阵图至少选择两列，每列至少有两个不同数值，对角线为直方图，非对角线为所有变量对的散点关系。</p>
+    <p><strong>等值线图、三维散点图、三维曲面图：</strong>分别指定不同的 X、Y、Z 列。等值线和曲面沿用三次插值，至少三个非共线的完整有限点；拒绝重复 X-Y 坐标及插值失败，不会静默聚合。凸包外为空白，不外推。三维散点不要求点形成曲面。</p>
+    <p><strong>缺失数据：</strong>数值列必须能够转换为数字。空值和无穷值不参与绘图；除点图按列保留有限值外，其他图形按所选数值列的完整行绘制。请先清洗数值列中的非数值文本；无有效数据会提示错误。</p>
+  </section>
+  <section id="plots.pie"><h2>饼图</h2><p>图形 → 饼图。选择一列非负数值，可指定标签列；每行数值决定扇区比例，合计须大于零。</p></section>
+  <section id="plots.area"><h2>区域图</h2><p>图形 → 区域图。选择一列或多列数值，按工作表行顺序绘制非堆叠区域，可指定标签列。</p></section>
+  <section id="plots.dot"><h2>点图</h2><p>图形 → 点图。每个数值列独立成组，绘制全部有限观测值和箱线摘要；横向抖动不表示第二个变量。</p></section>
+  <section id="plots.matrix"><h2>矩阵图</h2><p>图形 → 矩阵图。选择至少两列，各列至少两个不同数值；显示完整变量对关系和对角线直方图。</p></section>
+  <section id="plots.contour"><h2>等值线图</h2><p>图形 → 等值线图。指定 X、Y、Z 数值列，至少三个非共线完整点；重复 X-Y 坐标需自行处理，凸包外不外推。</p></section>
+  <section id="plots.scatter3d"><h2>三维散点图</h2><p>图形 → 三维散点图。指定不同的 X、Y、Z 数值列，每行对应一个三维观测点。</p></section>
+  <section id="plots.surface"><h2>三维曲面图</h2><p>图形 → 三维曲面图。指定 X、Y、Z 列，沿用三次插值；点不足、共线、重复坐标或插值失败时提示错误。</p></section>
+<section id="plots.bubble"><h2>气泡图</h2><p>入口：图形 → 气泡图。</p><p>X、Y、面积三列完整配对，删除缺失及无穷值；可选分类缺失行排除。面积必须非负且至少一个正值，零值不可见；面积按原值/最大值×500 pt²缩放，图内显示比例；分类按颜色显示。</p><p>不修改工作表。非数值内容报错，缺失和无穷值排除，不填补或插值。无效输入保留已有图形。图形可设置标题、轴标签、网格和水平参考值，并通过现有查看器保存 PNG、SVG、PDF；茎叶图使用文本窗口。分类按照首次出现顺序显示。</p></section>
+<section id="plots.ecdf"><h2>经验累积分布函数图</h2><p>入口：图形 → 经验累积分布函数图。</p><p>逐列及逐分类使用有限观测，F(t)=观测值不大于 t 的个数/样本数。阶梯形式，重复值累计跳跃，纵轴固定为 0～1；不拟合、不插值。</p><p>不修改工作表。非数值内容报错，缺失和无穷值排除，不填补或插值。无效输入保留已有图形。图形可设置标题、轴标签、网格和水平参考值，并通过现有查看器保存 PNG、SVG、PDF；茎叶图使用文本窗口。分类按照首次出现顺序显示。</p></section>
+<section id="plots.individual"><h2>单值图</h2><p>入口：图形 → 单值图。</p><p>各数值列及可选分类分别显示全部原始有限观测，水平抖动不改变纵坐标。不聚合、不默认显示均值，与 X-Y 散点图及旧点图区分。</p><p>不修改工作表。非数值内容报错，缺失和无穷值排除，不填补或插值。无效输入保留已有图形。图形可设置标题、轴标签、网格和水平参考值，并通过现有查看器保存 PNG、SVG、PDF；茎叶图使用文本窗口。分类按照首次出现顺序显示。</p></section>
+<section id="plots.interval"><h2>区间图</h2><p>入口：图形 → 区间图。</p><p>各列及分类按原始有限观测计算均值与 Student-t 双侧置信区间：均值 ± t((1+C)/2,n−1)×s/√n，s 为无偏样本标准差。默认 C=95%，独立同分布、正态总体假设下为精确区间。每组至少两个观测；常数列区间宽度为零。此入口不同于单因子方差分析的区间定义。</p><p>不修改工作表。非数值内容报错，缺失和无穷值排除，不填补或插值。无效输入保留已有图形。图形可设置标题、轴标签、网格和水平参考值，并通过现有查看器保存 PNG、SVG、PDF；茎叶图使用文本窗口。分类按照首次出现顺序显示。</p></section>
+<section id="plots.marginal"><h2>边际图</h2><p>入口：图形 → 边际图。</p><p>X、Y 使用同一批完整有限配对样本，中心为散点图，上方 X 直方图、右侧 Y 直方图；可设置 1～200 个分箱。三轴共享对应数值尺度并整体导出。</p><p>不修改工作表。非数值内容报错，缺失和无穷值排除，不填补或插值。无效输入保留已有图形。图形可设置标题、轴标签、网格和水平参考值，并通过现有查看器保存 PNG、SVG、PDF；茎叶图使用文本窗口。分类按照首次出现顺序显示。</p></section>
+<section id="plots.stem"><h2>茎叶图</h2><p>入口：图形 → 茎叶图。</p><p>选择一列有限观测，按数值排序，重复值保留。叶单位为 10^指数，自动按最大绝对值选择，支持 -308～308 的整数指数。直接读取原始十进制值，不先转二进制浮点数；朝零截断，不四舍五入；误差小于一个叶单位，负零茎保留符号。输出说明单位、N 和读法；细分范围超过 1000 个叶单位时提示增大单位。复用文本统计结果窗口，可复制或保存文本；不生成 PNG 图形。</p><p>不修改工作表。非数值内容报错，缺失和无穷值排除，不填补或插值。无效输入保留已有图形。图形可设置标题、轴标签、网格和水平参考值，并通过现有查看器保存 PNG、SVG、PDF；茎叶图使用文本窗口。分类按照首次出现顺序显示。</p></section>
+<section id="plots.probability"><h2>样本概率图</h2><p>入口：图形 → 样本概率图。</p><p>正态样本概率图（QQ 形式）：排序后的有限观测对 Filliben 标准正态理论分位数；参考直线由最小二乘拟合，至少两个观测，常数样本为水平线。不报告拟合优度 p 值，也不将相关系数当作 p 值。现有“概率图”和“概率图对比”继续用于理论分布展示。</p><p>不修改工作表。非数值内容报错，缺失和无穷值排除，不填补或插值。无效输入保留已有图形。图形可设置标题、轴标签、网格和水平参考值，并通过现有查看器保存 PNG、SVG、PDF；茎叶图使用文本窗口。分类按照首次出现顺序显示。</p></section>
 </main>
 </body>
 </html>

@@ -46,67 +46,75 @@ class Minijmp_pre(DataExplore):
         return txt
 
     def about(self):
-        """About dialog"""
+        """显示二次开发信息、原作者署名和开源许可。"""
 
-        abwin = Toplevel()
-        x, y, w, h = getParentGeometry(self.main)
-        abwin.geometry('+%d+%d' % (x + w / 2 - 200, y + h / 2 - 200))
+        abwin = Toplevel(self.main)
         abwin.title('关于 MiniJMP')
-        abwin.transient(self)
-        abwin.grab_set()
+        abwin.transient(self.main)
         abwin.resizable(width=False, height=False)
         abwin.configure(background=self.bg)
+
+        content = tk.Frame(abwin, bg=self.bg, padx=22, pady=14)
+        content.pack(fill=tk.BOTH, expand=True)
+
+        # 保留原项目图标，并缩小显示以避免“关于”窗口过高。
         logo = PhotoImage(file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "icon.png"))
-        label = Label(abwin, image=logo, anchor=CENTER)
-        label.image = logo
-        label.grid(row=0, column=0, sticky='ew', padx=4, pady=4)
-        pandasver = pd.__version__
-        pythonver = platform.python_version()
-        mplver = matplotlib.__version__
-        scipyver = scipy.__version__
-        smver = statsmodels.__version__
-        ptver = prettytable.__version__
-        sbver = seaborn.__version__
-        tkver = get_tkver()
+        small_logo = logo.subsample(2, 2)
+        logo_label = Label(content, image=small_logo, bg=self.bg, anchor=CENTER)
+        logo_label.image = small_logo
+        logo_label.pack(pady=(0, 6))
 
-        text = 'Minijmp\n'\
-            + 'version 0.1\n'\
-            + 'Copyright (C) G.Du 2024-\n'\
-            + '本版本基于原作者 G.Du 发布的开源软件 Minijmp 进行二次开发。\n'\
-            + '保留原作者署名及版权声明，并继续遵循 GNU GPL 开源许可。\n'
-        tmp = Label(abwin, text=text, anchor=CENTER, justify=CENTER)
-        tmp.grid(row=1, column=0, sticky='news', pady=2, padx=4)
-        text = 'This program is free software; you can redistribute it and/or\n'\
-            + 'modify it under the terms of the GNU General Public License\n'\
-            + 'as published by the Free Software Foundation; either version 3\n'\
-            + 'of the License, or (at your option) any later version.\n'\
-            + """
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied
-warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE. See the GNU General Public License for more details.
+        Label(content, text='MiniJMP', font=('Segoe UI', 14, 'bold'),
+              bg=self.bg, anchor=CENTER).pack()
+        Label(content, text='版本 0.1', font=('Segoe UI', 10),
+              bg=self.bg, anchor=CENTER).pack(pady=(2, 0))
+        Label(content, text='Copyright (C) G.Du 2024-',
+              font=('Segoe UI', 10), bg=self.bg, anchor=CENTER).pack(pady=(2, 3))
 
-You should have received a copy of the GNU General Public
-License along with this program. If not, write to
+        def add_section(title, text):
+            Label(content, text=title, font=('Segoe UI', 10, 'bold'),
+                  bg=self.bg, anchor='w', justify=LEFT).pack(fill=tk.X, pady=(12, 4))
+            Label(content, text=text, font=('Segoe UI', 10),
+                  bg=self.bg, anchor='w', justify=LEFT,
+                  wraplength=520).pack(fill=tk.X)
 
-   The Free Software Foundation, Inc.
-   51 Franklin Street, Fifth Floor
-   Boston, MA 02110-1335  USA
-""" \
-            + '\nUsing: \n'\
-            + 'DataExplore 0.13 D. Farrell\n' \
-            + 'Python v%s, Tk v%s\n' % (pythonver, tkver)\
-            + 'pandas v%s, matplotlib v%s\n' % (pandasver, mplver) \
-            + 'Scipy v%s, Statsmodels v%s\n' % (scipyver, smver)\
-            + 'PrettyTable v%s, Seaborn v%s\n' % (ptver, sbver)\
-            + """
-Calibration:
-All stats calucaltion give either same results to JMP 17, Minitab
-20, or both. (Correct, they do not always agree with each other.)
-"""
+        add_section('二次开发说明',
+                    '本软件基于原作者 G.Du 发布的 Minijmp 开源项目进行二次开发。\n'
+                    '本版本包含后续功能修改与改进，与原作者发布的原始版本有所区别。'
+                    '更新日期：2026年10月。\n'
+                    '基础组件 DataExplore 0.13：Copyright (C) Damien Farrell 2014-')
 
-        # for line in text:
-        tmp = Label(abwin, text=text, anchor='w', justify=LEFT)
-        tmp.grid(row=2, column=0, sticky='w', pady=2, padx=4)
+        add_section('开发工具',
+                    '本版本以 Python 为主要开发语言，使用 Tkinter、pandas、NumPy、SciPy、'
+                    'Matplotlib 等工具进行界面开发、数据处理、统计分析和绘图。'
+                    '部分代码分析、功能实现、调试及文档整理借助 ChatGPT、Codex 等 AI 辅助工具完成。\n'
+                    'AI 工具用于辅助开发，相关修改由项目维护者审查、整合并决定是否采用。')
 
+        add_section('开源许可与免责声明',
+                    '本软件依据 GNU GPL v3 或更高版本授权。您可以按照该许可证的条款'
+                    '使用、复制、修改和再分发本软件。\n'
+                    '本软件按“现状”提供，不提供任何明示或默示担保，包括适销性'
+                    '或特定用途适用性的担保。\n'
+                    '完整许可条款请查看软件根目录中的 LICENSE 文件，或访问以下官方页面。')
+
+        import webbrowser
+        license_link = Label(content, text='GNU GPL v3 官方许可文本',
+                             font=('Segoe UI', 10, 'underline'),
+                             fg='#1764b0', bg=self.bg, cursor='hand2', anchor='w')
+        license_link.pack(fill=tk.X, pady=(5, 0))
+        license_link.bind('<Button-1>',
+                          lambda event: webbrowser.open('https://www.gnu.org/licenses/gpl-3.0.html'))
+
+        tk.Button(content, text='关闭', width=10,
+                  command=abwin.destroy).pack(anchor='e', pady=(12, 0))
+
+        abwin.update_idletasks()
+        x, y, w, h = getParentGeometry(self.main)
+        width = max(560, abwin.winfo_reqwidth())
+        height = abwin.winfo_reqheight()
+        abwin.geometry('%dx%d+%d+%d' % (
+            width, height,
+            max(0, int(x + (w - width) / 2)),
+            max(0, int(y + (h - height) / 2))))
+        abwin.grab_set()
         return

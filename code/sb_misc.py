@@ -11,7 +11,7 @@ def interval_plot(xlabel=None, y_max=None, y_min=None,
                   ax_margin=0.1, ax=None, ylabel=None,
                   grid=False, title=None,
                   show_y_ref_label=False,
-                  y_ref=None, **kwargs):
+                  y_ref=None, errorbar=('ci', 95), **kwargs):
 
     def custom_error(x):
         return CIs[hash_combined(x)]
@@ -20,7 +20,7 @@ def interval_plot(xlabel=None, y_max=None, y_min=None,
         fig, ax = plt.subplots(layout="constrained")
 
     sb.pointplot(ax=ax, zorder=3, capsize=.1,
-                 errorbar=custom_error if CIs is not None else ('ci', 95),
+                 errorbar=custom_error if CIs is not None else errorbar,
                  **kwargs)
     if y_max is not None:
         ax.set_ylim(top=y_max)
