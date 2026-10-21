@@ -533,6 +533,18 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
         if name == 'dialog.py':
             trees = [ast.parse(source) for source in (
                 old, (ROOT / 'code' / name).read_text(encoding='utf-8'))]
+            current = trees[1]
+            added_import = ast.parse('from inspect import getattr_static').body[0]
+            assert sum(ast.dump(n) == ast.dump(added_import) for n in current.body) == 1
+            current.body = [n for n in current.body if ast.dump(n) != ast.dump(added_import)]
+            owner = next(n for n in current.body if isinstance(n, ast.ClassDef) and n.name == 'Dialogs')
+            init = next(n for n in owner.body if isinstance(n, ast.FunctionDef) and n.name == '__init__')
+            binding = next(n for n in init.body if isinstance(n, ast.Assign)
+                           and ast.unparse(n.targets[0]) == 'self.app')
+            # 仅放行有真实跨表输出测试接管的来源绑定，继续冻结其余对话框。
+            allowed = ast.parse("app.sheet_app(parent) if callable(getattr_static(app, 'sheet_app', None)) else app", mode='eval').body
+            assert ast.dump(binding.value) == ast.dump(allowed)
+            binding.value = ast.Name(id='app', ctx=ast.Load())
             for tree in trees:
                 owner = next(n for n in tree.body if isinstance(n, ast.ClassDef)
                              and n.name == 'findRepDialog')

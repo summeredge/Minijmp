@@ -5,6 +5,7 @@ from tkinter import Frame, TOP, LEFT, X, BOTH, Listbox, Scrollbar, VERTICAL, N, 
 from tkinter import ttk
 import tkinter as tk
 import numpy as np
+from inspect import getattr_static
 from prettytable import PrettyTable as PT
 #  import pandas as pd
 ############### Own Modules ############
@@ -246,7 +247,9 @@ class Dialogs(BaseDialog):
     def __init__(self, parent=None, df=None, title='', app=None):
 
         BaseDialog.__init__(self, parent, df, DIALOG_TITLES.get(title, title))
-        self.app = app
+        # Mock dynamically invents attributes; only use an explicitly defined hook.
+        self.app = (app.sheet_app(parent)
+                    if callable(getattr_static(app, 'sheet_app', None)) else app)
         m = ttk.Frame(self.main)
         m.pack(side=TOP)
 

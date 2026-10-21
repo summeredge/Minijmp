@@ -9,6 +9,7 @@
 | 英文原文 | 中文译名 |
 | --- | --- |
 | File | 文件 |
+| Worksheets | 工作表 |
 | Edit | 编辑 |
 | View | 视图 |
 | Data | 数据 |
@@ -32,7 +33,17 @@
 | Import PI Data | 导入 PI 数据 |
 | Import Excel | 导入 Excel |
 | Export CSV | 导出 CSV |
+| Export Current Sheet | 导出当前表（单表 / Excel） |
 | Quit | 退出 |
+
+## 工作表（Worksheets）
+
+| 英文原文 | 中文译名 |
+| --- | --- |
+| Add Sheet | 新增工作表 |
+| Copy Sheet | 复制工作表 |
+| Rename Sheet | 重命名工作表 |
+| Delete Sheet | 删除工作表 |
 
 ## 编辑（Edit）
 
@@ -155,9 +166,9 @@
 | Box Plot Multiple Y | 多变量箱线图 |
 | Box Plot w/ Groups | 分组箱线图 |
 | Count Plot w/ Grps | 分组计数图 |
-| Line Plot w/ Grps | 分组线图 |
+| Line Plot w/ Grps | 线条图 |
 | Time Series Plot | 时间序列图 |
-| Dot Plot w/ Groups | 分组点图 |
+| Dot Plot w/ Groups | 散点图 |
 | Display Probability | 概率图 |
 | Prob. Plot Compare | 概率图对比 |
 
@@ -172,7 +183,6 @@
 | 英文原文 | 中文译名 |
 | --- | --- |
 | Help documentation | 帮助文档 |
-| Online Help | 在线帮助 |
 | View Error Log | 查看错误日志 |
 | About | 关于 |
 

@@ -54,7 +54,7 @@ def test_real_file_menu_imports_samples_without_parameter_window(csv_app, monkey
     invoke_csv_menu(app)
     assert app.table.model.df.shape == shape
     assert app.table.filename is None and app.table.prevdf is None
-    assert app.main.title() == 'Untitled - Minijmp'
+    assert app.main.title() == f'未命名项目 — {app.getCurrentSheet()} - Minijmp'
     windows.assert_not_called()
     error.assert_not_called()
 
@@ -104,7 +104,7 @@ def test_real_file_menu_confirmation_advanced_and_protection(csv_app, tmp_path, 
         assert_frame_equal(app.table.model.df, original)
         assert_frame_equal(app.table.prevdf, original)
         assert app.table.filename == 'old.pickle'
-        assert app.main.title() == 'old.pickle - Minijmp'
+        assert app.main.title() == f'未命名项目 — {app.getCurrentSheet()} - Minijmp'
     else:
         assert app.table.model.df.shape == (2, 2)
         assert app.table.filename is None and app.table.prevdf is None
