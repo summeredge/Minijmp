@@ -1,0 +1,21 @@
+{
+  "multi_fit-before-axes": 10,
+  "multi_fit-after-axes": 7,
+  "multi_fit_orig-before-axes": 9,
+  "multi_fit_orig-after-axes": 6,
+  "png_limit": "PNG 预计高度 36,216 像素，超过安全上限 32,768 像素。请使用 Excel 导出完整数据。",
+  "report": {
+    "rows": 1003,
+    "txt_exact": true,
+    "copy_exact": true,
+    "excel_all_rows_checked": true,
+    "close_cleanup": true
+  },
+  "time_series": {
+    "points_per_curve": 1000,
+    "axes": 3,
+    "stable_sort_and_nan": true
+  },
+  "vendor_curves": 3,
+  "tk_callback_errors": []
+}

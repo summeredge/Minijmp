@@ -1,0 +1,478 @@
+[
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\anova_dialog.py",
+    "Hash": "009AB5E41000FA75C74D1DC1DC08665ADEA02CD6425DFFEE64BB35FB73CFA15D"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\basic_dialogs.py",
+    "Hash": "88530F380273A7E50BCBDA88C5084384857109E02D848103AD8CB271C6A9D0D5"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\binomial.py",
+    "Hash": "A6AAB6318550079A65261FB324B1882B6F0787D38D5C0C8067DFD1DBE396C98A"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\blakerCI.py",
+    "Hash": "CDA9F16F5EA61445FE154C25A177F4D920D55DDF51144351526758D99DD78F43"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\bonett.py",
+    "Hash": "35AC7EB458224B1B6B8ECB5183F50896734351B006C9751E7A2DDBF5A2A21716"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\chart_style.py",
+    "Hash": "497DCDD5E292390337B3F6C91A3E65052CCD1136D3B76C4C62260910B4441373"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\chi_sq.py",
+    "Hash": "DD1DA0BA942AE37DB2F611B5BD0ACC4240860673B4F06AB6B68F813AF0314348"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\chi2_dialog.py",
+    "Hash": "909627F4396E8BAF00DBCB1B116CE1AB65CF43475EA43CF5BEC21AE814AD6805"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\cont_plot.py",
+    "Hash": "F74DEC339F4D9A883C70BFF8F6D0705B151B407B8D11D6B7D7023726EB22D8B2"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\control_chart.py",
+    "Hash": "F19E6F24981BE8D41D49A2FDF83300FAC4254C88C9238969B143606D822B7AF6"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\cpk_plot.py",
+    "Hash": "5BBE74DD87614FEABA2B87F08D2CD3C01509C74D69BB556A812BD9D80978DCCF"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\cpk.py",
+    "Hash": "F774121126EA858B7FFA9959D6F536E005559EB6B6792B353E48907585BB3495"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\ctrl_chart_const.py",
+    "Hash": "7ACD851F6123D5E24048DDA10C6F56C33A4304D465AFD2271E1792641D57313B"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\ctrlchart_dialog.py",
+    "Hash": "C28CCF208F5CFC6B85206023A023D7675F4859BF1DBDEA6EF693D6BBFB9B5BDF"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\describe.py",
+    "Hash": "710AB0B75930752AA72160DA52DF926AB017CD494D1B19F52D0198797AB69852"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\df_combine.py",
+    "Hash": "8B14898FE94E09EFDECD669342424529A5FA12365EE83E43C52005984D52D0B3"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\dialog.py",
+    "Hash": "38F171855E80C792B58FB2DF69AAA354194506BE774B8EAEC6EF32FD853B9B8E"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\dist_fit.py",
+    "Hash": "9D17468BE476558D7E59091D956EE1EAA977A15A28D723973147CC0843EF5725"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\dist_plot_dialog.py",
+    "Hash": "6F4AD10C1A4B62911F785067D09414AD0B08D98943F5FE2232A367F2C6A37FDD"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\fit_dialog.py",
+    "Hash": "1EC9010DC5B88D78AEB9AD670DB7C5AD8F8C72E5A7593D696C626784EA09494E"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\freeze.py",
+    "Hash": "AF32D7887DD8918F2962E4E4829DA45EAB64FB0FBC8331EAAE82E0F6474E67E4"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\grr_plot.py",
+    "Hash": "2A292CBD7E30C05E1CD5521459E3504BADA86309A4B1525C8CC245DD2C935A8E"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\GRR.py",
+    "Hash": "499735D9CF9DC7E9DEC41C3D5A836D67ED6088B9211580036A8B9B17B2763F20"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\help_link.py",
+    "Hash": "9EC4DAD9CC02C74445E6D983E5F6B5E3D37BAD3E13FE67D28A895DED6EFFA4F8"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\linear_fit.py",
+    "Hash": "E2955D5BD3997859C726930B75B399E1008325F91B01CD91F55B02F73A1CE8BC"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\linear_plot.py",
+    "Hash": "6CE30D5B8D38182E82D4C9C441A2D85DCBE8068C5ED73EDF2E83C445FB093A9A"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\MiniJMP.py",
+    "Hash": "F5D58A4FF87DD61A2400BE402FA27C5445B929B5D237B24D607867EB260B8198"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\modified_app.py",
+    "Hash": "D942ABEF1129F45C4479127821C1413E464E5B8779ACEF4DC623E5A28A502F28"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\modified_table.py",
+    "Hash": "B773389F3A8521930EBBB8BC17B281404853A1DD20D2EBCD3C3E23E19A210A18"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\nonpara_cor.py",
+    "Hash": "9F03CDC49E4AEF1DE6B00FBF4C9CE5F4B148D0D703D279B4A029DA46B4A0D549"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\one_way_ANOVA.py",
+    "Hash": "15FA65912EEB77D8BEB606839BE867B0ADDCB23B14EFFF1BFCCDE61E88A07F68"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\ortho_fit.py",
+    "Hash": "D70D429E35FA68B5B0BD5E0C50099976DEFF8D8DC4709843259672BE8081C811"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pi_import.py",
+    "Hash": "2EA19259704E84668AAA04D311A1F6E7810A65B100446E966A1A594FDE9C9460"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pi_reader.py",
+    "Hash": "4B6FF53EA728368D25DCD820301F5DA7F6E79F0D8D54E2CFD74F5347ED0C93E1"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\plots.py",
+    "Hash": "5BE59A0515DB421815E685C35958571E98FF4A1F1B7B85E6067E41333D08637E"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\poisson.py",
+    "Hash": "AED0C7F9931FEBE9757B2B2D17B567D32C8D9A3ED0F37F212B9E0F4E30233089"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\proportion_test.py",
+    "Hash": "2C4CC7848FCF41BCA35248B7E500D8884DE90E6515E5AE888ABB4C42795F1C49"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\qc_dialog.py",
+    "Hash": "86BCA55C960D412DE5540A1EB757B96F547CDBBC293D0A3361E3973FE71108F8"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\Residual.py",
+    "Hash": "A5F514B7A3FFF71FE623FB97777C8E51FCB3BE75742D6EE7E81E778E7CF1FDBC"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\sample_test_dialog.py",
+    "Hash": "1FB757D10DD6D3B7DCF0D96DCB2ED1448B727E02B1E3303ED98486D7AEC9C188"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\sb_box_dialog.py",
+    "Hash": "38123F3AEFD0F29EDC8EF1E9174850AA5E0DE0F2B58A81364ECE9143A98D1C69"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\sb_boxplot.py",
+    "Hash": "F930845B0B7E0D7102F3CDE826A2DD1B6BC5C3B84647DEEA2ABE2524F2C69435"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\sb_hist_dialog.py",
+    "Hash": "DD968BDAA88E3601138F0FD5311ADFCA5DD2E5FCC700BA3951B851FE0C4A00D0"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\sb_histo.py",
+    "Hash": "D4BEBB8950AC16F3EE4F2F0234E4F439B0C8220EF52FD664A9509EFB85A58EC8"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\sb_misc_dialog.py",
+    "Hash": "47607B776B1D18449CA892236AB60AF4F1F03B75F411054A4BDA1FCA54E7D0BC"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\sb_misc.py",
+    "Hash": "A9103DBB3433440D63EC4369C7805FF8F3CA9A3B79D3DF217863BA9D74FFAD80"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\sb_palette_dialog.py",
+    "Hash": "0A1A41524A81DC668A6787D120EF08608DD3C03884A076C06FB769C68A3FF306"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\sbplot_dialog.py",
+    "Hash": "83B68C95B23B2CCBA308A1197654DD5E6E78C0CDA63808728D623FBC1ADF7FD4"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\stat_table.py",
+    "Hash": "1FEB1B79F86BA3CE8B9D4630A2B0F3EA19D251EC62F8DB5B1DCA808945E2D602"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\t_test.py",
+    "Hash": "D99E72D9332509800EDA0CC452718B170E504B2B84F445E119B0BDD56D39BB43"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\ti.py",
+    "Hash": "87091D35A4FF35D8F4FA97EAE7CE66EF6C2EB8C12762F77BC43019E1F119FA0A"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\time_series_dialog.py",
+    "Hash": "C495C54C67CAD9B761878BE1738A8FC1BE972A36C9B707DA793CCC8DF209CEC3"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\time_series.py",
+    "Hash": "93F589DD0C8C84DEF75CBC4D41DE0BBB81B4F5498FCF80C2B2A58C3D65A772A8"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\two_way_anova.py",
+    "Hash": "216A12EB83C8B5007618C65BBCB0E4723A47FA002B110FF011593FB6CBC31406"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\txt_output.py",
+    "Hash": "E2AB1688E355F6665AE9A380DE3FCC510433E629A40B11CCD75D20288FED93C3"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\utilities.py",
+    "Hash": "D041E29B86333F252EB134632AB9E06CBED782DB18DBF582F79BDD07359A2D11"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\app.py",
+    "Hash": "E278B4E52BBFB78F67AEF4578D0A4E14A66331FABA82E9CD84EAB58DE3848173"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\config.py",
+    "Hash": "5828D50CFB53811C48131192AE5EFDA426ED65DDD47F2FD09A44F2A4C5858927"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\core_orig.py",
+    "Hash": "E95BAF5C6E12BE0B60DBCC8DFE8FF4D5877B54CC9312136977B68D0B805078BF"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\core.py",
+    "Hash": "1594B5DC090A92E494922F88B39AA92D7BD04416CCD1919E69CE60525241B9E7"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\csv_import.py",
+    "Hash": "4514B2EB11C6B6EE6BAA04F8A6A98D8E5934B8BAC92D3717884A0EB6C46609D4"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\data_orig.py",
+    "Hash": "1CA01AADD5F8780102F943041C9EF6614D2FA0B05ED1B3B70678B5ABB6568BCC"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\data.py",
+    "Hash": "757F0284923EB2E9C1350C2623E4405ADC8DF73DD628E3178453ED6438F481D9"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\dialogs.py",
+    "Hash": "8BC8398112D9D82FA0E039B0C60B859F4B9FA7CAB43BF84C4740FC6EDC7900F1"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\handlers.py",
+    "Hash": "2C7F4B09C8C66F5C9532A6F512AD306B735CA13A47B527FCDFC39E2EEB27C0AD"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\headers.py",
+    "Hash": "E29EC8E0725A3DA79CCE1F7D80BC5E6E28E76E3548EDD02F030F6D84BB8517F5"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\images.py",
+    "Hash": "797BD59015C5ADE2FE0057D138C82EA5466572DE9B188BE2A805D88E360C76A6"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\plotting.py",
+    "Hash": "B45498E4FDF15CA445937DC3AB228938B04F3AD8D506AD7DF03EBAD6008A946A"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\plugin.py",
+    "Hash": "ACCCB41D2A9E22451464FF719EDC1C1EED6FAC2F08C8999C1BDB9C038C92D1BD"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\stats.py",
+    "Hash": "F5C58EFC80DBE634846214C87FA0867274D72B2BB1243FFCB747AFE352D6BBCC"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\code\\pandastable_local\\util.py",
+    "Hash": "069458086F416BEEE15041DE7312A5C38F8644B6B0F04805FA081627632A2E0D"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\conftest.py",
+    "Hash": "585CCCA2FA41492589D8F7DE68CB46D3FC389BD8B56125BCED0F5E1A15327619"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_csv_import.py",
+    "Hash": "A250022F952EB519A41B33EC25FB8BC8230CE70652A8B6F8CD4B8F48E3FB9CB9"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_dialog_translation.py",
+    "Hash": "F919F7C8FF52100526B2E17F284C187FDA3E1DF037FE73EB387DBD07A381A9F8"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_file_io.py",
+    "Hash": "1F6B36A2B0BE80774DED72FA4658EF74F53E064A077F839B9387C6048E3CE174"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g1_debug_output.py",
+    "Hash": "252ABBE23526F6277EE3FE79D10C95C21E2EBB819E1E4BD17B39BB0A73ECB1FD"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g1_statistics_output.py",
+    "Hash": "BB5AE0A85BBA46B5C82E25395675ED5E09714B44536ACC0A838D73E6077F03B5"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g1_text_output.py",
+    "Hash": "B499BC4E0628327F499F40C614FD4AF199CF6EDC74066324FEAFD1BAF69DF9A6"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g10_tables.py",
+    "Hash": "E0205A22EBF14EC9FD8DBE1B184C07E6C2790809381EDC276EA998E290103CB2"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g11_quality_tables.py",
+    "Hash": "8E8F3351B0F26462B6CFE3250B4F862FC2D79B1306A3BA4672AC26B405FA8CC9"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g12_inventory.py",
+    "Hash": "E7DF7FE542F05B2B3F5348CC379AE3FAA843010A7FAA3D8ADD610991DAB29773"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g12_tables.py",
+    "Hash": "25D7DE9655E88C11CBAC208C4E9F6CD1C72682DB611E209B7F996853BDAA16B3"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g13_time_series.py",
+    "Hash": "2A083D134EF0E9006A99918097F8B40AC19E68C407D31A2A8760977FF9BAB121"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g14_rendering.py",
+    "Hash": "2E78FA469D6F6D19F7AC732E70F3A5BAFB95BA104B93491EB027071D253B8CE7"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g16_statistics.py",
+    "Hash": "0B66A9B6A01C937A8D972B658CB1DF7488C93134161FCE101E6717507985B2BE"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g17_csv.py",
+    "Hash": "0EB50E008450A1F512F0CACAE1F7671A72D7CAB20E275FFB8E3319A7DE94D2B2"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g17_data_processing.py",
+    "Hash": "73F5E9F6FFDA716F0A999DB56912EB9FDF6F04076512603CED84CAA53469CDA8"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g18_performance.py",
+    "Hash": "01C4DCDDBD3B40CFFB92E08CA453204877ADE35238D32A23A06886AEAD590412"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g2_basic_reports.py",
+    "Hash": "70C7D9197C4AD7503E1137FC7796264EE43BA261C9C6315D68A46FA075030340"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g2_hypothesis_reports.py",
+    "Hash": "4D2DC6B8AE392D9FCEC91E93D6CF0B324850EDA1A49B6215D79EA4C6CD435E9A"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g3_anova_reports.py",
+    "Hash": "72EE49D0730F05281F65BA68D045CD42D5EEB44F9C9EFB069EB1B9CA979D20FB"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g3_chi_square_reports.py",
+    "Hash": "E2DA2F7F939AB7B678BA758129BAEC950DEDE7D00A3104037C95B44B0BD703E7"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g3_computation_contracts.py",
+    "Hash": "0AE6955B89608847AF26C327460BA5274C1CD388E162E00F257BD265440E7797"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g3_distribution_reports.py",
+    "Hash": "3D229B72D76B444EDFEDCFBE0C51EE9ED5CB48DC70FE0233C1CEBD8BE65520CF"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g3_regression_reports.py",
+    "Hash": "FE6D67A61FCE22FFF6911B88D1405465A21186E8827D90BBD678A44C7D3F45AC"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g3_report_display.py",
+    "Hash": "BE94D1967BD41F4E3624B9E7832D226C2CDA9BAE75757EF52C6B40620A46783C"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g4_quality_reports.py",
+    "Hash": "6D0AFAC21C12C0B675F7C905F8389B89B9972E9810B3DDB45AE5F81D7CC24A5E"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g5_spc_reports.py",
+    "Hash": "D689B6A3C73BF781FA5F6D0F7300E937D7EC508E6BB6793ABEC4C1A89C6A9EC3"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g6_chart_presentation.py",
+    "Hash": "5B5FFE419D8DEFB4C6BAC6BD03B4E6B63E327D8B9AAE330ECB75C52A1DEFBC1E"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g6_quality_charts.py",
+    "Hash": "2BFAD0B4094DCFB10863462069EC7775103C9EDF0B8C74943CEA78047390B22F"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g7_tables.py",
+    "Hash": "AB55751049CF4961B52CCD9FFC3DCA8757CA4384EB4067FCBB22B8FE11DB415E"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g8_tables.py",
+    "Hash": "AD0F73306D214D6AEAD2745F84F47B71C2E87D4CAF0A1C27352D9AA722BD1B18"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_g9_tables.py",
+    "Hash": "BD9736E2A85AE10F18604D3E684AEC486975ED83D187590886A24485557C55D0"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_help_center.py",
+    "Hash": "43602610FA97E33838B03B088D3D51F2A61BA05918CC662B1611276D91D08788"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_menu_localization.py",
+    "Hash": "ABEDDB93B62C68A24707381E996A65FD3714DFF7187D9D028CF5DA681F6F2984"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_p1_p2_statistical_fixes.py",
+    "Hash": "C64F6D8F0AA4549F190E07F72720E58C11F3B73C272ED89DAD11ED72358AD601"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_pi_import.py",
+    "Hash": "A23F117B41332504EFDF82B4114F57720280E9FC372395C15AA12CC92C4AE05E"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_pi_reader.py",
+    "Hash": "BE175B0F7D27889A79ADD18D3C13C51EB94C28F8B1D2275EA55C93BD3AB9E5C7"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_result_background.py",
+    "Hash": "FF734A6CA871E1A73F49E60350991733127DF0130B2ACD7C5336E9A23AFD9986"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_startup.py",
+    "Hash": "CCD007AC70EC81CAE92FA926E133E279D30B5948D413A0BCB1A7259246744D30"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_statistical_edges.py",
+    "Hash": "1F8AF2FABA8C5D7D2313609DB3022B8BFD7CA1D1F258FF2BD98BBD83A1D62C2E"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_statistics_regressions.py",
+    "Hash": "EB9FA382899BCDEE0042F1B915352079F8325923158C39675413876798FC0375"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_supplemental_stability.py",
+    "Hash": "DD1E4F9D341EA3AC6ED88EC59119B4FBF26153A430EA8698D77E830BA4023CE6"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tests\\test_table_regressions.py",
+    "Hash": "0FEEA218372F4A305ABE30EEF1B9A519F139E058276746B5F7572519A87B9CBA"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tools\\benchmark_data_processing.py",
+    "Hash": "8EC9D3EC92A064240F735BF17C70716B4E0E7846ADE61110B7DEE41F11A8117A"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tools\\benchmark_g18.py",
+    "Hash": "2CA78EC0755114DBCA96FD04C13C6EA1AD8F56F282E5A21B9BB136ED75AB0922"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tools\\benchmark_report_rendering.py",
+    "Hash": "8CC610DE12A466BC21074C1522D725EFF4AD4A90B0EC08958FA36EE388D136AD"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tools\\benchmark_statistics.py",
+    "Hash": "17E5604E0FA09EFC86E383DE9C8D047EB0FF806D08D1B605B35F805237A0463D"
+  },
+  {
+    "Path": "C:\\Users\\shaoy\\Documents\\Minijmp\\tools\\build_help_index.py",
+    "Hash": "625915BB3D859CC4A246EB71B79765971B9F9FF8DC95F99ED99B6B5EBEEF7812"
+  }
+]

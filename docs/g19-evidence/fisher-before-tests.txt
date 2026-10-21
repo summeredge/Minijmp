@@ -1,0 +1,26 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+______________ test_fisher_underflow_search_stays_in_support[1] _______________
+tests\test_g19_integration.py:27: in test_fisher_underflow_search_stays_in_support
+    result = proportion_test.prop_2sample(
+code\proportion_test.py:53: in prop_2sample
+    while rv.pmf(y) >= observed_probability:
+          ^^^^^^^^^
+tests\test_g19_integration.py:20: in checked_pmf
+    assert lower <= value <= upper, 'Fisher search left its finite support'
+E   AssertionError: Fisher search left its finite support
+E   assert 10001 <= np.int64(10000)
+_____________ test_fisher_underflow_search_stays_in_support[9999] _____________
+tests\test_g19_integration.py:27: in test_fisher_underflow_search_stays_in_support
+    result = proportion_test.prop_2sample(
+code\proportion_test.py:58: in prop_2sample
+    while rv.pmf(y) >= observed_probability:
+          ^^^^^^^^^
+tests\test_g19_integration.py:20: in checked_pmf
+    assert lower <= value <= upper, 'Fisher search left its finite support'
+E   AssertionError: Fisher search left its finite support
+E   assert np.int64(0) <= -1
+=========================== short test summary info ===========================
+FAILED tests/test_g19_integration.py::test_fisher_underflow_search_stays_in_support[1]
+FAILED tests/test_g19_integration.py::test_fisher_underflow_search_stays_in_support[9999]
+2 failed in 2.92s

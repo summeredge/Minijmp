@@ -1,0 +1,69 @@
+{
+  "scenario": {
+    "name": "anova_pairs",
+    "n": 10000,
+    "p": 50,
+    "timeout": 180,
+    "id": "anova_pairs-n10000-p50",
+    "profile": false
+  },
+  "pid": 34052,
+  "rows": [
+    {
+      "phase": "compute",
+      "repeat": 0,
+      "wall_seconds": 0.27520189998904243,
+      "cpu_seconds": 0.265625,
+      "rss_before_mib": 154.59765625,
+      "rss_after_mib": 154.7890625,
+      "process_peak_rss_mib": 154.7890625,
+      "private_commit_mib": 126.375,
+      "status": "ok",
+      "warmup": true
+    },
+    {
+      "phase": "compute",
+      "repeat": 1,
+      "wall_seconds": 0.26254559998051263,
+      "cpu_seconds": 0.265625,
+      "rss_before_mib": 154.7890625,
+      "rss_after_mib": 154.7890625,
+      "process_peak_rss_mib": 154.7890625,
+      "private_commit_mib": 126.375,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "compute",
+      "repeat": 2,
+      "wall_seconds": 0.2741546000179369,
+      "cpu_seconds": 0.265625,
+      "rss_before_mib": 154.79296875,
+      "rss_after_mib": 154.79296875,
+      "process_peak_rss_mib": 154.79296875,
+      "private_commit_mib": 126.375,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "compute",
+      "repeat": 3,
+      "wall_seconds": 0.27433020001626574,
+      "cpu_seconds": 0.28125,
+      "rss_before_mib": 154.79296875,
+      "rss_after_mib": 154.79296875,
+      "process_peak_rss_mib": 154.79296875,
+      "private_commit_mib": 126.375,
+      "status": "ok",
+      "warmup": false
+    }
+  ],
+  "stage": "complete",
+  "memory_scope": "cumulative_process_peak_including_imports_warmup_inputs",
+  "repeat": 3,
+  "status": "ok",
+  "exit_code": 0,
+  "process_seconds": 3.0338603999989573,
+  "timeout_seconds": 180,
+  "job_memory_limit_mib": 1536
+}

@@ -1,0 +1,163 @@
+........................................................................ [ 23%]
+........................................................................ [ 46%]
+.......................F................................................ [ 70%]
+........................................................................ [ 93%]
+....................                                                     [100%]
+================================== FAILURES ===================================
+___ test_no_string_table_ports_and_computations_unchanged[proportion_test] ____
+tests\test_g9_tables.py:216: in test_no_string_table_ports_and_computations_unchanged
+    assert computation_hash(module) == baseline['computation'][module]
+E   AssertionError: assert 'f0b977c2073f...d8c63f3d3f51c' == 'd518bcf39a8b...5485c962fd516'
+E     
+E     - d518bcf39a8bf0f7ad69c95ee0fd638f1e8b6f9a9ece61955425485c962fd516
+E     + f0b977c2073f606e3f7e40b214ab5dc08613a516aff45332a1fd8c63f3d3f51c
+============================== warnings summary ===============================
+tests/test_g16_statistics.py::test_f01_numerical_and_report[x1-y1]
+tests/test_g16_statistics.py::test_f01_numerical_and_report[x1-y1]
+tests/test_g16_statistics.py::test_f01_numerical_and_report[x1-y1]
+tests/test_g16_statistics.py::test_f01_degenerate_errors[x3-y3]
+tests/test_g16_statistics.py::test_f01_degenerate_errors[x3-y3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_axis_nan_policy.py:586: UserWarning: scipy.stats.shapiro: Input data has range zero. The results may not be accurate.
+    res = hypotest_fun_out(*samples, **kwds)
+
+tests/test_g16_statistics.py::test_f01_numerical_and_report[x1-y1]
+tests/test_g16_statistics.py::test_f01_numerical_and_report[x1-y1]
+tests/test_g16_statistics.py::test_f01_numerical_and_report[x1-y1]
+tests/test_g16_statistics.py::test_f01_degenerate_errors[x2-y2]
+tests/test_g16_statistics.py::test_f01_degenerate_errors[x2-y2]
+tests/test_g16_statistics.py::test_f01_degenerate_errors[x3-y3]
+tests/test_g16_statistics.py::test_f01_degenerate_errors[x3-y3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\statsmodels\stats\_adnorm.py:48: RuntimeWarning: invalid value encountered in divide
+    w = (y - xbar) / s
+
+tests/test_g16_statistics.py::test_f01_degenerate_errors[x2-y2]
+tests/test_g16_statistics.py::test_f01_degenerate_errors[x2-y2]
+  C:\Users\shaoy\Documents\Minijmp\code\utilities.py:482: SmallSampleWarning: One or more sample arguments is too small; all returned values will be NaN. See documentation for sample size requirements.
+    s1, p1 = shapiro(data)
+
+tests/test_g16_statistics.py::test_f11_degenerate[groups3]
+  g16_before/chi_sq.py:275: RuntimeWarning: invalid value encountered in scalar divide
+
+tests/test_g16_statistics.py::test_f11_degenerate[groups3]
+  g16_before/chi_sq.py:93: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+
+tests/test_g16_statistics.py::test_f11_degenerate[groups3]
+  g16_before/chi_sq.py:94: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+
+tests/test_g16_statistics.py::test_f11_degenerate[groups3]
+  C:\Users\shaoy\Documents\Minijmp\code\chi_sq.py:280: RuntimeWarning: invalid value encountered in scalar divide
+    F = (SSB / (k - 1)) / (SSW / (N - k))
+
+tests/test_g16_statistics.py::test_f11_degenerate[groups3]
+  C:\Users\shaoy\Documents\Minijmp\code\chi_sq.py:93: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+    k1 = kurtosis(l1, fisher=True, bias=False)
+
+tests/test_g16_statistics.py::test_f11_degenerate[groups3]
+  C:\Users\shaoy\Documents\Minijmp\code\chi_sq.py:94: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+    k2 = kurtosis(l2, fisher=True, bias=False)
+
+tests/test_g16_statistics.py::test_f02_scalar_ties_constants_small_and_nonfinite[x6-y6]
+  g16_before/nonpara_cor.py:98: RuntimeWarning: invalid value encountered in scalar divide
+
+tests/test_g16_statistics.py::test_f02_scalar_ties_constants_small_and_nonfinite[x6-y6]
+  C:\Users\shaoy\Documents\Minijmp\code\nonpara_cor.py:100: RuntimeWarning: invalid value encountered in scalar divide
+    D = 30 * ((N - 2) * (N - 3) * D1 + D2 - 2 * (N - 2) * D3) / (N * (N - 1) * (N - 2) * (N - 3) * (N - 4))
+
+tests/test_g16_statistics.py::test_f02_matrix_values_reports_and_unordered_pairs[spearman]
+  C:\Users\shaoy\Documents\Minijmp\code\nonpara_cor.py:21: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+    spearman_result = stats.spearmanr(x, y)
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-0.0-0]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-1.0-10]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:108: RuntimeWarning: divide by zero encountered in reciprocal
+    t1 = np.reciprocal(npq_sqrt)
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-0.0-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:109: RuntimeWarning: invalid value encountered in divide
+    t2 = (2.0 * p) / npq_sqrt
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-0.0-0]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-1.0-10]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:114: RuntimeWarning: divide by zero encountered in reciprocal
+    t1 = np.reciprocal(npq)
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-1.0-10]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:109: RuntimeWarning: divide by zero encountered in divide
+    t2 = (2.0 * p) / npq_sqrt
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-1.0-10]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:110: RuntimeWarning: invalid value encountered in subtract
+    g1 = t1 - t2
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:115: RuntimeWarning: divide by zero encountered in divide
+    t2 = 6.0/n
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:116: RuntimeWarning: invalid value encountered in subtract
+    g2 = t1 - t2
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_distn_infrastructure.py:2046: RuntimeWarning: invalid value encountered in divide
+    x = np.asarray((x - loc)/scale, dtype=dtyp)
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_distn_infrastructure.py:2129: RuntimeWarning: invalid value encountered in divide
+    x = np.asarray((x - loc)/scale, dtype=dtyp)
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_continuous_distns.py:2757: RuntimeWarning: divide by zero encountered in power
+    return c*pow(x, c-1)*np.exp(-pow(x, c))
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  g16_before/dist_fit.py:70: RuntimeWarning: divide by zero encountered in log
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  g16_before/dist_fit.py:90: RuntimeWarning: invalid value encountered in scalar add
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\code\dist_fit.py:70: RuntimeWarning: divide by zero encountered in log
+    ad_stat = -n - np.sum((2 * np.arange(1, n + 1) - 1) * (np.log(cdf) + np.log(1 - cdf[::-1]))) / n
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\code\dist_fit.py:90: RuntimeWarning: invalid value encountered in scalar add
+    p = np.exp(1.2937 - 5.709 * ad_adjusted + 0.0186 * ad_adjusted**2)
+
+tests/test_g16_statistics.py::test_f08_two_way_balanced_and_unbalanced[data2-True]
+  g16_before/two_way_anova.py:24: SingularMatrixWarning: The design matrix is rank-deficient. The model parameters are not uniquely determined.
+
+tests/test_g16_statistics.py::test_f08_two_way_balanced_and_unbalanced[data2-True]
+  C:\Users\shaoy\Documents\Minijmp\code\two_way_anova.py:24: SingularMatrixWarning: The design matrix is rank-deficient. The model parameters are not uniquely determined.
+    data=df).fit()
+
+tests/test_g16_statistics.py::test_f08_degenerate_errors[data2]
+tests/test_g16_statistics.py::test_f08_degenerate_errors[data2]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\statsmodels\regression\linear_model.py:1954: RuntimeWarning: divide by zero encountered in scalar divide
+    return np.dot(wresid, wresid) / self.df_resid
+
+tests/test_g16_statistics.py::test_f08_degenerate_errors[data2]
+tests/test_g16_statistics.py::test_f08_degenerate_errors[data2]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\statsmodels\base\model.py:1727: RuntimeWarning: invalid value encountered in multiply
+    cov_p = self.normalized_cov_params * scale
+
+tests/test_g16_statistics.py::test_f08_degenerate_errors[data2]
+tests/test_g16_statistics.py::test_f08_degenerate_errors[data2]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\statsmodels\base\model.py:1743: RuntimeWarning: invalid value encountered in dot
+    tmp = dot_fun(r_matrix, dot_fun(cov_p, np.transpose(other)))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_g9_tables.py::test_no_string_table_ports_and_computations_unchanged[proportion_test]
+1 failed, 307 passed, 59 warnings in 47.14s

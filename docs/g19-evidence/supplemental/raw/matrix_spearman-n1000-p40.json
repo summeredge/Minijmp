@@ -1,0 +1,69 @@
+{
+  "scenario": {
+    "name": "matrix_spearman",
+    "n": 1000,
+    "p": 40,
+    "timeout": 180,
+    "id": "matrix_spearman-n1000-p40",
+    "profile": false
+  },
+  "pid": 12472,
+  "rows": [
+    {
+      "phase": "compute",
+      "repeat": 0,
+      "wall_seconds": 0.3097979000012856,
+      "cpu_seconds": 0.296875,
+      "rss_before_mib": 157.68359375,
+      "rss_after_mib": 159.7265625,
+      "process_peak_rss_mib": 159.7265625,
+      "private_commit_mib": 162.6015625,
+      "status": "ok",
+      "warmup": true
+    },
+    {
+      "phase": "compute",
+      "repeat": 1,
+      "wall_seconds": 0.29726599997957237,
+      "cpu_seconds": 0.203125,
+      "rss_before_mib": 159.7265625,
+      "rss_after_mib": 159.765625,
+      "process_peak_rss_mib": 159.765625,
+      "private_commit_mib": 162.6015625,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "compute",
+      "repeat": 2,
+      "wall_seconds": 0.3152676000026986,
+      "cpu_seconds": 0.296875,
+      "rss_before_mib": 159.765625,
+      "rss_after_mib": 159.78125,
+      "process_peak_rss_mib": 159.78125,
+      "private_commit_mib": 162.6015625,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "compute",
+      "repeat": 3,
+      "wall_seconds": 0.3690113999764435,
+      "cpu_seconds": 0.375,
+      "rss_before_mib": 159.78515625,
+      "rss_after_mib": 159.796875,
+      "process_peak_rss_mib": 159.796875,
+      "private_commit_mib": 162.6015625,
+      "status": "ok",
+      "warmup": false
+    }
+  ],
+  "stage": "complete",
+  "memory_scope": "cumulative_process_peak_including_imports_warmup_inputs",
+  "repeat": 3,
+  "status": "ok",
+  "exit_code": 0,
+  "process_seconds": 3.6614235999877565,
+  "timeout_seconds": 180,
+  "job_memory_limit_mib": 1536
+}

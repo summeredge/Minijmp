@@ -1,0 +1,8 @@
+commit b430f8c7c4e4870f1dc3a9242e8f2d50ba9ba231
+Merge: 11c4a75 c3a406c
+Author:     summeredge <summeredge@sohu.com>
+AuthorDate: Wed Oct 21 12:51:10 2026 +0800
+Commit:     summeredge <summeredge@sohu.com>
+CommitDate: Wed Oct 21 12:51:10 2026 +0800
+
+    Merge G18 report and plotting optimizations into main

@@ -1,0 +1,70 @@
+{
+  "scenario": {
+    "name": "calculate_d3",
+    "n": 10,
+    "trial": 2,
+    "timeout": 180,
+    "id": "calculate_d3-n10-trial2",
+    "profile": false
+  },
+  "pid": 48312,
+  "rows": [
+    {
+      "phase": "cold_integral",
+      "repeat": 1,
+      "wall_seconds": 2.1949174999899697,
+      "cpu_seconds": 2.140625,
+      "rss_before_mib": 154.84375,
+      "rss_after_mib": 154.94140625,
+      "process_peak_rss_mib": 154.94140625,
+      "private_commit_mib": 126.48046875,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "warm_cached_integral",
+      "repeat": 1,
+      "wall_seconds": 3.3999967854470015e-06,
+      "cpu_seconds": 0.0,
+      "rss_before_mib": 154.94140625,
+      "rss_after_mib": 154.94140625,
+      "process_peak_rss_mib": 154.94140625,
+      "private_commit_mib": 126.48046875,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "warm_cached_integral",
+      "repeat": 2,
+      "wall_seconds": 3.5999983083456755e-06,
+      "cpu_seconds": 0.0,
+      "rss_before_mib": 154.94140625,
+      "rss_after_mib": 154.94140625,
+      "process_peak_rss_mib": 154.94140625,
+      "private_commit_mib": 126.48046875,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "warm_cached_integral",
+      "repeat": 3,
+      "wall_seconds": 3.9000005926936865e-06,
+      "cpu_seconds": 0.0,
+      "rss_before_mib": 154.953125,
+      "rss_after_mib": 154.953125,
+      "process_peak_rss_mib": 154.953125,
+      "private_commit_mib": 126.48046875,
+      "status": "ok",
+      "warmup": false
+    }
+  ],
+  "stage": "complete",
+  "memory_scope": "cumulative_process_peak_including_imports_warmup_inputs",
+  "repeat": 3,
+  "cache_info": "CacheInfo(hits=3, misses=1, maxsize=128, currsize=1)",
+  "status": "ok",
+  "exit_code": 0,
+  "process_seconds": 4.2962551999953575,
+  "timeout_seconds": 180,
+  "job_memory_limit_mib": 1536
+}

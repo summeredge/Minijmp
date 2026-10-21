@@ -219,7 +219,8 @@ def test_f04_binomial_probability_mode(old, pvalue):
                                   (20, .4, 9), (20, .4, 0), (20, .4, 20)])
 def test_f04_proportion_functions(old, n, p, k):
     import proportion_test as prop
-    for name in ('p_blaker', 'p_sterne', 'p_likelihood_ratio'):
+    # G20 tests LR independently: the historical LR ordering is statistically wrong.
+    for name in ('p_blaker', 'p_sterne'):
         equal(getattr(prop, name)(n, p, k), getattr(old.proportion_test, name)(n, p, k))
     same_call(prop.prop_test_1sample, old.proportion_test.prop_test_1sample,
               k, n, p, print_out=True)

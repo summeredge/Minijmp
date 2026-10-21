@@ -1,0 +1,84 @@
+{
+  "baseline-pytest": {
+    "suites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "2096",
+        "time": "472.835",
+        "timestamp": "2026-10-21T13:03:28.993127+08:00",
+        "hostname": "YOGA"
+      }
+    ],
+    "by_module": {
+      "tests.test_csv_import": 41,
+      "tests.test_dialog_translation": 119,
+      "tests.test_file_io": 43,
+      "tests.test_g10_tables": 41,
+      "tests.test_g11_quality_tables": 122,
+      "tests.test_g12_inventory": 15,
+      "tests.test_g12_tables": 9,
+      "tests.test_g13_time_series": 37,
+      "tests.test_g14_rendering": 15,
+      "tests.test_g16_statistics": 117,
+      "tests.test_g17_csv": 71,
+      "tests.test_g17_data_processing": 123,
+      "tests.test_g18_performance": 17,
+      "tests.test_g1_debug_output": 24,
+      "tests.test_g1_statistics_output": 33,
+      "tests.test_g1_text_output": 13,
+      "tests.test_g2_basic_reports": 67,
+      "tests.test_g2_hypothesis_reports": 74,
+      "tests.test_g3_anova_reports": 49,
+      "tests.test_g3_chi_square_reports": 36,
+      "tests.test_g3_computation_contracts": 26,
+      "tests.test_g3_distribution_reports": 30,
+      "tests.test_g3_regression_reports": 23,
+      "tests.test_g3_report_display": 16,
+      "tests.test_g4_quality_reports": 144,
+      "tests.test_g5_spc_reports": 73,
+      "tests.test_g6_chart_presentation": 49,
+      "tests.test_g6_quality_charts": 53,
+      "tests.test_g7_tables": 12,
+      "tests.test_g8_tables": 32,
+      "tests.test_g9_tables": 111,
+      "tests.test_help_center": 11,
+      "tests.test_menu_localization": 47,
+      "tests.test_p1_p2_statistical_fixes": 78,
+      "tests.test_pi_import": 17,
+      "tests.test_pi_reader": 12,
+      "tests.test_result_background": 35,
+      "tests.test_startup": 17,
+      "tests.test_statistical_edges": 15,
+      "tests.test_statistics_regressions": 60,
+      "tests.test_supplemental_stability": 39,
+      "tests.test_table_regressions": 130
+    },
+    "failed": [],
+    "skipped": []
+  },
+  "fisher-related-final": {
+    "suites": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "308",
+        "time": "44.384",
+        "timestamp": "2026-10-21T13:13:46.904295+08:00",
+        "hostname": "YOGA"
+      }
+    ],
+    "by_module": {
+      "tests.test_g16_statistics": 117,
+      "tests.test_g19_integration": 2,
+      "tests.test_g9_tables": 111,
+      "tests.test_p1_p2_statistical_fixes": 78
+    },
+    "failed": [],
+    "skipped": []
+  }
+}

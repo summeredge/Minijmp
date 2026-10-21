@@ -1,0 +1,68 @@
+{
+  "scenario": {
+    "name": "cpk",
+    "n": 1000,
+    "timeout": 180,
+    "id": "cpk-n1000-p1",
+    "profile": false
+  },
+  "pid": 15656,
+  "rows": [
+    {
+      "phase": "compute",
+      "repeat": 0,
+      "wall_seconds": 0.01136969999060966,
+      "cpu_seconds": 0.015625,
+      "rss_before_mib": 154.79296875,
+      "rss_after_mib": 155.0390625,
+      "process_peak_rss_mib": 155.0390625,
+      "private_commit_mib": 126.640625,
+      "status": "ok",
+      "warmup": true
+    },
+    {
+      "phase": "compute",
+      "repeat": 1,
+      "wall_seconds": 0.010964799992507324,
+      "cpu_seconds": 0.015625,
+      "rss_before_mib": 155.04296875,
+      "rss_after_mib": 155.05859375,
+      "process_peak_rss_mib": 155.05859375,
+      "private_commit_mib": 126.640625,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "compute",
+      "repeat": 2,
+      "wall_seconds": 0.010767100000521168,
+      "cpu_seconds": 0.015625,
+      "rss_before_mib": 155.06640625,
+      "rss_after_mib": 155.06640625,
+      "process_peak_rss_mib": 155.06640625,
+      "private_commit_mib": 126.640625,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "compute",
+      "repeat": 3,
+      "wall_seconds": 0.011656899994704872,
+      "cpu_seconds": 0.015625,
+      "rss_before_mib": 155.06640625,
+      "rss_after_mib": 155.06640625,
+      "process_peak_rss_mib": 155.06640625,
+      "private_commit_mib": 126.640625,
+      "status": "ok",
+      "warmup": false
+    }
+  ],
+  "stage": "complete",
+  "memory_scope": "cumulative_process_peak_including_imports_warmup_inputs",
+  "repeat": 3,
+  "status": "ok",
+  "exit_code": 0,
+  "process_seconds": 2.0097884999995586,
+  "timeout_seconds": 180,
+  "job_memory_limit_mib": 1536
+}

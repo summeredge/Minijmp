@@ -1,0 +1,69 @@
+{
+  "scenario": {
+    "name": "matrix_kendall",
+    "n": 1000,
+    "p": 40,
+    "timeout": 180,
+    "id": "matrix_kendall-n1000-p40",
+    "profile": false
+  },
+  "pid": 2908,
+  "rows": [
+    {
+      "phase": "compute",
+      "repeat": 0,
+      "wall_seconds": 0.30320349999237806,
+      "cpu_seconds": 0.28125,
+      "rss_before_mib": 157.73828125,
+      "rss_after_mib": 159.58984375,
+      "process_peak_rss_mib": 159.58984375,
+      "private_commit_mib": 130.71484375,
+      "status": "ok",
+      "warmup": true
+    },
+    {
+      "phase": "compute",
+      "repeat": 1,
+      "wall_seconds": 0.24857359999441542,
+      "cpu_seconds": 0.25,
+      "rss_before_mib": 159.58984375,
+      "rss_after_mib": 159.6171875,
+      "process_peak_rss_mib": 159.6171875,
+      "private_commit_mib": 130.71484375,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "compute",
+      "repeat": 2,
+      "wall_seconds": 0.2370919000240974,
+      "cpu_seconds": 0.234375,
+      "rss_before_mib": 159.6171875,
+      "rss_after_mib": 159.6171875,
+      "process_peak_rss_mib": 159.6171875,
+      "private_commit_mib": 130.71484375,
+      "status": "ok",
+      "warmup": false
+    },
+    {
+      "phase": "compute",
+      "repeat": 3,
+      "wall_seconds": 0.2493937000108417,
+      "cpu_seconds": 0.234375,
+      "rss_before_mib": 159.62109375,
+      "rss_after_mib": 159.62109375,
+      "process_peak_rss_mib": 159.62109375,
+      "private_commit_mib": 130.71484375,
+      "status": "ok",
+      "warmup": false
+    }
+  ],
+  "stage": "complete",
+  "memory_scope": "cumulative_process_peak_including_imports_warmup_inputs",
+  "repeat": 3,
+  "status": "ok",
+  "exit_code": 0,
+  "process_seconds": 3.665523100004066,
+  "timeout_seconds": 180,
+  "job_memory_limit_mib": 1536
+}
