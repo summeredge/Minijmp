@@ -156,7 +156,7 @@
 
 | 英文原文 | 中文译名 |
 | --- | --- |
-| Plot Wizard (Legacy) | 绘图向导（旧版） |
+| Plot Wizard (Legacy) | 通用绘图器 |
 | Store plot | 保存图形 |
 | Clear plots | 清除图形 |
 | PDF report | PDF 报告 |

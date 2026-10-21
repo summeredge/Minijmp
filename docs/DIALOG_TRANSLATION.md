@@ -10,7 +10,7 @@
 
 ## 覆盖口径
 
-从 `MiniJMP.Minijmp.createMenuBar` 的实际 `Stats`、`Quality`、`Plots` 菜单字典，经绑定方法追踪到构造函数；真实调用 Tk 菜单命令验证了 46 个新式弹窗。另覆盖 1 个旧版绘图向导（含六个参数页）、卡方假设概率及旧版子图标题的 2 个二次输入框，共 49 个当前可达窗口。已注释菜单的 `JMP_t_test → TtestDialog` 也随公共实现翻译并验证，但不计入 49 个当前可达窗口。
+从 `MiniJMP.Minijmp.createMenuBar` 的实际 `Stats`、`Quality`、`Plots` 菜单字典，经绑定方法追踪到构造函数；真实调用 Tk 菜单命令验证了 46 个新式弹窗。另覆盖 1 个通用绘图器（含六个参数页）、卡方假设概率及旧版子图标题的 2 个二次输入框，共 49 个当前可达窗口。已注释菜单的 `JMP_t_test → TtestDialog` 也随公共实现翻译并验证，但不计入 49 个当前可达窗口。
 
 Tools 菜单中的表格变换、聚合等数据操作窗口、文件导入导出、表格右键菜单、结果查看器不属于统计/质量/绘图参数窗口；保持本阶段排除范围。`sb_palette_dialog.py` 没有实际主菜单调用方，不计入清单；实际配色组件位于 `SBDialog.add_palette_selection`。
 
@@ -77,14 +77,14 @@ Tools 菜单中的表格变换、聚合等数据操作窗口、文件导入导�
 
 | 入口 | 类 / 源码 | 已完成内容 |
 | --- | --- | --- |
-| Plots > Plot Wizard (Legacy) | `pandastable_local.plotting.PlotViewer` | 窗口标题、工具按钮与 Tooltip；基本选项、注释、网格布局、其他选项、三维选项、动画六页 |
+| Plots > Plot Wizard (Legacy) | `pandastable_local.plotting.PlotViewer` | 通用绘图器窗口标题、工具按钮与 Tooltip、当前选区摘要；基本选项、注释、网格布局、其他选项、三维选项、动画六页 |
 | 基本 / 三维选项 | `MPLBaseOptions`、`MPL3DOptions`、`TkOptions` | 分组、图形类型、分箱、堆叠、子图、索引、误差线、数据分组、点标签/大小、坐标轴、字体、线型、透明度、颜色刻度及色图 |
 | 注释页 | `AnnotationOptions` | 标题、X/Y 轴标签、刻度角度、文本框、填充/边线颜色、旋转、字体、字重、对齐、添加对象、坐标系、创建/清除 |
 | 网格布局页 | `PlotLayoutOptions` | 行列数、常规/拆分数据/多视图单选框、图形类型列表、子图列表、删除坐标轴、设置标题；单选内部值仍为 `normal/splitdata/multiviews` |
 | 其他选项页 | `ExtraOptions` | 坐标范围、主/次刻度位置、数字格式、符号、精度、日期格式、样式与应用/重置 |
 | 动画页 | `AnimateOptions` | 数据窗口、增量/窗口大小/起始行/延迟、显示控制、视频编码器/帧率/文件名、开始/停止 |
 | 比例卡方检验 > 假设概率 | `chi2_dialog.ProbabilityDialog` | 中文标题及确定/取消；水平名称来自用户数据；继承原有类型、模态、回车/退出键及确认/取消行为 |
-| 旧版绘图向导 > 设置标题 | `plotting.PlotTitleDialog` | 子图标题、输入标签、确定/取消；继承原 Tk 字符串输入框，用户标题原样传给绘图 |
+| 通用绘图器 > 设置标题 | `plotting.PlotTitleDialog` | 子图标题、输入标签、确定/取消；继承原 Tk 字符串输入框，用户标题原样传给绘图 |
 | 公共分析参数 | `dialog.Dialogs` | 标题显示映射、确定/取消/帮助、X/Y 轴、自动范围、网格线/图例、边距、显著性水平 |
 | 公共绘图参数 | `sbplot_dialog.SBDialog` | 绘图/关闭/帮助、水平参考线、标签、30 个配色方案；各派生类覆盖实现亦已逐一翻译 |
 | 动态分布参数 | `dist_plot_dialog.comboNEntries` | 分布选择、均值、标准差、自由度、分子/分母自由度、尺度、试验次数、事件概率及不适用字段；切换分布后仍更新中文标签并返回英文参数键 |

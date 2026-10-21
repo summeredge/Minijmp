@@ -16,7 +16,7 @@
   <nav aria-label="本页目录">
     <h2>目录</h2>
     <ul>
-      <li><a href="#plots.plot_wizard">绘图向导（旧版）</a></li>
+      <li><a href="#plots.plot_wizard">通用绘图器</a></li>
       <li><a href="#plots.store_plot">保存图形</a></li>
       <li><a href="#plots.clear_plots">清除图形</a></li>
       <li><a href="#plots.pdf_report">PDF 报告</a></li>
@@ -50,10 +50,11 @@
   </nav>
 
   <section id="plots.plot_wizard">
-    <h2>绘图向导（旧版）</h2>
-    <p><strong>用途：</strong>用数据表当前选中的单元格绘图，并在 Plot Viewer 中调整通用选项。它是旧版绘图窗口，不是 Minitab Graph Builder。</p>
-    <p><strong>数据与参数：</strong>先在表格中选取要绘制的行、列。选项面板含图形类型（默认 line）、分组列与第二分组列、点标签列、点大小列、直方图 bins（默认 20）、堆叠、子图、网格、图例、对数 X/Y、刻度标签、共享坐标轴、误差线列，以及线宽、标记、透明度和颜色设置；窗口工具栏另有 DPI（默认 80）、网格布局和 3D 绘图开关。只有被选入绘图数据的列才能用于分组等字段。</p>
-    <p><strong>步骤：</strong>选取数据 → 选择 图形 → 绘图向导（旧版） → 在选项面板改设置 → 点 <em>Plot Selected</em> 更新图，或点 <em>Apply Options</em> 应用当前选项；可用 <em>Save</em> 保存图像。</p>
+    <h2>通用绘图器</h2>
+    <p><strong>用途：</strong>用数据表当前选区的行、列绘图，并在同一窗口调整通用选项。它复用原有图表类型和绘图能力，不是 Minitab Graph Builder。</p>
+    <p><strong>数据与参数：</strong>先在表格中选取要绘制的行、列；工具栏下方会显示本次绘图的当前输入摘要（行数、列数和列名）。选项面板含图形类型（默认折线图）、分组列与第二分组列、点标签列、点大小列、直方图组数（默认 20）、堆叠、子图、网格、图例、对数 X/Y、刻度标签、共享坐标轴、误差线列，以及线宽、标记、透明度和颜色设置；窗口工具栏另有 DPI（默认 80）、网格布局和三维图形开关。只有被选入绘图数据的列才能用于分组等字段。</p>
+    <p><strong>两个重绘按钮：</strong><em>从选区重新绘图</em> 会重新读取工作表当前选区，适合换行、换列或改选区后使用；<em>应用设置并重绘</em> 沿用窗口中已载入的数据，只应用新选项，不会取用之后修改的选区。</p>
+    <p><strong>步骤：</strong>选取数据 → 选择 图形 → 通用绘图器 → 在选项面板改设置 → 点 <em>从选区重新绘图</em> 或 <em>应用设置并重绘</em> → 用 <em>保存</em> 保存图像。参数区可通过右上角 <em>隐藏参数区 / 显示参数区</em> 收起或展开。</p>
     <p><strong>注意：</strong>图形类型和可用设置取决于所选数据；数据不适配时窗口会提示。选项面板可在窗口中显示或隐藏。<a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/graphs/graphs-in-minitab/" target="_blank" rel="noopener noreferrer">Minitab 官方图形帮助（概念参考）</a></p>
   </section>
 
