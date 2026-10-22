@@ -6,13 +6,13 @@ import ast
 import inspect
 from pathlib import Path
 import statistics as stat
-import subprocess
 import types
 from unittest.mock import Mock
 
 import numpy as np
 import pytest
 from scipy import stats
+from source_baselines import read_source_baseline
 
 ROOT = Path(__file__).resolve().parents[1]
 BEFORE = '38b907f0dcf62f234561838f3cca93ad0a8545ef'
@@ -23,8 +23,7 @@ def old():
     modules = {}
     for name in ('linear_fit', 'chi_sq', 'nonpara_cor', 'fit_dialog', 'binomial',
                  'proportion_test', 'dist_fit', 'two_way_anova', 'GRR'):
-        source = subprocess.check_output(['git', 'show', f'{BEFORE}:code/{name}.py'],
-                                         cwd=ROOT).decode('utf-8')
+        source = read_source_baseline(BEFORE, f'code/{name}.py')
         module = types.ModuleType('g16_before_' + name)
         exec(compile(source, f'g16_before/{name}.py', 'exec'), module.__dict__)
         modules[name] = module

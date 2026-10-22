@@ -1,6 +1,6 @@
 """G18 分阶段基准；同 G15 输入、一次预热及三次正式测量。
 
-用项目解释器运行，--source-dir 可重放 docs/g18-evidence/before。
+用项目解释器运行，--source-dir 可重放 tests/fixtures/g18_before。
 每个场景使用独立进程；GUI 指标计至真实 Tk update 完成。
 vendor 仅验收当前源码；G15 空图失败不作为有效基线计时。
 """

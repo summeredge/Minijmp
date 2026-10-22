@@ -1,0 +1,9 @@
+...                                                                      [100%]
+============================== warnings summary ===============================
+tests/test_pi_import.py::test_timestamp_tag_through_reader_and_real_menu[tags0-Timestamp (time 1)]
+tests/test_pi_import.py::test_timestamp_tag_through_reader_and_real_menu[tags1-Timestamp (time 2)]
+  C:\Users\shaoy\Documents\Minijmp\code\pi_import.py:23: Pandas4Warning: 'd' is deprecated and will be removed in a future version. Please use 'D' instead of 'd'.
+    return now - (pd.Timedelta(int(match[1]), unit=match[2]) if match[1]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 76 deselected, 2 warnings in 2.99s

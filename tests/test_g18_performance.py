@@ -19,7 +19,7 @@ import time_series
 import time_series_dialog
 from test_g13_time_series import dialog, data, choose
 
-BEFORE = Path(__file__).resolve().parents[1] / 'docs/g18-evidence/before'
+BEFORE = Path(__file__).resolve().parent / 'fixtures/g18_before'
 
 
 def original(name):

@@ -4,7 +4,6 @@ import hashlib
 import importlib
 import json
 import math
-import subprocess
 from numbers import Real
 from pathlib import Path
 from types import SimpleNamespace
@@ -15,6 +14,7 @@ import pandas as pd
 import pytest
 from openpyxl import load_workbook
 from PIL import Image
+from source_baselines import read_source_baseline
 
 import anova_dialog
 import chi2_dialog
@@ -148,8 +148,8 @@ def computation_hash(module):
     tree = ast.parse((ROOT / 'code' / f'{module}.py').read_bytes())
     if module == 'proportion_test':
         # G20 LR has an independent oracle; freeze every other computation as before.
-        frozen = ast.parse(subprocess.check_output([
-            'git', 'show', '11c4a7569f5b80836de04f06e4049c99ed1d084c:code/proportion_test.py'], cwd=ROOT))
+        frozen = ast.parse(read_source_baseline(
+            '11c4a7569f5b80836de04f06e4049c99ed1d084c', 'code/proportion_test.py'))
         old_lr = next(n for n in frozen.body if isinstance(n, ast.FunctionDef)
                       and n.name == 'p_likelihood_ratio')
         tree.body = [old_lr if isinstance(n, ast.FunctionDef) and n.name == 'p_likelihood_ratio'

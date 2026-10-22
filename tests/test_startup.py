@@ -137,32 +137,30 @@ def test_windows_launchers_do_not_update_code_or_request_elevation():
     assert 'runas' not in text
 
 
-def test_main_icon_uses_module_path_and_closes_image(monkeypatch, tmp_path):
+def test_main_icon_uses_embedded_resource(monkeypatch, tmp_path):
     path = ROOT / 'code' / 'MiniJMP.py'
     tree = ast.parse(path.read_text(encoding='utf-8'))
     main = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == 'main')
-    image = MagicMock()
-    image_open = Mock(return_value=image)
-    namespace = dict(__file__=str(path), os=os, Tk=Mock(), Minijmp=Mock(),
-                     Image=SimpleNamespace(open=image_open), ImageTk=Mock())
+    root = Mock()
+    icon = Mock()
+    create_icon = Mock(return_value=icon)
+    namespace = dict(__file__=str(path), Tk=Mock(return_value=root), Minijmp=Mock(),
+                     create_icon_image=create_icon)
     monkeypatch.chdir(tmp_path)
     exec(compile(ast.Module(body=[main], type_ignores=[]), str(path), 'exec'), namespace)
     namespace['main']()
-    image_open.assert_called_once_with(str(ROOT / 'code' / 'icon.png'))
-    image.__enter__.assert_called_once()
-    image.__exit__.assert_called_once()
+    create_icon.assert_called_once_with(root)
+    root.iconphoto.assert_called_once_with(True, icon)
 
 
-def test_about_icon_uses_module_path(monkeypatch, tmp_path):
+def test_about_icon_uses_embedded_resource():
     path = ROOT / 'code' / 'modified_app.py'
     tree = ast.parse(path.read_text(encoding='utf-8'))
     about = next(node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef) and node.name == 'about')
-    photo = next(node for node in ast.walk(about) if isinstance(node, ast.Call)
-                 and isinstance(node.func, ast.Name) and node.func.id == 'PhotoImage')
-    expression = ast.Expression(body=photo.keywords[0].value)
-    monkeypatch.chdir(tmp_path)
-    assert eval(compile(expression, str(path), 'eval'), dict(__file__=str(path), os=os)) == str(
-        ROOT / 'code' / 'icon.png')
+    image = next(node for node in ast.walk(about) if isinstance(node, ast.Call)
+                 and isinstance(node.func, ast.Name) and node.func.id == 'create_icon_image')
+    assert len(image.args) == 1
+    assert isinstance(image.args[0], ast.Name) and image.args[0].id == 'abwin'
 
 
 def test_help_resource_uses_module_directory_and_preserves_unknown_key_behavior(monkeypatch, tmp_path):

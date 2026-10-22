@@ -4,7 +4,7 @@ import os
 import pickle
 import tempfile
 from pathlib import Path
-from tkinter import ttk, filedialog, messagebox, simpledialog
+from tkinter import Menu, TclError, ttk, filedialog, messagebox, simpledialog
 
 import pandas as pd
 
@@ -34,6 +34,8 @@ class Worksheets:
         self.filename = None
         self.addSheet('工作表1')
         self.nb.bind('<<NotebookTabChanged>>', self._sheet_changed)
+        self._sheet_context_menu = Menu(self.nb, tearoff=0)
+        self.nb.bind('<Button-3>', self._show_sheet_context_menu)
         self._saved_state = self._state()
 
     @staticmethod
@@ -81,6 +83,35 @@ class Worksheets:
             self.table = self.getCurrentTable()
             self.table.focus_set()
             self.update_title()
+
+    def _show_sheet_context_menu(self, event):
+        try:
+            index = self.nb.index(f'@{event.x},{event.y}')
+        except TclError:
+            return
+        tabs = self.nb.tabs()
+        if not 0 <= index < len(tabs):
+            return
+        frame = next((f for f in self.sheetframes.values() if str(f) == tabs[index]), None)
+        if frame is None:
+            return
+        menu = self._sheet_context_menu
+        menu.delete(0, 'end')
+        for label, action in (('新增工作表', self.addSheet), ('复制工作表', self.copySheet),
+                              ('重命名工作表', self.renameSheet), ('删除工作表', self.deleteSheet),
+                              ('导出当前工作表', self.export_sheet)):
+            menu.add_command(label=label, command=lambda action=action:
+                             self._run_sheet_context_action(frame, action))
+        menu.tk_popup(event.x_root, event.y_root)
+        return 'break'
+
+    def _run_sheet_context_action(self, frame, action):
+        if frame not in self.sheetframes.values():
+            return
+        if self.nb.select() != str(frame):
+            self.nb.select(frame)
+            self._sheet_changed()
+        action()
 
     def getCurrentSheet(self):
         selected = self.nb.select()

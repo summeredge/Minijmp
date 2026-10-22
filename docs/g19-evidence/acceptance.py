@@ -38,7 +38,7 @@ def capture(window, name, geometry):
 
 def main():
     evidence = {}
-    spec = importlib.util.spec_from_file_location('before_linear_plot', ROOT/'docs/g18-evidence/before/linear_plot.py')
+    spec = importlib.util.spec_from_file_location('before_linear_plot', ROOT/'tests/fixtures/g18_before/linear_plot.py')
     before = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(before)
     rng = np.random.default_rng(18)

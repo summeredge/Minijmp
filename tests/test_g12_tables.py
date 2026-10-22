@@ -1,6 +1,5 @@
 """G12：遗漏的区间报告及全部迁移模块在混合报告中的契约。"""
 import ast
-import subprocess
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from unittest.mock import Mock
@@ -18,6 +17,7 @@ from MiniJMP import Minijmp
 from stat_table import StatTable
 from test_g1_text_output import viewer
 from test_g3_computation_contracts import computation_dump
+from source_baselines import read_source_baseline
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'c0c2c2aa316e7e0f236e551bf4cd2f60f2e30df3'
@@ -26,8 +26,7 @@ DATA = [1.123456789, 2., 3., 5., 7., 9.]
 
 @pytest.fixture(scope='module')
 def before():
-    source = subprocess.check_output(
-        ['git', 'show', f'{BASE}:code/utilities.py'], cwd=ROOT).decode('utf-8')
+    source = read_source_baseline(BASE, 'code/utilities.py')
     module = ModuleType('g12_before_utilities')
     exec(compile(source, '<G12-before:utilities>', 'exec'), module.__dict__)
     return module
@@ -73,8 +72,7 @@ def test_interval_report_keeps_txt_computation_and_exports(before, alpha, scale,
 
 
 def test_utilities_change_is_only_interval_report_output():
-    old = subprocess.check_output(
-        ['git', 'show', f'{BASE}:code/utilities.py'], cwd=ROOT).decode('utf-8')
+    old = read_source_baseline(BASE, 'code/utilities.py')
     current = (ROOT/'code/utilities.py').read_text(encoding='utf-8')
     assert computation_dump(current, 'mean_std_CIs') == computation_dump(old, 'mean_std_CIs')
     trees = [ast.parse(source) for source in (old, current)]
