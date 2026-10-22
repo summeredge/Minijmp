@@ -1,4 +1,0 @@
-git apply --check --whitespace=error：通过，退出码 0。
-检查工作树：C:\Users\shaoy\AppData\Local\Temp\Minijmp-G17-before-38b907f
-补丁：C:\Users\shaoy\Documents\Minijmp\docs\g17-evidence\g17.patch
-只验证补丁可应用及空白，未应用补丁，未执行 commit/push/merge。

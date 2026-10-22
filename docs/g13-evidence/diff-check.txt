@@ -1,5 +1,0 @@
-warning: in the working copy of 'docs/MENU_TRANSLATION.md', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'help/help-map.json', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'help/pages/graphs.html', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'tests/test_help_center.py', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'tests/test_menu_localization.py', LF will be replaced by CRLF the next time Git touches it

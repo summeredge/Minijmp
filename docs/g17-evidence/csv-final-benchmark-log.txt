@@ -1,8 +1,0 @@
-{"case": "csv_detect", "n": 1000, "p": 10, "baseline": "before", "before_seconds": 0.011035599978640676, "after_seconds": 0.008193499990738928, "speedup": 1.346872519816215}
-{"case": "csv_read", "n": 1000, "p": 10, "baseline": "before", "before_seconds": 0.020622100011678413, "after_seconds": 0.019718000025022775, "speedup": 1.0458515055030078}
-{"case": "csv_detect", "n": 10000, "p": 10, "baseline": "before", "before_seconds": 0.11565079999854788, "after_seconds": 0.08825179998530075, "speedup": 1.3104639227507056}
-{"case": "csv_read", "n": 10000, "p": 10, "baseline": "before", "before_seconds": 0.14315699998405762, "after_seconds": 0.14189289999194443, "speedup": 1.0089088318878883}
-{"case": "csv_detect", "n": 50000, "p": 10, "baseline": "before", "before_seconds": 1.259577899996657, "after_seconds": 1.0473750999954063, "speedup": 1.2026043964594741}
-{"case": "csv_read", "n": 50000, "p": 10, "baseline": "before", "before_seconds": 0.8290774000051897, "after_seconds": 0.7513149000005797, "speedup": 1.1035018738541589}
-{"case": "csv_detect", "n": 100000, "p": 10, "baseline": "before", "before_seconds": 1.8580725000065286, "after_seconds": 1.4802775999996811, "speedup": 1.255218953530695}
-{"case": "csv_read", "n": 100000, "p": 10, "baseline": "before", "before_seconds": 2.0512443000043277, "after_seconds": 1.8194425999827217, "speedup": 1.1274025902349474}

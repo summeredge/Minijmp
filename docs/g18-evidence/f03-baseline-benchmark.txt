@@ -1,4 +1,0 @@
-matrix
-matrix-orig
-C:\Users\shaoy\.codex\worktrees\2878\Minijmp\tools\benchmark_g18.py:58: UserWarning: constrained_layout not applied because axes sizes collapsed to zero.  Try making figure larger or Axes decorations smaller.
-  value = fn()
