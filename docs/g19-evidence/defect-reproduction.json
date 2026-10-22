@@ -1,6 +1,0 @@
-{
-  "fisher_observed_pmf": 0.0,
-  "lr_actual": 0.9785156249999998,
-  "lr_standard_reference": 0.109375,
-  "fisher_status": "timeout_after_10_seconds_child_terminated"
-}

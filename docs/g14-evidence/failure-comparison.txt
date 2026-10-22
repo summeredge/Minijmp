@@ -1,4 +1,0 @@
-Baseline: 1753 passed, 0 failed, 53 warnings.
-Final: 1766 passed, 0 failed, 53 warnings.
-Added G14: 13 passed. New failures: 0.
-Initial G13 and concurrent unowned changes preserved by SHA256; MiniJMP only adds deferred scrolling.

@@ -1,8 +1,0 @@
-{
-  "code/linear_plot.py": "6ce30d5b8d38182e82d4c9c441a2d85dcbe8068c5ed73edf2e83c445fb093a9a",
-  "code/control_chart.py": "f19e6f24981be8d41d49a2fdf83300fac4254c88c9238969b143606d822b7af6",
-  "code/stat_table.py": "1feb1b79f86ba3ce8b9d4630a2b0f3ea19d251ec62f8db5b1dca808945e2d602",
-  "code/time_series.py": "93f589dd0c8c84def75cbc4d41de0bbb81b4f5498fcf80c2b2a58c3d65a772a8",
-  "code/time_series_dialog.py": "c495c54c67cad9b761878be1738a8fc1be972a36c9b707da793ccc8df209cec3",
-  "code/pandastable_local/plotting.py": "b45498e4fdf15ca445937dc3ab228938b04f3ad8d506ad7df03ebad6008a946a"
-}

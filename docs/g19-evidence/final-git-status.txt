@@ -1,4 +1,0 @@
- M code/proportion_test.py
- M tests/test_g9_tables.py
-?? docs/g19-evidence/
-?? tests/test_g19_integration.py

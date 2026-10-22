@@ -1,4 +1,0 @@
-config path C:\Users\shaoy\.codex\worktrees\2878\Minijmp\user_config
-loading_path C:\Users\shaoy\.codex\worktrees\2878\Minijmp
-current dir C:\Users\shaoy\.codex\worktrees\2878\Minijmp\sample_data
-OS type windows

@@ -1,7 +1,0 @@
-Baseline: 1688 passed, 4 failed, 53 warnings, 300.12s.
-Final: 1712 passed, 4 failed, 53 warnings, 336.64s.
-New tests: 24 passed. New failures: 0. Failure node sets: identical.
-tests/test_startup.py::test_windows_launchers_resolve_their_directory_and_propagate_exit_code[0-win_start.bat]
-tests/test_startup.py::test_windows_launchers_resolve_their_directory_and_propagate_exit_code[0-win_start_no_cmd_win.vbs]
-tests/test_startup.py::test_windows_launchers_resolve_their_directory_and_propagate_exit_code[7-win_start.bat]
-tests/test_startup.py::test_windows_launchers_resolve_their_directory_and_propagate_exit_code[7-win_start_no_cmd_win.vbs]
