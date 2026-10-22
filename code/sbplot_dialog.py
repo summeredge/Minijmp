@@ -1,5 +1,5 @@
 from dialog import option_combobox
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import tkinter as tk
 from tkinter import TOP, LEFT, X, BOTH, Frame, Button
 from pandas import DataFrame as DF
@@ -26,19 +26,49 @@ class SBDialog(Dialogs):
         self.no_preview = True
         return
 
-    def preview(self):
-        self.apply()
-        self.no_preview = False
-        self.self_to_top()
-        return
+    def prepare_preview(self):
+        """Collect subclass selections before drawing."""
+        pass
 
-    def self_to_top(self):
-        self.main.lift()
-        self.main.focus_force()
-        self.main.attributes('-topmost', True)
-        self.main.after(100, lambda: self.main.attributes('-topmost', False))
-        #  self.main.attributes('-topmost', False)  # Reset if needed
-        return
+    def preview(self):
+        if not self.main.winfo_exists():
+            return
+        self._previewing = True
+        self._preview_viewer = None
+        self._preview_failed = False
+        try:
+            self.app.getCurrentTable()
+            self.prepare_preview()
+            self.apply()
+            viewer = self._preview_viewer
+            if self._preview_failed or viewer is None or not viewer.main.winfo_exists():
+                return
+            # Render before replacing the old figure, including deferred draw errors.
+            viewer.canvas.draw()
+            self.app.replacePlotViewer(viewer, save_last=self.no_preview)
+            self.no_preview = False
+            if self.main.grab_current() is self.main:
+                self.main.grab_release()
+            viewer.main.deiconify()
+            viewer.main.update_idletasks()
+            viewer.main.lift()
+            viewer.canvas.get_tk_widget().focus_force()
+        except RuntimeError as exc:
+            messagebox.showerror('无法绘图', str(exc), parent=self.main)
+        except Exception as exc:
+            self.error('绘图失败：' + str(exc))
+        finally:
+            viewer = self._preview_viewer
+            self._preview_viewer = None
+            self._previewing = False
+            if viewer is not None and viewer is not getattr(viewer.table, 'pf', None):
+                viewer.close()
+
+    def error(self, msg=None, *, preview_failed=True):
+        if (msg is not None and preview_failed
+                and getattr(self, '_previewing', False)):
+            self._preview_failed = True
+        super().error(msg)
 
     def done(self):
         self.quit()
@@ -46,8 +76,10 @@ class SBDialog(Dialogs):
         return
 
     def showPlotViewer(self):
-        return self.app.showPlotViewer(
-            save_last=self.no_preview)
+        if getattr(self, '_previewing', False):
+            self._preview_viewer = self.app.showPlotViewer(deferred=True)
+            return self._preview_viewer
+        return self.app.showPlotViewer(save_last=self.no_preview)
 
     def make_working_df(self, cols=None, numcols=[]):
         def voids2nan(data):

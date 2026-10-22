@@ -100,7 +100,7 @@ class singleHistoDialog(SBDialog):
             if len(res) > 0:
                 rv = res[0][2]['rv']
             else:
-                self.error('无法使用所选分布进行拟合。')
+                self.error('无法使用所选分布进行拟合。', preview_failed=False)
                 #  fit_dist = False
         self.make_working_df(cols=[], numcols=[xvar])
 
@@ -189,12 +189,8 @@ class multiHistoDialog(singleHistoDialog):
         self.add_palette_selection(m)
         return
 
-    def preview(self):
+    def prepare_preview(self):
         self.grpcols = self.grpvar.getSelectedItem()
-        self.apply()
-        self.no_preview = False
-        self.self_to_top()
-        return
 
     def done(self):
         self.grpcols = self.grpvar.getSelectedItem()

@@ -136,6 +136,9 @@ class Worksheets:
         return True
 
     def _dispose_sheet(self, table, frame):
+        child_viewer = getattr(getattr(table, 'child', None), 'pf', None)
+        if child_viewer is not None and child_viewer is not getattr(table, 'pf', None):
+            child_viewer.close()
         for attr in ('tOut', 'pf'):
             viewer = getattr(table, attr, None)
             if viewer is not None:

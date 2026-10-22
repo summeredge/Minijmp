@@ -221,6 +221,7 @@ def dialog(tk_root, data):
                           dialog_help_msg=lambda **kw: Minijmp_pre.dialog_help_msg(None, **kw),
                           addPlot=lambda: None)
     app.showPlotViewer = lambda **kw: Minijmp.showPlotViewer(app, **kw)
+    app.replacePlotViewer = lambda *args, **kw: Minijmp.replacePlotViewer(app, *args, **kw)
     instance = TimeSeriesDialog(parent, df=data, app=app, title='时间序列图')
     instance.output = output
     yield instance

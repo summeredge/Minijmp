@@ -306,16 +306,30 @@ class Minijmp(Worksheets, Minijmp_pre):
         self._call('plotSelected')
         return
 
-    def showPlotViewer(self, parent=None, figsize=(10, 7), save_last=True, table=None):
+    def showPlotViewer(self, parent=None, figsize=(10, 7), save_last=True, table=None,
+                       deferred=False):
         table = table if table is not None else self.table
-        if getattr(table, 'pf', None) is not None:
+        viewer = plot_viewer(table=table, parent=parent, figsize=figsize,
+                             register=False)
+        if deferred:
+            viewer.main.withdraw()
+            return viewer
+        self.replacePlotViewer(viewer, save_last=save_last)
+        return viewer
+
+    def replacePlotViewer(self, viewer, save_last=True):
+        """Publish a completed plot only to its source worksheet."""
+        table = viewer.table
+        previous = getattr(table, 'pf', None)
+        child = getattr(table, 'child', None)
+        child_previous = getattr(child, 'pf', None)
+        if previous is not None and previous.main.winfo_exists():
             if save_last:
                 self.addPlot(table=table)
-            table.pf.close()
-        table.pf = plot_viewer(table=table, parent=parent, figsize=figsize)
-        if getattr(table, 'child', None) is not None:
-            table.child.pf = table.pf
-        return table.pf
+            previous.close()
+        table.pf = viewer
+        if child is not None and (child_previous is None or child_previous is previous):
+            child.pf = viewer
 
     def print(self, txt, end="\n", table=None):
         table = table if table is not None else self.table
