@@ -39,8 +39,6 @@ $python = (Resolve-Path ".venv\Scripts\python.exe").Path
 ## Windows Tk 截图
 
 需要生成 Windows Tk 界面验收截图时，参考
-[G13 窗口截图](docs/g13-evidence/visual_check.py) 和
-[G14 报告窗口截图](docs/g14-evidence/render.py) 的 `capture` 实现，
 使用 `ImageGrab.grab(window=window.winfo_id())` 按窗口句柄捕获。
 生成后打开图片，确认内容属于目标窗口，再作为验收证据。
 
