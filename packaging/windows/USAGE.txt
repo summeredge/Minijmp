@@ -1,7 +1,7 @@
 MiniJMP v0.1.0-beta.1 — Windows x64
 
 运行
-1. 将整个 MiniJMP-v0.1.0-beta.1-win64 文件夹解压到可写位置。
+1. 将整个 ZIP 内完整的 MiniJMP 运行文件夹解压到可写位置。
 2. 双击 MiniJMP.exe。不要单独移动 exe；同目录的 _internal 文件夹包含运行时。
 3. 无需安装 Python、无需管理员权限，也无需运行安装程序。
 
@@ -27,4 +27,4 @@ PIReader.exe、PI SDK、PI 服务器地址和凭据不包含在此包中。PI �
 许可与源码
 - 本程序依据 GNU GPL version 3 或更高版本授权，完整条款见 LICENSE。
 - 第三方包名称、版本及所带许可证文本见 THIRD-PARTY-NOTICES.txt 和 THIRD-PARTY-LICENSES 文件夹。
-- 与此构建对应的完整源码及复现构建脚本见相邻的 MiniJMP-v0.1.0-beta.1-source.zip；获取方式见 SOURCE-CODE.txt。
+- 与此构建对应的完整源码及复现构建脚本见相邻的带 Git SHA 的源码 ZIP；获取方式见 SOURCE-CODE.txt。

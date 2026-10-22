@@ -1,3 +1,8 @@
+param(
+    [ValidatePattern('^[A-Za-z0-9-]*$')]
+    [string]$BuildSuffix = ''
+)
+
 $ErrorActionPreference = 'Stop'
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
@@ -5,16 +10,25 @@ $python = Join-Path $root '.venv\Scripts\python.exe'
 $lock = Join-Path $root 'packaging\windows\requirements-py311.lock'
 $entry = Join-Path $root 'packaging\windows_entrypoint.py'
 $versionInfo = Join-Path $root 'packaging\windows\version_info.txt'
-$packageName = 'MiniJMP-v0.1.0-beta.1-win64'
-$sourceName = 'MiniJMP-v0.1.0-beta.1-source'
-$buildRoot = Join-Path $root 'build\windows-beta1'
+$head = (git -C $root rev-parse HEAD).Trim()
+$shortHead = (git -C $root rev-parse --short HEAD).Trim()
+if ($BuildSuffix) { $shortHead = "$shortHead-$BuildSuffix" }
+$branch = (git -C $root branch --show-current).Trim()
+$originMain = (git -C $root rev-parse origin/main).Trim()
+if ($branch -ne 'main' -or $head -ne $originMain) {
+    throw 'Build from main synchronized with origin/main; fetch before building.'
+}
+$version = 'v0.1.0-beta.1'
+$packageName = "MiniJMP-$version-$shortHead-win64"
+$sourceName = "MiniJMP-$version-$shortHead-source"
+$buildRoot = Join-Path $root "build\windows-$shortHead"
 $distRoot = Join-Path $root 'dist'
 $releaseDir = Join-Path $distRoot $packageName
 $releaseZip = Join-Path $distRoot ($packageName + '.zip')
 $sourceZip = Join-Path $distRoot ($sourceName + '.zip')
-$hashFile = Join-Path $distRoot 'MiniJMP-v0.1.0-beta.1-SHA256SUMS.txt'
+$hashFile = Join-Path $distRoot "MiniJMP-$version-$shortHead-SHA256SUMS.txt"
 $recordDir = Join-Path $root 'docs\release'
-$buildLog = Join-Path $recordDir 'pyinstaller-build-20261022.txt'
+$buildLog = Join-Path $recordDir "pyinstaller-build-$shortHead.txt"
 
 function Assert-WorkspacePath([string]$path) {
     $full = [IO.Path]::GetFullPath($path)
@@ -56,8 +70,8 @@ if ($pythonVersion -ne '3.11.9') {
 $pythonBits = & $python -c "import struct; print(struct.calcsize('P') * 8)"
 if ($pythonBits -ne '64') { throw "Expected 64-bit Python; found $pythonBits-bit." }
 
-& $python -m pip install --disable-pip-version-check -r $lock
-if ($LASTEXITCODE -ne 0) { throw 'Installing the locked build environment failed.' }
+& $python -c "import importlib.metadata as m, pathlib, sys; pins=[line.strip().split('==') for line in pathlib.Path(sys.argv[1]).read_text().splitlines() if '==' in line]; mismatch=[n+'=='+v for n,v in pins if m.version(n)!=v]; print('Dependency mismatches: '+str(mismatch)); sys.exit(bool(mismatch))" $lock
+if ($LASTEXITCODE -ne 0) { throw 'Use a separate Python 3.11.9 environment matching the lock; the development environment was not modified.' }
 & $python -m pip check
 if ($LASTEXITCODE -ne 0) { throw 'The locked build environment has dependency conflicts.' }
 $pyinstallerVersion = (& $python -m PyInstaller --version).Trim()
@@ -68,9 +82,10 @@ if ($pyinstallerVersion -ne '6.22.3') {
 New-Item -ItemType Directory -Path (Join-Path $root 'build') -Force | Out-Null
 New-Item -ItemType Directory -Path $distRoot -Force | Out-Null
 New-Item -ItemType Directory -Path $recordDir -Force | Out-Null
-foreach ($path in @($buildRoot, $releaseDir, $releaseZip, $sourceZip, $hashFile, $buildLog)) {
-    Remove-GeneratedPath $path
+foreach ($path in @($releaseDir, $releaseZip, $sourceZip, $hashFile, $buildLog)) {
+    if (Test-Path -LiteralPath $path) { throw "Preserving existing release artifact: $path" }
 }
+Remove-GeneratedPath $buildRoot
 
 $rawDist = Join-Path $buildRoot 'dist'
 $workPath = Join-Path $buildRoot 'work'
@@ -87,7 +102,7 @@ $pyinstallerArgs = @(
     '--hidden-import', 'openpyxl', '--hidden-import', 'xlrd',
     '--add-data', ((Join-Path $root 'code\help.json') + ':.'),
     '--add-data', ((Join-Path $root 'help') + ':help'),
-    '--add-data', ((Join-Path $root 'user_config') + ':user_config'),
+    '--add-data', ((Join-Path $root 'user_config\default.conf') + ':user_config'),
     '--add-data', ((Join-Path $root 'sample_data\coatings.csv') + ':sample_data'),
     '--add-data', ((Join-Path $root 'sample_data\Gasket.xlsx') + ':sample_data'),
     '--add-data', ((Join-Path $root 'sample_data\ctrl_chart_test.pickle') + ':sample_data'),
@@ -123,9 +138,12 @@ $os = Get-CimInstance Win32_OperatingSystem
 $coreVersions = & $python -c "import importlib.metadata as m; names=['numpy','scipy','pandas','matplotlib','seaborn','statsmodels','openpyxl','xlrd','Pillow','prettytable']; print('; '.join(n+' '+m.version(n) for n in names))"
 $buildInfo = @(
     'MiniJMP v0.1.0-beta.1 Windows x64',
+    "Build ID: $shortHead",
     "Base Git HEAD: $head",
     "Branch: $branch",
-    'The package includes the current working-tree changes; no commit or push was made.',
+    "Origin/main: $originMain",
+    "Tracked working-tree status: $((git -C $root status --short --untracked-files=no) -join '; ')",
+    'Application code and build inputs are from the working tree; corresponding source is included.',
     "Build interpreter: Python $pythonVersion",
     "Builder: PyInstaller $pyinstallerVersion (onedir, windowed, noupx)",
     "Windows: $($os.Caption), version $($os.Version), build $($os.BuildNumber), $($os.OSArchitecture)",
@@ -136,38 +154,33 @@ Set-Content -LiteralPath (Join-Path $releaseDir 'BUILD-INFO.txt') -Value $buildI
 
 $sourceStage = Join-Path $buildRoot 'source'
 New-Item -ItemType Directory -Path $sourceStage -Force | Out-Null
-foreach ($name in @('code','help','icon','user_config','sample_data','tests','tools','packaging')) {
-    Copy-Item -LiteralPath (Join-Path $root $name) -Destination $sourceStage -Recurse
-}
-New-Item -ItemType Directory -Path (Join-Path $sourceStage 'docs') -Force | Out-Null
-Copy-Item -LiteralPath (Join-Path $root 'docs\MENU_TRANSLATION.md') -Destination (Join-Path $sourceStage 'docs\MENU_TRANSLATION.md')
-foreach ($name in @('LICENSE','README.md','AGENTS.md','CODING_STANDARDS.md','CONTRIBUTING.md','CHANGES','requirements.txt','setup_env.bat','start.py','win_start.bat','win_start_no_cmd_win.vbs')) {
-    Copy-Item -LiteralPath (Join-Path $root $name) -Destination $sourceStage
-}
-$cacheDirs = Get-ChildItem -LiteralPath $sourceStage -Directory -Force -Recurse |
-    Where-Object { $_.Name -in @('__pycache__','.pytest_cache') } |
-    Sort-Object { $_.FullName.Length } -Descending
-foreach ($directory in $cacheDirs) { Remove-Item -LiteralPath $directory.FullName -Recurse -Force }
-foreach ($file in (Get-ChildItem -LiteralPath $sourceStage -File -Force -Recurse -Filter '*.pyc')) {
-    Remove-Item -LiteralPath $file.FullName -Force
+# Copy tracked build inputs only, excluding untracked local configuration and caches.
+$sourcePaths = @('code','help','icon','user_config/default.conf','sample_data','tests','tools','packaging',
+    'docs/MENU_TRANSLATION.md','LICENSE','README.md','AGENTS.md','CODING_STANDARDS.md','CONTRIBUTING.md',
+    'CHANGES','requirements.txt','setup_env.bat','start.py','win_start.bat','win_start_no_cmd_win.vbs')
+foreach ($name in (git -C $root ls-files -- @sourcePaths)) {
+    $destination = Join-Path $sourceStage $name
+    New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $root $name) -Destination $destination
 }
 $sourceInfo = @(
     'MiniJMP v0.1.0-beta.1 corresponding source bundle',
     "Base Git HEAD: $head",
     "Release branch: $branch",
     'This source archive contains the working-tree sources and build inputs used for the adjacent binary.',
-    'The release changes were not committed or pushed; this archive is the exact source handoff for the binary.'
+    "Build ID: $shortHead",
+    'Application source and tracked build inputs are from the working tree for reproduction.'
 ) -join "`r`n"
 Set-Content -LiteralPath (Join-Path $sourceStage 'SOURCE-BUNDLE-INFO.txt') -Value $sourceInfo -Encoding utf8
 Compress-Archive -Path (Join-Path $sourceStage '*') -DestinationPath $sourceZip -CompressionLevel Optimal
 
 $sourceHash = (Get-FileHash -LiteralPath $sourceZip -Algorithm SHA256).Hash
 $sourceNotice = @(
-    'Exact corresponding source is provided next to this folder as MiniJMP-v0.1.0-beta.1-source.zip.',
+    "Exact corresponding source is provided alongside the runtime ZIP as $sourceName.zip.",
     "Source archive SHA256: $sourceHash",
     "Base Git HEAD: $head",
     "Release branch: $branch",
-    'The working-tree release changes are included in the source archive and were not pushed to GitHub.',
+    'The source archive includes the tracked build inputs used for this binary.',
     'The source bundle contains the Windows build script and locked Python 3.11 dependency list.',
     'Repository origin: https://github.com/summeredge/Minijmp'
 ) -join "`r`n"
@@ -184,7 +197,7 @@ if ($sensitivePiFiles) {
     throw ('Unexpected PI files found in package: ' + (($sensitivePiFiles.FullName) -join ', '))
 }
 
-Compress-Archive -Path (Join-Path $releaseDir '*') -DestinationPath $releaseZip -CompressionLevel Optimal
+Compress-Archive -LiteralPath $releaseDir -DestinationPath $releaseZip -CompressionLevel Optimal
 $exeHash = (Get-FileHash -LiteralPath (Join-Path $releaseDir 'MiniJMP.exe') -Algorithm SHA256).Hash
 $zipHash = (Get-FileHash -LiteralPath $releaseZip -Algorithm SHA256).Hash
 $hashes = @(

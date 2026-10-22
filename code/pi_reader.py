@@ -58,6 +58,7 @@ def read_pi_data(tags, start_time, end_time, interval="1m", *, config_path=None,
             errors="strict",
             check=False,
             timeout=PI_READER_TIMEOUT_SECONDS,
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
         )
     except subprocess.TimeoutExpired as exc:
         raise RuntimeError(
@@ -107,6 +108,7 @@ def search_pi_tags(mask, *, config_path=None, executable_path=None) -> dict[str,
             errors="strict",
             check=False,
             timeout=PI_READER_TIMEOUT_SECONDS,
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
         )
     except subprocess.TimeoutExpired as exc:
         raise RuntimeError("PIReader 搜索超时，请检查 PI 服务器连接") from exc
