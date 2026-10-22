@@ -1,0 +1,30 @@
+MiniJMP v0.1.0-beta.1 — Windows x64
+
+运行
+1. 将整个 MiniJMP-v0.1.0-beta.1-win64 文件夹解压到可写位置。
+2. 双击 MiniJMP.exe。不要单独移动 exe；同目录的 _internal 文件夹包含运行时。
+3. 无需安装 Python、无需管理员权限，也无需运行安装程序。
+
+作者与来源
+- 本软件基于原作者 G.Du 发布的 Minijmp 开源项目进行二次开发；当前版本署名为 Copyright (C) G.Du 2024-。
+- 基础组件 DataExplore 0.13：Copyright (C) Damien Farrell 2014-。
+- 软件内“关于”窗口保留原作者署名及本版本二次开发说明。
+
+数据与工作表
+- 可导入 CSV、TSV、TXT、XLS、XLSX；Excel 工作簿中的每个工作表会导入为一个 MiniJMP 工作表。
+- 可导出 CSV、XLSX 和单表 pickle；多工作表工程可保存为 .dexpl，单表 pickle 可保存为 .pickle。
+- .pickle 和 .dexpl 使用 Python pickle。只打开您信任来源的文件。
+- 内置精选示例可从文件菜单打开。
+
+配置与日志
+- 表格默认配置及错误日志写入 %LOCALAPPDATA%\MiniJMP\。
+- 应用偏好设置保存在当前 Windows 用户目录下的 .dataexplore 文件夹。
+- 工作文件请保存到您有权限访问的位置。
+
+PI 数据
+PIReader.exe、PI SDK、PI 服务器地址和凭据不包含在此包中。PI 功能需由组织按授权和目标机环境单独配置；此 Beta 包未验证 PI 连接。
+
+许可与源码
+- 本程序依据 GNU GPL version 3 或更高版本授权，完整条款见 LICENSE。
+- 第三方包名称、版本及所带许可证文本见 THIRD-PARTY-NOTICES.txt 和 THIRD-PARTY-LICENSES 文件夹。
+- 与此构建对应的完整源码及复现构建脚本见相邻的 MiniJMP-v0.1.0-beta.1-source.zip；获取方式见 SOURCE-CODE.txt。

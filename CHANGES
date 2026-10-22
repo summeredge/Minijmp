@@ -2,6 +2,13 @@
 CHANGES
 =======
 
+-------------
+v0.1.0-beta.1
+-------------
+
+Windows x64 onedir test build with bundled Python runtime, offline help, and selected sample data.
+The source bundle and locked Windows build recipe are distributed alongside the application archive.
+
 
 ------
 0.1.0

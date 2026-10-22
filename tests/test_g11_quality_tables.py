@@ -1,7 +1,6 @@
 """G11：全部质量报告生产入口、原 TXT、原精度及真实文件导出。"""
 import ast
 import math
-import subprocess
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 
@@ -11,6 +10,7 @@ import pytest
 from matplotlib.figure import Figure
 from openpyxl import load_workbook
 from PIL import Image
+from source_baselines import read_source_baseline
 
 import GRR
 import cpk
@@ -22,7 +22,7 @@ from test_g4_quality_reports import Y, PART, OP, NEST_Y, NEST_PART, NEST_OP, equ
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = '63f2191'
+BASE = '63f2191554176452ea544826ced714bef21f918c'
 GRR_CASES = [(method, op, inter) for method in ('aiag', 'emp', 'xbar')
              for op in (False, True) for inter in ('Auto', 'On', 'Off')]
 CASES = ([('grr', *case) for case in GRR_CASES]
@@ -41,7 +41,7 @@ CASES = ([('grr', *case) for case in GRR_CASES]
 def baseline():
     modules = {}
     for name in ('GRR', 'cpk', 'control_chart'):
-        source = subprocess.check_output(['git', 'show', f'{BASE}:code/{name}.py'], cwd=ROOT).decode('utf-8')
+        source = read_source_baseline(BASE, f'code/{name}.py')
         module = ModuleType('g11_before_' + name)
         exec(compile(source, f'<G11-before:{name}>', 'exec'), module.__dict__)
         modules[name] = module
@@ -148,7 +148,7 @@ def test_raw_values_match_unrounded_baseline_expressions(case, baseline, monkeyp
         captured.append(rows[1:])
         return original(rows)
     # 说明中的字符串拼接仍使用原 format_stat，仅将表格构造表达式解包。
-    source = subprocess.check_output(['git', 'show', f'{BASE}:code/{name}.py'], cwd=ROOT).decode('utf-8')
+    source = read_source_baseline(BASE, f'code/{name}.py')
     tree = ast.parse(source)
     class UnroundRows(ast.NodeTransformer):
         def visit_Assign(self, node):
@@ -259,7 +259,7 @@ def test_plot_dialog_and_statistical_dependencies_unchanged():
         # 合并时 main 已含 G9/G10 呈现迁移；仍逐字保护这三个共享模块。
         baseline = 'fc9215e0b7bb58d560754ff65607b2241d7ff7dc' if name in (
             'utilities.py', 'two_way_anova.py', 'one_way_ANOVA.py') else BASE
-        before = subprocess.check_output(['git', 'show', f'{baseline}:code/{name}'], cwd=ROOT).decode('utf-8')
+        before = read_source_baseline(baseline, f'code/{name}')
         current = (ROOT/'code'/name).read_text(encoding='utf-8')
         if name == 'utilities.py':
             # G12 仅迁移区间报告；其余全文及该函数计算仍受保护。

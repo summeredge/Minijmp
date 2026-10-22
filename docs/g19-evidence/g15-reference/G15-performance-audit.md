@@ -493,7 +493,7 @@ calculate_d3已经有lru_cache，不能再把“缺少缓存”列作待开发�
 
 以下仅为P3/未完成验证，不宣称实测瓶颈：密集蜂群、分组线图默认bootstrap、正交拟合重复正态检验、Residual端到端重复OLS、undo全表快照、PI结果Treeview/主表回填、极端长字符串/极宽表、任意多Y轴、无限报告/历史图常驻。每文件具体入口/行号/理由见CSV和static-statistics/static-ui附件。
 
-不可达/历史：p_simulation只在注释中调用，fit_jsu不在当前六模型列表，p_likelihood_ratio没有当前GUI调用，multi_fit_orig保留旧公开入口；docs/g14-evidence/before是历史快照。core_orig/data_orig通过MRO仍在当前路径，完全不同于这些快照。
+不可达/历史：p_simulation只在注释中调用，fit_jsu不在当前六模型列表，p_likelihood_ratio没有当前GUI调用，multi_fit_orig保留旧公开入口；tests/fixtures/g14_before是历史快照。core_orig/data_orig通过MRO仍在当前路径，完全不同于这些快照。
 
 ## 失败、资源限制与不完整样本
 
@@ -612,9 +612,9 @@ preliminary保留被正式结果替换的试运行：ANOVA最初flat输入违背
 | docs/g12-evidence/render.py | 验收证据生成脚本 | AST候选0处；独立验收脚本 | 静态检查通过；无需单独基准 |
 | docs/g13-evidence/visual_check.py | 验收证据生成脚本 | AST候选1处；独立验收脚本 | 静态检查通过；无需单独基准 |
 | docs/g14-evidence/render.py | 验收证据生成脚本 | AST候选3处；独立验收脚本 | 静态检查通过；无需单独基准 |
-| docs/g14-evidence/before/MiniJMP.py | 历史G14修改前快照 | AST候选0处；不作为当前瓶颈 | 历史实现静态记录；不执行 |
-| docs/g14-evidence/before/stat_table.py | 历史G14修改前快照 | AST候选10处；不作为当前瓶颈 | 历史实现静态记录；不执行 |
-| docs/g14-evidence/before/txt_output.py | 历史G14修改前快照 | AST候选0处；不作为当前瓶颈 | 历史实现静态记录；不执行 |
+| tests/fixtures/g14_before/MiniJMP.py | 历史G14修改前快照 | AST候选0处；不作为当前瓶颈 | 历史实现静态记录；不执行 |
+| tests/fixtures/g14_before/stat_table.py | 历史G14修改前快照 | AST候选10处；不作为当前瓶颈 | 历史实现静态记录；不执行 |
+| tests/fixtures/g14_before/txt_output.py | 历史G14修改前快照 | AST候选0处；不作为当前瓶颈 | 历史实现静态记录；不执行 |
 | docs/g7-evidence/render.py | 验收证据生成脚本 | AST候选0处；独立验收脚本 | 静态检查通过；无需单独基准 |
 | docs/g8-evidence/render.py | 验收证据生成脚本 | AST候选3处；独立验收脚本 | 静态检查通过；无需单独基准 |
 | tests/conftest.py | 测试/fixture辅助 | AST静态候选0处；仅测试执行，非当前用户瓶颈 | 静态检查通过；无需独立性能基准 |

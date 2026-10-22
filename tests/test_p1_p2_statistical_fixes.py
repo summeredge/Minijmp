@@ -1,7 +1,6 @@
 """六项定向修复：独立数值参考、真实消费者和授权范围外不变性。"""
 import ast
 import inspect
-import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -11,6 +10,7 @@ import pandas as pd
 import pytest
 from matplotlib.figure import Figure
 from scipy import stats
+from source_baselines import read_source_baseline
 
 import control_chart as spc
 import ctrlchart_dialog as dialogs
@@ -18,11 +18,11 @@ import utilities
 import proportion_test as prop
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = '5b68df0'
+BASE = '5b68df06ce3892eace5f43f2c142df4d1b273eeb'
 
 
 def before(module):
-    source = subprocess.check_output(['git', 'show', f'{BASE}:code/{module.__name__}.py'], cwd=ROOT).decode('utf-8')
+    source = read_source_baseline(BASE, f'code/{module.__name__}.py')
     namespace = dict(module.__dict__)
     exec(compile(source, f'<before:{module.__name__}>', 'exec'), namespace)
     return SimpleNamespace(**namespace)

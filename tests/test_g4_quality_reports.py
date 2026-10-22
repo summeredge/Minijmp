@@ -3,7 +3,6 @@ import ast
 import inspect
 import math
 from pathlib import Path
-import subprocess
 from types import ModuleType, SimpleNamespace
 from unittest.mock import Mock
 
@@ -21,6 +20,7 @@ import txt_output
 from cpk_plot import cpk_plot
 from utilities import format_stat
 from test_g1_text_output import viewer
+from source_baselines import read_source_baseline
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,7 +38,7 @@ NEST_Y = [1., 3., 5., 7., 9., 11., 13., 15.]
 def originals():
     modules = {}
     for name in ('cpk', 'GRR', 'ti', 'qc_dialog'):
-        source = subprocess.check_output(['git', 'show', f'{BASELINE}:code/{name}.py'], cwd=ROOT).decode('utf-8')
+        source = read_source_baseline(BASELINE, f'code/{name}.py')
         module = ModuleType('g4_original_' + name)
         exec(compile(source, f'baseline/{name}.py', 'exec'), module.__dict__)
         modules[name] = module
@@ -438,7 +438,7 @@ class ComputationOnly(ast.NodeTransformer):
 @pytest.mark.parametrize('module', [cpk, GRR, ti])
 def test_original_computations_signatures_and_defaults_are_unchanged(originals, module):
     original = originals[module.__name__]
-    old_tree = ast.parse(subprocess.check_output(['git', 'show', f'{BASELINE}:code/{module.__name__}.py'], cwd=ROOT).decode('utf-8'))
+    old_tree = ast.parse(read_source_baseline(BASELINE, f'code/{module.__name__}.py'))
     new_tree = ast.parse((ROOT / 'code' / (module.__name__ + '.py')).read_text(encoding='utf-8'))
     for name, function in inspect.getmembers(original, inspect.isfunction):
         if function.__module__ != original.__name__:
@@ -477,7 +477,7 @@ def test_original_computations_signatures_and_defaults_are_unchanged(originals, 
     (GRR, 'grr_nested', 'Gage R&R Nested for Response'),
     (ti, 'ti_norm', '"Lower TI", "Upper TI"')])
 def test_specific_replaced_output_patterns(originals, module, function, old):
-    source = subprocess.check_output(['git', 'show', f'{BASELINE}:code/{module.__name__}.py'], cwd=ROOT).decode('utf-8')
+    source = read_source_baseline(BASELINE, f'code/{module.__name__}.py')
     node = next(n for n in ast.parse(source).body if isinstance(n, ast.FunctionDef) and n.name == function)
     assert old in ast.get_source_segment(source, node)
     assert old not in inspect.getsource(getattr(module, function))
@@ -489,7 +489,7 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
                  'one_way_ANOVA.py', 'cpk_plot.py', 'grr_plot.py'):
         # 仅两份绘图源码转为已验收的 G6 基线，其余共享模块仍保留原守卫。
         baseline = '0320b7bdc49321eb7a54f67ddc89dc08edc32f3e' if name in {'cpk_plot.py', 'grr_plot.py'} else SHARED_BASELINE
-        old = subprocess.check_output(['git', 'show', f'{baseline}:code/{name}'], cwd=ROOT).decode('utf-8')
+        old = read_source_baseline(baseline, f'code/{name}')
         if name in {'one_way_ANOVA.py', 'two_way_anova.py'}:
             # G9 仅迁移报告；计算守卫继续保留，完整 TXT 由 G9 固定夹具验证。
             current = ast.parse((ROOT / 'code' / name).read_text(encoding='utf-8'))
@@ -557,7 +557,7 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
 
 
 def test_quality_dialog_changes_are_only_output_statements(originals):
-    old = subprocess.check_output(['git', 'show', f'{BASELINE}:code/qc_dialog.py'], cwd=ROOT).decode('utf-8')
+    old = read_source_baseline(BASELINE, 'code/qc_dialog.py')
     current = (ROOT / 'code/qc_dialog.py').read_text(encoding='utf-8')
     class ReportOnly(ast.NodeTransformer):
         def visit_Expr(self, node):
