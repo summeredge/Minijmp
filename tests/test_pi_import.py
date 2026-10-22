@@ -43,6 +43,54 @@ def frame():
         ['2026-10-20 01:10:00', 6, 8]]})
 
 
+def test_pi_negative_measurements_with_status_gap_are_selectable(csv_app, monkeypatch):
+    import numpy as np
+    from time_series_dialog import TimeSeriesDialog
+
+    app, error = csv_app
+    tag = 'LX_NJADS_DCS_FCS0101_FIC450002'
+    payload = {'columns': ['Timestamp', tag], 'data': [
+        ['2026-10-20 15:53:32', '-2.74876'],
+        ['2026-10-20 15:54:32', '-2.78499627'],
+        ['2026-10-20 15:55:32', 'Bad Input'],
+        ['2026-10-20 15:56:32', '-2.63170552'],
+        ['2026-10-20 15:57:32', '-2.63646555'],
+        ['2026-10-20 15:58:32', 'Shutdown'],
+    ]}
+    monkeypatch.setattr(pi_reader, 'read_pi_data',
+                        lambda *a, **kw: pi_reader._read_reader_json(payload))
+
+    def action(window):
+        window.tags.insert('1.0', tag)
+        window.query()
+        pump(app.main, lambda: not window.winfo_exists())
+
+    open_menu(app, monkeypatch, action)
+    data = app.table.model.df
+    original = data.copy(deep=True)
+    assert data[tag].dtype == object and data[tag].iloc[2] == 'Bad Input'
+    dialog = TimeSeriesDialog(app.table, df=data, app=app, title='时间序列图')
+    try:
+        assert dialog.xvar.get() == 'Timestamp'
+        assert dialog.ylist.get(0, 'end') == (tag,)
+        dialog.ylist.selection_set(0)
+        dialog.update_variables()
+        dialog.apply()
+        viewer = app.table.pf
+        viewer.canvas.draw()
+        line = viewer.fig.axes[0].lines[0]
+        np.testing.assert_equal(line.get_ydata(),
+                                [-2.74876, -2.78499627, np.nan,
+                                 -2.63170552, -2.63646555, np.nan])
+        assert len(line.get_xdata()) == len(data) == 6
+        assert_frame_equal(data, original)
+        error.assert_not_called()
+    finally:
+        if app.table.pf is not None:
+            app.table.pf.close()
+        dialog.main.destroy()
+
+
 def test_pi_strings_reach_real_y_candidates_and_plot(csv_app, monkeypatch):
     import numpy as np
     from time_series_dialog import TimeSeriesDialog

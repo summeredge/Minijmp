@@ -2,12 +2,16 @@
 
 import tkinter as tk
 from tkinter import ttk
-from pandas.api.types import is_numeric_dtype, is_complex_dtype, is_bool_dtype
+
+import pandas as pd
+from pandas.api.types import is_numeric_dtype
+
 from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
 
 from dialog import addListBox
 from sbplot_dialog import SBDialog
 from time_series import (AXIS_MODES, default_time_column, axis_assignments,
+                         is_numeric_y_candidate,
                          prepare_time_series, time_series_plot)
 
 
@@ -25,6 +29,7 @@ class TimeSeriesDialog(SBDialog):
         self.xlabel = tk.StringVar()
         self.show_legend = tk.BooleanVar(value=True)
         self.grid = tk.BooleanVar(value=True)
+        self.statusvar = tk.StringVar(value='')
 
         frame = ttk.LabelFrame(master, text='X 轴')
         frame.pack(fill=tk.X, padx=4, pady=2)
@@ -39,8 +44,8 @@ class TimeSeriesDialog(SBDialog):
         frame = ttk.LabelFrame(master, text='Y 变量与坐标轴')
         frame.pack(fill=tk.BOTH, expand=True, padx=4, pady=2)
         numeric = [c for c in self.cols if self.df.columns.is_unique
-                   and is_numeric_dtype(self.df[c].dtype) and not is_complex_dtype(self.df[c].dtype)
-                   and not is_bool_dtype(self.df[c].dtype)]
+                   and is_numeric_y_candidate(self.df[c])]
+
         box, self.ylist = addListBox(frame, values=numeric, width=24, height=7, label='数值列（多选）')
         box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.ylist.bind('<<ListboxSelect>>', self.update_variables)
@@ -89,6 +94,8 @@ class TimeSeriesDialog(SBDialog):
         ttk.Checkbutton(settings, text='显示图例', variable=self.show_legend).grid(row=0, column=2)
         ttk.Checkbutton(settings, text='显示网格', variable=self.grid).grid(row=1, column=2)
         settings.columnconfigure(1, weight=1)
+        ttk.Label(master, textvariable=self.statusvar, wraplength=420).pack(
+            anchor=tk.W, padx=4)
 
     def update_x_mode(self):
         self.time_combo.configure(state='disabled' if self.sample_mode.get() else 'readonly')
@@ -141,6 +148,10 @@ class TimeSeriesDialog(SBDialog):
         try:
             # Validate before replacing the user's previous plot window.
             prepared = prepare_time_series(self.df, columns, time_column)
+            gaps = sum(int(pd.isna(prepared[1][column]).sum()) for column in columns
+                       if not is_numeric_dtype(self.df[column].dtype))
+            self.statusvar.set(f'{gaps} 个状态/缺失点仅在曲线中留空（原表保留）'
+                               if gaps else '')
         except ValueError as exc:
             self.error(str(exc))
             return
