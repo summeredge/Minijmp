@@ -49,6 +49,19 @@ def test_frozen_entrypoint_calls_gui_main_without_startup_subprocess(monkeypatch
     gui.main.assert_called_once_with()
 
 
+def test_release_archives_identify_commit_and_preserve_existing_artifacts():
+    script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
+    assert 'MiniJMP-$version-$shortHead-win64' in script
+    assert 'MiniJMP-$version-$shortHead-source' in script
+    assert 'Preserving existing release artifact:' in script
+    assert 'Compress-Archive -LiteralPath $releaseDir' in script
+    assert 'git -C $root ls-files -- @sourcePaths' in script
+    assert 'if ($BuildSuffix) { $shortHead = "$shortHead-$BuildSuffix" }' in script
+    assert 'Build ID: $shortHead' in script
+    assert 'Application code and build inputs are from the working tree' in script
+    assert 'not committed or pushed' not in script
+
+
 def test_frozen_resources_and_user_writable_paths(tmp_path):
     bundle = tmp_path / '_internal'
     (bundle / 'user_config').mkdir(parents=True)

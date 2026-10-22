@@ -3,11 +3,66 @@ import json
 import subprocess
 from datetime import datetime
 from pathlib import Path
+from types import SimpleNamespace
 
 import pandas as pd
 import pytest
 
 import pi_reader
+
+
+@pytest.mark.parametrize("platform", ["nt", "posix"])
+@pytest.mark.parametrize("operation", ["search", "query"])
+@pytest.mark.parametrize("outcome", ["success", "failure", "timeout"])
+def test_pi_subprocess_flags_and_outcomes(monkeypatch, tmp_path, platform, operation, outcome):
+    config = tmp_path / "config.txt"
+    config.write_text("test config", encoding="utf-8")
+    executable = tmp_path / "PIReader.exe"
+    executable.touch()
+    monkeypatch.setattr(pi_reader, "os", SimpleNamespace(name=platform))
+    if platform == "nt":
+        monkeypatch.setattr(subprocess, "CREATE_NO_WINDOW", 0x08000000, raising=False)
+    else:
+        monkeypatch.delattr(subprocess, "CREATE_NO_WINDOW", raising=False)
+
+    def fake_run(command, **kwargs):
+        assert kwargs == {
+            **({"input": "TAG_A\n"} if operation == "query" else {}),
+            "capture_output": True, "text": True, "encoding": "utf-8",
+            "errors": "strict", "check": False,
+            "timeout": pi_reader.PI_READER_TIMEOUT_SECONDS,
+            "creationflags": 0x08000000 if platform == "nt" else 0,
+        }
+        if outcome == "timeout":
+            raise subprocess.TimeoutExpired(command, kwargs["timeout"])
+        payload = ({"tags": ["TAG_A"]} if operation == "search" else
+                   {"columns": ["Timestamp", "TAG_A"], "data": [["2024-01-01", 1.25]]})
+        return subprocess.CompletedProcess(
+            command, 1 if outcome == "failure" else 0,
+            "reader stdout" if outcome == "failure" else json.dumps(payload),
+            "reader stderr" if outcome == "failure" else "",
+        )
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    def invoke():
+        paths = {"config_path": config, "executable_path": executable}
+        if operation == "search":
+            return pi_reader.search_pi_tags("TAG*", **paths)
+        return pi_reader.read_pi_data(["TAG_A"], "2024-01-01", "2024-01-02", **paths)
+
+    if outcome == "success":
+        result = invoke()
+        if operation == "search":
+            assert result["tags"] == ["TAG_A"]
+        else:
+            assert result.iloc[0, 0] == 1.25
+    else:
+        message = ("搜索超时" if operation == "search" else "查询超时") if outcome == "timeout" else "reader stdout\nreader stderr"
+        with pytest.raises(RuntimeError, match=message) as error:
+            invoke()
+        if outcome == "timeout":
+            assert isinstance(error.value.__cause__, subprocess.TimeoutExpired)
 
 
 @pytest.mark.parametrize('values,expected', [
@@ -48,7 +103,7 @@ def test_read_pi_data_uses_pi_reader_json(monkeypatch, tmp_path):
     monkeypatch.setenv("PI_CONFIG", str(config_path))
     monkeypatch.setenv("PI_READER_EXE", str(executable))
 
-    def fake_run(command, *, input, capture_output, text, encoding, errors, check, timeout):
+    def fake_run(command, *, input, capture_output, text, encoding, errors, check, timeout, creationflags):
         assert timeout == pi_reader.PI_READER_TIMEOUT_SECONDS
         assert command == [
             str(executable.resolve()),
