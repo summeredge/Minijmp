@@ -1,0 +1,349 @@
+........................................................................ [  2%]
+........................................................................ [  5%]
+........................................................................ [  8%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 20%]
+........................................................................ [ 23%]
+........................................................................ [ 26%]
+........................................................................ [ 29%]
+........................................................................ [ 32%]
+........................................................................ [ 35%]
+........................................................................ [ 38%]
+........................................................................ [ 41%]
+........................................................................ [ 44%]
+........................................................................ [ 47%]
+........................................................................ [ 50%]
+........................................................................ [ 53%]
+........................................................................ [ 56%]
+........................................................................ [ 59%]
+........................................................................ [ 62%]
+........................................................................ [ 65%]
+........................................................................ [ 68%]
+........................................................................ [ 71%]
+........................................................................ [ 74%]
+........................................................................ [ 77%]
+........................................................................ [ 80%]
+........................................................................ [ 83%]
+...E.................................................................... [ 86%]
+........................................................................ [ 89%]
+.............................F.......................................... [ 92%]
+........................................................................ [ 95%]
+........................................................................ [ 98%]
+.................................                                        [100%]
+=================================== ERRORS ====================================
+_ ERROR at teardown of test_timestamp_tag_through_reader_and_real_menu[tags0-Timestamp (time 1)] _
+tests\test_csv_import.py:28: in csv_app
+    assert not callbacks, callbacks
+E   AssertionError: [(<class '_tkinter.TclError'>, TclError('invalid command name ".!frame164.!mtable"'), <traceback object at 0x000001D6834B5800>)]
+E   assert not [(<class '_tkinter.TclError'>, TclError('invalid command name ".!frame164.!mtable"'), <traceback object at 0x000001D6834B5800>)]
+---------------------------- Captured stdout setup ----------------------------
+loading_path C:\Users\shaoy\Documents\Minijmp
+current dir C:\Users\shaoy\Documents\Minijmp\sample_data
+OS type windows
+---------------------------- Captured stdout call -----------------------------
+loading_path C:\Users\shaoy\Documents\Minijmp
+current dir C:\Users\shaoy\Documents\Minijmp\sample_data
+OS type windows
+================================== FAILURES ===================================
+_______ test_embedded_plot_windows_close_and_leave_stored_figure_usable _______
+tests\test_statistics_regressions.py:260: in test_embedded_plot_windows_close_and_leave_stored_figure_usable
+    assert all(ref() is None for ref in figure_refs)
+E   assert False
+E    +  where False = all(<generator object test_embedded_plot_windows_close_and_leave_stored_figure_usable.<locals>.<genexpr> at 0x000001D6FEAE2330>)
+============================== warnings summary ===============================
+tests/test_g10_tables.py: 2 warnings
+tests/test_g16_statistics.py: 7 warnings
+tests/test_g3_regression_reports.py: 1 warning
+tests/test_statistics_regressions.py: 2 warnings
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_axis_nan_policy.py:586: UserWarning: scipy.stats.shapiro: Input data has range zero. The results may not be accurate.
+    res = hypotest_fun_out(*samples, **kwds)
+
+tests/test_g10_tables.py: 2 warnings
+tests/test_g16_statistics.py: 9 warnings
+tests/test_g3_regression_reports.py: 1 warning
+tests/test_statistics_regressions.py: 2 warnings
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\statsmodels\stats\_adnorm.py:48: RuntimeWarning: invalid value encountered in divide
+    w = (y - xbar) / s
+
+tests/test_g10_tables.py::test_native_summary_window_can_close_and_reopen
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\statsmodels\regression\linear_model.py:3158: ValueWarning: omni_normtest is not valid with less than 8 observations; 6 samples were given.
+    omni, omnipv = cached("omni_normtest", lambda: omni_normtest(self.wresid))
+
+tests/test_g16_statistics.py::test_f01_degenerate_errors[x2-y2]
+tests/test_g16_statistics.py::test_f01_degenerate_errors[x2-y2]
+  C:\Users\shaoy\Documents\Minijmp\code\utilities.py:482: SmallSampleWarning: One or more sample arguments is too small; all returned values will be NaN. See documentation for sample size requirements.
+    s1, p1 = shapiro(data)
+
+tests/test_g16_statistics.py::test_f11_degenerate[groups3]
+  g16_before/chi_sq.py:275: RuntimeWarning: invalid value encountered in scalar divide
+
+tests/test_g16_statistics.py::test_f11_degenerate[groups3]
+  g16_before/chi_sq.py:93: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+
+tests/test_g16_statistics.py::test_f11_degenerate[groups3]
+  g16_before/chi_sq.py:94: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+
+tests/test_g16_statistics.py::test_f11_degenerate[groups3]
+  C:\Users\shaoy\Documents\Minijmp\code\chi_sq.py:280: RuntimeWarning: invalid value encountered in scalar divide
+    F = (SSB / (k - 1)) / (SSW / (N - k))
+
+tests/test_g16_statistics.py::test_f11_degenerate[groups3]
+  C:\Users\shaoy\Documents\Minijmp\code\chi_sq.py:93: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+    k1 = kurtosis(l1, fisher=True, bias=False)
+
+tests/test_g16_statistics.py::test_f11_degenerate[groups3]
+  C:\Users\shaoy\Documents\Minijmp\code\chi_sq.py:94: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+    k2 = kurtosis(l2, fisher=True, bias=False)
+
+tests/test_g16_statistics.py::test_f02_scalar_ties_constants_small_and_nonfinite[x6-y6]
+  g16_before/nonpara_cor.py:98: RuntimeWarning: invalid value encountered in scalar divide
+
+tests/test_g16_statistics.py::test_f02_scalar_ties_constants_small_and_nonfinite[x6-y6]
+  C:\Users\shaoy\Documents\Minijmp\code\nonpara_cor.py:100: RuntimeWarning: invalid value encountered in scalar divide
+    D = 30 * ((N - 2) * (N - 3) * D1 + D2 - 2 * (N - 2) * D3) / (N * (N - 1) * (N - 2) * (N - 3) * (N - 4))
+
+tests/test_g16_statistics.py::test_f02_matrix_values_reports_and_unordered_pairs[spearman]
+  C:\Users\shaoy\Documents\Minijmp\code\nonpara_cor.py:21: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+    spearman_result = stats.spearmanr(x, y)
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-0.0-0]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-1.0-10]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:108: RuntimeWarning: divide by zero encountered in reciprocal
+    t1 = np.reciprocal(npq_sqrt)
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-0.0-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:109: RuntimeWarning: invalid value encountered in divide
+    t2 = (2.0 * p) / npq_sqrt
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-0.0-0]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-1.0-10]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:114: RuntimeWarning: divide by zero encountered in reciprocal
+    t1 = np.reciprocal(npq)
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-1.0-10]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:109: RuntimeWarning: divide by zero encountered in divide
+    t2 = (2.0 * p) / npq_sqrt
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[10-1.0-10]
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:110: RuntimeWarning: invalid value encountered in subtract
+    g1 = t1 - t2
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:115: RuntimeWarning: divide by zero encountered in divide
+    t2 = 6.0/n
+
+tests/test_g16_statistics.py::test_f04_binomial_center_and_boundaries[0-0.5-0]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_discrete_distns.py:116: RuntimeWarning: invalid value encountered in subtract
+    g2 = t1 - t2
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_statistics_regressions.py::test_residual_plot_handles_constant_fitted_values_or_residuals[y1]
+C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\_pytest\unraisableexception.py:67: PytestUnraisableExceptionWarning: Exception ignored in: <function Image.__del__ at 0x000001D6A82BA3E0>
+
+Traceback (most recent call last):
+  File "C:\Users\shaoy\AppData\Local\Programs\Python\Python311\Lib\tkinter\__init__.py", line 4105, in __del__
+    self.tk.call('image', 'delete', self.name)
+RuntimeError: main thread is not in main loop
+
+Enable tracemalloc to get traceback where the object was allocated.
+See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+  warnings.warn(pytest.PytestUnraisableExceptionWarning(msg))
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_distn_infrastructure.py:2046: RuntimeWarning: invalid value encountered in divide
+    x = np.asarray((x - loc)/scale, dtype=dtyp)
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_distn_infrastructure.py:2129: RuntimeWarning: invalid value encountered in divide
+    x = np.asarray((x - loc)/scale, dtype=dtyp)
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_continuous_distns.py:2757: RuntimeWarning: divide by zero encountered in power
+    return c*pow(x, c-1)*np.exp(-pow(x, c))
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  g16_before/dist_fit.py:70: RuntimeWarning: divide by zero encountered in log
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  g16_before/dist_fit.py:90: RuntimeWarning: invalid value encountered in scalar add
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\code\dist_fit.py:70: RuntimeWarning: divide by zero encountered in log
+    ad_stat = -n - np.sum((2 * np.arange(1, n + 1) - 1) * (np.log(cdf) + np.log(1 - cdf[::-1]))) / n
+
+tests/test_g16_statistics.py::test_f06_all_fits_and_model_selection[data3]
+  C:\Users\shaoy\Documents\Minijmp\code\dist_fit.py:90: RuntimeWarning: invalid value encountered in scalar add
+    p = np.exp(1.2937 - 5.709 * ad_adjusted + 0.0186 * ad_adjusted**2)
+
+tests/test_g16_statistics.py::test_f08_two_way_balanced_and_unbalanced[data2-True]
+  g16_before/two_way_anova.py:24: SingularMatrixWarning: The design matrix is rank-deficient. The model parameters are not uniquely determined.
+
+tests/test_g16_statistics.py::test_f08_two_way_balanced_and_unbalanced[data2-True]
+  C:\Users\shaoy\Documents\Minijmp\code\two_way_anova.py:24: SingularMatrixWarning: The design matrix is rank-deficient. The model parameters are not uniquely determined.
+    data=df).fit()
+
+tests/test_g16_statistics.py::test_f08_degenerate_errors[data2]
+tests/test_g16_statistics.py::test_f08_degenerate_errors[data2]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\statsmodels\regression\linear_model.py:1954: RuntimeWarning: divide by zero encountered in scalar divide
+    return np.dot(wresid, wresid) / self.df_resid
+
+tests/test_g16_statistics.py::test_f08_degenerate_errors[data2]
+tests/test_g16_statistics.py::test_f08_degenerate_errors[data2]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\statsmodels\base\model.py:1727: RuntimeWarning: invalid value encountered in multiply
+    cov_p = self.normalized_cov_params * scale
+
+tests/test_g16_statistics.py::test_f08_degenerate_errors[data2]
+tests/test_g16_statistics.py::test_f08_degenerate_errors[data2]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\statsmodels\base\model.py:1743: RuntimeWarning: invalid value encountered in dot
+    tmp = dot_fun(r_matrix, dot_fun(cov_p, np.transpose(other)))
+
+tests/test_g3_regression_reports.py::test_actual_dialog_apply_keeps_cleaning_and_reaches_report[ResidDialog]
+tests/test_g6_chart_presentation.py::test_normal_qq_and_residual_dialogs_reach_styled_plot_and_keep_reports
+  C:\Users\shaoy\Documents\Minijmp\code\fit_dialog.py:328: PendingDeprecationWarning: The set_tight_layout function will be deprecated in a future version. Use set_layout_engine instead.
+    pf.fig.set_tight_layout(True)
+
+tests/test_g3_regression_reports.py::test_statsviewer_reuses_complete_native_model_summary[OLS]
+tests/test_g3_regression_reports.py::test_statsviewer_reuses_complete_native_model_summary[GLS]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_axis_nan_policy.py:430: UserWarning: `kurtosistest` p-value may be inaccurate with fewer than 20 observations; only n=12 observations were given.
+    return hypotest_fun_in(*args, **kwds)
+
+tests/test_g6_chart_presentation.py::test_long_category_labels_remain_complete_and_do_not_overlap[single_boxplot]
+tests/test_g6_chart_presentation.py::test_long_category_labels_remain_complete_and_do_not_overlap[multi_boxplot]
+tests/test_plot_window_lifecycle.py::test_plot_entries_release_modal_and_accept_input[box-single]
+tests/test_plot_window_lifecycle.py::test_plot_entries_release_modal_and_accept_input[box-multi]
+tests/test_plot_window_lifecycle.py::test_plot_entries_release_modal_and_accept_input[box-group]
+tests/test_plot_window_lifecycle.py::test_plot_entries_release_modal_and_accept_input[box-group]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\seaborn\categorical.py:700: MatplotlibDeprecationWarning: vert: bool was deprecated in Matplotlib 3.11 and will be removed in 3.13. Use orientation: {'vertical', 'horizontal'} instead.
+    artists = ax.bxp(**boxplot_kws)
+
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[2-multi_fit]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[2-multi_fit_orig]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[3-multi_fit]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[3-multi_fit_orig]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[4-multi_fit]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[4-multi_fit_orig]
+  C:\Users\shaoy\Documents\Minijmp\code\utilities.py:254: RuntimeWarning: invalid value encountered in scalar power
+    x1 = (X2 * D[1])**.5 * E[0][0]
+
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[2-multi_fit]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[2-multi_fit_orig]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[3-multi_fit]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[3-multi_fit_orig]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[4-multi_fit]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[4-multi_fit_orig]
+  C:\Users\shaoy\Documents\Minijmp\code\utilities.py:255: RuntimeWarning: invalid value encountered in scalar power
+    y1 = (X2 * D[1])**.5 * E[0][1]
+
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[2-multi_fit]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[2-multi_fit_orig]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[3-multi_fit]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[3-multi_fit_orig]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[4-multi_fit]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[4-multi_fit_orig]
+  C:\Users\shaoy\Documents\Minijmp\code\utilities.py:256: RuntimeWarning: invalid value encountered in scalar power
+    x2 = (X2 * D[0])**.5 * E[1][0]
+
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[2-multi_fit]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[2-multi_fit_orig]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[3-multi_fit]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[3-multi_fit_orig]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[4-multi_fit]
+tests/test_g6_chart_presentation.py::test_both_matrix_entries_keep_pair_data_and_full_variable_names[4-multi_fit_orig]
+  C:\Users\shaoy\Documents\Minijmp\code\utilities.py:257: RuntimeWarning: invalid value encountered in scalar power
+    y2 = (X2 * D[0])**.5 * E[1][1]
+
+tests/test_phase1_plots.py::test_legacy_nonempty_and_save[pie]
+tests/test_phase1_plots.py::test_legacy_labels_do_not_mutate[pie]
+tests/test_phase1_plots.py::test_legacy_missing_values[pie]
+  C:\Users\shaoy\Documents\Minijmp\code\pandastable_local\plotting.py:1243: UserWarning: To output multiple subplots, the figure containing the passed axes is being cleared.
+    axs = data.plot(ax=ax,kind='pie', labels=lbls, layout=layout,
+
+tests/test_phase1_plots.py::test_legacy_nonempty_and_save[scatter_matrix]
+tests/test_phase1_plots.py::test_legacy_missing_values[scatter_matrix]
+  C:\Users\shaoy\Documents\Minijmp\code\pandastable_local\plotting.py:1215: UserWarning: To output multiple subplots, the figure containing the passed axes is being cleared.
+    axs = plotting.scatter_matrix(data, ax=ax, **kwargs)
+
+tests/test_phase1_plots.py::test_real_menu_dialog_plot_save[scatter_matrix-\u77e9\u9635\u56fe]
+tests/test_plot_window_lifecycle.py::test_plot_entries_release_modal_and_accept_input[scatter]
+  C:\Users\shaoy\Documents\Minijmp\code\basic_plot_dialog.py:106: UserWarning: To output multiple subplots, the figure containing the passed axes is being cleared.
+    pd.plotting.scatter_matrix(data, ax=ax, diagonal='hist', marker='o')
+
+tests/test_pi_import.py: 11 warnings
+  C:\Users\shaoy\Documents\Minijmp\code\pi_import.py:23: Pandas4Warning: 'd' is deprecated and will be removed in a future version. Please use 'D' instead of 'd'.
+    return now - (pd.Timedelta(int(match[1]), unit=match[2]) if match[1]
+
+tests/test_pi_import.py: 3 warnings
+tests/test_plot_window_lifecycle.py: 34 warnings
+tests/test_result_background.py: 6 warnings
+tests/test_table_regressions.py: 6 warnings
+tests/test_windows_packaging.py: 1 warning
+tests/test_worksheets.py: 3 warnings
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\_pytest\unraisableexception.py:67: PytestUnraisableExceptionWarning: Exception ignored in: <function Variable.__del__ at 0x000001D6A66D3740>
+  
+  Traceback (most recent call last):
+    File "C:\Users\shaoy\AppData\Local\Programs\Python\Python311\Lib\tkinter\__init__.py", line 410, in __del__
+      if self._tk.getboolean(self._tk.call("info", "exists", self._name)):
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  RuntimeError: main thread is not in main loop
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnraisableExceptionWarning(msg))
+
+tests/test_plot_window_lifecycle.py::test_plot_entries_release_modal_and_accept_input[hist-xy]
+  C:\Users\shaoy\Documents\Minijmp\code\sb_histo.py:19: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+    sb.histplot(ax=ax, zorder=2, **kwargs)
+
+tests/test_plot_window_lifecycle.py::test_plot_entries_release_modal_and_accept_input[box-group]
+  C:\Users\shaoy\Documents\Minijmp\code\sb_boxplot.py:48: FutureWarning: 
+  
+  Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+  
+    sb.boxplot(ax=ax, zorder=2, whis=whis,  # fill=(not add_swarm),
+
+tests/test_plot_window_lifecycle.py::test_plot_entries_release_modal_and_accept_input[line]
+  C:\Users\shaoy\Documents\Minijmp\code\sb_misc.py:103: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+    sb.lineplot(ax=ax, zorder=3,
+
+tests/test_plot_window_lifecycle.py::test_plot_entries_release_modal_and_accept_input[dot]
+  C:\Users\shaoy\Documents\Minijmp\code\sb_misc.py:77: UserWarning: Ignoring `palette` because no `hue` variable has been assigned.
+    sb.scatterplot(ax=ax, zorder=3,
+
+tests/test_result_background.py: 9 warnings
+tests/test_startup.py: 2 warnings
+tests/test_statistics_regressions.py: 1 warning
+tests/test_supplemental_stability.py: 1 warning
+tests/test_table_regressions.py: 6 warnings
+tests/test_worksheets.py: 2 warnings
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\_pytest\unraisableexception.py:67: PytestUnraisableExceptionWarning: Exception ignored in: <function Image.__del__ at 0x000001D6A82BA3E0>
+  
+  Traceback (most recent call last):
+    File "C:\Users\shaoy\AppData\Local\Programs\Python\Python311\Lib\tkinter\__init__.py", line 4105, in __del__
+      self.tk.call('image', 'delete', self.name)
+  RuntimeError: main thread is not in main loop
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnraisableExceptionWarning(msg))
+
+tests/test_statistics_regressions.py::test_residual_plot_handles_constant_fitted_values_or_residuals[y0]
+  C:\Users\shaoy\Documents\Minijmp\code\linear_plot.py:156: UserWarning: Attempting to set identical low and high xlims makes transformation singular; automatically expanding.
+    ax.set_xlim(left=x_min, right=x_max)
+
+tests/test_statistics_regressions.py::test_residual_plot_handles_constant_fitted_values_or_residuals[y1]
+  C:\Users\shaoy\Documents\Minijmp\code\linear_plot.py:157: UserWarning: Attempting to set identical low and high ylims makes transformation singular; automatically expanding.
+    ax.set_ylim(bottom=y_min, top=y_max)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_statistics_regressions.py::test_embedded_plot_windows_close_and_leave_stored_figure_usable
+ERROR tests/test_pi_import.py::test_timestamp_tag_through_reader_and_real_menu[tags0-Timestamp (time 1)]
+1 failed, 2407 passed, 203 warnings, 1 error in 354.42s (0:05:54)

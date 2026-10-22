@@ -204,47 +204,14 @@
 
 ## 单元格右键菜单
 
-源码位置：`code/pandastable_local/core_orig.py` 的 `popupMenu()`。
+源码位置：`code/modified_table.py` 的 `MTable.handle_right_click()`。
 
 | 英文原文 | 中文译名 |
 | --- | --- |
-| Copy | 复制 |
-| Undo | 撤销 |
+| Copy Selected | 复制所选 |
 | Paste | 粘贴 |
-| Fill Down | 向下填充 |
-| Clear Data | 清除数据 |
-| Set Color | 设置颜色 |
-| Select All | 全选 |
-| Filter Rows | 筛选行 |
-| Show as Text | 显示为文本 |
-| Table Info | 表格信息 |
-| Preferences | 首选项 |
-
-子菜单级联标签：File → 文件、Edit → 编辑、Plot → 图形、Table → 表格。
-
-| 英文原文 | 中文译名 | 所属子菜单 |
-| --- | --- | --- |
-| Open | 打开 | 文件 |
-| Import Text/CSV | 导入文本/CSV | 文件 |
-| Import hdf5 | 导入 hdf5 | 文件 |
-| Save | 保存 | 文件 |
-| Save As | 另存为 | 文件 |
-| Export | 导出 | 文件 |
-| Undo Last Change | 撤销上次更改 | 编辑 |
-| Copy Table | 复制整表 | 编辑 |
-| Find/Replace | 查找/替换 | 编辑 |
-| Plot Selected | 绘制所选 | 图形 |
-| Hide plot | 隐藏图形 | 图形 |
-| Show plot | 显示图形 | 图形 |
-| Table to Text | 表格转换为文本 | 表格 |
-| Clean Data | 清理数据 | 表格 |
-| Clear Formatting | 清除格式 | 表格 |
-
-按列类型动态生成的菜单项：
-
-| 英文原文 | 中文译名 | 说明 |
-| --- | --- | --- |
-| Edit | 编辑 | `columnactions` 中 text/number 两类的入口 |
+| Undo | 撤销 |
+| Clear Selected | 清除所选 |
 
 ## 列标题右键菜单
 
@@ -254,6 +221,8 @@
 | --- | --- |
 | Sort All by <列> ↓ | 按 <列> 升序排序全表 ↓ |
 | Sort All by <列> ↑ | 按 <列> 降序排序全表 ↑ |
+| Copy Columns | 复制整列 |
+| Paste Columns | 粘贴整列 |
 | Delete Column(s) | 删除列 |
 | Flatten Index | 展开多层列名 |
 | Rename Column | 重命名列 |
@@ -279,7 +248,21 @@
 | Add Row(s) at bottom | 在末尾添加行 |
 | Delete Row(s) | 删除行 |
 | Duplicate Row(s) | 复制行 |
+| Copy Rows | 复制整行 |
+| Paste Rows | 粘贴整行 |
 | Select All | 全选 |
+
+## 工作表标签右键菜单
+
+源码位置：`code/worksheets.py` 的 Notebook 标签右键处理。
+
+| 英文原文 | 中文译名 |
+| --- | --- |
+| Add Sheet | 新增工作表 |
+| Copy Sheet | 复制工作表 |
+| Rename Sheet | 重命名工作表 |
+| Delete Sheet | 删除工作表 |
+| Export Current Sheet | 导出当前工作表 |
 
 
 ## 保留不译的内容

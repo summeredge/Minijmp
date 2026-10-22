@@ -40,7 +40,7 @@ def test_proxy_keeps_source_after_switch_and_forwards_output_options():
     app.print.assert_called_once_with(payload, end='!', table=source)
     assert proxy.showPlotViewer(other, (3, 4), False) is app.showPlotViewer.return_value
     app.showPlotViewer.assert_called_once_with(
-        parent=other, figsize=(3, 4), save_last=False, table=source)
+        parent=other, figsize=(3, 4), save_last=False, table=source, deferred=False)
     assert proxy.dialog_help_msg(key='test') == 'help'
     app.dialog_help_msg.assert_called_once_with(key='test')
 

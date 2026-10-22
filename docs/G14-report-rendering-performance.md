@@ -28,7 +28,7 @@
 ```powershell
 $python = (Resolve-Path .venv/Scripts/python.exe).Path
 # 修改前的三个公共文件已在改动前原样留存，可在当前仓库重放。
-& $python tools/benchmark_report_rendering.py --source-dir docs/g14-evidence/before --output docs/g14-evidence/baseline
+& $python tools/benchmark_report_rendering.py --source-dir tests/fixtures/g14_before --output docs/g14-evidence/baseline
 & $python tools/benchmark_report_rendering.py --output docs/g14-evidence/after
 # 只重放 GUI 阶段，或通过 --scenario huge 指定一个场景。
 & $python tools/benchmark_report_rendering.py --phase gui --output docs/g14-evidence/after

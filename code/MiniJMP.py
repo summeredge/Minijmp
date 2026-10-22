@@ -1,5 +1,4 @@
-from tkinter import Frame, Menu, BOTH, Toplevel, END, Tk, PhotoImage
-from PIL import Image, ImageTk
+from tkinter import Frame, Menu, BOTH, Toplevel, END, Tk
 import pickle
 import os
 import platform
@@ -9,6 +8,7 @@ from pandastable_local import config, plotting
 # ####### Own Module ###########
 from worksheets import Worksheets
 from modified_app import Minijmp_pre
+from icon_resource import create_icon_image
 from modified_table import MTable as Table
 from plots import plot_viewer
 from txt_output import txt_viewer
@@ -695,9 +695,7 @@ class Minijmp(Worksheets, Minijmp_pre):
 def main():
     # Create the main window
     root = Tk()
-    with Image.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "icon.png")) as img:
-        icon = ImageTk.PhotoImage(img)
-    #  icon = PhotoImage(file="icon.png")
+    icon = create_icon_image(root)
     root.iconphoto(True, icon)
 
     # Create an instance of the custom frame

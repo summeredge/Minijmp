@@ -330,7 +330,7 @@ def test_actual_menu_commands_open_original_dialogs(tk_root):
 
 def test_original_analysis_code_is_unchanged():
     """除 G2/G3 明确接管并单独保护的报告 apply 外，保留原分析方法的完整 AST 守卫。"""
-    import subprocess
+    from source_baselines import read_source_baseline
     class ErrorsToMarker(ast.NodeTransformer):
         def visit_Call(self, node):
             if isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name) and node.func.value.id == 'self' and node.func.attr == 'error':
@@ -345,7 +345,7 @@ def test_original_analysis_code_is_unchanged():
     paths = sorted({Path(getattr(MiniJMP, cls).__module__.replace('.', '/')) for _, cls, _ in CALLS})
     for path in paths:
         file = 'code/' + str(path).replace('\\','/') + '.py'
-        baseline = subprocess.check_output(['git','show','87281643b7fd0caaedb50ff561720b221c489a07:' + file]).decode('utf-8')
+        baseline = read_source_baseline('87281643b7fd0caaedb50ff561720b221c489a07', file)
         debug_lines = {
             'code/basic_dialogs.py': ('        print(x)\n', 1),
             'code/ctrlchart_dialog.py': ('        print(NP)\n', 1),
@@ -356,6 +356,35 @@ def test_original_analysis_code_is_unchanged():
             assert baseline.count(statement) == count, file
             baseline = baseline.replace(statement, '')
         current = (ROOT / file).read_text(encoding='utf-8')
+        if file == 'code/dist_plot_dialog.py':
+            # SheetApp routes plot creation through the source worksheet proxy.
+            assert current.count('self.showPlotViewer()') == 2
+            current = current.replace('self.showPlotViewer()', 'self.app.showPlotViewer()')
+        if file == 'code/sb_box_dialog.py':
+            message = "self.error('缺少输入数据。')"
+            assert current.count(message) == 2
+            current = current.replace(message, "self.error('Missing input data.')")
+        if file == 'code/sb_hist_dialog.py':
+            display_changes = {
+                "self.error('没有可供绘图的数值观测值。')": "self.error('No numeric observations to plot.')",
+                "self.error('无法使用所选分布进行拟合。', preview_failed=False)":
+                    'self.error("Can\'t perform fit with the dist..")',
+                "self.error('缺少输入数据。')": "self.error('Missing input data.')",
+                "self.error('缺少 X 或 Y 数据列。')": "self.error('Missing X or Y data col.')",
+            }
+            for current_text, baseline_text in display_changes.items():
+                assert current.count(current_text) == 1
+                current = current.replace(current_text, baseline_text)
+        if file == 'code/sb_misc_dialog.py':
+            display_changes = {
+                "self.error('缺少输入数据。')": "self.error('Missing input data.')",
+                "self.error('缺少 X 输入数据。')": "self.error('Missing input X data.')",
+                "self.error('缺少 Y 输入数据。')": "self.error('Missing input Y data.')",
+            }
+            for current_text, baseline_text in display_changes.items():
+                count = 2 if ' X ' in current_text or ' Y ' in current_text else 1
+                assert current.count(current_text) == count
+                current = current.replace(current_text, baseline_text)
         if file == 'code/basic_dialogs.py':
             # G6 仅更改正态 Q-Q 图的变量标签及字体；仍完整保护统计调用。
             old_plot = "            pf.ax.set_ylabel('Observed Values')"
@@ -374,6 +403,21 @@ def test_original_analysis_code_is_unchanged():
             return {c.name + '.' + m.name: ast.dump(m, include_attributes=False) for c in tree.body if isinstance(c, ast.ClassDef)
                     for m in c.body if isinstance(m, ast.FunctionDef) and m.name in ('apply','ok','preview','get_values','get_box_settings','get_histo_setting')}
         actual, original = methods(current), methods(baseline)
+        if file == 'code/sb_box_dialog.py':
+            # Preview lifecycle moved to SBDialog; runtime coverage is in test_plot_window_lifecycle.py.
+            for method in ('singleBoxDialog.preview', 'multiBoxDialog.preview'):
+                assert method in original and method not in actual
+                original.pop(method)
+        if file == 'code/sb_hist_dialog.py':
+            # Histogram preview now shares SBDialog.preview; runtime tests cover success and fit failure.
+            method = 'multiHistoDialog.preview'
+            assert method in original and method not in actual
+            original.pop(method)
+        if file == 'code/sb_misc_dialog.py':
+            # Count, line, and dot plots now use the shared SBDialog preview lifecycle.
+            for method in ('countPlotDialog.preview', 'linePlotDialog.preview', 'dotPlotDialog.preview'):
+                assert method in original and method not in actual
+                original.pop(method)
         if file == 'code/basic_dialogs.py':
             # 两个输出编排由 G2 逐入口数据、清洗及百分位数测试保护。
             for method in ('DescribeDialog.apply', 'MultiDescribeDialog.apply'):

@@ -1,4 +1,4 @@
-from tkinter import Toplevel, Label, CENTER, PhotoImage, LEFT
+from tkinter import Toplevel, Label, CENTER, LEFT
 import tkinter as tk
 import pandas as pd
 import matplotlib
@@ -7,12 +7,12 @@ import statsmodels
 import prettytable
 import seaborn
 import platform
-import os
 ##############
 from pandastable_local.app import DataExplore
 from pandastable_local.dialogs import getParentGeometry
 #### Own Modules ####
 from help_link import help_link, help_window
+from icon_resource import create_icon_image
 
 
 def get_tkver():
@@ -58,7 +58,7 @@ class Minijmp_pre(DataExplore):
         content.pack(fill=tk.BOTH, expand=True)
 
         # 保留原项目图标，并缩小显示以避免“关于”窗口过高。
-        logo = PhotoImage(file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "icon.png"))
+        logo = create_icon_image(abwin)
         small_logo = logo.subsample(2, 2)
         logo_label = Label(content, image=small_logo, bg=self.bg, anchor=CENTER)
         logo_label.image = small_logo
@@ -66,7 +66,7 @@ class Minijmp_pre(DataExplore):
 
         Label(content, text='MiniJMP', font=('Segoe UI', 14, 'bold'),
               bg=self.bg, anchor=CENTER).pack()
-        Label(content, text='版本 0.1', font=('Segoe UI', 10),
+        Label(content, text='版本 v0.1.0-beta.1', font=('Segoe UI', 10),
               bg=self.bg, anchor=CENTER).pack(pady=(2, 0))
         Label(content, text='Copyright (C) G.Du 2024-',
               font=('Segoe UI', 10), bg=self.bg, anchor=CENTER).pack(pady=(2, 3))

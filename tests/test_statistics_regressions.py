@@ -207,7 +207,9 @@ def test_plot_viewer_close_releases_owned_references_and_figure():
     stored = pickle.loads(pickle.dumps(figure))
     child = SimpleNamespace()
     table = SimpleNamespace(child=child)
-    viewer = SimpleNamespace(table=table, fig=figure, main=Mock(), animateopts=Mock(), globalvars={})
+    viewer = SimpleNamespace(table=table, fig=figure, main=Mock(), animateopts=Mock(),
+                             globalvars={}, _cleaned_up=False, _drag_handler=None)
+    viewer._cleanup = lambda: plot_viewer._cleanup(viewer)
     table.pf = child.pf = viewer
     plot_viewer.close(viewer)
     assert table.pf is child.pf is None
@@ -221,7 +223,9 @@ def test_closing_previous_plot_keeps_new_plot_reference():
     from plots import plot_viewer
     current = object()
     table = SimpleNamespace(pf=current)
-    viewer = SimpleNamespace(table=table, fig=plt.figure(), main=Mock(), globalvars={})
+    viewer = SimpleNamespace(table=table, fig=plt.figure(), main=Mock(), globalvars={},
+                             _cleaned_up=False, _drag_handler=None)
+    viewer._cleanup = lambda: plot_viewer._cleanup(viewer)
     plot_viewer.close(viewer)
     assert table.pf is current
 

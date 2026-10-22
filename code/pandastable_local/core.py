@@ -1,4 +1,5 @@
 import os
+import sys
 #########################
 from .core_orig import statusBar as SBar_orig
 from .core_orig import Table as Table_orig
@@ -24,18 +25,23 @@ themes = {
         'rowselectedcolor': '#E4DED4',
         'colselectedcolor': '#e4e3e4'}}
 
-loading_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-parent_path = os.path.dirname(loading_path)
-config_path = os.path.join(parent_path, 'log')
+if getattr(sys, 'frozen', False):
+    app_data = os.environ.get('LOCALAPPDATA') or os.path.join(
+        os.path.expanduser('~'), 'AppData', 'Local')
+    config_path = os.path.join(app_data, 'MiniJMP', 'log')
+    sample_data_path = os.path.join(sys._MEIPASS, 'sample_data')
+else:
+    parent_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    config_path = os.path.join(parent_path, 'log')
+    sample_data_path = os.path.join(parent_path, 'sample_data')
 logfile = os.path.join(config_path, 'error.log')
-if not os.path.exists(config_path):
-    os.mkdir(config_path)
+os.makedirs(config_path, exist_ok=True)
 
 
 class Table(Table_orig):
     def init_reserved(self):
         print("loading_path", os.getcwd())
-        self.currentdir = os.path.join(parent_path, 'sample_data')
+        self.currentdir = sample_data_path
         print("current dir", self.currentdir)
         self.logfile = logfile
         return

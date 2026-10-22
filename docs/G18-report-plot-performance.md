@@ -113,7 +113,7 @@ Excel 导出进程累计峰值工作集由约 325.4 MiB 降到 282.2 MiB，包�
 ```powershell
 $python = 'C:\Users\shaoy\Documents\Minijmp\.venv\Scripts\python.exe'
 # 各场景顺序运行；避免同时运行其它 GUI/基准/pytest。
-& $python tools/benchmark_g18.py --source-dir docs/g18-evidence/before --output <baseline目录> --scenario matrix --scenario matrix-orig --scenario matrix-tk --scenario table --scenario spc --scenario excel --scenario series --scenario series-tk --scenario dialog --scenario reports --scenario wide
+& $python tools/benchmark_g18.py --source-dir tests/fixtures/g18_before --output <baseline目录> --scenario matrix --scenario matrix-orig --scenario matrix-tk --scenario table --scenario spc --scenario excel --scenario series --scenario series-tk --scenario dialog --scenario reports --scenario wide
 & $python tools/benchmark_g18.py --output <after目录>
 & $python docs/g18-evidence/acceptance.py
 & $python docs/g18-evidence/summarize.py

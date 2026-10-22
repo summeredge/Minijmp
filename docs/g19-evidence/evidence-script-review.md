@@ -76,7 +76,7 @@
 
 ### acceptance.py
 
-与 `docs/g18-evidence/acceptance.py` 的只读文本 diff 仅有两处：模块说明改为 G19；旧 linear_plot 源位置从 `OUT/'before/linear_plot.py'` 改为 `ROOT/'docs/g18-evidence/before/linear_plot.py'`。OUT 随脚本所在目录自然指向 G19，不需要额外改业务代码。未见 G19 放宽既有数值容差或输出断言。
+与 `docs/g18-evidence/acceptance.py` 的只读文本 diff 仅有两处：模块说明改为 G19；旧 linear_plot 源位置从 `OUT/'before/linear_plot.py'` 改为 `ROOT/'tests/fixtures/g18_before/linear_plot.py'`。OUT 随脚本所在目录自然指向 G19，不需要额外改业务代码。未见 G19 放宽既有数值容差或输出断言。
 
 - TXT 逐字符、拦截剪贴板复制、末页末行、Excel 1003 行与关键原值/格式、公式标签文本、PNG 超限、小表导出、关闭引用与 idle 清理均有实际断言。
 - Excel 两个容差仍为原来的 `1e-11/1e-15`；本次没有提高误差容忍度。脚本不是每一种单元格样式的穷尽检查，不要把局部属性断言解释为完整外观相同。

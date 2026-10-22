@@ -19,7 +19,7 @@ foreach ($hotspot in 'F01','F11','F02','F04','F06','F08') {
 }
 & $python tools/benchmark_data_processing.py --output "$out/data" *> "$out/data-benchmark.log"
 if ($LASTEXITCODE) { throw 'Data benchmark failed' }
-& $python tools/benchmark_g18.py --source-dir docs/g18-evidence/before --output "$out/render-before" --scenario matrix --scenario matrix-orig --scenario matrix-tk --scenario table --scenario spc --scenario excel --scenario series --scenario series-tk --scenario dialog --scenario reports --scenario wide *> "$out/render-before.log"
+& $python tools/benchmark_g18.py --source-dir tests/fixtures/g18_before --output "$out/render-before" --scenario matrix --scenario matrix-orig --scenario matrix-tk --scenario table --scenario spc --scenario excel --scenario series --scenario series-tk --scenario dialog --scenario reports --scenario wide *> "$out/render-before.log"
 if ($LASTEXITCODE) { throw 'Before rendering benchmark failed' }
 & $python tools/benchmark_g18.py --output "$out/render-current" *> "$out/render-current.log"
 if ($LASTEXITCODE) { throw 'Current rendering benchmark failed' }

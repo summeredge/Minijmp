@@ -233,7 +233,8 @@ def test_column_header_popup_menu_is_chinese(app, unposted):
         shown = [text for _, kind, text in read_menu(menu)
                  if kind == 'command']
         assert shown == ['按 零件 升序排序全表 ↓', '按 零件 降序排序全表 ↑',
-                         '删除列', '重命名列', '添加列', '设置对齐方式',
+                         '复制整列', '粘贴整列', '删除列', '重命名列',
+                         '添加列', '设置对齐方式',
                          '填充数据', '设置数据类型']
         menu.invoke(1)
         assert table.model.df['零件'].tolist() == [2, 1]
@@ -254,7 +255,7 @@ def test_row_header_popup_menu_is_chinese(app, unposted):
                  if kind == 'command']
         assert shown == ['按索引排序', '重置索引', '显示/隐藏索引', '重命名索引',
                          '复制索引到列', '在此处插入行', '在末尾添加行',
-                         '删除行', '复制行']
+                         '删除行', '复制行', '复制整行', '粘贴整行']
     finally:
         menu.destroy()
 

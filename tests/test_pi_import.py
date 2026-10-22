@@ -14,6 +14,243 @@ from pi_import import PIImportDialog, query_size
 from test_csv_import import csv_app
 from utilities import number_list
 
+_real_load_pi_paths = pi_import.load_pi_paths
+_real_save_pi_paths = pi_import.save_pi_paths
+
+
+@pytest.fixture(autouse=True)
+def isolated_pi_settings(monkeypatch):
+    """Keep GUI tests independent of the actual Windows user registry."""
+    stored = {}
+    monkeypatch.setattr(pi_import, 'load_pi_paths', lambda: dict(stored))
+    monkeypatch.setattr(pi_import, 'save_pi_paths', lambda paths: stored.update(paths))
+    return stored
+
+
+def test_paths_browse_autosaves_and_reopens(tk_root, tmp_path, monkeypatch, isolated_pi_settings):
+    exe = tmp_path / 'PIReader.exe'
+    config = tmp_path / 'config.txt'
+    exe.write_bytes(b'MZ')
+    config.write_text('[test]', encoding='utf-8')
+    choices = iter((exe.as_posix(), config.as_posix()))
+    monkeypatch.setattr(pi_import.filedialog, 'askopenfilename', lambda **kw: next(choices))
+    window = PIImportDialog(tk_root)
+    try:
+        window.browse(window.exe, '*.exe')
+        window.browse(window.config, '*.txt')
+        assert window.exe.get() == pi_import.normalize_pi_path(exe.as_posix())
+        assert window.config.get() == pi_import.normalize_pi_path(config.as_posix())
+        assert isolated_pi_settings == {
+            'executable_path': window.exe.get(), 'config_path': window.config.get()}
+        assert '自动保存' in window.status_view.get('1.0', 'end-1c')
+    finally:
+        window.cancel()
+
+    reopened = PIImportDialog(tk_root)
+    try:
+        assert reopened.exe.get() == pi_import.normalize_pi_path(exe)
+        assert reopened.config.get() == pi_import.normalize_pi_path(config)
+        assert reopened.paths() == dict(
+            executable_path=pi_import.normalize_pi_path(exe),
+            config_path=pi_import.normalize_pi_path(config))
+    finally:
+        reopened.cancel()
+
+
+def test_manual_paths_autosave_and_skip_missing_files(
+        tk_root, tmp_path, isolated_pi_settings):
+    exe, config = tmp_path / 'Reader New.exe', tmp_path / 'config.txt'
+    exe.write_bytes(b'MZ')
+    config.write_text('config', encoding='utf-8')
+    window = PIImportDialog(tk_root)
+    try:
+        window.exe.set(exe.as_posix())
+        window.config.set(config.as_posix())
+        pump(tk_root, lambda: isolated_pi_settings.get('config_path') ==
+             pi_import.normalize_pi_path(config))
+        assert isolated_pi_settings['executable_path'] == pi_import.normalize_pi_path(exe)
+        assert window.paths()['executable_path'] == pi_import.normalize_pi_path(exe)
+        missing = tmp_path / 'missing.exe'
+        window.exe.set(str(missing))
+        window.save_current_paths()
+        assert isolated_pi_settings['executable_path'] == pi_import.normalize_pi_path(exe)
+        assert window.paths()['executable_path'] == pi_import.normalize_pi_path(missing)
+    finally:
+        window.cancel()
+    reopened = PIImportDialog(tk_root)
+    try:
+        assert reopened.exe.get() == pi_import.normalize_pi_path(exe)
+    finally:
+        reopened.cancel()
+
+
+@pytest.mark.skipif(pi_import.os.name != 'nt', reason='Windows path normalization')
+@pytest.mark.parametrize('path', ['D:/xx/PIReader.exe', 'D:/xx\\PIReader.exe'])
+def test_windows_pi_paths_use_native_separators(path):
+    assert pi_import.normalize_pi_path(path) == r'D:\xx\PIReader.exe'
+
+
+@pytest.mark.parametrize('subdir', [None, 'PIReader'])
+def test_default_pi_paths_support_both_layouts(
+        tk_root, tmp_path, monkeypatch, subdir, isolated_pi_settings):
+    project = tmp_path / 'project'
+    code_dir = project / 'code'
+    code_dir.mkdir(parents=True)
+    files_dir = project / subdir if subdir else project
+    files_dir.mkdir(exist_ok=True)
+    exe, config = files_dir / 'PIReader.exe', files_dir / 'config.txt'
+    exe.touch()
+    config.touch()
+    monkeypatch.setattr(pi_import, '__file__', str(code_dir / 'pi_import.py'))
+    monkeypatch.delenv('PI_READER_EXE', raising=False)
+    monkeypatch.delenv('PI_CONFIG', raising=False)
+    window = PIImportDialog(tk_root)
+    try:
+        assert window.exe.get() == pi_import.normalize_pi_path(exe)
+        assert window.config.get() == pi_import.normalize_pi_path(config)
+    finally:
+        window.cancel()
+
+
+def test_manual_entry_return_and_focus_out_save_immediately(
+        tk_root, tmp_path, isolated_pi_settings):
+    exe, config = tmp_path / 'PIReader.exe', tmp_path / 'config.txt'
+    exe.touch()
+    config.touch()
+    root_was_withdrawn = tk_root.state() == 'withdrawn'
+    if root_was_withdrawn:
+        tk_root.deiconify()
+        tk_root.update()
+    window = PIImportDialog(tk_root)
+    try:
+        entries = [widget for widget in window.winfo_children()[0].winfo_children()
+                   if isinstance(widget, pi_import.ttk.Entry)]
+        exe_entry = next(widget for widget in entries
+                         if widget.cget('textvariable') == str(window.exe))
+        config_entry = next(widget for widget in entries
+                            if widget.cget('textvariable') == str(window.config))
+        window.exe.set(exe.as_posix())
+        exe_entry.focus_force()
+        tk_root.update()
+        exe_entry.event_generate('<Return>', when='now')
+        tk_root.update()
+        assert isolated_pi_settings['executable_path'] == pi_import.normalize_pi_path(exe)
+        window.config.set(config.as_posix())
+        config_entry.event_generate('<FocusOut>', when='now')
+        tk_root.update()
+        assert isolated_pi_settings['config_path'] == pi_import.normalize_pi_path(config)
+    finally:
+        window.cancel()
+        if root_was_withdrawn:
+            tk_root.withdraw()
+
+
+@pytest.mark.skipif(pi_import.os.name != 'nt', reason='Windows current-user registry')
+def test_registry_pi_paths_round_trip_in_isolated_hkcu_key(monkeypatch):
+    import uuid
+    import winreg
+
+    assert pi_import._PI_SETTINGS_KEY == r'Software\MiniJMP\PIImport'
+    key_name = rf'Software\MiniJMP-PIImportTest-{uuid.uuid4().hex}'
+    monkeypatch.setattr(pi_import, '_PI_SETTINGS_KEY', key_name)
+    try:
+        _real_save_pi_paths({
+            'executable_path': 'D:/xx/PIReader.exe',
+            'config_path': r'D:\xx\config.txt',
+            'password': 'must not be stored',
+        })
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_name) as key:
+            names = {winreg.EnumValue(key, index)[0]
+                     for index in range(winreg.QueryInfoKey(key)[1])}
+        assert names == {'executable_path', 'config_path'}
+        assert _real_load_pi_paths() == {
+            'executable_path': r'D:\xx\PIReader.exe',
+            'config_path': r'D:\xx\config.txt',
+        }
+    finally:
+        try:
+            winreg.DeleteKey(winreg.HKEY_CURRENT_USER, key_name)
+        except FileNotFoundError:
+            pass
+
+
+def test_json_pi_paths_round_trip_in_isolated_file(tmp_path, monkeypatch):
+    settings_file = tmp_path / 'pi-import-paths.json'
+    monkeypatch.setattr(pi_import, '_pi_settings_file', lambda: settings_file)
+    with monkeypatch.context() as isolated:
+        isolated.setattr(pi_import.os, 'name', 'posix')
+        _real_save_pi_paths({'executable_path': 'reader.exe', 'config_path': 'config.txt'})
+        assert _real_load_pi_paths() == {
+            'executable_path': pi_import.normalize_pi_path('reader.exe'),
+            'config_path': pi_import.normalize_pi_path('config.txt'),
+        }
+
+
+def test_settings_read_failure_is_visible_and_does_not_block_dialog(
+        tk_root, monkeypatch, isolated_pi_settings):
+    monkeypatch.setattr(pi_import, 'load_pi_paths', Mock(side_effect=PermissionError('registry denied')))
+    window = PIImportDialog(tk_root)
+    try:
+        assert '路径设置读取失败' in window.status_view.get('1.0', 'end-1c')
+        paths = window.paths()
+        assert set(paths) == {'config_path', 'executable_path'}
+    finally:
+        window.cancel()
+
+
+def test_save_failure_does_not_block_query_with_manual_paths(
+        tk_root, tmp_path, monkeypatch, isolated_pi_settings):
+    exe, config = tmp_path / 'PIReader.exe', tmp_path / 'config.txt'
+    exe.touch()
+    config.touch()
+    monkeypatch.setattr(pi_import, 'save_pi_paths', Mock(side_effect=PermissionError('registry denied')))
+    read = Mock(return_value=pd.DataFrame(
+        {'A': [1]}, index=pd.to_datetime(['2026-01-01'])))
+    monkeypatch.setattr(pi_reader, 'read_pi_data', read)
+    window = PIImportDialog(tk_root)
+    statuses = []
+    set_status = window.set_status
+
+    def record_status(message):
+        statuses.append(message)
+        set_status(message)
+
+    monkeypatch.setattr(window, 'set_status', record_status)
+    try:
+        window.exe.set(exe.as_posix())
+        window.config.set(config.as_posix())
+        window.tags.insert('1.0', 'A')
+        window.query()
+        pump(tk_root, lambda: not window.winfo_exists())
+        assert any('路径自动保存失败' in message for message in statuses)
+        assert read.call_args.kwargs == {
+            'config_path': pi_import.normalize_pi_path(config),
+            'executable_path': pi_import.normalize_pi_path(exe),
+        }
+        assert window.df is not None
+    finally:
+        if window.winfo_exists():
+            window.cancel()
+
+
+def test_destroy_cancels_pending_path_autosave(
+        tk_root, tmp_path, isolated_pi_settings):
+    exe = tmp_path / 'PIReader.exe'
+    exe.touch()
+    window = PIImportDialog(tk_root)
+    errors = []
+    window.report_callback_exception = lambda *error: errors.append(error)
+    window.exe.set(exe.as_posix())
+    assert window._save_after is not None
+    window.destroy()
+    assert window._save_after is None
+    window.exe.set('changed after destruction')
+    assert window._save_after is None
+    deadline = time.monotonic() + .75
+    pump(tk_root, lambda: time.monotonic() >= deadline)
+    assert isolated_pi_settings == {}
+    assert errors == []
+
 
 def pump(root, condition):
     deadline = time.monotonic() + 5
