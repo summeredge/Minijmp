@@ -27,11 +27,11 @@ class SheetApp:
         self._check_table()
         return self._app.print(txt, end=end, table=self.table)
 
-    def showPlotViewer(self, parent=None, figsize=(10, 7), save_last=True):
+    def showPlotViewer(self, parent=None, figsize=(10, 7), save_last=True, deferred=False):
         self._check_table()
         return self._app.showPlotViewer(
             parent=parent, figsize=figsize, save_last=save_last,
-            table=self.table)
+            table=self.table, deferred=deferred)
 
     def __getattr__(self, name):
         return getattr(self._app, name)

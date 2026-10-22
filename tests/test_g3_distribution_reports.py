@@ -283,7 +283,8 @@ def test_histogram_apply_uses_same_frozen_rv_and_curve_without_changing_source(m
     pd.testing.assert_frame_equal(dialog.df, original)
     assert dialog.working_df['测量 Column'].dropna().tolist() == [*values, 5.]
     if failed:
-        dialog.error.assert_called_once_with('无法使用所选分布进行拟合。')
+        dialog.error.assert_called_once_with(
+            '无法使用所选分布进行拟合。', preview_failed=False)
     else:
         dialog.error.assert_not_called()
     assert plotting.call_args.kwargs['fig'] is figure

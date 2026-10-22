@@ -9,11 +9,11 @@ from collections import OrderedDict
 
 
 class plot_viewer(PlotViewer):
-    def __init__(self, table, parent=None, showoptions=True, figsize=(10, 7)):
+    def __init__(self, table, parent=None, showoptions=True, figsize=(10, 7), register=True):
 
         self.parent = parent
         self.table = table
-        if table is not None:
+        if table is not None and register:
             self.table.pf = self  # opaque ref
         #self.mode = '2d'
         self.showoptions = showoptions
@@ -34,6 +34,8 @@ class plot_viewer(PlotViewer):
         self.setupGUI()
         #  self.updateStyle()
         self.currentdir = os.path.expanduser('~')
+        self._cleaned_up = False
+        self.main.bind('<Destroy>', self._on_destroy, add='+')
         return
 
     def setupGUI(self):
@@ -91,8 +93,20 @@ class plot_viewer(PlotViewer):
         self._drag_handler.connect()
         return
 
+    def _on_destroy(self, event):
+        if event.widget is self.main:
+            self._cleanup()
+
     def close(self):
-        """Close the window"""
+        """Close the window, including an already destroyed viewer."""
+        self._cleanup()
+        if self.main.winfo_exists():
+            self.main.destroy()
+
+    def _cleanup(self):
+        if self._cleaned_up:
+            return
+        self._cleaned_up = True
         for table in (self.table, getattr(self.table, 'child', None)):
             if table is not None and getattr(table, 'pf', None) is self:
                 table.pf = None
@@ -102,6 +116,5 @@ class plot_viewer(PlotViewer):
             for mode, callback in variable.trace_info():
                 variable.trace_remove(mode, callback)
         self._drag_handler = None
-        self.main.destroy()
         plt.close(self.fig)
         return

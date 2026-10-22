@@ -82,12 +82,8 @@ class countPlotDialog(singleBoxDialog):
         self.grid_v = self.grid.get()
         return
 
-    def preview(self):
+    def prepare_preview(self):
         self.grpcols = self.grpvar.getSelectedItem()
-        self.apply()
-        self.no_preview = False
-        self.self_to_top()
-        return
 
     def apply(self):
         self.get_y_plot_settings()
@@ -178,12 +174,8 @@ class linePlotDialog(SBDialog):
         self.add_palette_selection(m)
         return
 
-    def preview(self):
+    def prepare_preview(self):
         self.grpcols = self.grpvar.getSelectedItem()
-        self.apply()
-        self.no_preview = False
-        self.self_to_top()
-        return
 
     def apply(self):
         self.get_plot_settings()
@@ -280,12 +272,8 @@ class dotPlotDialog(SBDialog):
         self.add_palette_selection(m)
         return
 
-    def preview(self):
+    def prepare_preview(self):
         self.grpcols = self.grpvar.getSelectedItem()
-        self.apply()
-        self.no_preview = False
-        self.self_to_top()
-        return
 
     def apply(self):
         self.get_plot_settings()

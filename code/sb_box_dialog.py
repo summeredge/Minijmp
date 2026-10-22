@@ -159,12 +159,8 @@ class singleBoxDialog(SBDialog):
 
         return
 
-    def preview(self):
+    def prepare_preview(self):
         self.grpcols = self.grpvar.getSelectedItem()
-        self.apply()
-        self.no_preview = False
-        self.self_to_top()
-        return
 
     def done(self):
         self.grpcols = self.grpvar.getSelectedItem()
@@ -220,6 +216,9 @@ class singleBoxDialog(SBDialog):
 
 
 class multiBoxDialog(singleBoxDialog):
+    def prepare_preview(self):
+        pass
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='数据须为堆叠格式')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -262,12 +261,6 @@ class multiBoxDialog(singleBoxDialog):
         self.add_misc_plot_settings(m)  # , palette=True)
         self.add_box_settings(m)
         self.add_palette_selection(m)
-        return
-
-    def preview(self):
-        self.apply()
-        self.no_preview = False
-        self.self_to_top()
         return
 
     def add_box_settings(self, m):

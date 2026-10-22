@@ -123,7 +123,7 @@ class displayProbDialog(SBDialog):
         plot_out = self.plot_out.get()
 
         if plot_out:
-            pf = self.app.showPlotViewer()
+            pf = self.showPlotViewer()
             ax = pf.ax = pf.fig.add_subplot(111)
         else:
             ax = None
@@ -159,7 +159,7 @@ class displayProb2xDialog(SBDialog):
         dist_args1, dist_select1 = self.dist1.get_values()
         dist_args2, dist_select2 = self.dist2.get_values()
 
-        pf = self.app.showPlotViewer()
+        pf = self.showPlotViewer()
         ax = pf.ax = pf.fig.add_subplot(111)
 
         cont_dist(dist=dist_select1, print_out=True, plot_out=True, color='blue',
