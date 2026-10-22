@@ -1,8 +1,14 @@
 """Raw time-series data and native Matplotlib axes; no statistical transforms."""
 
+import re
+from decimal import Decimal, InvalidOperation
+from numbers import Real
+
 import numpy as np
 import pandas as pd
-from pandas.api.types import is_numeric_dtype, is_complex_dtype, is_datetime64_any_dtype, is_bool_dtype
+from pandas.api.types import (is_numeric_dtype, is_complex_dtype,
+                              is_datetime64_any_dtype, is_bool_dtype,
+                              is_object_dtype, is_string_dtype)
 from matplotlib import colormaps
 from matplotlib.dates import AutoDateLocator, ConciseDateFormatter
 from chart_style import style_axes
@@ -53,6 +59,51 @@ def axis_assignments(columns, assignments=None, mode=AXIS_MODES[0]):
     return result
 
 
+def _mixed_numeric_y(series):
+    """Project predominantly numeric text/status data for plotting only.
+
+    PIReader preserves status text in an object column. Plot those rows as
+    gaps while leaving the worksheet and its original values unchanged.
+    """
+    if not (is_object_dtype(series.dtype) or is_string_dtype(series.dtype)):
+        return None
+    cleaned = series.map(lambda value: None if isinstance(value, str)
+                         and not value.strip() else value)
+    present = cleaned.dropna()
+    if present.empty or any(
+            isinstance(value, bool) or not isinstance(value, (str, Real, Decimal))
+            for value in present):
+        return None
+    try:
+        numeric = pd.to_numeric(cleaned, errors='coerce')
+    except (TypeError, ValueError, OverflowError):
+        return None
+    good = cleaned.notna() & numeric.notna()
+    count = int(good.sum())
+    status_count = int((cleaned.notna() & ~good).sum())
+    if count < 2 or count <= status_count:
+        return None  # Mostly status text or a single numeric-looking identifier.
+    for raw, converted in zip(cleaned[good], numeric[good]):
+        if isinstance(raw, str) and re.fullmatch(r'[+-]?0\d+', raw.strip()):
+            return None  # Do not interpret zero-padded IDs as measurements.
+        try:
+            if Decimal(str(raw)) != Decimal(str(converted)):
+                return None  # Do not hide precision loss.
+        except InvalidOperation:
+            return None
+    values = numeric.to_numpy(dtype=float, na_value=np.nan)
+    if np.isinf(values).any():
+        return None
+    return values
+
+
+def is_numeric_y_candidate(series):
+    """Shared criterion for time-series Y selection and rendering."""
+    if is_bool_dtype(series.dtype) or is_complex_dtype(series.dtype):
+        return False
+    return is_numeric_dtype(series.dtype) or _mixed_numeric_y(series) is not None
+
+
 def prepare_time_series(data, columns, time_column=None):
     if data.empty:
         raise ValueError('没有可绘制的数据。')
@@ -64,16 +115,19 @@ def prepare_time_series(data, columns, time_column=None):
         raise ValueError('Y 变量不能重复。')
     ys = {}
     for column in columns:
-        if (column not in data or not is_numeric_dtype(data[column].dtype)
-                or is_complex_dtype(data[column].dtype) or is_bool_dtype(data[column].dtype)):
+        if column not in data or not is_numeric_y_candidate(data[column]):
+
             raise ValueError(f'Y 变量“{column}”必须是实数数值列。')
         # 原生数值数组无需装箱；扩展类型保留 object 以免大整数缺失值转成浮点。
         dtype = data[column].dtype
-        values = data[column].to_numpy(dtype=None if isinstance(dtype, np.dtype) else object,
-                                       na_value=np.nan)
+        if is_numeric_dtype(dtype):
+            values = data[column].to_numpy(dtype=None if isinstance(dtype, np.dtype) else object,
+                                           na_value=np.nan)
+        else:
+            values = _mixed_numeric_y(data[column])
         if pd.isna(values).all():
             raise ValueError(f'Y 变量“{column}”全部缺失。')
-        if np.isinf(data[column]).any():
+        if is_numeric_dtype(dtype) and np.isinf(data[column]).any():
             raise ValueError(f'Y 变量“{column}”包含无穷值。')
         ys[column] = values
     if time_column is None:

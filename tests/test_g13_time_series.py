@@ -37,6 +37,28 @@ def figure():
     return fig
 
 
+def test_mixed_pi_numeric_status_and_identifier_rules():
+    frame = pd.DataFrame({
+        '时间': pd.to_datetime(['2026-10-20 15:53:32'] * 2 +
+                              ['2026-10-20 15:54:32', '2026-10-20 15:55:32']),
+        'Tag': pd.Series(['-2.74876', 'Bad Input', '-2.63170552', None],
+                         dtype=object),
+        '批号': pd.Series(['00021', '00022', '00023', None], dtype=object),
+        '高精度': pd.Series(['0.123456789012345678901', '1', '2', None],
+                          dtype=object),
+        '文本': pd.Series(['Bad Input', 'Shutdown', '4', None], dtype=object),
+        '布尔': pd.Series([True, False, None, None], dtype=object),
+    })
+    previous = frame.copy(deep=True)
+    assert time_series.is_numeric_y_candidate(frame['Tag'])
+    for column in ['批号', '高精度', '文本', '布尔']:
+        assert not time_series.is_numeric_y_candidate(frame[column])
+    x, ys = prepare_time_series(frame, ['Tag'], '时间')
+    np.testing.assert_equal(ys['Tag'], [-2.74876, np.nan, -2.63170552, np.nan])
+    assert len(x) == len(frame)
+    pd.testing.assert_frame_equal(frame, previous)
+
+
 @pytest.mark.parametrize('kind', ['datetime', 'string', 'sample', 'timezone'])
 def test_raw_values_stable_duplicates_missing_and_immutable(data, figure, kind):
     if kind == 'string':
