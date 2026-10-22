@@ -291,7 +291,7 @@ def test_stat_table_string_legacy_generators_and_snapshot():
     original[0][1] = 0
     assert table.values == [['中文', .123456789012345]]
     assert table.display == [['中文', '12.35%']]
-    baseline = Path(__file__).resolve().parents[1] / 'docs/g14-evidence/before/stat_table.py'
+    baseline = Path(__file__).resolve().parent / 'fixtures/g14_before/stat_table.py'
     namespace = {'__name__': 'g14_baseline'}
     exec(compile(baseline.read_bytes(), str(baseline), 'exec'), namespace)
     before = namespace['StatTable'](title='公共渲染 μ', headers=['变量', '列1'],

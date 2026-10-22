@@ -1,10 +1,12 @@
 import json
 from pathlib import Path
+import sys
 import webbrowser
 
 HELP_JSON = Path(__file__).resolve().with_name('help.json')
 DEFAULT_LINK = 'https://minijmp.readthedocs.io/'
-HELP_DIR = Path(__file__).resolve().parent.parent / 'help'
+HELP_DIR = (Path(sys._MEIPASS) / 'help' if getattr(sys, 'frozen', False)
+            else Path(__file__).resolve().parent.parent / 'help')
 
 
 def help_link(key_str):

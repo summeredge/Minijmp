@@ -1,4 +1,6 @@
 """Modal PI import: workers perform I/O; only the Tk thread touches widgets."""
+import json
+import ntpath
 import os
 import queue
 import re
@@ -11,6 +13,71 @@ from tkinter.scrolledtext import ScrolledText
 import pandas as pd
 
 import pi_reader
+
+
+# The current Windows user owns these preferences; no administrator access is needed.
+# Registry values are unaffected by the transparent file-encryption client.
+_PI_SETTINGS_KEY = r'Software\MiniJMP\PIImport'
+_PI_SETTING_NAMES = ('executable_path', 'config_path')
+
+
+def normalize_pi_path(value):
+    """Accept either Windows slash style, and display native separators."""
+    value = str(value or '').strip().strip('"')
+    if not value:
+        return ''
+    return ntpath.normpath(value) if os.name == 'nt' else os.path.normpath(value)
+
+
+def _pi_settings_file():
+    return Path.home() / '.config' / 'MiniJMP' / 'pi_import_paths.json'
+
+
+def load_pi_paths():
+    """Read path-only preferences, without accessing PI credentials."""
+    if os.name == 'nt':
+        try:
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, _PI_SETTINGS_KEY) as key:
+                values = {}
+                for name in _PI_SETTING_NAMES:
+                    try:
+                        value, _ = winreg.QueryValueEx(key, name)
+                        if isinstance(value, str) and value.strip():
+                            values[name] = normalize_pi_path(value)
+                    except FileNotFoundError:
+                        pass
+                return values
+        except FileNotFoundError:
+            return {}
+    try:
+        data = json.loads(_pi_settings_file().read_text(encoding='utf-8'))
+        return {key: normalize_pi_path(data[key]) for key in _PI_SETTING_NAMES
+                if isinstance(data, dict) and isinstance(data.get(key), str)
+                and data[key].strip()}
+    except (FileNotFoundError, ValueError):
+        return {}
+
+
+def save_pi_paths(values):
+    """Persist path-only preferences for the current user."""
+    values = {key: normalize_pi_path(values.get(key)) for key in _PI_SETTING_NAMES
+              if values.get(key)}
+    if os.name == 'nt':
+        import winreg
+        with winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, _PI_SETTINGS_KEY, 0,
+                                winreg.KEY_SET_VALUE) as key:
+            for name, value in values.items():
+                winreg.SetValueEx(key, name, 0, winreg.REG_SZ, value)
+        return
+    dest = _pi_settings_file()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    temp = dest.with_name(dest.name + '.tmp')
+    try:
+        temp.write_text(json.dumps(values, ensure_ascii=False, indent=2), encoding='utf-8')
+        os.replace(temp, dest)
+    finally:
+        temp.unlink(missing_ok=True)
 
 
 def query_size(tags, start, end, interval):
@@ -50,9 +117,25 @@ class PIImportDialog(tk.Toplevel):
         self.rowconfigure(0, weight=1)
         body.columnconfigure(1, weight=1)
         body.rowconfigure(3, weight=1)
-        base = Path(__file__).resolve().parent.parent / 'PIReader'
-        self.exe = tk.StringVar(value=os.environ.get('PI_READER_EXE', str(base / 'PIReader.exe')))
-        self.config = tk.StringVar(value=os.environ.get('PI_CONFIG', str(base / 'config.txt')))
+        root = Path(__file__).resolve().parent.parent
+        # Both layouts are supported; discover the two files independently.
+        default_exe = (root / 'PIReader.exe' if (root / 'PIReader.exe').is_file()
+                       else root / 'PIReader' / 'PIReader.exe')
+        default_config = (root / 'config.txt' if (root / 'config.txt').is_file()
+                          else root / 'PIReader' / 'config.txt')
+        try:
+            self._saved_paths = load_pi_paths()
+            self._settings_error = None
+        except OSError as exc:
+            self._saved_paths = {}
+            self._settings_error = f'PI 路径设置读取失败：{exc}'
+        self._save_after = None
+        self.exe = tk.StringVar(value=normalize_pi_path(
+            self._saved_paths.get('executable_path') or os.environ.get('PI_READER_EXE')
+            or str(default_exe)))
+        self.config = tk.StringVar(value=normalize_pi_path(
+            self._saved_paths.get('config_path') or os.environ.get('PI_CONFIG')
+            or str(default_config)))
         self.start = tk.StringVar(value='*-1d')
         self.end = tk.StringVar(value='*')
         self.interval = tk.StringVar(value='5m')
@@ -60,7 +143,10 @@ class PIImportDialog(tk.Toplevel):
         for row, (label, variable, pattern) in enumerate([
                 ('PIReader.exe', self.exe, '*.exe'), ('config.txt', self.config, '*.txt')]):
             ttk.Label(body, text=label).grid(row=row, column=0, sticky='w', padx=(0, 8))
-            ttk.Entry(body, textvariable=variable, width=55).grid(row=row, column=1, sticky='ew')
+            entry = ttk.Entry(body, textvariable=variable, width=55)
+            entry.grid(row=row, column=1, sticky='ew')
+            entry.bind('<FocusOut>', lambda event: self.save_current_paths())
+            entry.bind('<Return>', lambda event: self.save_current_paths())
             ttk.Button(body, text='浏览…', command=lambda v=variable, p=pattern: self.browse(v, p)).grid(row=row, column=2)
         ttk.Label(body, text='PI Tag（每行一个，最多 20 个）').grid(row=2, column=0, columnspan=3, sticky='w', pady=(10, 0))
         self.tags = tk.Text(body, height=5, width=65, wrap='none')
@@ -97,6 +183,12 @@ class PIImportDialog(tk.Toplevel):
         self.minsize(self.winfo_reqwidth(), self.winfo_reqheight())
         self.grab_set()
         self.tags.focus_set()
+        self._path_traces = [
+            (variable, variable.trace_add('write', self.schedule_save))
+            for variable in (self.exe, self.config)]
+        self.bind('<Destroy>', self._cancel_pending_save, add='+')
+        if self._settings_error:
+            self.set_status(self._settings_error)
 
     def set_status(self, message):
         self.status_view.configure(state='normal')
@@ -105,13 +197,60 @@ class PIImportDialog(tk.Toplevel):
         self.status_view.configure(state='disabled')
         self.status_view.yview_moveto(0)
 
+    def schedule_save(self, *_):
+        """Debounce manual edits; browsing and leaving a field save immediately."""
+        if self._save_after is not None:
+            self.after_cancel(self._save_after)
+        self._save_after = self.after(650, self.save_current_paths)
+
+    def _cancel_pending_save(self, event):
+        if event.widget is self:
+            if self._save_after is not None:
+                self.after_cancel(self._save_after)
+                self._save_after = None
+            for variable, trace in self._path_traces:
+                variable.trace_remove('write', trace)
+            self._path_traces.clear()
+
+    def save_current_paths(self):
+        if self._save_after is not None:
+            self.after_cancel(self._save_after)
+            self._save_after = None
+        candidates = {
+            'executable_path': normalize_pi_path(self.exe.get()),
+            'config_path': normalize_pi_path(self.config.get()),
+        }
+        for name, variable in (('executable_path', self.exe),
+                               ('config_path', self.config)):
+            if variable.get() != candidates[name]:
+                variable.set(candidates[name])
+        # Store independently selected valid files, not incomplete typing or guesses.
+        updates = {key: value for key, value in candidates.items()
+                   if value and Path(value).is_file()}
+        # Normalization may have scheduled another callback through StringVar traces.
+        if self._save_after is not None:
+            self.after_cancel(self._save_after)
+            self._save_after = None
+        next_values = {**self._saved_paths, **updates}
+        if next_values != self._saved_paths:
+            try:
+                save_pi_paths(next_values)
+            except OSError as exc:
+                self.set_status(f'PI 路径自动保存失败：{exc}')
+            else:
+                self._saved_paths = next_values
+                self.set_status('PI 路径已自动保存。')
+
     def browse(self, variable, pattern):
         filename = filedialog.askopenfilename(parent=self, filetypes=[('PI 文件', pattern), ('所有文件', '*.*')])
         if filename:
-            variable.set(filename)
+            variable.set(normalize_pi_path(filename))
+            self.save_current_paths()
 
     def paths(self):
-        return dict(config_path=self.config.get().strip(), executable_path=self.exe.get().strip())
+        self.save_current_paths()
+        return dict(config_path=normalize_pi_path(self.config.get()),
+                    executable_path=normalize_pi_path(self.exe.get()))
 
     def toggle_tag(self, event):
         item = self.results.identify_row(event.y) if event.type != tk.EventType.KeyPress else self.results.focus()
@@ -204,6 +343,7 @@ class PIImportDialog(tk.Toplevel):
             self.cancel()
 
     def cancel(self):
+        self.save_current_paths()
         if self.pending is not None:
             self.after_cancel(self.pending)
             self.pending = None

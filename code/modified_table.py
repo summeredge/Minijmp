@@ -1,11 +1,14 @@
+import csv
+import io
+
 import pandas as pd
-from tkinter import END, StringVar, Entry, messagebox
+from tkinter import END, StringVar, Entry, Menu, messagebox
 import numpy as np
 #  import os
 ############ pandastable #############
 from pandastable_local.core import Table
 from pandastable_local.data import TableModel
-from pandastable_local.dialogs import MultipleValDialog, filedialog
+from pandastable_local.dialogs import MultipleValDialog, applyStyle, filedialog
 ############## Own Module ###############
 #  from modified_header import MColumnHeader as ColumnHeader
 #  from modified_header import RowHeader
@@ -85,6 +88,181 @@ class MTable(Table):
                                    "No clipboard software.\nInstall xclip",
                                    parent=self.parentframe)
         return
+
+    def copy_context_selection(self, rows=None, cols=None):
+        """Copy selected data as an Excel-compatible, headerless TSV range."""
+        df = self.model.df
+        rows = list(range(len(df))) if rows is None and self.allrows else rows
+        rows = list(rows if rows is not None
+                    else self.multiplerowlist or [self.currentrow])
+        cols = list(cols if cols is not None
+                    else self.multiplecollist or [self.currentcol])
+        rows = sorted(set(row for row in rows if isinstance(row, (int, np.integer))
+                          and 0 <= row < len(df)))
+        cols = sorted(set(col for col in cols if isinstance(col, (int, np.integer))
+                          and 0 <= col < len(df.columns)))
+        if not rows or not cols:
+            return False
+
+        try:
+            text = df.iloc[rows, cols].to_csv(
+                index=False, header=False, sep='\t', na_rep='', lineterminator='\n')
+            self.clipboard_clear()
+            self.clipboard_append(text)
+        except Exception as error:
+            messagebox.showwarning('复制失败', f'无法写入系统剪贴板：{error}',
+                                   parent=self.parentframe)
+            return False
+        return True
+
+    @staticmethod
+    def _parse_context_clipboard(text, expected_shape=None):
+        def parse(delimiter):
+            return list(csv.reader(io.StringIO(text, newline=''), delimiter=delimiter))
+
+        rows = parse('\t') if text else [['']]
+        rows = [row or [''] for row in rows]
+        # shortcut: a matching selection disambiguates legacy CSV from comma text in one TSV column.
+        if '\t' not in text and ',' in text and expected_shape is not None:
+            csv_rows = parse(',')
+            shape = (len(csv_rows), len(csv_rows[0]) if csv_rows else 0)
+            matches = shape[0] == expected_shape[0]
+            if (matches and shape[1] == expected_shape[1]
+                    and shape != (len(rows), len(rows[0]) if rows else 0)):
+                rows = csv_rows
+        if not rows or not rows[0] or any(len(row) != len(rows[0]) for row in rows):
+            raise ValueError('剪贴板内容不是规则的二维表格。')
+        return [[np.nan if value == '' else value for value in row] for row in rows]
+
+    def paste_context_selection(self, axis='cell', rows=None, cols=None):
+        """Safely overwrite an existing cell, row, or column range from the clipboard."""
+        if not self.editable:
+            messagebox.showwarning('无法粘贴', '当前表格为只读状态。', parent=self.parentframe)
+            return False
+        if self.filtered:
+            messagebox.showwarning('无法粘贴', '请先关闭筛选，再粘贴数据。',
+                                   parent=self.parentframe)
+            return False
+
+        df = self.model.df
+        if axis not in ('cell', 'column', 'row'):
+            raise ValueError(f'未知粘贴范围：{axis}')
+        selected_rows = list(rows if rows is not None
+                             else self.multiplerowlist or [self.currentrow])
+        selected_cols = list(cols if cols is not None
+                             else self.multiplecollist or [self.currentcol])
+        if axis == 'column':
+            selected_rows = list(range(len(df)))
+        elif axis == 'row':
+            selected_cols = list(range(len(df.columns)))
+        if (any(not isinstance(row, (int, np.integer)) or not 0 <= row < len(df)
+                for row in selected_rows)
+                or any(not isinstance(col, (int, np.integer)) or not 0 <= col < len(df.columns)
+                       for col in selected_cols)):
+            messagebox.showwarning('无法粘贴', '粘贴目标行列超出工作表范围。',
+                                   parent=self.parentframe)
+            return False
+        selected_rows = sorted(set(selected_rows))
+        selected_cols = sorted(set(selected_cols))
+        if not selected_rows or not selected_cols:
+            messagebox.showwarning('无法粘贴', '没有有效的粘贴目标。', parent=self.parentframe)
+            return False
+        if axis == 'cell':
+            fixed = len(selected_rows) * len(selected_cols) > 1
+            expected = (len(selected_rows), len(selected_cols)) if fixed else None
+        elif axis == 'column':
+            expected = (len(df), len(selected_cols))
+        elif axis == 'row':
+            expected = (len(selected_rows), len(df.columns))
+
+        try:
+            text = self.clipboard_get().lstrip('\ufeff')
+            values = self._parse_context_clipboard(text, expected)
+        except Exception as error:
+            messagebox.showwarning('无法粘贴', f'剪贴板内容读取失败：{error}',
+                                   parent=self.parentframe)
+            return False
+
+        height, width = len(values), len(values[0])
+        if axis == 'cell':
+            if fixed and (height, width) != (len(selected_rows), len(selected_cols)):
+                messagebox.showwarning(
+                    '无法粘贴', '剪贴板尺寸与所选单元格范围不一致。',
+                    parent=self.parentframe)
+                return False
+            if fixed:
+                target_rows, target_cols = selected_rows, selected_cols
+            else:
+                target_rows = list(range(selected_rows[0], selected_rows[0] + height))
+                target_cols = list(range(selected_cols[0], selected_cols[0] + width))
+        elif axis == 'column':
+            if (height, width) != (len(df), len(selected_cols)):
+                messagebox.showwarning(
+                    '无法粘贴',
+                    f'整列粘贴要求剪贴板为 {len(df)} 行 × {len(selected_cols)} 列。',
+                    parent=self.parentframe)
+                return False
+            target_rows, target_cols = list(range(len(df))), selected_cols
+        elif axis == 'row':
+            if (height, width) != (len(selected_rows), len(df.columns)):
+                messagebox.showwarning(
+                    '无法粘贴',
+                    f'整行粘贴要求剪贴板为 {len(selected_rows)} 行 × '
+                    f'{len(df.columns)} 列。',
+                    parent=self.parentframe)
+                return False
+            target_rows, target_cols = selected_rows, list(range(len(df.columns)))
+
+        if (not target_rows or not target_cols or max(target_rows) >= len(df)
+                or max(target_cols) >= len(df.columns)):
+            messagebox.showwarning(
+                '无法粘贴', '剪贴板尺寸超出工作表范围，未修改数据。',
+                parent=self.parentframe)
+            return False
+
+        updated = df.copy(deep=True)
+        try:
+            for row_index, target_row in enumerate(target_rows):
+                for col_index, target_col in enumerate(target_cols):
+                    value = values[row_index][col_index]
+                    dtype = df.dtypes.iloc[target_col]
+                    if pd.isna(value):
+                        value = np.nan
+                    elif pd.api.types.is_bool_dtype(dtype):
+                        lowered = value.lower()
+                        if lowered not in ('true', 'false', '1', '0'):
+                            raise ValueError(f'“{value}”不是有效的布尔值。')
+                        value = lowered in ('true', '1')
+                    elif pd.api.types.is_numeric_dtype(dtype):
+                        value = pd.to_numeric(value)
+                    elif pd.api.types.is_datetime64_any_dtype(dtype):
+                        value = pd.to_datetime(value)
+                    updated.iat[target_row, target_col] = value
+        except Exception as error:
+            messagebox.showwarning(
+                '无法粘贴', f'剪贴板数据与单元格类型不兼容：{error}',
+                parent=self.parentframe)
+            return False
+
+        self.storeCurrent()
+        self.model.df = updated
+        self.redraw()
+        self.tableChanged()
+        return True
+
+    def clear_context_selection(self, rows, cols):
+        if not self.editable:
+            messagebox.showwarning('无法清除', '当前表格为只读状态。', parent=self.parentframe)
+            return
+        if self.filtered:
+            messagebox.showwarning('无法清除', '请先关闭筛选，再清除数据。',
+                                   parent=self.parentframe)
+            return
+        if not messagebox.askyesno('清除所选', '确定清除选中的单元格内容？',
+                                   parent=self.parentframe):
+            return
+        self.deleteCells(rows, cols, answer=True)
+        self.tableChanged()
 
     def fillColumn(self):
         """Fill a column with a data range"""
@@ -227,6 +405,41 @@ class MTable(Table):
         return
 
     def handle_right_click(self, event):
+        if hasattr(self, 'rightmenu') and self.rightmenu is not None:
+            self.rightmenu.destroy()
+            self.rightmenu = None
+        if not self.enable_menus:
+            return
+
+        row = self.get_row_clicked(event)
+        col = self.get_col_clicked(event)
+        if row is None or col is None or not (0 <= row < self.rows and 0 <= col < self.cols):
+            return
+        if not ((row in self.multiplerowlist or self.allrows)
+                and col in self.multiplecollist):
+            self.clearSelected()
+            self.rowheader.clearSelected()
+            self.allrows = False
+            self.setSelectedRow(row)
+            self.setSelectedCol(col)
+            self.drawSelectedRect(row, col)
+            self.drawSelectedRow()
+
+        rows = list(range(self.rows)) if self.allrows else list(self.multiplerowlist or [self.currentrow])
+        cols = list(self.multiplecollist or [self.currentcol])
+        mutable = self.editable and not self.filtered
+        can_undo = mutable and self.prevdf is not None and self.prevdf_end > 0
+        menu = Menu(self, tearoff=0)
+        menu.add_command(label='复制所选', command=lambda: self.copy_context_selection(rows, cols))
+        menu.add_command(label='粘贴', command=lambda: self.paste_context_selection('cell', rows, cols),
+                         state='normal' if mutable else 'disabled')
+        menu.add_command(label='撤销', command=self.undo,
+                         state='normal' if can_undo else 'disabled')
+        menu.add_command(label='清除所选', command=lambda: self.clear_context_selection(rows, cols),
+                         state='normal' if mutable else 'disabled')
+        applyStyle(menu)
+        menu.post(event.x_root, event.y_root)
+        self.rightmenu = menu
         return
 
     def drawCellEntry(self, row, col, text=None):

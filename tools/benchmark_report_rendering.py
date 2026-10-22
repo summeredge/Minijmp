@@ -1,7 +1,7 @@
 """G14 本机基准；每个场景/阶段在独立进程运行，超时保留已完成指标。
 
 使用项目解释器运行：python tools/benchmark_report_rendering.py --output <目录>
---source-dir 可指向 docs/g14-evidence/before，重放修改前公共链路。
+--source-dir 可指向 tests/fixtures/g14_before，重放修改前公共链路。
 """
 import argparse
 import ctypes

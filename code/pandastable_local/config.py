@@ -23,6 +23,8 @@ from __future__ import absolute_import, division, print_function
 import math
 import time
 import os
+import shutil
+import sys
 import types
 import string
 import copy
@@ -41,7 +43,12 @@ from . import util, plotting, dialogs
 
 #  homepath = os.path.join(os.path.expanduser('~'))
 parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-configpath = os.path.join(parent_dir, 'user_config')
+if getattr(sys, 'frozen', False):
+    app_data = os.environ.get('LOCALAPPDATA') or os.path.join(
+        os.path.expanduser('~'), 'AppData', 'Local')
+    configpath = os.path.join(app_data, 'MiniJMP', 'user_config')
+else:
+    configpath = os.path.join(parent_dir, 'user_config')
 print("config path", configpath)
 if not os.path.exists(configpath):
     try:
@@ -49,6 +56,10 @@ if not os.path.exists(configpath):
     except BaseException:
         os.makedirs(configpath)
 default_conf = os.path.join(configpath, 'default.conf')
+if getattr(sys, 'frozen', False) and not os.path.exists(default_conf):
+    bundled_conf = os.path.join(sys._MEIPASS, 'user_config', 'default.conf')
+    if os.path.isfile(bundled_conf):
+        shutil.copyfile(bundled_conf, default_conf)
 
 baseoptions = OrderedDict()
 baseoptions['base'] = {'font': 'Arial', 'fontsize': 12, 'fontstyle': '',

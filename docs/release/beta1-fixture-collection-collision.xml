@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="3" failures="0" skipped="0" tests="3" time="4.060" timestamp="2026-10-22T11:56:24.375678+08:00" hostname="YOGA"><testcase classname="" name="tests.fixtures.source_baselines.11c4a7569f5b80836de04f06e4049c99ed1d084c.code.proportion_test" time="0.000"><error message="collection failure">import file mismatch:
+imported module 'proportion_test' has this __file__ attribute:
+  C:\Users\shaoy\Documents\Minijmp\code\proportion_test.py
+which is not the same as the test file we want to collect:
+  C:\Users\shaoy\Documents\Minijmp\tests\fixtures\source_baselines\11c4a7569f5b80836de04f06e4049c99ed1d084c\code\proportion_test.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules</error></testcase><testcase classname="" name="tests.fixtures.source_baselines.38b907f0dcf62f234561838f3cca93ad0a8545ef.code.proportion_test" time="0.000"><error message="collection failure">import file mismatch:
+imported module 'proportion_test' has this __file__ attribute:
+  C:\Users\shaoy\Documents\Minijmp\code\proportion_test.py
+which is not the same as the test file we want to collect:
+  C:\Users\shaoy\Documents\Minijmp\tests\fixtures\source_baselines\38b907f0dcf62f234561838f3cca93ad0a8545ef\code\proportion_test.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules</error></testcase><testcase classname="" name="tests.fixtures.source_baselines.5b68df06ce3892eace5f43f2c142df4d1b273eeb.code.proportion_test" time="0.000"><error message="collection failure">import file mismatch:
+imported module 'proportion_test' has this __file__ attribute:
+  C:\Users\shaoy\Documents\Minijmp\code\proportion_test.py
+which is not the same as the test file we want to collect:
+  C:\Users\shaoy\Documents\Minijmp\tests\fixtures\source_baselines\5b68df06ce3892eace5f43f2c142df4d1b273eeb\code\proportion_test.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules</error></testcase></testsuite></testsuites>

@@ -1,0 +1,220 @@
+........................................................................ [ 22%]
+....................FFFF................................................ [ 44%]
+........................................................................ [ 66%]
+........................................................................ [ 88%]
+....................................                                     [100%]
+================================== FAILURES ===================================
+_ test_windows_launchers_resolve_their_directory_and_propagate_exit_code[0-win_start.bat] _
+
+tmp_path = WindowsPath('C:/Users/shaoy/AppData/Local/Temp/pytest-of-shaoy/pytest-736/test_windows_launchers_resolve0')
+launcher = 'win_start.bat', returncode = 0
+
+    @pytest.mark.skipif(os.name != 'nt', reason='Windows launchers')
+    @pytest.mark.parametrize('launcher', ['win_start.bat', 'win_start_no_cmd_win.vbs'])
+    @pytest.mark.parametrize('returncode', [0, 7])
+    def test_windows_launchers_resolve_their_directory_and_propagate_exit_code(tmp_path, launcher, returncode):
+        project = tmp_path / '���� project'
+        project.mkdir()
+        for name in ['win_start.bat', 'win_start_no_cmd_win.vbs']:
+            shutil.copyfile(ROOT / name, project / name)
+        (project / 'start.py').write_text(f'import sys\nsys.exit({returncode})\n', encoding='utf-8')
+        env = dict(os.environ, PATH=str(Path(sys.executable).parent) + os.pathsep + os.environ['PATH'])
+        if launcher.endswith('.vbs'):
+            command = ['cscript.exe', '//nologo', str(project / launcher)]
+        else:
+            command = ['cmd.exe', '/d', '/c', str(project / launcher)]
+        result = subprocess.run(command, cwd=tmp_path, env=env, capture_output=True, timeout=20)
+>       assert result.returncode == returncode, result.stderr
+E       AssertionError: b''
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['cmd.exe', '/d', '/c', 'C:\\Users\\shaoy\\AppData\\Local\\Temp\\pytest-of-shaoy\\pytest-736\\te...inijmp virtual environment not found.\r\nRun setup_env.bat first.\r\nPress any key to continue . . . \r\n', stderr=b'').returncode
+
+tests\test_startup.py:125: AssertionError
+_ test_windows_launchers_resolve_their_directory_and_propagate_exit_code[0-win_start_no_cmd_win.vbs] _
+
+tmp_path = WindowsPath('C:/Users/shaoy/AppData/Local/Temp/pytest-of-shaoy/pytest-736/test_windows_launchers_resolve1')
+launcher = 'win_start_no_cmd_win.vbs', returncode = 0
+
+    @pytest.mark.skipif(os.name != 'nt', reason='Windows launchers')
+    @pytest.mark.parametrize('launcher', ['win_start.bat', 'win_start_no_cmd_win.vbs'])
+    @pytest.mark.parametrize('returncode', [0, 7])
+    def test_windows_launchers_resolve_their_directory_and_propagate_exit_code(tmp_path, launcher, returncode):
+        project = tmp_path / '���� project'
+        project.mkdir()
+        for name in ['win_start.bat', 'win_start_no_cmd_win.vbs']:
+            shutil.copyfile(ROOT / name, project / name)
+        (project / 'start.py').write_text(f'import sys\nsys.exit({returncode})\n', encoding='utf-8')
+        env = dict(os.environ, PATH=str(Path(sys.executable).parent) + os.pathsep + os.environ['PATH'])
+        if launcher.endswith('.vbs'):
+            command = ['cscript.exe', '//nologo', str(project / launcher)]
+        else:
+            command = ['cmd.exe', '/d', '/c', str(project / launcher)]
+>       result = subprocess.run(command, cwd=tmp_path, env=env, capture_output=True, timeout=20)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_startup.py:124: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\AppData\Local\Programs\Python\Python311\Lib\subprocess.py:550: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python311\Lib\subprocess.py:1209: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Popen: returncode: 1 args: ['cscript.exe', '//nologo', 'C:\\Users\\shaoy\\A...>
+input = None, endtime = 102322.343, orig_timeout = 20
+
+    def _communicate(self, input, endtime, orig_timeout):
+        # Start reader threads feeding into a list hanging off of this
+        # object, unless they've already been started.
+        if self.stdout and not hasattr(self, "_stdout_buff"):
+            self._stdout_buff = []
+            self.stdout_thread = \
+                    threading.Thread(target=self._readerthread,
+                                     args=(self.stdout, self._stdout_buff))
+            self.stdout_thread.daemon = True
+            self.stdout_thread.start()
+        if self.stderr and not hasattr(self, "_stderr_buff"):
+            self._stderr_buff = []
+            self.stderr_thread = \
+                    threading.Thread(target=self._readerthread,
+                                     args=(self.stderr, self._stderr_buff))
+            self.stderr_thread.daemon = True
+            self.stderr_thread.start()
+    
+        if self.stdin:
+            self._stdin_write(input)
+    
+        # Wait for the reader threads, or time out.  If we time out, the
+        # threads remain reading and the fds left open in case the user
+        # calls communicate again.
+        if self.stdout is not None:
+            self.stdout_thread.join(self._remaining_time(endtime))
+            if self.stdout_thread.is_alive():
+>               raise TimeoutExpired(self.args, orig_timeout)
+E               subprocess.TimeoutExpired: Command '['cscript.exe', '//nologo', 'C:\\Users\\shaoy\\AppData\\Local\\Temp\\pytest-of-shaoy\\pytest-736\\test_windows_launchers_resolve1\\���� project\\win_start_no_cmd_win.vbs']' timed out after 20 seconds
+
+..\..\AppData\Local\Programs\Python\Python311\Lib\subprocess.py:1630: TimeoutExpired
+_ test_windows_launchers_resolve_their_directory_and_propagate_exit_code[7-win_start.bat] _
+
+tmp_path = WindowsPath('C:/Users/shaoy/AppData/Local/Temp/pytest-of-shaoy/pytest-736/test_windows_launchers_resolve2')
+launcher = 'win_start.bat', returncode = 7
+
+    @pytest.mark.skipif(os.name != 'nt', reason='Windows launchers')
+    @pytest.mark.parametrize('launcher', ['win_start.bat', 'win_start_no_cmd_win.vbs'])
+    @pytest.mark.parametrize('returncode', [0, 7])
+    def test_windows_launchers_resolve_their_directory_and_propagate_exit_code(tmp_path, launcher, returncode):
+        project = tmp_path / '���� project'
+        project.mkdir()
+        for name in ['win_start.bat', 'win_start_no_cmd_win.vbs']:
+            shutil.copyfile(ROOT / name, project / name)
+        (project / 'start.py').write_text(f'import sys\nsys.exit({returncode})\n', encoding='utf-8')
+        env = dict(os.environ, PATH=str(Path(sys.executable).parent) + os.pathsep + os.environ['PATH'])
+        if launcher.endswith('.vbs'):
+            command = ['cscript.exe', '//nologo', str(project / launcher)]
+        else:
+            command = ['cmd.exe', '/d', '/c', str(project / launcher)]
+        result = subprocess.run(command, cwd=tmp_path, env=env, capture_output=True, timeout=20)
+>       assert result.returncode == returncode, result.stderr
+E       AssertionError: b''
+E       assert 1 == 7
+E        +  where 1 = CompletedProcess(args=['cmd.exe', '/d', '/c', 'C:\\Users\\shaoy\\AppData\\Local\\Temp\\pytest-of-shaoy\\pytest-736\\te...inijmp virtual environment not found.\r\nRun setup_env.bat first.\r\nPress any key to continue . . . \r\n', stderr=b'').returncode
+
+tests\test_startup.py:125: AssertionError
+_ test_windows_launchers_resolve_their_directory_and_propagate_exit_code[7-win_start_no_cmd_win.vbs] _
+
+tmp_path = WindowsPath('C:/Users/shaoy/AppData/Local/Temp/pytest-of-shaoy/pytest-736/test_windows_launchers_resolve3')
+launcher = 'win_start_no_cmd_win.vbs', returncode = 7
+
+    @pytest.mark.skipif(os.name != 'nt', reason='Windows launchers')
+    @pytest.mark.parametrize('launcher', ['win_start.bat', 'win_start_no_cmd_win.vbs'])
+    @pytest.mark.parametrize('returncode', [0, 7])
+    def test_windows_launchers_resolve_their_directory_and_propagate_exit_code(tmp_path, launcher, returncode):
+        project = tmp_path / '���� project'
+        project.mkdir()
+        for name in ['win_start.bat', 'win_start_no_cmd_win.vbs']:
+            shutil.copyfile(ROOT / name, project / name)
+        (project / 'start.py').write_text(f'import sys\nsys.exit({returncode})\n', encoding='utf-8')
+        env = dict(os.environ, PATH=str(Path(sys.executable).parent) + os.pathsep + os.environ['PATH'])
+        if launcher.endswith('.vbs'):
+            command = ['cscript.exe', '//nologo', str(project / launcher)]
+        else:
+            command = ['cmd.exe', '/d', '/c', str(project / launcher)]
+>       result = subprocess.run(command, cwd=tmp_path, env=env, capture_output=True, timeout=20)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_startup.py:124: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\AppData\Local\Programs\Python\Python311\Lib\subprocess.py:550: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python311\Lib\subprocess.py:1209: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Popen: returncode: 1 args: ['cscript.exe', '//nologo', 'C:\\Users\\shaoy\\A...>
+input = None, endtime = 102342.671, orig_timeout = 20
+
+    def _communicate(self, input, endtime, orig_timeout):
+        # Start reader threads feeding into a list hanging off of this
+        # object, unless they've already been started.
+        if self.stdout and not hasattr(self, "_stdout_buff"):
+            self._stdout_buff = []
+            self.stdout_thread = \
+                    threading.Thread(target=self._readerthread,
+                                     args=(self.stdout, self._stdout_buff))
+            self.stdout_thread.daemon = True
+            self.stdout_thread.start()
+        if self.stderr and not hasattr(self, "_stderr_buff"):
+            self._stderr_buff = []
+            self.stderr_thread = \
+                    threading.Thread(target=self._readerthread,
+                                     args=(self.stderr, self._stderr_buff))
+            self.stderr_thread.daemon = True
+            self.stderr_thread.start()
+    
+        if self.stdin:
+            self._stdin_write(input)
+    
+        # Wait for the reader threads, or time out.  If we time out, the
+        # threads remain reading and the fds left open in case the user
+        # calls communicate again.
+        if self.stdout is not None:
+            self.stdout_thread.join(self._remaining_time(endtime))
+            if self.stdout_thread.is_alive():
+>               raise TimeoutExpired(self.args, orig_timeout)
+E               subprocess.TimeoutExpired: Command '['cscript.exe', '//nologo', 'C:\\Users\\shaoy\\AppData\\Local\\Temp\\pytest-of-shaoy\\pytest-736\\test_windows_launchers_resolve3\\���� project\\win_start_no_cmd_win.vbs']' timed out after 20 seconds
+
+..\..\AppData\Local\Programs\Python\Python311\Lib\subprocess.py:1630: TimeoutExpired
+============================== warnings summary ===============================
+tests/test_statistics_regressions.py::test_residual_plot_handles_constant_fitted_values_or_residuals[y0]
+  C:\Users\shaoy\Documents\Minijmp\code\linear_plot.py:146: UserWarning: Attempting to set identical low and high xlims makes transformation singular; automatically expanding.
+    ax.set_xlim(left=x_min, right=x_max)
+
+tests/test_statistics_regressions.py::test_residual_plot_handles_constant_fitted_values_or_residuals[y1]
+tests/test_statistics_regressions.py::test_residual_plot_handles_constant_fitted_values_or_residuals[y1]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_axis_nan_policy.py:586: UserWarning: scipy.stats.shapiro: Input data has range zero. The results may not be accurate.
+    res = hypotest_fun_out(*samples, **kwds)
+
+tests/test_statistics_regressions.py::test_residual_plot_handles_constant_fitted_values_or_residuals[y1]
+tests/test_statistics_regressions.py::test_residual_plot_handles_constant_fitted_values_or_residuals[y1]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\statsmodels\stats\_adnorm.py:48: RuntimeWarning: invalid value encountered in divide
+    w = (y - xbar) / s
+
+tests/test_statistics_regressions.py::test_residual_plot_handles_constant_fitted_values_or_residuals[y1]
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\stats\_distn_infrastructure.py:2046: RuntimeWarning: invalid value encountered in divide
+    x = np.asarray((x - loc)/scale, dtype=dtyp)
+
+tests/test_statistics_regressions.py::test_residual_plot_handles_constant_fitted_values_or_residuals[y1]
+  C:\Users\shaoy\Documents\Minijmp\code\linear_plot.py:147: UserWarning: Attempting to set identical low and high ylims makes transformation singular; automatically expanding.
+    ax.set_ylim(bottom=y_min, top=y_max)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_startup.py::test_windows_launchers_resolve_their_directory_and_propagate_exit_code[0-win_start.bat]
+FAILED tests/test_startup.py::test_windows_launchers_resolve_their_directory_and_propagate_exit_code[0-win_start_no_cmd_win.vbs]
+FAILED tests/test_startup.py::test_windows_launchers_resolve_their_directory_and_propagate_exit_code[7-win_start.bat]
+FAILED tests/test_startup.py::test_windows_launchers_resolve_their_directory_and_propagate_exit_code[7-win_start_no_cmd_win.vbs]
+4 failed, 320 passed, 7 warnings in 82.69s (0:01:22)

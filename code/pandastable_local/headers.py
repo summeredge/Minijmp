@@ -81,15 +81,11 @@ class ColumnHeader(Canvas):
             self.bind('<Leave>', self.leave)
             print("OS type", self.table.ostyp)
             if self.table.ostyp == 'darwin':
-                # For mac we bind Shift, left-click to right click
                 self.bind("<ButtonPress-2>", self.handle_right_click)
-                self.bind("<Button-2>", self.handle_right_click)
                 self.bind("<ButtonPress-3>", self.handle_right_click)
-                self.bind("<Button-3>", self.handle_right_click)
                # self.bind('<Shift-Button-1>', self.handle_right_click)
             else:
                 self.bind("<Button-3>", self.handle_right_click)
-                self.bind("<ButtonPress-3>", self.handle_right_click)
             self.thefont = self.table.thefont
             self.wrap = False
             self.setDefaults()
@@ -253,6 +249,7 @@ class ColumnHeader(Canvas):
         #  color='lightblue', outline='white')
         if hasattr(self, 'rightmenu') and self.rightmenu is not None:
             self.rightmenu.destroy()
+            self.rightmenu = None
         # finally, draw the selected col on the table
         self.table.drawSelectedCol()
         self.table.drawMultipleCells()
@@ -281,13 +278,15 @@ class ColumnHeader(Canvas):
     def handle_right_click(self, event):
         """respond to a right click"""
 
+        if hasattr(self, 'rightmenu') and self.rightmenu is not None:
+            self.rightmenu.destroy()
+            self.rightmenu = None
         if not self.table.enable_menus:
             return
         colclicked = self.table.get_col_clicked(event)
-        multicollist = self.table.multiplecollist
-        if len(multicollist) > 1:
-            pass
-        else:
+        if colclicked is None or not 0 <= colclicked < self.table.cols:
+            return
+        if colclicked not in self.table.multiplecollist:
             self.handle_left_click(event, allow_resize=False)
         self.rightmenu = self.popupMenu(event)
 
@@ -518,9 +517,7 @@ class ColumnHeader(Canvas):
         else:
             colnames = ','.join(colnames)
         popupmenu = Menu(self, tearoff=0)
-
-        def popupFocusOut(event):
-            popupmenu.unpost()
+        selected_cols = sorted(set(multicols))
 
         #  columncommands = {"Rename": self.renameColumn,
         #                    "Add": self.table.addColumn,
@@ -544,6 +541,18 @@ class ColumnHeader(Canvas):
             command=lambda: self.table.sortTable(
                 ascending=[
                     0 for i in multicols]))
+        if hasattr(self.table, 'copy_context_selection'):
+            popupmenu.add_separator()
+            popupmenu.add_command(
+                label='复制整列',
+                command=lambda: self.table.copy_context_selection(
+                    list(range(self.table.rows)), selected_cols))
+            popupmenu.add_command(
+                label='粘贴整列',
+                command=lambda: self.table.paste_context_selection(
+                    'column', cols=selected_cols),
+                state='normal' if self.table.editable and not self.table.filtered else 'disabled')
+            popupmenu.add_separator()
         #  popupmenu.add_command(label="Set %s as Index" %colnames, command=self.table.setindex)
         popupmenu.add_command(
             label="删除列",
@@ -582,8 +591,6 @@ class ColumnHeader(Canvas):
 
         #  createSubMenu(popupmenu, 'Column', columncommands)
         #  createSubMenu(popupmenu, 'Format', formatcommands)
-        popupmenu.bind("<FocusOut>", popupFocusOut)
-        popupmenu.focus_set()
         popupmenu.post(event.x_root, event.y_root)
         applyStyle(popupmenu)
         return popupmenu
@@ -690,14 +697,10 @@ class RowHeader(Canvas):
             self.bind("<Control-Button-1>", self.handle_left_ctrl_click)
 
             if self.table.ostyp == 'darwin':
-                # For mac we bind Shift, left-click to right click
                 self.bind("<ButtonPress-2>", self.handle_right_click)
-                self.bind("<Button-2>", self.handle_right_click)
                 self.bind("<ButtonPress-3>", self.handle_right_click)
-                self.bind("<Button-3>", self.handle_right_click)
                 # self.bind('<Shift-Button-1>', self.handle_right_click)
             else:
-                self.bind("<ButtonPress-3>", self.handle_right_click)
                 self.bind("<Button-3>", self.handle_right_click)
             self.bind('<B1-Motion>', self.handle_mouse_drag)
             self.bind('<Shift-Button-1>', self.handle_left_shift_click)
@@ -836,11 +839,18 @@ class RowHeader(Canvas):
     def handle_right_click(self, event):
         """respond to a right click"""
 
+        if hasattr(self, 'rightmenu') and self.rightmenu is not None:
+            self.rightmenu.destroy()
+            self.rightmenu = None
         if not self.table.enable_menus:
             return
         self.delete('tooltip')
-        if hasattr(self, 'rightmenu'):
-            self.rightmenu.destroy()
+        rowclicked = self.table.get_row_clicked(event)
+        if rowclicked is None or not 0 <= rowclicked < self.table.rows:
+            return
+        if rowclicked not in self.table.multiplerowlist:
+            self.handle_left_click(event)
+        self.table.allrows = False
         self.rightmenu = self.popupMenu(event, outside=1)
         # # ADD THESE 3 LINES HERE
         # if self.table.ostyp == "darwin":
@@ -913,15 +923,22 @@ class RowHeader(Canvas):
                 "复制索引到列", "在此处插入行",
                 "在末尾添加行", "删除行", "复制行"]  # , "Set Row Color"]
 
+        selected_rows = sorted(set(self.table.multiplerowlist or [self.table.currentrow]))
+        if hasattr(self.table, 'copy_context_selection'):
+            defaultactions.update({
+                '复制整行': lambda: self.table.copy_context_selection(
+                    selected_rows, list(range(self.table.cols))),
+                '粘贴整行': lambda: self.table.paste_context_selection(
+                    'row', rows=selected_rows, cols=list(range(self.table.cols)))})
+            main.extend(['复制整行', '粘贴整行'])
+
         popupmenu = Menu(self, tearoff=0)
 
-        def popupFocusOut(event):
-            popupmenu.unpost()
         for action in main:
-            popupmenu.add_command(label=action, command=defaultactions[action])
+            state = ('disabled' if action == '粘贴整行'
+                     and (not self.table.editable or self.table.filtered) else 'normal')
+            popupmenu.add_command(label=action, command=defaultactions[action], state=state)
 
-        popupmenu.bind("<FocusOut>", popupFocusOut)
-        popupmenu.focus_set()
         popupmenu.post(event.x_root, event.y_root)
         applyStyle(popupmenu)
         return popupmenu

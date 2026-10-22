@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 统计 | 六个 `statistics-F*.json`，原 `tools/benchmark_statistics.py` | G16 优化后原三次样本作为**历史参照**。输入规模相同也不能视为同时负载或纯算法 A/B；已核对 `multi_var` 默认非报告模式与 G15 一致。LR 入口耗时有效不意味着其统计定义正确，B-01 单独阻断验收。 |
 | 数据 | `data/performance.csv`、`benchmark-environment.json` | 冻结旧函数和当前函数在本轮交替运行，逐次校验结果后写成功记录；每侧三次。旧搜索仅对 pandas 3 的 mask dtype/iteritems 作兼容修正，因此比较名为 before_compat_only，不能写成原失败版本成功。 |
-| 报告绘图 | `render-before/`、`render-current/` | 同一 G18 脚本、同输入、同阶段。本轮 before 从仓库 `docs/g18-evidence/before` 重放 G18 六模块，其余依赖来自当前集成代码，不是整个 G15 环境。vendor 旧版无有效曲线基线，只记录当前实际曲线性能。 |
+| 报告绘图 | `render-before/`、`render-current/` | 同一 G18 脚本、同输入、同阶段。本轮 before 从仓库 `tests/fixtures/g18_before` 重放 G18 六模块，其余依赖来自当前集成代码，不是整个 G15 环境。vendor 旧版无有效曲线基线，只记录当前实际曲线性能。 |
 | 补充 | `supplemental/raw/`，39 个 G15 原场景 | 原参数保留，仅 profile=false、timeout=180。G15 脚本原封复制，输出到 G19；原报告/环境/场景集合归档在 `g15-reference/`。未执行的历史规模只说明代表关系，不伪称三轮完成。 |
 
 数据基准包含 1,000/10,000/50,000/100,000 行，数字清洗在万行时另有 20/40 列。统计工具包含 38 个规模/方法组合。当前版/保留版 20 变量矩阵、50,000×7 完整 Excel、50,000 点 SPC、100,000×3 时序、50,000×3 Tk/对话框、20 张 100×7 表、100×100 宽表均按原工具规模执行；额外 40 变量、大表、vendor 50,000 点等见补充清单。

@@ -1,0 +1,29 @@
+
+=================================== ERRORS ====================================
+_ ERROR collecting tests/fixtures/source_baselines/11c4a7569f5b80836de04f06e4049c99ed1d084c/code/proportion_test.py _
+import file mismatch:
+imported module 'proportion_test' has this __file__ attribute:
+  C:\Users\shaoy\Documents\Minijmp\code\proportion_test.py
+which is not the same as the test file we want to collect:
+  C:\Users\shaoy\Documents\Minijmp\tests\fixtures\source_baselines\11c4a7569f5b80836de04f06e4049c99ed1d084c\code\proportion_test.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+_ ERROR collecting tests/fixtures/source_baselines/38b907f0dcf62f234561838f3cca93ad0a8545ef/code/proportion_test.py _
+import file mismatch:
+imported module 'proportion_test' has this __file__ attribute:
+  C:\Users\shaoy\Documents\Minijmp\code\proportion_test.py
+which is not the same as the test file we want to collect:
+  C:\Users\shaoy\Documents\Minijmp\tests\fixtures\source_baselines\38b907f0dcf62f234561838f3cca93ad0a8545ef\code\proportion_test.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+_ ERROR collecting tests/fixtures/source_baselines/5b68df06ce3892eace5f43f2c142df4d1b273eeb/code/proportion_test.py _
+import file mismatch:
+imported module 'proportion_test' has this __file__ attribute:
+  C:\Users\shaoy\Documents\Minijmp\code\proportion_test.py
+which is not the same as the test file we want to collect:
+  C:\Users\shaoy\Documents\Minijmp\tests\fixtures\source_baselines\5b68df06ce3892eace5f43f2c142df4d1b273eeb\code\proportion_test.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+=========================== short test summary info ===========================
+ERROR tests/fixtures/source_baselines/11c4a7569f5b80836de04f06e4049c99ed1d084c/code/proportion_test.py
+ERROR tests/fixtures/source_baselines/38b907f0dcf62f234561838f3cca93ad0a8545ef/code/proportion_test.py
+ERROR tests/fixtures/source_baselines/5b68df06ce3892eace5f43f2c142df4d1b273eeb/code/proportion_test.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!
+3 errors in 4.06s

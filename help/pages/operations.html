@@ -54,9 +54,8 @@
 
     <section class="topic" id="files.excel_import">
       <h2>Excel 导入</h2>
-      <p><strong>用途：</strong>从 Excel 工作簿读取一个工作表。</p>
-      <p><strong>支持格式：</strong><code>.xls</code> 和 <code>.xlsx</code>。选择文件后，从工作簿中的工作表名称里选取要载入的表。</p>
-      <p><strong>注意：</strong>此入口一次载入所选工作表；不会自动合并同一工作簿的其他工作表。</p>
+      <p><strong>用途：</strong>从 Excel 工作簿导入工作表。</p>
+      <p><strong>支持格式：</strong><code>.xls</code> 和 <code>.xlsx</code>。导入后，工作簿中的每个工作表都会成为一个 MiniJMP 工作表。</p>
     </section>
 
     <section class="topic" id="files.csv_export">
@@ -90,8 +89,10 @@
     </section>
 
     <section class="topic" id="table.context_menu">
-      <h2>表格和列标题右键菜单</h2>
-      <p>在表格或列标题上右键可打开与当前位置相关的操作，包括增删行列、填充数据、排序、改列名或类型、表格信息和部分列操作。可用命令取决于点击的是单元格还是列标题。</p>
+      <h2>单元格、行列标题和工作表标签右键菜单</h2>
+      <p><strong>单元格：</strong>复制所选、粘贴、撤销或清除所选。右键点在现有选择内会保留选择；点在外面会改以该单元格为目标。粘贴按制表符分隔并覆盖现有单元格，不插入行列；尺寸或边界不匹配时不会写入。只读表格和筛选状态会阻止修改。</p>
+      <p><strong>列标题：</strong>保留排序、增删、重命名和格式操作，并可复制或粘贴整列及多列。<strong>行标题：</strong>保留索引和行操作；“复制行”会在表内复制，“复制整行”会复制到系统剪贴板。</p>
+      <p><strong>工作表标签：</strong>右键标签可新增、复制、重命名、删除或导出工作表。操作针对命中的标签；空白标签栏不弹出菜单，删除前会确认。</p>
     </section>
   </main>
 </body>
