@@ -58,7 +58,7 @@ def is_chinese_label(text):
     """
 
     kept = ('PI', 'CSV', 'Excel', 'PDF', 'SPC', 'Cpk', 'R&R', 'I-MR', 'Del',
-            'MR', 'NP', 'Xbar-R', 'Xbar-S', 'hdf5')
+            'MR', 'NP', 'Xbar-R', 'Xbar-S', 'hdf5', 'Logistic', 'PLS', 'Box-Cox', 'Johnson', 'Sixpack')
     single = set('PCUtZVCFDI')
     if not any('一' <= ch <= '鿿' for ch in text):
         return False
@@ -116,12 +116,14 @@ EXPECTED_LAYOUT = {
             '交叉表', '合并/拼接表', '透视表', '逆透视表', '时间序列重抽样'],
     '统计': ['描述性统计', '多变量描述性统计', '正态性检验', '置信区间', 'sep',
             '分布拟合', '相关分析', '线性回归', '残差图', '正交回归',
-            '相关系数矩阵', '完整回归分析', '主成分分析', '时间序列分析', 'sep', '单样本均值 t 检验', '单样本均值 Z 检验',
+            '相关系数矩阵', '完整回归分析', '泊松回归', '名义多分类 Logistic 回归',
+            '有序 Logistic 回归', '偏最小二乘回归（PLS）', '主成分分析', '时间序列分析', 'sep', '单样本均值 t 检验', '单样本均值 Z 检验',
             '单样本标准差检验', '单比率检验', '双样本 t 检验', '配对 t 检验',
             '双比率检验', '多样本标准差检验', 'sep', '单因子方差分析',
             '双因子方差分析', 'sep', '列联表与卡方检验', '比率卡方检验'],
     '质量': ['量具 R&R 研究（交叉）', '量具 R&R 研究（嵌套）', 'sep',
-            '过程能力分析 (Cpk)', '含子组的 Cpk', 'sep', '容差区间', 'sep',
+            '过程能力分析 (Cpk)', '含子组的 Cpk', '正态过程能力（完整）', '非正态过程能力',
+            'Box-Cox / Johnson 变换', '正态能力 Sixpack', '非正态能力 Sixpack', 'sep', '容差区间', 'sep',
             '控制图 I-MR', '控制图 I（单值）', '控制图 MR（移动极差）',
             '控制图 Xbar-R', '控制图 Xbar-S', '高级 SPC 控制图', 'sep', '控制图 NP', '控制图 P',
             '控制图 C', '控制图 U'],
@@ -194,7 +196,26 @@ def test_advanced_analysis_menu_uses_current_sheet_and_lazy_dialog(
         table = app.addSheet(dataframe=pd.DataFrame({'x': values}))
         menu.invoke(next(i for i, kind, text in read_menu(menu)
                          if kind == 'command' and text.strip() == label))
-        dialog.assert_called_once_with(parent=table, df=table.model.df, app=app)
+        expected = {'model': 'OLS'} if module == 'regression_dialog' else {}
+        dialog.assert_called_once_with(parent=table, df=table.model.df, app=app, **expected)
+        dialog.reset_mock()
+
+
+@pytest.mark.parametrize('label,model', [
+    ('泊松回归', 'Poisson'), ('名义多分类 Logistic 回归', 'Nominal'),
+    ('有序 Logistic 回归', 'Ordinal'), ('偏最小二乘回归（PLS）', 'PLS'),
+])
+def test_extended_regression_menu_presets_model_on_current_sheet(app, monkeypatch, label, model):
+    import sys
+
+    dialog = Mock()
+    monkeypatch.setitem(sys.modules, 'regression_dialog', SimpleNamespace(RegressionDialog=dialog))
+    menu = pulldown(app, '统计')
+    for values in ([1, 2], [3, 4]):
+        table = app.addSheet(dataframe=pd.DataFrame({'Y': values}))
+        menu.invoke(next(i for i, kind, text in read_menu(menu)
+                         if kind == 'command' and text.strip() == label))
+        dialog.assert_called_once_with(parent=table, df=table.model.df, app=app, model=model)
         dialog.reset_mock()
 
 

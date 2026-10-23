@@ -509,7 +509,9 @@ class RegressionResult:
 
 def fit_regression(df, y, x, model='OLS', categorical=(), degree=1, interactions=False,
                    selection='none', criterion='AIC', weight=None, alpha=.05,
-                   missing='error', formula='', initial=None, cancel=None):
+                   missing='error', formula='', initial=None, cancel=None,
+                   link=None, reference=None, order=None, n_components=None,
+                   max_components=5, scale=True, cv=5):
     """拟合统一回归；cancel 可为无参数布尔回调或 threading.Event。
 
     Gaussian AIC/BIC 的 k=p+1（包括残差方差），Logistic k=p；与省略尺度参数
@@ -518,6 +520,21 @@ def fit_regression(df, y, x, model='OLS', categorical=(), degree=1, interactions
     interactions 可为布尔值或 [(列A, 列B), ...]。二元响应必须为 0/1。
     非线性不接受权重、分类、多项式、交互或变量筛选，以免隐式忽略选项。
     """
+    extended = {'poisson': 'Poisson', 'nominal': 'Nominal', 'ordinal': 'Ordinal', 'pls': 'PLS'}
+    if str(model).lower() in extended:
+        model = extended[str(model).lower()]
+        if criterion.lower() == 'adjr2':
+            raise ValueError('此模型不适用调整 R² 筛选准则。')
+        if model == 'PLS':
+            if categorical or degree != 1 or interactions or selection != 'none' or weight is not None:
+                raise ValueError('PLS 使用数值 X，不接受分类编码、多项式、交互、筛选或权重。')
+            from pls_regression import fit_pls
+            return fit_pls(df, y, x, n_components=n_components, max_components=max_components,
+                           scale=scale, cv=cv, missing=missing, alpha=alpha, cancel=cancel)
+        from generalized_regression import fit_generalized
+        return fit_generalized(df, y, x, model, categorical=categorical, degree=degree,
+            interactions=interactions, missing=missing, alpha=alpha, link=link,
+            reference=reference, order=order, weight=weight, selection=selection, cancel=cancel)
     _cancel(cancel)
     _alpha(alpha)
     x = [x] if isinstance(x, str) else list(x)

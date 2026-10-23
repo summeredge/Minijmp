@@ -171,22 +171,26 @@ class Minijmp(Worksheets, Minijmp_pre):
             '15残差图': {'cmd': self.resid},
             '17相关系数矩阵': {'cmd': self.multi_cor},
             '18完整回归分析': {'cmd': self.advanced_regression},
-            '19主成分分析': {'cmd': self.pca_analysis},
-            '19时间序列分析': {'cmd': self.time_series_analysis},
-            '22单样本均值 t 检验': {'cmd': self.mean_1sample},
-            '23单样本均值 Z 检验': {'cmd': self.mean_1sampleZ},
-            '24单样本标准差检验': {'cmd': self.var_1sample},
-            '25单比率检验': {'cmd': self.prop_1sample},
-            '26双样本 t 检验': {'cmd': self.mean_2samples},
-            '27配对 t 检验': {'cmd': self.paired_t},
-            '28双比率检验': {'cmd': self.prop_2samples},
-            '29多样本标准差检验': {'cmd': self.multi_var},
-            '32单因子方差分析': {'cmd': self.anova_1way},
+            '19泊松回归': {'cmd': lambda: self.advanced_regression(model='Poisson')},
+            '20名义多分类 Logistic 回归': {'cmd': lambda: self.advanced_regression(model='Nominal')},
+            '21有序 Logistic 回归': {'cmd': lambda: self.advanced_regression(model='Ordinal')},
+            '22偏最小二乘回归（PLS）': {'cmd': lambda: self.advanced_regression(model='PLS')},
+            '23主成分分析': {'cmd': self.pca_analysis},
+            '23时间序列分析': {'cmd': self.time_series_analysis},
+            '25单样本均值 t 检验': {'cmd': self.mean_1sample},
+            '26单样本均值 Z 检验': {'cmd': self.mean_1sampleZ},
+            '27单样本标准差检验': {'cmd': self.var_1sample},
+            '28单比率检验': {'cmd': self.prop_1sample},
+            '29双样本 t 检验': {'cmd': self.mean_2samples},
+            '30配对 t 检验': {'cmd': self.paired_t},
+            '31双比率检验': {'cmd': self.prop_2samples},
+            '32多样本标准差检验': {'cmd': self.multi_var},
+            '34单因子方差分析': {'cmd': self.anova_1way},
             #  '33Mean Comparison t': {'cmd': self.JMP_t_test},
-            '34双因子方差分析': {'cmd': self.anova_2way},
+            '35双因子方差分析': {'cmd': self.anova_2way},
             '42列联表与卡方检验': {'cmd': self.chi2table},
             '43比率卡方检验': {'cmd': self.chi2prop},
-            '06sep': '', '20sep': '', '30sep': '', '40sep': ''}
+            '06sep': '', '24sep': '', '33sep': '', '40sep': ''}
         self.stats_menu = self.createPulldown(self.menu, self.stats_menu)
         self.menu.add_cascade(label='统计', menu=self.stats_menu['var'])
 
@@ -195,6 +199,11 @@ class Minijmp(Worksheets, Minijmp_pre):
             '02量具 R&R 研究（嵌套）': {'cmd': self.grr_nst},
             '07过程能力分析 (Cpk)': {'cmd': self.cpk},
             '08含子组的 Cpk': {'cmd': self.cpksub},
+            '09正态过程能力（完整）': {'cmd': lambda: self.capability_analysis('正态能力')},
+            '10非正态过程能力': {'cmd': lambda: self.capability_analysis('非正态能力')},
+            '11Box-Cox / Johnson 变换': {'cmd': lambda: self.capability_analysis('变换诊断')},
+            '12正态能力 Sixpack': {'cmd': lambda: self.capability_analysis('正态 Sixpack')},
+            '13非正态能力 Sixpack': {'cmd': lambda: self.capability_analysis('非正态 Sixpack')},
             '22容差区间': {'cmd': self.ti_norm},
             '32控制图 I-MR': {'cmd': self.cChartIMR},
             '33控制图 I（单值）': {'cmd': self.cChartI},
@@ -356,9 +365,9 @@ class Minijmp(Worksheets, Minijmp_pre):
             title='Linear Regression')
         return
 
-    def advanced_regression(self):
+    def advanced_regression(self, model='OLS'):
         from regression_dialog import RegressionDialog
-        RegressionDialog(parent=self.table, df=self.table.model.df, app=self)
+        RegressionDialog(parent=self.table, df=self.table.model.df, app=self, model=model)
 
     def pca_analysis(self):
         from pca_dialog import PCADialog
@@ -541,6 +550,10 @@ class Minijmp(Worksheets, Minijmp_pre):
             df=self.table.model.df,
             title='Process Capability')
         return
+
+    def capability_analysis(self, mode):
+        from capability_dialog import CapabilityDialog
+        return CapabilityDialog(parent=self.table, df=self.table.model.df, app=self, mode=mode)
 
     def cpksub(self):
         _ = CpkSubDialog(

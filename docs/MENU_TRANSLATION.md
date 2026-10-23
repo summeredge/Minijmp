@@ -121,6 +121,10 @@
 | Orthogonal Regression | 正交回归 |
 | Correlation Matrix | 相关系数矩阵 |
 | Advanced Regression | 完整回归分析 |
+| Poisson Regression | 泊松回归 |
+| Nominal Logistic Regression | 名义多分类 Logistic 回归 |
+| Ordinal Logistic Regression | 有序 Logistic 回归 |
+| Partial Least Squares Regression (PLS) | 偏最小二乘回归（PLS） |
 | Principal Component Analysis (PCA) | 主成分分析 |
 | Time Series Analysis | 时间序列分析 |
 | One Sample Mean t-test | 单样本均值 t 检验 |
@@ -144,6 +148,11 @@
 | Nested Gage R&R | 量具 R&R 研究（嵌套） |
 | Process Capability (Cpk) | 过程能力分析 (Cpk) |
 | Cpk with Subgroups | 含子组的 Cpk |
+| Normal Capability Analysis (Complete) | 正态过程能力（完整） |
+| Nonnormal Capability Analysis | 非正态过程能力 |
+| Box-Cox / Johnson Transformation | Box-Cox / Johnson 变换 |
+| Normal Capability Sixpack | 正态能力 Sixpack |
+| Nonnormal Capability Sixpack | 非正态能力 Sixpack |
 | Tolerance Interval | 容差区间 |
 | Control Chart I/MR | 控制图 I-MR |
 | Control Chart I | 控制图 I（单值） |
@@ -160,6 +169,15 @@
 `code/advanced_spc_dialog.py` 中的 `AdvancedSPCDialog`；离线帮助主题为
 `quality.advanced_spc`。提供 EWMA、CUSUM、Nelson 和 Hotelling T² 模式，
 既有控制图入口保留。菜单文字保留统计缩写 SPC。
+
+完整过程能力的五个入口共用 `code/capability_dialog.py:CapabilityDialog`，分别调用
+`capability_normal`、`capability_nonnormal`、`capability_transform`、
+`capability_sixpack_normal`、`capability_sixpack_nonnormal`，通过
+`capability_analysis(mode)` 选择初始模式。窗口帮助统一使用
+`quality.capability_analysis`。旧 Cpk 与含子组的 Cpk 入口、算法及帮助主题保留。
+五项初始模式依次为“正态能力”“非正态能力”“变换诊断”“正态 Sixpack”“非正态 Sixpack”；
+离线帮助页面为 `help/pages/capability-analysis.html`，窗口帮助与 F1 均使用同一主题。
+方法、公式、Minitab 对标差异及证据状态见 [过程能力分析](capability-analysis.md)。
 
 ## 图形（Plots）
 
