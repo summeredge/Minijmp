@@ -66,7 +66,7 @@ def test_control_chart_direct_and_gui_preserve_limits_and_observations(kind, opt
               ax=axes[0] if single else None, axs=None if single else axes,
               all_SD_lines=False, xLabels=['a', 'b', 'c', 'd'][:len(data)])
     if gui:
-        dialog = SimpleNamespace(
+        dialog = SimpleNamespace(remember_columns=Mock(),
             get_data=lambda: (data, kw['xLabels'], fig, kw['ax'], kw['axs']),
             plot_type=kind, one_chart=bool(options.get('one_chart')),
             chart_two_only=bool(options.get('chart_two_only')),
@@ -181,7 +181,7 @@ def test_attribute_charts_preserve_step_coordinates_and_have_named_limits(kind, 
 def test_attribute_dialog_reuses_actual_plot(dialog_type, kind, n):
     fig, ax = plt.subplots()
     data = [.02, .04, .03] if kind in ('P', 'NP') else [3., 4., 5.]
-    dialog = SimpleNamespace(get_data=lambda: (data, ['a', 'b', 'c'], fig, ax, n),
+    dialog = SimpleNamespace(remember_columns=Mock(), get_data=lambda: (data, ['a', 'b', 'c'], fig, ax, n),
         plot_type=kind, y1label=var(''), xvar=var('缺陷'), xlabel=var(''),
         xlabelID=var('批次'), max_x_labels=var(25), y1ref=var(''),
         app=SimpleNamespace(print=Mock()))
@@ -218,7 +218,7 @@ def test_capability_curves_specifications_and_visibility(within, legend, spec):
 @pytest.mark.parametrize('grouped', [False, True])
 def test_capability_dialog_uses_same_specification_plot(grouped):
     fig = plt.figure()
-    dialog = SimpleNamespace(df=pd.DataFrame({'测量': [1., 3., 2., 5.]}),
+    dialog = SimpleNamespace(remember_columns=Mock(), df=pd.DataFrame({'测量': [1., 3., 2., 5.]}),
         xvar=var('测量'), lsl=var(0.), target=var(4.), usl=var(8.), alpha=var(.05),
         xlabel=var(''), show_legend=var(True), show_within=var(True), show_spec=var(True),
         app=SimpleNamespace(showPlotViewer=lambda: SimpleNamespace(fig=fig), print=Mock()),
@@ -257,7 +257,7 @@ def test_grr_keeps_measurements_part_order_and_readable_labels(operators):
 def test_grr_dialog_passes_measurement_label_and_operator_facets(operators, monkeypatch):
     monkeypatch.setattr(quality, 'grr_master', Mock())
     fig = plt.figure()
-    dialog = SimpleNamespace(df=pd.DataFrame({'测量': [10., 20., 21., 11.],
+    dialog = SimpleNamespace(remember_columns=Mock(), df=pd.DataFrame({'测量': [10., 20., 21., 11.],
         '部件': ['a', 'b', 'b', 'a'], '操作员': ['one', 'one', 'two', 'two']}),
         xvar=var('测量'), yvar=var('部件'), ovar=var('操作员' if operators else ''),
         alpha=var(.05), hist_std=var(''), spec_gap=var(''), mvar=var('ANOVA'),

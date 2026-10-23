@@ -285,7 +285,7 @@ def test_normal_qq_and_residual_dialogs_reach_styled_plot_and_keep_reports():
     FigureCanvasAgg(fig)
     output = Mock()
     variable = lambda value: SimpleNamespace(get=lambda: value)
-    dialog = SimpleNamespace(df=pd.DataFrame({"温度": X, "压力": Y}),
+    dialog = SimpleNamespace(remember_columns=Mock(), df=pd.DataFrame({"温度": X, "压力": Y}),
         xvar=variable("温度"), yvar=variable("压力"), qq=variable(True),
         app=SimpleNamespace(print=output, showPlotViewer=lambda: SimpleNamespace(fig=fig)))
     NormTestDialog.apply(dialog)

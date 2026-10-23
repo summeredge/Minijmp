@@ -315,7 +315,7 @@ def test_real_stacked_one_way_apply_keeps_original_cleaning(monkeypatch):
                                      (anova_dialog.TtestDialog, '均值逐对比较')])
 def test_old_one_way_and_standalone_comparison_apply(cls, title):
     lines = []
-    dialog = SimpleNamespace(df=pd.DataFrame({'甲': [1, 2, 3, None], '乙': [2, 4, 6, 'bad']}),
+    dialog = SimpleNamespace(remember_columns=Mock(), df=pd.DataFrame({'甲': [1, 2, 3, None], '乙': [2, 4, 6, 'bad']}),
         grpcols=['甲', '乙'], alpha=variable(.05), app=SimpleNamespace(print=lines.append))
     assert cls.apply(dialog) is None
     assert title in '\n'.join(lines)
@@ -330,7 +330,7 @@ def test_real_two_way_apply_cleans_and_routes_model(monkeypatch, interaction):
     df = pd.DataFrame({'温度': ['低'] * 4 + ['高'] * 4 + ['低', np.nan],
         '批次': ['甲', '甲', '乙', '乙'] * 2 + ['甲', '甲'],
         '测量': [1, 2, 3, 4, 2, 4, 5, 8, 'bad', 9]})
-    dialog = SimpleNamespace(df=df, xvar=variable('温度'), yvar=variable('批次'),
+    dialog = SimpleNamespace(remember_columns=Mock(), df=df, xvar=variable('温度'), yvar=variable('批次'),
         zvar=variable('测量'), inter=variable(interaction), app=SimpleNamespace(print=lines.append))
     assert anova_dialog.Anova2WayDialog.apply(dialog) is None
     assert spy.call_args.args == ([1., 2., 3., 4., 2., 4., 5., 8.],)
@@ -347,7 +347,7 @@ def test_real_nested_apply_cleans_and_preserves_validation(monkeypatch):
     lines = []
     df = pd.DataFrame({'y': NESTED['y'] + ['bad', 9], 'p': NESTED['part'] + [5, None],
                        'o': NESTED['op'] + ['B', 'B']})
-    dialog = SimpleNamespace(df=df, xvar=variable('y'), yvar=variable('p'), ovar=variable('o'),
+    dialog = SimpleNamespace(remember_columns=Mock(), df=df, xvar=variable('y'), yvar=variable('p'), ovar=variable('o'),
         hist_std=variable(''), error=Mock(), app=SimpleNamespace(print=lines.append))
     assert qc_dialog.GRR_Nested_Dialog.apply(dialog) is None
     dialog.error.assert_not_called()

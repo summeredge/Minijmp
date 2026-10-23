@@ -37,7 +37,7 @@ def report(case):
         description.print_percentiles([100, 50, 0], [7, 1, -5], print_port=lines.append)
     else:
         var = lambda value: SimpleNamespace(get=lambda: value)
-        dialog = SimpleNamespace(df=pd.DataFrame({'温度': data, '压力': [1, 3, 8, 9, 10]}),
+        dialog = SimpleNamespace(remember_columns=Mock(), df=pd.DataFrame({'温度': data, '压力': [1, 3, 8, 9, 10]}),
             xvar=var('温度'), pct=var('100,50,0'), grpcols=['温度', '压力'],
             names=list(description.STAT_LABELS),
             picks={key: var(True) for key in description.STAT_LABELS},

@@ -251,7 +251,7 @@ def test_real_pearson_dialog_consumers_use_correct_interval(name,monkeypatch):
                show_CI=False,show_PI=False,ortho_resid=False,ortho_ratio=1,
                scatter=True,alpha=.05,cor_p=True,cor_s=False,cor_k=False,cor_h=False,
                ylabel_0deg=False,xlabel_45deg=False,xtick_45deg=False)
-    dialog=SimpleNamespace(**{k:var(v) for k,v in flags.items()},df=pd.DataFrame({'X':x,'Y':y}),
+    dialog=SimpleNamespace(remember_columns=Mock(), **{k:var(v) for k,v in flags.items()},df=pd.DataFrame({'X':x,'Y':y}),
         grpcols=['X','Y'],xvar=var('X'),yvar=var('Y'),get_plot_settings=Mock(),
         xlabel='X',ylabel='Y',x_min=None,x_max=None,y_min=None,y_max=None,ax_margin=var(.1) if name=='MCorDialog' else .1,
         show_legend=False,grid=False,error=Mock(),

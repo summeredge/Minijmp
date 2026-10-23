@@ -122,7 +122,7 @@ def test_dialog_structured_route(multiple):
     import pandas as pd
     var=lambda value: SimpleNamespace(get=lambda:value)
     lines=[]
-    dialog=SimpleNamespace(df=pd.DataFrame({'温度':[-2,None,4], '压力':[1,3,8]}),
+    dialog=SimpleNamespace(remember_columns=Mock(), df=pd.DataFrame({'温度':[-2,None,4], '压力':[1,3,8]}),
         xvar=var('温度'),pct=var('100,50,0'),grpcols=['温度','压力'],
         names=list(description.STAT_LABELS),picks={key:var(True) for key in description.STAT_LABELS},
         app=SimpleNamespace(print=lines.append),error=Mock())

@@ -242,7 +242,7 @@ def test_fit_dialog_apply_cleans_selected_data_and_routes_actual_reports(monkeyp
     frame = pd.DataFrame({column: [*DATA, 'bad', None, np.nan, '5']})
     original = frame.copy(deep=True)
     selected = ['Gamma', 'Lognormal', 'Weibull']
-    dialog = SimpleNamespace(df=frame, xvar=variable(column), dists=[case[0] for case in CASES],
+    dialog = SimpleNamespace(remember_columns=Mock(), df=frame, xvar=variable(column), dists=[case[0] for case in CASES],
         picks={case[0]: variable(case[0] in selected) for case in CASES},
         app=SimpleNamespace(print=lines.append))
     assert basic_dialogs.FitDistDialog.apply(dialog) is None

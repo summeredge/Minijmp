@@ -183,7 +183,7 @@ def test_correlation_dialogs_reach_all_four_methods(multi):
     from stat_table import StatTable
     outputs = []
     figure = Figure()
-    dialog = SimpleNamespace(df=pd.DataFrame({'温度': X, '压力': Y}),
+    dialog = SimpleNamespace(remember_columns=Mock(), df=pd.DataFrame({'温度': X, '压力': Y}),
         xvar=variable('温度'), yvar=variable('压力'), grpcols=['温度', '压力'],
         error=Mock(), get_plot_settings=lambda: None,
         app=SimpleNamespace(print=outputs.append, showPlotViewer=lambda **k: SimpleNamespace(fig=figure)))

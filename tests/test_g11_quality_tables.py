@@ -261,7 +261,10 @@ def test_plot_dialog_and_statistical_dependencies_unchanged():
             'utilities.py', 'two_way_anova.py', 'one_way_ANOVA.py') else BASE
         before = read_source_baseline(baseline, f'code/{name}')
         current = (ROOT/'code'/name).read_text(encoding='utf-8')
-        if name == 'utilities.py':
+        if name in ('qc_dialog.py', 'ctrlchart_dialog.py'):
+            from source_baselines import normalize_column_memory
+            assert ast.dump(normalize_column_memory(ast.parse(current), name)) == ast.dump(ast.parse(before))
+        elif name == 'utilities.py':
             # G12 仅迁移区间报告；其余全文及该函数计算仍受保护。
             trees = [ast.parse(source) for source in (before, current)]
             for tree in trees:
@@ -287,6 +290,17 @@ def test_plot_dialog_and_statistical_dependencies_unchanged():
             assert ast.dump(trees[0]) == ast.dump(trees[1])
         else:
             assert current == before.replace('\r\n', '\n')
+
+
+def test_dependency_freeze_rejects_unapproved_calculation(monkeypatch):
+    read = Path.read_text
+    target = ROOT / 'code' / 'qc_dialog.py'
+    source = read(target, encoding='utf-8')
+    assert source.count('P=P,') == 1
+    monkeypatch.setattr(Path, 'read_text', lambda path, *a, **kw:
+                        source.replace('P=P,', 'P=0.5,') if path == target else read(path, *a, **kw))
+    with pytest.raises(AssertionError):
+        test_plot_dialog_and_statistical_dependencies_unchanged()
 
 
 @pytest.mark.parametrize('study', [False, True])

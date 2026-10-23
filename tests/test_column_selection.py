@@ -234,6 +234,19 @@ def test_unused_summary_roles_keep_previous_columns(setup):
     assert history[d._column_key] == {'xvar': ['A'], 'yvar': ['C']}
 
 
+def test_explicit_role_commit_preserves_other_history(setup):
+    source, history, create = setup
+    d = create(LinearFitDialog)
+    history[d._column_key] = {'xvar': ['B'], 'yvar': ['C']}
+    d.xvar.set('A')
+    d.yvar.set('B')
+    d.remember_columns(roles=('xvar',))
+    assert history[d._column_key] == {'xvar': ['A'], 'yvar': ['C']}
+    source.multiplecollist = []
+    reopened = create(LinearFitDialog)
+    assert (reopened.xvar.get(), reopened.yvar.get()) == ('A', 'C')
+
+
 def test_nonfinite_normality_result_does_not_replace_history(setup, monkeypatch):
     from basic_dialogs import NormTestDialog
     source, history, create = setup

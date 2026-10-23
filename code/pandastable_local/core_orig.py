@@ -162,6 +162,8 @@ class Table(Canvas):
         self.cols = self.model.getColumnCount()
         self.tablewidth = (self.cellwidth) * self.cols
         self.doBindings()
+        self._resize_binding = None
+        self.bind('<Destroy>', self._release_resize_binding, add='+')
         self.parentframe.bind("<Destroy>", self.close)
 
         # column specific actions, define for every column type in the model
@@ -351,7 +353,8 @@ class Table(Canvas):
         self.adjustColumnWidths()
         # bind redraw to resize, may trigger redraws when widgets added
         # self.redrawVisible)
-        self.parentframe.bind("<Configure>", self.resized)
+        self._release_resize_binding()
+        self._resize_binding = self.parentframe.bind("<Configure>", self.resized)
         self.colheader.xview("moveto", 0)
         self.xview("moveto", 0)
         if self.showtoolbar:
@@ -386,6 +389,14 @@ class Table(Canvas):
         self.rowindexheader.grid(row=0, column=0, rowspan=1, sticky='news')
         self.rowheader.grid(row=1, column=0, rowspan=1, sticky='news')
         return
+
+    def _release_resize_binding(self, event=None):
+        # The parent can outlive this canvas; remove only our registered callback.
+        if event is not None and event.widget is not self:
+            return
+        if self._resize_binding is not None:
+            self.parentframe.unbind('<Configure>', self._resize_binding)
+            self._resize_binding = None
 
     def resized(self, event):
         """Check if size changed when event triggered to avoid unnecessary redraws"""

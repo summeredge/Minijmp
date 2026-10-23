@@ -89,7 +89,7 @@ def test_utilities_change_is_only_interval_report_output():
 
 def test_ci_dialog_routes_structured_table_and_keeps_original_text(before, viewer):
     app = SimpleNamespace(table=viewer.table, tOut=viewer)
-    dialog = SimpleNamespace(df=pd.DataFrame({'测量': DATA + [None, '无效']}),
+    dialog = SimpleNamespace(remember_columns=Mock(), df=pd.DataFrame({'测量': DATA + [None, '无效']}),
         xvar=SimpleNamespace(get=lambda: '测量'), alpha=SimpleNamespace(get=lambda: .1),
         app=SimpleNamespace(print=lambda line: Minijmp.print(app, line)))
     basic_dialogs.CIDialog.apply(dialog)
