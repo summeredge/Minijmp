@@ -9,6 +9,7 @@
 from scipy.stats import chi2, norm, nct
 from scipy.optimize import root_scalar
 import statistics as stat
+from math import isfinite
 ############ Own Modules ##############
 from utilities import d2_values, scale_factor_f, c4_values, grouping_by_labels, calculate_d3, calculate_d2
 from utilities import gen_table, format_stat
@@ -16,29 +17,33 @@ from stat_table import StatTable
 
 
 def cpl_cpu_95(cpx, n, df, alpha=0.05):
+    unavailable = (float('nan'), float('nan'))
+    if (not all(isfinite(v) for v in (cpx, n, df, alpha)) or
+            n <= 0 or df <= 0 or not 0 < alpha < 1):
+        return unavailable
+    # Reflect negative statistics to avoid nonfinite SciPy CDF values.
+    if cpx < 0:
+        lower, upper = cpl_cpu_95(-cpx, n, df, alpha)
+        return -upper, -lower
     c = cpx * 3 * (n)**.5
+    if not isfinite(c):
+        return unavailable
     bound = max(abs(c) * 100, 100)
-
-    def equation(x):
-        return nct.cdf(c, df, x) - (1 - alpha / 2)
-
-    def equation2(x):
-        return nct.cdf(c, df, x) - (alpha / 2)
-
-    try:
-        lower = root_scalar(equation,
-                            bracket=[-bound, bound]).root / 3 / (n)**.5
-    except BaseException:
-        lower = -1
-        #  print(equation(-c * 100), equation(c * 100))
-    try:
-        upper = root_scalar(equation2,
-                            bracket=[-bound, bound]).root / 3 / (n)**.5
-    except BaseException:
-        #  print(equation2(-c * 100), equation2(c * 100))
-        upper = -1
-
-    return lower, upper
+    endpoints = []
+    for probability in (1 - alpha / 2, alpha / 2):
+        def equation(delta):
+            return nct.cdf(c, df, delta) - probability
+        try:
+            # At t >= 0, the lower root cannot be below the normal alpha/2 quantile.
+            solution = root_scalar(equation, bracket=[norm.ppf(alpha / 2), bound])
+            residual = equation(solution.root)
+            if (not solution.converged or not isfinite(solution.root) or
+                    not isfinite(residual) or abs(residual) > 1e-8):
+                return unavailable
+        except (ValueError, RuntimeError, OverflowError):
+            return unavailable
+        endpoints.append(solution.root / 3 / n**.5)
+    return tuple(endpoints)
 
 
 def cpk_calc(mean, std, T, usl, lsl, df, N, print_port=print,
@@ -138,9 +143,12 @@ def nonconformance(data, t, lsl, usl, u, sw, so, print_out=True,
 
 def cpk(data, target, usl, lsl, print_port=print, within=True,
         print_out=True, use_range=False, alpha=0.05):
-    try:
-        # if data is a 2D list
+    if len(data) < 1:
+        raise ValueError('过程能力分析至少需要两个观测值。')
+    if hasattr(data[0], '__len__') and not isinstance(data[0], (str, bytes)):
         size_subgrp = [len(l) for l in data]
+        if min(size_subgrp) < 2:
+            raise ValueError('每个子组至少需要两个观测值，不能估计单元素子组的组内波动。')
         balanced = (max(size_subgrp) == min(size_subgrp))
         flat_list = [item for sublist in data for item in sublist]
         sub_grps = len(data)
@@ -164,12 +172,13 @@ def cpk(data, target, usl, lsl, print_port=print, within=True,
                 n = len(flat_list) / sub_grps
                 df_sub = scale_factor_f(n) * df_sub
 
-    except BaseException:
+    else:
         within_msg = "Within sigma estimated by averaging moving ranges of 2."
-        flat_list = data  # 1D for individual MR within
+        flat_list = list(data)  # 1D for individual MR within
+        if len(flat_list) < 2:
+            raise ValueError("过程能力分析至少需要两个观测值。")
         std_within = stat.mean(
-            [abs(i - j) for i, j in zip(data,
-                                        data[1:] + [0])][:-1]) / d2_values(2)
+            [abs(i - j) for i, j in zip(flat_list, flat_list[1:])]) / d2_values(2)
         sub_grps = 0
         df_sub = .62 * (len(flat_list) - 1)
 

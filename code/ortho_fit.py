@@ -40,10 +40,23 @@ def orthogonal_fit(x, y, error_ratio=1.0, alpha=0.05,
 
     # Modified slope calculation incorporating error_ratio
     w = error_ratio
-    b1 = slope = ((Syy - w * Sxx) + np.sqrt((Syy - w * Sxx)
-                                            ** 2 + 4 * w * Sxy**2)) / (2 * Sxy)
+    if not np.isfinite([Sxx, Syy, Sxy, w]).all() or w <= 0:
+        raise ValueError('正交回归要求有限的协方差及正的测量误差方差比')
+    if Sxy == 0:
+        if Syy < w * Sxx:
+            slope = 0.0
+        elif Syy > w * Sxx:
+            raise ValueError('正交回归为竖直直线，无法表示为有限斜率的 Y = 截距 + 斜率 * X')
+        else:
+            raise ValueError('正交回归方向不可识别：加权方差相等且协方差为零')
+    else:
+        slope = ((Syy - w * Sxx) + np.sqrt((Syy - w * Sxx)
+                                         ** 2 + 4 * w * Sxy**2)) / (2 * Sxy)
+    b1 = slope
 
     b0 = intercept = y_mean - slope * x_mean
+    if not np.isfinite([slope, intercept]).all():
+        raise ValueError('正交回归系数非有限，无法进行残差诊断')
 
 # Confidence Intervals
 #   Source: https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/regression/how-to/orthogonal-regression/methods-and-formulas/methods-and-formulas/
@@ -52,10 +65,10 @@ def orthogonal_fit(x, y, error_ratio=1.0, alpha=0.05,
 
     # u for x, e for y
     var_u = (Syy + w * Sxx - ((Syy - w * Sxx)**2 + 4 * w * Sxy**2)**.5) / 2 / w
-    var_e = w * var_u
     # above noted as est. delta ^2 u and est. delta ^2 e
     if Sxy == 0 and Syy < w * Sxx:
         var_u = Syy / w
+    var_e = w * var_u
 
     var_xx = (((Syy - w * Sxx)**2 + 4 * w * Sxy**2)
               ** .5 - (Syy - w * Sxx)) / 2 / w
@@ -84,6 +97,8 @@ def orthogonal_fit(x, y, error_ratio=1.0, alpha=0.05,
     ######### Std. Residuals
     std_vt_est = [vt / ((w + b1 * b1) * var_u)**.5
                   for vt in vt_est]
+    if not np.isfinite(vt_est).all() or not np.isfinite(std_vt_est).all():
+        raise ValueError('正交回归残差或标准化残差非有限，无法进行正态性诊断')
     # Normalitiy of the residuals
     ntest_resid = norm_test(vt_est)
 #     ntest_st_resid=norm_test(std_vt_est)

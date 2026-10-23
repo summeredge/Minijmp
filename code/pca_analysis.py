@@ -143,7 +143,7 @@ def _prepare(df, columns, missing):
         raise ValueError('没有完整样本。')
     positions = np.flatnonzero(keep)
     source = pd.DataFrame({'source_row': positions+1,
-                           'source_index': [df.index[i] for i in positions]})
+                           'source_index': pd.Series([df.index[i] for i in positions], dtype=object)})
     return pd.DataFrame(x[keep], columns=columns), source, len(x)-len(positions)
 
 
@@ -492,7 +492,7 @@ def load_pca(path):
         cv = pd.DataFrame(records, columns=['n_components', 'mse', 'n_values'])
         model = PCAModel(columns, k, scaling, mean, scale, eigen, vectors, n, float(variance), cv)
         model._tables()
-        model.training = model._projection(pd.DataFrame(data, columns=columns), pd.DataFrame({'source_row': rows, 'source_index': labels}), 'phase1')
+        model.training = model._projection(pd.DataFrame(data, columns=columns), pd.DataFrame({'source_row': rows, 'source_index': pd.Series(labels, dtype=object)}), 'phase1')
         return model
     except (KeyError, TypeError, ValueError, OverflowError, np.linalg.LinAlgError) as exc:
         raise ValueError(f'PCA 模型读取失败：{exc}') from exc

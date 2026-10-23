@@ -193,7 +193,7 @@ _BINARY = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
 
 
 class _Formula:
-    def __init__(self, formula, variables, initial):
+    def __init__(self, formula, variables, initial, *, builtin=False):
         if not isinstance(formula, str) or len(formula) > 2048:
             raise ValueError('公式必须为不超过 2048 字符的表达式。')
         try:
@@ -215,7 +215,7 @@ class _Formula:
                     not isinstance(node.func, ast.Name) or node.func.id not in _FUNCTIONS
                     or len(node.args) != 1 or node.keywords):
                 raise ValueError('公式仅允许单参数白名单函数。')
-        aliases = set(variables) | ({'x'} if len(variables) == 1 else set())
+        aliases = {'x'} if builtin else set(variables) | ({'x'} if len(variables) == 1 else set())
         if len(variables) > 1 and not all(isinstance(c, str) and c.isidentifier() for c in variables):
             raise ValueError('多变量自定义公式的列名必须为有效标识符；单变量可使用 x 别名。')
         if len(variables) > 1 and set(variables) & set(_FUNCTIONS):
@@ -596,7 +596,7 @@ def fit_regression(df, y, x, model='OLS', categorical=(), degree=1, interactions
                 if len(initial) != len(default):
                     raise ValueError('内置曲线的初值数量不正确。')
                 initial = dict(zip(default, initial))
-        parsed = _Formula(formula, x, initial)
+        parsed = _Formula(formula, x, initial, builtin=model in builtins)
         if len(response) <= len(parsed.params):
             raise ValueError('非线性样本量不足，必须多于待估参数数目。')
 

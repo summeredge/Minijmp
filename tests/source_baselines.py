@@ -1,5 +1,6 @@
 from pathlib import Path
 import ast
+import copy
 import hashlib
 import json
 
@@ -9,6 +10,43 @@ ROOT = Path(__file__).resolve().parent / 'fixtures' / 'source_baselines'
 
 def read_source_baseline(revision, path):
     return (ROOT / revision / f'{path}.txt').read_text(encoding='utf-8')
+
+
+def normalize_p2_legacy(tree, module, baseline):
+    """仅接管 REVIEW-018/019 的精确函数；含报告在内的任何后续变动均拒绝。"""
+    name = {'cpk.py': 'cpk', 'qc_dialog.py': 'CpkSubDialog.apply'}[module]
+    owner, original = tree, baseline
+    if '.' in name:
+        cls, name = name.split('.')
+        owner, original = [next(n for n in t.body if isinstance(n, ast.ClassDef)
+                                and n.name == cls) for t in (tree, baseline)]
+    node = next(n for n in owner.body if isinstance(n, ast.FunctionDef) and n.name == name)
+    hashes = json.loads((ROOT.parent / 'p2_guard_nodes.json').read_text())
+    key = f'{module}:{"CpkSubDialog.apply" if module == "qc_dialog.py" else name}'
+    assert hashlib.sha256(ast.dump(node).encode()).hexdigest() == hashes[key], key
+    before = next(n for n in original.body if isinstance(n, ast.FunctionDef) and n.name == name)
+    owner.body[owner.body.index(node)] = copy.deepcopy(before)
+    return tree
+
+
+def normalize_p1_numeric(tree, module, baseline):
+    """校验已审查的完整函数后还原旧节点；其他 AST 仍由原守卫比较。"""
+    names = {'utilities.py': ('pearson_correlation', 'c4_values'),
+             'cpk.py': ('cpl_cpu_95',)}[module]
+    hashes = json.loads((ROOT.parent / 'p1_numeric_nodes.json').read_text())
+    for name in names:
+        nodes = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == name]
+        assert len(nodes) == 1, name
+        node = nodes[0]
+        assert hashlib.sha256(ast.dump(node).encode()).hexdigest() == hashes[f'{module}:{name}'], name
+        original = next(n for n in baseline.body if isinstance(n, ast.FunctionDef) and n.name == name)
+        tree.body[tree.body.index(node)] = copy.deepcopy(original)
+    if module == 'utilities.py':
+        current = ast.parse('from scipy.special import gammaln').body[0]
+        matches = [i for i, n in enumerate(tree.body) if ast.dump(n) == ast.dump(current)]
+        assert len(matches) == 1
+        tree.body[matches[0]] = ast.parse('from scipy.special import gamma').body[0]
+    return tree
 
 
 def normalize_column_memory(tree, module):

@@ -10,7 +10,7 @@ import pandas as pd
 import pytest
 from matplotlib.figure import Figure
 from scipy import stats
-from source_baselines import read_source_baseline
+from source_baselines import read_source_baseline, normalize_p1_numeric
 
 import control_chart as spc
 import ctrlchart_dialog as dialogs
@@ -26,6 +26,42 @@ def before(module):
     namespace = dict(module.__dict__)
     exec(compile(source, f'<before:{module.__name__}>', 'exec'), namespace)
     return SimpleNamespace(**namespace)
+
+
+@pytest.mark.parametrize('name', ['pearson_correlation', 'c4_values', 'norm_test', 'pearson_report'])
+def test_p1_normalization_rejects_unreviewed_function_changes(name):
+    source = (ROOT / 'code/utilities.py').read_text(encoding='utf-8')
+    baseline = ast.parse(source)
+    expected = normalize_p1_numeric(ast.parse(source), 'utilities.py', baseline)
+    changed = ast.parse(source)
+    function = next(n for n in changed.body if isinstance(n, ast.FunctionDef)
+                    and n.name == ('pearson_correlation' if name == 'pearson_report' else name))
+    body = (next(n for n in function.body if isinstance(n, ast.If)
+                 and isinstance(n.test, ast.Name) and n.test.id == 'print_out').body
+            if name == 'pearson_report' else function.body)
+    body.append(ast.Pass())
+    with pytest.raises(AssertionError):
+        actual = normalize_p1_numeric(changed, 'utilities.py', baseline)
+        assert ast.dump(actual) == ast.dump(expected)
+
+
+@pytest.mark.parametrize('field', ['cp', 'cpl', 'cpk_l'])
+def test_capability_comparison_keeps_unaffected_fields_exact(field):
+    from test_g4_quality_reports import equal_capability_result
+    expected = {field: 1., 'cpl_l': .5}
+    changed = dict(expected, **{field: 1. + 1e-14})
+    with pytest.raises(AssertionError):
+        equal_capability_result(changed, expected)
+
+
+def test_control_chart_constants_only_reviewed_n5_d3_changed():
+    import hashlib
+    import json
+    import ctrl_chart_const
+    hashes = json.loads((ROOT / 'tests/fixtures/p1_numeric_nodes.json').read_text())
+    tree = ast.parse((ROOT / 'code/ctrl_chart_const.py').read_text(encoding='utf-8'))
+    assert hashlib.sha256(ast.dump(tree).encode()).hexdigest() == hashes['ctrl_chart_const.py']
+    assert ctrl_chart_const.data['d3'][ctrl_chart_const.data['n'].index(5)] == .8641
 
 
 def var(value):
@@ -118,7 +154,13 @@ def test_pearson_perfect_direction(sign, alpha):
     lines = []
     result = utilities.pearson_correlation(x, y, alpha=alpha, print_port=lines.append)
     assert (result['r'], result['r_l'], result['r_u']) == (sign, sign, sign)
-    assert {k:v for k,v in result.items() if k not in ('r_l','r_u')} == {k:v for k,v in old.items() if k not in ('r_l','r_u')}
+    reference = stats.pearsonr(x, y)
+    assert result['r'] == pytest.approx(reference.statistic, abs=1e-15)
+    assert result['p'] == pytest.approx(reference.pvalue, abs=1e-15)
+    assert result['cov'] == pytest.approx(np.cov(x, y, ddof=1)[0, 1], rel=1e-14)
+    assert result.keys() == old.keys()
+    assert result['N'] == old['N']
+    assert result['ellipse'] == old['ellipse']
     assert '双侧置信下限' in '\n'.join(lines)
 
 
@@ -127,9 +169,16 @@ def test_pearson_perfect_direction(sign, alpha):
 def test_pearson_nonperfect_unchanged(y, alpha):
     x = [1.,2.,3.,4.,5.]
     result = utilities.pearson_correlation(x,y,alpha=alpha,print_out=False)
-    assert result == before(utilities).pearson_correlation(x,y,alpha=alpha,print_out=False)
-    z = np.arctanh(result['r'])
-    np.testing.assert_array_equal([result['r_l'],result['r_u']], np.tanh([z-stats.norm.ppf(1-alpha/2)/np.sqrt(2),z+stats.norm.ppf(1-alpha/2)/np.sqrt(2)]))
+    old = before(utilities).pearson_correlation(x,y,alpha=alpha,print_out=False)
+    reference = stats.pearsonr(x, y)
+    assert result['r'] == pytest.approx(reference.statistic, rel=1e-14, abs=1e-15)
+    assert result['p'] == pytest.approx(reference.pvalue, rel=1e-10, abs=1e-14)
+    interval = reference.confidence_interval(confidence_level=1-alpha)
+    np.testing.assert_allclose([result['r_l'], result['r_u']], interval, rtol=1e-12, atol=1e-13)
+    assert result['cov'] == pytest.approx(np.cov(x, y, ddof=1)[0, 1], rel=1e-14)
+    assert result.keys() == old.keys()
+    assert result['N'] == old['N']
+    assert result['ellipse'] == pytest.approx(old['ellipse'], rel=1e-12, abs=1e-14)
 
 
 def test_p1_old_patterns_removed():

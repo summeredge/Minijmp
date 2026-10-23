@@ -1,6 +1,7 @@
 """质量工具窗口；后台只做纯计算，结果绑定打开时的工作表快照。"""
 from concurrent.futures import ThreadPoolExecutor
 from threading import Event
+from numbers import Integral
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
@@ -20,6 +21,7 @@ class QualityToolsDialog:
         self.result = self.future = None
         self.tables, self.blocks = {}, {}
         self.cancel_event = Event()
+        self._closed = False
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='quality')
         self.main = tk.Toplevel(parent)
         self.main.title({'pareto': '帕累托图', 'run_chart': '运行图', 'cause_effect': '因果图', 'multi_vari': '多变异图', 'attribute_agreement': '属性一致性分析'}[kind])
@@ -27,6 +29,7 @@ class QualityToolsDialog:
         self.main.minsize(760, 580)
         apply_dialog_theme(self.main)
         self.main.protocol('WM_DELETE_WINDOW', self.close)
+        self.main.bind('<Destroy>', self.close, add='+')
         self.main.bind('<Escape>', lambda event: self.cancel())
         self.main.bind('<F1>', self.help)
         controls = ttk.Frame(self.main, padding=6)
@@ -150,6 +153,8 @@ class QualityToolsDialog:
             self.status.set('正在取消；计算结束后丢弃结果。')
 
     def poll(self):
+        if self._closed:
+            return
         if self.future is not None and self.future.done():
             future, self.future = self.future, None
             self.progress.stop()
@@ -168,6 +173,8 @@ class QualityToolsDialog:
     @staticmethod
     def stat_table(title, frame):
         frame = export_source_labels(frame)
+        if '频数' in frame:
+            frame['频数'] = frame['频数'].map(lambda v: str(v) if isinstance(v, Integral) and v > 2**53-1 else v)
         values = frame.astype(object).where(pd.notna(frame), None).values.tolist()
         return StatTable(title=title, headers=[str(c) for c in frame.columns], values=values,
                          display=[['NA' if v is None else str(v) for v in row] for row in values],
@@ -204,6 +211,8 @@ class QualityToolsDialog:
                        filetypes=[('Excel', '*.xlsx'), ('CSV', '*.csv')])
             if path:
                 frame = export_source_labels(frame)
+                if '频数' in frame:
+                    frame['频数'] = frame['频数'].map(lambda v: str(v) if isinstance(v, Integral) and v > 2**53-1 else v)
                 with atomic_output(path) as temporary:
                     if path.lower().endswith('.csv'):
                         frame.to_csv(temporary, index=False, encoding='utf-8-sig')
@@ -260,11 +269,24 @@ class QualityToolsDialog:
         open_help('quality.'+self.kind, parent=self.main)
         return 'break'
 
-    def close(self):
+    def close(self, event=None):
+        if event is not None and event.widget is not self.main:
+            return
+        if self._closed:
+            return
+        self._closed = True
         self.cancel_event.set()
-        self.main.after_cancel(self.poll_id)
+        if self.future is not None:
+            self.future.cancel()
+        if self.poll_id is not None:
+            try:
+                self.main.after_cancel(self.poll_id)
+            except tk.TclError:
+                pass
+            self.poll_id = None
         self.executor.shutdown(wait=False, cancel_futures=True)
-        self.main.destroy()
+        if event is None:
+            self.main.destroy()
 
     def create_cause_editor(self, parent):
         editor = ttk.Frame(parent)

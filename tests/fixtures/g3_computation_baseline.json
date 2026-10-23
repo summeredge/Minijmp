@@ -7,12 +7,12 @@
   {
     "file": "ortho_fit.py",
     "function": "orthogonal_fit",
-    "sha256": "9c3dccc57445f51025f73ed72b9b92882f0b7c59c67c6408f94230bca68715bd"
+    "sha256": "95ae69244734061dfe67ce3b9fd869bbf7252fe261221aeb91292529ff984e3f"
   },
   {
     "file": "linear_plot.py",
     "function": "fit_plot",
-    "sha256": "0ed8fbf805463e6b45df3522687b589302d2ca6d09e3e5cef2eeb13b861cb5f9"
+    "sha256": "8069739d245e6db4da852aff93d24aafc545069ecbbece96834a666ac9f57076"
   },
   {
     "file": "linear_plot.py",

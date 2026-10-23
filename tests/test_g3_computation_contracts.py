@@ -83,5 +83,29 @@ def computation_dump(source, function):
 @pytest.mark.parametrize('entry', BASELINE, ids=lambda x: x['file'] + '::' + x['function'])
 def test_computation_return_and_plot_ast_matches_g3_start(entry):
     source = (ROOT / 'code' / entry['file']).read_text(encoding='utf-8')
+    if (entry['file'], entry['function']) == ('ortho_fit.py', 'orthogonal_fit'):
+        hashes = json.loads((ROOT / 'tests/fixtures/p1_numeric_nodes.json').read_text())
+        node = next(n for n in ast.parse(source).body
+                    if isinstance(n, ast.FunctionDef) and n.name == entry['function'])
+        assert hashlib.sha256(ast.dump(node).encode()).hexdigest() == hashes['ortho_fit.py:orthogonal_fit']
+    if (entry['file'], entry['function']) == ('linear_plot.py', 'fit_plot'):
+        hashes = json.loads((ROOT / 'tests/fixtures/p2_guard_nodes.json').read_text())
+        node = next(n for n in ast.parse(source).body
+                    if isinstance(n, ast.FunctionDef) and n.name == 'fit_plot')
+        assert hashlib.sha256(ast.dump(node).encode()).hexdigest() == hashes['linear_plot.py:fit_plot']
     actual = hashlib.sha256(computation_dump(source, entry['function']).encode('utf-8')).hexdigest()
     assert actual == entry['sha256']
+
+
+def test_p2_pearson_guard_rejects_unapproved_report_change(monkeypatch):
+    read = Path.read_text
+    target = ROOT / 'code/linear_plot.py'
+    source = read(target, encoding='utf-8')
+    before = 'x, y, alpha=alpha, print_port=print, print_out=print_out)'
+    assert source.count(before) == 1
+    monkeypatch.setattr(Path, 'read_text', lambda path, *a, **kw:
+                        source.replace(before, before.replace('print_out=print_out', 'print_out=False'))
+                        if path == target else read(path, *a, **kw))
+    entry = next(e for e in BASELINE if (e['file'], e['function']) == ('linear_plot.py', 'fit_plot'))
+    with pytest.raises(AssertionError):
+        test_computation_return_and_plot_ast_matches_g3_start(entry)

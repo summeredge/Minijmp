@@ -271,6 +271,7 @@ class CorrelationDialog(LinearFitDialog):
             ax=pf.ax,
             print_port=self.app.print,
             alpha=self.alpha.get(),
+            pearson=self.cor_p.get(),
             ellipse=ellipse,  # self.ellipse.get(),
             red_ellipse=red_ellipse,  # eelf.red_ellipse.get(),
             xlabel=xlabel,  # self.xlabel if self.xlabel != "" or self.xlabel is None else self.xvar.get(),

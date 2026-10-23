@@ -91,6 +91,7 @@ class RegressionDialog:
         self.result = None
         self.future = None
         self.cancel_event = Event()
+        self._closed = False
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='regression')
         self.main = tk.Toplevel(parent)
         self.main.title('完整回归分析')
@@ -98,6 +99,7 @@ class RegressionDialog:
         self.main.minsize(880, 620)
         apply_dialog_theme(self.main)
         self.main.protocol('WM_DELETE_WINDOW', self.close)
+        self.main.bind('<Destroy>', self.close, add='+')
         self.main.bind('<F1>', self.help)
         self.main.bind('<Escape>', lambda event: self.cancel())
         controls = ttk.Frame(self.main, padding=6)
@@ -343,6 +345,8 @@ class RegressionDialog:
             self.status.set('正在取消；等待当前计算返回后丢弃结果。')
 
     def poll(self):
+        if self._closed:
+            return
         if self.future is not None and self.future.done():
             future, self.future = self.future, None
             self.progress.stop()
@@ -512,8 +516,21 @@ class RegressionDialog:
         open_help('stats.advanced_regression', parent=self.main)
         return 'break'
 
-    def close(self):
+    def close(self, event=None):
+        if event is not None and event.widget is not self.main:
+            return
+        if self._closed:
+            return
+        self._closed = True
         self.cancel_event.set()
-        self.main.after_cancel(self.poll_id)
+        if self.future is not None:
+            self.future.cancel()
+        if self.poll_id is not None:
+            try:
+                self.main.after_cancel(self.poll_id)
+            except tk.TclError:
+                pass
+            self.poll_id = None
         self.executor.shutdown(wait=False, cancel_futures=True)
-        self.main.destroy()
+        if event is None:
+            self.main.destroy()
