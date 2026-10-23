@@ -22,7 +22,7 @@ $dirty = @(git -C $root status --porcelain --untracked-files=normal)
 if ($dirty.Count) {
     throw ("Refusing to build from a dirty working tree ($($dirty.Count) entries); commit or remove them first:`n" + (($dirty | Select-Object -First 10) -join "`n"))
 }
-$version = 'v0.1.0-beta.1'
+$version = 'v0.1.0-beta.2'
 if (!(Select-String -LiteralPath $versionInfo -Pattern $version -SimpleMatch -Quiet)) {
     throw "packaging\windows\version_info.txt does not declare $version"
 }
@@ -144,7 +144,7 @@ $branch = (git -C $root branch --show-current).Trim()
 $os = Get-CimInstance Win32_OperatingSystem
 $coreVersions = & $python -c "import importlib.metadata as m; names=['numpy','scipy','pandas','matplotlib','seaborn','statsmodels','openpyxl','xlrd','Pillow','prettytable']; print('; '.join(n+' '+m.version(n) for n in names))"
 $buildInfo = @(
-    'MiniJMP v0.1.0-beta.1 Windows x64',
+    'MiniJMP v0.1.0-beta.2 Windows x64',
     "Build ID: $shortHead",
     "Base Git HEAD: $head",
     "Branch: $branch",
@@ -184,7 +184,7 @@ foreach ($name in ($sourceFiles | Select-Object -Unique)) {
     Copy-Item -LiteralPath (Join-Path $root $name) -Destination $destination
 }
 $sourceInfo = @(
-    'MiniJMP v0.1.0-beta.1 corresponding source bundle',
+    'MiniJMP v0.1.0-beta.2 corresponding source bundle',
     "Base Git HEAD: $head",
     "Release branch: $branch",
     'This source archive contains the Git-tracked sources and build inputs used for the adjacent binary.',

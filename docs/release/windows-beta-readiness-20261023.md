@@ -30,6 +30,7 @@
   - 更新 `BUILD-INFO` 文本断言；新增脚本门禁静态断言（含门禁位于 `build` 目录创建与 `Remove-GeneratedPath` 之前）。
   - 新增预检查行为测试：临时 Git 仓库（含裸远端）干净时 `RESULT: PASS`、退出码 0；加入未跟踪文件或修改已跟踪文件后 `RESULT: BLOCKED`、退出码 1。
 - `docs/release/windows-beta-readiness-20261023.md`（本报告）。
+- 版本标识由 `v0.1.0-beta.1` 升为 `v0.1.0-beta.2`：`tools/build_windows_release.ps1`、`packaging/windows/version_info.txt`（含 `filevers`/`prodvers` 0.1.0.2 与 `Comments`）、`packaging/windows/USAGE.txt`、`README.md`、`code/modified_app.py` 的“关于”窗口版本标签、`CHANGES`。
 
 定向验证（解释器 `.venv/Scripts/python.exe`）：
 
