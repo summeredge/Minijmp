@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>文件与数据操作 - Minijmp</title>
+  <link rel="stylesheet" href="../assets/content.css">
+</head>
+<body>
+  <main>
+    <h1>文件与数据操作</h1>
+    <nav class="page-toc" aria-label="本页目录">
+      <a href="#files.project_files">项目文件</a><a href="#files.csv_import">CSV 导入</a>
+      <a href="#files.csv_advanced_import">高级导入</a><a href="#files.pi_import">导入 PI 数据</a><a href="#files.excel_import">Excel 导入</a>
+      <a href="#files.csv_export">CSV 导出</a><a href="#table.edit">编辑表格</a>
+      <a href="#table.view">视图</a><a href="#table.data_menu">数据菜单</a>
+      <a href="#table.tools_menu">工具菜单</a><a href="#table.context_menu">右键菜单</a>
+    </nav>
+
+    <section class="topic" id="files.project_files">
+      <h2>项目文件</h2>
+      <p><strong>用途：</strong>新建工作表，或保存并继续编辑 Minijmp 项目。</p>
+      <ul><li><strong>新建项目：</strong>创建空表，并可指定行列数。</li><li><strong>打开项目 / 保存 / 另存为：</strong>打开或保存 Minijmp 的 pickle 项目文件。它保存当前工作表状态，与 CSV、Excel 数据交换文件不同。</li></ul>
+      <p><strong>步骤：</strong>使用 文件菜单打开项目，完成编辑后选“保存”；首次保存或另存为时选定文件路径。</p>
+      <p class="note">CSV 和 Excel 导入后成为当前工作表；再次打开项目文件不会把它们自动合并。</p>
+    </section>
+
+    <section class="topic" id="files.csv_import">
+      <h2>CSV 导入</h2>
+      <p><strong>用途：</strong>将 CSV、TSV 或文本表格读入当前工作表。</p>
+      <p><strong>数据要求：</strong>记录应有一致的列数。默认导入会识别 UTF 编码标记、尝试 UTF-8、GB18030 或 CP1252，并检查逗号、制表符、分号和竖线分隔。</p>
+      <p><strong>操作：</strong>选 文件 → 导入 CSV。软件会尝试判断分隔符和首行表头；判断不确定时会显示预览，让你确认编码、分隔符及“首行为表头”。</p>
+      <p><strong>注意：</strong>默认导入会推断纯数字列。若数字看似编号、需要保留前导零或文本格式，请使用 高级导入 并选择按字符串导入数字。</p>
+    </section>
+
+    <section class="topic" id="files.csv_advanced_import">
+      <h2>高级文本导入</h2>
+      <p><strong>用途：</strong>在导入前手动调整 CSV / 文本解析方式并预览结果。</p>
+      <p><strong>可调参数：</strong>分隔符、表头行位置、小数符号、注释符、跳过前置空格、跳过行、忽略空白行、数字按字符串处理、解析日期、日期格式、编码、读取行数和自定义列名。</p>
+      <p><strong>操作：</strong>选 文件 → 高级导入，选择参数后点 Update preview；检查文本及表格预览，再点 Import。</p>
+      <p class="note">日期格式留空时由 pandas 推断；若预览列数或日期不正确，先检查分隔符、编码和表头行。</p>
+    </section>
+
+    <section class="topic" id="files.pi_import">
+      <h2>导入 PI 数据</h2>
+      <p>通过 文件 → 导入 PI 数据 打开窗口。选择可运行的 PIReader.exe 和现有 config.txt；PIReader 所需的 PI SDK 必须安装在本机，且能够访问配置的服务器。Minijmp 不包含 PI SDK 或 PIReader 二进制文件，也不需要启动 Dash 服务。</p>
+      <p>默认查找 Minijmp 项目目录内的 PIReader.exe 和 config.txt，也可通过 PI_READER_EXE、PI_CONFIG 环境变量或窗口浏览按钮指定位置。不会读取、保存或记录配置文件内容；不要将带凭据的 config.txt 加入版本控制。</p>
+      <p>每行输入一个 Tag（最多 20 个，忽略大小写去重），或输入 Tag Mask 搜索、勾选后添加。时间支持绝对时间及现有 PI 表达式（如 *、*-1h、*-1d）；采样间隔支持 1m、5m、10m、30m、1h。预计超过一百万个数据点或无法估算时会要求确认，不截断查询数据。搜索结果如被 PIReader 限制会明确提示缩小 Mask。</p>
+      <p>成功后以 Timestamp 列及原始 Tag 列替换当前工作表；若 Tag 名为 Timestamp，保留 Tag 原名，时间列使用 Timestamp (time 1)，编号递增避开已有 Tag 名，可继续统计、绘图和保存。未保存的原工作表会被替换；需要保留时请先保存。空结果、错误、超时和取消不改变原工作表。</p>
+      <p>查询在后台线程运行，最长等待 300 秒。取消会立即关闭窗口并丢弃迟到结果；已经启动的 PIReader 仍可能运行到完成或超时。窗口不持久化路径、Tag 或凭据。</p>
+      <p>查询状态和完整错误信息显示在固定高度的只读文本框中，可滚动查看和复制。</p>
+      <p>读取的是指定采样间隔的插值历史数据。</p>
+    </section>
+
+    <section class="topic" id="files.excel_import">
+      <h2>Excel 导入</h2>
+      <p><strong>用途：</strong>从 Excel 工作簿导入工作表。</p>
+      <p><strong>支持格式：</strong><code>.xls</code> 和 <code>.xlsx</code>。导入后，工作簿中的每个工作表都会成为一个 MiniJMP 工作表。</p>
+    </section>
+
+    <section class="topic" id="files.csv_export">
+      <h2>CSV 导出</h2>
+      <p><strong>用途：</strong>把当前工作表保存为 CSV，供其他程序读取。</p>
+      <p><strong>操作：</strong>选 文件 → 导出 CSV，指定文件名和位置。</p>
+      <p class="note">当前主菜单提供 CSV 导出，没有 Excel 导出命令。若需 Excel 文件，请先导出 CSV，再用目标程序打开并另存为工作簿。</p>
+    </section>
+
+    <section class="topic" id="table.edit">
+      <h2>编辑表格</h2>
+      <p>编辑菜单提供撤销和重做、复制整表或选中单元格、粘贴、清除选中值、删除所选行并上移、查找与替换，以及首选项。</p>
+      <p>粘贴时可选择是否带入列标题。查找/替换 按单元格内容查找；替换前请确认当前选择和筛选状态。</p>
+    </section>
+
+    <section class="topic" id="table.view">
+      <h2>视图</h2>
+      <p>视图菜单可以放大或缩小表格显示、切换列标题换行，以及选择深色或浅色主题。这些操作只改变查看方式。</p>
+    </section>
+
+    <section class="topic" id="table.data_menu">
+      <h2>数据菜单</h2>
+      <p>数据菜单用于改单列或整理数据：创建分类列、应用函数、重采样或变换、统计值计数、字符串操作、日期时间转换、筛选行、拆分列、堆叠列、排序全部或选中列，以及把首行转成列标题。</p>
+      <p><strong>提示：</strong>拆分列与堆叠列可把宽表和长表互相整理；筛选后先检查过滤状态，再执行会改写数据的操作。</p>
+    </section>
+
+    <section class="topic" id="table.tools_menu">
+      <h2>工具菜单</h2>
+      <p>工具菜单提供列名与数值转换、数据清理、重复值查找、表格文本和信息查看、值变换、分组汇总、交叉表、合并或拼接表、透视、融化和时间序列重采样。</p>
+      <p><strong>选择数据时：</strong>分组汇总和交叉表需要类别列；均值、合计等汇总统计需要合适的数值列。合并前确认键列和两表的列名。</p>
+    </section>
+
+    <section class="topic" id="table.context_menu">
+      <h2>单元格、行列标题和工作表标签右键菜单</h2>
+      <p><strong>单元格：</strong>复制所选、粘贴、撤销或清除所选。右键点在现有选择内会保留选择；点在外面会改以该单元格为目标。粘贴按制表符分隔并覆盖现有单元格，不插入行列；尺寸或边界不匹配时不会写入。只读表格和筛选状态会阻止修改。</p>
+      <p><strong>列标题：</strong>保留排序、增删、重命名和格式操作，并可复制或粘贴整列及多列。<strong>行标题：</strong>保留索引和行操作；“复制行”会在表内复制，“复制整行”会复制到系统剪贴板。</p>
+      <p><strong>工作表标签：</strong>右键标签可新增、复制、重命名、删除或导出工作表。操作针对命中的标签；空白标签栏不弹出菜单，删除前会确认。</p>
+    </section>
+  </main>
+</body>
+</html>

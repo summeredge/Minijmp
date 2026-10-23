@@ -164,6 +164,11 @@
 | Control Chart C | 控制图 C |
 | Control Chart U | 控制图 U |
 | Advanced SPC Control Charts | 高级 SPC 控制图 |
+| Pareto Chart | 帕累托图 |
+| Run Chart | 运行图 |
+| Cause-and-Effect Diagram | 因果图 |
+| Multi-Vari Chart | 多变异图 |
+| Attribute Agreement Analysis | 属性一致性分析 |
 
 高级 SPC 入口位于“质量”菜单，调用 `Minijmp.advanced_spc`，延迟打开
 `code/advanced_spc_dialog.py` 中的 `AdvancedSPCDialog`；离线帮助主题为
