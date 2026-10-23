@@ -1,4 +1,4 @@
-MiniJMP v0.1.0-beta.1 — Windows x64
+MiniJMP v0.1.0-beta.2 — Windows x64
 
 运行
 1. 将整个 ZIP 内完整的 MiniJMP 运行文件夹解压到可写位置。
