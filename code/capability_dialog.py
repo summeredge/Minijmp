@@ -36,6 +36,7 @@ class CapabilityDialog:
         self.result = self.future = None
         self.tables, self.blocks = {}, {}
         self.cancel_event = Event()
+        self._closed = False
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='capability')
         self.main = tk.Toplevel(parent)
         self.main.title('过程能力分析与 Sixpack')
@@ -43,6 +44,7 @@ class CapabilityDialog:
         self.main.minsize(760, 580)
         apply_dialog_theme(self.main)
         self.main.protocol('WM_DELETE_WINDOW', self.close)
+        self.main.bind('<Destroy>', self.close, add='+')
         self.main.bind('<Escape>', lambda event: self.cancel())
         self.main.bind('<F1>', self.help)
         controls = ttk.Frame(self.main, padding=6)
@@ -51,11 +53,14 @@ class CapabilityDialog:
         controls.columnconfigure(3, weight=1)
         self.fields = {}
         columns = list(self.df.columns)
+        labels = (columns if all(isinstance(c, str) and c for c in columns) else
+                  [f'[{i+1}] {c} ({type(c).__name__})' for i, c in enumerate(columns)])
+        self.column_map = dict(zip(labels, columns))
         specs = [
-            (('measurement', '测量列', '', columns), ('mode', '分析类型', mode, MODES)),
+            (('measurement', '测量列', '', labels), ('mode', '分析类型', mode, MODES)),
             (('lsl', '规格下限 LSL（可空）', '', None), ('usl', '规格上限 USL（可空）', '', None)),
             (('target', '目标 Target（可空）', '', None), ('confidence', '置信水平（%）', '95', None)),
-            (('subgroup', '子组 ID 列（优先）', '', [''] + columns), ('size', '连续子组大小', '1', None)),
+            (('subgroup', '子组 ID 列（优先）', '', [''] + labels), ('size', '连续子组大小', '1', None)),
             (('distribution', '非正态分布', 'Weibull', list(DISTRIBUTIONS)), ('transform', '正态化变换', 'Box-Cox' if mode == '变换诊断' else '无', list(TRANSFORMS))),
             (('lambda', '固定 λ（空白为估计）', '', None), ('k', '能力总宽 Kσ', '6', None)),
             (('missing', '缺失值', '报错', ['报错', '删除不完整行']), ('recent', '最近子组图数量', '25', None)),
@@ -91,9 +96,9 @@ class CapabilityDialog:
 
     def options(self):
         fields = {key: var.get().strip() for key, var in self.fields.items()}
-        column = fields['measurement']
-        if column not in self.df:
+        if fields['measurement'] not in self.column_map:
             raise ValueError('请选择测量列。')
+        column = self.column_map[fields['measurement']]
         mode = fields['mode']
         nonnormal = mode.startswith('非正态')
         transform = TRANSFORMS[fields['transform']]
@@ -113,7 +118,7 @@ class CapabilityDialog:
                        allow_no_specs=mode == '变换诊断',
                        missing='drop' if fields['missing'] == '删除不完整行' else 'error')
         if fields['subgroup']:
-            options['subgroup_ids'] = self.df[fields['subgroup']].copy()
+            options['subgroup_ids'] = self.df[self.column_map[fields['subgroup']]].copy()
         return column, mode, recent, options
 
     def fit(self):
@@ -139,6 +144,8 @@ class CapabilityDialog:
             self.status.set('正在取消；等待当前拟合结束后丢弃结果。')
 
     def poll(self):
+        if self._closed:
+            return
         if self.future is not None and self.future.done():
             future, self.future = self.future, None
             self.progress.stop()
@@ -262,8 +269,21 @@ class CapabilityDialog:
         open_help('quality.capability_analysis', parent=self.main)
         return 'break'
 
-    def close(self):
+    def close(self, event=None):
+        if event is not None and event.widget is not self.main:
+            return
+        if self._closed:
+            return
+        self._closed = True
         self.cancel_event.set()
-        self.main.after_cancel(self.poll_id)
+        if self.future is not None:
+            self.future.cancel()
+        if self.poll_id is not None:
+            try:
+                self.main.after_cancel(self.poll_id)
+            except tk.TclError:
+                pass
+            self.poll_id = None
         self.executor.shutdown(wait=False, cancel_futures=True)
-        self.main.destroy()
+        if event is None:
+            self.main.destroy()

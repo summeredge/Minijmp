@@ -1,5 +1,5 @@
 from stat_table import StatTable
-from scipy.special import gamma
+from scipy.special import gammaln
 from scipy import integrate
 from scipy.stats import norm, shapiro, chi2
 from functools import lru_cache
@@ -207,38 +207,44 @@ def mean_std_CIs(data, alpha=0.05, print_out=False, print_port=print):
 
 def pearson_correlation(x, y, alpha=0.05, print_out=True, print_port=print):
     print = print_port
-    sx, sy = sum(x), sum(y)
-    sx2 = sum([i * i for i in x])
-    sy2 = sum([i * i for i in y])
-    sxy = sum([i * j for i, j in zip(x, y)])
+    x, y = np.asarray(x, dtype=float), np.asarray(y, dtype=float)
     n = len(x)
-    x_bar, y_bar = sx / n, sy / n
-#     r = [n(ΣXY) - (ΣX)(ΣY)] / √[n(ΣX²) - (ΣX)²][n(ΣY²) - (ΣY)²]
-    r = (n * sxy - sx * sy) / ((n * sx2 - sx * sx) * (n * sy2 - sy * sy))**.5
-#     Cov(X,Y) = Σ[(X - X̄)(Y - Ȳ)] / (n - 1)
-    r = np.clip(r, -1, 1)
-    cov = sum([(i - x_bar) * (j - y_bar) for i, j in zip(x, y)]) / (n - 1)
+    if x.ndim != 1 or y.ndim != 1 or n != len(y) or n < 2:
+        raise ValueError("Pearson 相关需要至少两对一维观测值")
+    dx, dy = x - np.mean(x), y - np.mean(y)
+    cov = np.dot(dx, dy) / (n - 1)
+    # 中心化后缩放，避免大基准值消减及平方中间值溢出。
+    mx, my = np.max(np.abs(dx)), np.max(np.abs(dy))
+    if mx == 0 or my == 0:
+        r = np.nan
+    else:
+        ux, uy = dx / mx, dy / my
+        r = np.clip(np.dot(ux, uy) / np.sqrt(np.dot(ux, ux) * np.dot(uy, uy)), -1, 1)
     # https://zhiyzuo.github.io/Pearson-Correlation-CI-in-Python/
     # below confidence level calc
     #  print(r)
-    if abs(r) < 1:
+    if not np.isfinite(r):
+        r_z = np.nan
+    elif abs(r) < 1:
         r_z = np.arctanh(r)
     else:
         r_z = np.copysign(np.inf, r)
-    se = 1 / np.sqrt(n - 3)
+    se = 1 / np.sqrt(n - 3) if n > 3 else np.inf
     z = norm.ppf(1 - alpha / 2)
     lo_z, hi_z = r_z - z * se, r_z + z * se
-    lo, hi = np.tanh((lo_z, hi_z))
+    lo, hi = (r, r) if abs(r) == 1 else np.tanh((lo_z, hi_z))
 #     Calculate the t-statistic using the formula:
 #     t = r * √((n-2) / (1-r²))
 #     where n is the sample size
 #     Determine the degrees of freedom (df):
 #     df = n - 2
-    if abs(r) == 1:
+    if not np.isfinite(r):
+        p = a = b = theta = np.nan
+    elif abs(r) == 1:
         p = a = b = theta = 0
     else:
         t = abs(r * ((n - 2) / (1 - r * r))**.5)
-        p = (1 - t_dist.cdf(t, n - 2)) * 2
+        p = 2 * t_dist.sf(t, n - 2) if n > 2 else 1.0
 
     # Calculate ellipse
 # Source: https://education.illinois.edu/docs/default-source/carolyn-anderson/edpsy584/lectures/MultivariateNormal-beamer-online.pdf
@@ -289,7 +295,12 @@ def pearson_correlation(x, y, alpha=0.05, print_out=True, print_port=print):
 
 @lru_cache
 def c4_values(n):
-    return (2 / (n - 1))**.5 * gamma(n / 2) / gamma((n - 1) / 2)
+    if not np.isfinite(n) or n <= 1:
+        raise ValueError("c4 需要有限且大于 1 的样本量")
+    value = np.exp(0.5 * np.log(2 / (n - 1)) + gammaln(n / 2) - gammaln((n - 1) / 2))
+    if not np.isfinite(value) or not 0 < value <= 1:
+        raise ValueError("c4 计算结果不可用")
+    return value
 
 
 def scale_factor_f(n):

@@ -3,6 +3,9 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 import math
+from decimal import Decimal, InvalidOperation
+from itertools import accumulate
+from numbers import Integral, Real
 
 
 def _numeric(series):
@@ -32,6 +35,18 @@ def multi_vari(data, response, factors):
     if not 1 <= len(factors) <= 4 or len(set(factors)) != len(factors) or response in factors:
         raise ValueError('请选择 1–4 个不同的分类因子，响应列不能作为因子。')
     frame = data[factors].copy()
+    reserved = {'N', 'SD', '均值', '最小值', '最大值', '极差'}
+    names = set(factors) | reserved
+    mapping = {}
+    for factor in factors:
+        if factor in reserved:
+            name = f'{factor}（因子）'
+            while name in names:
+                name += '*'
+            mapping[factor] = name
+            names.add(name)
+    frame = frame.rename(columns=mapping)
+    factors = [mapping.get(factor, factor) for factor in factors]
     if frame.isna().any().any() or any(frame[c].astype(str).str.strip().eq('').any() for c in factors):
         raise ValueError('因子水平不能为空。')
     response_key = '_y'
@@ -135,12 +150,19 @@ def pareto_chart(data, category, frequency=None, group=None, threshold=95, max_c
         raise ValueError('类别、频数和分组不能为空；请先处理缺失值。')
     if frequency:
         try:
-            counts = pd.to_numeric(frame[frequency], errors='raise')
-        except (ValueError, TypeError) as exc:
-            raise ValueError('频数必须为非负整数。') from exc
-        if not np.isfinite(counts).all() or (counts < 0).any() or (counts % 1 != 0).any():
-            raise ValueError('频数必须为有限非负整数。')
-        frame['_count'] = [int(value) for value in counts]
+            counts = []
+            for value in frame[frequency]:
+                value = (int(value) if isinstance(value, Integral) else
+                         Decimal(float(value)) if isinstance(value, Real) else Decimal(str(value)))
+                if isinstance(value, Decimal) and (not value.is_finite() or value != value.to_integral_value()):
+                    raise ValueError('频数必须为有限非负整数。')
+                if value < 0:
+                    raise ValueError('频数必须为有限非负整数。')
+                counts.append(int(value))
+        except (InvalidOperation, ValueError, TypeError) as exc:
+            raise ValueError('频数必须为有限非负整数。') from exc
+        # object prevents fixed-width overflow before repeated categories are summed.
+        frame['_count'] = pd.Series(counts, index=frame.index, dtype=object)
     else:
         frame['_count'] = 1
     tables = {}
@@ -152,7 +174,11 @@ def pareto_chart(data, category, frequency=None, group=None, threshold=95, max_c
             raise ValueError('每个分组的总频数必须大于零。')
         keep = len(totals)
         if threshold is not None and threshold < 100:
-            keep = min(keep, int(np.searchsorted(np.cumsum(totals.to_numpy(dtype=float))/total*100, threshold, side='right'))+1)
+            numerator, denominator = float(threshold).as_integer_ratio()
+            for i, cumulative in enumerate(accumulate(int(v) for v in totals)):
+                if cumulative*100*denominator > total*numerator:
+                    keep = i+1
+                    break
         if max_categories is not None and len(totals) > max_categories:
             keep = min(keep, int(max_categories)-1)
         labels, values = list(totals.index[:keep]), [int(v) for v in totals.iloc[:keep]]
@@ -162,9 +188,12 @@ def pareto_chart(data, category, frequency=None, group=None, threshold=95, max_c
                 other += '*'
             labels.append(other)
             values.append(sum(int(v) for v in totals.iloc[keep:]))
-        table = pd.DataFrame({'类别': labels, '频数': values})
-        table['百分比'] = table['频数']/total*100
-        table['累计百分比'] = table['百分比'].cumsum()
+        percentages = [value*100/total for value in values]
+        if any(value > 0 and percent == 0 for value, percent in zip(values, percentages)):
+            raise ValueError('频数比例超出浮点百分比可表达范围。')
+        table = pd.DataFrame({'类别': labels, '频数': pd.Series(values, dtype=object)})
+        table['百分比'] = percentages
+        table['累计百分比'] = [value*100/total for value in accumulate(values)]
         title = f'分组 {label}'
         while title in tables:
             title += '*'

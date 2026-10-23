@@ -27,7 +27,7 @@ def fit_plot(x, y, alpha=0.05, print_out=False,
              scatter=True, ax=None,
              ortho_resid=False,
              red_ellipse=False, dot_size=20,
-             ax_margin=0.1, print_port=print, pearson_result=None):
+             ax_margin=0.1, print_port=print, pearson_result=None, pearson=False):
 
     print = print_port
     #  print("test")
@@ -48,11 +48,13 @@ def fit_plot(x, y, alpha=0.05, print_out=False,
         ax.scatter(x, y, color='blue', alpha=1 / (len(x))**.2,
                    label='Data points', s=dot_size)
 
-    if ellipse or red_ellipse:
-        ax.set_box_aspect(1)
+    if pearson or ellipse or red_ellipse:
         correlation = pearson_result if pearson_result is not None else pearson_correlation(
             x, y, alpha=alpha, print_port=print, print_out=print_out)
         res["Pearson"] = correlation
+
+    if ellipse or red_ellipse:
+        ax.set_box_aspect(1)
         # Use parametric equations to generate points on the ellipse:
         # x(t) = x̄ + a * cos(t) * cos(θ) - b * sin(t) * sin(θ)
         # y(t) = ȳ + a * cos(t) * sin(θ) + b * sin(t) * cos(θ)

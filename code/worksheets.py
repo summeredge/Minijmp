@@ -406,7 +406,8 @@ class Worksheets:
         if not filename:
             return False
         try:
-            self._import_frames(pd.read_excel(filename, sheet_name=None),
+            frames = pd.read_excel(filename, sheet_name=None, dtype=object)
+            self._import_frames({name: df.infer_objects() for name, df in frames.items()},
                                 os.path.dirname(os.path.abspath(filename)))
             return True
         except Exception as error:

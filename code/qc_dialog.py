@@ -472,7 +472,7 @@ class CpkSubDialog(Dialogs):
             self.app.print(
                 "子组标识与测量值的有效配对数 = %d。" %
                 len(y_r))
-            data = grouping_by_labels(y_r, id_r)
+            data = grouping_by_labels(y_r, id_r, keys=list(dict.fromkeys(id_r)))
         elif "ize" in m:
             y = number_list(self.df[self.xvar.get()])
             size = int(self.subsize.get())
@@ -484,6 +484,10 @@ class CpkSubDialog(Dialogs):
                 self.app.print("警告：子组大小不相等。")
         else:
             data = number_list(self.df[self.xvar.get()])
+
+        if ("ID" in m or "ize" in m) and (not data or min(map(len, data)) < 2):
+            self.error('每个子组至少需要两个观测值，请检查末尾子组或子组标识。')
+            return
 
         alpha = self.alpha.get()
         if alpha > 0.5 or alpha <= 0:

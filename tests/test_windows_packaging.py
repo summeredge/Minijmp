@@ -1,4 +1,5 @@
 import base64
+from importlib import metadata
 from io import BytesIO
 import runpy
 import subprocess
@@ -8,6 +9,8 @@ from types import ModuleType
 from unittest.mock import Mock
 
 from PIL import Image
+import pytest
+from packaging.utils import canonicalize_name
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -141,6 +144,68 @@ def test_third_party_notice_generator_copies_dependency_licenses(tmp_path):
     licenses = destination / 'THIRD-PARTY-LICENSES'
     for name in ('Carbon-Icons-Apache-2.0.txt', 'Tabler-Icons-MIT.txt'):
         assert (licenses / name).read_bytes() == (ROOT / 'packaging' / 'windows' / 'licenses' / name).read_bytes()
+    for name in ('formulaic', 'interface-meta', 'narwhals', 'wrapt', 'et_xmlfile'):
+        distribution = metadata.distribution(name)
+        package = distribution.metadata['Name']
+        assert f'{package} {distribution.version}' in notice
+        declared = distribution.metadata.get_all('License-File', ())
+        assert declared
+        for filename in declared:
+            sources = [Path(distribution.locate_file(item)) for item in distribution.files
+                       if str(item).endswith('/' + filename)]
+            assert sources
+            copies = list(licenses.glob(f'{package}-{distribution.version}-*'))
+            assert any(copy.read_bytes() == sources[0].read_bytes() for copy in copies)
+    listed = {canonicalize_name(line.split()[1]) for line in notice.splitlines()
+              if line.startswith('- ')}
+    assert not listed.intersection({'pytest', 'pip', 'setuptools', 'altgraph', 'pefile',
+                                    'pyinstaller-hooks-contrib', 'pywin32-ctypes'})
+
+
+def test_notice_runtime_closure_respects_markers_and_excludes_build_tools(tmp_path, monkeypatch):
+    namespace = runpy.run_path(str(ROOT / 'tools/write_third_party_notices.py'))
+    function = namespace['_runtime_dependencies']
+    monkeypatch.setitem(function.__globals__, 'ROOT', tmp_path)
+    (tmp_path / 'requirements.txt').write_text('app\n', encoding='utf-8')
+    distributions = {
+        'app': Mock(requires=['dependency', 'optional; extra == "test"',
+                              'other-platform; python_version < "2"']),
+        'dependency': Mock(requires=['app']),
+        'pyinstaller': Mock(requires=['build-only']),
+    }
+    lookup = Mock(side_effect=distributions.__getitem__)
+    monkeypatch.setattr(namespace['metadata'], 'distribution', lookup)
+
+    assert function() == [distributions[name] for name in ('app', 'dependency', 'pyinstaller')]
+    assert lookup.call_count == 3
+
+
+@pytest.mark.parametrize('missing', [None, 'declared', 'all'])
+def test_notice_license_metadata_priority_dedup_and_missing_original(tmp_path, missing):
+    namespace = runpy.run_path(str(ROOT / 'tools/write_third_party_notices.py'))
+    info = tmp_path / 'sample-1.dist-info'
+    info.mkdir()
+    headers = 'Name: sample\nVersion: 1\n'
+    if missing != 'all':
+        headers += 'License-File: AUTHORS.txt\nLicense-File: LICENCE.rst\n'
+    (info / 'METADATA').write_text(headers, encoding='utf-8')
+    paths = ['sample-1.dist-info/METADATA']
+    if missing != 'all':
+        for filename in ('AUTHORS.txt', 'LICENCE.rst', 'NOTICE'):
+            paths.append('sample-1.dist-info/licenses/' + filename)
+            source = info / 'licenses' / filename
+            source.parent.mkdir(exist_ok=True)
+            if missing != 'declared' or filename != 'AUTHORS.txt':
+                source.write_bytes(b'upstream original\r\n\xff')
+    (info / 'RECORD').write_text(''.join(f'{path},,\n' for path in paths), encoding='utf-8')
+    distribution = metadata.PathDistribution(info)
+    if missing:
+        with pytest.raises(FileNotFoundError, match='sample:'):
+            namespace['_license_files'](distribution)
+    else:
+        files = namespace['_license_files'](distribution)
+        assert [path.name for _, path in files] == ['AUTHORS.txt', 'LICENCE.rst', 'NOTICE']
+        assert all(path.read_bytes() == b'upstream original\r\n\xff' for _, path in files)
 
 
 def test_source_bundle_includes_icon_licenses_and_third_party_notices():

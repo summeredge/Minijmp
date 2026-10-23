@@ -32,14 +32,56 @@ TABLER_ICON_FILES = (
 
 def _license_files(distribution):
     files = []
+    seen = set()
+    installed = [PurePosixPath(str(item)) for item in distribution.files or ()]
+    metadata_dirs = [item.parent for item in installed
+                     if item.name in ('METADATA', 'PKG-INFO')]
+    for declared in distribution.metadata.get_all('License-File', ()):
+        relative = PurePosixPath(declared)
+        candidates = [directory / prefix / relative
+                      for directory in metadata_dirs for prefix in ('licenses', '')]
+        for candidate in candidates:
+            path = Path(distribution.locate_file(candidate))
+            if path.is_file():
+                if path.resolve() not in seen:
+                    files.append((candidate, path))
+                    seen.add(path.resolve())
+                break
+        else:
+            raise FileNotFoundError(
+                f"{distribution.metadata['Name']}: missing License-File {declared}")
     for item in distribution.files or ():
         relative = PurePosixPath(str(item))
         name = relative.name.lower()
-        if name.startswith(('license', 'copying', 'notice')):
+        if name.startswith(('license', 'licence', 'copying', 'notice')):
             path = Path(distribution.locate_file(item))
-            if path.is_file():
+            if path.is_file() and path.resolve() not in seen:
                 files.append((relative, path))
+                seen.add(path.resolve())
+    if not files:
+        raise FileNotFoundError(
+            f"{distribution.metadata['Name']}: no upstream license file installed")
     return files
+
+
+def _runtime_dependencies():
+    pending = [Requirement(line) for line in
+               (ROOT / 'requirements.txt').read_text(encoding='utf-8').splitlines()
+               if line.strip() and not line.lstrip().startswith('#')]
+    distributions = {}
+    while pending:
+        requirement = pending.pop()
+        if requirement.marker and not requirement.marker.evaluate({'extra': ''}):
+            continue
+        name = canonicalize_name(requirement.name)
+        if name in distributions:
+            continue
+        distribution = metadata.distribution(name)
+        distributions[name] = distribution
+        pending.extend(Requirement(item) for item in distribution.requires or ())
+    # Only the bootloader is distributed, not PyInstaller's build-time dependencies.
+    distributions['pyinstaller'] = metadata.distribution('pyinstaller')
+    return [distributions[name] for name in sorted(distributions)]
 
 
 def _license_summary(distribution):
@@ -62,15 +104,9 @@ def generate(destination):
     license_dir = destination / 'THIRD-PARTY-LICENSES'
     license_dir.mkdir(parents=True, exist_ok=True)
 
-    requirements = [Requirement(line).name for line in
-                    (ROOT / 'requirements.txt').read_text(encoding='utf-8').splitlines()
-                    if line.strip() and not line.lstrip().startswith('#')]
-    requirements.extend(('numpy', 'pyinstaller'))
-    names = sorted(set(requirements), key=canonicalize_name)
     rows = []
-    for name in names:
-        distribution = metadata.distribution(name)
-        package = distribution.metadata.get('Name', name)
+    for distribution in _runtime_dependencies():
+        package = distribution.metadata['Name']
         version = distribution.version
         copied = []
         for relative, source in _license_files(distribution):
@@ -79,7 +115,7 @@ def generate(destination):
             target = license_dir / f'{safe_name}-{version}-{license_name}'
             shutil.copyfile(source, target)
             copied.append(target.name)
-        files = ', '.join(copied) if copied else 'No license file shipped in installed metadata.'
+        files = ', '.join(copied)
         rows.append(f'- {package} {version} — {_license_summary(distribution)}; {files}')
 
     python_license = Path(sys.base_prefix) / 'LICENSE.txt'

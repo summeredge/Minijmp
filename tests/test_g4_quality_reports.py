@@ -20,7 +20,7 @@ import txt_output
 from cpk_plot import cpk_plot
 from utilities import format_stat
 from test_g1_text_output import viewer
-from source_baselines import read_source_baseline
+from source_baselines import read_source_baseline, normalize_p1_numeric, normalize_p2_legacy
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -61,6 +61,22 @@ def equal_result(actual, expected):
         assert actual == expected
 
 
+def equal_capability_result(actual, expected):
+    """只有非中心 t 反演的四个端点允许求根舍入差异。"""
+    # 正确性由 test_review_p1_statistics 的非中心 t 独立积分验证；此处仅保护旧契约。
+    actual, expected = dict(actual), dict(expected)
+    assert list(actual) == list(expected)
+    for key in ('Within', 'Overall'):
+        if key in expected:
+            equal_capability_result(actual.pop(key), expected.pop(key))
+    for key in ('cpl_l', 'cpl_u', 'cpu_l', 'cpu_u'):
+        if key in expected:
+            a, b = actual.pop(key), expected.pop(key)
+            assert type(a) is type(b)
+            assert a == pytest.approx(b, rel=1e-11, abs=1e-12)
+    equal_result(actual, expected)
+
+
 def capture_tables(monkeypatch, module):
     tables = []
     original = module.gen_table
@@ -84,7 +100,7 @@ def capture_tables(monkeypatch, module):
 def test_capability_exact_returns(originals, data, use_range, within, alpha, print_out):
     args = dict(data=data, target=4, lsl=0, usl=9, within=within,
                 use_range=use_range, alpha=alpha, print_out=print_out, print_port=lambda s: None)
-    equal_result(cpk.cpk(**args), originals['cpk'].cpk(**args))
+    equal_capability_result(cpk.cpk(**args), originals['cpk'].cpk(**args))
 
 
 @pytest.mark.parametrize('overall', [False, True])
@@ -93,7 +109,7 @@ def test_capability_indices_and_confidence_columns(monkeypatch, overall, origina
     args = dict(mean=2, std=1.3, T=4, usl=9, lsl=0, df=19, N=20,
                 name='Overall (AKA Ppk in JMP)' if overall else 'Within')
     result = cpk.cpk_calc(**args, print_port=lambda s: None)
-    equal_result(result, originals['cpk'].cpk_calc(**args, print_out=False))
+    equal_capability_result(result, originals['cpk'].cpk_calc(**args, print_out=False))
     table = tables[0]
     prefix = 'P' if overall else 'C'
     assert [row[0] for row in table.rows] == [prefix + x for x in ('p', 'pk', 'pl', 'pu')] + ['Cpm']
@@ -360,7 +376,7 @@ def test_capability_plot_keeps_return_and_curve_data(originals, subgroup):
     figure = Figure()
     axis = figure.add_subplot(111)
     result = cpk_plot(data, 9, 4, 0, ax=axis, print_out=True, print_port=lambda s: None)
-    equal_result(result, originals['cpk'].cpk(data, 4, 9, 0, print_out=False))
+    equal_capability_result(result, originals['cpk'].cpk(data, 4, 9, 0, print_out=False))
     np.testing.assert_array_equal(axis.lines[0].get_ydata(),
         norm.pdf(axis.lines[0].get_xdata(), result['mean'], result['Overall Sigma']))
     np.testing.assert_array_equal(axis.lines[1].get_ydata(),
@@ -440,6 +456,9 @@ def test_original_computations_signatures_and_defaults_are_unchanged(originals, 
     original = originals[module.__name__]
     old_tree = ast.parse(read_source_baseline(BASELINE, f'code/{module.__name__}.py'))
     new_tree = ast.parse((ROOT / 'code' / (module.__name__ + '.py')).read_text(encoding='utf-8'))
+    if module is cpk:
+        normalize_p1_numeric(new_tree, "cpk.py", old_tree)
+        normalize_p2_legacy(new_tree, 'cpk.py', old_tree)
     for name, function in inspect.getmembers(original, inspect.isfunction):
         if function.__module__ != original.__name__:
             continue
@@ -511,15 +530,9 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
                 ComputationOnly().visit(original))
             continue
         if name == 'utilities.py':
-            # P1/P2 仅授权 Pearson 舍入截断及完全相关区间方向，保留整文件其余守卫。
-            old = old.replace('\r\n', '\n')
-            statement = '    cov = sum('
-            assert old.count(statement) == 1
-            old = old.replace(statement, '    r = np.clip(r, -1, 1)\n' + statement)
-            assert old.count('r_z = 10000') == 1
-            old = old.replace('r_z = 10000', 'r_z = np.copysign(np.inf, r)')
             current = ast.parse((ROOT / 'code' / name).read_text(encoding='utf-8'))
             original = ast.parse(old)
+            normalize_p1_numeric(current, name, original)
             for tree in (current, original):
                 # G17 数字清洗有独立冻结数据及热点守卫，保留其余共享函数保护。
                 tree.body = [n for n in tree.body if not (
@@ -580,7 +593,9 @@ def test_quality_dialog_changes_are_only_output_statements(originals):
                 node.value = texts.get(node.value, node.value)
             return node
     assert current.count('self.app.print(f"分析变量：') == 5
-    assert ast.dump(ReportOnly().visit(normalize_column_memory(ast.parse(current), 'qc_dialog.py'))) == ast.dump(ReportOnly().visit(ast.parse(old)))
+    current_tree = normalize_column_memory(ast.parse(current), 'qc_dialog.py')
+    normalize_p2_legacy(current_tree, 'qc_dialog.py', ast.parse(old))
+    assert ast.dump(ReportOnly().visit(current_tree)) == ast.dump(ReportOnly().visit(ast.parse(old)))
 
 
 @pytest.mark.parametrize('guard,module,before,after', [
@@ -597,3 +612,22 @@ def test_freeze_rejects_unapproved_changes(originals, monkeypatch, guard, module
                         source.replace(before, after) if path == target else read(path, *a, **kw))
     with pytest.raises(AssertionError):
         guard(originals) if guard is test_quality_dialog_changes_are_only_output_statements else guard()
+
+
+@pytest.mark.parametrize('module,before,after', [
+    ('cpk.py', 'std_overall = stat.stdev(flat_list)', 'std_overall = 1'),
+    ('cpk.py', '---- 正态过程能力分析 ----', '---- 被改写的报告 ----'),
+    ('qc_dialog.py', 'keys=list(dict.fromkeys(id_r))', 'keys=sorted(set(id_r))'),
+])
+def test_p2_authorized_nodes_reject_unrelated_changes(originals, monkeypatch, module, before, after):
+    read = Path.read_text
+    target = ROOT / 'code' / module
+    source = read(target, encoding='utf-8')
+    assert source.count(before) == 1
+    monkeypatch.setattr(Path, 'read_text', lambda path, *a, **kw:
+                        source.replace(before, after) if path == target else read(path, *a, **kw))
+    with pytest.raises(AssertionError):
+        if module == 'cpk.py':
+            test_original_computations_signatures_and_defaults_are_unchanged(originals, cpk)
+        else:
+            test_quality_dialog_changes_are_only_output_statements(originals)

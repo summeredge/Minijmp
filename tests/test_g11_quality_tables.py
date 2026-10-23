@@ -10,7 +10,7 @@ import pytest
 from matplotlib.figure import Figure
 from openpyxl import load_workbook
 from PIL import Image
-from source_baselines import read_source_baseline
+from source_baselines import read_source_baseline, normalize_p1_numeric, normalize_p2_legacy
 
 import GRR
 import cpk
@@ -19,6 +19,7 @@ from MiniJMP import Minijmp
 from stat_table import StatTable, export_excel, export_png
 from test_g1_text_output import viewer
 from test_g4_quality_reports import Y, PART, OP, NEST_Y, NEST_PART, NEST_OP, equal_result
+from test_g4_quality_reports import equal_capability_result
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -103,7 +104,10 @@ def test_all_report_producers_keep_txt_results_and_export_real_files(case, basel
         return table
     monkeypatch.setattr(module, 'gen_table', capture)
     before, old_lines = report(case, baseline.GRR, baseline.cpk, baseline.control_chart)
-    equal_result(result, before)
+    if case[0] in ('cpk', 'indices'):
+        equal_capability_result(result, before)
+    else:
+        equal_result(result, before)
     assert '\n'.join(lines) == '\n'.join(old_lines)
     tables = [line for line in lines if isinstance(line, StatTable)]
     assert tables
@@ -184,7 +188,18 @@ def test_raw_values_match_unrounded_baseline_expressions(case, baseline, monkeyp
     tables = [line for line in lines if isinstance(line, StatTable)]
     assert len(tables) == len(captured)
     for table, expected in zip(tables, captured):
-        equal_result(table.values, expected)
+        if case[0] in ('cpk', 'indices') and table.headers == ['指标', '估计值', '置信下限', '置信上限']:
+            for row, old in zip(table.values, expected):
+                if row[0] in ('Cpl', 'Cpu', 'Ppl', 'Ppu'):
+                    equal_result(row[:2], old[:2])
+                    for a, b in zip(row[2:], old[2:]):
+                        assert type(a) is type(b)
+                        assert a == pytest.approx(b, rel=1e-11, abs=1e-12)
+                else:
+                    equal_result(row, old)
+            assert len(table.values) == len(expected)
+        else:
+            equal_result(table.values, expected)
 
 
 def test_spc_raw_limits_sizes_labels_missing_and_precision():
@@ -263,10 +278,14 @@ def test_plot_dialog_and_statistical_dependencies_unchanged():
         current = (ROOT/'code'/name).read_text(encoding='utf-8')
         if name in ('qc_dialog.py', 'ctrlchart_dialog.py'):
             from source_baselines import normalize_column_memory
-            assert ast.dump(normalize_column_memory(ast.parse(current), name)) == ast.dump(ast.parse(before))
+            current_tree = normalize_column_memory(ast.parse(current), name)
+            if name == 'qc_dialog.py':
+                normalize_p2_legacy(current_tree, name, ast.parse(before))
+            assert ast.dump(current_tree) == ast.dump(ast.parse(before))
         elif name == 'utilities.py':
             # G12 仅迁移区间报告；其余全文及该函数计算仍受保护。
             trees = [ast.parse(source) for source in (before, current)]
+            normalize_p1_numeric(trees[1], 'utilities.py', trees[0])
             for tree in trees:
                 # G17 数字清洗由冻结输入对照及热点测试保护，其余源码继续比较。
                 tree.body = [n for n in tree.body if not (

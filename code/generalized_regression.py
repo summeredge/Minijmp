@@ -207,7 +207,8 @@ def fit_generalized(df, y, x, model, *, categorical=(), degree=1, interactions=F
     try:
         with warnings.catch_warnings():
             warnings.simplefilter('error', ConvergenceWarning)
-            warnings.simplefilter('error', PerfectSeparationWarning)
+            # Poisson 正计数完美拟合仍可具有有限 MLE；零计数边界已在拟合前检查。
+            warnings.simplefilter('ignore' if model == 'Poisson' else 'error', PerfectSeparationWarning)
             warnings.simplefilter('error', RuntimeWarning)
             if model == 'Poisson':
                 fit = estimator.fit(maxiter=200, tol=1e-10)

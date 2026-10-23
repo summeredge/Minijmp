@@ -113,32 +113,8 @@ def _nipals(x, y, count, scale, cancel):
         covariance = e.T @ f
         if np.max(np.linalg.norm(covariance, axis=0)) <= threshold:
             break
-        best, best_norm = None, -1.
-        # 从每个非零响应方向启动，避免正交多 Y 使幂迭代停在次大奇异方向。
-        for initial in covariance.T:
-            norm = np.linalg.norm(initial)
-            if norm <= threshold:
-                continue
-            w = initial / norm
-            for iteration in range(10000):
-                _cancelled(cancel)
-                c = covariance.T @ w
-                c /= np.linalg.norm(c)
-                updated = covariance @ c
-                norm = np.linalg.norm(updated)
-                if norm == 0 or not np.isfinite(norm):
-                    raise ValueError('NIPALS 无法获得有限的成分权重。')
-                updated /= norm
-                converged = np.linalg.norm(updated - w) < 1e-12
-                w = updated
-                if converged:
-                    break
-            else:
-                raise ValueError('NIPALS 在 10000 次迭代内未收敛。')
-            strength = np.linalg.norm(covariance.T @ w)
-            if strength > best_norm:
-                best, best_norm = w, strength
-        w = best
+        # SVD 直接取得最大协方差方向，避免弱方向幂迭代不收敛。
+        w = np.linalg.svd(covariance, full_matrices=False)[0][:, 0]
         t = e @ w
         tt = t @ t
         q = f.T @ t / tt

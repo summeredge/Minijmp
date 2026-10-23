@@ -63,6 +63,7 @@ class AdvancedSPCDialog:
         self.df = df.copy(deep=True)
         self.result = self.future = None
         self.cancel_event = Event()
+        self._closed = False
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='advanced-spc')
         self.main = tk.Toplevel(parent)
         self.main.title('高级 SPC 控制图')
@@ -70,6 +71,7 @@ class AdvancedSPCDialog:
         self.main.minsize(900, 640)
         apply_dialog_theme(self.main)
         self.main.protocol('WM_DELETE_WINDOW', self.close)
+        self.main.bind('<Destroy>', self.close, add='+')
         self.main.bind('<Escape>', lambda event: self.cancel())
         self.main.bind('<F1>', self.help)
         self.fields = {}
@@ -206,6 +208,8 @@ class AdvancedSPCDialog:
             self.status.set('正在取消；当前计算返回后丢弃结果。')
 
     def poll(self):
+        if self._closed:
+            return
         self.poll_id = None
         if self.future is not None and self.future.done():
             future, self.future = self.future, None
@@ -335,11 +339,21 @@ class AdvancedSPCDialog:
         open_help('quality.advanced_spc', parent=self.main)
         return 'break'
 
-    def close(self):
+    def close(self, event=None):
+        if event is not None and event.widget is not self.main:
+            return
+        if self._closed:
+            return
+        self._closed = True
         self.cancel_event.set()
         if self.future is not None:
             self.future.cancel()
         if self.poll_id is not None:
-            self.main.after_cancel(self.poll_id)
+            try:
+                self.main.after_cancel(self.poll_id)
+            except tk.TclError:
+                pass
+            self.poll_id = None
         self.executor.shutdown(wait=False, cancel_futures=True)
-        self.main.destroy()
+        if event is None:
+            self.main.destroy()
