@@ -27,7 +27,7 @@ def variable(value):
 
 def test_describe_apply_keeps_report_without_printing_column(capsys, monkeypatch):
     output = []
-    dialog = SimpleNamespace(df=pd.DataFrame({'X': [1, 'bad', 3, 2, 5]}),
+    dialog = SimpleNamespace(remember_columns=Mock(), df=pd.DataFrame({'X': [1, 'bad', 3, 2, 5]}),
         xvar=variable('X'), pct=variable('100,50,0'), error=Mock(),
         app=SimpleNamespace(print=output.append))
     spy = Mock(wraps=basic_dialogs.describe)
@@ -80,7 +80,7 @@ def test_np_p_apply_keeps_plot_data_labels_and_report(dialog_type, n, capsys, mo
     output = []
     data = [.02, .04, .03]
     chart = 'NP' if dialog_type is ctrlchart_dialog.NPDialog else 'P'
-    dialog = SimpleNamespace(get_data=lambda: (data, ['A', 'B', 'C'], figure, ax, n),
+    dialog = SimpleNamespace(remember_columns=Mock(), get_data=lambda: (data, ['A', 'B', 'C'], figure, ax, n),
         plot_type=chart, y1label=variable(''), xvar=variable('缺陷'),
         xlabel=variable(''), xlabelID=variable('批次'), max_x_labels=variable(25),
         y1ref=variable(''), app=SimpleNamespace(print=output.append))
@@ -116,7 +116,7 @@ def test_both_fit_apply_implementations_keep_results_reports_and_axis_labels(dia
     flags = dict(linear=True, ortho=False, ellipse=True, red_ellipse=False,
         show_CI=False, show_PI=False, ortho_resid=False, ortho_ratio=1,
         scatter=True, alpha=.05, cor_p=True, cor_s=False, cor_k=False, cor_h=False)
-    dialog = SimpleNamespace(**{key: variable(value) for key, value in flags.items()},
+    dialog = SimpleNamespace(remember_columns=Mock(), **{key: variable(value) for key, value in flags.items()},
         df=pd.DataFrame({'X': x, 'Y': y}), xvar=variable('X'), yvar=variable('Y'),
         get_plot_settings=Mock(), xlabel='横轴', ylabel='纵轴',
         x_min=None, x_max=None, y_min=None, y_max=None, ax_margin=.1,

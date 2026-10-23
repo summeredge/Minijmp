@@ -92,7 +92,7 @@ def report(case):
     if case.endswith('summary'):
         fields.update(sample_mean=30, sample_std=4, sample_n=20, u1=30, s1=4, n1=20,
                       u2=35, s2=6, n2=25, event_cnt=3, ttl_cnt=20, event_cnt2=8, ttl_cnt2=25)
-    dialog = SimpleNamespace(**{key: var(value) for key, value in fields.items()},
+    dialog = SimpleNamespace(remember_columns=Mock(), **{key: var(value) for key, value in fields.items()},
         df=pd.DataFrame({'X': DATA, 'Y': OTHER}), grpcols=['X', 'Y'],
         app=SimpleNamespace(print=lines.append), error=Mock(), parent=None)
     if ':' in case:

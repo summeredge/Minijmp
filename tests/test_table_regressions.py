@@ -38,6 +38,29 @@ def replace(table, df):
     table.redraw()
 
 
+def test_destroyed_table_releases_parent_resize_callback(table):
+    frame = table.parentframe
+    command = frame.bind('<Configure>').split('[', 1)[1].split()[0]
+    assert frame.tk.call('info', 'commands', command)
+    table.destroy()
+    assert frame.winfo_exists()
+    assert not frame.bind('<Configure>')
+    assert not frame.tk.call('info', 'commands', command)
+    # A surviving parent may resize long after its table has been removed.
+    frame.event_generate('<Configure>')
+    frame.update()
+
+
+def test_resize_cleanup_preserves_other_parent_callbacks(table):
+    frame = table.parentframe
+    seen = []
+    callback = frame.bind('<Configure>', lambda event: seen.append(event.widget), add='+')
+    table.destroy()
+    assert callback in frame.bind('<Configure>')
+    frame.event_generate('<Configure>')
+    assert seen == [frame]
+
+
 def event(table, row=0, col=0):
     return SimpleNamespace(x=table.col_positions[col] + 5,
                            y=table.y_start + table.rowheight * row + 5,

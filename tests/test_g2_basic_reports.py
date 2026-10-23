@@ -98,7 +98,7 @@ def test_dialog_rows_bind_original_columns_and_cleaning_counts(monkeypatch, mult
     df = pd.DataFrame({'温度': [1, 'bad', None, 4, 7],
                        '压力': [10, 20, 30, np.nan, 50]})
     lines = []
-    dialog = SimpleNamespace(df=df, error=Mock(), app=SimpleNamespace(print=lines.append),
+    dialog = SimpleNamespace(remember_columns=Mock(), df=df, error=Mock(), app=SimpleNamespace(print=lines.append),
         xvar=variable('温度'), pct=variable('0,50,100'), grpcols=['压力', '温度'],
         names=list(description.STAT_LABELS),
         picks={key: variable(True) for key in description.STAT_LABELS})
@@ -117,7 +117,7 @@ def test_dialog_rows_bind_original_columns_and_cleaning_counts(monkeypatch, mult
 
 def test_multidescribe_selected_statistics_still_control_columns(monkeypatch):
     tables = capture_tables(monkeypatch, description)
-    dialog = SimpleNamespace(df=pd.DataFrame({'X': DATA}), grpcols=['X'], error=Mock(),
+    dialog = SimpleNamespace(remember_columns=Mock(), df=pd.DataFrame({'X': DATA}), grpcols=['X'], error=Mock(),
         names=list(description.STAT_LABELS),
         picks={key: variable(key in ['Mean', 'Variance']) for key in description.STAT_LABELS},
         app=SimpleNamespace(print=lambda line: None))
@@ -144,7 +144,7 @@ def test_normality_table_direct_and_dialog(monkeypatch, dialog):
     tables = capture_tables(monkeypatch, utilities)
     lines = []
     if dialog:
-        basic_dialogs.NormTestDialog.apply(SimpleNamespace(
+        basic_dialogs.NormTestDialog.apply(SimpleNamespace(remember_columns=Mock(),
             df=pd.DataFrame({'测量': DATA}), xvar=variable('测量'), qq=variable(False),
             app=SimpleNamespace(print=lines.append)))
     else:
@@ -173,7 +173,7 @@ def test_mean_sd_interval_rows_match_parameter_tail_and_level(monkeypatch, alpha
     tables = capture_tables(monkeypatch, utilities)
     lines = []
     if dialog:
-        basic_dialogs.CIDialog.apply(SimpleNamespace(df=pd.DataFrame({'测量': DATA}),
+        basic_dialogs.CIDialog.apply(SimpleNamespace(remember_columns=Mock(), df=pd.DataFrame({'测量': DATA}),
             xvar=variable('测量'), alpha=variable(alpha), app=SimpleNamespace(print=lines.append)))
     else:
         result = utilities.mean_std_CIs(DATA, alpha=alpha, print_out=True, print_port=lines.append)
@@ -267,7 +267,7 @@ def test_hypothesis_dialog_raw_and_summary_routes_reach_g2_reports(monkeypatch, 
         event_name='1', event_name2='2', p0=.4,
         event_cnt=3 if summarized else '', ttl_cnt=20 if summarized else '',
         event_cnt2=8 if summarized else '', ttl_cnt2=25 if summarized else '')
-    dialog = SimpleNamespace(**{key: variable(value) for key, value in fields.items()},
+    dialog = SimpleNamespace(remember_columns=Mock(), **{key: variable(value) for key, value in fields.items()},
         df=pd.DataFrame({'X': DATA, 'Y': OTHER}), error=Mock(),
         app=SimpleNamespace(print=lines.append))
     getattr(sample_test_dialog, name).apply(dialog)
@@ -285,7 +285,7 @@ def test_hypothesis_dialog_raw_and_summary_routes_reach_g2_reports(monkeypatch, 
 def test_paired_dialog_cleans_pairs_and_labels_difference(monkeypatch):
     tables = capture_tables(monkeypatch, utilities)
     lines = []
-    dialog = SimpleNamespace(df=pd.DataFrame({'X': [1, 'bad', 4, 5, 7],
+    dialog = SimpleNamespace(remember_columns=Mock(), df=pd.DataFrame({'X': [1, 'bad', 4, 5, 7],
         'Y': [2, 4, 3, 8, 6]}), xvar=variable('X'), yvar=variable('Y'),
         d0=variable(0), alpha=variable(.05), error=Mock(), app=SimpleNamespace(print=lines.append))
     sample_test_dialog.PairedTDialog.apply(dialog)
@@ -299,7 +299,7 @@ def test_multi_correlation_dialog_reaches_all_four_matrix_reports():
     flags = dict(cor_p=True, cor_s=True, cor_k=True, cor_h=True, ellipse=False,
         red_ellipse=False, alpha=.05, ax_margin=.1, ylabel_0deg=False,
         xlabel_45deg=False, xtick_45deg=False)
-    dialog = SimpleNamespace(df=pd.DataFrame({'温度': DATA, '压力': OTHER}),
+    dialog = SimpleNamespace(remember_columns=Mock(), df=pd.DataFrame({'温度': DATA, '压力': OTHER}),
         grpcols=['温度', '压力'], **{key: variable(value) for key, value in flags.items()},
         app=SimpleNamespace(print=lines.append,
                             showPlotViewer=lambda **kwargs: SimpleNamespace(fig=Figure())))

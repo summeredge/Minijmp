@@ -314,7 +314,7 @@ def dialog_for(df):
                   target=20., lsl=0., usl=50., show_legend=True, show_spec=True,
                   show_within=True, subid='部件', subsize=2, subm='Unbiased Std Dev',
                   sample_mean='', sample_std='', sample_n='', prop=.9)
-    dialog = SimpleNamespace(df=df, app=app, error=Mock(), **{k: variable(v) for k, v in values.items()})
+    dialog = SimpleNamespace(remember_columns=Mock(), df=df, app=app, error=Mock(), **{k: variable(v) for k, v in values.items()})
     return dialog, lines, figures
 
 
@@ -534,9 +534,11 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
             assert ast.dump(current) == ast.dump(original)
             continue
         if name == 'dialog.py':
+            from source_baselines import normalize_column_memory
             trees = [ast.parse(source) for source in (
                 old, (ROOT / 'code' / name).read_text(encoding='utf-8'))]
             current = trees[1]
+            normalize_column_memory(current, name)
             added_import = ast.parse('from inspect import getattr_static').body[0]
             assert sum(ast.dump(n) == ast.dump(added_import) for n in current.body) == 1
             current.body = [n for n in current.body if ast.dump(n) != ast.dump(added_import)]
@@ -560,6 +562,7 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
 
 
 def test_quality_dialog_changes_are_only_output_statements(originals):
+    from source_baselines import normalize_column_memory
     old = read_source_baseline(BASELINE, 'code/qc_dialog.py')
     current = (ROOT / 'code/qc_dialog.py').read_text(encoding='utf-8')
     class ReportOnly(ast.NodeTransformer):
@@ -577,4 +580,20 @@ def test_quality_dialog_changes_are_only_output_statements(originals):
                 node.value = texts.get(node.value, node.value)
             return node
     assert current.count('self.app.print(f"分析变量：') == 5
-    assert ast.dump(ReportOnly().visit(ast.parse(current))) == ast.dump(ReportOnly().visit(ast.parse(old)))
+    assert ast.dump(ReportOnly().visit(normalize_column_memory(ast.parse(current), 'qc_dialog.py'))) == ast.dump(ReportOnly().visit(ast.parse(old)))
+
+
+@pytest.mark.parametrize('guard,module,before,after', [
+    (test_quality_dialog_changes_are_only_output_statements, 'qc_dialog.py', 'P=P,', 'P=0.5,'),
+    (test_shared_modules_and_plot_implementations_remain_at_baseline, 'dialog.py',
+     'self.title = title', 'self.title = None'),
+])
+def test_freeze_rejects_unapproved_changes(originals, monkeypatch, guard, module, before, after):
+    read = Path.read_text
+    target = ROOT / 'code' / module
+    source = read(target, encoding='utf-8')
+    assert source.count(before) == 1
+    monkeypatch.setattr(Path, 'read_text', lambda path, *a, **kw:
+                        source.replace(before, after) if path == target else read(path, *a, **kw))
+    with pytest.raises(AssertionError):
+        guard(originals) if guard is test_quality_dialog_changes_are_only_output_statements else guard()

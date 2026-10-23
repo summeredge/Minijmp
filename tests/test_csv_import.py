@@ -2,6 +2,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 from pathlib import Path
 import tkinter as tk
+import traceback
 
 import pandas as pd
 import pytest
@@ -18,7 +19,8 @@ def csv_app(tk_root, monkeypatch):
 
     previous = set(tk_root.winfo_children())
     callbacks = []
-    monkeypatch.setattr(tk_root, 'report_callback_exception', lambda *args: callbacks.append(args))
+    monkeypatch.setattr(tk_root, 'report_callback_exception',
+                        lambda *args: callbacks.append(''.join(traceback.format_exception(*args))))
     monkeypatch.setattr(Minijmp, 'start_logging', lambda self: None)
     app = Minijmp(parent=tk_root)
     error = Mock()
