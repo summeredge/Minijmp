@@ -13,6 +13,15 @@ from tools.build_help_index import build_search_index
 
 ROOT = Path(__file__).resolve().parents[1]
 HELP = ROOT / "help"
+VERIFIED_CAPABILITY_URLS = {
+    'https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/supporting-topics/capability-metrics/capability-indices-and-nonnormal-data/',
+    'https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-sixpack/normal-capability-sixpack/methods-and-formulas/methods/',
+    'https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-sixpack/normal-capability-sixpack/perform-the-analysis/specify-a-transformation/',
+    'https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-sixpack/normal-capability-sixpack/interpret-the-results/all-statistics-and-graphs/graphs/',
+    'https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-sixpack/nonnormal-capability-sixpack/methods-and-formulas/graphs/',
+    'https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-sixpack/nonnormal-capability-sixpack/interpret-the-results/all-statistics-and-graphs/graphs/',
+}
+
 VERIFIED_SPC_URLS = {
     "https://www.jmp.com/support/help/en/19.2/jmp/options-panel-and-rightclick-chart-options.shtml",
     "https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc324.htm",
@@ -123,8 +132,8 @@ def test_menu_inventory_and_dialog_ids_match_the_source():
             callback = topic["entry"].split(".", 1)[1].split("(", 1)[0]
             assert callback in menu_callbacks, topic["id"]
             assert any("\u4e00" <= char <= "\u9fff" for char in menu_callbacks[callback]), topic["id"]
-    assert len(seen_classes - {"PIImportDialog"}) == 52
-    assert len(seen_classes) == 53
+    assert len(seen_classes - {"PIImportDialog"}) == 53
+    assert len(seen_classes) == 54
 
 
 def test_generated_search_index_matches_every_nonempty_help_section():
@@ -155,7 +164,7 @@ def test_local_html_assets_links_and_anchors_are_valid():
             parsed = urlsplit(value)
             if parsed.scheme:
                 assert tag == "a" and attr == "href", value
-                assert value in VERIFIED_MINITAB_URLS | VERIFIED_SPC_URLS, value
+                assert value in VERIFIED_MINITAB_URLS | VERIFIED_SPC_URLS | VERIFIED_CAPABILITY_URLS, value
                 assert parsed.netloc in {"support.minitab.com", "www.itl.nist.gov", "itl.nist.gov", "www.jmp.com"}
                 assert target == "_blank" and "noopener" in rel
                 continue
@@ -275,7 +284,7 @@ def test_help_paths_stay_relative_after_project_relocation(monkeypatch, tmp_path
 
 def test_pi_import_topic_is_unique_searchable_and_available_offline(monkeypatch):
     topics = help_topics()
-    assert len(topics) == 81
+    assert len(topics) == 82
     assert len({topic['id'] for topic in topics}) == len(topics)
     topic, = [item for item in topics if item['id'] == 'files.pi_import']
     assert topic['entry'] == 'MiniJMP.import_pi_data'

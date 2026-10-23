@@ -8,17 +8,17 @@
     "bounds": "追踪显式导入/构造别名、本函数赋值、字符串包装、原生表方法及多行 ASCII/tab 字面量；静态审计不模拟任意跨函数动态对象流。所有现有字符串格式、join、原生 summary、DataFrame 文本与控制台数据路径已人工复核。"
   },
   "summary": {
-    "python_files": 88,
-    "files_with_production_sites": 27,
-    "producer_scopes": 54,
-    "constructor_calls": 122,
+    "python_files": 93,
+    "files_with_production_sites": 28,
+    "producer_scopes": 55,
+    "constructor_calls": 123,
     "constructors": {
       "gen_table": 54,
-      "StatTable": 64,
+      "StatTable": 65,
       "PrettyTable": 4
     },
-    "statistical_source_positions": 60,
-    "logical_statistical_tables": 128,
+    "statistical_source_positions": 61,
+    "logical_statistical_tables": 152,
     "table_text_conversions": {
       "to_string": 2,
       "pred_table": 1,
@@ -45,6 +45,9 @@
     "binomial.py",
     "blakerCI.py",
     "bonett.py",
+    "capability.py",
+    "capability_dialog.py",
+    "capability_plots.py",
     "chart_style.py",
     "chi2_dialog.py",
     "chi_sq.py",
@@ -61,6 +64,7 @@
     "dist_plot_dialog.py",
     "fit_dialog.py",
     "freeze.py",
+    "generalized_regression.py",
     "grr_plot.py",
     "help_link.py",
     "icon_resource.py",
@@ -92,6 +96,7 @@
     "pi_import.py",
     "pi_reader.py",
     "plots.py",
+    "pls_regression.py",
     "poisson.py",
     "proportion_test.py",
     "qc_dialog.py",
@@ -124,7 +129,7 @@
     "GRR.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "MiniJMP.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "Residual.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
-    "advanced_regression.py": "纯计算回归：OLS/WLS/Logistic、模型项筛选和安全公式非线性；返回原精度DataFrame，由RegressionDialog构造StatTable；无独立格式化表格生产位置。",
+    "advanced_regression.py": "纯计算回归统一入口；保留 OLS/WLS/二元 Logistic/非线性，新增计数/多类别/PLS 的显式路由，返回原精度 DataFrame，无格式化表格生产位置。",
     "anova_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "basic_dialogs.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "basic_plot_dialog.py": "第一阶段独立绘图参数对话框，负责数据选择、验证和图形展示；不产生独立统计报告表格，无统计表格构造或表格输出事件，无需纳入 producers。",
@@ -208,7 +213,12 @@
     "time_series_analysis_plots.py": "P1-1 结果图及来源行关联，不拟合、不填补数据。",
     "advanced_spc.py": "P1-2 高级SPC纯计算：EWMA、CUSUM、Nelson及公共T²复用，返回原精度结果，不构造报告。",
     "advanced_spc_dialog.py": "P1-2 来源绑定后台GUI、历史基线、规则选择、结构化报告与导出。",
-    "advanced_spc_plots.py": "P1-2 四类控制图，仅消费后端统计量、限及异常，当前行关联而历史轴不误定位。"
+    "advanced_spc_plots.py": "P1-2 四类控制图，仅消费后端统计量、限及异常，当前行关联而历史轴不误定位。",
+    "generalized_regression.py": "Poisson、名义多分类和有序回归纯计算；复用固定设计编码并返回原精度 DataFrame，报告统一由 RegressionDialog 构造，无独立格式化表格生产位置。",
+    "pls_regression.py": "PLS1/PLS2 NIPALS 纯计算；折内独立预处理、CV 和长表预测，返回原精度 DataFrame；报告统一由 RegressionDialog 构造，无独立格式化表格生产位置。",
+    "capability_dialog.py": "P0 完整能力窗口；stat_table 将核心结果与控制图诊断 DataFrame 转为 StatTable，report 复用同一表；来源快照与后台取消沿用 SheetApp/线程 Future。",
+    "capability_plots.py": "P0 六图、变换前后图与逐点控制限诊断；不构造统计展示表，不改旧 SPC 算法。",
+    "capability.py": "P0 独立正态/非正态能力、MLE/参数自举、Box-Cox/Johnson SU 正逆变换与原序子组；只产生数值DataFrame，由capability_dialog.stat_table统一展示，不新增StatTable生产位置。"
   },
   "producers": {
     "GRR.py::_grr_tables": {
@@ -1356,7 +1366,7 @@
         "construct:StatTable#1"
       ],
       "classification": "statistical",
-      "logical_tables": 10,
+      "logical_tables": 22,
       "titles": [
         "模型摘要",
         "系数",
@@ -1367,14 +1377,27 @@
         "模型比较",
         "分类评估",
         "ROC",
-        "新数据预测"
+        "新数据预测",
+        "有序模型阈值",
+        "响应类别编码",
+        "分类矩阵",
+        "类别概率",
+        "X 得分",
+        "Y 得分",
+        "X 载荷",
+        "Y 载荷",
+        "解释方差",
+        "变量重要性（VIP）",
+        "交叉验证",
+        "交叉验证预测"
       ],
       "entry_points": [
         "Minijmp.advanced_regression → RegressionDialog.publish / predict → show_table"
       ],
-      "status": "已完成P0-1独立计算、GUI与实际导出专项验证",
+      "status": "四类回归扩展：独立数值与真实工作表 GUI、导出验证已执行；详细证据见 docs/REGRESSION_EXTENSIONS.md。",
       "tests": [
-        "tests/test_regression_dialog.py::test_fit_predict_export_and_source_binding"
+        "tests/test_regression_dialog.py::test_fit_predict_export_and_source_binding",
+        "tests/test_regression_dialog.py::test_extended_models_real_sheet_workflow"
       ],
       "exception_reason": ""
     },
@@ -1394,14 +1417,27 @@
         "观测诊断",
         "模型比较",
         "分类评估",
-        "ROC"
+        "ROC",
+        "有序模型阈值",
+        "响应类别编码",
+        "分类矩阵",
+        "类别概率",
+        "X 得分",
+        "Y 得分",
+        "X 载荷",
+        "Y 载荷",
+        "解释方差",
+        "变量重要性（VIP）",
+        "交叉验证",
+        "交叉验证预测"
       ],
       "entry_points": [
         "RegressionDialog.report（输出完整报告；训练结果）"
       ],
       "status": "已完成P0-1独立计算、GUI与实际导出专项验证",
       "tests": [
-        "tests/test_regression_dialog.py::test_fit_predict_export_and_source_binding"
+        "tests/test_regression_dialog.py::test_fit_predict_export_and_source_binding",
+        "tests/test_regression_dialog.py::test_extended_models_real_sheet_workflow"
       ],
       "exception_reason": "将show_table已分类的同一result.tables训练结果发送到既有文本报告窗口；不作为第二套逻辑表重复计数。两处StatTable构造位置仍分别保留。"
     },
@@ -1522,6 +1558,35 @@
         "tests/test_advanced_spc_dialog.py::test_four_kinds_history_report_plot_and_source"
       ],
       "exception_reason": "转发show_table展示的同一结果表至来源报告，保留构造位置而不重复统计逻辑表。"
+    },
+    "capability_dialog.py::CapabilityDialog.stat_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 12,
+      "titles": [
+        "摘要",
+        "能力指数",
+        "PPM",
+        "拟合诊断",
+        "变换参数",
+        "来源观测",
+        "拟合参数",
+        "标准差区间",
+        "等价Z",
+        "原尺度分位数",
+        "原始正态性诊断",
+        "控制图诊断"
+      ],
+      "entry_points": [
+        "Minijmp.capability_analysis -> CapabilityDialog.publish/report"
+      ],
+      "status": "P0 过程能力专项与真实Tk导出验证，结果见 docs/capability-validation.md",
+      "tests": [
+        "tests/test_capability_dialog.py::test_real_sheet_fit_plot_export_and_report"
+      ],
+      "exception_reason": ""
     }
   },
   "output_entry_review": {
@@ -2709,6 +2774,13 @@
       ],
       "classification": "statistical",
       "review": "输出方法与来源说明及同一分析结果，无独立第二套逻辑表。"
+    },
+    "capability_dialog.py::CapabilityDialog.report": {
+      "ports": [
+        "self.app.print"
+      ],
+      "classification": "structured",
+      "reason": "stat_table 返回结构化结果表；报告复用当前分析结果及警告，绑定来源工作表。"
     }
   },
   "exceptions": [
