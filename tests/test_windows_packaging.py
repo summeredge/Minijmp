@@ -88,8 +88,59 @@ def test_release_archives_identify_commit_and_preserve_existing_artifacts():
     assert 'git -C $root ls-files -- @sourcePaths' in script
     assert 'if ($BuildSuffix) { $shortHead = "$shortHead-$BuildSuffix" }' in script
     assert 'Build ID: $shortHead' in script
-    assert 'Application code and build inputs are from the working tree' in script
+    assert 'Application code and build inputs match Git HEAD' in script
     assert 'not committed or pushed' not in script
+
+
+def test_release_script_refuses_dirty_or_incomplete_worktree_before_writing():
+    script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
+
+    assert 'git -C $root status --porcelain --untracked-files=normal' in script
+    assert 'Refusing to build from a dirty working tree' in script
+    assert 'version_info.txt does not declare $version' in script
+    assert 'Required build input is not tracked by Git: $inputPath' in script
+    assert 'git -C $root ls-files -- $inputPath' in script
+    clean_check = script.index('git -C $root status --porcelain --untracked-files=normal')
+    assert clean_check < script.index("New-Item -ItemType Directory -Path (Join-Path $root 'build')")
+    assert clean_check < script.index('Remove-GeneratedPath $buildRoot')
+
+
+def test_release_precheck_reports_clean_and_dirty_worktrees(tmp_path):
+    repo = tmp_path / 'repo'
+    remote = tmp_path / 'origin.git'
+    subprocess.run(['git', 'init', '-b', 'main', str(repo)], check=True, capture_output=True)
+    for key, value in (('user.name', 'Precheck'), ('user.email', 'precheck@example.com')):
+        subprocess.run(['git', '-C', str(repo), 'config', key, value], check=True, capture_output=True)
+    readme = repo / 'README.md'
+    readme.write_text('release precheck\n', encoding='utf-8')
+    subprocess.run(['git', '-C', str(repo), 'add', '-A'], check=True, capture_output=True)
+    subprocess.run(['git', '-C', str(repo), 'commit', '-m', 'initial'], check=True, capture_output=True)
+    subprocess.run(['git', 'init', '--bare', str(remote)], check=True, capture_output=True)
+    subprocess.run(['git', '-C', str(repo), 'remote', 'add', 'origin', str(remote)], check=True, capture_output=True)
+    subprocess.run(['git', '-C', str(repo), 'push', '-u', 'origin', 'main'], check=True, capture_output=True)
+
+    def precheck():
+        return subprocess.run(
+            ['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+             str(ROOT / 'tools' / 'check_windows_release_ready.ps1'),
+             '-RepoRoot', str(repo), '-GitOnly'],
+            capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=120)
+
+    clean = precheck()
+    assert clean.returncode == 0, clean.stdout
+    assert 'RESULT: PASS' in clean.stdout
+    assert 'BLOCKED' not in clean.stdout
+
+    (repo / 'untracked.txt').write_text('draft\n', encoding='utf-8')
+    untracked = precheck()
+    assert untracked.returncode == 1
+    assert 'RESULT: BLOCKED' in untracked.stdout
+
+    (repo / 'untracked.txt').unlink()
+    readme.write_text('release precheck\nedited\n', encoding='utf-8')
+    modified = precheck()
+    assert modified.returncode == 1
+    assert 'RESULT: BLOCKED' in modified.stdout
 
 
 def test_frozen_resources_and_user_writable_paths(tmp_path):

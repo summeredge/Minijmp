@@ -1,9 +1,0 @@
-﻿类别,原因,子原因
-人（Personnel）,,
-机（Machines）,,
-料（Materials）,,
-法（Methods）,,
-测（Measurements）,,
-环（Environment）,,
-自定义,修改原因,次原因
-机,设备磨损,维护周期过长

@@ -18,7 +18,14 @@ $originMain = (git -C $root rev-parse origin/main).Trim()
 if ($branch -ne 'main' -or $head -ne $originMain) {
     throw 'Build from main synchronized with origin/main; fetch before building.'
 }
+$dirty = @(git -C $root status --porcelain --untracked-files=normal)
+if ($dirty.Count) {
+    throw ("Refusing to build from a dirty working tree ($($dirty.Count) entries); commit or remove them first:`n" + (($dirty | Select-Object -First 10) -join "`n"))
+}
 $version = 'v0.1.0-beta.1'
+if (!(Select-String -LiteralPath $versionInfo -Pattern $version -SimpleMatch -Quiet)) {
+    throw "packaging\windows\version_info.txt does not declare $version"
+}
 $packageName = "MiniJMP-$version-$shortHead-win64"
 $sourceName = "MiniJMP-$version-$shortHead-source"
 $buildRoot = Join-Path $root "build\windows-$shortHead"
@@ -142,8 +149,8 @@ $buildInfo = @(
     "Base Git HEAD: $head",
     "Branch: $branch",
     "Origin/main: $originMain",
-    "Tracked working-tree status: $((git -C $root status --short --untracked-files=no) -join '; ')",
-    'Application code and build inputs are from the working tree; corresponding source is included.',
+    'Tracked working-tree status: clean',
+    'Application code and build inputs match Git HEAD; the corresponding source is included.',
     "Build interpreter: Python $pythonVersion",
     "Builder: PyInstaller $pyinstallerVersion (onedir, windowed, noupx)",
     "Windows: $($os.Caption), version $($os.Version), build $($os.BuildNumber), $($os.OSArchitecture)",
@@ -162,6 +169,15 @@ $sourceFiles = @(git -C $root ls-files -- @sourcePaths) + @(
     'packaging/windows/licenses/Carbon-Icons-Apache-2.0.txt',
     'packaging/windows/licenses/Tabler-Icons-MIT.txt'
 )
+$requiredInputs = @($sourcePaths) + @(
+    'packaging/windows/licenses/Carbon-Icons-Apache-2.0.txt',
+    'packaging/windows/licenses/Tabler-Icons-MIT.txt'
+)
+foreach ($inputPath in $requiredInputs) {
+    if (!(git -C $root ls-files -- $inputPath)) {
+        throw "Required build input is not tracked by Git: $inputPath"
+    }
+}
 foreach ($name in ($sourceFiles | Select-Object -Unique)) {
     $destination = Join-Path $sourceStage $name
     New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
@@ -171,9 +187,9 @@ $sourceInfo = @(
     'MiniJMP v0.1.0-beta.1 corresponding source bundle',
     "Base Git HEAD: $head",
     "Release branch: $branch",
-    'This source archive contains the working-tree sources and build inputs used for the adjacent binary.',
+    'This source archive contains the Git-tracked sources and build inputs used for the adjacent binary.',
     "Build ID: $shortHead",
-    'Application source and build inputs are from the working tree; required icon licenses are included.'
+    'Application source and build inputs match Git HEAD; required icon licenses are included.'
 ) -join "`r`n"
 Set-Content -LiteralPath (Join-Path $sourceStage 'SOURCE-BUNDLE-INFO.txt') -Value $sourceInfo -Encoding utf8
 & $python (Join-Path $root 'tools\write_third_party_notices.py') $sourceStage
