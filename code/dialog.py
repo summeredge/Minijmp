@@ -5,6 +5,12 @@ from tkinter import Frame, TOP, LEFT, X, BOTH, Listbox, Scrollbar, VERTICAL, N, 
 from tkinter import ttk
 import tkinter as tk
 import numpy as np
+import json
+import os
+from pathlib import Path
+from numbers import Integral
+import warnings
+from pandas.api.types import is_numeric_dtype, is_bool_dtype
 from inspect import getattr_static
 from prettytable import PrettyTable as PT
 #  import pandas as pd
@@ -243,6 +249,55 @@ def option_combobox(master, *, values, textvariable, labels=OPTION_LABELS, **kwa
     return widget
 
 
+_COLUMN_SETTINGS_KEY = r'Software\MiniJMP\ColumnSelections'
+
+
+def _column_settings_file():
+    return Path.home() / '.config' / 'MiniJMP' / 'column_selections.json'
+
+
+def _read_column_history(key):
+    try:
+        if os.name == 'nt':
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, _COLUMN_SETTINGS_KEY) as registry:
+                raw, _ = winreg.QueryValueEx(registry, key)
+            value = json.loads(raw)
+        else:
+            value = json.loads(_column_settings_file().read_text(encoding='utf-8')).get(key, {})
+        return value if isinstance(value, dict) else {}
+    except (OSError, ValueError, TypeError, AttributeError):
+        return {}
+
+
+def _write_column_history(key, values):
+    try:
+        if os.name == 'nt':
+            import winreg
+            with winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, _COLUMN_SETTINGS_KEY,
+                                    0, winreg.KEY_SET_VALUE) as registry:
+                winreg.SetValueEx(registry, key, 0, winreg.REG_SZ,
+                                  json.dumps(values, ensure_ascii=False))
+        else:
+            dest = _column_settings_file()
+            try:
+                data = json.loads(dest.read_text(encoding='utf-8'))
+            except (OSError, ValueError):
+                data = {}
+            if not isinstance(data, dict):
+                data = {}
+            data[key] = values
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            temp = dest.with_suffix('.tmp')
+            try:
+                temp.write_text(json.dumps(data, ensure_ascii=False), encoding='utf-8')
+                os.replace(temp, dest)
+            finally:
+                temp.unlink(missing_ok=True)
+    except (OSError, ValueError) as exc:
+        warnings.warn('无法保存列选择偏好：' + str(exc), RuntimeWarning)
+
+
 class Dialogs(BaseDialog):
     def __init__(self, parent=None, df=None, title='', app=None):
 
@@ -264,10 +319,88 @@ class Dialogs(BaseDialog):
         self.title = title
         self.add_window_help(m)
         self.createWidgets(m)
+        self._init_column_selection(parent)
         self.buttonsFrame()
         self.main.bind('<F1>', self.help)
         apply_dialog_theme(self.main)
         return
+
+    # Explicit roles only: ordinary option controls must never receive column names.
+    column_roles = ()
+
+    def _init_column_selection(self, source):
+        self._column_key = type(self).__module__ + '.' + type(self).__name__ + ':' + str(getattr(self, 'kind', ''))
+        roles = list(self.column_roles)
+        if type(self).__name__ in ('BasicPlotDialog', 'StatPlotDialog'):
+            roles = ([(f'xyz.{i}', True) for i in range(len(self.xyz))]
+                     if hasattr(self, 'xyz') else [('variables', True)])
+            for name in ('labels', 'group'):
+                if hasattr(self, name):
+                    roles.append((name, False))
+        self._column_fields = []
+        for name, numeric in roles:
+            if name.startswith('xyz.'):
+                field = self.xyz[int(name.split('.')[1])]
+            else:
+                field = getattr(self, name)
+            self._column_fields.append((name, field, numeric))
+        self._column_snapshot = None
+        history = _read_column_history(self._column_key) if roles else {}
+        indices = getattr_static(source, 'multiplecollist', [])
+        indices = indices if isinstance(indices, (list, tuple)) else []
+        selected = [self.cols[i] for i in sorted(set(
+            i for i in indices if isinstance(i, Integral) and not isinstance(i, bool)
+            and 0 <= i < len(self.cols)))]
+        used = set()
+        for name, field, numeric in self._column_fields:
+            previous = history.get(name, [])
+            previous = previous if isinstance(previous, list) else []
+            current = [c for c in selected if self._column_valid(c, numeric) and c not in used]
+            picks = current or [c for c in previous if self._column_valid(c, numeric) and c not in used]
+            if (not isinstance(field, Listbox)
+                    or getattr(self, 'kind', None) in ('pie', 'stem', 'probability')):
+                picks = picks[:1]
+            if isinstance(field, Listbox):
+                for i in range(field.size()):
+                    if field.get(i) in picks:
+                        field.selection_set(i)
+            elif picks:
+                field.set(picks[0])
+            used.update(picks)
+
+    def _column_valid(self, name, numeric):
+        if (not isinstance(name, str) or not name or self.cols.count(name) != 1
+                or name not in self.df.columns):
+            return False
+        dtype = self.df[name].dtype
+        return not numeric or (is_numeric_dtype(dtype) and not is_bool_dtype(dtype))
+
+    def _collect_column_selection(self):
+        values = {}
+        for name, field, numeric in getattr(self, '_column_fields', ()):
+            picks = (list(field.getSelectedItem()) if isinstance(field, Listbox)
+                     else [field.get()])
+            values[name] = [c for c in picks if self._column_valid(c, numeric)]
+        return values
+
+    def quit(self):
+        self._column_snapshot = self._collect_column_selection()
+        super().quit()
+
+    def remember_columns(self, roles=None):
+        """Called only after the analysis succeeds; preview commits after rendering."""
+        values = getattr(self, '_column_snapshot', None)
+        if values is None:
+            values = self._collect_column_selection()
+        if roles is not None:
+            values = {name: picks for name, picks in values.items() if name in roles}
+        if not values or not any(values.values()):
+            return
+        values = {**_read_column_history(self._column_key), **values}
+        if getattr(self, '_previewing', False):
+            self._column_pending = values
+        else:
+            _write_column_history(self._column_key, values)
 
     def add_window_help(self, m):
         f = ttk.LabelFrame(m, text='')

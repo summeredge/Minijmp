@@ -11,6 +11,8 @@ from sbplot_dialog import SBDialog
 
 
 class singleHistoDialog(SBDialog):
+    column_roles = (('xvar', True),)
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='数据')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -115,6 +117,7 @@ class singleHistoDialog(SBDialog):
                     ax_margin=self.ax_margin_v,
                     legend=self.show_legend_v,
                     grid=self.grid_v)
+        self.remember_columns()
         return
 
     def get_histo_setting(self):
@@ -128,6 +131,9 @@ class singleHistoDialog(SBDialog):
 
 
 class multiHistoDialog(singleHistoDialog):
+    # Raw/grouped and multiple-column modes need a separate role policy.
+    column_roles = ()
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='数据位于一列')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -250,6 +256,8 @@ class multiHistoDialog(singleHistoDialog):
 
 
 class xyHistoDialog(SBDialog):
+    column_roles = (('xvar', True), ('yvar', True), ('hue', False))
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='数据')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -335,6 +343,7 @@ class xyHistoDialog(SBDialog):
                  ax_margin=self.ax_margin_v,
                  legend=self.show_legend_v,
                  grid=self.grid_v)
+        self.remember_columns()
         return
 
     def get_histo_setting(self):

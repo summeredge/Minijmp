@@ -125,3 +125,4 @@ class BasicPlotDialog(SBDialog):
         for axis in pf.fig.axes:
             style_axes(axis)
         pf.canvas.draw()
+        self.remember_columns()

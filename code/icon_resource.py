@@ -482,3 +482,225 @@ ICON_PNG_BASE64 = (
 
 def create_icon_image(master=None):
     return PhotoImage(data=ICON_PNG_BASE64, master=master)
+PLOT_ICON_PNG_BASE64 = {
+    'carbon-chart--custom': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA4UlEQVR4nKWQwQ3CMAxFk4mAEZih'
+        'DEAPZYMyBN2AHirudAbEBHQDRinPKbGsNDn1SZW//b8dqd5tRA+cmvYzO7dHFiE8PfvugFSYLVRN'
+        'O499p32OXEabnJmSy2hjTastubk21rTakptrY82oY2UUSHtBG2tGnVasFTq0oajTiiXeQHH0NSV/'
+        'oASZwXm/ZOZZ8vXSAKYMtE/Bl5ePfC8+nvZ+vN/OHhkgUDyAF16WBfQX/RbtQBcwsgeYDyx4WbDa'
+        '/dEFzNKBMKeulgVdqC7XiR+zQwZkiRIOUEj6R7oshNAWfvELphF2z8lFAAAAAElFTkSuQmCC'
+    ),
+    'carbon-chart--histogram': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABDElEQVR4nK2RT44BQRTGX01nNp2Z'
+        'ZG4wbuAK3ECCxLItiCULYqfthAVLYaGXEiRuwBEcgRtI0Btp5asXOtWiExV+SVV9799XlZSgN2GD'
+        'bKkuF+Mea1N46OMGTtX9O/p+S0rpEBBCeD+23fYG7h5hBB56NEA8UVO/tl1FSAffHxDc0FNEGEFg'
+        'qQFVZJ2rNFMyCDzECbqhXnQ4nTbCspz5sLMmDR66GxQqzcQ5CFa4vbYYdZcohWTLjQxe0f+2rPR0'
+        '2NnSjdAAh2L3ReTOxj2PnpAv1Z0L6kT0j0Xq0tBABZAR4vI6XIxrjMvrcFFvfEXrcEIvmmre9ISp'
+        '5k1PmGre8Mcb/HES0ghlwgbvcAUEE7oRhO/r0AAAAABJRU5ErkJggg=='
+    ),
+    'carbon-chart--cluster-bar': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfUlEQVR4nNWNsQ2AMAwEw0QME1Yg'
+        'G5CW1LABrAC7sFEwL1l6uYEoabjCekfvS+cqgcCPUz73FbkUHP1PwH0MfvgC9zH4gRlCTE44tiU5'
+        'gvsY/MBYge4551n7GFagux5UC/TA7hIbC2zhbZfYWCCxGBz5EC/R9hKLeD6FoIYbDFGyEZS8kMAA'
+        'AAAASUVORK5CYII='
+    ),
+    'carbon-chart--treemap': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAApElEQVR4nOWMwQ2DQAwEfRWF1AIt'
+        'QAfw5g0dQAtQS0hFl11Lls4KlpB4Mh+vd86X5Cb6QdP2nyxSIV4Gh8e2zm9Mkbrt877OmkvKvumG'
+        'UcC2TKMAcyptQXSU/ZM/wAjhjR7xIRdER9QTcyptQXREPTGnkgvGKXyE8Qdv6FTaguiIemJOpS2I'
+        'jqgn5lTaguiIemJOZd0Nh+T8QrxOSt99mSr94A4/+9GpEcF9XT4AAAAASUVORK5CYII='
+    ),
+    'carbon-chart--candlestick': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAoklEQVR4nKWN2w3CAAwDy0QM0xlg'
+        'A1iCEZiBXdio2CdZiqKAqHo/ti99nJaD8IH1cttezwd9L7zUP9D3L3iov9B3mDyjHtwVEBd8645R'
+        'D+lJKfBWQPUUHyPTk1KQnZQCSpXpSSnITkoBpUp3BcQZe++kFFC67NvEJaWA0mXfxk4B9Ubxscpv'
+        'TM8xpsPE9BxjOvwLL63X+3vZtrPqLvxTPnCED3MpohGAy7V1AAAAAElFTkSuQmCC'
+    ),
+    'carbon-chart--violin-plot': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABQElEQVR4nKWRQU7CQBSG30i8B5wA'
+        'vQGcwJpi4tJNG3e6KXHJ0tCN7ky7cWkiDfUEegPxBHIPA+P/v3TIdAIJhC8h8/P6z//y5hk5Eg2I'
+        'k8xWZa6ajNLxRMCsmE4kIPSqCItxOn4VUBXTGwkIvSr84lWSna1FvgSciAzey3wBucH3EhV+cZRk'
+        'NUQNKVYkmpV5BKlc3z50/1ar39NOp/f28rgUAG87gNoY8wQp1tp7Vydxms2Reo5b31WRX6IECXjJ'
+        'GalxPONH7ly9Ga3G/y48S4wXcTz9iMImwB9hbczAPaRuxtoLMabGGeH84JbgbQc0nT4hBV2G7AKp'
+        'ARZdYarduTWAbFtjEzyHrwc/H3LIh9RLKLQC2E0AO4gHx0P3Pow/bjvQ+wfstUayK4CEXhVh8RD0'
+        'Eh5tgdX0IQ+CTTXgGP4BvLDJEUJYz84AAAAASUVORK5CYII='
+    ),
+    'carbon-chart--bar': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAtElEQVR4nKWR0Q3CMAxE7YkYpjPA'
+        'BvBb+xc2gBVgFzYK51MrBUjSRH2SlVMSX06Oyk5oMB3P6fW4UY/CpjBQVZMKz/vVsRRR1GrgkH+k'
+        'lOZWOh6EQe1S6yzgQVxCApMCSGC9Bg5ZBDMwqaAoGrReacGmMEACk06QyLEQRa0GDrkJZjLnaSnC'
+        'IN9s8XuXIjaRwKQDJPj6FYrFwCG7wAxMFhRFg9x1BDZNp8sb2Q6QQ8SjNNjDB3hrVhHk2aj5AAAA'
+        'AElFTkSuQmCC'
+    ),
+    'carbon-chart--pie': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABaklEQVR4nLWSP1LCQBTG3wsVfxz1'
+        'JOAJwBMIA/Y00LoWoWVLhzSxc6Aw1MKIJxBPAJ7A8QbOaFLy/HYlMRlC4TD+ZpK8b9/bb99ululA'
+        '/seg3XOvkOgKUQ3SFK2F2Z+PR1PIDIwnoav0yVcYPiN8x4SARBpkYF6yiEJ0XCmXzwNffyC2ZAw6'
+        'PXeF4ulsPPIhqdMfaALQmoDVIheziXcGaUkMkFRINpFs0BaMaQKxgQGLLDBp8TDxAgKIf0BiRYXC'
+        '9ezuZklb8gza/UET2xliIdtFYoCDk/nES7TBGIhInXEGlAJjOq61L0OegT3UKFIIM8BgGNfalwGt'
+        'rdlxVHoLeaCuiY/GL63h+2uAdpWQ1OdjrwW5l3bffXSEnnYO0QD3Nfq7R3u3kDtgkaEQteLVDRkD'
+        's+fPKFpil2/MTlApFl8IhGFY3aBt3JHTo1KpsfcixVz23O6GWaGbKiSq+NUR8eO20+Qa/IWDDb4B'
+        'sjqeEQGqpt8AAAAASUVORK5CYII='
+    ),
+    'carbon-chart--line': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABFUlEQVR4nOWQMYrCUBCGZwhbycLu'
+        'DbInkL3BHmFFBMtYRCy1iFjGTkwTOzGNdoIRPYI3MDeIRxA0NiLP/z01GhU0WPpBeJN5M988hulF'
+        'lCBvWmLsOSpOi2p6MwFqXda0qd9tzQioJiSfEhQrDX272wWfmYzed+0lUreCfLn+T0JMEFaR6+CM'
+        'wV0fRQu/17bpCP5xcSkwrZCYawhtiObIlxDfnS5hfLJJCQqmZQgiw/ecP6Nqf62jaIr/EE211Wbj'
+        'ojgxXYLcQYCi71UUhVhQ7rQgiXq2EFmIflCTmC6JBczcRJE+7rUNukK+jIiCkecEOBPEAhzLD037'
+        'HXZbC0rBWcA8uDf9EQdBuR5g41mEqZCLV4JX2AP/Yo0RAZ0IfwAAAABJRU5ErkJggg=='
+    ),
+    'carbon-chart--line--data': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABYElEQVR4nL2QQU7CQBSG/2njqprA'
+        'DbiB8QSWG0jAfV1AXOKixJ1lR+gClgQ2uDMRAp6A3kBvoJwAEsMSn/8MtQy6gZD4bfq3771v+kbh'
+        'SIygXA1lPIhNPhQz9G+C62oYfAEdRjjA3fMgHpqhfQXsW3CwyAiKZpzJK2ZdEL6ooB7lPlerCT/5'
+        'AJIzzysNu9GS2cC+pbOpacGUM4UdQaXWqEPEHw3iq0o1nEKpZNRvd9liYD0SkQfGuXLdYNRrJX8E'
+        'Arkc9+NSuRZOHMGL3hMp7JtxsKkHkbIjSFdY8JNmzuLi1POKeo3K7b2P9Tri3/mwYM9WoG9ZgOCn'
+        'Sb9z1w6jJqeUanKlCBaZgBeW5+mv/MUb+xdZe3eAEiMom/GgPGNGJtB2nl4Y99sBLFizbz6hIMeY'
+        'kQn4WJ647sVTr/UBi3SNLiMcoG5fqmYrUOrx9+n7sBHUGm8QOWc8CK6jjOAYvgEn5LERoAwyEAAA'
+        'AABJRU5ErkJggg=='
+    ),
+    'carbon-chart--multi-line': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA3ElEQVR4nO2QQQqCQBSG3yhtNKFu'
+        '0A3yCHOFiKBlG6NdtDDa5To3rnPjvsIrTDewm7SPcfpnIpEoKlwFfSA+n/N/zHuMGmIEwyBUhzQ2'
+        '9TvGs1VPSsl3aZwRMKG6YBSEfkmUo9QIYky0LOuIUAf9OXoDxliy324iAiZ0FyA8waHIwmPbtkCI'
+        'l4xxUooTQDBrO06SJdEZn4ZKgJ+RUmqBsL5egfZHVALoT57j8Lr9GS934LluV4cxho8xcrQ1AmKz'
+        'A9R0kXKN138Hv7+DR26C6bIgpfoov0KPbQRNuAIiNbgRv78lUgAAAABJRU5ErkJggg=='
+    ),
+    'carbon-chart--scatter': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAApUlEQVR4nKWR7Q2DMAxE04lKN6lE'
+        'V6Ab0CHKBmWFIrEJbBTOhyxFJhZEeX+OfNyLJW6hEgraro/TOPC7FJZKBK+uXxDhPw4PhC+wF5X2'
+        '/VkRYfp9G4QvsBc9WMoJrsJSToAJngiZYEYc1gpLWQH2EEH37VrhQg7tgX3RrhWWcoKrsJQKvN/n'
+        'wVIqwKgrQkZtEKfspURQCkv1Ahk7xjs+i5BHKahhA5s9ahG7IVWBAAAAAElFTkSuQmCC'
+    ),
+    'carbon-chart--area-smooth': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABl0lEQVR4nKVRTU7CQBR+08IGQoIn'
+        'wBuAJ4AbiFHX1gXGHe0C47JLIgthR2TTpYmY4AmgJ6CeQLwBibQh0WH83kAbm0gC4Usm896b933v'
+        'ZwQdCC1w3mip10FH2/tCk2KBy0arsiJqIlTHmeM1EIbZG/bbE9qCREAI4SqlHNzdjGF4BEgpaxB0'
+        'iWhsEHkvg45v2W4xDMMyCPXh04OTCJAQ74VcruZ13TlCCZiwiCIb4hYRlXC4qq+Iqtw17LUAOzA1'
+        '4SuKTkmpYtY035777Rn9g5ijSbGz2cEYQa4wI+wCrbto3aM/2ORNmYPctQASTxAcCdO04qXpRCE8'
+        'dDMt5PPOcrks/qxWV0qpazyXUgK45iCfxeQYeqQwdAkmIQe7mmQNw/2W8iMlgO072GoX7k5gTkqA'
+        'Ha6GjTfRokVEx3gMuKJQaoQ9+IjxWFWMahEOcwQMLYAZjxZhOIb7mTFNm7d/cXtfU1LWkVRR+Da8'
+        'EWwfoiMUeUwJwAhweqjk0Q5gTkoAVw8BG/dOYA7yNwI3dwG+qgxzLyQCh+AXx1vbEfuPkcEAAAAA'
+        'SUVORK5CYII='
+    ),
+    'carbon-chart--lollipop': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABRUlEQVR4nKWRQU7CQBiF37S6wgXe'
+        'QE+gR8AjEDBxR11AWLKBsOySwKZLQheWnYklHMEegRvoDexCVtqOb/60SW3GJoYvaefPe/9706QK'
+        'JyIFveFU78KVzFUexvOr7zwfnDnO9nm9eIcFCdkKTPgryw5KqUBrPTl33VtbiYRsBf3RzAeJN0u/'
+        'OqOGhKwF43lHZ9m+/ALlut14vUhQQ0K2AkNR8srwnQn3RrMBZew2yy0PQfH5s8BQegxHSus2JWil'
+        'UpZ4IBIql4obnyiBtz7KrYVXnrRQneVVCjzfHKBLCTmwp3ZNTbz+cJpohQ9aUBqXcbjqgNQLUhZ0'
+        'QFiQUGtTE8+b+O3P4zECuWi1vCjwU46/C+6HU4/BgBIcYPISrqLSowTb7xSjaanJM4jRtNTkGcRo'
+        'WmryDGLwHx+g9Q3Hf2GKpeAUfgApO+MRgvtwcgAAAABJRU5ErkJggg=='
+    ),
+    'carbon-chart--3D': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABS0lEQVR4nKWST07CUBCHZ+gFuAEc'
+        'AU8gRzARE5eywLCsCww72p2RBSyNLHQvJhyBG8gR4Abdm/b5TbVNwVdCwpe+zHT+/DrvvaqcyVGB'
+        'm8HoLhO5/FxM+7x6UZaXv+Y3XOO9TkRZ/7gdjtvfWbYS59ZiqHa10QiXL09rOcArUNC7f4wElq/P'
+        'kdRwVOB6MJpjhPFDjBevQG847ro0nZDkEXE8GgTxSVtg7NA5N1PVuBid2IxYSOyB2JxQiU8g4vA6'
+        'uE37MrZN0Q6bcJgbBCKpoKw9cgGwwuoZVONSwSvAuC2a+uYLWJOJsYXEfKmQC1A4IRHz83T4eVYE'
+        't8zeIrWlIhEnTWLqRNoNkauPxXRT9BDPr8uRuLBm7G8BNyFpGokRBJHdQPEBq8F+MaWWApidJawZ'
+        'v5ZCBNe2uSeQwz7L6zuEse18Jrg5pcA5/AAI5p8RazWKXwAAAABJRU5ErkJggg=='
+    ),
+    'carbon-chart--bubble': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABVklEQVR4nKWSQU7CQBSG/7ZxRYwc'
+        'oZ4APIH1CAZM3FkXEHbWBYSddUdkIe6ILCw7EyXWG/QG9gZyBBLtytTn35cmwqINDV8y6Zs37/9n'
+        '3kwN7IgatDp9WczGGldFRWUG7d7QkTS9YeiwOjQFty+zccy5oqIig/Pe0P5J0w8TuKYoOOv03V/g'
+        'fs+yjp6noyWIiooM2t2BJ0Bz8XjnIqfVHQSmSJQZgqio1EDE5prHqVLJwPX8+leSLGEYVzzFnOIL'
+        'iDzs12p2MPFXLNk0yC/siSkYlnX5Oh1F7LspwITjmMXvHD53j1micP5vwO8nL+yUKfCy3pg7ZFiK'
+        'wbFusKKBA0KDkDkba+QnbLCFeVkLAQhbcLMWkJOvhRREbOeA9SdMbxowLIQv4gukkf1IPF3E+jrT'
+        '2xtkL/KdJCF3b5qAx4sMQFS0jUERKuL7xnzfBsNKZJuqwS78AUtnwhHNiYjKAAAAAElFTkSuQmCC'
+    ),
+    'carbon-chart--point': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABOklEQVR4nKVSwW0CMRAcH0kdMRWk'
+        'hHA1kEj5QR6gNADKk2cEDUTwCPwiJdRwpAM6OFMHcMfsgY1tHQ/ESNZ6VuPZXa0VbkRl0O4NyuVs'
+        'ol7fP/SuKDp3SbL4+fo0wrf7fUYJ7huN1OZ8TWDAmJNqAIa8+dwfjsojh2LubzoexRrFC5i0BgbA'
+        'A8+GXEs1drACwQ5aUjHWBAbygO112d5cxKhBrKkzcPOBaPeHHQYsp+MFgzVwGsWcM2DModQ/yvKJ'
+        'vPnSG3QL4JsSJMDb72wyjzWxgQGQ8aTk+oKBgacJDE7tuflAiAkIeQwi1tQZuPlQg1gTGDDmpBqn'
+        'HYuYa8zIZY2pPIg1ihcwaQ0MvB1f+EgGnob5s4FUZHtuPuHsYAWCHbRsztcEBrxejeoRP8uae33k'
+        '9SpI0crgFhwAxioaIDDQOhIAAAAASUVORK5CYII='
+    ),
+    'carbon-chart--error-bar': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAjklEQVR4nLWMwQ2AMAwDYSKG6Qyw'
+        'ASzBCMzALmxUYkt5xAqVqor7pDm7madBeKCse72vk+9e+Om3A/A2SJYDShS/Cq0MMGiVWhlgkJXg'
+        'bAS0AyhQ1tCdTosCFFnoTqdFAYoshLMR0A6gQFlDdbo7FFmoTneHIgvV6e5QZKE63R2Ksh3PVOti'
+        'zy5wkAdGeAE8GYYR6mSWqwAAAABJRU5ErkJggg=='
+    ),
+    'carbon-chart--multitype': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABOElEQVR4nKWSPU7DQBCFZ+MyQuIm'
+        '4QaYGxglB4AiiC6mCKJ0iUiB0yHS+ACJyA0wJ0iOgoRSWsubkWcZNn9FPil6szszL+OxHZ3IUYP+'
+        'cOwXs8neun+JwXBcz2eTlAyxAc4lZIQf8X1IWKwRGoLB4P4p9U1TnXW7F1VZfOPqbwLbZFGDm7w4'
+        '/9lsVi5JbudvzzW1BAMlNmIDiDKFWQ4NiEHcZGEDNEndLvYmlP7d45q87yHcgo2DAQozFI4QpkRU'
+        'k3PTxfvLEvFBxKBtrrCgDFv+hF5Bl9DMLoyJH0kC7GBFSfLAxVrAr4yapoh3o3mEggT2EtOsMU0P'
+        'oaD3itaqSpKbXKeT8wTUcmwCVTXI8K+veGb5SLgZO/jA+ZrPBLQhVjFg2MR5n+OrucTll3eutG9B'
+        'G2JF7Wn8ArW8yxEF3kGdAAAAAElFTkSuQmCC'
+    ),
+    'carbon-chart--logistic-regression': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABIklEQVR4nKWSQUrDUBCGR4OrIniE'
+        '3MD2Bh5BaQV3dhPpzrqIdJllMZu3LGaTpWALegNvYG5QjyBIV5I+vzegvhhTCPkgzMzL/H9myNuT'
+        'jqjBMIrtKks1b4uKvg1GUfxKKcssHfg5QUaT2Yndltdi5ZRScZqKwfDqtqCU1f1d38/Po3i8FUn2'
+        'eR6zNBePigFpjYvJLPwsy+Kw1wtzk7xzVEFFuwx4Zwhu3Cmhhopo2mWwZvQzRi8oa6iIpn8N2L3P'
+        '7k+8C6UBFTUZcG4IjeM7VERjzWA8TY4+Npv1QRAMHhbzN2lARX8N+IWXYq1h9xt2z/074eeEXwPC'
+        'Dxw+SxCY5WL+IoBhQdA74ecE10sDBv4EbVBRdwM3lrXHpK1wH1WDLnwBQCmTERwYnc4AAAAASUVO'
+        'RK5CYII='
+    ),
+    'tabler-chart-area-line': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABX0lEQVR4nL2RT07CQBTG3zhx00rA'
+        'E9gj1BvUG2DAxCUsSljWRQlLliYsqDsTFrBXQzxBuQF4ArmBTWTYmOnzGxNKTSU2kvglk3nzZt7v'
+        '/RlBB+p/AFd+6KZE8RHRzcN4OKWcfgW0gkFtrVTMRKc4ngHSzkMKAJPNtu3VNBokOFLDD2Ns5xXb'
+        'dpRSdVQyyUO+ARqdXp2YZzATIUTEzA4RXSLAQ8AStknQSomip/GwhuMOcN3tOx9aL0iIZzhXCA7g'
+        'riK4LaWcmzvY+2fQ9MMFI23FsjxTvukdJTumnVIzQK8RLqepEA4xT8CKTizr7l2pEaGNYyldrbWH'
+        '8id4l0EEViaTFQGvcL4gowtXFYuElBeP97dzgpqdXoD2RpgBnuEOK1OjE86IvyZugmm92QSCebXN'
+        'ZtTs9j3WOi4Atj+Qz/aT9gP88A1bDauUCgD8r8tSlgIIrRO0tYS5A/xVBwM+AaWVpRGy/4DdAAAA'
+        'AElFTkSuQmCC'
+    ),
+    'tabler-chart-arcs-3': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABo0lEQVR4nKWSP04CQRTGv7eriYka'
+        '8QTiCZQbrCcQAyZ20kDogAJC59IRaNaOQCGliRDhBCwncI/ADSAhUDk7fmMICbBBjV/yMm/mzf7e'
+        'nx3BP7UXcJ8tZ7TIFd0ZLGvca9V9bOlnAGAsDuCC5ltA6a3TDOh/S2i/UjpfdXQYetD67PT4ONH1'
+        '3BmP9wNS2bLHpUDzxbZrJ0dHwXy59AEE/XYjA2ov4CFfjX+GYZJZHQ3cEnIjSsVD4OXQti9fW/XJ'
+        'XgBncM0Fpud0tuyD6nWaDiubiEi31264OwAGDb2mlIox0wePwP2lqURr/dTvNM9XsBlhySgA/5yU'
+        'RGs/AuASEEvlKl3GY5EAQ9eCab/dvDMzAGV6JXjEy8KPHPpTJqmxBY9nmyLdDO2drg9gQDNK0hwz'
+        'RK7QSo34HhJmNsL9jgyEJRY5+Wtuz3hpDNt2RakZ2xpBZBj5G9O5SpF9FnihxAsDHq1F6CMr8xgb'
+        'MpbBShuATNGNzRcLF3w8DASsIKBv5ACIA3jmEItc1xLajsyzRRg6zOjASMQ/sKyuGSa2FAn4i74A'
+        '7GK9EUrriZMAAAAASUVORK5CYII='
+    ),
+    'tabler-chart-dots-3': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABr0lEQVR4nKVRMUtCYRQ911cQVhBE'
+        'S0sOQWM2NWq/IMNqjBqsRhuMhoYggsig1yY65Bik9PoF6U9oadW1SaHe+Pw69/nUTMmoA4977vvu'
+        'Ofe73xX8E782SO4fJ1gcI4UBquX8lUPaM9hNn824rrv8UMhWmfZBxTDmESIvTOlglsWy1kq5y4ow'
+        'xebhSdx43jOpojluWSue5y20RCICRKjYBmSqlL9aAJFMZeoAnHIhmxYS7VAEEJ0Oh+Pvrtsg70G7'
+        'GjPLwlapkO0Y1BieugZbqcxuC7gRwZsxWAqJdTEZnrgu2mdNHmuD9ghAHW1E+kYI5k8YYNUI5vhK'
+        'SQic6fDkXsckGDNBCoodFYPwDb4jKHZIDYs3OsXDMNRAobf6cN0ib7XOolfGeVZXxkPW0X3uso4A'
+        'PGtD52QSI4X5suftg8y518KpiJwbY3YYbW7D5pEPatpi/5H0xRW6Z0iJZJFmUf5RpPWjwe2gQSpj'
+        'Uxxn1yhTzRvcSIgbueP/CgBtoDesjFlWemAECmySGPe8wlTzGoO/Z8YfQR0FnRGG7Bkj4BsogtUl'
+        'SEFxd8+j0DX4Kz4BMw2+EVQfmu8AAAAASUVORK5CYII='
+    ),
+    'tabler-chart-scatter-3d': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABeUlEQVR4nKWSMW7CMBSGn2GLQaJT'
+        'x9IbcITcoFRQqWMYQGyEAcTIiMrQdENlIGOlUpWeoByBGxSpUzek1gipTdzfIVgWUVjySdFLnu3/'
+        '/e/FjDJyUuCm2XMIPE/HPqUQCdSaPQ+BXqZjF0FTb/aWBObTsQ2xSkj0jj1nSGkigdv2oEzgaTJa'
+        'k4Ep4LjDkhCiDDcrpDSRgImqxDlf+95wYwqQgVkwIYB2NjkiW1VKE6i1+j5JuUE7bkLAJE3AJBKA'
+        'bYcAqvpkYAoo239h2Jk/3nWR0qQKqKF9i+0nYzIsWPxit9uVfoPAVbaxrIkEjqm3B7YMgleWY18k'
+        'Ce3Kc5bPX88noyUdkRDAEDsIHhbeCpw7BH6E8KFzhVfl4AFRg317IstbMSNJVcZYF716SGvqrb4L'
+        'J/c4sShavKF+M9L4BJhBBRVmeC5htXqwCjcegr6hcWsLHPrA08DMVojxRsbsomXZB2WFmjwBdWEo'
+        'Zu90u8TBBVwOEbORWeAfb0mzEdw3ly0AAAAASUVORK5CYII='
+    ),
+    'tabler-grid-dots': (
+        'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABgElEQVR4nK2SQU7CQBSG39iYECoR'
+        'TyCewHIC8AYmYOKOuoCwsywgLFkSWFh2hC4sOxNLwg0sJ6CcQG5gDZawwfF/gBTiQlP8k+af9zrz'
+        'zbw3I+hA/R8gV6yasAIJcTfotYa60UjOgmCMHCVUNW2bDT9Xql2TlI9I9QdW24DvAXzYKb4O/8yX'
+        '61m5XL4gJqEoV0636QJgA1BA6h1zkvAdwJqePSKyn622hxTlSzUDRk6vZcLopljVPol0nNLlUyIV'
+        'AqJqC+CagyC4xO4jhCvxjjBCzoOthFxGVdUJ9wRhCEAPXmEpIUSFj4yJfNwxcnSsKBdP3eYUc0yE'
+        '91jkOVY7jTFhvBZ+Tono/C8AEmKCHmgYhwAu4WOx0LjbtNFtuZ4iiBfTRnw7J7GY96OEqNoC+BoR'
+        'ZISU/e+m4RofYHyNFRg3UJNCFCTRCCUMkdoBFKtvsCS+Dh7Jbw/Jx5wz+B7AhOlokM507slsPncJ'
+        'SsTjWa4ZAH5sNuGxAWDAQ0BUHQz4Av9ssxEK6L1tAAAAAElFTkSuQmCC'
+    ),
+}
+
+
+def create_plot_icon_images(master=None):
+    return {
+        name: PhotoImage(data=data, master=master)
+        for name, data in PLOT_ICON_PNG_BASE64.items()
+    }

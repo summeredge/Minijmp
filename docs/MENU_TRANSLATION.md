@@ -120,6 +120,9 @@
 | Residual Plots | 残差图 |
 | Orthogonal Regression | 正交回归 |
 | Correlation Matrix | 相关系数矩阵 |
+| Advanced Regression | 完整回归分析 |
+| Principal Component Analysis (PCA) | 主成分分析 |
+| Time Series Analysis | 时间序列分析 |
 | One Sample Mean t-test | 单样本均值 t 检验 |
 | One Sample Mean Z-test | 单样本均值 Z 检验 |
 | One Sample SD | 单样本标准差检验 |
@@ -151,6 +154,12 @@
 | Control Chart P | 控制图 P |
 | Control Chart C | 控制图 C |
 | Control Chart U | 控制图 U |
+| Advanced SPC Control Charts | 高级 SPC 控制图 |
+
+高级 SPC 入口位于“质量”菜单，调用 `Minijmp.advanced_spc`，延迟打开
+`code/advanced_spc_dialog.py` 中的 `AdvancedSPCDialog`；离线帮助主题为
+`quality.advanced_spc`。提供 EWMA、CUSUM、Nelson 和 Hotelling T² 模式，
+既有控制图入口保留。菜单文字保留统计缩写 SPC。
 
 ## 图形（Plots）
 

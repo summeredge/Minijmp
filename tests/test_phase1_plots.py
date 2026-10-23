@@ -141,6 +141,60 @@ def app(tk_root, monkeypatch):
         widget.destroy()
 
 
+def test_plot_menu_icons_cover_chart_entries_and_retain_images_after_gc(app):
+    import gc
+
+    expected = {
+        '01通用绘图器': 'carbon-chart--custom',
+        '12直方图与分布拟合': 'carbon-chart--histogram',
+        '13分组直方图': 'carbon-chart--cluster-bar',
+        '14二维直方图': 'carbon-chart--treemap',
+        '15多变量箱线图': 'carbon-chart--candlestick',
+        '16分组箱线图': 'carbon-chart--violin-plot',
+        '17条形图': 'carbon-chart--bar',
+        '18分组计数图': 'carbon-chart--cluster-bar',
+        '19饼图': 'carbon-chart--pie',
+        '20线条图': 'carbon-chart--line',
+        '21时间序列图': 'carbon-chart--line--data',
+        '22散点图': 'carbon-chart--scatter',
+        '23区域图': 'carbon-chart--area-smooth',
+        '24点图': 'carbon-chart--lollipop',
+        '25矩阵图': 'tabler-grid-dots',
+        '26等值线图': 'tabler-chart-arcs-3',
+        '27三维散点图': 'tabler-chart-scatter-3d',
+        '28三维曲面图': 'carbon-chart--3D',
+        '34气泡图': 'carbon-chart--bubble',
+        '35经验累积分布函数图': 'tabler-chart-area-line',
+        '36单值图': 'carbon-chart--point',
+        '37区间图': 'carbon-chart--error-bar',
+        '38边际图': 'carbon-chart--multitype',
+        '39茎叶图': 'tabler-chart-dots-3',
+        '40样本概率图': 'carbon-chart--line--data',
+        '32概率图': 'carbon-chart--logistic-regression',
+        '33概率图对比': 'carbon-chart--multi-line',
+    }
+    menu = app.plots_menu['var']
+    chart_keys = {key for key, value in app.plots_menu.items()
+                  if key != 'var' and isinstance(value, dict) and 'cmd' in value and 'img' in value}
+
+    assert chart_keys == set(expected)
+    image_names = {}
+    for key in expected:
+        image = app.plots_menu[key]['img']
+        index = next(i for i in range(menu.index('end') + 1)
+                     if menu.type(i) == 'command' and menu.entrycget(i, 'label').strip() == key[2:])
+        assert image.width() == image.height() == 16
+        assert menu.entrycget(index, 'image') == str(image)
+        image_names[key] = str(image)
+
+    del image
+    gc.collect()
+    for key in expected:
+        index = next(i for i in range(menu.index('end') + 1)
+                     if menu.type(i) == 'command' and menu.entrycget(i, 'label').strip() == key[2:])
+        assert menu.entrycget(index, 'image') == image_names[key]
+
+
 @pytest.mark.parametrize('kind,label', [
     ('bar', '条形图'), ('pie', '饼图'), ('area', '区域图'), ('dotplot', '点图'),
     ('scatter_matrix', '矩阵图'), ('contour', '等值线图'),

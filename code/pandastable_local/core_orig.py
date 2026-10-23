@@ -951,6 +951,7 @@ class Table(Canvas):
         # if self.model.df.index.name is not None:
         self.showIndex()
         self.setSelectedCol(0)
+        self.multiplecollist = []  # A model change is not an explicit column choice.
         self.update_rowcolors()
         # self.set_rowcolors_index()
         self.redraw()
@@ -1199,6 +1200,7 @@ class Table(Canvas):
         cols = self.multiplecollist
         self.model.deleteColumns(cols)
         self.setSelectedCol(0)
+        self.multiplecollist = []  # A model change is not an explicit column choice.
         self.update_rowcolors()
         self.redraw()
         # self.drawSelectedCol()

@@ -3,6 +3,7 @@ from tkinter import ttk
 import tkinter as tk
 from tkinter import TOP, LEFT, BOTH, X, W
 from scipy.stats import probplot
+from math import isfinite
 from chart_style import style_axes
 ########### Own Modules ###########
 from dialog import Dialogs, addListBox
@@ -12,6 +13,8 @@ from dist_fit import compare_dist
 
 
 class FitDistDialog(Dialogs):
+    column_roles = (('xvar', True),)
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='选择数据列')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -56,12 +59,16 @@ class FitDistDialog(Dialogs):
         for key in self.dists:
             if self.picks[key].get():
                 selected.append(key)
-        compare_dist(data, print_out=True, print_port=self.app.print,
+        result = compare_dist(data, print_out=True, print_port=self.app.print,
                      selected=selected)
+        if result:
+            self.remember_columns()
         return
 
 
 class MultiDescribeDialog(Dialogs):
+    column_roles = (('grpvar', True),)
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='数据')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -113,10 +120,13 @@ class MultiDescribeDialog(Dialogs):
         print_descriptive(res, print_port=self.app.print,
                           missing={col: len(self.df[col]) - res[col]['N'] for col in self.grpcols},
                           selected=[name for name in self.names if self.picks[name].get()])
+        self.remember_columns()
         return
 
 
 class DescribeDialog(Dialogs):
+    column_roles = (('xvar', True),)
+
     def createWidgets(self, m):
 
         f = tk.LabelFrame(m, text='描述性统计')
@@ -154,10 +164,13 @@ class DescribeDialog(Dialogs):
         print_descriptive({col: result}, print_port=self.app.print,
                           missing={col: len(self.df[col]) - len(x)})
         print_percentiles(pct, result['quantiles'], print_port=self.app.print)
+        self.remember_columns()
         return
 
 
 class NormTestDialog(Dialogs):
+    column_roles = (('xvar', True),)
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='选择数据列')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -180,7 +193,7 @@ class NormTestDialog(Dialogs):
                         print_out=True, print_port=self.app.print)
         qq = self.qq.get()
 
-        norm_test(x, print_out=True, print_port=self.app.print)
+        result = norm_test(x, print_out=True, print_port=self.app.print)
         if qq:
             pf = self.app.showPlotViewer()
             pf.ax = pf.fig.add_subplot(111)
@@ -189,10 +202,14 @@ class NormTestDialog(Dialogs):
             pf.ax.set_xlabel('Theoretical quantiles')
             pf.ax.set_ylabel(self.xvar.get())
             style_axes(pf.ax)
+        if all(isfinite(value) for value in result.values()):
+            self.remember_columns()
         return
 
 
 class CIDialog(Dialogs):
+    column_roles = (('xvar', True),)
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='选择数据列')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -210,4 +227,5 @@ class CIDialog(Dialogs):
                         print_out=True, print_port=self.app.print)
         alpha = self.alpha.get()
         mean_std_CIs(x, alpha=alpha, print_out=True, print_port=self.app.print)
+        self.remember_columns()
         return

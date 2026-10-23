@@ -36,16 +36,23 @@ class SBDialog(Dialogs):
         self._previewing = True
         self._preview_viewer = None
         self._preview_failed = False
+        self._column_pending = None
         try:
             self.app.getCurrentTable()
             self.prepare_preview()
             self.apply()
             viewer = self._preview_viewer
+            if not self._preview_failed and viewer is None and self._column_pending:
+                from dialog import _write_column_history
+                _write_column_history(self._column_key, self._column_pending)
             if self._preview_failed or viewer is None or not viewer.main.winfo_exists():
                 return
             # Render before replacing the old figure, including deferred draw errors.
             viewer.canvas.draw()
             self.app.replacePlotViewer(viewer, save_last=self.no_preview)
+            if self._column_pending:
+                from dialog import _write_column_history
+                _write_column_history(self._column_key, self._column_pending)
             self.no_preview = False
             if self.main.grab_current() is self.main:
                 self.main.grab_release()
