@@ -40,3 +40,10 @@ $python = (Resolve-Path ".venv\Scripts\python.exe").Path
 
 生成 Windows Tk 界面验收截图时，可使用 `ImageGrab.grab(window=window.winfo_id())` 按窗口句柄捕获。
 生成后打开图片，确认内容属于目标窗口，再作为验收证据。
+
+模拟 Matplotlib 鼠标拖动时，`motion_notify_event` 的 `MouseEvent` 使用
+`buttons={1}` 表示左键持续按下；按下和释放事件使用 `button=1`。
+仅给移动事件传 `button=1` 不表示持续按下，标准导航可能取消缩放。
+缩放、复位及现有图窗保存入口的验证可复用
+[test_real_sheet_fit_plot_export_and_report](tests/test_capability_dialog.py)
+（完整测试定位：`tests/test_capability_dialog.py::test_real_sheet_fit_plot_export_and_report`）。
