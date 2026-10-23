@@ -15,6 +15,8 @@ from sbplot_dialog import SBDialog
 
 
 class Anova2WayDialog(Dialogs):
+    column_roles = (('xvar', False), ('yvar', False), ('zvar', True))
+
     def createWidgets(self, m):
 
         f = tk.LabelFrame(m, text='因子')
@@ -64,6 +66,7 @@ class Anova2WayDialog(Dialogs):
                       factor_listA=f(A, V), factor_listB=f(B, V),
                       print_out=True, print_port=self.app.print, interaction=self.inter.get(),
                       name_a=self.xvar.get(), name_b=self.yvar.get())
+        self.remember_columns()
         return
 
 
@@ -257,6 +260,8 @@ class Anova1WayDialog(Dialogs):
 
 
 class TtestDialog(Dialogs):
+    column_roles = (('grpvar', True),)
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='变量')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -291,4 +296,5 @@ class TtestDialog(Dialogs):
         JMP_ANOVA_t_test(data, self.grpcols, print_out=True,
                          print_port=self.app.print,
                          alpha=alpha)
+        self.remember_columns()
         return

@@ -57,7 +57,7 @@ def is_chinese_label(text):
     statistical abbreviation (Cpk, I-MR, Xbar-R, R&R, ...) are allowed.
     """
 
-    kept = ('PI', 'CSV', 'Excel', 'PDF', 'Cpk', 'R&R', 'I-MR', 'Del',
+    kept = ('PI', 'CSV', 'Excel', 'PDF', 'SPC', 'Cpk', 'R&R', 'I-MR', 'Del',
             'MR', 'NP', 'Xbar-R', 'Xbar-S', 'hdf5')
     single = set('PCUtZVCFDI')
     if not any('一' <= ch <= '鿿' for ch in text):
@@ -116,14 +116,14 @@ EXPECTED_LAYOUT = {
             '交叉表', '合并/拼接表', '透视表', '逆透视表', '时间序列重抽样'],
     '统计': ['描述性统计', '多变量描述性统计', '正态性检验', '置信区间', 'sep',
             '分布拟合', '相关分析', '线性回归', '残差图', '正交回归',
-            '相关系数矩阵', 'sep', '单样本均值 t 检验', '单样本均值 Z 检验',
+            '相关系数矩阵', '完整回归分析', '主成分分析', '时间序列分析', 'sep', '单样本均值 t 检验', '单样本均值 Z 检验',
             '单样本标准差检验', '单比率检验', '双样本 t 检验', '配对 t 检验',
             '双比率检验', '多样本标准差检验', 'sep', '单因子方差分析',
             '双因子方差分析', 'sep', '列联表与卡方检验', '比率卡方检验'],
     '质量': ['量具 R&R 研究（交叉）', '量具 R&R 研究（嵌套）', 'sep',
             '过程能力分析 (Cpk)', '含子组的 Cpk', 'sep', '容差区间', 'sep',
             '控制图 I-MR', '控制图 I（单值）', '控制图 MR（移动极差）',
-            '控制图 Xbar-R', '控制图 Xbar-S', 'sep', '控制图 NP', '控制图 P',
+            '控制图 Xbar-R', '控制图 Xbar-S', '高级 SPC 控制图', 'sep', '控制图 NP', '控制图 P',
             '控制图 C', '控制图 U'],
     '图形': ['通用绘图器', 'sep', '直方图与分布拟合', '分组直方图',
             '二维直方图', '多变量箱线图', '分组箱线图', '条形图', '分组计数图', '饼图',
@@ -175,6 +175,27 @@ def test_translated_item_invokes_its_original_command(
                  if kind == 'command' and text.strip() == label)
     menu.invoke(index)
     sentinel.assert_called_once_with(**expected)
+
+
+@pytest.mark.parametrize('module,class_name,cascade,label', [
+    ('regression_dialog', 'RegressionDialog', '统计', '完整回归分析'),
+    ('pca_dialog', 'PCADialog', '统计', '主成分分析'),
+    ('advanced_time_series_dialog', 'TimeSeriesAnalysisDialog', '统计', '时间序列分析'),
+    ('advanced_spc_dialog', 'AdvancedSPCDialog', '质量', '高级 SPC 控制图'),
+])
+def test_advanced_analysis_menu_uses_current_sheet_and_lazy_dialog(
+        app, monkeypatch, module, class_name, cascade, label):
+    import sys
+
+    dialog = Mock()
+    monkeypatch.setitem(sys.modules, module, SimpleNamespace(**{class_name: dialog}))
+    menu = pulldown(app, cascade)
+    for values in ([1, 2], [3, 4]):
+        table = app.addSheet(dataframe=pd.DataFrame({'x': values}))
+        menu.invoke(next(i for i, kind, text in read_menu(menu)
+                         if kind == 'command' and text.strip() == label))
+        dialog.assert_called_once_with(parent=table, df=table.model.df, app=app)
+        dialog.reset_mock()
 
 
 @pytest.fixture
@@ -338,6 +359,9 @@ def test_translation_inventory_matches_live_menus(app):
     ('files.pi_import', '文件', '导入 PI 数据'),
     ('files.csv_export', '文件', '导出 CSV'),
     ('stats.describe', '统计', '描述性统计'),
+    ('stats.advanced_regression', '统计', '完整回归分析'),
+    ('stats.pca', '统计', '主成分分析'),
+    ('stats.time_series_analysis', '统计', '时间序列分析'),
     ('stats.fit_distribution', '图形', '直方图与分布拟合'),
     ('plots.plot_wizard', '图形', '通用绘图器'),
     ('plots.store_plot', '图形', '保存图形'),

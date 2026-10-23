@@ -12,6 +12,23 @@ from packaging.utils import canonicalize_name
 
 ROOT = Path(__file__).resolve().parents[1]
 
+ICON_LICENSES = (
+    ('Carbon-Icons-Apache-2.0.txt', '@carbon/icons 11.91.0', 'Apache-2.0'),
+    ('Tabler-Icons-MIT.txt', 'Tabler Icons', 'MIT'),
+)
+CARBON_ICON_FILES = (
+    'chart--custom.svg', 'chart--histogram.svg', 'chart--cluster-bar.svg',
+    'chart--treemap.svg', 'chart--candlestick.svg', 'chart--violin-plot.svg',
+    'chart--bar.svg', 'chart--pie.svg', 'chart--line.svg', 'chart--line--data.svg',
+    'chart--multi-line.svg', 'chart--scatter.svg', 'chart--area-smooth.svg',
+    'chart--lollipop.svg', 'chart--3D.svg', 'chart--bubble.svg', 'chart--point.svg',
+    'chart--error-bar.svg', 'chart--multitype.svg', 'chart--logistic-regression.svg',
+)
+TABLER_ICON_FILES = (
+    'chart-area-line.svg', 'chart-arcs-3.svg', 'chart-dots-3.svg',
+    'chart-scatter-3d.svg', 'grid-dots.svg',
+)
+
 
 def _license_files(distribution):
     files = []
@@ -74,12 +91,28 @@ def generate(destination):
         shutil.copyfile(tk_license, license_dir / 'Tcl-Tk-license.terms')
         rows.append('- Tcl/Tk 8.6 — license terms shipped with the Python runtime; Tcl-Tk-license.terms')
 
+    for filename, package, license_name in ICON_LICENSES:
+        source = ROOT / 'packaging' / 'windows' / 'licenses' / filename
+        shutil.copyfile(source, license_dir / filename)
+        rows.append(f'- {package} — {license_name}; {filename}')
+
     notice = (
         'THIRD-PARTY NOTICES\n\n'
         'MiniJMP is licensed under GNU GPL version 3 or later; see the adjacent LICENSE file.\n'
         'The following runtime dependencies and PyInstaller bootloader were used for this build.\n'
         'License metadata and upstream license files are copied from the locked build environment.\n\n'
-        + '\n'.join(rows) + '\n'
+        + '\n'.join(rows)
+        + '\n\nGRAPH MENU ICON ATTRIBUTION\n'
+        + 'Menu PNGs are 16x16 conversions of official upstream SVG assets embedded in code/icon_resource.py.\n'
+        + 'Carbon: IBM Carbon Design System, @carbon/icons 11.91.0, Apache-2.0; source commit '
+        + '45b0fc1b328ffdc4a784560f7983210b2e20596e; '
+        + 'https://github.com/carbon-design-system/carbon/tree/45b0fc1b328ffdc4a784560f7983210b2e20596e/packages/icons/src/svg/32\n'
+        + '  SVG files: ' + ', '.join(CARBON_ICON_FILES) + '\n'
+        + 'Tabler: Tabler Icons, Copyright (c) 2020-2026 Paweł Kuna, MIT; source commit '
+        + 'a4ce1404bc6d24d3c365afe7b258d6bf6f48d62d; '
+        + 'https://github.com/tabler/tabler-icons/tree/a4ce1404bc6d24d3c365afe7b258d6bf6f48d62d/icons/outline\n'
+        + '  SVG files: ' + ', '.join(TABLER_ICON_FILES) + '\n'
+        + 'Neither pinned revision has a repository-root NOTICE file; both complete license texts are included.\n'
     )
     (destination / 'THIRD-PARTY-NOTICES.txt').write_text(notice, encoding='utf-8')
     return notice

@@ -8,17 +8,17 @@
     "bounds": "追踪显式导入/构造别名、本函数赋值、字符串包装、原生表方法及多行 ASCII/tab 字面量；静态审计不模拟任意跨函数动态对象流。所有现有字符串格式、join、原生 summary、DataFrame 文本与控制台数据路径已人工复核。"
   },
   "summary": {
-    "python_files": 75,
-    "files_with_production_sites": 23,
-    "producer_scopes": 46,
-    "constructor_calls": 114,
+    "python_files": 88,
+    "files_with_production_sites": 27,
+    "producer_scopes": 54,
+    "constructor_calls": 122,
     "constructors": {
       "gen_table": 54,
-      "StatTable": 56,
+      "StatTable": 64,
       "PrettyTable": 4
     },
-    "statistical_source_positions": 56,
-    "logical_statistical_tables": 82,
+    "statistical_source_positions": 60,
+    "logical_statistical_tables": 128,
     "table_text_conversions": {
       "to_string": 2,
       "pred_table": 1,
@@ -34,6 +34,11 @@
     "GRR.py",
     "MiniJMP.py",
     "Residual.py",
+    "advanced_regression.py",
+    "advanced_spc.py",
+    "advanced_spc_dialog.py",
+    "advanced_spc_plots.py",
+    "advanced_time_series_dialog.py",
     "anova_dialog.py",
     "basic_dialogs.py",
     "basic_plot_dialog.py",
@@ -58,6 +63,7 @@
     "freeze.py",
     "grr_plot.py",
     "help_link.py",
+    "icon_resource.py",
     "linear_fit.py",
     "linear_plot.py",
     "modified_app.py",
@@ -80,12 +86,17 @@
     "pandastable_local/plugin.py",
     "pandastable_local/stats.py",
     "pandastable_local/util.py",
+    "pca_analysis.py",
+    "pca_dialog.py",
+    "pca_plots.py",
     "pi_import.py",
     "pi_reader.py",
     "plots.py",
     "poisson.py",
     "proportion_test.py",
     "qc_dialog.py",
+    "regression_dialog.py",
+    "regression_plots.py",
     "sample_test_dialog.py",
     "sb_box_dialog.py",
     "sb_boxplot.py",
@@ -101,6 +112,8 @@
     "t_test.py",
     "ti.py",
     "time_series.py",
+    "time_series_analysis.py",
+    "time_series_analysis_plots.py",
     "time_series_dialog.py",
     "two_way_anova.py",
     "txt_output.py",
@@ -111,6 +124,7 @@
     "GRR.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "MiniJMP.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "Residual.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "advanced_regression.py": "纯计算回归：OLS/WLS/Logistic、模型项筛选和安全公式非线性；返回原精度DataFrame，由RegressionDialog构造StatTable；无独立格式化表格生产位置。",
     "anova_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "basic_dialogs.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "basic_plot_dialog.py": "第一阶段独立绘图参数对话框，负责数据选择、验证和图形展示；不产生独立统计报告表格，无统计表格构造或表格输出事件，无需纳入 producers。",
@@ -135,6 +149,7 @@
     "freeze.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "grr_plot.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "help_link.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "icon_resource.py": "既有内嵌 Tk PhotoImage 图标资源，无统计计算、报告表格构造或输出位置；补齐历史文件清单遗漏。",
     "linear_fit.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "linear_plot.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "modified_app.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
@@ -157,12 +172,17 @@
     "pandastable_local/plugin.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "pandastable_local/stats.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "pandastable_local/util.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pca_analysis.py": "P0-2 SVD PCA 纯计算、预处理、监控、贡献、原变量组间对比和 JSON 模型；返回原精度 DataFrame，无独立格式化表格生产位置。",
+    "pca_dialog.py": "P0-2 PCA GUI；训练/投影结果及贡献、选区和组间统计在 show_table 转为 StatTable，report 复用当前页面结果输出，不重复计逻辑表；来源快照与工作表归属由 SheetApp 维持。见 producers。",
+    "pca_plots.py": "P0-2 PCA 图形与交互；仅消费模型、投影及贡献结果，保留样本位置与来源行关联，不拟合模型、不构造统计报告表。",
     "pi_import.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "pi_reader.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "plots.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "poisson.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "proportion_test.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "qc_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "regression_dialog.py": "P0-1 回归 GUI；结果 DataFrame 在 show_table 和 report 转为 StatTable，前者含新数据预测，后者只输出训练结果。来源快照与工作表归属由 SheetApp 维持；见 producers。",
+    "regression_plots.py": "P0-1 回归图形，仅消费 result.tables 和预测数据，不重新拟合、不构造统计报告表；观测散点保留训练源行号，预测曲线不拾取为训练样本。",
     "sample_test_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "sb_box_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "sb_boxplot.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
@@ -172,7 +192,8 @@
     "sb_misc_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "sb_palette_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "sbplot_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
-    "sheet_context.py": "工作表来源输出代理；转发原有统计结果，无独立统计表构造。",
+    "sheet_context.py": "来源工作表绑定与导出来源标签文本化；不改变统计数值或构造报告。",
+    "stat_plot_dialog.py": "第二阶段统计图形参数、数据验证与展示；茎叶输出为文本统计图而非逻辑统计报告表，不使用表格载体；无表格生产位置，保持 82 张逻辑统计报告表。",
     "stat_table.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "t_test.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "ti.py": "存在已逐函数分类的表格生产位置；见 producers。",
@@ -182,7 +203,12 @@
     "txt_output.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "utilities.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "worksheets.py": "工作表生命周期及工程/导入管理；无独立统计表构造或报告输出。",
-    "stat_plot_dialog.py": "第二阶段统计图形参数、数据验证与展示；茎叶输出为文本统计图而非逻辑统计报告表，不使用表格载体；无表格生产位置，保持 82 张逻辑统计报告表。"
+    "advanced_time_series_dialog.py": "P1-1 GUI、后台取消、来源快照、结构化报告和导出。",
+    "time_series_analysis.py": "P1-1 纯计算：显式采样、相关、分解、平稳性及 ARIMA/SARIMA，返回原精度结果。",
+    "time_series_analysis_plots.py": "P1-1 结果图及来源行关联，不拟合、不填补数据。",
+    "advanced_spc.py": "P1-2 高级SPC纯计算：EWMA、CUSUM、Nelson及公共T²复用，返回原精度结果，不构造报告。",
+    "advanced_spc_dialog.py": "P1-2 来源绑定后台GUI、历史基线、规则选择、结构化报告与导出。",
+    "advanced_spc_plots.py": "P1-2 四类控制图，仅消费后端统计量、限及异常，当前行关联而历史轴不误定位。"
   },
   "producers": {
     "GRR.py::_grr_tables": {
@@ -1265,6 +1291,237 @@
         "tests/test_g10_tables.py::test_text_values_and_real_exports"
       ],
       "exception_reason": ""
+    },
+    "pca_dialog.py::PCADialog.show_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 12,
+      "titles": [
+        "特征值与贡献率",
+        "载荷",
+        "控制限及方法",
+        "预处理参数",
+        "交叉验证辅助",
+        "得分",
+        "统计监控",
+        "模型残差",
+        "重构值",
+        "样本贡献",
+        "A/B 变量统计",
+        "选区样本"
+      ],
+      "entry_points": [
+        "Minijmp.pca_analysis → PCADialog.publish / show_contribution / compare / select / clear_groups → show_table"
+      ],
+      "status": "已核对实际生产位置；GUI建模、投影、导出与来源绑定专项已由主端验证",
+      "tests": [
+        "tests/test_pca_dialog.py::test_fit_project_export_and_source_binding"
+      ],
+      "exception_reason": ""
+    },
+    "pca_dialog.py::PCADialog.report": {
+      "sites": [
+        "emit:structured:print#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "compatibility",
+      "logical_tables": 0,
+      "titles": [
+        "特征值与贡献率",
+        "载荷",
+        "控制限及方法",
+        "预处理参数",
+        "交叉验证辅助",
+        "得分",
+        "统计监控",
+        "模型残差",
+        "重构值",
+        "样本贡献",
+        "A/B 变量统计",
+        "选区样本"
+      ],
+      "entry_points": [
+        "PCADialog.report（输出当前非空结果表及模型说明）"
+      ],
+      "status": "已核对实际生产位置；GUI建模、投影、导出与来源绑定专项已由主端验证",
+      "tests": [
+        "tests/test_pca_dialog.py::test_fit_project_export_and_source_binding"
+      ],
+      "exception_reason": "将show_table已分类的同一self.tables结果发送到既有文本报告窗口；包含当前训练或投影结果及交互表，不作为第二套逻辑表重复计数。两处StatTable构造位置仍分别保留。"
+    },
+    "regression_dialog.py::RegressionDialog.show_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 10,
+      "titles": [
+        "模型摘要",
+        "系数",
+        "方差分析",
+        "残差诊断",
+        "共线性诊断",
+        "观测诊断",
+        "模型比较",
+        "分类评估",
+        "ROC",
+        "新数据预测"
+      ],
+      "entry_points": [
+        "Minijmp.advanced_regression → RegressionDialog.publish / predict → show_table"
+      ],
+      "status": "已完成P0-1独立计算、GUI与实际导出专项验证",
+      "tests": [
+        "tests/test_regression_dialog.py::test_fit_predict_export_and_source_binding"
+      ],
+      "exception_reason": ""
+    },
+    "regression_dialog.py::RegressionDialog.report": {
+      "sites": [
+        "emit:structured:print#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "compatibility",
+      "logical_tables": 0,
+      "titles": [
+        "模型摘要",
+        "系数",
+        "方差分析",
+        "残差诊断",
+        "共线性诊断",
+        "观测诊断",
+        "模型比较",
+        "分类评估",
+        "ROC"
+      ],
+      "entry_points": [
+        "RegressionDialog.report（输出完整报告；训练结果）"
+      ],
+      "status": "已完成P0-1独立计算、GUI与实际导出专项验证",
+      "tests": [
+        "tests/test_regression_dialog.py::test_fit_predict_export_and_source_binding"
+      ],
+      "exception_reason": "将show_table已分类的同一result.tables训练结果发送到既有文本报告窗口；不作为第二套逻辑表重复计数。两处StatTable构造位置仍分别保留。"
+    },
+    "advanced_time_series_dialog.py::TimeSeriesAnalysisDialog.show_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 15,
+      "titles": [
+        "分析数据",
+        "各项执行状态",
+        "自相关",
+        "偏自相关",
+        "交叉相关",
+        "趋势分析",
+        "趋势参数",
+        "季节分解",
+        "平稳性检验",
+        "模型摘要",
+        "模型参数",
+        "残差诊断",
+        "模型残差",
+        "残差自相关",
+        "预测"
+      ],
+      "entry_points": [
+        "Minijmp.time_series_analysis → TimeSeriesAnalysisDialog.show_table"
+      ],
+      "status": "专项验证结果见阶段记录",
+      "tests": [
+        "tests/test_time_series_analysis_dialog.py::test_analyze_forecast_export_and_source_binding"
+      ],
+      "exception_reason": ""
+    },
+    "advanced_time_series_dialog.py::TimeSeriesAnalysisDialog.report": {
+      "sites": [
+        "emit:structured:print#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "compatibility",
+      "logical_tables": 0,
+      "titles": [
+        "分析数据",
+        "各项执行状态",
+        "自相关",
+        "偏自相关",
+        "交叉相关",
+        "趋势分析",
+        "趋势参数",
+        "季节分解",
+        "平稳性检验",
+        "模型摘要",
+        "模型参数",
+        "残差诊断",
+        "模型残差",
+        "残差自相关",
+        "预测"
+      ],
+      "entry_points": [
+        "Minijmp.time_series_analysis → TimeSeriesAnalysisDialog.report"
+      ],
+      "status": "专项验证结果见阶段记录",
+      "tests": [
+        "tests/test_time_series_analysis_dialog.py::test_analyze_forecast_export_and_source_binding"
+      ],
+      "exception_reason": "转发 show_table 已分类的同一结果表，不重复计逻辑表。"
+    },
+    "advanced_spc_dialog.py::AdvancedSPCDialog.show_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 9,
+      "titles": [
+        "模型摘要",
+        "基线参数",
+        "基线与当前对比",
+        "控制限",
+        "控制图设置",
+        "基线协方差",
+        "当前监控观测",
+        "历史基线观测",
+        "异常记录"
+      ],
+      "entry_points": [
+        "Minijmp.advanced_spc → AdvancedSPCDialog.show_table"
+      ],
+      "status": "高级SPC独立计算与GUI专项，实际结果见阶段文档",
+      "tests": [
+        "tests/test_advanced_spc_dialog.py::test_four_kinds_history_report_plot_and_source"
+      ],
+      "exception_reason": ""
+    },
+    "advanced_spc_dialog.py::AdvancedSPCDialog.report": {
+      "sites": [
+        "emit:structured:print#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "compatibility",
+      "logical_tables": 0,
+      "titles": [
+        "模型摘要",
+        "基线参数",
+        "基线与当前对比",
+        "控制限",
+        "控制图设置",
+        "基线协方差",
+        "当前监控观测",
+        "历史基线观测",
+        "异常记录"
+      ],
+      "entry_points": [
+        "Minijmp.advanced_spc → AdvancedSPCDialog.report"
+      ],
+      "status": "高级SPC独立计算与GUI专项，实际结果见阶段文档",
+      "tests": [
+        "tests/test_advanced_spc_dialog.py::test_four_kinds_history_report_plot_and_source"
+      ],
+      "exception_reason": "转发show_table展示的同一结果表至来源报告，保留构造位置而不重复统计逻辑表。"
     }
   },
   "output_entry_review": {
@@ -2424,6 +2681,34 @@
       ],
       "classification": "plain_text_or_forwarding",
       "review": "茎叶为文本统计图，输出叶单位、样本数、茎和叶，非统计报告表，不新增逻辑报告表。"
+    },
+    "pca_dialog.py::PCADialog.report": {
+      "ports": [
+        "self.app.print"
+      ],
+      "classification": "statistical",
+      "review": "模型说明为普通文本，已展示的self.tables各非空结果表转为StatTable后发送来源工作表；表格标题与show_table复用，不重复计逻辑表。"
+    },
+    "regression_dialog.py::RegressionDialog.report": {
+      "ports": [
+        "self.app.print"
+      ],
+      "classification": "statistical",
+      "review": "方程和模型说明为普通文本，result.tables 各训练结果表转为 StatTable 后发送来源工作表；预测表单独展示、导出。"
+    },
+    "advanced_time_series_dialog.py::TimeSeriesAnalysisDialog.report": {
+      "ports": [
+        "self.app.print"
+      ],
+      "classification": "statistical",
+      "review": "方法说明和已展示结果表输出到来源工作表；逻辑表与 show_table 复用。"
+    },
+    "advanced_spc_dialog.py::AdvancedSPCDialog.report": {
+      "ports": [
+        "self.app.print"
+      ],
+      "classification": "statistical",
+      "review": "输出方法与来源说明及同一分析结果，无独立第二套逻辑表。"
     }
   },
   "exceptions": [

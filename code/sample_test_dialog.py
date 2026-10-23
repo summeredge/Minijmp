@@ -11,6 +11,8 @@ from proportion_test import prop_test_1sample, prop_2sample
 
 
 class Mean1SampleDialog(Dialogs):
+    column_roles = (('xvar', True),)
+
     def createWidgets(self, m):
         """Create a set of grp-agg-func options together"""
         #  w = tk.Label(
@@ -91,10 +93,14 @@ class Mean1SampleDialog(Dialogs):
                        sample_mean=mean, sample_n=n,
                        sample_std=std, alpha=alpha,
                        print_port=self.app.print)
+        if x:
+            self.remember_columns()
         return
 
 
 class Mean1SampleZDialog(Dialogs):
+    column_roles = (('xvar', True),)
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='样本值')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -169,10 +175,14 @@ class Mean1SampleZDialog(Dialogs):
                        sample_mean=mean, sample_n=n,
                        alpha=alpha,
                        print_port=self.app.print)
+        if x:
+            self.remember_columns()
         return
 
 
 class Var1SampleDialog(Dialogs):
+    column_roles = (('xvar', True),)
+
     def createWidgets(self, m):
         """Create a set of grp-agg-func options together"""
         f = tk.LabelFrame(m, text='样本值')
@@ -233,10 +243,14 @@ class Var1SampleDialog(Dialogs):
         var_1sample(data=x, s0=s0, print_out=True,
                     sample_n=n, sample_std=std, alpha=alpha,
                     print_port=self.app.print)
+        if x:
+            self.remember_columns()
         return
 
 
 class Mean2SampleDialog(Dialogs):
+    column_roles = (('xvar', True), ('yvar', True))
+
     def createWidgets(self, m):
         """Create a set of grp-agg-func options together"""
         master = tk.LabelFrame(m, text='样本值')
@@ -347,10 +361,14 @@ class Mean2SampleDialog(Dialogs):
                         d0=d0 if d0 is not None else 0,
                         alpha=alpha, pooled=pooled,
                         print_port=self.app.print)
+        self.remember_columns(roles=[name for name, raw in (
+            ('xvar', None in [u1, s1, n1]), ('yvar', None in [u2, s2, n2])) if raw])
         return
 
 
 class PairedTDialog(Dialogs):
+    column_roles = (('xvar', True), ('yvar', True))
+
     def createWidgets(self, m):
         master = tk.LabelFrame(m, text='样本值')
         master.pack(side=TOP, fill=BOTH, padx=2)
@@ -410,10 +428,13 @@ class PairedTDialog(Dialogs):
         paired_t_test(l1=x, l2=y, print_out=True,
                       alpha=alpha, u0=u0,
                       print_port=self.app.print)
+        self.remember_columns()
         return
 
 
 class MultiVarDialog(Dialogs):
+    column_roles = (('grpvar', True),)
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='变量')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -448,6 +469,7 @@ class MultiVarDialog(Dialogs):
         multi_pop_var_test(data, self.grpcols, print_out=True,
                            print_port=self.app.print,
                            alpha=alpha)
+        self.remember_columns()
         return
 
 

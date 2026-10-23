@@ -3,6 +3,15 @@
 from tkinter import TclError
 
 
+def export_source_labels(frame):
+    """来源索引是标识，不按 Excel 数值写入而丢失长整数或前导零。"""
+    result = frame.copy()
+    if 'source_index' in result:
+        labels = result['source_index']
+        result['source_index'] = labels.astype(str).where(labels.notna(), None)
+    return result
+
+
 class SheetApp:
     def __init__(self, app, table):
         self._app = app

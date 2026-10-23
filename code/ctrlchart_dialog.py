@@ -11,6 +11,8 @@ from control_chart import x_plot, p_np_plot, cu_plot
 
 
 class IMRDialog(Dialogs):
+    column_roles = (('xvar', True), ('xlabelID', False))
+
     def createWidgets(self, m):
         self.input_data(m)
         self.more_settings(m)
@@ -221,6 +223,7 @@ class IMRDialog(Dialogs):
             fig=fig, ax=ax, axs=axs,
             print_port=self.app.print)
 
+        self.remember_columns()
         return
 
 
@@ -275,6 +278,8 @@ class MRDialog(IMRDialog):
 
 
 class XBRDialog(IMRDialog):
+    column_roles = (('xvar', True), ('gid', False), ('xlabelID', False))
+
     def pooled_SD(self, m):
         self.pooled = tk.BooleanVar(value=False)
         w = tk.Checkbutton(m, text='合并标准差',
@@ -365,6 +370,8 @@ class XBSDialog(XBRDialog):
 
 
 class NPDialog(IMRDialog):
+    column_roles = (('xvar', True), ('xlabelID', False))
+
     def input_data(self, m):
         f = tk.LabelFrame(m, text='输入列')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -448,10 +455,13 @@ class NPDialog(IMRDialog):
             fig=fig, ax=ax,
             print_port=self.app.print)
 
+        self.remember_columns()
         return
 
 
 class PDialog(NPDialog):
+    column_roles = (('xvar', True), ('N', True), ('xlabelID', False))
+
     def input_data(self, m):
         f = tk.LabelFrame(m, text='输入列')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -503,6 +513,8 @@ class PDialog(NPDialog):
 
 
 class CDialog(NPDialog):
+    column_roles = (('xvar', True), ('xlabelID', False))
+
     def input_data(self, m):
         f = tk.LabelFrame(m, text='输入列')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -563,10 +575,13 @@ class CDialog(NPDialog):
             fig=fig, ax=ax,
             print_port=self.app.print)
 
+        self.remember_columns()
         return
 
 
 class UDialog(CDialog):
+    column_roles = (('xvar', True), ('N', True), ('xlabelID', False))
+
     def input_data(self, m):
         f = tk.LabelFrame(m, text='输入列')
         f.pack(side=TOP, fill=BOTH, padx=2)

@@ -165,6 +165,7 @@ class StatPlotDialog(SBDialog):
             if self.kind == 'stem':
                 result = stem_leaf(data[0][1], self.exponent.get().strip())
                 self.app.print(result)
+                self.remember_columns()
                 return
             arrays = [data[col].to_numpy() for col in cols] if self.kind in ('bubble', 'marginal') else [v for _, v in data]
             with np.errstate(over='ignore', invalid='ignore'):
@@ -184,6 +185,7 @@ class StatPlotDialog(SBDialog):
                 raise ValueError('均值置信区间要求每组至少两个有效观测。')
             def mean_ci(values):
                 half = stats.t.ppf((1 + confidence) / 2, len(values) - 1) * stats.sem(values)
+                self.remember_columns()
                 return np.mean(values) - half, np.mean(values) + half
             if self.kind == 'interval' and not all(np.isfinite(mean_ci(v)).all() for _, v in data):
                 raise ValueError('数据范围过大，无法计算有限的均值置信区间。')
@@ -264,3 +266,4 @@ class StatPlotDialog(SBDialog):
             style_axes(axis)
         ax.grid(self.grid.get())
         pf.canvas.draw()
+        self.remember_columns()

@@ -8,7 +8,7 @@ from pandastable_local import config, plotting
 # ####### Own Module ###########
 from worksheets import Worksheets
 from modified_app import Minijmp_pre
-from icon_resource import create_icon_image
+from icon_resource import create_icon_image, create_plot_icon_images
 from modified_table import MTable as Table
 from plots import plot_viewer
 from txt_output import txt_viewer
@@ -170,6 +170,9 @@ class Minijmp(Worksheets, Minijmp_pre):
             '14线性回归': {'cmd': self.linear_fit},
             '15残差图': {'cmd': self.resid},
             '17相关系数矩阵': {'cmd': self.multi_cor},
+            '18完整回归分析': {'cmd': self.advanced_regression},
+            '19主成分分析': {'cmd': self.pca_analysis},
+            '19时间序列分析': {'cmd': self.time_series_analysis},
             '22单样本均值 t 检验': {'cmd': self.mean_1sample},
             '23单样本均值 Z 检验': {'cmd': self.mean_1sampleZ},
             '24单样本标准差检验': {'cmd': self.var_1sample},
@@ -198,6 +201,7 @@ class Minijmp(Worksheets, Minijmp_pre):
             '34控制图 MR（移动极差）': {'cmd': self.cChartMR},
             '35控制图 Xbar-R': {'cmd': self.cChartXBR},
             '36控制图 Xbar-S': {'cmd': self.cChartXBS},
+            '37高级 SPC 控制图': {'cmd': self.advanced_spc},
             '42控制图 NP': {'cmd': self.cChartNP},
             '43控制图 P': {'cmd': self.cChartP},
             '44控制图 C': {'cmd': self.cChartC},
@@ -206,38 +210,39 @@ class Minijmp(Worksheets, Minijmp_pre):
         self.quality_menu = self.createPulldown(self.menu, self.quality_menu)
         self.menu.add_cascade(label='质量', menu=self.quality_menu['var'])
 
+        plot_icons = create_plot_icon_images(self)
         self.plots_menu = {
-            '01通用绘图器': {'cmd': self.plot_selected},
+            '01通用绘图器': {'cmd': self.plot_selected, 'img': plot_icons['carbon-chart--custom']},
             '53保存图形': {'cmd': self.addPlot},
             '54清除图形': {'cmd': self.updatePlotsMenu},
             '55PDF 报告': {'cmd': self.pdfReport},
-            '12直方图与分布拟合': {'cmd': self.singleHisto},
-            '13分组直方图': {'cmd': self.multiHisto},
-            '14二维直方图': {'cmd': self.xyHisto},
-            '15多变量箱线图': {'cmd': self.singleBox},
-            '16分组箱线图': {'cmd': self.multiBox},
-            '18分组计数图': {'cmd': self.countPlot},
-            '17条形图': {'cmd': lambda: self.basicPlot('bar')},
-            '19饼图': {'cmd': lambda: self.basicPlot('pie')},
-            '20线条图': {'cmd': self.linePlot},
-            '21时间序列图': {'cmd': self.timeSeriesPlot},
-            '22散点图': {'cmd': self.dotPlot},
-            '23区域图': {'cmd': lambda: self.basicPlot('area')},
-            '24点图': {'cmd': lambda: self.basicPlot('dotplot')},
-            '25矩阵图': {'cmd': lambda: self.basicPlot('scatter_matrix')},
-            '26等值线图': {'cmd': lambda: self.basicPlot('contour')},
-            '27三维散点图': {'cmd': lambda: self.basicPlot('scatter3d')},
-            '28三维曲面图': {'cmd': lambda: self.basicPlot('surface')},
+            '12直方图与分布拟合': {'cmd': self.singleHisto, 'img': plot_icons['carbon-chart--histogram']},
+            '13分组直方图': {'cmd': self.multiHisto, 'img': plot_icons['carbon-chart--cluster-bar']},
+            '14二维直方图': {'cmd': self.xyHisto, 'img': plot_icons['carbon-chart--treemap']},
+            '15多变量箱线图': {'cmd': self.singleBox, 'img': plot_icons['carbon-chart--candlestick']},
+            '16分组箱线图': {'cmd': self.multiBox, 'img': plot_icons['carbon-chart--violin-plot']},
+            '18分组计数图': {'cmd': self.countPlot, 'img': plot_icons['carbon-chart--cluster-bar']},
+            '17条形图': {'cmd': lambda: self.basicPlot('bar'), 'img': plot_icons['carbon-chart--bar']},
+            '19饼图': {'cmd': lambda: self.basicPlot('pie'), 'img': plot_icons['carbon-chart--pie']},
+            '20线条图': {'cmd': self.linePlot, 'img': plot_icons['carbon-chart--line']},
+            '21时间序列图': {'cmd': self.timeSeriesPlot, 'img': plot_icons['carbon-chart--line--data']},
+            '22散点图': {'cmd': self.dotPlot, 'img': plot_icons['carbon-chart--scatter']},
+            '23区域图': {'cmd': lambda: self.basicPlot('area'), 'img': plot_icons['carbon-chart--area-smooth']},
+            '24点图': {'cmd': lambda: self.basicPlot('dotplot'), 'img': plot_icons['carbon-chart--lollipop']},
+            '25矩阵图': {'cmd': lambda: self.basicPlot('scatter_matrix'), 'img': plot_icons['tabler-grid-dots']},
+            '26等值线图': {'cmd': lambda: self.basicPlot('contour'), 'img': plot_icons['tabler-chart-arcs-3']},
+            '27三维散点图': {'cmd': lambda: self.basicPlot('scatter3d'), 'img': plot_icons['tabler-chart-scatter-3d']},
+            '28三维曲面图': {'cmd': lambda: self.basicPlot('surface'), 'img': plot_icons['carbon-chart--3D']},
             '30sep': '',
-            '34气泡图': {'cmd': lambda: self.statPlot('bubble')},
-            '35经验累积分布函数图': {'cmd': lambda: self.statPlot('ecdf')},
-            '36单值图': {'cmd': lambda: self.statPlot('individual')},
-            '37区间图': {'cmd': lambda: self.statPlot('interval')},
-            '38边际图': {'cmd': lambda: self.statPlot('marginal')},
-            '39茎叶图': {'cmd': lambda: self.statPlot('stem')},
-            '40样本概率图': {'cmd': lambda: self.statPlot('probability')},
-            '32概率图': {'cmd': self.distDPPlot},
-            '33概率图对比': {'cmd': self.dist2XPlot},
+            '34气泡图': {'cmd': lambda: self.statPlot('bubble'), 'img': plot_icons['carbon-chart--bubble']},
+            '35经验累积分布函数图': {'cmd': lambda: self.statPlot('ecdf'), 'img': plot_icons['tabler-chart-area-line']},
+            '36单值图': {'cmd': lambda: self.statPlot('individual'), 'img': plot_icons['carbon-chart--point']},
+            '37区间图': {'cmd': lambda: self.statPlot('interval'), 'img': plot_icons['carbon-chart--error-bar']},
+            '38边际图': {'cmd': lambda: self.statPlot('marginal'), 'img': plot_icons['carbon-chart--multitype']},
+            '39茎叶图': {'cmd': lambda: self.statPlot('stem'), 'img': plot_icons['tabler-chart-dots-3']},
+            '40样本概率图': {'cmd': lambda: self.statPlot('probability'), 'img': plot_icons['carbon-chart--line--data']},
+            '32概率图': {'cmd': self.distDPPlot, 'img': plot_icons['carbon-chart--logistic-regression']},
+            '33概率图对比': {'cmd': self.dist2XPlot, 'img': plot_icons['carbon-chart--multi-line']},
             '02sep': '', '50sep': '', '60sep': ''}
         self.plots_menu = self.createPulldown(self.menu, self.plots_menu)
         self.menu.add_cascade(label='图形', menu=self.plots_menu['var'])
@@ -350,6 +355,22 @@ class Minijmp(Worksheets, Minijmp_pre):
             df=self.table.model.df,
             title='Linear Regression')
         return
+
+    def advanced_regression(self):
+        from regression_dialog import RegressionDialog
+        RegressionDialog(parent=self.table, df=self.table.model.df, app=self)
+
+    def pca_analysis(self):
+        from pca_dialog import PCADialog
+        PCADialog(parent=self.table, df=self.table.model.df, app=self)
+
+    def time_series_analysis(self):
+        from advanced_time_series_dialog import TimeSeriesAnalysisDialog
+        TimeSeriesAnalysisDialog(parent=self.table, df=self.table.model.df, app=self)
+
+    def advanced_spc(self):
+        from advanced_spc_dialog import AdvancedSPCDialog
+        AdvancedSPCDialog(parent=self.table, df=self.table.model.df, app=self)
 
     def correlation(self):
 

@@ -331,6 +331,29 @@ def test_actual_menu_commands_open_original_dialogs(tk_root):
 def test_original_analysis_code_is_unchanged():
     """除 G2/G3 明确接管并单独保护的报告 apply 外，保留原分析方法的完整 AST 守卫。"""
     from source_baselines import read_source_baseline
+    class ColumnMemoryHooks(ast.NodeTransformer):
+        """Remove only the successful-selection UI hook, retaining analysis AST."""
+        def visit_Expr(self, node):
+            call = node.value
+            if (isinstance(call, ast.Call) and isinstance(call.func, ast.Attribute)
+                    and isinstance(call.func.value, ast.Name)
+                    and call.func.value.id == 'self' and call.func.attr == 'remember_columns'):
+                return None
+            return self.generic_visit(node)
+
+        def visit_If(self, node):
+            node = self.generic_visit(node)
+            return node if node.body or node.orelse else None
+
+        def visit_Assign(self, node):
+            # Capturing these return values controls only whether memory is saved.
+            if (len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                    and node.targets[0].id == 'result' and isinstance(node.value, ast.Call)
+                    and isinstance(node.value.func, ast.Name)
+                    and node.value.func.id in ('compare_dist', 'ti_norm', 'norm_test')):
+                return ast.Expr(value=node.value)
+            return self.generic_visit(node)
+
     class ErrorsToMarker(ast.NodeTransformer):
         def visit_Call(self, node):
             if isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name) and node.func.value.id == 'self' and node.func.attr == 'error':
@@ -356,6 +379,13 @@ def test_original_analysis_code_is_unchanged():
             assert baseline.count(statement) == count, file
             baseline = baseline.replace(statement, '')
         current = (ROOT / file).read_text(encoding='utf-8')
+        expected_hooks = {'basic_dialogs': 5, 'fit_dialog': 4, 'sample_test_dialog': 6,
+                          'qc_dialog': 5, 'ctrlchart_dialog': 3, 'anova_dialog': 2,
+                          'sb_hist_dialog': 2}
+        hooks = [n for n in ast.walk(ast.parse(current)) if isinstance(n, ast.Call)
+                 and isinstance(n.func, ast.Attribute) and isinstance(n.func.value, ast.Name)
+                 and n.func.value.id == 'self' and n.func.attr == 'remember_columns']
+        assert len(hooks) == expected_hooks.get(path.name, 0), file
         if file == 'code/dist_plot_dialog.py':
             # SheetApp routes plot creation through the source worksheet proxy.
             assert current.count('self.showPlotViewer()') == 2
@@ -399,7 +429,7 @@ def test_original_analysis_code_is_unchanged():
                 source = source.replace('Received %d valid data pairs for group ID and measurement.',
                                         '子组标识与测量值的有效配对数 = %d。')
                 source = source.replace('WARNING: Unbalanced subgrouping.', '警告：子组大小不相等。')
-            tree = ErrorsToMarker().visit(ast.parse(source))
+            tree = ErrorsToMarker().visit(ColumnMemoryHooks().visit(ast.parse(source)))
             return {c.name + '.' + m.name: ast.dump(m, include_attributes=False) for c in tree.body if isinstance(c, ast.ClassDef)
                     for m in c.body if isinstance(m, ast.FunctionDef) and m.name in ('apply','ok','preview','get_values','get_box_settings','get_histo_setting')}
         actual, original = methods(current), methods(baseline)

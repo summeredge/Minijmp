@@ -13,6 +13,8 @@ from nonpara_cor import spearman, kendall, hoeffding
 
 
 class LinearFitDialog(Dialogs):
+    column_roles = (('xvar', True), ('yvar', True))
+
     def createWidgets(self, m):
         """Create a set of grp-agg-func options together"""
         master = self.main
@@ -137,10 +139,13 @@ class LinearFitDialog(Dialogs):
             grid=self.grid,
             scatter=self.scatter.get(),
             print_out=True)
+        self.remember_columns()
         return
 
 
 class CorrelationDialog(LinearFitDialog):
+    column_roles = (('xvar', True), ('yvar', True))
+
     def createWidgets(self, m):
         master = self.main
         f = tk.LabelFrame(m, text='X/Y 变量')
@@ -279,6 +284,7 @@ class CorrelationDialog(LinearFitDialog):
             grid=self.grid,
             scatter=self.scatter.get(),
             print_out=print_out)
+        self.remember_columns()
         return
 
 
@@ -290,6 +296,8 @@ class OrthoFitDialog(LinearFitDialog):
 
 
 class ResidDialog(Dialogs):
+    column_roles = (('xvar', True), ('yvar', True))
+
     def createWidgets(self, m):
         """Create a set of grp-agg-func options together"""
         #  w = tk.Label(
@@ -328,10 +336,13 @@ class ResidDialog(Dialogs):
         pf.fig.set_tight_layout(True)
         linear_fit_resid_test(x, y, print_port=self.app.print,
                               axs=axs, print_out=True)
+        self.remember_columns()
         return
 
 
 class MCorDialog(Dialogs):
+    column_roles = (('grpvar', True),)
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='变量')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -461,6 +472,7 @@ class MCorDialog(Dialogs):
             ax_margin=ax_margin,
             red_ellipse=red_ellipse,
             ellipse=ellipse)
+        self.remember_columns()
         return
 
 

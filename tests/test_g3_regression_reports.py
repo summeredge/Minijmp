@@ -175,7 +175,7 @@ def test_actual_dialog_apply_keeps_cleaning_and_reaches_report(dialog_class):
     lines = []
     figure = Figure()
     d = SimpleNamespace(df=pd.DataFrame({'温度': X + [None], '响应': Y + [15]}),
-        xvar=variable('温度'), yvar=variable('响应'), error=Mock(),
+        xvar=variable('温度'), yvar=variable('响应'), error=Mock(), remember_columns=Mock(),
         app=SimpleNamespace(print=lines.append, showPlotViewer=lambda: SimpleNamespace(fig=figure)))
     if dialog_class is not fit_dialog.ResidDialog:
         for key, value in dict(linear=dialog_class is fit_dialog.LinearFitDialog,
@@ -188,6 +188,7 @@ def test_actual_dialog_apply_keeps_cleaning_and_reaches_report(dialog_class):
         d.get_plot_settings = lambda: None
     dialog_class.apply(d)
     d.error.assert_not_called()
+    d.remember_columns.assert_called_once_with()
     from stat_table import StatTable
     assert any(isinstance(line, StatTable) for line in lines)
     text = '\n'.join(lines)

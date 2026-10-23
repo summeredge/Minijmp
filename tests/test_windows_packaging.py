@@ -31,6 +31,33 @@ def test_embedded_icon_uses_tk_photoimage_data(monkeypatch):
     photo_image.assert_called_once_with(data=namespace['ICON_PNG_BASE64'], master=master)
 
 
+def test_embedded_plot_icons_are_valid_16px_pngs():
+    namespace = runpy.run_path(str(ROOT / 'code' / 'icon_resource.py'))
+    icons = namespace['PLOT_ICON_PNG_BASE64']
+
+    assert len(icons) == 25
+    for encoded in icons.values():
+        payload = base64.b64decode(encoded, validate=True)
+        image = Image.open(BytesIO(payload))
+        assert image.size == (16, 16)
+        assert image.mode == 'RGBA'
+        image.verify()
+        assert Image.open(BytesIO(payload)).getchannel('A').getextrema()[0] == 0
+
+
+def test_plot_icons_use_tk_photoimage_with_the_application_master(monkeypatch):
+    namespace = runpy.run_path(str(ROOT / 'code' / 'icon_resource.py'))
+    photo_image = Mock(side_effect=lambda **kwargs: object())
+    monkeypatch.setitem(namespace['create_plot_icon_images'].__globals__, 'PhotoImage', photo_image)
+    master = object()
+
+    images = namespace['create_plot_icon_images'](master)
+
+    assert set(images) == set(namespace['PLOT_ICON_PNG_BASE64'])
+    assert photo_image.call_count == len(images)
+    assert all(call.kwargs['master'] is master for call in photo_image.call_args_list)
+
+
 def test_release_build_keeps_ico_but_does_not_stage_icon_png():
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
     assert "'--onedir', '--windowed', '--noupx'" in script
@@ -108,3 +135,17 @@ def test_third_party_notice_generator_copies_dependency_licenses(tmp_path):
     assert 'pandas ' in notice.lower()
     assert 'pyinstaller ' in notice.lower()
     assert any((destination / 'THIRD-PARTY-LICENSES').iterdir())
+    assert 'IBM Carbon Design System' in notice
+    assert 'Copyright (c) 2020-2026 Paweł Kuna' in notice
+    assert 'chart--histogram.svg' in notice and 'chart-scatter-3d.svg' in notice
+    licenses = destination / 'THIRD-PARTY-LICENSES'
+    for name in ('Carbon-Icons-Apache-2.0.txt', 'Tabler-Icons-MIT.txt'):
+        assert (licenses / name).read_bytes() == (ROOT / 'packaging' / 'windows' / 'licenses' / name).read_bytes()
+
+
+def test_source_bundle_includes_icon_licenses_and_third_party_notices():
+    script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
+
+    assert 'packaging/windows/licenses/Carbon-Icons-Apache-2.0.txt' in script
+    assert 'packaging/windows/licenses/Tabler-Icons-MIT.txt' in script
+    assert "'tools\\write_third_party_notices.py') $sourceStage" in script

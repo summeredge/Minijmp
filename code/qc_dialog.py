@@ -14,6 +14,8 @@ from grr_plot import grr_plot
 
 
 class GRR_Nested_Dialog(Dialogs):
+    column_roles = (('xvar', True), ('yvar', False), ('ovar', False))
+
     def createWidgets(self, m):
         ff = tk.LabelFrame(m, text='输入列')
         ff.pack(side=TOP, fill=BOTH, padx=2, pady=2)
@@ -85,6 +87,7 @@ class GRR_Nested_Dialog(Dialogs):
                 hist_std=get_number(self.hist_std),
                 print_out=True,
                 print_port=self.app.print)
+            self.remember_columns()
         except ValueError as e:
             self.error(msg={
                 'Measurements, parts and operators must have equal nonzero lengths.': '测量值、部件和操作员的数据长度必须相等且不为空。',
@@ -98,6 +101,8 @@ class GRR_Nested_Dialog(Dialogs):
 
 
 class GRRDialog(Dialogs):
+    column_roles = (('xvar', True), ('yvar', False), ('ovar', False))
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='输入列')
         f.pack(side=TOP, fill=BOTH, padx=2, pady=2)
@@ -243,10 +248,13 @@ class GRRDialog(Dialogs):
             op=r[2] if has_op else None,
             ax=pf.ax,
             ylabel=self.ylabel.get() if self.ylabel.get() != "" else self.xvar.get())
+        self.remember_columns()
         return
 
 
 class CpkDialog(Dialogs):
+    column_roles = (('xvar', True),)
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='输入列')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -344,10 +352,13 @@ class CpkDialog(Dialogs):
             show_within=self.show_within.get(),
             show_spec=self.show_spec.get())
 
+        self.remember_columns()
         return
 
 
 class CpkSubDialog(Dialogs):
+    column_roles = (('xvar', True), ('subid', False))
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='输入列')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -506,10 +517,13 @@ class CpkSubDialog(Dialogs):
             show_within=self.show_within.get(),
             show_spec=self.show_spec.get())
 
+        self.remember_columns(roles=None if "ID" in m else ("xvar",))
         return
 
 
 class TIDialog(Dialogs):
+    column_roles = (('xvar', True),)
+
     def createWidgets(self, m):
         f = tk.LabelFrame(m, text='样本值')
         f.pack(side=TOP, fill=BOTH, padx=2)
@@ -579,8 +593,10 @@ class TIDialog(Dialogs):
             P = 0.9
 
         self.app.print(f"分析变量：{self.xvar.get() if None in [mean, n, std] else '汇总数据（未指定变量名）'}。")
-        ti_norm(data=data, sample_n=n, sample_std=std,
+        result = ti_norm(data=data, sample_n=n, sample_std=std,
                 sample_mean=mean, alpha=alpha,
                 P=P, print_out=True, print_port=self.app.print)
 
+        if result is not None and None in [mean, n, std]:
+            self.remember_columns()
         return

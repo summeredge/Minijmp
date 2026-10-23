@@ -154,11 +154,15 @@ Set-Content -LiteralPath (Join-Path $releaseDir 'BUILD-INFO.txt') -Value $buildI
 
 $sourceStage = Join-Path $buildRoot 'source'
 New-Item -ItemType Directory -Path $sourceStage -Force | Out-Null
-# Copy tracked build inputs only, excluding untracked local configuration and caches.
+# Copy tracked build inputs and the required icon licenses, excluding local configuration and caches.
 $sourcePaths = @('code','help','icon','user_config/default.conf','sample_data','tests','tools','packaging',
     'docs/MENU_TRANSLATION.md','LICENSE','README.md','AGENTS.md','CODING_STANDARDS.md','CONTRIBUTING.md',
     'CHANGES','requirements.txt','setup_env.bat','start.py','win_start.bat','win_start_no_cmd_win.vbs')
-foreach ($name in (git -C $root ls-files -- @sourcePaths)) {
+$sourceFiles = @(git -C $root ls-files -- @sourcePaths) + @(
+    'packaging/windows/licenses/Carbon-Icons-Apache-2.0.txt',
+    'packaging/windows/licenses/Tabler-Icons-MIT.txt'
+)
+foreach ($name in ($sourceFiles | Select-Object -Unique)) {
     $destination = Join-Path $sourceStage $name
     New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $root $name) -Destination $destination
@@ -169,9 +173,11 @@ $sourceInfo = @(
     "Release branch: $branch",
     'This source archive contains the working-tree sources and build inputs used for the adjacent binary.',
     "Build ID: $shortHead",
-    'Application source and tracked build inputs are from the working tree for reproduction.'
+    'Application source and build inputs are from the working tree; required icon licenses are included.'
 ) -join "`r`n"
 Set-Content -LiteralPath (Join-Path $sourceStage 'SOURCE-BUNDLE-INFO.txt') -Value $sourceInfo -Encoding utf8
+& $python (Join-Path $root 'tools\write_third_party_notices.py') $sourceStage
+if ($LASTEXITCODE -ne 0) { throw 'Generating source bundle third-party notices failed.' }
 Compress-Archive -Path (Join-Path $sourceStage '*') -DestinationPath $sourceZip -CompressionLevel Optimal
 
 $sourceHash = (Get-FileHash -LiteralPath $sourceZip -Algorithm SHA256).Hash

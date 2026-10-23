@@ -1,6 +1,7 @@
 import ast
 import importlib.util
 import json
+import re
 import shutil
 from html.parser import HTMLParser
 from pathlib import Path
@@ -12,6 +13,13 @@ from tools.build_help_index import build_search_index
 
 ROOT = Path(__file__).resolve().parents[1]
 HELP = ROOT / "help"
+VERIFIED_SPC_URLS = {
+    "https://www.jmp.com/support/help/en/19.2/jmp/options-panel-and-rightclick-chart-options.shtml",
+    "https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc324.htm",
+    "https://www.itl.nist.gov/div898/handbook/pmc/section3/pmc313.htm",
+    "https://itl.nist.gov/div898/software/dataplot/refman1/auxillar/hotell.htm",
+    "https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/control-charts/supporting-topics/basics/using-tests-for-special-causes/",
+}
 VERIFIED_MINITAB_URLS = {
     "https://support.minitab.com/zh-cn/minitab/help-and-how-to/",
     "https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/display-descriptive-statistics/interpret-the-results/key-results/",
@@ -104,7 +112,7 @@ def test_menu_inventory_and_dialog_ids_match_the_source():
         for dialog_class in topic["dialog_classes"]:
             assert dialog_class not in seen_classes
             seen_classes.add(dialog_class)
-            assert f"class {dialog_class}(" in class_sources, dialog_class
+            assert re.search(r'class\s+' + re.escape(dialog_class) + r'\s*[( :]', class_sources), dialog_class
             callback = topic["entry"].split(".", 1)[1].split("(", 1)[0]
             calls = {
                 node.func.id for node in ast.walk(methods[callback])
@@ -115,8 +123,8 @@ def test_menu_inventory_and_dialog_ids_match_the_source():
             callback = topic["entry"].split(".", 1)[1].split("(", 1)[0]
             assert callback in menu_callbacks, topic["id"]
             assert any("\u4e00" <= char <= "\u9fff" for char in menu_callbacks[callback]), topic["id"]
-    assert len(seen_classes - {"PIImportDialog"}) == 48
-    assert len(seen_classes) == 49
+    assert len(seen_classes - {"PIImportDialog"}) == 52
+    assert len(seen_classes) == 53
 
 
 def test_generated_search_index_matches_every_nonempty_help_section():
@@ -147,8 +155,8 @@ def test_local_html_assets_links_and_anchors_are_valid():
             parsed = urlsplit(value)
             if parsed.scheme:
                 assert tag == "a" and attr == "href", value
-                assert value in VERIFIED_MINITAB_URLS, value
-                assert parsed.netloc == "support.minitab.com"
+                assert value in VERIFIED_MINITAB_URLS | VERIFIED_SPC_URLS, value
+                assert parsed.netloc in {"support.minitab.com", "www.itl.nist.gov", "itl.nist.gov", "www.jmp.com"}
                 assert target == "_blank" and "noopener" in rel
                 continue
             if not parsed.path:
@@ -189,8 +197,14 @@ def test_open_help_resolves_home_and_dialog_class_alias(monkeypatch):
                         lambda url, **kwargs: opened.append((url, kwargs)) or True)
     assert help_link.open_help()
     assert help_link.open_help("DescribeDialog")
+    assert help_link.open_help("PCADialog")
+    assert help_link.open_help("TimeSeriesAnalysisDialog")
+    assert help_link.open_help("AdvancedSPCDialog")
     assert opened[0][0].startswith("file:") and opened[0][0].endswith("help/index.html")
     assert opened[1][0].endswith("help/index.html#stats.describe")
+    assert opened[2][0].endswith("help/index.html#stats.pca")
+    assert opened[3][0].endswith("help/index.html#stats.time_series_analysis")
+    assert opened[4][0].endswith("help/index.html#quality.advanced_spc")
 
 
 def test_open_help_reports_missing_topic_and_browser_failure(monkeypatch):
@@ -261,7 +275,7 @@ def test_help_paths_stay_relative_after_project_relocation(monkeypatch, tmp_path
 
 def test_pi_import_topic_is_unique_searchable_and_available_offline(monkeypatch):
     topics = help_topics()
-    assert len(topics) == 77
+    assert len(topics) == 81
     assert len({topic['id'] for topic in topics}) == len(topics)
     topic, = [item for item in topics if item['id'] == 'files.pi_import']
     assert topic['entry'] == 'MiniJMP.import_pi_data'
@@ -280,3 +294,25 @@ def test_pi_import_topic_is_unique_searchable_and_available_offline(monkeypatch)
     monkeypatch.setattr(help_link.webbrowser, 'open', lambda url, **kw: opened.append(url) or True)
     assert help_link.open_help(topic['id'])
     assert opened == [(HELP / 'index.html').resolve().as_uri() + '#files.pi_import']
+
+
+def test_advanced_spc_topic_contract_is_searchable_and_available_offline(monkeypatch):
+    topic, = [item for item in help_topics() if item['id'] == 'quality.advanced_spc']
+    assert topic['title'] == '高级 SPC 控制图'
+    assert topic['entry'] == 'MiniJMP.advanced_spc'
+    assert topic['menu'] == 'Quality'
+    assert topic['dialog_classes'] == ['AdvancedSPCDialog']
+    assert topic['page'] == 'pages/advanced-spc.html#quality.advanced_spc'
+    index = json.loads(build_search_index().split(' = ', 1)[1].rstrip()[:-1])
+    item, = [entry for entry in index if entry['id'] == topic['id']]
+    for text in ['EWMA', 'CUSUM', 'Nelson', 'Hotelling', 'Phase I', 'Phase II',
+                 'ddof=1', '窗口末端', '不自动重置', '单侧', '伪逆', 'drop', '来源行',
+                 '区界点归内区', 'C 区为 |z|≤1', 'B 区为 1<|z|≤2', 'A 区为 2<|z|≤3',
+                 '自身也须在该侧超出 2σ', '自身也须在该侧超出 1σ',
+                 '全部 |z|≤1', '不另要求两侧都有点', '每点均严格 |z|>1', 'Table 3.8']:
+        assert text in item['text'], text
+    opened = []
+    monkeypatch.setattr(help_link.webbrowser, 'open', lambda url, **kw: opened.append(url) or True)
+    assert help_link.open_help(topic['id'])
+    assert help_link.open_help('AdvancedSPCDialog')
+    assert opened == [(HELP / 'index.html').resolve().as_uri() + '#quality.advanced_spc'] * 2
