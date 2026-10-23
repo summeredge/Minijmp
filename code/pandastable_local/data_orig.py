@@ -126,14 +126,15 @@ class TableModel(object):
         """Save dataframe"""
 
         ftype = os.path.splitext(filename)[1].lower()
-        if ftype == '.pickle':
-            self.df.to_pickle(filename)
-        elif ftype in ('.xls', '.xlsx'):
-            self.df.to_excel(filename)
-        elif ftype == '.csv':
-            self.df.to_csv(filename)
-        else:
+        if ftype not in ('.pickle', '.xls', '.xlsx', '.csv'):
             raise ValueError('Unsupported file extension: %s' % ftype)
+        with util.atomic_output(filename) as temporary:
+            if ftype == '.pickle':
+                self.df.to_pickle(temporary)
+            elif ftype in ('.xls', '.xlsx'):
+                self.df.to_excel(temporary)
+            else:
+                self.df.to_csv(temporary)
         return
 
     def load(self, filename, filetype=None):

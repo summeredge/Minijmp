@@ -1,5 +1,5 @@
 from stat_table import StatTable
-from scipy.stats import norm, binom, hypergeom
+from scipy.stats import norm, binom, hypergeom, fisher_exact
 from scipy.stats import f as f_dist
 from scipy.special import rel_entr
 #  from functools import lru_cache
@@ -30,8 +30,10 @@ def prop_2sample(n1=None, n2=None, e1=None,
     CI2 = (pd + norm.ppf(alpha) * SE_sep,
            pd + norm.ppf(1 - alpha) * SE_sep)
     pct = "%.2f%%" % (100 - 100 * alpha)
-    Zp = pd / SE_pooled
-    Zs = pd / SE_sep
+    if SE_sep == 0:
+        CI = CI2 = (np.nan, np.nan)
+    Zp = pd / SE_pooled if SE_pooled > 0 else np.nan
+    Zs = pd / SE_sep if SE_sep > 0 else np.nan
     pl = norm.cdf(Zs)
     pu = 1 - pl
     p = 2 * min(pl, pu)
@@ -44,25 +46,15 @@ def prop_2sample(n1=None, n2=None, e1=None,
     pl_f = rv.cdf(e1)
     pu_f = rv.sf(e1 - 1)
 
-    mode = int((n1 + 1) * (e1 + e2 + 1) / (n1 + n2 + 2))
-    observed_probability = rv.pmf(e1)
-    lower, upper = rv.support()
-
-    if e1 == mode:
-        p_f = 1
-    elif e1 < mode:
-        y = mode
-        while y <= upper and rv.pmf(y) >= observed_probability:
-            y += 1
-        p_f = rv.cdf(e1) + 1 - rv.cdf(y - 1)
-    else:
-        y = mode
-        while y >= lower and rv.pmf(y) >= observed_probability:
-            y -= 1
-        p_f = 1 - rv.cdf(e1 - 1) + rv.cdf(y)
+    # 固定边际下按概率排序，包含与观测表等概率的支持点。
+    p_f = fisher_exact([[e1, n1 - e1], [e2, n2 - e2]]).pvalue
 
     if print_out:
-        from utilities import gen_table, format_stat
+        from utilities import gen_table, format_stat as _format_stat
+
+        def format_stat(value):
+            return 'NA' if np.isnan(value) else _format_stat(value)
+
         print = print_port
         print("\n---- 两比例检验 ----")
         print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
@@ -95,6 +87,10 @@ def prop_2sample(n1=None, n2=None, e1=None,
             print(StatTable(table, title, table.field_names, values,
                 display=[[str(cell) for cell in row] for row in table.rows],
                 number_formats=['0' if h in ('N', '事件数') else '0.000' for h in table.field_names]))
+        if SE_sep == 0:
+            print('非合并正态近似及其置信区间为 NA：标准误为 0，无法定义正态近似。')
+        if SE_pooled == 0:
+            print('合并正态近似为 NA：标准误为 0，无法定义正态近似。')
         print('p 值保留三位小数，0.000 为舍入显示。')
 
     return {"p sep": p, "p p1<p2": pl, "p p1>p2": pu,
@@ -193,18 +189,18 @@ def prop_test_1sample(events=1, N=1, p0=1, print_port=print,
     dfn = 2 * events
     dfd = 2 * (N - events + 1)
     F = f_dist.ppf(alpha / 2, dfn, dfd)
-    p_exct_l = dfn * F / (dfd + dfn * F)
+    p_exct_l = 0.0 if events == 0 else dfn * F / (dfd + dfn * F)
     F = f_dist.ppf(alpha, dfn, dfd)
-    p_exct_low = dfn * F / (dfd + dfn * F)
+    p_exct_low = 0.0 if events == 0 else dfn * F / (dfd + dfn * F)
 
     b_CI = binom_blaker_limits(events, N, level=1 - alpha, tol=1e-6)
 
     dfn = 2 * (events + 1)
     dfd = 2 * (N - events)
     F = f_dist.ppf(1 - alpha / 2, dfn, dfd)
-    p_exct_u = dfn * F / (dfd + dfn * F)
+    p_exct_u = 1.0 if events == N else dfn * F / (dfd + dfn * F)
     F = f_dist.ppf(1 - alpha, dfn, dfd)
-    p_exct_high = dfn * F / (dfd + dfn * F)
+    p_exct_high = 1.0 if events == N else dfn * F / (dfd + dfn * F)
 
     p_s = _p_sterne(b_res['pmf'], b_res['px'])
     p_b = _p_blaker(N, p0, events, binom(N, p0), b_res['pmf'])

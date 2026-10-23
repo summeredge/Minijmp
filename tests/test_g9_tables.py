@@ -14,7 +14,7 @@ import pandas as pd
 import pytest
 from openpyxl import load_workbook
 from PIL import Image
-from source_baselines import read_source_baseline
+from source_baselines import read_source_baseline, normalize_review003
 
 import anova_dialog
 import chi2_dialog
@@ -146,6 +146,8 @@ class ComputationOnly(ast.NodeTransformer):
 
 def computation_hash(module):
     tree = ast.parse((ROOT / 'code' / f'{module}.py').read_bytes())
+    if module == 'two_way_anova':
+        normalize_review003(tree)
     if module == 'proportion_test':
         # G20 LR has an independent oracle; freeze every other computation as before.
         frozen = ast.parse(read_source_baseline(
@@ -156,18 +158,75 @@ def computation_hash(module):
                      else n for n in tree.body
                      if not (isinstance(n, ast.ImportFrom) and n.module == 'scipy.special'
                              and [(a.name, a.asname) for a in n.names] == [('rel_entr', None)])]
-        # G19 只放行 Fisher 支持集终止保护；数值/报告旧基线和其余 AST 保持冻结。
-        function = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'prop_2sample')
-        function.body = [n for n in function.body if ast.unparse(n) != 'lower, upper = rv.support()']
-        for node in ast.walk(function):
-            if isinstance(node, ast.While) and ast.unparse(node.test) in (
-                    'y <= upper and rv.pmf(y) >= observed_probability',
-                    'y >= lower and rv.pmf(y) >= observed_probability'):
-                node.test = node.test.values[1]
+        # REVIEW-004/006/007 仅规范化下列精确语句；独立参考见 test_review_proportions.py。
+        # 其余语句及函数仍参与原哈希，不能借授权入口放行新的计算差异。
+        old_prop = next(n for n in frozen.body if isinstance(n, ast.FunctionDef)
+                        and n.name == 'prop_2sample')
+        start = next(i for i, n in enumerate(old_prop.body)
+                     if isinstance(n, ast.Assign) and ast.unparse(n.targets[0]) == 'mode')
+        changes = [
+            (None, 'from scipy.stats import norm, binom, hypergeom, fisher_exact',
+             ast.parse('from scipy.stats import norm, binom, hypergeom').body),
+            ('prop_2sample', 'p_f = fisher_exact([[e1, n1 - e1], [e2, n2 - e2]]).pvalue',
+             old_prop.body[start:start + 3]),
+            ('prop_2sample', 'if SE_sep == 0:\n    CI = CI2 = (np.nan, np.nan)', []),
+            ('prop_2sample', 'Zp = pd / SE_pooled if SE_pooled > 0 else np.nan',
+             ast.parse('Zp = pd / SE_pooled').body),
+            ('prop_2sample', 'Zs = pd / SE_sep if SE_sep > 0 else np.nan',
+             ast.parse('Zs = pd / SE_sep').body),
+        ]
+        for name, endpoint in [('p_exct_l', '0.0 if events == 0'),
+                               ('p_exct_low', '0.0 if events == 0'),
+                               ('p_exct_u', '1.0 if events == N'),
+                               ('p_exct_high', '1.0 if events == N')]:
+            formula = 'dfn * F / (dfd + dfn * F)'
+            changes.append(('prop_test_1sample', f'{name} = {endpoint} else {formula}',
+                            ast.parse(f'{name} = {formula}').body))
+        for owner, known, original in changes:
+            body = tree.body if owner is None else next(
+                n.body for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == owner)
+            expected = ast.dump(ast.parse(known).body[0])
+            matches = [i for i, node in enumerate(body) if ast.dump(node) == expected]
+            assert len(matches) == 1, f'Unexpected REVIEW proportion AST: {known}'
+            body[matches[0]:matches[0] + 1] = original
     if module == 'chi2_dialog':
         # 此 Dialog 的报告没有 print_out 分支；由固定 TXT 和原有路由测试验证。
         return None
     return hashlib.sha256(ast.dump(ComputationOnly().visit(tree)).encode()).hexdigest()
+
+
+@pytest.mark.parametrize('old,new', [
+    ('[e2, n2 - e2]]).pvalue', "[e2, n2 - e2]], alternative='less').pvalue"),
+    ('Zs = pd / SE_sep if SE_sep > 0 else np.nan',
+     'Zs = pd / SE_pooled if SE_sep > 0 else np.nan'),
+    ('0.0 if events == 0 else', '0.1 if events == 0 else'),
+    ('if probability <= PTK', 'if probability < PTK'),
+])
+def test_review_proportion_normalization_rejects_other_changes(monkeypatch, old, new):
+    path = ROOT / 'code/proportion_test.py'
+    source = path.read_bytes()
+    assert source.count(old.encode()) >= 1
+    changed = source.replace(old.encode(), new.encode(), 1)
+    read_bytes = Path.read_bytes
+    monkeypatch.setattr(Path, 'read_bytes',
+                        lambda self: changed if self == path else read_bytes(self))
+    baseline = json.loads(FIXTURE.read_text(encoding='utf-8'))
+    with pytest.raises(AssertionError):
+        assert computation_hash('proportion_test') == baseline['computation']['proportion_test']
+
+
+@pytest.mark.parametrize('case', ['prop_zero', 'prop_all'])
+def test_cp_endpoint_fixture_matches_binomial_tail_inversion(case):
+    # 独立推导：P(X=0)=(1-p)^12，P(X=12)=p^12；双侧尾概率 .025，单侧 .05。
+    # 因而仅将 CP 不存在事件一侧的旧 NaN 文本改为边界 0/1，不重生成报告。
+    if case == 'prop_zero':
+        limits = [0, 1 - .025**(1/12), 0, 1 - .05**(1/12)]
+    else:
+        limits = [.025**(1/12), 1, .05**(1/12), 1]
+    baseline = json.loads(FIXTURE.read_text(encoding='utf-8'))
+    row = next(line for line in baseline['text'][case].splitlines()
+               if line.startswith('| Clopper-Pearson |'))
+    assert [cell.strip() for cell in row.split('|')[2:-1]] == [f'{x:.3f}' for x in limits]
 
 
 @pytest.mark.parametrize('case', CASES)

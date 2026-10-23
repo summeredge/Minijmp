@@ -5,6 +5,7 @@ import math
 from numbers import Real
 from tkinter import ttk, filedialog, messagebox
 import tkinter as tk
+from pandastable_local.util import atomic_output
 
 RESULT_BACKGROUND = '#FFFFFF'
 LABEL_CELL_LIMIT = 1000
@@ -132,8 +133,11 @@ def export_excel(table, filename):
     for row, shown in zip(table.values, table.display):
         append([v if isinstance(v, Real) and math.isfinite(v) else text
                 for v, text in zip(row, shown)])
-    book.save(filename)
-    book.close()
+    try:
+        with atomic_output(filename) as temporary:
+            book.save(temporary)
+    finally:
+        book.close()
 
 
 def export_png(table, filename):

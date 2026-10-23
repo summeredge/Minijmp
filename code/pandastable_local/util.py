@@ -31,8 +31,25 @@ import os, types
 import string, copy
 import numpy as np
 import pandas as pd
+import tempfile
+from contextlib import contextmanager
 
 SCRATCH = None
+
+
+@contextmanager
+def atomic_output(filename):
+    """Serialize beside the destination; publish only a complete file."""
+    destination = os.path.abspath(os.fspath(filename))
+    fd, temporary = tempfile.mkstemp(dir=os.path.dirname(destination),
+                                     suffix=os.path.splitext(destination)[1].lower())
+    os.close(fd)  # Windows writers must reopen a closed temporary file.
+    try:
+        yield temporary
+        os.replace(temporary, destination)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
 
 
 def getTextLength(text, w, font=None):

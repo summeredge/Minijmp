@@ -275,6 +275,8 @@ def test_plot_dialog_and_statistical_dependencies_unchanged():
             assert ast.dump(trees[0]) == ast.dump(trees[1])
         elif name == 'two_way_anova.py':
             trees = [ast.parse(source) for source in (before, current)]
+            from source_baselines import normalize_review003
+            normalize_review003(trees[1])
             for tree in trees:
                 function = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
                                 and n.name == 'two_way_anova')

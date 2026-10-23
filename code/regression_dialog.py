@@ -8,6 +8,7 @@ from tkinter import ttk, filedialog, messagebox
 import pandas as pd
 
 from pandastable_local.dialogs import apply_dialog_theme
+from pandastable_local.util import atomic_output
 from sheet_context import SheetApp, export_source_labels
 from stat_table import StatTable, TableBlock
 
@@ -447,10 +448,11 @@ class RegressionDialog:
             filename = filedialog.asksaveasfilename(parent=self.main, defaultextension='.xlsx',
                 filetypes=[('Excel', '*.xlsx'), ('CSV', '*.csv')])
             if filename:
-                if filename.lower().endswith('.csv'):
-                    frame.to_csv(filename, index=False, encoding='utf-8-sig')
-                else:
-                    frame.to_excel(filename, index=False)
+                with atomic_output(filename) as temporary:
+                    if filename.lower().endswith('.csv'):
+                        frame.to_csv(temporary, index=False, encoding='utf-8-sig')
+                    else:
+                        frame.to_excel(temporary, index=False)
         except Exception as exc:
             self.error(exc)
 
