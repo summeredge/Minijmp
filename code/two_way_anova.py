@@ -22,6 +22,8 @@ def SSA_SSB(data):
     # Step 1: Fit the full model
     full_model = ols("Y ~ C(A, Sum) + C(B, Sum) + C(A, Sum):C(B, Sum)",
                      data=df).fit()
+    if full_model.model.rank < full_model.model.exog.shape[1]:
+        raise ValueError("双因素方差分析模型秩亏，无法独立估计所选效应。")
 
     # To get the complete ANOVA table with Type 3 SS
     anova_table = sm.stats.anova_lm(full_model, typ=3)
@@ -47,11 +49,14 @@ def SSA_SSB_simple(data):
     df = DF(l, columns=["A", "B", "Y"])
     full_model = ols("Y ~ C(A, Sum) + C(B, Sum)",  # + C(A, Sum):C(B, Sum)",
                      data=df).fit()
+    if full_model.model.rank < full_model.model.exog.shape[1]:
+        raise ValueError("双因素方差分析模型秩亏，无法独立估计所选效应。")
 
     # To get the complete ANOVA table with Type 3 SS
     anova_table = sm.stats.anova_lm(full_model, typ=3)
     return (anova_table.sum_sq.iloc[1],  # SSA
-            anova_table.sum_sq.iloc[2])  # ,  # SSB
+            anova_table.sum_sq.iloc[2],  # SSB
+            full_model.ssr)
 
 
 def two_way_anova(data, factor_listA=None, print_port=print, interaction=True,
@@ -104,9 +109,8 @@ def two_way_anova(data, factor_listA=None, print_port=print, interaction=True,
                     mean = stat.mean(cell)
                     SSE += sum((x - mean)**2 for x in cell)
     else:
-        SSA, SSB = SSA_SSB_simple(d)
+        SSA, SSB, SSE = SSA_SSB_simple(d)
         SSAB = 0
-        SSE = SST - SSB - SSA - SSAB
 
     DFA = a - 1
     DFB = b - 1

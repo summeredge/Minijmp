@@ -504,6 +504,9 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
                                   and isinstance(n.test, ast.Name) and n.test.id == 'interaction')
                     # G16 covers optimized cell SSE with frozen values and mean counts.
                     branch.body = branch.body[:1]
+            if name == 'two_way_anova.py':
+                from source_baselines import normalize_review003
+                normalize_review003(current)
             assert ast.dump(ComputationOnly().visit(current)) == ast.dump(
                 ComputationOnly().visit(original))
             continue

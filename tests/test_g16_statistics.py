@@ -13,6 +13,7 @@ import numpy as np
 import pytest
 from scipy import stats
 from source_baselines import read_source_baseline
+from test_review003_anova import matrix_reference
 
 ROOT = Path(__file__).resolve().parents[1]
 BEFORE = '38b907f0dcf62f234561838f3cca93ad0a8545ef'
@@ -53,6 +54,18 @@ def same_call(actual, expected, *args, **kwargs):
     result = expected(*args, print_port=before_lines.append, **kwargs)
     equal(actual(*args, print_port=after_lines.append, **kwargs), result)
     assert list(map(str, after_lines)) == list(map(str, before_lines))
+
+
+@pytest.fixture
+def corrected_additive_old(old):
+    # Keep legacy SS, F, GRR and reporting code; replace only the proven bad SSE.
+    source = read_source_baseline(BEFORE, 'code/two_way_anova.py')
+    wrong = 'SSE = SST - SSB - SSA - SSAB'
+    assert source.count(wrong) == 1
+    namespace = dict(old.two_way_anova.__dict__, matrix_reference=matrix_reference)
+    exec(compile(source.replace(wrong, "SSE = matrix_reference(d, False)['SSE']"),
+                 'g16_reference/two_way_anova.py', 'exec'), namespace)
+    return namespace['two_way_anova']
 
 
 @pytest.mark.parametrize('x,y', [
@@ -221,7 +234,24 @@ def test_f04_proportion_functions(old, n, p, k):
     # G20 tests LR independently: the historical LR ordering is statistically wrong.
     for name in ('p_blaker', 'p_sterne'):
         equal(getattr(prop, name)(n, p, k), getattr(old.proportion_test, name)(n, p, k))
-    same_call(prop.prop_test_1sample, old.proportion_test.prop_test_1sample,
+    reference = old.proportion_test.prop_test_1sample
+    if k in (0, n):
+        # Correct only endpoint Clopper-Pearson limits, including their report cells.
+        source = read_source_baseline(BEFORE, 'code/proportion_test.py')
+        two_sided = stats.binomtest(k, n).proportion_ci(method='exact')
+        lower = stats.binomtest(k, n, alternative='greater').proportion_ci(method='exact')
+        upper = stats.binomtest(k, n, alternative='less').proportion_ci(method='exact')
+        limits = dict(p_exct_l=two_sided.low, p_exct_u=two_sided.high,
+                      p_exct_low=lower.low, p_exct_high=upper.high)
+        for name in limits:
+            wrong = f'{name} = dfn * F / (dfd + dfn * F)'
+            assert source.count(wrong) == 1
+            source = source.replace(wrong, f'{name} = reference_limits[{name!r}]')
+        namespace = dict(old.proportion_test.__dict__, reference_limits=limits)
+        exec(compile(source, 'g16_reference/proportion_test.py', 'exec'), namespace)
+        namespace['binomial'] = old.binomial.binomial
+        reference = namespace['prop_test_1sample']
+    same_call(prop.prop_test_1sample, reference,
               k, n, p, print_out=True)
 
 
@@ -319,9 +349,17 @@ def test_f06_all_fits_and_model_selection(old, data):
     [[[1., 2., 3.], []], [[2., 4.], [5., 8.]]],
     np.array([[[1., 2.], [3., 4.]], [[2., 4.], [5., 8.]]]),
 ])
-def test_f08_two_way_balanced_and_unbalanced(old, data, interaction):
+def test_f08_two_way_balanced_and_unbalanced(old, corrected_additive_old, data, interaction):
     from two_way_anova import two_way_anova
-    same_call(two_way_anova, old.two_way_anova.two_way_anova,
+    if interaction and any(len(cell) == 0 for row in data for cell in row):
+        with pytest.raises(ValueError, match='秩亏'):
+            two_way_anova(data, interaction=True, print_out=True)
+        return
+    if not interaction:
+        actual = two_way_anova(data, interaction=False)
+        for key, value in matrix_reference(data, False).items():
+            assert actual[key] == pytest.approx(value, rel=1e-9, abs=1e-10)
+    same_call(two_way_anova, old.two_way_anova.two_way_anova if interaction else corrected_additive_old,
               data, interaction=interaction, print_out=True)
 
 
@@ -337,13 +375,15 @@ def test_f08_cell_means_count(monkeypatch):
 @pytest.mark.parametrize('mode', ['AIAG', 'EMP'])
 @pytest.mark.parametrize('inter', ['Auto', 'On', 'Off'])
 @pytest.mark.parametrize('unbalanced', [False, True])
-def test_f08_grr_all_decisions_reports_and_variance_clamps(old, mode, inter, unbalanced):
+def test_f08_grr_all_decisions_reports_and_variance_clamps(
+        old, corrected_additive_old, monkeypatch, mode, inter, unbalanced):
     import GRR
     part = [p for p in 'ABC' for op in 'XY' for _ in range(3)]
     ops = [op for p in 'ABC' for op in 'XY' for _ in range(3)]
     y = np.random.default_rng(81).normal(size=len(part)).tolist()
     if unbalanced:
         y, part, ops = y[:-1], part[:-1], ops[:-1]
+        monkeypatch.setattr(old.GRR, 'two_way_anova', corrected_additive_old)
     same_call(GRR.grr_master, old.GRR.grr_master, y=y, part=part, op=ops,
               mode=mode, inter=inter, print_out=True)
 

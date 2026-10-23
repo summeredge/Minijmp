@@ -100,7 +100,11 @@ def test_fisher_right_tail_and_other_results(n1, n2, e1, e2):
     assert result['p p1>p2 Fisher'] == right
     assert right == pytest.approx(stats.fisher_exact([[e1,n1-e1],[e2,n2-e2]], alternative='greater').pvalue)
     assert result.keys() == old.keys()
-    assert {k:v for k,v in result.items() if k != 'p p1>p2 Fisher'} == {k:v for k,v in old.items() if k != 'p p1>p2 Fisher'}
+    # REVIEW-004 双侧按概率排序并包含并列表；由 SciPy 及独立组合数枚举接管旧值。
+    assert result['p Fisher'] == pytest.approx(
+        stats.fisher_exact([[e1, n1-e1], [e2, n2-e2]]).pvalue, rel=1e-12, abs=1e-15)
+    changed = {'p p1>p2 Fisher', 'p Fisher'}
+    assert {k:v for k,v in result.items() if k not in changed} == {k:v for k,v in old.items() if k not in changed}
     row = next(line for line in '\n'.join(lines).splitlines() if line.startswith('| Fisher'))
     assert row.split('|')[-2].strip() == f'{right:.3f}'
 

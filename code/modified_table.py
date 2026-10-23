@@ -997,16 +997,11 @@ class MTable(Table):
         cols = self.multiplecollist
         df = self.model.df
         self.storeCurrent()
-        vSet = set(df.iloc[rows, cols].values.ravel())
-        fills = 65535
-        while fills in vSet:
-            fills += 1
-        self.model.deleteCells(rows, cols, fills=fills)
-        names = df.columns[cols]
-        for col in names:
-            res = [i for i in df[col] if i != fills]
-            res = res + [np.nan] * (df.shape[0] - len(res))
-            df[col] = res
+        keep = np.ones(len(df), dtype=bool)
+        keep[rows] = False
+        for col in cols:
+            values = df.iloc[keep, col].reset_index(drop=True)
+            df.isetitem(col, values.reindex(range(len(df))).array)
 
         self.redraw()
         return
