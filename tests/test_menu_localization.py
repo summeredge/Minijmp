@@ -126,7 +126,7 @@ EXPECTED_LAYOUT = {
             'Box-Cox / Johnson 变换', '正态能力 Sixpack', '非正态能力 Sixpack', 'sep', '容差区间', 'sep',
             '控制图 I-MR', '控制图 I（单值）', '控制图 MR（移动极差）',
             '控制图 Xbar-R', '控制图 Xbar-S', '高级 SPC 控制图', 'sep', '控制图 NP', '控制图 P',
-            '控制图 C', '控制图 U'],
+            '控制图 C', '控制图 U', 'sep', '帕累托图', '运行图', '因果图', '多变异图', '属性一致性分析'],
     '图形': ['通用绘图器', 'sep', '直方图与分布拟合', '分组直方图',
             '二维直方图', '多变量箱线图', '分组箱线图', '条形图', '分组计数图', '饼图',
             '线条图', '时间序列图', '散点图', '区域图', '点图', '矩阵图',
@@ -216,6 +216,20 @@ def test_extended_regression_menu_presets_model_on_current_sheet(app, monkeypatc
         menu.invoke(next(i for i, kind, text in read_menu(menu)
                          if kind == 'command' and text.strip() == label))
         dialog.assert_called_once_with(parent=table, df=table.model.df, app=app, model=model)
+        dialog.reset_mock()
+
+
+@pytest.mark.parametrize('label,kind', [('帕累托图', 'pareto'), ('运行图', 'run_chart'), ('因果图', 'cause_effect'),
+                                      ('多变异图', 'multi_vari'), ('属性一致性分析', 'attribute_agreement')])
+def test_quality_tools_menu_uses_current_sheet(app, monkeypatch, label, kind):
+    import sys
+    dialog = Mock()
+    monkeypatch.setitem(sys.modules, 'quality_tools_dialog', SimpleNamespace(QualityToolsDialog=dialog))
+    menu = pulldown(app, '质量')
+    for values in ([1, 2], [3, 4]):
+        table = app.addSheet(dataframe=pd.DataFrame({'x': values}))
+        menu.invoke(next(i for i, typ, text in read_menu(menu) if typ == 'command' and text.strip() == label))
+        dialog.assert_called_once_with(table, table.model.df, app, kind=kind)
         dialog.reset_mock()
 
 

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>完整过程能力分析与 Sixpack - MiniJMP</title>
+  <link rel="stylesheet" href="../assets/content.css">
+</head>
+<body>
+<main>
+  <h1>完整过程能力分析与 Sixpack</h1>
+  <nav class="page-toc" aria-label="本页目录">
+    <a href="#operation">操作与输入</a>
+    <a href="#normal">正态能力</a>
+    <a href="#nonnormal">非正态能力</a>
+    <a href="#transformation">Box-Cox / Johnson SU</a>
+    <a href="#sixpack">Sixpack 六格</a>
+    <a href="#diagnostics">诊断与限制</a>
+    <a href="#references">官方参考</a>
+  </nav>
+  <section class="topic" id="quality.capability_analysis">
+    <h2>过程能力、变换与稳定性诊断</h2>
+    <p>能力分析把过程分布与客户规格比较；控制图检查过程稳定性。过程稳定、分布适用和能力达标需要分别判断。旧“过程能力分析 (Cpk)”及“含子组的 Cpk”保留独立入口，不能将新旧参数约定混用。</p>
+    <h3 id="operation">操作与输入</h3>
+    <table>
+      <thead><tr><th scope="col">质量菜单入口</th><th scope="col">初始分析类型</th><th scope="col">用途</th></tr></thead>
+      <tbody>
+        <tr><td>正态过程能力（完整）</td><td>正态能力</td><td>组内及整体能力、实测与预计 PPM。</td></tr>
+        <tr><td>非正态过程能力</td><td>非正态能力</td><td>Weibull、Lognormal 或 Gamma 整体分布能力。</td></tr>
+        <tr><td>Box-Cox / Johnson 变换</td><td>变换诊断</td><td>默认 Box-Cox，可改 Johnson SU；可不填规格。</td></tr>
+        <tr><td>正态能力 Sixpack</td><td>正态 Sixpack</td><td>原尺度或变换后正态六格诊断。</td></tr>
+        <tr><td>非正态能力 Sixpack</td><td>非正态 Sixpack</td><td>原尺度非正态六格诊断。</td></tr>
+      </tbody>
+    </table>
+    <ol>
+      <li>选择一个有限实数测量列，并确认观测按生产或时间顺序排列。窗口使用打开时来源工作表的快照，后续编辑工作表不会自动更新本次分析。</li>
+      <li>填写 LSL、USL 中至少一项；双侧须满足 LSL &lt; USL。Target 可空，不自动取中点，也不与规格限排序。只有“变换诊断”可完全不填规格。</li>
+      <li>单值使用默认连续子组大小 1；有合理子组时选择子组 ID 列（优先），或填写连续子组大小。保留标识符和输入顺序，固定分组余数不能静默丢弃，不连续重复的 ID 不能隐式拼接。</li>
+      <li>选择分布或变换。非正态模式使用原尺度，“正态化变换”须设为“无”；变换诊断必须选择 Box-Cox 或 Johnson SU。固定 λ 仅供 Box-Cox，留空时估计。置信水平默认 95%，能力总宽 K 默认 6，最近子组图数量默认 25。</li>
+      <li>缺失值默认“报错”；只有明确选择“删除不完整行”才删除本次所需字段不完整的行，不插值、不填零。删除后仍需保留来源行位置；相邻有效观测可能已不再是原始连续采样，解释 MR 时需注意。</li>
+      <li>点击“分析”，查看结果页及警告。点击“打开图形”显示诊断图；非 Sixpack 模式显示直方图与 Q-Q，变换时增加原始数据诊断。图窗沿用现有图形保存功能。</li>
+    </ol>
+    <p>“当前表写入新工作表”和“导出当前表 CSV / Excel”作用于选中的结果页，CSV 使用 UTF-8 BOM；“完整报告”输出所有结果表和警告到来源结果窗口。切换工作表不会使模型改绑。“帮助”及 F1 打开本页。</p>
+    <p>计算在后台执行。“取消计算”或 Escape 会等待当前拟合结束后丢弃本次结果，保留上次结果；不会立即终止优化器。关闭窗口也会丢弃待返回结果。失败通过状态栏和错误框显示。</p>
+
+    <h3 id="normal">正态能力：组内与整体</h3>
+    <p>设 K 为能力总宽倍数，h=K/2，默认 K=6。均值使用全部有效观测；整体标准差 s 使用 n−1 分母，不作 c4 修正。单值的组内标准差为相邻两点移动极差均值除以 d2(2)=2/√π，不能先排序再计算。多观测子组使用合并方差：sp²=ΣΣ(xij−组均值)²/df，df=Σ(ni−1)，组内标准差为 sp/c4(df+1)。c4(m)=√[2/(m−1)]Γ(m/2)/Γ((m−1)/2)。</p>
+    <table>
+      <thead><tr><th scope="col">指标</th><th scope="col">含义和条件</th></tr></thead>
+      <tbody>
+        <tr><td>Cp</td><td>(USL−LSL)/(Kσ组内)，须双侧规格；只描述宽度。</td></tr>
+        <tr><td>Cpl、Cpu、Cpk</td><td>Cpl=(均值−LSL)/(hσ组内)，Cpu=(USL−均值)/(hσ组内)；Cpk 取已定义侧最小值，单侧取该侧，可为负。</td></tr>
+        <tr><td>Pp、Ppl、Ppu、Ppk</td><td>将上述组内标准差换为整体 s，描述全部观测的整体表现。</td></tr>
+        <tr><td>Cpm</td><td>(USL−LSL)/(K√[s²+(均值−Target)²])；须双侧规格且明确 Target。</td></tr>
+        <tr><td>实测 PPM</td><td>严格低于 LSL 或高于 USL 的观测数除以有效 n，再乘 10⁶；等于规格限视为合格。</td></tr>
+        <tr><td>预计 PPM</td><td>正态 CDF 下尾及 survival function 上尾乘 10⁶，分别按组内和整体标准差估计。</td></tr>
+      </tbody>
+    </table>
+    <p>缺侧指数和条件不足的指标为 NA；没有某侧规格不等于该侧存在人为边界。实测和模型预计是不同结果，零实测超规不能证明总体尾部概率为零。能力要求应按工程标准解释，不能仅凭一个指数或本次样本认定过程合格。</p>
+
+    <h3 id="nonnormal">非正态能力：百分位法与等价 Z</h3>
+    <p>Weibull、Lognormal、Gamma 的方法合同均为固定位置 loc=0 的极大似然拟合，测量值必须严格为正。不自动平移零值或负值，也不改成三参数自由位置模型。Lognormal 的 shape 是对数标准差，scale 是对数均值的指数；查看拟合参数、支持域和诊断后再解释外推风险。规格落在正域支持域外与观测值非法是两种情况：前者的 CDF/SF 可合法为 0 或 1。</p>
+    <p>令 a=Φ(−K/2)，qL=F⁻¹(a)、qM=F⁻¹(0.5)、qU=F⁻¹(1−a)。本项目主指数采用百分位法：<code>Pp=(USL−LSL)/(qU−qL)</code>，<code>Ppl=(qM−LSL)/(qM−qL)</code>，<code>Ppu=(USL−qM)/(qU−qM)</code>，Ppk 取已定义侧最小值。单侧时 Pp 为 NA，Ppk 仍可计算。K=6 对应约 0.135% 与 99.865% 分位数。</p>
+    <p><strong>Minitab 默认使用 Z-score 法，ISO 百分位法是另一选项。</strong>本项目百分位 Ppk 不能标为 Minitab 默认 Ppk。等价 Z 独立解释：Z下=−Φ⁻¹(F(LSL))，Z上=Φ⁻¹(F(USL))；p=F(LSL)+SF(USL)，Zbench=Φ⁻¹(1−p)。Minitab 的 Z-score 定义对应 <code>PpZ=[Φ⁻¹(F(USL))−Φ⁻¹(F(LSL))]/K</code> 和 <code>PpkZ=min(Z下,Z上)/(K/2)</code>，偏态下通常与百分位法不同。没有默认 1.5σ 漂移补偿；支持域边界的无限 Z 不能解释成有限且确定的能力保证。</p>
+    <p>非正态模型只给整体分布能力，不对原数据直接套正态 Cp/Cpk。实测 PPM 仍按原始观测计数，预计 PPM 按拟合 F/SF 计算。分布、位置参数和拟合方法不一致时，不能仅凭软件名称比较结果。</p>
+
+    <h3 id="transformation">Box-Cox / Johnson SU：数据与规格使用同一变换</h3>
+    <p>Box-Cox 仅接受正值：<code>g(x)=(x^λ−1)/λ</code>，λ=0 时为 ln(x)。λ 留空时使用正态剖面似然 MLE，亦可固定 λ；不把估计值自动舍入。逆变换为 exp(y) 或 <code>(1+λy)^(1/λ)</code>，后者要求 1+λy&gt;0。该定义单调递增，测量、LSL、USL 和 Target 必须使用同一个 g；需要映射的规格也须位于正域。</p>
+    <p>Minitab 的方法页使用 x^λ（λ=0 时为 ln(x)）并以标准化变换变量的标准差优化，可将最优 λ 舍入为 0.5 或最近整数。本项目的剖面似然、未舍入 λ 和变换尺度约定均需纳入比较；不能承诺子组优化及负 λ 情形逐值一致。变换后的标准差不是原始单位的标准差，原尺度分位数需用逆变换取得。</p>
+    <p>Johnson 仅支持 SU：<code>z=a+b·asinh((x−loc)/scale)</code>，b&gt;0、scale&gt;0；逆为 <code>x=loc+scale·sinh((z−a)/b)</code>。它可接收任意有限实数；参数按 Johnson SU MLE 拟合，规格用同一递增映射。参数失败、非有限值或未达到正态性准入条件时不能宣称已正态化。</p>
+    <p><strong>SU MLE 与 Minitab Johnson 全族算法不同。</strong>Minitab 在 SB、SL、SU 中按 Chou 等方法估参，并选择 AD p 值高于阈值且最大的变换，默认阈值 0.10；官方 Johnson 能力仅作整体分析。本项目没有全族择优控件，不自动切族，也不能把当前窗口置信水平当作 Johnson 准入阈值。对同一批数据拟合、选择变换后再检验正态性存在选择偏差，p 值不能当作独立验证。</p>
+
+    <h3 id="sixpack">Sixpack：三行两列</h3>
+    <table>
+      <thead><tr><th scope="col">位置</th><th scope="col">左列</th><th scope="col">右列</th></tr></thead>
+      <tbody>
+        <tr><td>上排</td><td>I 单值图或 Xbar 均值图</td><td>能力直方图</td></tr>
+        <tr><td>中排</td><td>MR 移动极差图或 R/S 图</td><td>正态或拟合分布 Q-Q 图</td></tr>
+        <tr><td>下排</td><td>最近子组观测图，默认 25；单值时为最近观测</td><td>能力比较图</td></tr>
+      </tbody>
+    </table>
+    <p>正态、非正态模式均允许多观测子组。当前实现：全部子组大小为 1 时使用 I-MR；全部至少为 2 且最大大小≤8 时使用 Xbar-R；否则使用 Xbar-S，按各组 ni 计算限值。混用单值和多观测子组会报错。官方解释页对 R 的边界文字为“&gt;2 且&lt;9”，本项目大小 2 的约定以当前实现为准。</p>
+    <p>正态 I 图使用均值±3σ组内，Xbar 使用均值±3σ组内/√ni，MR/R/S 使用相应控制图常数。非正态 I 图使用拟合分布 0.135% / 99.865% 分位限；非正态 MR 仍用正态 MR(2) 常数近似，非正态多观测子组使用正态 3σ 近似，不保证实际误报概率。“控制图诊断”表注明方法、统计量和超限标记，首个 MR 及其超限标记为 NA。能力 K 与控制限设置独立。</p>
+    <p>直方图叠加整体拟合曲线，正态时另有组内曲线。图中规格限与控制限用途不同，单侧规格不虚构另一侧。当前仅标记严格超控制限点，未执行完整 Nelson 或 Western Electric 连续点规则；没有红点不能证明过程稳定。</p>
+    <p>当前 Q-Q 显示模型理论分位数与样本分位数，无概率置信带，绘图层不计算 AD p 值。非正态能力比较面板采用标准正态尺度 <code>Z=Φ⁻¹(F(x))</code>，整体区间为 <code>[−K/2,K/2]</code>，LSL、USL 和 Target 同样映射；支持域边界或浮点尾概率饱和导致 Z 无穷时以文字注释，不能画成有限规格线。面板里的 Pp/Ppk 仍为百分位法指标，不能因显示 Z 尺度就当作默认 Z-score 指数。正态比较在分析尺度绘制组内、整体区间及规格竖线，变换后在变换尺度；双侧规格另绘规格区间与中心刻度；最近子组格显示散点及整体均值线。</p>
+
+    <h3 id="diagnostics">拟合、置信区间与 NA</h3>
+    <p>较大的拟合检验 p 值只表示未拒绝模型，不能证明分布正确。估参后普通 KS p 值没有固定参数检验的正确校准；若没有经过重新拟合的参数自举或其他有效校准，只能将统计量作为描述，不能报告已校准结论。AD 统计量不能配未经验证的通用 p 值。非正态拟合采用199次重新拟合的KS参数自举，固定种子20261023，p=(超过次数+1)/200，分辨率0.005并有模拟误差；AD只提供统计量。窗口不提供自举次数或种子选项。正态AD采用估参临界值，不报告通用p值。</p>
+    <p>置信水平只控制结果中实际提供的区间。正态整体标准差与 Pp 可用适用的卡方区间，合并子组使用其自由度；重叠 MR 不能套 n−1 自由度的精确卡方区间。整体Ppl/Ppu提供独立正态假设下的非中心t等尾反演区间。Cpl/Cpu/Cpk/Ppk区间本实现未提供，不能用另一个指标的区间替代。未提供的 Cpm、变换后或非正态能力及尾部 PPM 区间应标 NA/未提供，不能因选择 95% 就认定全部结果有区间。</p>
+    <p>小样本、相关性、失控、常量数据、分布不适用或估计失败都会限制能力解释。查看有效样本与删除记录、拟合诊断及所有警告；NA 表示缺侧、条件不足或未提供，不能当零。原始与变换后正态性诊断分别输出，Johnson只报告整体能力。数值参考、GUI、图形及导出验证详见项目 docs/capability-analysis.md 和 docs/capability-validation.md；未实现的区间或概率置信带仍为NA/未提供。</p>
+
+    <h3 id="references">官方参考与相关帮助</h3>
+    <p>以下为方法对照，核对日期 2026-10-23；实际支持的选项及差异以上文为准。</p>
+    <ul>
+      <li><a href="https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/supporting-topics/capability-metrics/capability-indices-and-nonnormal-data/" target="_blank" rel="noopener noreferrer">Minitab：非正态能力默认 Z-score、ISO 方法和仅整体能力</a></li>
+      <li><a href="https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-sixpack/normal-capability-sixpack/methods-and-formulas/methods/" target="_blank" rel="noopener noreferrer">Minitab：标准差、Box-Cox 与 Johnson 算法</a></li>
+      <li><a href="https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-sixpack/normal-capability-sixpack/perform-the-analysis/specify-a-transformation/" target="_blank" rel="noopener noreferrer">Minitab：变换选项、λ 舍入和 Johnson 整体限制</a></li>
+      <li><a href="https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-sixpack/normal-capability-sixpack/interpret-the-results/all-statistics-and-graphs/graphs/" target="_blank" rel="noopener noreferrer">Minitab：正态 Sixpack 图形</a></li>
+      <li><a href="https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-sixpack/nonnormal-capability-sixpack/methods-and-formulas/graphs/" target="_blank" rel="noopener noreferrer">Minitab：非正态 Sixpack 控制图方法</a></li>
+      <li><a href="https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-sixpack/nonnormal-capability-sixpack/interpret-the-results/all-statistics-and-graphs/graphs/" target="_blank" rel="noopener noreferrer">Minitab：非正态 Sixpack 图形与 Z 尺度比较</a></li>
+    </ul>
+    <p>相关帮助：<a href="../index.html#quality.capability">旧 Cpk</a>、<a href="../index.html#quality.capability_subgroups">旧含子组 Cpk</a>、<a href="../index.html#quality.advanced_spc">高级 SPC 控制图</a>。</p>
+  </section>
+</main>
+</body>
+</html>

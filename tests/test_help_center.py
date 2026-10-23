@@ -132,8 +132,8 @@ def test_menu_inventory_and_dialog_ids_match_the_source():
             callback = topic["entry"].split(".", 1)[1].split("(", 1)[0]
             assert callback in menu_callbacks, topic["id"]
             assert any("\u4e00" <= char <= "\u9fff" for char in menu_callbacks[callback]), topic["id"]
-    assert len(seen_classes - {"PIImportDialog"}) == 53
-    assert len(seen_classes) == 54
+    assert len(seen_classes - {"PIImportDialog"}) == 54
+    assert len(seen_classes) == 55
 
 
 def test_generated_search_index_matches_every_nonempty_help_section():
@@ -284,7 +284,7 @@ def test_help_paths_stay_relative_after_project_relocation(monkeypatch, tmp_path
 
 def test_pi_import_topic_is_unique_searchable_and_available_offline(monkeypatch):
     topics = help_topics()
-    assert len(topics) == 82
+    assert len(topics) == 87
     assert len({topic['id'] for topic in topics}) == len(topics)
     topic, = [item for item in topics if item['id'] == 'files.pi_import']
     assert topic['entry'] == 'MiniJMP.import_pi_data'

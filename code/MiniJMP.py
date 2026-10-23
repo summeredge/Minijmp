@@ -195,6 +195,12 @@ class Minijmp(Worksheets, Minijmp_pre):
         self.menu.add_cascade(label='统计', menu=self.stats_menu['var'])
 
         self.quality_menu = {
+            '50帕累托图': {'cmd': self.pareto_chart},
+            '51运行图': {'cmd': self.run_chart},
+            '52因果图': {'cmd': self.cause_effect},
+            '53多变异图': {'cmd': self.multi_vari},
+            '54属性一致性分析': {'cmd': self.attribute_agreement},
+            '49sep': '',
             '01量具 R&R 研究（交叉）': {'cmd': self.grr},
             '02量具 R&R 研究（嵌套）': {'cmd': self.grr_nst},
             '07过程能力分析 (Cpk)': {'cmd': self.cpk},
@@ -550,6 +556,26 @@ class Minijmp(Worksheets, Minijmp_pre):
             df=self.table.model.df,
             title='Process Capability')
         return
+
+    def pareto_chart(self):
+        from quality_tools_dialog import QualityToolsDialog
+        return QualityToolsDialog(self.table, self.table.model.df, self, kind='pareto')
+
+    def run_chart(self):
+        from quality_tools_dialog import QualityToolsDialog
+        return QualityToolsDialog(self.table, self.table.model.df, self, kind='run_chart')
+
+    def cause_effect(self):
+        from quality_tools_dialog import QualityToolsDialog
+        return QualityToolsDialog(self.table, self.table.model.df, self, kind='cause_effect')
+
+    def multi_vari(self):
+        from quality_tools_dialog import QualityToolsDialog
+        return QualityToolsDialog(self.table, self.table.model.df, self, kind='multi_vari')
+
+    def attribute_agreement(self):
+        from quality_tools_dialog import QualityToolsDialog
+        return QualityToolsDialog(self.table, self.table.model.df, self, kind='attribute_agreement')
 
     def capability_analysis(self, mode):
         from capability_dialog import CapabilityDialog

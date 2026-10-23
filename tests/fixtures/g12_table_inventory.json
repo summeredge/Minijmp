@@ -8,17 +8,17 @@
     "bounds": "追踪显式导入/构造别名、本函数赋值、字符串包装、原生表方法及多行 ASCII/tab 字面量；静态审计不模拟任意跨函数动态对象流。所有现有字符串格式、join、原生 summary、DataFrame 文本与控制台数据路径已人工复核。"
   },
   "summary": {
-    "python_files": 93,
-    "files_with_production_sites": 28,
-    "producer_scopes": 55,
-    "constructor_calls": 123,
+    "python_files": 97,
+    "files_with_production_sites": 29,
+    "producer_scopes": 56,
+    "constructor_calls": 124,
     "constructors": {
       "gen_table": 54,
-      "StatTable": 65,
+      "StatTable": 66,
       "PrettyTable": 4
     },
-    "statistical_source_positions": 61,
-    "logical_statistical_tables": 152,
+    "statistical_source_positions": 62,
+    "logical_statistical_tables": 165,
     "table_text_conversions": {
       "to_string": 2,
       "pred_table": 1,
@@ -40,6 +40,7 @@
     "advanced_spc_plots.py",
     "advanced_time_series_dialog.py",
     "anova_dialog.py",
+    "attribute_agreement.py",
     "basic_dialogs.py",
     "basic_plot_dialog.py",
     "binomial.py",
@@ -100,6 +101,9 @@
     "poisson.py",
     "proportion_test.py",
     "qc_dialog.py",
+    "quality_tools.py",
+    "quality_tools_dialog.py",
+    "quality_tools_plots.py",
     "regression_dialog.py",
     "regression_plots.py",
     "sample_test_dialog.py",
@@ -218,7 +222,11 @@
     "pls_regression.py": "PLS1/PLS2 NIPALS 纯计算；折内独立预处理、CV 和长表预测，返回原精度 DataFrame；报告统一由 RegressionDialog 构造，无独立格式化表格生产位置。",
     "capability_dialog.py": "P0 完整能力窗口；stat_table 将核心结果与控制图诊断 DataFrame 转为 StatTable，report 复用同一表；来源快照与后台取消沿用 SheetApp/线程 Future。",
     "capability_plots.py": "P0 六图、变换前后图与逐点控制限诊断；不构造统计展示表，不改旧 SPC 算法。",
-    "capability.py": "P0 独立正态/非正态能力、MLE/参数自举、Box-Cox/Johnson SU 正逆变换与原序子组；只产生数值DataFrame，由capability_dialog.stat_table统一展示，不新增StatTable生产位置。"
+    "capability.py": "P0 独立正态/非正态能力、MLE/参数自举、Box-Cox/Johnson SU 正逆变换与原序子组；只产生数值DataFrame，由capability_dialog.stat_table统一展示，不新增StatTable生产位置。",
+    "attribute_agreement.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。",
+    "quality_tools.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。",
+    "quality_tools_dialog.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。",
+    "quality_tools_plots.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。"
   },
   "producers": {
     "GRR.py::_grr_tables": {
@@ -1587,6 +1595,37 @@
         "tests/test_capability_dialog.py::test_real_sheet_fit_plot_export_and_report"
       ],
       "exception_reason": ""
+    },
+    "quality_tools_dialog.py::QualityToolsDialog.stat_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "entry_points": [
+        "质量菜单五项工具"
+      ],
+      "titles": [
+        "帕累托频数",
+        "运行图数据",
+        "随机性检验",
+        "来源观测",
+        "原因结构",
+        "组合统计",
+        "设计",
+        "完全一致率",
+        "Kappa",
+        "各类别Kappa",
+        "正确评价比例",
+        "分类不一致",
+        "Kendall"
+      ],
+      "status": "结构化原精度结果",
+      "exception_reason": "",
+      "logical_tables": 13,
+      "tests": [
+        "tests/test_quality_tools_dialog.py::test_attribute_gui",
+        "tests/test_quality_tools_dialog.py::test_pareto_gui"
+      ]
     }
   },
   "output_entry_review": {
@@ -2781,6 +2820,13 @@
       ],
       "classification": "structured",
       "reason": "stat_table 返回结构化结果表；报告复用当前分析结果及警告，绑定来源工作表。"
+    },
+    "quality_tools_dialog.py::QualityToolsDialog.report": {
+      "ports": [
+        "self.app.print"
+      ],
+      "classification": "structured",
+      "reason": "复用 stat_table 当前结果，来源 SheetApp 绑定；未另算第二份统计量。"
     }
   },
   "exceptions": [

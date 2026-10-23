@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>统计分析 - Minijmp</title>
+  <link rel="stylesheet" href="../assets/content.css">
+</head>
+<body>
+  <main>
+    <h1>统计分析</h1>
+    <p>本页按 Minijmp 当前对话框和 <code>docs/usage</code> 说明输入、参数与结果。文中的 Minitab 链接仅作统计概念参考，不表示 Minijmp 具有相同选项或默认值。</p>
+    <nav class="page-toc" aria-label="本页目录">
+      <a href="#stats.describe">描述性统计</a>
+      <a href="#stats.describe_multi">多列描述性统计</a>
+      <a href="#stats.normality">正态性检验</a>
+      <a href="#stats.confidence_interval">置信区间</a>
+      <a href="#stats.fit_distribution">分布拟合</a>
+      <a href="#stats.correlation">相关分析</a>
+      <a href="#stats.orthogonal_regression">正交回归</a>
+      <a href="#stats.linear_regression">线性回归</a>
+      <a href="#stats.residual_plots">残差图</a>
+      <a href="#stats.correlation_matrix">多列相关矩阵</a>
+      <a href="#stats.mean_1sample_t">单样本均值 t 检验</a>
+      <a href="#stats.mean_1sample_z">单样本均值 Z 检验</a>
+      <a href="#stats.stddev_1sample">单样本标准差检验</a>
+      <a href="#stats.proportion_1sample">单样本率检验</a>
+      <a href="#stats.mean_2sample_t">双样本均值 t 检验</a>
+      <a href="#stats.paired_t">配对 t 检验</a>
+      <a href="#stats.proportion_2sample">双样本率检验</a>
+      <a href="#stats.multi_sample_sd">多样本标准差检验</a>
+      <a href="#stats.anova_1way">单因子方差分析</a>
+      <a href="#stats.anova_2way">双因子方差分析</a>
+      <a href="#stats.chi2_contingency">列联表卡方检验</a>
+      <a href="#stats.chi2_proportion">比例卡方检验</a>
+    </nav>
+
+    <section class="topic" id="stats.describe">
+      <h2>描述性统计</h2>
+      <p><strong>用途：</strong>汇总一个数值列的中心位置、离散程度和分位数。</p>
+      <p><strong>数据与参数：</strong>选择一个数值列，至少要有两个有效数值。百分位数可用逗号分隔输入 0–100 的百分数；初始值为 100、99.5、97.5、90、75、50、25、10、2.5、0.5、0。</p>
+      <p><strong>操作与结果：</strong>从 统计 → 描述性统计 选列并按需编辑百分位数。输出样本数、均值、标准差、方差、均值标准误、变异系数、极值、四分位数等统计量及所选百分位数。</p>
+      <p><strong>延伸阅读（Minitab 官方背景）：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/display-descriptive-statistics/interpret-the-results/key-results/" target="_blank" rel="noopener noreferrer">描述性统计的关键结果</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.describe_multi">
+      <h2>多列描述性统计</h2>
+      <p><strong>用途：</strong>并排汇总多个数值列，便于比较各列的分布特征。</p>
+      <p><strong>数据与参数：</strong>在列列表中选择一个或多个数值列；每列至少需要两个有效数值。统计量可逐项勾选，打开时全部选中。</p>
+      <p><strong>操作与结果：</strong>选择列与要显示的统计量后运行。结果按统计量为行、列名为列输出；项目包括 N、均值、标准差、方差、最小值、四分位数、中位数、最大值、均值标准误、变异系数、总和、极差、四分位距、偏度、峰度、众数和众数个数。</p>
+      <p><strong>延伸阅读：</strong><a href="#stats.describe">单列描述性统计的指标说明</a>；<a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/display-descriptive-statistics/interpret-the-results/key-results/" target="_blank" rel="noopener noreferrer">Minitab 描述性统计关键结果</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.normality">
+      <h2>正态性检验</h2>
+      <p><strong>用途：</strong>检查一个数值列与正态分布是否相符，为需要正态性假设的分析提供参考。</p>
+      <p><strong>数据与参数：</strong>选择一个数值列；可勾选显示正态 Q–Q 图。界面没有检验方法或 Alpha 选择项，程序固定计算 Shapiro–Wilk 与 Anderson–Darling 检验。</p>
+      <p><strong>结果与注意：</strong>结果包含两种检验统计量和 p 值；勾选后另显示样本分位数与正态理论分位数的图。应结合图形、样本量和分析背景判断；不要把 p 值直接解释为“正态的概率”。</p>
+      <p><strong>延伸阅读（Minitab 官方背景）：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/normality-test/perform-the-analysis/select-a-test/" target="_blank" rel="noopener noreferrer">正态性检验的选择说明</a>；该页面的可选项不代表 Minijmp 提供相同选择。</p>
+    </section>
+
+    <section class="topic" id="stats.confidence_interval">
+      <h2>置信区间</h2>
+      <p><strong>用途：</strong>用一个样本估计其来源总体均值和标准差的区间。</p>
+      <p><strong>数据与参数：</strong>选择一个数值列，并设置 Alpha（初始值 0.05，对应 95% 区间）。</p>
+      <p><strong>操作与结果：</strong>运行后查看总体均值和标准差的双侧区间，以及单侧上限、下限。文档中的推断说明假定总体近似正态；标准差区间尤其应留意这一条件。</p>
+      <p><strong>注意：</strong>置信水平由 Alpha 决定，不能据此保证某一次区间必然覆盖真实参数。</p>
+      <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/1-sample-t/interpret-the-results/all-statistics-and-graphs/" target="_blank" rel="noopener noreferrer">Minitab 均值与标准差区间说明</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.fit_distribution">
+      <h2>分布拟合</h2>
+      <p><strong>用途：</strong>用样本估计候选理论分布的参数，并比较拟合表现。</p>
+      <p><strong>数据与参数：</strong>选择一个数值列，再勾选一个或多个模型：正态、Student t、Gamma、对数正态、指数或 Weibull。模型框初始均未勾选；Gamma、对数正态和 Weibull 要求输入值大于 0，指数分布允许 0 但不允许负值。</p>
+      <p><strong>结果与注意：</strong>输出所选模型的拟合统计和参数估计；本窗口不提供参数标准误或置信区间。若要看直方图及拟合曲线，可另用 图形 → 直方图与分布拟合；该图形入口不比较多个候选模型。</p>
+      <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/graphs/general-graph-options/labels-lines-and-annotations/fitted-distribution-lines/" target="_blank" rel="noopener noreferrer">Minitab 拟合分布线概念说明</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.correlation">
+      <h2>相关分析</h2>
+      <p><strong>用途：</strong>衡量两个数值变量关系的方向与强度，并显示散点图。</p>
+      <p><strong>数据与参数：</strong>分别选择 X、Y 列；程序按成对有效数值计算。可同时勾选 Pearson、Spearman rho、Kendall tau 和 Hoeffding D；Pearson 初始选中，其余方法初始未选。Alpha 初始为 0.05，用于 Pearson 相关的区间与相关椭圆；坐标轴标签、范围、边距、网格和图例也可设置。</p>
+      <p><strong>结果与注意：</strong>结果报告所选系数及检验信息。Pearson 描述线性关系，Spearman 和 Kendall 描述秩相关；Hoeffding D 计算较慢，源码注明复杂度为 O(n²)。相关性本身不说明因果关系。</p>
+      <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistical-modeling/regression/supporting-topics/basics/regression-analyses-in-minitab/" target="_blank" rel="noopener noreferrer">Minitab 回归与相关分析概览</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.orthogonal_regression">
+      <h2>正交回归</h2>
+      <p><strong>用途：</strong>当 X 与 Y 都存在测量误差时，拟合两变量之间的直线关系；常用于比较两种测量方法。</p>
+      <p><strong>数据与参数：</strong>选择成对的数值 X、Y 列。输入 Y/X 测量误差方差比（初始值 1）和 Alpha（初始值 0.05）；可勾选残差表。窗口与线性回归共用，打开正交回归时默认启用正交拟合、关闭线性拟合。</p>
+      <p><strong>结果与注意：</strong>查看拟合参数、区间及图形；勾选后输出残差、标准化残差和拟合值。Y/X 比描述测量误差方差之比，不是两列观测数据方差之比；没有测量误差信息时，默认 1 表示两侧相等的假设。</p>
+      <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistical-modeling/regression/supporting-topics/basics/regression-analyses-in-minitab/" target="_blank" rel="noopener noreferrer">Minitab 回归分析概览</a>（概念参考；其具体方法不代表 Minijmp 的实现）。</p>
+    </section>
+
+    <section class="topic" id="stats.linear_regression">
+      <h2>线性回归</h2>
+      <p><strong>用途：</strong>以 X 为预测变量、Y 为响应变量，拟合最小二乘直线并查看两者关系。</p>
+      <p><strong>数据与参数：</strong>选择成对数值列；拟合至少需要三个有效点，且 X、Y 均不能为常数。窗口可切换散点、线性拟合、均值置信区间和预测区间；Alpha 初始值为 0.05。也有 Pearson 相关椭圆、正交拟合及残差表选项；可设置轴标签与范围、边距、网格和图例。</p>
+      <p><strong>操作与结果：</strong>指定 X、Y 后运行。结果包含回归摘要和图形；置信区间描述拟合均值的不确定性，预测区间针对单个新观测，二者用途不同。</p>
+      <p><strong>延伸阅读（Minitab 官方背景）：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistical-modeling/regression/supporting-topics/basics/regression-analyses-in-minitab/" target="_blank" rel="noopener noreferrer">回归分析基础</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.residual_plots">
+      <h2>残差图</h2>
+      <p><strong>用途：</strong>检查线性拟合残差的分布、方差形态和随观测顺序的变化。</p>
+      <p><strong>数据与参数：</strong>选择成对的数值 X、Y 列；至少需要三个有效点且两列都不能为常数。窗口没有额外绘图参数，程序在后台拟合线性回归后显示四图。</p>
+      <p><strong>结果与注意：</strong>四图为残差对观测顺序、残差对拟合值、残差直方图和正态 Q–Q 图。依次查看独立性、方差是否大致恒定、偏态或异常值、残差正态性；有明显结构时应回查数据和模型。</p>
+      <p><strong>延伸阅读：</strong><a href="#stats.linear_regression">线性回归</a>；<a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistical-modeling/regression/supporting-topics/basics/regression-analyses-in-minitab/" target="_blank" rel="noopener noreferrer">Minitab 回归分析背景</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.correlation_matrix">
+      <h2>多列相关矩阵</h2>
+      <p><strong>用途：</strong>同时查看多个变量两两之间的相关系数和散点关系。</p>
+      <p><strong>数据与参数：</strong>选择多个数值列；只有在所有选中列中都有有效数值的行才会参与分析。可同时勾选 Pearson（初始选中）、Spearman、Kendall 和 Hoeffding D；Alpha 初始为 0.05，另可调整散点矩阵边距、轴标签方向及 Pearson 相关椭圆。</p>
+      <p><strong>结果与注意：</strong>输出所选方法的相关结果和成组散点图。Hoeffding D 计算较慢（O(n²)）；选择更多列或启用该方法会增加计算量。</p>
+      <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistical-modeling/regression/supporting-topics/basics/regression-analyses-in-minitab/" target="_blank" rel="noopener noreferrer">Minitab 回归与相关分析概览</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.mean_1sample_t">
+      <h2>单样本均值 t 检验</h2>
+      <p><strong>用途：</strong>检验单个总体均值是否等于给定假设值；总体标准差未知时使用样本标准差。</p>
+      <p><strong>数据与参数：</strong>选择一个数值列，或填写汇总样本量 N、标准差和均值（这三项齐全时覆盖所选列）。输入假设均值；Alpha 初始值为 0.05。源码要求 N 至少为 2、标准差为正。</p>
+      <p><strong>操作与结果：</strong>运行后查看样本摘要、t 值、自由度、p 值和总体均值区间。程序同时列出双侧及两个单侧检验结果，界面没有备择方向选择框。</p>
+      <p><strong>延伸阅读（Minitab 官方背景）：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/1-sample-t/interpret-the-results/all-statistics-and-graphs/" target="_blank" rel="noopener noreferrer">单样本 t 检验结果说明</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.mean_1sample_z">
+      <h2>单样本均值 Z 检验</h2>
+      <p><strong>用途：</strong>已知总体标准差时，检验单个总体均值是否等于给定值。</p>
+      <p><strong>数据与参数：</strong>选择一个数值列，或填写汇总 N 和样本均值（两项齐全时覆盖所选列）；另需输入假设均值及已知总体标准差。Alpha 初始值为 0.05；已知标准差须为正。</p>
+      <p><strong>结果与注意：</strong>查看 Z 值、p 值及总体均值区间；程序同时列出双侧和两个单侧结果。Z 检验中的标准差必须是已知的总体值，不能把样本标准差误当成已知总体标准差。</p>
+      <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/1-sample-z/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab 单样本 Z 检验概述</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.stddev_1sample">
+      <h2>单样本标准差检验</h2>
+      <p><strong>用途：</strong>检验总体标准差是否等于指定值，并估计其区间。</p>
+      <p><strong>数据与参数：</strong>选择一个数值列，或填写汇总 N 和样本标准差（两项齐全时覆盖所选列）；输入假设标准差和 Alpha（初始值 0.05）。</p>
+      <p><strong>结果与注意：</strong>Minijmp 会报告卡方方法；有原始数据时也计算 Bonett 法，只有汇总值时无法计算 Bonett。卡方方法对总体正态性敏感；若数据明显偏斜，应谨慎解读。</p>
+      <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/1-variance/interpret-the-results/all-statistics/" target="_blank" rel="noopener noreferrer">Minitab 单方差结果说明</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.proportion_1sample">
+      <h2>单样本率检验</h2>
+      <p><strong>用途：</strong>估计一个事件在总体中的比例，并与假设比例比较。</p>
+      <p><strong>数据与参数：</strong>选择一个分类样本列并填写事件名称，或填写事件数和试验总数（两项齐全时覆盖列数据）。非事件类别会合并计为“未发生”。假设比例初始值为 0.5；Alpha 初始值为 0.05。</p>
+      <p><strong>结果与注意：</strong>结果同时给出二项分布相关方法、正态近似和卡方结果，并报告比例区间。小样本时应特别留意近似方法的适用性；事件名称需与列中的类别值一致。</p>
+      <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/1-proportion/methods-and-formulas/methods-and-formulas/" target="_blank" rel="noopener noreferrer">Minitab 单比率方法说明</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.mean_2sample_t">
+      <h2>双样本均值 t 检验</h2>
+      <p><strong>用途：</strong>比较两个独立样本的总体均值差。</p>
+      <p><strong>数据与参数：</strong>每组可选一个数值列，或分别填写 N、标准差和均值；两组可以采用不同输入方式。假设差值按 u2 − u1 输入，初始值为 0。“Assume Equal Variances”初始未选，勾选后使用合并方差；Alpha 初始值为 0.05。</p>
+      <p><strong>结果与注意：</strong>输出均值差区间、t 统计量、自由度，以及双侧和两个单侧 p 值。只有在等方差假设有依据时才勾选合并方差。</p>
+      <p><strong>延伸阅读（Minitab 官方背景）：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/2-sample-t/before-you-start/data-considerations/" target="_blank" rel="noopener noreferrer">双样本 t 检验的数据条件</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.paired_t">
+      <h2>配对 t 检验</h2>
+      <p><strong>用途：</strong>分析同一对象的两次测量或匹配样本之间的平均差。</p>
+      <p><strong>数据与参数：</strong>选择两列数值数据；同一行的两个值组成一对，缺失或无效的配对不参与计算。假设差值按“样本 1 − 样本 2”定义，初始值为 0；Alpha 初始值为 0.05。</p>
+      <p><strong>结果与注意：</strong>检验的是配对差值的均值，而不是把两列当作互相独立的样本。输出差值均值、标准差、t 值、自由度、p 值和区间。</p>
+      <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/paired-t/interpret-the-results/key-results/" target="_blank" rel="noopener noreferrer">Minitab 配对 t 检验结果说明</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.proportion_2sample">
+      <h2>双样本率检验</h2>
+      <p><strong>用途：</strong>比较两个样本中指定事件的比例。</p>
+      <p><strong>数据与参数：</strong>每组提供分类列和事件名称，或提供事件数与试验总数；事件名称以外的类别合并为非事件。Alpha 初始值为 0.05。使用原始列时需同时选择 Sample 1 和 Sample 2 两列；源码按 Sample 1 是否选列来读取两列，汇总计数可覆盖相应样本。</p>
+      <p><strong>结果与注意：</strong>输出两组比例、差值区间，以及 Fisher 精确法和合并/未合并正态近似结果；双侧和单侧检验均自动列出，无备择方向选择框。</p>
+      <p><strong>延伸阅读（Minitab 官方背景）：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/2-proportions/before-you-start/overview/" target="_blank" rel="noopener noreferrer">双比例分析概述</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.multi_sample_sd">
+      <h2>多样本标准差检验</h2>
+      <p><strong>用途：</strong>检验两个或更多总体的变异程度是否相同。</p>
+      <p><strong>数据与参数：</strong>在列表中选择多个数值列，每列代表一个样本；样本量可以不同。Alpha 初始值为 0.05。此窗口要求各组分列输入，没有堆叠数据和分组列控件。</p>
+      <p><strong>结果与注意：</strong>查看各组标准差及方差相等性检验结果。该检验关注组间变异差异，不是均值差异。</p>
+      <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/2-variances/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab 方差比较概述</a>（概念参考；Minijmp 的多样本方法以本页为准）。</p>
+    </section>
+
+    <section class="topic" id="stats.anova_1way">
+      <h2>单因子方差分析</h2>
+      <p><strong>用途：</strong>比较两个或更多组的总体均值。</p>
+      <p><strong>数据与参数：</strong>可用堆叠格式指定数值 Data 列和分类 Group 列；也可选择多个数值列，分列输入会覆盖上方选择。Alpha 初始值为 0.05。“Each Pair, Student’s t”初始未选；均值区间图初始显示，可设置网格、轴标签与范围、边距和水平参考线。</p>
+      <p><strong>操作与结果：</strong>选择一种数据布局后运行。输出方差分析表；勾选均值比较后另列各组 Student t 两两比较，默认生成均值区间图。ANOVA 的总体检验显著表示至少有组均值不同，不直接指出具体是哪几组。</p>
+      <p><strong>延伸阅读（Minitab 官方背景）：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistical-modeling/anova/how-to/one-way-anova/interpret-the-results/key-results/" target="_blank" rel="noopener noreferrer">单因子 ANOVA 的关键结果</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.anova_2way">
+      <h2>双因子方差分析</h2>
+      <p><strong>用途：</strong>评估两个分类因子与数值响应之间的关系，并可纳入因子交互作用。</p>
+      <p><strong>数据与参数：</strong>选择因子 A、因子 B 和数值 Response 三列；数据按行对应。可勾选 With Interaction，初始选中。该窗口没有 Alpha 输入项。</p>
+      <p><strong>结果与注意：</strong>输出因子主效应及（启用时）交互作用的方差分析结果。若关闭交互作用，模型会不含该项；先结合研究设计和交互作用结果解释主效应。</p>
+      <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistical-modeling/anova/supporting-topics/basics/perform-a-two-way-anova/" target="_blank" rel="noopener noreferrer">Minitab 双因子方差分析概述</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.chi2_contingency">
+      <h2>列联表卡方检验</h2>
+      <p><strong>用途：</strong>检查两个分类变量之间是否存在关联。</p>
+      <p><strong>数据与参数：</strong>可选择原始数据中的 Rows 和 Columns 两个分类列；也可选择多列汇总频数表，列名代表列类别，并可选一列提供行标签。未提供行标签时，程序使用 A、B、C 等标签。此窗口没有 Alpha 参数。</p>
+      <p><strong>结果与注意：</strong>输出观察频数、期望频数、卡方统计量和 p 值。数值型类别也按类别标签处理；汇总表单元格填写频数。</p>
+      <p><strong>延伸阅读（Minitab 官方背景）：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/tables/supporting-topics/chi-square/what-is-a-chi-square-test/" target="_blank" rel="noopener noreferrer">什么是卡方检验</a>。</p>
+    </section>
+
+    <section class="topic" id="stats.chi2_proportion">
+      <h2>比例卡方检验</h2>
+      <p><strong>用途：</strong>比较一个分类变量各类别的观察比例与指定的假设比例。</p>
+      <p><strong>数据与参数：</strong>第一步选择原始分类列，或选择类别 Levels 列和 Counts 频数列。运行后会弹出类别概率输入框；为每个类别填写正数。若概率总和不等于 1，程序会按总和缩放。此分析没有 Alpha 输入项。</p>
+      <p><strong>结果与注意：</strong>先列出各类别的估计比例和假设比例，再输出卡方检验结果。检查概率输入顺序与类别顺序一致。</p>
+      <p><strong>延伸阅读（Minitab 官方背景）：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/tables/supporting-topics/chi-square/what-is-a-chi-square-test/" target="_blank" rel="noopener noreferrer">卡方检验的概念说明</a>。</p>
+    </section>
+  </main>
+</body>
+</html>
