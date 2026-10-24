@@ -1,0 +1,8 @@
+# Normalize to LF inside the repository; keep LF in the working tree too so a
+# file has exactly one byte form on every machine.
+* text=auto eol=lf
+
+# Windows launchers: keep the byte form these have always had on disk.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.vbs text eol=crlf
