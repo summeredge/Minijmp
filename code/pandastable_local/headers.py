@@ -191,6 +191,7 @@ class ColumnHeader(Canvas):
                     xt = x + w / 2
 
                 colname = colstr
+                formula = getattr(self.table, 'formula_for', lambda name: None)(colname)
                 tw, length = util.getTextLength(colstr, w - pad, font=font)
                 #print (colstr, tw)
                 if wrap is True:
@@ -199,6 +200,8 @@ class ColumnHeader(Canvas):
                     anchor = 'nw'
                 else:
                     colname = colname[0:int(length)]
+                if formula is not None:
+                    colname += ' [公式]' + ('*' if formula.get('stale') else '')
 
                 line = self.create_line(x, 0, x, self.height, tag=(
                     'gridline', 'vertline'), fill='white', width=1)
@@ -610,7 +613,9 @@ class ColumnHeader(Canvas):
                 messagebox.showwarning("Error", "Name should not be blank.")
                 return
             else:
+                old = df.columns[col]
                 df.rename(columns={df.columns[col]: new}, inplace=True)
+                self.table.formula_column_renamed(old, new)
                 self.table.tableChanged()
                 self.redraw()
         return

@@ -48,7 +48,7 @@ def row_event(table, row):
 def menu_labels(menu):
     return [menu.entrycget(index, 'label')
             for index in range(menu.index('end') + 1)
-            if menu.type(index) == 'command']
+            if menu.type(index) in ('command', 'cascade')]
 
 
 def invoke(menu, label):
@@ -64,13 +64,13 @@ def test_cell_context_menu_and_right_click_selection(table):
     table.handle_right_click(cell_event(table, 1, 1))
     assert table.multiplerowlist == [0, 1]
     assert table.multiplecollist == [0, 1]
-    assert menu_labels(table.rightmenu) == ['复制所选', '粘贴', '撤销', '清除所选']
+    assert menu_labels(table.rightmenu) == ['复制所选', '粘贴', '撤销', '清除所选', '公式']
 
     table.handle_right_click(cell_event(table, 2, 2))
     assert table.multiplerowlist == [2]
     assert table.multiplecollist == [2]
     assert (table.currentrow, table.currentcol) == (2, 2)
-    assert menu_labels(table.rightmenu) == ['复制所选', '粘贴', '撤销', '清除所选']
+    assert menu_labels(table.rightmenu) == ['复制所选', '粘贴', '撤销', '清除所选', '公式']
 
     table.enable_menus = False
     table.rightmenu.destroy()

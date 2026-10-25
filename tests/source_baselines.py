@@ -95,6 +95,31 @@ def normalize_column_memory(tree, module):
             'UDialog': "(('xvar', True), ('N', True), ('xlabelID', False))"}}
     for name, value in roles[module].items():
         remove_exact(classes[name], 'column_roles = ' + value)
+    if module == 'ctrlchart_dialog.py':
+        # 改善前后对比复用普通控制图窗口的判异入口，只新增该关键字。
+        function = next(n for n in classes['IMRDialog'].body
+                        if isinstance(n, ast.FunctionDef) and n.name == 'apply')
+        calls = [n for n in ast.walk(function) if isinstance(n, ast.Call)
+                 and ast.unparse(n.func) == 'x_plot']
+        assert len(calls) == 1
+        keywords = [n for n in calls[0].keywords if n.arg == 'detect_rules']
+        assert len(keywords) == 1 and ast.unparse(keywords[0].value) == 'True'
+        calls[0].keywords.remove(keywords[0])
+        # 阶段对比只在三个变量图窗口追加可选设置，移除后应与原窗口一致。
+        remove_exact(tree, 'import stage_compare')
+        remove_exact(tree, "STAGE_CHARTS = {'IMRDialog': 'I-MR', "
+                           "'XBRDialog': 'Xbar-R', 'XBSDialog': 'Xbar-S'}")
+        create = next(n for n in classes['IMRDialog'].body
+                      if isinstance(n, ast.FunctionDef) and n.name == 'createWidgets')
+        remove_exact(create, 'if type(self).__name__ in STAGE_CHARTS:\n'
+                             '    stage_compare.settings(self, m)')
+        remove_exact(function, 'if getattr(self, \'stage_compare\', None) is not None '
+                               'and self.stage_compare.get():\n'
+                               '    try:\n'
+                               '        stage_compare.run(self, STAGE_CHARTS[type(self).__name__])\n'
+                               '    except Exception as exc:\n'
+                               '        self.error(str(exc))\n'
+                               '    return')
     names = ('GRR_Nested_Dialog', 'GRRDialog', 'CpkDialog', 'CpkSubDialog') if module == 'qc_dialog.py' else ('IMRDialog', 'NPDialog', 'CDialog')
     for name in names:
         function = next(n for n in classes[name].body if isinstance(n, ast.FunctionDef) and n.name == 'apply')

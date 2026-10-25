@@ -8,17 +8,17 @@
     "bounds": "追踪显式导入/构造别名、本函数赋值、字符串包装、原生表方法及多行 ASCII/tab 字面量；静态审计不模拟任意跨函数动态对象流。所有现有字符串格式、join、原生 summary、DataFrame 文本与控制台数据路径已人工复核。"
   },
   "summary": {
-    "python_files": 97,
-    "files_with_production_sites": 29,
-    "producer_scopes": 56,
-    "constructor_calls": 124,
+    "python_files": 100,
+    "files_with_production_sites": 31,
+    "producer_scopes": 58,
+    "constructor_calls": 128,
     "constructors": {
-      "gen_table": 54,
-      "StatTable": 66,
+      "gen_table": 55,
+      "StatTable": 69,
       "PrettyTable": 4
     },
-    "statistical_source_positions": 62,
-    "logical_statistical_tables": 165,
+    "statistical_source_positions": 64,
+    "logical_statistical_tables": 174,
     "table_text_conversions": {
       "to_string": 2,
       "pred_table": 1,
@@ -69,6 +69,8 @@
     "grr_plot.py",
     "help_link.py",
     "icon_resource.py",
+    "improvement_chart.py",
+    "improvement_dialog.py",
     "linear_fit.py",
     "linear_plot.py",
     "modified_app.py",
@@ -116,6 +118,7 @@
     "sb_palette_dialog.py",
     "sbplot_dialog.py",
     "sheet_context.py",
+    "stage_compare.py",
     "stat_plot_dialog.py",
     "stat_table.py",
     "t_test.py",
@@ -127,6 +130,7 @@
     "two_way_anova.py",
     "txt_output.py",
     "utilities.py",
+    "worksheet_formulas.py",
     "worksheets.py"
   ],
   "file_reviews": {
@@ -159,6 +163,8 @@
     "grr_plot.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "help_link.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "icon_resource.py": "既有内嵌 Tk PhotoImage 图标资源，无统计计算、报告表格构造或输出位置；补齐历史文件清单遗漏。",
+    "improvement_chart.py": "改善前后控制图的阶段划分、指标、适用性检验、统一报告与阶段图；报告表见 producers。",
+    "improvement_dialog.py": "改善前后窗口复用 StatTable、TableBlock、PlotViewer 与 SheetApp；结果表展示见 producers。",
     "linear_fit.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "linear_plot.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "modified_app.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
@@ -202,6 +208,7 @@
     "sb_palette_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "sbplot_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "sheet_context.py": "来源工作表绑定与导出来源标签文本化；不改变统计数值或构造报告。",
+    "stage_compare.py": "普通控制图窗口的阶段对比设置与调用；结果表由 improvement_chart 与 improvement_dialog 生产，本文件不构造表格。",
     "stat_plot_dialog.py": "第二阶段统计图形参数、数据验证与展示；茎叶输出为文本统计图而非逻辑统计报告表，不使用表格载体；无表格生产位置，保持 82 张逻辑统计报告表。",
     "stat_table.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "t_test.py": "存在已逐函数分类的表格生产位置；见 producers。",
@@ -211,6 +218,7 @@
     "two_way_anova.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "txt_output.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "utilities.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "worksheet_formulas.py": "列公式的受限表达式求值、依赖排序与计算器对话框；无统计表构造或报告输出。",
     "worksheets.py": "工作表生命周期及工程/导入管理；无独立统计表构造或报告输出。",
     "advanced_time_series_dialog.py": "P1-1 GUI、后台取消、来源快照、结构化报告和导出。",
     "time_series_analysis.py": "P1-1 纯计算：显式采样、相关、分解、平稳性及 ARIMA/SARIMA，返回原精度结果。",
@@ -477,7 +485,10 @@
         "construct:StatTable#1",
         "construct:gen_table#2",
         "emit:structured:print_port#2",
-        "construct:StatTable#2"
+        "construct:StatTable#2",
+        "construct:gen_table#3",
+        "emit:structured:print_port#3",
+        "construct:StatTable#3"
       ],
       "classification": "statistical",
       "logical_tables": 2,
@@ -492,7 +503,8 @@
       ],
       "status": "已迁移 StatTable",
       "tests": [
-        "tests/test_g11_quality_tables.py::test_all_report_producers_keep_txt_results_and_export_real_files"
+        "tests/test_g11_quality_tables.py::test_all_report_producers_keep_txt_results_and_export_real_files",
+        "tests/test_g5_spc_reports.py::test_variable_charts_report_actual_statistics_limits_and_selected_panels"
       ],
       "exception_reason": "",
       "title_variants": [
@@ -506,6 +518,50 @@
         "C",
         "U"
       ]
+    },
+    "improvement_chart.py::_print_frame": {
+      "sites": [
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "{调用方提供的统计结果表}"
+      ],
+      "entry_points": [
+        "Minijmp.cChartIMR → stage_compare.run → ImprovementChartDialog.report → print_report"
+      ],
+      "status": "改善前后控制图统一报告，复用 StatTable",
+      "tests": [
+        "tests/test_improvement_chart.py::test_print_report_sections_and_causality_caveat"
+      ],
+      "exception_reason": ""
+    },
+    "improvement_dialog.py::ImprovementChartDialog.show_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 8,
+      "titles": [
+        "数据摘要",
+        "控制限",
+        "逐子组控制限（仅子组大小不等时）",
+        "阶段指标对比",
+        "变化率与波动比",
+        "异常点明细",
+        "统计检验",
+        "分析结论"
+      ],
+      "entry_points": [
+        "Minijmp.cChartIMR → stage_compare.run → ImprovementChartDialog.show_table"
+      ],
+      "status": "阶段对比结果窗口的表格，来源快照不随活动工作表切换",
+      "tests": [
+        "tests/test_improvement_chart.py::test_dialog_reuses_source_sheet_and_plot_viewer"
+      ],
+      "exception_reason": ""
     },
     "cpk.py::cpk": {
       "sites": [

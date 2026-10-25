@@ -1,8 +1,9 @@
+import copy
 import csv
 import io
 
 import pandas as pd
-from tkinter import END, StringVar, Entry, Menu, messagebox
+from tkinter import END, BooleanVar, StringVar, Entry, Menu, messagebox
 import numpy as np
 #  import os
 ############ pandastable #############
@@ -15,9 +16,286 @@ from pandastable_local.dialogs import MultipleValDialog, applyStyle, filedialog
 from df_combine import df_combine
 from utilities import grouping_by_labels, verifyNewColName, filter_voids, is_void
 from dialog import findRepDialog
+from worksheet_formulas import (CalculatorDialog, FormulaError, cycle_message,
+                                evaluate, formula_columns, make_formula, signature)
 
 
 class MTable(Table):
+    def _formula_state(self):
+        state = self.__dict__.get('_formulas')
+        if state is None:
+            state = {'items': {}, 'auto': True}
+            self._formulas = state
+        return state
+
+    @property
+    def formulas(self):
+        return self._formula_state()['items']
+
+    @property
+    def formulas_auto(self):
+        return self._formula_state()['auto']
+
+    @formulas_auto.setter
+    def formulas_auto(self, value):
+        self._formula_state()['auto'] = bool(value)
+
+    def formula_for(self, column):
+        return self.formulas.get(column)
+
+    def _formula_columns_selected(self, cols):
+        targets = formula_columns(self.formulas)
+        return [self.model.df.columns[col] for col in cols
+                if 0 <= col < len(self.model.df.columns)
+                and self.model.df.columns[col] in targets]
+
+    def _reject_formula_edit(self, columns):
+        if not columns:
+            return False
+        messagebox.showwarning(
+            '列公式', '该列由列公式生成。请先解除公式关联，再手工编辑：\n'
+            + '、'.join(map(str, columns)), parent=self.parentframe)
+        return True
+
+    def _formula_targets_in(self, rows, cols):
+        df = self.model.df
+        names = {df.columns[col] for col in cols if 0 <= col < len(df.columns)}
+        return [name for name in self.formulas if name in names]
+
+    def _formula_auto_var(self):
+        var = self.__dict__.get('_formula_auto_checked')
+        if var is None:
+            var = BooleanVar(self, value=self.formulas_auto)
+            self._formula_auto_checked = var
+        var.set(self.formulas_auto)
+        return var
+
+    def calculator(self):
+        CalculatorDialog(self, self.currentcol)
+
+    def assign_column_formula(self):
+        CalculatorDialog(self, self.currentcol)
+
+    def edit_column_formula(self):
+        name = self.model.df.columns[self.currentcol]
+        if name not in self.formulas:
+            messagebox.showinfo('列公式', '当前列没有关联公式。', parent=self.parentframe)
+            return
+        CalculatorDialog(self, self.currentcol)
+
+    def view_column_formula(self):
+        name = self.model.df.columns[self.currentcol]
+        formula = self.formulas.get(name)
+        if formula is None:
+            messagebox.showinfo('列公式', '当前列没有关联公式。', parent=self.parentframe)
+            return
+        from worksheet_formulas import display_expression
+        text = f'{name} = {display_expression(formula, self.model.df)}'
+        if formula.get('stale'):
+            text += '\n待更新'
+        if formula.get('error') or formula.get('warning'):
+            text += '\n' + (formula.get('error') or formula.get('warning'))
+        messagebox.showinfo('列公式', text, parent=self.parentframe)
+
+    def delete_column_formula(self):
+        name = self.model.df.columns[self.currentcol]
+        if name not in self.formulas:
+            messagebox.showinfo('列公式', '当前列没有关联公式。', parent=self.parentframe)
+            return
+        if not messagebox.askyesno('删除列公式',
+                                   f'解除“{name}”的公式关联并保留当前结果？',
+                                   parent=self.parentframe):
+            return
+        self.storeCurrent()
+        self.formulas.pop(name)
+        self.tableChanged()
+
+    def assign_formula(self, target, expression, link=True):
+        """Validate everything before replacing a column; existing data stays on failure."""
+        df = self.model.df
+        formula = make_formula(target, expression, df)
+        if target in formula['sources'].values():
+            raise FormulaError(f'公式不能引用目标列“{target}”。')
+        candidate = dict(self.formulas) if link else {}
+        candidate[target] = formula
+        cyclic = cycle_message(candidate)
+        if cyclic:
+            raise FormulaError(f'存在循环引用：{cyclic}')
+        probe = df if target in df.columns else df.assign(**{target: np.nan})
+        result = evaluate(candidate, probe)
+        problem = (candidate[target].get('error')
+                   or candidate[target].get('warning'))
+        if candidate[target].get('error'):
+            raise FormulaError(problem)
+        changed = [name for name in candidate if name in df.columns]
+        updated = df.copy(deep=True)
+        for name in changed:
+            updated[name] = result[name]
+        if target in updated.columns:
+            updated[target] = result[target]
+        else:
+            updated.insert(len(updated.columns), target, result[target].to_numpy())
+        self.storeCurrent()
+        self.model.df = updated
+        if link:
+            self._formula_state()['items'] = candidate
+        else:
+            self.formulas.pop(target, None)
+        for item in self.formulas.values():
+            item['stale'] = False
+        self._formula_signature = signature(self.formulas, self.model.df)
+        self.redraw()
+        self.tableChanged()
+
+    def define_formula(self, target, expression, link=True):
+        """One-shot calculator results are plain data and never recalculate."""
+        if link:
+            self.assign_formula(target, expression, link=True)
+            return
+        df = self.model.df
+        formula = make_formula(target, expression, df)
+        if target in formula['sources'].values():
+            raise FormulaError(f'公式不能引用目标列“{target}”。')
+        probe = df if target in df.columns else df.assign(**{target: np.nan})
+        result = evaluate({target: formula}, probe)
+        if formula.get('error'):
+            raise FormulaError(formula['error'])
+        updated = df.copy(deep=True)
+        values = result[target].to_numpy()
+        if target in updated.columns:
+            updated[target] = values
+        else:
+            updated.insert(len(updated.columns), target, values)
+        self.storeCurrent()
+        self.model.df = updated
+        self.formulas.pop(target, None)
+        self.redraw()
+        self.tableChanged()
+        if formula.get('warning'):
+            messagebox.showwarning('公式', formula['warning'], parent=self.parentframe)
+
+    def refresh_formulas(self, force=False):
+        """Recalculate in dependency order; manual mode only marks results stale."""
+        formulas = self.formulas
+        if not formulas or self.filtered or getattr(self, '_formula_busy', False):
+            return False
+        marks = signature(formulas, self.model.df)
+        if not self.formulas_auto and not force:
+            previous = getattr(self, '_formula_signature', None)
+            stale = previous is not None and marks != previous
+            changed = False
+            for item in formulas.values():
+                if stale and not item['stale']:
+                    item['stale'] = True
+                    changed = True
+            return changed
+        self._formula_busy = True
+        try:
+            result = evaluate(formulas, self.model.df)
+        finally:
+            self._formula_busy = False
+        updated = self.model.df
+        for name in formulas:
+            if name in updated.columns and not formulas[name]['error']:
+                updated[name] = result[name]
+        self._formula_signature = marks
+        return True
+
+    def formula_column_renamed(self, old, new):
+        if old in self.formulas:
+            item = self.formulas.pop(old)
+            item['target'] = new
+            self.formulas[new] = item
+        for item in self.formulas.values():
+            if old in item['sources'].values():
+                item['sources'] = {token: new if name == old else name
+                                   for token, name in item['sources'].items()}
+
+    def formula_columns_renamed(self, mapping):
+        """Apply positional renames together so swapped names stay attached."""
+        targets = {}
+        for target, item in self.formulas.items():
+            item['target'] = mapping.get(target, target)
+            item['sources'] = {token: mapping.get(name, name)
+                               for token, name in item['sources'].items()}
+            targets[item['target']] = item
+        self.formulas.clear()
+        self.formulas.update(targets)
+
+    def _drop_missing_formula_targets(self):
+        for name, item in self.formulas.items():
+            if name not in self.model.df.columns:
+                item['error'] = f'目标列“{name}”已不存在。'
+                item['stale'] = True
+
+    def _drop_missing_formula_sources(self):
+        for item in self.formulas.values():
+            for token, name in item['sources'].items():
+                if name not in self.model.df.columns and '已不存在' not in item['error']:
+                    item['error'] = f'公式引用的列“{name}”已不存在。'
+                    item['stale'] = True
+
+    def formula_source_removed(self, name):
+        """Keep definitions, but make broken column references explicit."""
+        for item in self.formulas.values():
+            if name in item['sources'].values():
+                item['error'] = f'公式引用的列“{name}”已不存在。'
+                item['stale'] = True
+
+    def recalculate_formulas(self):
+        if not self.formulas:
+            messagebox.showinfo('列公式', '当前工作表没有列公式。', parent=self.parentframe)
+            return
+        self.refresh_formulas(force=True)
+        self.redraw()
+        self.tableChanged()
+
+    def set_formula_auto(self):
+        self.formulas_auto = not self.formulas_auto
+        if self.formulas_auto:
+            self.refresh_formulas(force=True)
+        self.redraw()
+        self.tableChanged()
+
+    def load_formulas(self, items, auto=True):
+        if not isinstance(items, dict):
+            raise ValueError('无效的列公式定义')
+        columns = list(self.model.df.columns)
+        clean = {}
+        for target, item in items.items():
+            if (not isinstance(item, dict)
+                    or not isinstance(item.get('expression'), str)
+                    or not isinstance(item.get('sources'), dict)):
+                raise ValueError('无效的列公式定义')
+            target = self._match_column_name(target, columns)
+            clean[target] = {'target': target,
+                             'expression': item['expression'],
+                             'sources': {str(k): self._match_column_name(v, columns)
+                                         for k, v in item['sources'].items()},
+                             'stale': bool(item.get('stale', False)),
+                             'error': '', 'warning': ''}
+        self._formula_state().update(items=clean, auto=bool(auto))
+        self._formula_signature = signature(clean, self.model.df)
+        cyclic = cycle_message(clean)
+        if cyclic:
+            for item in clean.values():
+                item['error'] = f'存在循环引用：{cyclic}'
+                item['stale'] = True
+        elif auto:
+            self.refresh_formulas(force=True)
+
+    def export_formulas(self):
+        return {name: {'expression': item['expression'],
+                       'sources': dict(item['sources']), 'stale': item.get('stale', False)}
+                for name, item in self.formulas.items()}
+
+    @staticmethod
+    def _match_column_name(name, columns):
+        """Keep numeric labels numeric; strings need no lookup (legacy projects)."""
+        if isinstance(name, str):
+            return name
+        return next((column for column in columns if column == name), name)
+
     def doExport(self, filename=None):
         """Do a simple export of the cell contents to csv"""
 
@@ -46,6 +324,7 @@ class MTable(Table):
             return
         self.storeCurrent()
         cols = list(df)
+        old_headers = list(df.columns)
         new_headers = []
         for x in range(len(cols)):
             if is_void(df.iloc[0, x]):
@@ -55,6 +334,9 @@ class MTable(Table):
             new_headers.append(
                 verifyNewColName(new_name, new_headers))
         df.columns = new_headers
+        # References are keyed by column name; follow each original position.
+        self.formula_columns_renamed(dict(zip(old_headers, new_headers)))
+        self.tableChanged()
         self.redraw()
         return
 
@@ -143,7 +425,6 @@ class MTable(Table):
             messagebox.showwarning('无法粘贴', '请先关闭筛选，再粘贴数据。',
                                    parent=self.parentframe)
             return False
-
         df = self.model.df
         if axis not in ('cell', 'column', 'row'):
             raise ValueError(f'未知粘贴范围：{axis}')
@@ -219,6 +500,9 @@ class MTable(Table):
                 '无法粘贴', '剪贴板尺寸超出工作表范围，未修改数据。',
                 parent=self.parentframe)
             return False
+        # Only the resolved range is authoritative for cell expansion and whole-row paste.
+        if self._reject_formula_edit(self._formula_targets_in(target_rows, target_cols)):
+            return False
 
         updated = df.copy(deep=True)
         try:
@@ -258,6 +542,8 @@ class MTable(Table):
             messagebox.showwarning('无法清除', '请先关闭筛选，再清除数据。',
                                    parent=self.parentframe)
             return
+        if self._reject_formula_edit(self._formula_targets_in(rows, cols)):
+            return
         if not messagebox.askyesno('清除所选', '确定清除选中的单元格内容？',
                                    parent=self.parentframe):
             return
@@ -267,6 +553,9 @@ class MTable(Table):
     def fillColumn(self):
         """Fill a column with a data range"""
         if not self.requireUnfiltered():
+            return
+        if ('_formulas' in self.__dict__ and
+                self._reject_formula_edit(self._formula_columns_selected([self.currentcol]))):
             return
 
         dists = ['normal', 'gamma', 'uniform', 'random integer', 'logistic']
@@ -437,6 +726,21 @@ class MTable(Table):
                          state='normal' if can_undo else 'disabled')
         menu.add_command(label='清除所选', command=lambda: self.clear_context_selection(rows, cols),
                          state='normal' if mutable else 'disabled')
+        menu.add_separator()
+        formulas = menu.add_cascade(label='公式')
+        formula_menu = Menu(menu, tearoff=0)
+        for label, command in (
+                ('向列分配公式', self.assign_column_formula),
+                ('编辑列公式', self.edit_column_formula),
+                ('查看列公式', self.view_column_formula),
+                ('删除列公式', self.delete_column_formula)):
+            formula_menu.add_command(label=label, command=command)
+        formula_menu.add_separator()
+        formula_menu.add_checkbutton(label='自动计算所有公式', command=self.set_formula_auto,
+                                     variable=self._formula_auto_var())
+        formula_menu.add_command(label='立即计算所有公式', command=self.recalculate_formulas)
+        menu.entryconfigure('公式', menu=formula_menu)
+        self.formula_menu = formula_menu
         applyStyle(menu)
         menu.post(event.x_root, event.y_root)
         self.rightmenu = menu
@@ -490,6 +794,11 @@ class MTable(Table):
     def handleCellEntry(self, row, col, nxt_col=False):
         """Callback for cell entry"""
 
+        if self._reject_formula_edit(self._formula_columns_selected([col])):
+            self.delete('entry')
+            if hasattr(self, 'cellentry'):
+                self.cellentry.destroy()
+            return
         value = self.cellentryvar.get()
         self.storeCurrent()
         if self.filtered == 1:
@@ -502,7 +811,8 @@ class MTable(Table):
             messagebox.showerror('Could not edit data', str(exc), parent=self.parentframe)
             return
 
-        self.drawText(row, col, value, align=self.align)
+        self.refresh_formulas()
+        self.redraw()
         self.delete('entry')
         self.gotonextCell(nxt_col=nxt_col)
         return
@@ -544,6 +854,10 @@ class MTable(Table):
         """Paste a new table from the clipboard"""
         if not self.requireUnfiltered():
             return
+        if self._reject_formula_edit(self._formula_targets_in(
+                self.multiplerowlist, self.multiplecollist)
+                if self.multiplerowlist and self.multiplecollist else []):
+            return
 
         self.storeCurrent()
         try:
@@ -570,6 +884,9 @@ class MTable(Table):
     def paste_header(self, event=None):
         """Paste a new table from the clipboard"""
         if not self.requireUnfiltered():
+            return
+        if self._reject_formula_edit(self._formula_targets_in(
+                self.multiplerowlist, self.multiplecollist)):
             return
 
         self.storeCurrent()
@@ -775,6 +1092,12 @@ class MTable(Table):
         self.updateIndex()
         return
 
+    def deleteCells(self, rows, cols, answer=None):
+        """Association must be removed before a formula column is cleared."""
+        if self._reject_formula_edit(self._formula_targets_in(rows, cols)):
+            return
+        return super().deleteCells(rows, cols, answer)
+
     def colorRows(self):
         return
 
@@ -848,6 +1171,9 @@ class MTable(Table):
         """
         if not self.requireUnfiltered():
             return
+        if self._reject_formula_edit(self._formula_targets_in(
+                self.multiplerowlist, self.multiplecollist)):
+            return
 
         df = self.model.df
         columnIndex = self.multiplecollist
@@ -905,6 +1231,7 @@ class MTable(Table):
         #  for col in list(dfSub):
         #      df[col] = dfSub[col]
         df[colnames] = dfSub.set_axis(df.index)
+        self.tableChanged()
         self.redraw()
         return
 
@@ -913,18 +1240,43 @@ class MTable(Table):
 
         #  print(len(self.prevdf),self.prevdf_end)
         prevdf = (self.dataframe if self.filtered else self.model.df).copy()
+        snapshot = self._formula_snapshot() if hasattr(self, '_formula_state') else None
         if self.prevdf is None:
             self.prevdf = [prevdf]
+            if snapshot is not None:
+                self._formula_history = [snapshot]
             self.prevdf_end = 1
         else:
             del self.prevdf[self.prevdf_end:]
             self.prevdf.append(prevdf)
+            if snapshot is not None:
+                history = self.__dict__.setdefault('_formula_history', [])
+                del history[self.prevdf_end:]
+                history.append(snapshot)
             self.prevdf_end += 1
             if self.prevdf_end > 5:
                 del self.prevdf[0]
+                if snapshot is not None:
+                    del history[0]
                 self.prevdf_end -= 1
         print(len(self.prevdf), self.prevdf_end)
         return
+
+    def _formula_snapshot(self):
+        return {'items': copy.deepcopy(self.formulas), 'auto': self.formulas_auto}
+
+    def _restore_formula_snapshot(self, index):
+        history = getattr(self, '_formula_history', None)
+        if history is None or not 0 <= index < len(history):
+            return False
+        state = history[index]
+        self._formula_state().update(items=copy.deepcopy(state['items']),
+                                     auto=state['auto'])
+        if self.formulas_auto:
+            self.refresh_formulas(force=True)
+        else:
+            self._formula_signature = signature(self.formulas, self.model.df)
+        return True
 
     def undo(self, event=None):
         """Undo last major table change"""
@@ -940,6 +1292,10 @@ class MTable(Table):
         self.prevdf_end -= 1
         prevdf = self.prevdf[self.prevdf_end]
         self.model.df = prevdf.copy()
+        if (hasattr(self, 'refresh_formulas')
+                and (not getattr(self, '_formula_history', None)
+                     or not self._restore_formula_snapshot(self.prevdf_end))):
+            self.refresh_formulas(force=True)
         self.updateModel(self.model)
         self.redraw()
         print(len(self.prevdf), self.prevdf_end)
@@ -955,6 +1311,10 @@ class MTable(Table):
         self.prevdf_end += 1
         prevdf = self.prevdf[self.prevdf_end]
         self.model.df = prevdf.copy()
+        if (hasattr(self, 'refresh_formulas')
+                and (not getattr(self, '_formula_history', None)
+                     or not self._restore_formula_snapshot(self.prevdf_end))):
+            self.refresh_formulas(force=True)
         self.updateModel(self.model)
         self.redraw()
         print(len(self.prevdf), self.prevdf_end)
@@ -964,6 +1324,11 @@ class MTable(Table):
         """Callback to be used when dataframe changes so that other
             widgets and data can be updated"""
 
+        self._drop_missing_formula_targets()
+        changed = self.refresh_formulas()
+        self._drop_missing_formula_sources()
+        if changed:
+            self.redraw()
         self.updateFunctions()
         self.updateWidgets()
         try:
@@ -979,6 +1344,10 @@ class MTable(Table):
     def clearDataUp(self, evt=None):
         """Delete cells and move cells below up"""
         if not self.requireUnfiltered():
+            return
+        formulas = getattr(self, '_formulas', None)
+        if formulas and formulas['items'] and self._reject_formula_edit(
+                self._formula_targets_in(self.multiplerowlist, self.multiplecollist)):
             return
 
         if self.allrows:

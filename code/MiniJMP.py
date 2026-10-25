@@ -159,6 +159,10 @@ class Minijmp(Worksheets, Minijmp_pre):
         self.table_menu = self.createPulldown(self.menu, self.table_menu)
         self.menu.add_cascade(label='工具', menu=self.table_menu['var'])
 
+        self.calc_menu = {'01计算器': {'cmd': lambda: self._call('calculator')}}
+        self.calc_menu = self.createPulldown(self.menu, self.calc_menu)
+        self.menu.add_cascade(label='计算', menu=self.calc_menu['var'])
+
         self.stats_menu = {
             '01描述性统计': {'cmd': self.describe},
             '02多变量描述性统计': {'cmd': self.multi_describe},

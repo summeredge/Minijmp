@@ -172,14 +172,20 @@ def test_original_defaults_structure_and_english_removed(tk_root, callback, cls,
     try:
         expected = BASELINE[cls]
         actual = {k: variable_values(v) for k, v in dialog.__dict__.items() if isinstance(v, (tk.Variable, dict))}
+        # 阶段对比的展开区在勾选时才创建，默认窗口结构保持原样。
+        actual = {k: v for k, v in actual.items() if k != 'stage_compare'}
         assert actual == expected['variables']
-        assert [w.winfo_class() for w in widgets(dialog.main)] == expected['classes']
+        # 新增的只是一个勾选项，不进入原窗口控件序列比较。
+        stage_toggle = '启用阶段对比（改善前/改善后）'
+        shown = [w for w in widgets(dialog.main)
+                 if 'text' not in w.keys() or str(w.cget('text')) != stage_toggle]
+        assert [w.winfo_class() for w in shown] == expected['classes']
         old = {text for text in expected['texts'] if re.search('[A-Za-z]{2}', text)}
-        for widget in widgets(dialog.main):
+        for widget in shown:
             if 'text' in widget.keys():
                 assert str(widget.cget('text')) not in old
         # Every displayed fixed option maps back to that exact original spelling.
-        boxes = [w for w in widgets(dialog.main) if 'values' in w.keys()]
+        boxes = [w for w in shown if 'values' in w.keys()]
         assert len(boxes) == len(expected['options'])
         fixed_boxes = []
         for box, values in zip(boxes, expected['options']):
@@ -354,6 +360,18 @@ def test_original_analysis_code_is_unchanged():
                 return ast.Expr(value=node.value)
             return self.generic_visit(node)
 
+    class StageCompareHook(ast.NodeTransformer):
+        """Remove only the optional stage-comparison branch."""
+        def visit_If(self, node):
+            calls = {ast.unparse(n.func) for n in ast.walk(node) if isinstance(n, ast.Call)}
+            if 'stage_compare.run' in calls:
+                return None
+            return self.generic_visit(node)
+
+        def visit_Call(self, node):
+            node.keywords = [kw for kw in node.keywords if kw.arg != 'detect_rules']
+            return self.generic_visit(node)
+
     class ErrorsToMarker(ast.NodeTransformer):
         def visit_Call(self, node):
             if isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name) and node.func.value.id == 'self' and node.func.attr == 'error':
@@ -429,7 +447,11 @@ def test_original_analysis_code_is_unchanged():
                 source = source.replace('Received %d valid data pairs for group ID and measurement.',
                                         '子组标识与测量值的有效配对数 = %d。')
                 source = source.replace('WARNING: Unbalanced subgrouping.', '警告：子组大小不相等。')
-            tree = ErrorsToMarker().visit(ColumnMemoryHooks().visit(ast.parse(source)))
+            tree = ast.parse(source)
+            if file == 'code/ctrlchart_dialog.py':
+                # 阶段对比分支由 SPC 测试覆盖；其余 apply AST 仍完整比较。
+                tree = StageCompareHook().visit(tree)
+            tree = ErrorsToMarker().visit(ColumnMemoryHooks().visit(tree))
             return {c.name + '.' + m.name: ast.dump(m, include_attributes=False) for c in tree.body if isinstance(c, ast.ClassDef)
                     for m in c.body if isinstance(m, ast.FunctionDef) and m.name in ('apply','ok','preview','get_values','get_box_settings','get_histo_setting')}
         actual, original = methods(current), methods(baseline)

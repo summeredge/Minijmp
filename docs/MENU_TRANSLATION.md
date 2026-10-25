@@ -14,6 +14,7 @@
 | View | 视图 |
 | Data | 数据 |
 | Tools | 工具 |
+| Calculator | 计算 |
 | Stats | 统计 |
 | Quality | 质量 |
 | Plots | 图形 |
@@ -105,6 +106,11 @@
 | Melt Table | 逆透视表 |
 | Time Series Resampling | 时间序列重抽样 |
 
+## 计算（Calculator）
+
+| 英文原文 | 中文译名 |
+| --- | --- |
+| Calculator | 计算器 |
 
 ## 统计（Stats）
 
@@ -175,6 +181,12 @@
 `quality.advanced_spc`。提供 EWMA、CUSUM、Nelson 和 Hotelling T² 模式，
 既有控制图入口保留。菜单文字保留统计缩写 SPC。
 
+阶段对比不是独立菜单项：I-MR、Xbar-R、Xbar-S 原窗口的“启用阶段对比
+（改善前/改善后）”默认不勾选，勾选后展开阶段划分、控制限模式与显著性水平设置，
+由 `code/stage_compare.py` 调用 `improvement_chart.analyze_improvement`，
+并在 `ImprovementChartDialog` 中展示结果表和阶段图。离线帮助主题为
+`quality.improvement_chart`。未勾选时保持原有控制图流程与输出。
+
 完整过程能力的五个入口共用 `code/capability_dialog.py:CapabilityDialog`，分别调用
 `capability_normal`、`capability_nonnormal`、`capability_transform`、
 `capability_sixpack_normal`、`capability_sixpack_nonnormal`，通过
@@ -244,6 +256,9 @@
 | Paste | 粘贴 |
 | Undo | 撤销 |
 | Clear Selected | 清除所选 |
+| Formulas | 公式 |
+
+公式子菜单：向列分配公式、编辑列公式、查看列公式、删除列公式、自动计算所有公式（勾选项）、立即计算所有公式。
 
 ## 列标题右键菜单
 

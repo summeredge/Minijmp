@@ -284,7 +284,7 @@ def test_help_paths_stay_relative_after_project_relocation(monkeypatch, tmp_path
 
 def test_pi_import_topic_is_unique_searchable_and_available_offline(monkeypatch):
     topics = help_topics()
-    assert len(topics) == 87
+    assert len(topics) == 88
     assert len({topic['id'] for topic in topics}) == len(topics)
     topic, = [item for item in topics if item['id'] == 'files.pi_import']
     assert topic['entry'] == 'MiniJMP.import_pi_data'
@@ -326,3 +326,23 @@ def test_advanced_spc_topic_contract_is_searchable_and_available_offline(monkeyp
     assert help_link.open_help(topic['id'])
     assert help_link.open_help('AdvancedSPCDialog')
     assert opened == [(HELP / 'index.html').resolve().as_uri() + '#quality.advanced_spc'] * 2
+
+
+def test_improvement_chart_topic_contract_is_searchable_and_available_offline(monkeypatch):
+    topic, = [item for item in help_topics() if item['id'] == 'quality.improvement_chart']
+    assert topic['title'] == '改善前后控制图'
+    assert topic['entry'] == 'MiniJMP.cChartIMR'
+    assert topic['menu'] == 'Quality'
+    assert topic['dialog_classes'] == []
+    assert topic['page'] == 'pages/improvement-chart.html#quality.improvement_chart'
+    index = json.loads(build_search_index().split(' = ', 1)[1].rstrip()[:-1])
+    item, = [entry for entry in index if entry['id'] == topic['id']]
+    for text in ['阶段列', '时间分界点', '各阶段独立控制限', '改善前固定基线',
+                 'Ljung-Box', 'Welch', 'Levene', 'ddof=1', '不适用',
+                 '异常规则记录数', '子组不得跨越阶段边界', '统计显著差异不等同于因果改善',
+                 '异常子组比例', '逐子组变化']:
+        assert text in item['text'], text
+    opened = []
+    monkeypatch.setattr(help_link.webbrowser, 'open', lambda url, **kw: opened.append(url) or True)
+    assert help_link.open_help(topic['id'])
+    assert opened == [(HELP / 'index.html').resolve().as_uri() + '#quality.improvement_chart']

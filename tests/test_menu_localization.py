@@ -11,7 +11,7 @@ from modified_table import MTable
 from pandastable_local.data import TableModel
 
 
-CASCADES = ['文件', '工作表', '编辑', '视图', '数据', '工具',
+CASCADES = ['文件', '工作表', '编辑', '视图', '数据', '工具', '计算',
             '统计', '质量', '图形', '调试', '帮助']
 
 
@@ -114,6 +114,7 @@ EXPECTED_LAYOUT = {
     '工具': ['转换列名', '转换为数值', '清理数据', '查找重复项',
             '表格转换为文本', '表格信息', 'sep', '数值变换', '分组聚合',
             '交叉表', '合并/拼接表', '透视表', '逆透视表', '时间序列重抽样'],
+    '计算': ['计算器'],
     '统计': ['描述性统计', '多变量描述性统计', '正态性检验', '置信区间', 'sep',
             '分布拟合', '相关分析', '线性回归', '残差图', '正交回归',
             '相关系数矩阵', '完整回归分析', '泊松回归', '名义多分类 Logistic 回归',
@@ -125,7 +126,8 @@ EXPECTED_LAYOUT = {
             '过程能力分析 (Cpk)', '含子组的 Cpk', '正态过程能力（完整）', '非正态过程能力',
             'Box-Cox / Johnson 变换', '正态能力 Sixpack', '非正态能力 Sixpack', 'sep', '容差区间', 'sep',
             '控制图 I-MR', '控制图 I（单值）', '控制图 MR（移动极差）',
-            '控制图 Xbar-R', '控制图 Xbar-S', '高级 SPC 控制图', 'sep', '控制图 NP', '控制图 P',
+            '控制图 Xbar-R', '控制图 Xbar-S', '高级 SPC 控制图', 'sep',
+            '控制图 NP', '控制图 P',
             '控制图 C', '控制图 U', 'sep', '帕累托图', '运行图', '因果图', '多变异图', '属性一致性分析'],
     '图形': ['通用绘图器', 'sep', '直方图与分布拟合', '分组直方图',
             '二维直方图', '多变量箱线图', '分组箱线图', '条形图', '分组计数图', '饼图',
@@ -314,6 +316,28 @@ def test_row_header_popup_menu_is_chinese(app, unposted):
                          '删除行', '复制行', '复制整行', '粘贴整行']
     finally:
         menu.destroy()
+
+
+def test_formula_context_submenu_and_calculator_window(app, unposted, monkeypatch):
+    from worksheet_formulas import CalculatorDialog
+
+    table = app.table
+    table.model.df = pd.DataFrame({'C1': [2.], 'C2': [4.]})
+    table.redraw()
+    labels = []
+    monkeypatch.setattr(CalculatorDialog, '__init__', lambda self, *a, **k: labels.append(a[1:]))
+    table.handle_right_click(SimpleNamespace(x=20, y=table.y_start + 5, x_root=0, y_root=0))
+    menu = table.rightmenu
+    formula_index = next(i for i, kind, text in read_menu(menu)
+                         if kind == 'cascade' and text == '公式')
+    submenu = menu.nametowidget(menu.entrycget(formula_index, 'menu'))
+    assert [text for _, kind, text in read_menu(submenu)
+            if kind in ('command', 'checkbutton')] == [
+                '向列分配公式', '编辑列公式', '查看列公式', '删除列公式',
+                '自动计算所有公式', '立即计算所有公式']
+    submenu.invoke(0)
+    assert labels == [(0,)]
+    menu.destroy()
 
 
 def test_stored_plot_history_menu_stays_usable(app):
