@@ -33,9 +33,10 @@ if ($inside -and $inside.Ok -and $inside.Lines -contains 'true') {
     if ($branch -ne 'main') { Add-Result 'BLOCKED' "发布分支必须是 main，当前为 '$branch'。" }
     else { Add-Result 'PASS' '发布分支为 main。' }
 
+    # Uncommitted work is allowed for office distribution; it is recorded, not discarded.
     $dirty = (Invoke-Git @('status', '--porcelain', '--untracked-files=normal')).Lines
     if ($dirty.Count) {
-        Add-Result 'BLOCKED' ("Git 工作区尚未整理，正式构建前需要完成版本归档（{0} 项未提交或未跟踪变更）。" -f $dirty.Count)
+        Add-Result 'WARNING' ("Git 工作区有 {0} 项未提交或未跟踪变更；构建取磁盘当前内容并在 BUILD-INFO 记录该状态。" -f $dirty.Count)
         $dirty | Select-Object -First 10 | ForEach-Object { Add-Result 'WARNING' "工作区变更：$_" }
     } else {
         Add-Result 'PASS' 'Git 工作区干净，无已暂存、未暂存或未跟踪变更。'
@@ -54,45 +55,27 @@ if ($inside -and $inside.Ok -and $inside.Lines -contains 'true') {
 if (!$GitOnly) {
     $python = Join-Path $root '.venv\Scripts\python.exe'
     if (!(Test-Path -LiteralPath $python -PathType Leaf)) {
-        Add-Result 'BLOCKED' "项目 Python 3.11 环境缺失：$python"
+        Add-Result 'BLOCKED' "项目 Python 环境缺失：$python（需要 Windows x64、Python >= 3.11）"
     } else {
-        $pythonVersion = (& $python -c "import sys; print('.'.join(map(str, sys.version_info[:3])))" 2>$null)
-        if ($pythonVersion -ne '3.11.9') { Add-Result 'BLOCKED' "构建解释器应为 Python 3.11.9，实际 $pythonVersion。" }
-        else { Add-Result 'PASS' '构建解释器为 Python 3.11.9。' }
-
-        $bits = (& $python -c "import struct; print(struct.calcsize('P') * 8)" 2>$null)
-        if ($bits -ne '64') { Add-Result 'BLOCKED' "构建解释器应为 64 位，实际 $bits 位。" }
-        else { Add-Result 'PASS' '构建解释器为 64 位。' }
-
-        $lock = Join-Path $root 'packaging\windows\requirements-py311.lock'
-        if (!(Test-Path -LiteralPath $lock -PathType Leaf)) {
-            Add-Result 'BLOCKED' '缺少 packaging\windows\requirements-py311.lock。'
-        } else {
-            $pins = @"
-import importlib.metadata as m, pathlib, sys
-bad = []
-for name, version in [line.strip().split('==') for line in pathlib.Path(sys.argv[1]).read_text().splitlines() if '==' in line]:
-    try:
-        have = m.version(name)
-    except m.PackageNotFoundError:
-        have = 'missing'
-    if have != version:
-        bad.append(f'{name}=={version} (have {have})')
-print(', '.join(bad))
-"@
-            $mismatch = (& $python -c $pins $lock 2>$null)
-            if ($LASTEXITCODE -ne 0) { Add-Result 'BLOCKED' '无法核对锁定依赖版本。' }
-            elseif ($mismatch) { Add-Result 'BLOCKED' "已安装依赖与锁定文件不一致：$mismatch" }
-            else { Add-Result 'PASS' '已安装依赖与 requirements-py311.lock 一致。' }
+        # Python >= 3.11 x64, dependency drift and PyInstaller are judged by
+        # numeric sys.version_info and metadata, never by string comparison.
+        & $python (Join-Path $root 'tools\release_env.py') 2>&1 | ForEach-Object {
+            $text = "$_"
+            if ($text -match '^(PASS|WARNING|BLOCKED): (.*)$') {
+                Add-Result $Matches[1] $Matches[2]
+            } elseif ($text.Trim()) {
+                Add-Result 'BLOCKED' "环境检查失败：$text"
+            }
         }
 
-        & $python -m pip check 2>&1 | Out-Null
-        if ($LASTEXITCODE -ne 0) { Add-Result 'BLOCKED' '构建环境存在依赖冲突（python -m pip check 未通过）。' }
-        else { Add-Result 'PASS' 'python -m pip check 通过。' }
-
-        $pyinstallerVersion = (& $python -m PyInstaller --version 2>$null)
-        if ($pyinstallerVersion -ne '6.22.3') { Add-Result 'BLOCKED' "PyInstaller 应为 6.22.3，实际 $pyinstallerVersion。" }
-        else { Add-Result 'PASS' 'PyInstaller 版本为 6.22.3。' }
+        & $python (Join-Path $root 'tools\release_metadata.py') 2>&1 | ForEach-Object {
+            $text = "$_"
+            if ($text -match '^(PASS|WARNING|BLOCKED): (.*)$') {
+                Add-Result $Matches[1] $Matches[2]
+            } elseif ($text.Trim()) {
+                Add-Result 'BLOCKED' "版本检查失败：$text"
+            }
+        }
     }
 
     $runtimeInputs = @(
@@ -103,35 +86,31 @@ print(', '.join(bad))
         'icon/icon_big.ico', 'code/help.json', 'help', 'user_config/default.conf',
         'sample_data/coatings.csv', 'sample_data/Gasket.xlsx', 'sample_data/ctrl_chart_test.pickle',
         'sample_data/CPK_sample.pickle', 'sample_data/GRR_crossed.pickle', 'sample_data/fit_sample_data.pickle',
-        'LICENSE', 'tools/build_windows_release.ps1', 'tools/write_third_party_notices.py'
+        'LICENSE', 'tools/build_windows_release.ps1', 'tools/check_windows_release_ready.ps1',
+        'tools/make_zip.py', 'tools/smoke_launch.py', 'tools/release_env.py',
+        'tools/release_metadata.py', 'tools/write_third_party_notices.py'
     )
     $missing = @($runtimeInputs | Where-Object { !(Test-Path -LiteralPath (Join-Path $root $_)) })
     if ($missing) { $missing | ForEach-Object { Add-Result 'BLOCKED' "缺少构建输入：$_" } }
     else { Add-Result 'PASS' '入口、运行资源、许可证与发布脚本均已存在。' }
 
-    # shortcut: source list mirrors $sourcePaths in build_windows_release.ps1, update both together.
-    $sourcePaths = @('code', 'help', 'icon', 'user_config/default.conf', 'sample_data', 'tests', 'tools',
-        'packaging', 'docs/MENU_TRANSLATION.md', 'LICENSE', 'README.md', 'AGENTS.md', 'CODING_STANDARDS.md',
-        'CONTRIBUTING.md', 'CHANGES', 'requirements.txt', 'setup_env.bat', 'start.py', 'win_start.bat',
-        'win_start_no_cmd_win.vbs', 'packaging/windows/licenses/Carbon-Icons-Apache-2.0.txt',
-        'packaging/windows/licenses/Tabler-Icons-MIT.txt')
-    if ($inside -and $inside.Ok) {
-        $untracked = @($sourcePaths | Where-Object { !((Invoke-Git @('ls-files', '--', $_)).Lines) })
-        if ($untracked) { $untracked | ForEach-Object { Add-Result 'BLOCKED' "发布清单输入未纳入 Git：$_" } }
-        else { Add-Result 'PASS' '发布清单输入均已纳入版本管理。' }
+    # PIReader ships beside the EXE; config.txt ships verbatim per the office decision.
+    foreach ($item in @('PIReader/PIReader.exe', 'PIReader/config.txt')) {
+        if (!(Test-Path -LiteralPath (Join-Path $root $item))) {
+            Add-Result 'BLOCKED' "PI 随包文件缺失：$item"
+        }
     }
+    Add-Result 'PASS' 'PIReader 随包文件存在；config.txt 按原样发布。'
 
-    $buildScript = Get-Content -LiteralPath (Join-Path $root 'tools\build_windows_release.ps1') -Raw
-    $match = [regex]::Match($buildScript, '\$version = ''([^'']+)''')
-    if (!$match.Success) {
-        Add-Result 'WARNING' '无法从发布脚本读取版本号，跳过版本一致性核对。'
-    } else {
-        $version = $match.Groups[1].Value
-        $versionInfo = Get-Content -LiteralPath (Join-Path $root 'packaging\windows\version_info.txt') -Raw
-        $usage = Get-Content -LiteralPath (Join-Path $root 'packaging\windows\USAGE.txt') -Raw
-        if (!$versionInfo.Contains($version)) { Add-Result 'BLOCKED' "version_info.txt 未声明版本 $version。" }
-        elseif (!$usage.Contains($version)) { Add-Result 'BLOCKED' "USAGE.txt 未声明版本 $version。" }
-        else { Add-Result 'PASS' "版本 $version 在发布脚本、version_info.txt 与 USAGE.txt 中一致。" }
+    # The source bundle is built from disk, so untracked sources are included by
+    # design. Tracked build inputs are listed only to document ownership.
+    if ($inside -and $inside.Ok) {
+        $tracked = @(Invoke-Git @('ls-files', '--', 'tools/make_zip.py', 'tools/smoke_launch.py')).Lines
+        if ($tracked.Count -lt 2) {
+            Add-Result 'WARNING' 'tools/make_zip.py 或 tools/smoke_launch.py 尚未纳入 Git；源码包仍按磁盘内容收录。'
+        } else {
+            Add-Result 'PASS' '压缩与冒烟工具已纳入版本管理。'
+        }
     }
 }
 

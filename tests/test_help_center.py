@@ -297,7 +297,8 @@ def test_pi_import_topic_is_unique_searchable_and_available_offline(monkeypatch)
     assert ('a', 'href', '#files.pi_import', None, '') in parser.links
     index = json.loads(build_search_index().split(' = ', 1)[1].rstrip()[:-1])
     item, = [item for item in index if item['id'] == topic['id']]
-    for text in ['PIReader.exe', 'config.txt', 'PI SDK', '插值历史数据', '取消', 'Timestamp']:
+    for text in ['PIReader.exe', 'config.txt', 'PI SDK', '插值历史数据', '取消', 'Timestamp',
+                 'MiniJMP.exe 同级']:
         assert text in item['text']
     opened = []
     monkeypatch.setattr(help_link.webbrowser, 'open', lambda url, **kw: opened.append(url) or True)

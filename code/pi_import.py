@@ -4,6 +4,7 @@ import ntpath
 import os
 import queue
 import re
+import sys
 import threading
 import tkinter as tk
 from pathlib import Path
@@ -27,6 +28,16 @@ def normalize_pi_path(value):
     if not value:
         return ''
     return ntpath.normpath(value) if os.name == 'nt' else os.path.normpath(value)
+
+
+def application_root():
+    """Return the folder that holds PIReader/ beside the packaged EXE.
+
+    Frozen onedir modules live in _internal, so __file__ must not be used there.
+    """
+    if getattr(sys, 'frozen', False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent.parent
 
 
 def _pi_settings_file():
@@ -117,7 +128,7 @@ class PIImportDialog(tk.Toplevel):
         self.rowconfigure(0, weight=1)
         body.columnconfigure(1, weight=1)
         body.rowconfigure(3, weight=1)
-        root = Path(__file__).resolve().parent.parent
+        root = application_root()
         # Both layouts are supported; discover the two files independently.
         default_exe = (root / 'PIReader.exe' if (root / 'PIReader.exe').is_file()
                        else root / 'PIReader' / 'PIReader.exe')
