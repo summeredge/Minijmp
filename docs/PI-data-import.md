@@ -1,8 +1,10 @@
 # PI 数据导入
 
-通过 File → Import PI Data 打开窗口。选择可运行的 PIReader.exe 和现有 config.txt；PIReader 所需的 PI SDK 必须安装在本机，且能够访问配置的服务器。Minijmp 不包含 PI SDK 或 PIReader 二进制文件，也不需要启动 Dash 服务。
+通过 File → Import PI Data 打开窗口。选择可运行的 PIReader.exe 和现有 config.txt；PIReader 所需的 PI SDK 必须安装在本机，且能够访问配置的服务器。Minijmp 不包含 PI SDK，也不需要启动 Dash 服务。
 
-默认查找 Minijmp 项目目录内的 PIReader.exe 和 config.txt，也可通过 PI_READER_EXE、PI_CONFIG 环境变量或窗口浏览按钮指定位置。不会读取、保存或记录配置文件内容；不要将带凭据的 config.txt 加入版本控制。
+Windows 发布包在 MiniJMP.exe 同级附带 PIReader\PIReader.exe 与 PIReader\config.txt；PIReader 使用 .NET Framework 4.8、x86 构建，随包的 OSIsoft 组件以组织授权清单为准。目标机可能仍需安装 PIPC/PI SDK 运行时，PI Server 连接只能在企业内网验证。
+
+默认按应用根目录查找 PIReader\PIReader.exe 与 PIReader\config.txt：源码运行时是项目根目录，打包运行时是 MiniJMP.exe 所在目录（不是 _internal）。也可通过 PI_READER_EXE、PI_CONFIG 环境变量或窗口浏览按钮指定位置。窗口只保存路径（HKCU），不会读取、保存或记录配置文件内容。
 
 每行输入一个 Tag（最多 20 个，忽略大小写去重），或输入 Tag Mask 搜索、勾选后添加。时间支持绝对时间及现有 PI 表达式（如 *、*-1h、*-1d）；采样间隔支持 1m、5m、10m、30m、1h。预计超过一百万个数据点或无法估算时会要求确认，不截断查询数据。搜索结果如被 PIReader 限制会明确提示缩小 Mask。
 

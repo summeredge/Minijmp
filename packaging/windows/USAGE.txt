@@ -22,7 +22,9 @@ MiniJMP v0.1.0-beta.2 — Windows x64
 - 工作文件请保存到您有权限访问的位置。
 
 PI 数据
-PIReader.exe、PI SDK、PI 服务器地址和凭据不包含在此包中。PI 功能需由组织按授权和目标机环境单独配置；此 Beta 包未验证 PI 连接。
+- 包内 PIReader 文件夹与 MiniJMP.exe 同级，包含 PIReader.exe 和 config.txt。
+- PIReader 依赖 .NET Framework 4.8 与 OSIsoft PI SDK；目标机仍需安装 PIPC/PI SDK 运行时并具备服务器访问权限。
+- 本包不验证 PI 连接；运行 PI 导入前请确认所在内网与授权。
 
 许可与源码
 - 本程序依据 GNU GPL version 3 或更高版本授权，完整条款见 LICENSE。

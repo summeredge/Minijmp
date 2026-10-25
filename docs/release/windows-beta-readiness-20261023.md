@@ -1,5 +1,12 @@
 # MiniJMP Windows Beta 发布准备检查（2026-10-23）
 
+> **后续修订（2026-10-25）**：本节之后的 2026-10-23 检查结果保留原样，仅作历史记录。
+> 发布工具链已按办公环境最终方案同步：Python 需要 3.11 及以上、PIReader 与
+> config.txt 随包分发、ZIP 改由 `tools/make_zip.py` 生成、加入 `tools/smoke_launch.py`
+> 与 TsdEncrypt 沉降复验。工作区不再是构建门禁，只输出 WARNING。
+> 当前规则与验收步骤见仓库根的 `PACKAGING.md` 和
+> `docs/release/windows-enterprise-packaging-alignment.md`。
+
 本报告只覆盖发布前的代码、脚本、资源与许可准备。**未执行 PyInstaller，未生成 EXE，未生成任何 ZIP，未运行全项目 pytest，未提交或推送 Git。**
 
 ## 1. 发布准备状态

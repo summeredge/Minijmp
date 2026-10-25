@@ -81,28 +81,26 @@ def test_frozen_entrypoint_calls_gui_main_without_startup_subprocess(monkeypatch
 
 def test_release_archives_identify_commit_and_preserve_existing_artifacts():
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
-    assert 'MiniJMP-$version-$shortHead-win64' in script
-    assert 'MiniJMP-$version-$shortHead-source' in script
-    assert 'Preserving existing release artifact:' in script
-    assert 'Compress-Archive -LiteralPath $releaseDir' in script
-    assert 'git -C $root ls-files -- @sourcePaths' in script
-    assert 'if ($BuildSuffix) { $shortHead = "$shortHead-$BuildSuffix" }' in script
-    assert 'Build ID: $shortHead' in script
-    assert 'Application code and build inputs match Git HEAD' in script
-    assert 'not committed or pushed' not in script
+    assert "MiniJMP-$releaseVersion" in script
+    assert "MiniJMP-$releaseVersion-source" in script
+    assert 'Existing build output must be removed before rebuilding' in script
+    assert '$python $makeZip ' in script
+    assert 'Compress-Archive' not in script
+    assert "Base Git HEAD: $head" in script
+    assert 'Working tree: $treeState' in script
 
 
-def test_release_script_refuses_dirty_or_incomplete_worktree_before_writing():
+def test_release_script_warns_about_dirty_worktree_and_records_it():
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
 
     assert 'git -C $root status --porcelain --untracked-files=normal' in script
-    assert 'Refusing to build from a dirty working tree' in script
-    assert 'version_info.txt does not declare $version' in script
-    assert 'Required build input is not tracked by Git: $inputPath' in script
-    assert 'git -C $root ls-files -- $inputPath' in script
-    clean_check = script.index('git -C $root status --porcelain --untracked-files=normal')
-    assert clean_check < script.index("New-Item -ItemType Directory -Path (Join-Path $root 'build')")
-    assert clean_check < script.index('Remove-GeneratedPath $buildRoot')
+    assert 'Write-Warning "Working tree has' in script
+    assert 'Refusing to build from a dirty working tree' not in script
+    # BUILD-INFO must never claim a clean checkout when the tree was dirty.
+    assert 'not a clean checkout' in script
+    assert 'build inputs matched Git HEAD' in script
+    dirty_check = script.index('git -C $root status --porcelain --untracked-files=normal')
+    assert dirty_check < script.index('New-Item -ItemType Directory -Path $distRoot')
 
 
 def test_release_precheck_reports_clean_and_dirty_worktrees(tmp_path):
@@ -133,14 +131,15 @@ def test_release_precheck_reports_clean_and_dirty_worktrees(tmp_path):
 
     (repo / 'untracked.txt').write_text('draft\n', encoding='utf-8')
     untracked = precheck()
-    assert untracked.returncode == 1
-    assert 'RESULT: BLOCKED' in untracked.stdout
+    assert untracked.returncode == 0
+    assert 'WARNING: Git' in untracked.stdout
+    assert 'RESULT: PASS' in untracked.stdout
 
     (repo / 'untracked.txt').unlink()
     readme.write_text('release precheck\nedited\n', encoding='utf-8')
     modified = precheck()
-    assert modified.returncode == 1
-    assert 'RESULT: BLOCKED' in modified.stdout
+    assert modified.returncode == 0
+    assert 'RESULT: PASS' in modified.stdout
 
 
 def test_frozen_resources_and_user_writable_paths(tmp_path):
@@ -262,6 +261,7 @@ def test_notice_license_metadata_priority_dedup_and_missing_original(tmp_path, m
 def test_source_bundle_includes_icon_licenses_and_third_party_notices():
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
 
-    assert 'packaging/windows/licenses/Carbon-Icons-Apache-2.0.txt' in script
-    assert 'packaging/windows/licenses/Tabler-Icons-MIT.txt' in script
+    # Licensing texts ship inside the staged source tree (packaging/ and tools/).
+    assert "SOURCE_DIRS = ('code', 'help', 'icon', 'sample_data', 'user_config', 'packaging'," in (
+        ROOT / 'tools' / 'make_zip.py').read_text(encoding='utf-8')
     assert "'tools\\write_third_party_notices.py') $sourceStage" in script

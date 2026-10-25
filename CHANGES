@@ -8,6 +8,12 @@ v0.1.0-beta.2
 
 Beta 2 marks the current source tree: review-driven P0/P1/P2 fixes, a Windows release gate that requires a clean worktree and tracked build inputs, and the read-only precheck (tools/check_windows_release_ready.ps1). No EXE or ZIP has been built for this version yet.
 
+Release tooling aligned with the office environment: Windows x64 with Python >= 3.11,
+PIReader and its config.txt shipped beside MiniJMP.exe, archives built by
+tools/make_zip.py, EXE smoke check via tools/smoke_launch.py, and SHA256SUMS
+re-verified after the transparent-encryption settling window. Uncommitted files now
+produce a WARNING instead of blocking the build. No EXE or ZIP has been built yet.
+
 
 -------------
 v0.1.0-beta.1

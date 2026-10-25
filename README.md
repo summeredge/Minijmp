@@ -46,12 +46,12 @@ MiniJMP 是使用 Python 开发的桌面统计分析软件，提供电子表格�
 
 ### 从源码运行（推荐开发方式）
 
-建议使用 **Windows 64 位和 Python 3.11**；本仓库当前部分专项验证使用 Python 3.11.9。原项目涉及 Linux/macOS，但该二次开发版尚未宣称完成跨平台等效验证。
+需要 **Windows x64 与 Python >= 3.11**（3.11、3.12、3.13 均可）。本仓库专项验证使用 Python 3.11.9；在更新版本上运行时，锁文件差异只作记录。原项目涉及 Linux/macOS，但该二次开发版尚未宣称完成跨平台等效验证。
 
 在项目根目录打开 PowerShell：
 
 ~~~powershell
-py -3.11 -m venv .venv
+py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe start.py
 ~~~
@@ -60,13 +60,13 @@ py -3.11 -m venv .venv
 
 ### Windows 打包程序
 
-仓库提供 [Windows 构建脚本](tools/build_windows_release.ps1) 和锁定依赖文件，采用 PyInstaller **`onedir` 目录模式**。这代表具备构建方案，并不保证每次源码修改都有经过验收的 EXE 发布包。使用打包版本时应完整解压压缩包，保留 `MiniJMP.exe` 及 `_internal` 等依赖文件夹。
+仓库提供 [Windows 构建脚本](tools/build_windows_release.ps1)、[打包操作卡](PACKAGING.md) 和锁定依赖文件，采用 PyInstaller **`onedir` 目录模式**。这代表具备构建方案，并不保证每次源码修改都有经过验收的 EXE 发布包。使用打包版本时应完整解压压缩包，保留 `MiniJMP.exe`、`_internal` 和 `PIReader` 等依赖文件夹。
 
-企业 Defender、透明加密及其他安全策略可能影响启动或导出，需要在目标终端单独验证。
+企业 Defender、TsdEncrypt/DLP 透明加密及其他安全策略可能影响启动或导出，需要在目标终端单独验证。
 
 ## PI 历史数据导入（可选）
 
-使用 **文件 → 导入 PI 数据**。需配置可执行的 `PIReader.exe`、`config.txt`、本机 **PI SDK** 以及服务器访问权限；PI SDK 不随本软件分发。可输入 Tag/Mask、历史时间范围及采样间隔。成功导入后会替换当前工作表，请预先保存需要保留的数据。
+使用 **文件 → 导入 PI 数据**。Windows 发布包在 `MiniJMP.exe` 同级附带 `PIReader` 文件夹，内含 `PIReader.exe` 与 `config.txt`；本机仍需 **PI SDK/PIPC 运行时** 与服务器访问权限，PI SDK 不随本软件分发。也可通过环境变量或浏览按钮另行指定路径。可输入 Tag/Mask、历史时间范围及采样间隔。成功导入后会替换当前工作表，请预先保存需要保留的数据。
 
 详细操作、约束与错误处理见 [PI 数据导入文档](docs/PI-data-import.md)。普通统计功能不依赖 PI SDK。
 
