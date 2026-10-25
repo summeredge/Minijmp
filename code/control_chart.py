@@ -197,7 +197,104 @@ def additional_SD(ax, sd, cl, ucl=None):
     return
 
 
-def _print_spc_report(title, charts, sizes, size_label, labels, notes, print_port):
+def _at_limit(value, index, default=None):
+    if isinstance(value, (list, tuple, np.ndarray)):
+        return value[index] if index < len(value) else default
+    return value
+
+
+def _finite_runs(values):
+    valid = np.isfinite(np.asarray(values, dtype=float))
+    runs, start = [], None
+    for i, ok in enumerate(valid):
+        if ok and start is None:
+            start = i
+        elif not ok and start is not None:
+            runs.append((start, i - 1))
+            start = None
+    if start is not None:
+        runs.append((start, len(valid) - 1))
+    return runs
+
+
+def _panel_events(values, center, lower, upper, labels, scale,
+                  use_rules=True, panel=''):
+    """返回实际绘图点的异常记录；主图用 Nelson，极差类图只判越限。"""
+    from advanced_spc import NELSON, nelson_events
+
+    values = np.asarray(values, dtype=float)
+    events = []
+    if use_rules:
+        z = np.full(len(values), np.nan)
+        for i, value in enumerate(values):
+            center_i, scale_i = _at_limit(center, i), _at_limit(scale, i)
+            if (np.isfinite(value) and np.isfinite(center_i)
+                    and np.isfinite(scale_i) and scale_i > 0):
+                z[i] = (value - center_i) / scale_i
+        for start, end in _finite_runs(z):
+            for point, rule, window in nelson_events(z[start:end + 1]):
+                i = start + point
+                events.append({
+                    'panel': panel, 'x': i, 'point': i + 1,
+                    'label': labels[i] if labels is not None and i < len(labels) else i + 1,
+                    'value': values[i], 'lower': _at_limit(lower, i),
+                    'center': _at_limit(center, i), 'upper': _at_limit(upper, i),
+                    'rule': 'Nelson %d' % rule, 'description': NELSON[rule],
+                    'window_start': start + window + 1, 'window_end': i + 1})
+    else:
+        for i, value in enumerate(values):
+            if not np.isfinite(value):
+                continue
+            lo, hi = _at_limit(lower, i), _at_limit(upper, i)
+            if (np.isfinite(lo) and value < lo) or (np.isfinite(hi) and value > hi):
+                events.append({
+                    'panel': panel, 'x': i, 'point': i + 1,
+                    'label': labels[i] if labels is not None and i < len(labels) else i + 1,
+                    'value': value, 'lower': lo, 'center': _at_limit(center, i),
+                    'upper': hi, 'rule': '越限', 'description': '超出控制限',
+                    'window_start': i + 1, 'window_end': i + 1})
+    return sorted(events, key=lambda event: (event['x'], event['rule']))
+
+
+def _mark_events(ax, events, panel):
+    points = {}
+    for event in events:
+        if event['panel'] == panel and np.isfinite(event['value']):
+            points[event['x']] = event['value']
+    if points:
+        ax.scatter(list(points), list(points.values()), marker='x', s=48,
+                   color='#c62828', linewidths=1.6, zorder=5)
+
+
+def _x_plot_anomalies(s, chart_two_only, one_chart, limits, labels, k):
+    """按实际绘图限计算判定尺度，使调用方覆盖限时也与图上数值一致。"""
+    lcl1, bar1, ucl1, lcl2, bar2, ucl2 = limits
+    anomalies = []
+
+    def scales(center, upper, values):
+        if k == 0 or upper is None or center is None:
+            return [np.nan] * len(values)
+        result = []
+        for i, _ in enumerate(values):
+            center_i, upper_i = _at_limit(center, i), _at_limit(upper, i)
+            result.append((upper_i - center_i) / k
+                          if np.isfinite(center_i) and np.isfinite(upper_i) else np.nan)
+        return result
+
+    if not chart_two_only:
+        scale = scales(bar1, ucl1, s['Y1'])
+        anomalies += _panel_events(s['Y1'], bar1, lcl1, ucl1, labels, scale,
+                                   panel='I' if not isinstance(s['n'], list) else 'Xbar')
+    if not one_chart:
+        scale = scales(bar2, ucl2, s['Y2'])
+        name = 'MR' if not isinstance(s['n'], list) else ('R' if s['ylabel2'] == 'Range' else 'S')
+        anomalies += _panel_events(s['Y2'], bar2, lcl2, ucl2, labels, scale,
+                                   use_rules=False, panel=name)
+    return anomalies
+
+
+def _print_spc_report(title, charts, sizes, size_label, labels, notes, print_port,
+                      anomalies=None):
     """只呈现调用方已有的统计量和实际使用的控制限，不执行异常判定。"""
     def at(value, index, missing=None):
         if isinstance(value, (list, tuple, np.ndarray)):
@@ -262,7 +359,40 @@ def _print_spc_report(title, charts, sizes, size_label, labels, notes, print_por
                              number_formats=['0', 'General', '0.######'] + ['0.00000E+00'] * 4))
     print_port('* 表示缺失、未提供或不适用；点号从 1 开始，按本次输入顺序列示。')
     print_port('\n特殊原因及异常点')
-    print_port('当前实现未执行特殊原因规则判定，未提供异常点索引或规则明细。')
+    if anomalies is None:
+        print_port('当前实现未执行特殊原因规则判定，未提供异常点索引或规则明细。')
+    else:
+        points = {(event['panel'], event['point']) for event in anomalies}
+        print_port('已检查特殊原因规则；共发现 %d 条规则记录，涉及 %d 个点。'
+                   % (len(anomalies), len(points)))
+        if anomalies:
+            rows = [[event['panel'], event['point'], event['label'], event['value'],
+                     event['lower'], event['center'], event['upper'], event['rule'],
+                     event['description'], '%d-%d' % (event['window_start'], event['window_end'])]
+                    for event in anomalies]
+            table = gen_table([['图表', '点号', '来源标识', '统计值', 'LCL', 'CL',
+                                'UCL', '触发规则', '规则说明', '窗口点号']])
+            for row in rows:
+                table.add_row(row)
+            for column in ['点号', '统计值', 'LCL', 'CL', 'UCL']:
+                table.align[column] = 'r'
+            # 来源标识可能是批次名、时间或中文阶段名，按文本输出。
+            display = [[str(row[0]), str(row[1]), str(row[2]), number(row[3]),
+                        number(row[4]), number(row[5]), number(row[6]), str(row[7]),
+                        str(row[8]), str(row[9])] for row in rows]
+            print_port(StatTable(table, '异常点记录', table.field_names, rows,
+                                 display=display,
+                                 number_formats=['General', '0', 'General']
+                                 + ['0.00000E+00'] * 4 + ['General'] * 3))
+            print_port('规则说明：')
+            for rule, description in sorted({(event['rule'], event['description'])
+                                             for event in anomalies}):
+                print_port('  %s：%s' % (rule, description))
+            print_port('Nelson 规则作用于标准化统计量；极差类图只判定控制限越界。'
+                       '重叠窗口和多项规则同时命中不等同于彼此独立的异常事件。')
+        else:
+            print_port('未发现异常点。')
+            print_port('主图按所选 Nelson 规则检查；极差类图检查是否超出控制限。')
     print_port('\n结论说明')
     print_port('本报告仅汇总统计量与控制限，不能据此认定过程受控或满足产品规格。')
 
@@ -278,7 +408,7 @@ def x_plot(data, bar1=None, pooled=False,
            axs=None, fig=None, refY1=None, refY2=None,
            one_chart=False, show_plot=False,
            chart_two_only=False, mr_range=2,
-           filename=None, plot_type="x_mR"):
+           filename=None, plot_type="x_mR", detect_rules=False):
 
     plot_type = plot_type.upper()
     if "BAR" in plot_type and "R" in plot_type.replace("BAR", ""):
@@ -378,6 +508,18 @@ def x_plot(data, bar1=None, pooled=False,
             format='png', bbox_inches='tight')
 
     if print_out:
+        anomalies = None
+        if detect_rules:
+            limits = (lcl1, bar1, ucl1, lcl2, bar2, ucl2)
+            anomalies = _x_plot_anomalies(s, chart_two_only, one_chart, limits,
+                                          xLabels, k)
+            if not chart_two_only:
+                _mark_events(axs[0], anomalies,
+                             'I' if not isinstance(n, list) else 'Xbar')
+            if not one_chart:
+                _mark_events(axs[1], anomalies,
+                             'MR' if not isinstance(n, list) else
+                             ('R' if s['ylabel2'] == 'Range' else 'S'))
         if isinstance(n, list):
             is_range = s['ylabel2'] == 'Range'
             title = 'Xbar-R' if is_range else 'Xbar-S'
@@ -405,7 +547,7 @@ def x_plot(data, bar1=None, pooled=False,
             charts.append((name2, s['Y2'], lcl2, bar2, ucl2))
             notes.append('%s显示标签：%s' % (name2, ylabel2))
         _print_spc_report(title, charts, sizes, '子组大小' if isinstance(n, list) else '每点观测数',
-                          xLabels, notes, print_port)
+                          xLabels, notes, print_port, anomalies=anomalies)
 
     res = {"lcl1": lcl1, "bar1": bar1, "ucl1": ucl1,
            "lcl2": lcl2, "bar2": bar2, "ucl2": ucl2,

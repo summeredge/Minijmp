@@ -8,6 +8,11 @@ from tkinter import TOP, LEFT, X, BOTH, RIGHT
 from dialog import Dialogs
 from utilities import is_number, number_list, filter_voids, grouping_by_labels, get_number
 from control_chart import x_plot, p_np_plot, cu_plot
+import stage_compare
+
+
+# 只有这三类控制图支持阶段对比；I、MR 与属性图保持原窗口。
+STAGE_CHARTS = {'IMRDialog': 'I-MR', 'XBRDialog': 'Xbar-R', 'XBSDialog': 'Xbar-S'}
 
 
 class IMRDialog(Dialogs):
@@ -17,6 +22,8 @@ class IMRDialog(Dialogs):
         self.input_data(m)
         self.more_settings(m)
         self.ctrl_chart_setting(m)
+        if type(self).__name__ in STAGE_CHARTS:
+            stage_compare.settings(self, m)
         #  self.mr_range = tk.IntVar(value=2)
         return
 
@@ -189,6 +196,12 @@ class IMRDialog(Dialogs):
         return fig, None, [ax1, ax2]
 
     def apply(self):
+        if getattr(self, 'stage_compare', None) is not None and self.stage_compare.get():
+            try:
+                stage_compare.run(self, STAGE_CHARTS[type(self).__name__])
+            except Exception as exc:
+                self.error(str(exc))
+            return
         result = self.get_data()
         if result is None:
             return
@@ -221,6 +234,7 @@ class IMRDialog(Dialogs):
             print_out=True, plot_type=self.plot_type,
             mr_range=mr_range,  # self.mr_range.get(),
             fig=fig, ax=ax, axs=axs,
+            detect_rules=True,
             print_port=self.app.print)
 
         self.remember_columns()

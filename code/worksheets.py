@@ -183,12 +183,21 @@ class Worksheets:
 
     def saveMeta(self, table):
         return {'minijmp': 1, 'columnwidths': dict(table.columnwidths),
+                'formulas': table.export_formulas(), 'formula_auto': table.formulas_auto,
                 'options': {k: getattr(table, k) for k in
                             ('floatprecision', 'cellwidth', 'rowheight', 'showindex',
                              'cellbackgr', 'textcolor', 'grid_color', 'thefont')}}
 
     def loadMeta(self, table, meta):
-        if not isinstance(meta, dict) or meta.get('minijmp') != 1:
+        if not isinstance(meta, dict):
+            return
+        if 'formulas' in meta and not isinstance(meta['formulas'], dict):
+            raise ValueError('无效的列公式定义')
+        if 'formula_auto' in meta and meta['formula_auto'] not in (True, False):
+            raise ValueError('无效的列公式计算设置')
+        if 'formulas' in meta or 'formula_auto' in meta:
+            table.load_formulas(meta.get('formulas', {}), meta.get('formula_auto', True))
+        if meta.get('minijmp') != 1:
             return
         widths = meta.get('columnwidths', {})
         if not isinstance(widths, dict) or not all(isinstance(v, (int, float)) and 1 <= v <= 10000 for v in widths.values()):

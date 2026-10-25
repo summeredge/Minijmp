@@ -44,23 +44,26 @@ def assert_report(lines, title):
     assert lines[0] == f'\n---- SPC 控制图报告：{title} ----'
     headings = ['控制图信息', '控制限汇总', '过程统计摘要与逐点明细', '特殊原因及异常点', '结论说明']
     assert [text.index(heading) for heading in headings] == sorted(text.index(h) for h in headings)
-    assert '当前实现未执行特殊原因规则判定' in text
-    assert '未提供异常点索引或规则明细' in text
+    # 直接 x_plot 调用不启用判异，报告仍明确说明未执行；对话框入口启用判异。
+    assert ('已检查特殊原因规则' in text) != ('当前实现未执行特殊原因规则判定' in text)
     assert '不能据此认定过程受控或满足产品规格' in text
     assert 'LCL = 下控制限；CL = 中心线；UCL = 上控制限' in text
     assert '控制限不是产品规格限' in text
-    assert '没有异常' not in text and '| 异常 |' not in text
+    assert '| 异常 |' not in text
 
 
 @pytest.mark.parametrize('name', BASELINE)
 def test_computation_plotting_signatures_and_returns_match_before_g5_ast(name):
     tree = ast.parse((ROOT / 'code/control_chart.py').read_text(encoding='utf-8'))
     function = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == name)
-    # 计算函数保持 G5 基线；五个绘图函数采用 G6 展示基线，坐标另由 G6 专项保护。
-    # 只排除三个输出入口的顶层 print_out 分支，保留所有计算和绘图语句。
+    # 计算函数保持 G5 基线；x_plot 只增加可选 detect_rules 参数，判异与标记
+    # 全部位于 print_out 分支内，故排除该分支后应仍与基线 AST 完全一致。
     if name in {'x_plot', 'p_np_plot', 'cu_plot'}:
         function.body = [n for n in function.body if not (
             isinstance(n, ast.If) and isinstance(n.test, ast.Name) and n.test.id == 'print_out')]
+    if name == 'x_plot':
+        function.args.args = [arg for arg in function.args.args if arg.arg != 'detect_rules']
+        function.args.defaults = function.args.defaults[:-1]
     assert hashlib.sha256(ast.dump(function).encode()).hexdigest() == BASELINE[name]
 
 
@@ -245,6 +248,20 @@ def test_missing_limits_are_unavailable_not_falsely_variable_or_abnormal(report,
     assert '| 异常 |' not in '\n'.join(lines)
 
 
+def test_anomaly_report_keeps_text_source_labels(report):
+    tables, lines = report
+    fig = Figure()
+    spc.x_plot([[10., 10., 30.], [10., 10., 10.], [10., 10., 10.]],
+               plot_type='XBAR_R', xLabels=['批次甲', '批次乙', '批次丙'],
+               fig=fig, axs=fig.subplots(2), print_out=True,
+               print_port=lines.append, detect_rules=True)
+    from stat_table import StatTable
+    anomaly, = [line for line in lines if isinstance(line, StatTable)
+                and line.title == '异常点记录']
+    assert anomaly.headers[2] == '来源标识'
+    assert any('批次' in row[2] for row in anomaly.display)
+
+
 DIALOG_CASES = [
     (dialogs.IMRDialog, 'I-MR'), (dialogs.IDialog, 'I'), (dialogs.MRDialog, 'MR'),
     (dialogs.XBRDialog, 'Xbar-R'), (dialogs.XBSDialog, 'Xbar-S'),
@@ -291,6 +308,12 @@ def test_real_dialog_get_data_and_confirm_reach_each_report(tk_root, report, mon
         dialog.error.assert_not_called()
         assert len(figures) == 1
         assert_report(lines, title)
+        text = '\n'.join(lines)
+        # 属性图本轮未扩展判异，保留原有“未执行”说明。
+        if title in {'I-MR', 'I', 'MR', 'Xbar-R', 'Xbar-S'}:
+            assert '已检查特殊原因规则' in text
+        else:
+            assert '当前实现未执行特殊原因规则判定' in text
         assert len(tables) == (3 if title in {'I-MR', 'Xbar-R', 'Xbar-S'} else 2)
         expected_panels = 2 if title in {'I-MR', 'Xbar-R', 'Xbar-S'} else 1
         assert len(figures[0].axes) == expected_panels
