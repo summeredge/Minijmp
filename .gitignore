@@ -170,3 +170,11 @@ cython_debug/
 *.Identifier
 # WI editor generated
 working_draft
+
+# PIReader: MSBuild output and the OSIsoft PI SDK binaries. The SDK is
+# redistributed only inside internal packages, never in the public repository.
+PIReader/obj/
+PIReader/bin/
+PIReader/OSIsoft.PISDK.dll
+PIReader/OSIsoft.PISDKCommon.dll
+PIReader/OSIsoft.PITimeServer.dll
