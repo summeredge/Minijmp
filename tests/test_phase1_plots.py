@@ -98,6 +98,42 @@ def test_legacy_missing_values(legacy, sample, kind):
     else:
         legacy.mplopts.kwds['kind'] = kind
     legacy.plotCurrent()
+
+
+def grouped_sample():
+    return pd.DataFrame({'组别': ['A', 'A', 'B', 'B'],
+                         '温度': [1., 3., 2., 4.],
+                         '压力': [5., 7., 6., 8.]}, index=[30, 10, 20, 40])
+
+
+@pytest.mark.parametrize('kind', ['scatter', 'line'])
+def test_grouped_plot_drops_group_column_by_name(legacy, kind):
+    sample = grouped_sample()
+    original = sample.copy(deep=True)
+    legacy.data = sample
+    warnings = []
+    legacy.showWarning = warnings.append
+    legacy.mplopts.kwds.update(kind=kind, by='组别')
+    legacy.plotCurrent()
+    assert not warnings, warnings
+    assert any(ax.lines or ax.collections or ax.patches for ax in legacy.fig.axes)
+    pd.testing.assert_frame_equal(sample, original)
+    assert '组别' in sample.columns
+
+
+def test_grouped_subplots_render_one_axes_per_group(legacy):
+    sample = grouped_sample()
+    original = sample.copy(deep=True)
+    legacy.data = sample
+    warnings = []
+    legacy.showWarning = warnings.append
+    legacy.mplopts.kwds.update(kind='scatter', by='组别', subplots=True)
+    legacy.plotCurrent()
+    assert not warnings, warnings
+    title = [ax.get_title() for ax in legacy.fig.axes][1:]
+    assert title == ['A', 'B']
+    assert any(ax.collections for ax in legacy.fig.axes[1:])
+    pd.testing.assert_frame_equal(sample, original)
     assert not warnings, warnings
     assert any(ax.lines or ax.collections or ax.patches for ax in legacy.fig.axes)
     pd.testing.assert_frame_equal(sample, original)

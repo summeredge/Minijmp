@@ -55,17 +55,23 @@ def _at(value, index):
 
 
 def _special_causes(stage):
-    """主图用 Nelson 规则，极差类图只判越限；控制限与能力诊断图同源。"""
+    """正态主图跑 Nelson；非正态主图只判拟合分位限越界；极差类图始终只判越限。
+
+    非正态 I 图上下限来自拟合分布的 0.135%/99.865% 分位，两侧距离不对称，
+    不能把 (UCL-CL)/3 当公共尺度去套 Nelson 连续点规则。
+    """
     chart, first, second = _charts(
         stage, [np.asarray(group, dtype=float) for group in stage['groups']])
     primary, secondary = first.split()[0], second.split()[0]
+    normal_primary = stage['model'].dist.name == 'norm'
+    rules = normal_primary
     center, upper = chart['bar1'], chart['ucl1']
     scales = [(_at(upper, i) - _at(center, i)) / 3 for i in range(len(chart['Y1']))]
-    events = _panel_events(chart['Y1'], center, chart['lcl1'], upper, None, scales,
-                           panel=primary)
+    events = _panel_events(chart['Y1'], center, chart['lcl1'], upper, None,
+                           scales if rules else None, use_rules=rules, panel=primary)
     events += _panel_events(chart['Y2'], chart['bar2'], chart['lcl2'], chart['ucl2'],
                             None, None, use_rules=False, panel=secondary)
-    return {'primary': primary, 'secondary': secondary,
+    return {'primary': primary, 'secondary': secondary, 'rules': rules,
             'alarms': len({event['point'] for event in events if event['panel'] == primary}),
             'beyond': len({event['point'] for event in events
                            if event['panel'] == secondary}),
@@ -200,14 +206,19 @@ def analyze_capability_comparison(df, measurement, split='stage', stage=None,
     diagnostics = []
     for name, stage_, special, gap in zip(names, stages, specials, dropped):
         weak = special['alarms'] or special['beyond']
+        method = ('%s（Nelson 规则）；%s（越限）' % (special['primary'], special['secondary'])
+                  if special['rules'] else
+                  '%s（仅越限，未执行 Nelson 连续模式）；%s（越限）' % (
+                      special['primary'], special['secondary']))
         diagnostics.append([
-            name, '过程稳定性', '%s（Nelson）；%s（越限）' % (
-                special['primary'], special['secondary']),
+            name, '过程稳定性', method,
             '异常 %d 点 / %d 点；超限 %d 点' % (special['alarms'], special['points'],
                                                special['beyond']),
             '存在特殊原因' if weak else '未发现特殊原因',
             '仅描述本阶段样本期；能力指数不宜直接预测未来稳定运行' if weak
-            else '未命中不等于证明稳定；控制限与规格限用途不同'])
+            else '未命中不等于证明稳定；%s' % (
+                '控制限与规格限用途不同'
+                if special['rules'] else '非正态连续点判异尚未实现，稳定性仅按越限描述')])
         fit = stage_['fit']
         detail = 'AD=%.4g' % fit['AD']
         if fit.get('KS') is not None:

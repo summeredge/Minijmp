@@ -354,22 +354,22 @@ class MTable(Table):
         return
 
     def copy(self, rows=None, cols=None):
-        """Copy cell contents from clipboard - overwrites table."""
-
-        rows = self.multiplerowlist
-        if not rows or self.allrows:
-            rows = list(range(len(self.model.df)))
-        data = self.model.df.iloc[rows, self.multiplecollist]
-        try:
-            #  if len(data) == 1 and len(data.columns) == 1:
-            data.to_clipboard(index=False, header=False, sep=',')
-            #  else:
-            #  data.to_clipboard()
-        except BaseException:
-            messagebox.showwarning("Warning",
-                                   "No clipboard software.\nInstall xclip",
-                                   parent=self.parentframe)
-        return
+        """Copy the selected cells, row, or column as an Excel-compatible range."""
+        df = self.model.df
+        if hasattr(rows, 'widget'):
+            rows = None
+        if rows is None:
+            rows = self.multiplerowlist
+            if self.allrows or (self.multiplecollist and not rows):
+                rows = list(range(len(df)))
+            elif not rows:
+                rows = [self.currentrow]
+        if cols is None:
+            cols = self.multiplecollist
+            if not cols:
+                cols = (list(range(len(df.columns))) if self.multiplerowlist
+                        else [self.currentcol])
+        return self.copy_context_selection(rows, cols)
 
     def copy_context_selection(self, rows=None, cols=None):
         """Copy selected data as an Excel-compatible, headerless TSV range."""
@@ -532,6 +532,10 @@ class MTable(Table):
         self.model.df = updated
         self.redraw()
         self.tableChanged()
+        if axis == 'column':
+            self.colheader.delete('rect')
+            for col in selected_cols:
+                self.colheader.drawRect(col, delete=0)
         return True
 
     def clear_context_selection(self, rows, cols):
@@ -548,7 +552,6 @@ class MTable(Table):
                                    parent=self.parentframe):
             return
         self.deleteCells(rows, cols, answer=True)
-        self.tableChanged()
 
     def fillColumn(self):
         """Fill a column with a data range"""
@@ -851,35 +854,18 @@ class MTable(Table):
         return
 
     def paste(self, event=None):
-        """Paste a new table from the clipboard"""
-        if not self.requireUnfiltered():
-            return
-        if self._reject_formula_edit(self._formula_targets_in(
-                self.multiplerowlist, self.multiplecollist)
-                if self.multiplerowlist and self.multiplecollist else []):
-            return
-
-        self.storeCurrent()
-        try:
-            df = pd.read_clipboard(sep=',', header=None)
-        except Exception as e:
-            messagebox.showwarning('Could not paste data', str(e), parent=self.parentframe)
-            return
-        if len(df) == 0:
-            return
-
-        try:
-            ins_y = min(self.multiplerowlist)
-            ins_x = min(self.multiplecollist)
-        except BaseException:
-            ins_y = ins_x = 0
-        model = TableModel(df_combine(
-            self.model.df, df,
-            ins_y=ins_y, ins_x=ins_x))
-        self.updateModel(model)
-        self.redraw()
-        self.updateIndex()
-        return
+        """Paste into the active cell, row range, or column range."""
+        rows, cols = self.multiplerowlist, self.multiplecollist
+        if rows and cols and not self.allrows:
+            axis = 'cell'
+        elif rows and not cols:
+            axis = 'row'
+        elif cols:
+            axis = 'column'
+        else:
+            axis = 'cell'
+        return self.paste_context_selection(
+            axis, rows or [self.currentrow], cols or [self.currentcol])
 
     def paste_header(self, event=None):
         """Paste a new table from the clipboard"""
@@ -1336,7 +1322,7 @@ class MTable(Table):
                 self.pf.updateData()
         except BaseException:
             pass
-        return
+        return changed
 
     def adjustColumnWidths(self, limit=30):
         return
@@ -1372,5 +1358,6 @@ class MTable(Table):
             values = df.iloc[keep, col].reset_index(drop=True)
             df.isetitem(col, values.reindex(range(len(df))).array)
 
-        self.redraw()
+        if not self.tableChanged():
+            self.redraw()
         return

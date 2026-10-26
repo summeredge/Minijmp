@@ -454,10 +454,18 @@ def test_arrow_selection_matches_copied_cell(table, monkeypatch):
     assert (table.currentrow, table.currentcol) == (0, 1)
     assert table.multiplerowlist == [0]
     assert table.multiplecollist == [1]
-    copied = []
-    monkeypatch.setattr(pd.DataFrame, 'to_clipboard', lambda df, **kw: copied.append(df.copy()))
-    table.copy(None)
-    assert copied[0].iloc[0, 0] == 30
+    if isinstance(table, MTable):
+        copied = []
+        monkeypatch.setattr(table, 'clipboard_clear', lambda: None)
+        monkeypatch.setattr(table, 'clipboard_append', copied.append)
+        table.copy(None)
+        assert table._parse_context_clipboard(copied[0]) == [['30']]
+    else:
+        copied = []
+        monkeypatch.setattr(pd.DataFrame, 'to_clipboard',
+                            lambda df, **kw: copied.append(df.copy()))
+        table.copy(None)
+        assert copied[0].iloc[0, 0] == 30
     table.handle_arrow_keys(SimpleNamespace(keysym='Down'))
     assert table.multiplerowlist == [1]
     assert table.multiplecollist == [1]
@@ -482,24 +490,39 @@ def test_copy_preserves_text_in_mixed_column(table, monkeypatch):
     replace(table, pd.DataFrame({'mixed': ['1', '中文'], 'id': ['001', '002']}))
     table.selectAll()
     copied = []
-    monkeypatch.setattr(pd.DataFrame, 'to_clipboard', lambda df, **kw: copied.append(df.copy()))
-    table.copy(None)
-    assert_frame_equal(copied[0], table.model.df)
+    if isinstance(table, MTable):
+        monkeypatch.setattr(table, 'clipboard_clear', lambda: None)
+        monkeypatch.setattr(table, 'clipboard_append', copied.append)
+        assert table.copy()
+        assert table._parse_context_clipboard(copied[0]) == [['1', '001'], ['中文', '002']]
+    else:
+        monkeypatch.setattr(pd.DataFrame, 'to_clipboard',
+                            lambda df, **kw: copied.append(df.copy()))
+        table.copy(None)
+        assert_frame_equal(copied[0], table.model.df)
 
 
 def test_paste_rejects_malformed_rows_without_partial_write(table, monkeypatch):
-    import io
     from unittest.mock import Mock
     original = pd.DataFrame({'a': [1], 'b': [2]})
     replace(table, original)
     error = Mock()
-    monkeypatch.setattr(core_orig.messagebox, 'showwarning', error)
-    def read_clipboard(**kwargs):
-        return pd.read_csv(io.StringIO('a,b\n1,2\n3,4,5\n'), **kwargs)
-    monkeypatch.setattr(pd, 'read_clipboard', read_clipboard)
+    if isinstance(table, MTable):
+        monkeypatch.setattr('modified_table.messagebox.showwarning', error)
+        monkeypatch.setattr(table, 'clipboard_get', lambda: 'a\tb\n1\t2\n3\t4\t5')
+        history_before = table.prevdf
+        history_end_before = getattr(table, 'prevdf_end', None)
+    else:
+        import io
+        monkeypatch.setattr(core_orig.messagebox, 'showwarning', error)
+        monkeypatch.setattr(pd, 'read_clipboard', lambda **kwargs: pd.read_csv(
+            io.StringIO('a,b\n1,2\n3,4,5\n'), **kwargs))
     table.paste()
     assert_frame_equal(table.model.df, original)
     error.assert_called_once()
+    if isinstance(table, MTable):
+        assert table.prevdf is history_before
+        assert getattr(table, 'prevdf_end', None) == history_end_before
 
 
 @pytest.mark.parametrize('rows,low,high', [(0, 1, 1), (1, 1, 5), (3, 2, 2), (3, 1, 3)])
@@ -746,3 +769,62 @@ def test_column_header_body_double_click_rename_and_multiselect_context_menu(vis
     header_event_generate(table, '<Button-3>', fourth_x)
     popup.assert_called()
     assert table.multiplecollist == list(range(min(current, 3), max(current, 3) + 1))
+
+
+@pytest.mark.parametrize('index', [None, [5, 2, 9, 1], ['r4', 'r3', 'r1', 'r2']])
+def test_rows_from_mask_returns_positions_for_any_index(table, index):
+    frame = pd.DataFrame({'a': [1, 2, 3, 4]}, index=index)
+    replace(table, frame)
+    mask = pd.Series([True, False, True, False], index=frame.index)
+    assert table.getRowsFromMask(mask) == [0, 2]
+    assert table.getRowsFromMask(mask.to_numpy()) == [0, 2]
+    # a mask on a different label order still maps by label, not by position
+    assert table.getRowsFromMask(mask.iloc[::-1]) == [0, 2]
+    assert table.getRowsFromMask(pd.Series([False] * 4, index=frame.index)) == []
+    assert table.getRowsFromMask(None) == []
+    # integer input is a position list, never a mask
+    assert table.getRowsFromMask([2, 0, 9]) == [2, 0]
+    assert table.getRowsFromMask(pd.array([True, False, True, False], dtype='boolean')) == [0, 2]
+
+
+def test_transform_selection_uses_row_positions_and_keeps_other_cells(table, monkeypatch):
+    original = pd.DataFrame({'a': [1, 2, 3], 'b': [4., 5., 6.], 'c': ['x', 'y', 'z']},
+                            index=[30, 10, 20])
+    replace(table, original)
+    table.multiplerowlist = [0, 2]
+    table.multiplecollist = [0, 1]
+    monkeypatch.setattr(core_orig, 'MultipleValDialog', lambda **kw:
+        SimpleNamespace(result=True, results=['log', '1', True]))
+    table.transform()
+    expected = original.copy()
+    expected['a'] = pd.concat([np.log(original['a'].iloc[[0, 2]]),
+                               original['a'].iloc[[1]]]).sort_index()
+    expected['b'] = pd.concat([np.log(original['b'].iloc[[0, 2]]),
+                               original['b'].iloc[[1]]]).sort_index()
+    assert_frame_equal(table.model.df, expected)
+    assert_frame_equal(table.prevdf[-1] if isinstance(table.prevdf, list) else table.prevdf, original)
+
+
+def test_transform_accepts_constant_function_and_extension_dtypes(table, monkeypatch):
+    original = pd.DataFrame({'a': pd.array([1, None, 3], dtype='Int64'),
+                             'b': [10., 20., 30.]}, index=[7, 3, 5])
+    replace(table, original)
+    table.multiplerowlist = [0, 2]
+    table.multiplecollist = [0]
+    monkeypatch.setattr(core_orig, 'MultipleValDialog', lambda **kw:
+        SimpleNamespace(result=True, results=['subtract', '2', True]))
+    table.transform()
+    assert table.model.df['a'].isna().tolist() == [False, True, False]
+    assert table.model.df['a'].iloc[[0, 2]].tolist() == [-1, 1]
+    assert pd.api.types.is_extension_array_dtype(table.model.df['a'].dtype)
+    assert table.model.df['b'].tolist() == [10., 20., 30.]
+
+
+def test_transform_whole_table_maps_every_cell(table, monkeypatch):
+    original = pd.DataFrame({'a': [1, 4], 'b': [9., 16.]}, index=[100, 200])
+    replace(table, original)
+    monkeypatch.setattr(core_orig, 'MultipleValDialog', lambda **kw:
+        SimpleNamespace(result=True, results=['round', '1', False]))
+    table.transform()
+    assert_frame_equal(table.model.df, original.round(1))
+    assert_frame_equal(table.prevdf[-1] if isinstance(table.prevdf, list) else table.prevdf, original)

@@ -1308,7 +1308,9 @@ class Table(Canvas):
             return
         self.storeCurrent()
         self.model.deleteCells(rows, cols)
-        self.redraw()
+        changed = self.tableChanged()
+        if not changed:
+            self.redraw()
         return
 
     def clearData(self, evt=None):
@@ -2084,9 +2086,17 @@ class Table(Canvas):
 
     def getRowsFromMask(self, mask):
         df = self.model.df
-        if mask is not None:
-            idx = df.ix[mask].index
-        return self.getRowsFromIndex(idx)
+        if mask is None:
+            return []
+        if isinstance(mask, pd.Series):
+            if not mask.index.equals(df.index):
+                mask = mask.reindex(df.index, fill_value=False)
+            mask = mask.fillna(False)
+        if pd.api.types.is_bool_dtype(mask) or np.asarray(mask).dtype == bool:
+            values = np.asarray(mask).astype(bool)
+            return np.flatnonzero(values).tolist() if len(values) == len(df) else []
+        # anything else is a list of row positions, not a boolean mask
+        return [int(i) for i in np.asarray(mask).ravel() if 0 <= int(i) < len(df)]
 
     def findText(self, evt=None):
         """Simple text search in whole table"""
@@ -2899,7 +2909,6 @@ class Table(Canvas):
             return
 
         df = self.model.df
-        cols = list(df.columns[self.multiplecollist])
         rows = self.multiplerowlist
         funcs = ['log', 'exp', 'log10', 'log2',
                  'round', 'floor', 'ceil', 'trunc',
@@ -2938,16 +2947,29 @@ class Table(Canvas):
             const = int(const)
 
         if funcname in ['subtract', 'divide', 'mod', 'power', 'round']:
-            if use_sel:
-                df.ix[rows, cols] = df.ix[rows, cols].applymap(
-                    lambda x: func(x, const))
-            else:
-                df = df.applymap(lambda x: func(x, const))
+            op = lambda x: func(x, const)
         else:
-            if use_sel:
-                df.ix[rows, cols] = df.ix[rows, cols].applymap(func)
-            else:
-                df = df.applymap(func)
+            op = func
+
+        if not use_sel:
+            self.model.df = df.map(op)
+            self.redraw()
+            return
+
+        positions = self.multiplecollist
+        if not rows or not positions:
+            return
+        df = df.copy()
+        for pos in positions:
+            column = df.iloc[:, pos]
+            # rebuild the column from mapped and untouched cells so pandas can
+            # promote the dtype (e.g. int -> float) while keeping others intact
+            flat = column.reset_index(drop=True)
+            mapped = flat.iloc[rows].map(op)
+            keep = np.ones(len(flat), dtype=bool)
+            keep[rows] = False
+            column = pd.concat([flat[keep], mapped]).sort_index()
+            df.isetitem(pos, column.set_axis(df.index))
 
         self.model.df = df
         self.redraw()

@@ -11,7 +11,7 @@ from matplotlib.figure import Figure
 from matplotlib.patches import Patch
 from scipy import special, stats
 
-from chart_style import style_axes
+from chart_style import font_families, style_axes
 from control_chart import x_mR, xBar_R
 
 
@@ -250,39 +250,40 @@ def _shared_range(stages):
 def _diagnostics_text(result, index):
     stage = result.plot["diagnostics"][index]
     fit = result.plot["results"][index]["fit"]
-    lines = ["异常 %d/%d（%s）；超限 %d（%s）" % (
-        stage["alarms"], stage["points"], stage["primary"], stage["beyond"],
-        stage["secondary"]),
+    lines = ["%s %d/%d；%s 超限 %d" % (
+        "异常" if stage["rules"] else "越限",
+        stage["alarms"], stage["points"], stage["secondary"], stage["beyond"]),
+             "非正态仅判越限，未判连续模式" if not stage["rules"] else "",
              "分布失配，预计 PPM 不可靠" if fit["mismatch"] else "分布未拒绝"]
     if stage["alarms"] or stage["beyond"]:
         lines.append("能力仅描述样本期，不宜预测稳定运行")
-    return "\n".join(lines)
+    return "\n".join(line for line in lines if line)
 
 
 def _ppm_panel(ax, result):
-    """实测超规率与预计 PPM 分开画；对数轴，0 不写成可读的有限值。"""
-    rows = [("实测超规率", "observed"), ("预计 PPM（整体）", "overall")]
+    """实测与预计统一换算为 PPM；0 不画条形，缺失显示 NA。"""
+    rows = [("实测超规 PPM", "observed"), ("预计 PPM（整体）", "overall")]
     if "within" in result["results"][0]["ppm"]:
         rows.append(("预计 PPM（组内）", "within"))
-    values = [[item["ppm"]["observed"]["total"] if key == "observed"
-               else item["ppm"].get(key, {}).get("total") for item in result["results"]]
-              for key, _ in rows]
-    known = [value for pair in values for value in pair if value is not None]
-    floor = min([1.] + [value / 10 for value in known if value > 0])
+    values = [[None if item["ppm"].get(key, {}).get("total") is None
+               else float(item["ppm"][key]["total"]) for item in result["results"]]
+              for _, key in rows]
+    known = [value for pair in values for value in pair if value and value > 0]
+    floor = min([1.] + [value / 10 for value in known])
     height, colors = .36, ["#4a7fa7", "#2f7d5f"]
-    for row, (_, label) in enumerate(rows):
-        for index, name in enumerate(result["names"]):
+    for row, (_, key) in enumerate(rows):
+        for index in range(len(result["names"])):
             value = values[row][index]
             y = row + (index - .5) * height
-            # 零值不画条形：对数轴上任何可见长度都会夸大实际超规率。
+            # 对数轴上任何可见长度都会把 0 画成非零，因此只标注文字。
             if value:
                 ax.barh(y, max(value, floor), .9 * height, color=colors[index])
-            ax.text(max(value or 0., floor) * 1.2, y,
-                    "不可用" if value is None else "%.4g" % value, va="center", fontsize=8)
-    ax.set_yticks(range(len(rows)), [item[1] for item in rows])
+            ax.text(max(value or 0., floor) * 1.25, y,
+                    "NA" if value is None else "%.4g" % value, va="center", fontsize=8)
+    ax.set_yticks(range(len(rows)), [label for label, _ in rows])
     ax.set_xscale("log")
     ax.set_xlim(left=floor / 2, right=max(known + [1.]) * 10)
-    ax.set_xlabel("比例或 PPM（对数轴，条形下限 %.3g）" % floor)
+    ax.set_xlabel("PPM（对数轴，条形下限 %.3g；0 不画条形）" % floor)
     ax.invert_yaxis()
     ax.legend(handles=[Patch(color=color, label=name) for color, name
                        in zip(colors, result["names"])], fontsize=8, loc="lower right")
@@ -342,6 +343,6 @@ def plot_capability_comparison(result, figure=None):
     for ax in axes:
         style_axes(ax)
     figure.suptitle("改善前后过程能力对比 · 原始尺度 · 规格与 K 两阶段一致",
-                    fontsize=12)
+                    fontsize=12, fontfamily=font_families("Microsoft YaHei")[:2])
     return figure
 

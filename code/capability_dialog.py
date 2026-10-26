@@ -19,6 +19,7 @@ DISTRIBUTIONS = {'Weibull': 'weibull', 'Lognormal': 'lognormal', 'Gamma': 'gamma
 TRANSFORMS = {'无': None, 'Box-Cox': 'boxcox', 'Johnson SU': 'johnson'}
 COMPARE_MODES = [mode for mode in MODES if mode != '变换诊断']
 COMPARE_LABEL = '启用阶段对比（改善前/改善后）'
+SPLIT_LABELS = {name: key for key, name in SPLITS.items()}
 
 
 class CapabilityToolbar(NavigationToolbar2Tk):
@@ -80,11 +81,11 @@ class CapabilityDialog:
                         command=self.toggle_compare).grid(
                             row=len(specs), column=0, columnspan=4, sticky='w', padx=4, pady=2)
         self.compare_frame = ttk.LabelFrame(self.main, text='阶段对比设置', padding=4)
-        self.compare_split = tk.StringVar(self.main, '阶段列')
+        self.compare_split = tk.StringVar(self.main, SPLITS['stage'])
         self.compare_stage = tk.StringVar(self.main, '')
         self.compare_time = tk.StringVar(self.main, '')
         self.compare_cutoff = tk.StringVar(self.main, '')
-        rows = [(('compare_split', '阶段划分', list(SPLITS), self.compare_split),
+        rows = [(('compare_split', '阶段划分', list(SPLIT_LABELS), self.compare_split),
                  ('compare_stage', '阶段标识列', [''] + labels, self.compare_stage)),
                 (('compare_time', '时间列', [''] + labels, self.compare_time),
                  ('compare_cutoff', '分界时间', None, self.compare_cutoff))]
@@ -137,11 +138,18 @@ class CapabilityDialog:
             self.compare_frame.pack_forget()
 
     def compare_mode_state(self):
-        by_stage = self.compare_split.get() == '阶段列'
+        by_stage = self.split_mode() == 'stage'
         self.compare_widgets['compare_stage'].configure(
             state='readonly' if by_stage else 'disabled')
         for key in ('compare_time', 'compare_cutoff'):
             self.compare_widgets[key].configure(state='disabled' if by_stage else 'normal')
+
+    def split_mode(self):
+        """下拉框显示名映射到 stage/time；未知选项报错，不隐式当作时间模式。"""
+        label = self.compare_split.get()
+        if label not in SPLIT_LABELS:
+            raise ValueError('未知的阶段划分方式：%s；请选择阶段列或时间分界点。' % label)
+        return SPLIT_LABELS[label]
 
     def comparison(self):
         """阶段对比设置；测量列、规格、子组、分布与 K 沿用同一窗口的字段。"""
@@ -155,7 +163,7 @@ class CapabilityDialog:
                              'Box-Cox 或 Johnson；请将正态化变换设为“无”。')
         if not fields['lsl'].strip() and not fields['usl'].strip():
             raise ValueError('改善前后对比至少需要一侧规格限。')
-        by_stage = self.compare_split.get() == '阶段列'
+        by_stage = self.split_mode() == 'stage'
         stage = (self.column_map[self.compare_stage.get()]
                  if by_stage and self.compare_stage.get() else None)
         if stage is None and by_stage:
@@ -167,7 +175,7 @@ class CapabilityDialog:
         optional = lambda key: float(fields[key]) if fields[key] else None
         return dict(
             measurement=self.column_map[fields['measurement']],
-            split='stage' if by_stage else 'time', stage=stage, time=time,
+            split=self.split_mode(), stage=stage, time=time,
             cutoff=None if by_stage else (self.compare_cutoff.get().strip() or None),
             lsl=optional('lsl'), usl=optional('usl'), target=optional('target'),
             subgroup_size=1 if fields['subgroup'] else int(fields['size']),
@@ -370,7 +378,8 @@ class CapabilityDialog:
                 else:
                     plot_capability(self.result, figure=viewer.fig,
                                     sixpack='Sixpack' in mode, recent=recent)
-                viewer.navigation = CapabilityToolbar(viewer.canvas, viewer.ctrlfr)
+                #chart navigation sits above the canvas, never inside the options dock
+                viewer.navigation = CapabilityToolbar(viewer.canvas, viewer.plot_tools)
                 viewer.canvas.draw()
                 self.app.replacePlotViewer(viewer)
                 viewer.main.deiconify()

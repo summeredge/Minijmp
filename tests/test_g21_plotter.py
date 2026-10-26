@@ -1,10 +1,112 @@
 import tkinter as tk
+import gc
+import weakref
 
 import numpy as np
 import pandas as pd
+import pytest
+from matplotlib.backend_bases import MouseEvent, PickEvent, KeyEvent
 
 from modified_table import MTable
 from pandastable_local.plotting import PlotViewer
+
+
+@pytest.mark.parametrize('showoptions', [True, False])
+def test_general_viewer_drag_handler_lifecycle(tk_root, tmp_path, monkeypatch, showoptions):
+    from pandastable_local.handlers import DragHandler
+
+    released = []
+    errors = []
+    original_release = DragHandler.on_release_event
+
+    def release(handler, event):
+        released.append(event.name)
+        return original_release(handler, event)
+
+    monkeypatch.setattr(DragHandler, 'on_release_event', release)
+    monkeypatch.setattr(tk_root, 'report_callback_exception', lambda *args: errors.append(args))
+    table, frame = make_table(tk_root)
+    viewer = PlotViewer(table=table, showoptions=showoptions)
+    handler_ref = weakref.ref(viewer._drag_handler)
+    canvas = viewer.canvas
+    methods = {'pick_event': 'on_pick_event',
+               'button_press_event': 'button_press_event',
+               'button_release_event': 'on_release_event',
+               'key_press_event': 'key_press_event'}
+
+    def connections():
+        return {event: [cid for cid, callback in canvas.callbacks.callbacks[event].items()
+                        if getattr(callback(), '__self__', None) is handler_ref()
+                        and getattr(callback(), '__func__', None) is getattr(DragHandler, method)]
+                for event, method in methods.items()}
+
+    try:
+        gc.collect()
+        assert handler_ref() is viewer._drag_handler
+        initial = connections()
+        assert all(len(ids) == 1 for ids in initial.values())
+        viewer.main.geometry('900x720+20+20')
+        viewer.replot()
+        viewer.main.update()
+        assert viewer.main.winfo_width() == 900
+        assert viewer.main.winfo_height() == 720
+        assert viewer.plotfr.winfo_height() >= 640
+        for size in ('640x480', '1024x768', '900x720'):
+            viewer.main.geometry(size)
+            viewer.toggle_options()
+            viewer.main.update()
+            viewer.toggle_options()
+            viewer.updatePlot()
+            viewer.main.update()
+            assert connections() == initial
+
+        viewer.zoom()
+        viewer.zoom(False)
+        viewer.canvas.draw()
+        viewer.savePlot(str(tmp_path / 'general-events.png'))
+        assert (tmp_path / 'general-events.png').stat().st_size > 1000
+
+        # Use the actual annotation factory so Matplotlib's draggable callbacks run too.
+        viewer.labelopts.addTextBox(key='event-test')
+        annotation = next(a for a in viewer.fig.axes[0].texts if a._id == 'event-test')
+        before = annotation.xyann
+        bbox = annotation.get_window_extent()
+        x, y = (bbox.x0 + bbox.x1) / 2, (bbox.y0 + bbox.y1) / 2
+        press = MouseEvent('button_press_event', canvas, x, y, button=1)
+        canvas.callbacks.process('button_press_event', press)
+        canvas.callbacks.process('pick_event', PickEvent('pick_event', canvas, press, annotation))
+        assert viewer._drag_handler.selected is annotation
+        canvas.callbacks.process('motion_notify_event', MouseEvent(
+            'motion_notify_event', canvas, x + 25, y + 15, button=1))
+        canvas.callbacks.process('button_release_event', MouseEvent(
+            'button_release_event', canvas, x + 25, y + 15, button=1))
+        assert released == ['button_release_event']
+        assert viewer._drag_handler.dragged is None
+        assert annotation.xyann != before
+        assert 'xy' in viewer.labelopts.textboxes['event-test']
+        canvas.callbacks.process('key_press_event', KeyEvent('key_press_event', canvas, key='delete'))
+        assert not annotation.get_visible()
+        assert 'event-test' not in viewer.labelopts.textboxes
+
+        viewer.close()
+        gc.collect()
+        assert handler_ref() is None
+        for event, ids in initial.items():
+            assert all(cid not in canvas.callbacks.callbacks.get(event, {}) for cid in ids)
+        canvas.callbacks.process('button_release_event', MouseEvent(
+            'button_release_event', canvas, 10, 10, button=1))
+        tk_root.update()
+        assert released == ['button_release_event']
+        assert not errors
+        viewer = PlotViewer(table=table, showoptions=showoptions)
+        viewer.replot()
+        viewer.main.update()
+        assert viewer._drag_handler is not None
+    finally:
+        if viewer.main.winfo_exists():
+            viewer.close()
+        table.destroy()
+        frame.destroy()
 
 
 def make_viewer(tk_root):
