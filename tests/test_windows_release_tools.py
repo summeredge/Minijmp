@@ -92,6 +92,48 @@ def test_dlp_container_and_source_layout_rules(tmp_path):
     assert staged_names == sorted(['code/kept.py', 'tools/make_zip.py', *make_zip.SOURCE_FILES])
 
 
+def test_source_stage_excludes_local_configs_and_temporary_outputs(tmp_path):
+    repo = tmp_path / 'repo'
+    repo.mkdir()
+    for name in make_zip.SOURCE_FILES:
+        (repo / name).write_text('x', encoding='utf-8')
+    for name in make_zip.SOURCE_DIRS:
+        (repo / name).mkdir(parents=True, exist_ok=True)
+
+    keep = ('code/app.py', 'PIReader/Program.cs', 'docs/accepted.png',
+            'tests/fixtures/kept.csv')
+    exclude = (
+        'code/.env.local', 'code/local_settings.py', 'code/backup.bak',
+        'code/output.orig', 'code/.temp.swp', 'PIReader/config.txt',
+        'PIReader/OSIsoft.PISDK.dll', 'PIReader/OSIsoft.PISDKCommon.dll',
+        'PIReader/OSIsoft.PITimeServer.dll', 'docs/run.log', 'tests/result.tmp',
+        'docs/draft-chart.png', 'docs/chart.draft.png', 'docs/chart_draft.png',
+        'docs/~$slide.xlsx', 'docs/.DS_Store', 'docs/Thumbs.db',
+        'docs/release/pyinstaller-build-V0.1-beta3.txt',
+        'docs/release/build-inputs-V0.1-beta3.txt',
+        'docs/_build/nested/index.html', 'PIReader/.vs/Project/cache.bin',
+    )
+    for relative in keep + exclude:
+        path = repo / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('test fixture', encoding='utf-8')
+
+    stage = tmp_path / 'stage'
+    staged = make_zip.stage_source(repo, stage)
+    names = {path.relative_to(stage).as_posix() for path in staged}
+
+    assert set(keep) <= names
+    assert not set(exclude) & names, sorted(set(exclude) & names)
+    assert set(make_zip.SOURCE_FILES) <= names
+
+    archive = tmp_path / 'source.zip'
+    make_zip.zip_directory(stage, archive, root_name='MiniJMP-source')
+    with zipfile.ZipFile(archive) as source_zip:
+        archive_names = set(source_zip.namelist())
+    assert {f'MiniJMP-source/{name}' for name in keep} <= archive_names
+    assert not {f'MiniJMP-source/{name}' for name in exclude} & archive_names
+
+
 def test_smoke_launch_ignores_placeholder_tk_window(monkeypatch):
     assert smoke_launch.is_app_window('未命名项目 — 工作表1 - Minijmp')
     assert smoke_launch.is_app_window('C:/data/a.dexpl — 工作表2 - Minijmp')
@@ -137,12 +179,14 @@ def test_python_version_gate_accepts_311_and_newer(tmp_path):
 def test_version_identifiers_and_build_info_agree():
     levels = release_metadata.check()
     assert [level for level, _ in levels] == ['PASS'], levels
-    assert 'V0.1-beta2' in levels[0][1] and '0.1.0.2' in levels[0][1]
+    assert 'V0.1-beta3' in levels[0][1] and '0.1.0.3' in levels[0][1]
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
-    assert '$productVersion = ' + "'v0.1.0-beta.2'" in script
+    assert '$productVersion = ' + "'v0.1.0-beta.3'" in script
     assert 'Release name: $releaseVersion' in script
     assert 'PIReader: bundled beside MiniJMP.exe' in script
     assert 'PI SDK/PIPC runtime and PI Server connectivity' in script
+    version_info = (ROOT / 'packaging' / 'windows' / 'version_info.txt').read_text(encoding='utf-8')
+    assert "StringStruct('Comments', 'Windows beta release 3')" in version_info
 
 
 def test_pireader_paths_resolve_beside_frozen_exe(monkeypatch, tmp_path, tk_root):

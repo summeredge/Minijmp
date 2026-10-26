@@ -223,7 +223,11 @@ def _read_reader_json(payload) -> pd.DataFrame:
     frame = frame.iloc[:, 1:]
     for position in range(frame.shape[1]):
         values = frame.iloc[:, position]
-        cleaned = values.replace(r"^\s*$", None, regex=True)
+        # Avoid pandas 2.x replace() downcasting large integers before the precision check.
+        cleaned = pd.Series(
+            [None if isinstance(value, str) and not value.strip() else value
+             for value in values],
+            index=values.index, name=values.name, dtype=object)
         present = cleaned.dropna()
         if present.empty or any(isinstance(value, bool) for value in present):
             continue
