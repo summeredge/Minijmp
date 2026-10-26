@@ -1,6 +1,7 @@
 """Create and verify release archives with the Windows-friendly standard library."""
 
 import argparse
+from fnmatch import fnmatchcase
 import hashlib
 import sys
 import time
@@ -19,6 +20,21 @@ SOURCE_DIRS = ('code', 'help', 'icon', 'sample_data', 'user_config', 'packaging'
 SOURCE_FILES = ('LICENSE', 'README.md', 'CHANGES', 'AGENTS.md', 'CODING_STANDARDS.md',
                 'CONTRIBUTING.md', 'requirements.txt', 'start.py', 'setup_env.bat',
                 'win_start.bat', 'win_start_no_cmd_win.vbs', 'PACKAGING.md')
+SOURCE_SKIP_SUFFIXES = {'.log', '.tmp', '.bak', '.orig', '.swp'}
+SOURCE_SKIP_NAMES = {'.DS_Store', 'Thumbs.db', 'local_settings.py'}
+SOURCE_SKIP_PATHS = {
+    'PIReader/config.txt',
+    'PIReader/OSIsoft.PISDK.dll',
+    'PIReader/OSIsoft.PISDKCommon.dll',
+    'PIReader/OSIsoft.PITimeServer.dll',
+}
+SOURCE_SKIP_PATTERNS = (
+    '*.draft.*', '*_draft.*',
+    'docs/release/pyinstaller-build-V*.txt',
+    'docs/release/build-inputs-V*.txt',
+    'docs/_build/*',
+    'PIReader/.vs/*',
+)
 
 
 def package_files(source):
@@ -124,11 +140,21 @@ def stage_source(root, destination, dirs=SOURCE_DIRS, files=SOURCE_FILES):
     staged = []
     for path in package_files(root):
         relative = path.relative_to(root)
-        if relative.parts[0] in dirs or str(relative) in files:
-            target = destination / relative
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(path.read_bytes())
-            staged.append(target)
+        relative_name = relative.as_posix()
+        if relative.parts[0] not in dirs and relative_name not in files:
+            continue
+        if (path.suffix.lower() in SOURCE_SKIP_SUFFIXES
+                or path.name in SOURCE_SKIP_NAMES
+                or path.name == '.env' or path.name.startswith('.env.')
+                or path.name.startswith(('~$', 'draft-'))
+                or relative_name in SOURCE_SKIP_PATHS
+                or any(fnmatchcase(relative_name, pattern)
+                       for pattern in SOURCE_SKIP_PATTERNS)):
+            continue
+        target = destination / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(path.read_bytes())
+        staged.append(target)
     return staged
 
 
