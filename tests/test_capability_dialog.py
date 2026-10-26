@@ -17,7 +17,8 @@ def create(tk_root, monkeypatch, mode='正态能力'):
     monkeypatch.setattr(Minijmp, 'start_logging', lambda self: None)
     app = Minijmp(parent=tk_root)
     data = pd.DataFrame({'测量': np.random.default_rng(239).lognormal(1, .25, 80),
-                         '批次': np.repeat(['A'+str(i) for i in range(20)], 4)})
+                         '批次': np.repeat(['A'+str(i) for i in range(20)], 4),
+                         '阶段': ['改善前'] * 40 + ['改善后'] * 40})
     data.index = pd.Index([f'{i:018d}' for i in range(len(data))])
     source = app.addSheet('能力来源', data.copy(deep=True))
     dialog = CapabilityDialog(source, data, app, mode=mode)
@@ -202,6 +203,103 @@ def test_distribution_and_johnson_gui_options(tk_root, monkeypatch, distribution
 
 
 def test_quality_menu_opens_all_five_dialogs(tk_root, monkeypatch, tmp_path):
+    dialog, app, source, _ = create(tk_root, monkeypatch)
+    dialog.close()
+    opened = []
+    original = CapabilityDialog.__init__
+    def capture(self, *args, **kwargs):
+        original(self, *args, **kwargs)
+        opened.append(self)
+    monkeypatch.setattr(CapabilityDialog, '__init__', capture)
+    try:
+        menu = app.quality_menu['var']
+        wanted = ['正态过程能力（完整）', '非正态过程能力', 'Box-Cox / Johnson 变换',
+                  '正态能力 Sixpack', '非正态能力 Sixpack']
+        for label in wanted:
+            index = next(i for i in range(menu.index('end')+1)
+                         if menu.type(i) == 'command' and menu.entrycget(i, 'label').strip() == label)
+            menu.invoke(index)
+            assert opened[-1].main.winfo_exists()
+            opened[-1].main.update()
+        screenshot = tmp_path/'capability-dialog.png'
+        ImageGrab.grab(window=opened[-1].main.winfo_id()).save(screenshot)
+        with Image.open(screenshot) as image:
+            assert image.width >= 760 and image.height >= 580
+    finally:
+        for window in opened:
+            window.close()
+        dispose(app)
+
+
+def test_stage_comparison_defaults_off_then_switches_result(tk_root, monkeypatch, tmp_path):
+    """默认关闭；勾选后展开设置，结果与图形切换为阶段对比。"""
+    dialog, app, source, data = create(tk_root, monkeypatch)
+    try:
+        dialog.main.update()
+        assert dialog.stage_compare.get() is False
+        assert not dialog.compare_frame.winfo_manager()
+        dialog.fields['lsl'].set('')
+        dialog.fields['usl'].set('6')
+        dialog.fit()
+        finish(tk_root, dialog)
+        # 未勾选时仍是原有单阶段结果与控制图诊断。
+        assert isinstance(dialog.result, dict)
+        assert '控制图诊断' in dialog.tables
+        assert '能力指数对比' not in dialog.tables
+
+        dialog.stage_compare.set(True)
+        dialog.toggle_compare()
+        dialog.main.update()
+        assert dialog.compare_frame.winfo_manager() == 'pack'
+        assert str(dialog.compare_widgets['compare_time'].cget('state')) == 'disabled'
+        dialog.fields['missing'].set('删除不完整行')
+        dialog.compare_stage.set('阶段')
+        dialog.fit()
+        finish(tk_root, dialog)
+        assert '能力指数对比' in dialog.tables
+        assert '控制图诊断' not in dialog.tables
+        pd.testing.assert_frame_equal(source.model.df, data)
+
+        dialog.plot()
+        dialog.error.assert_not_called()
+        viewer = source.pf
+        tk_root.update()
+        viewer.canvas.draw()
+        assert [ax.get_title() for ax in viewer.fig.axes][:2] == [
+            name + '能力直方图' for name in dialog.result.plot['names']]
+        low, high = viewer.fig.axes[0].get_xlim()
+        assert viewer.fig.axes[1].get_xlim() == (low, high)
+        path = tmp_path / 'comparison.png'
+        viewer.savePlot(str(path))
+        with Image.open(path) as image:
+            assert image.width >= 600
+            image.verify()
+
+        app.print = Mock()
+        dialog.report()
+        output = '\n'.join(call.args[0] for call in app.print.call_args_list if call.args)
+        assert '改善前后过程能力分析报告' in output
+        assert '能力指数前后比较' in output
+        assert all(call.kwargs['table'] is source for call in app.print.call_args_list)
+
+        destination = tmp_path / 'comparison.xlsx'
+        monkeypatch.setattr('capability_dialog.filedialog.asksaveasfilename',
+                            lambda **kw: str(destination))
+        dialog.notebook.select(next(tab for tab, title in dialog.blocks.items()
+                                   if title == '能力指数对比'))
+        dialog.export()
+        loaded = pd.read_excel(destination)
+        assert list(loaded.columns) == list(dialog.tables['能力指数对比'].columns)
+
+        dialog.fields['transform'].set('Box-Cox')
+        dialog.stage_compare.set(True)
+        dialog.fit()
+        assert '原始测量尺度' in str(dialog.error.call_args.args[0])
+        dialog.error.reset_mock()
+    finally:
+        dialog.close()
+        dispose(app)
+
     dialog, app, source, _ = create(tk_root, monkeypatch)
     dialog.close()
     opened = []
