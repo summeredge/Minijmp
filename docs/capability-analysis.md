@@ -87,6 +87,25 @@ Minitab 在 SB/SL/SU 三族中按 Chou 等方法估参，再选择 AD p 值满�
 规格限表达客户要求，SPC 控制限表达过程预期波动；需区别线型和图例。异常点须明显标注，未执行的 Nelson/Western Electric 规则不能被称为已通过。单侧规格不画虚构的另一侧边界。
 
 ## 逐方法独立证据矩阵
+## 改善前后能力对比（原尺度）
+
+`CapabilityDialog` 底部新增“启用阶段对比（改善前/改善后）”，默认关闭。适用正态能力、非正态能力及两者 Sixpack；变换诊断不适用。阶段划分复用 `improvement_chart.split_phases`（阶段列按实际出现顺序，只接受两个连续段；时间列必须非递减，不隐式重排）。测量列、LSL/USL/Target、子组、分布族、置信水平与 K 沿用窗口字段，两阶段共用同一规格与 K。
+
+`code/capability_compare.py` 对每阶段独立调用 `capability.analyze_capability`，子组只在该阶段行内划分，跨阶段重复的子组 ID 直接拒绝；`source_row` 映射回整张工作表位置。对比只提供差值，不提供 Cp/Cpk/Pp/Ppk 差值区间或检验，理由与单阶段区间不足相同；显著性检验仅 Welch 均值差异、Levene 波动差异与 Ljung-Box 自相关。
+
+| 输出表 | 主要字段 | 不可计算时的处理 |
+| --- | --- | --- |
+| 数据与规格摘要 | 阶段定义、共用规格与 K、分布族、尺度、样本量、来源行、缺失删除、子组口径 | 规格缺失直接拒绝 |
+| 能力指数对比 | Cp/Cpl/Cpu/Cpk、Pp/Ppl/Ppu/Ppk（非正态仅 P 类）、等价 Z；差值、变化率 | 显示“不适用”及原因 |
+| 波动与超规对比 | 均值、组内/整体标准差与波动比、实测超规数与超规率、预计 PPM（整体；正态未变换另含组内） | 零基准不写变化率 |
+| 稳定性与分布诊断 | 各阶段控制图图型、Nelson 异常点数、越限点数、AD/KS/p、有效 n 与缺失行 | 拟合失配标注预测 PPM 不可靠 |
+| 统计检验 | Welch、Levene、各阶段 Ljung-Box | 自相关无法评价时标注显著性未评价 |
+| 分析结论 | 能力指数前后值、规格外比例、解释限制、改善结论边界 | 有限制时不输出显著改善结论 |
+
+对比图 `capability_plots.plot_capability_comparison` 由两阶段直方图（共用横轴与规格）、能力指数柱状图和实测/预计 PPM 对数面板组成，仍在原 PlotViewer 中缩放、保存与导出；Sixpack 与普通能力图未改动。报告由 `capability_compare.print_report` 生成，顺序为摘要、稳定性与分布、能力指数、波动与超规、统计检验、结论边界。
+
+变换组合当前不支持：两阶段分别拟合 Box-Cox/Johnson 后的能力指数不在同一尺度，窗口明确提示并保持单阶段变换分析可用。
+
 
 生产入口均为 `capability.analyze_capability`（变换运算为 `transform_values`），GUI 生产入口为 `Minijmp.capability_analysis → CapabilityDialog`。下表列实际独立参考测试；完整命令及数量见 [验收记录](capability-validation.md)。
 
@@ -105,6 +124,11 @@ Minitab 在 SB/SL/SU 三族中按 Chou 等方法估参，再选择 AD p 值满�
 | 数据合同/异常 | test_capability.py::test_source_missing_and_ids_preserved_without_regrouping；test_invalid_inputs | 来源索引/行号、显式删除、常数/不足/反向规格/重复ID/未满组 | 通过 |
 | Sixpack 控制限/图形 | test_capability_plots.py | 正态I/MR常数、Xbar-R/S解析公式、非正态PPF、六格顺序、Z尺度、PNG重读 | 通过 |
 | GUI/导出 | test_capability_dialog.py | 五菜单、3非正态分布、2变换、单侧/子组、取消/关闭、来源快照、长索引CSV/XLSX重读、原表不变 | 通过 |
+| 改善前后对比 | test_capability_compare.py::test_two_phases_match_independent_reference_and_share_specs | 手算两阶段 MR2/样本方差/Cp/Cpk/Pp/Ppk、正态 PPM 与超规计数；共用规格 | 通过 |
+| 阶段与子组边界 | test_capability_compare.py::test_stage_order_subgroups_and_source_rows_stay_within_phase；test_subgroup_crossing_phase_boundary_is_rejected | 实际出现顺序、来源行回映射、阶段内合并子组、跨阶段子组拒绝 | 通过 |
+| 单侧/零超规/非正态 | test_capability_compare.py::test_one_sided_specs_zero_defects_and_not_applicable；test_nonnormal_mode_never_mixes_normal_indices | 单侧 Cp 不适用而 Cpk 可用、零超规不平滑、非正态仅百分位指数 | 通过 |
+| 适用性限制 | test_capability_compare.py::test_autocorrelation_and_fit_mismatch_limit_conclusions | 强自相关与拟合失配时标注限制、不输出显著改善结论 | 通过 |
+| GUI/图形/导出 | test_capability_dialog.py::test_stage_comparison_defaults_off_then_switches_result | 默认关闭、勾选展开、结果页与对比图切换、报告与 Excel、变换组合拦截 | 通过 |
 
 静态 PyInstaller onedir 审查不代表成功打包；本阶段未创建提交或推送，也未实施下一阶段质量工具。
 

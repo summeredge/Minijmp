@@ -509,6 +509,8 @@ class PlotViewer(Frame):
         self.layoutopts = PlotLayoutOptions(parent=self)
 
         self.gridaxes = {}
+        self._role_mode = False
+        self._role_columns = None
         #reset style if it been set globally
         self.style = None
         self.setupGUI()
@@ -600,6 +602,8 @@ class PlotViewer(Frame):
         self.nb = Notebook(self.ctrlfr)
         #add plotter tool dialogs
         w1 = self.mplopts.showDialog(self.nb)
+        w0 = self.addDataConfig(self.nb)
+        self.nb.add(w0, text='数据配置', sticky='news')
         self.nb.add(w1, text='基本选项', sticky='news')
         #reload tkvars again from stored kwds variable
         self.mplopts.updateFromDict()
@@ -622,11 +626,352 @@ class PlotViewer(Frame):
             self.nb.pack(side=TOP,fill=BOTH,expand=0)
         return
 
+    role_kinds = ('line', 'scatter', 'bar', 'area')
+
+    def addDataConfig(self, parent):
+        """Column roles on top of the existing plot options; values stay in
+        mplopts so there is one state per parameter."""
+
+        from dialog import display_variable
+        self.xcol = None
+        self.ycols = []
+        self.groupcol = None
+        self._syncingRole = False
+        frame = Frame(parent)
+        box = LabelFrame(frame, text='数据配置')
+        box.pack(side=LEFT, fill=Y, padx=2, pady=2)
+        self.rangevar = StringVar(value='全部行')
+        Label(box, text='图形类型').pack(anchor='w')
+        self.kindcombo = Combobox(box, state='readonly', width=16,
+                                  values=[PLOT_OPTIONS[k] for k in self.mplopts.kinds])
+        shown = display_variable(self.mplopts.tkvars['kind'], self.mplopts.kinds,
+                                 PLOT_OPTIONS, owner=self.kindcombo)
+        self.kindcombo.configure(textvariable=shown)
+        self.kindcombo.pack(fill=X)
+        self.kindcombo.bind('<<ComboboxSelected>>', lambda e: self.syncRoleState())
+        Label(box, text='X 轴列').pack(anchor='w')
+        self.xcombo = Combobox(box, state='readonly', width=16)
+        self.xcombo.pack(fill=X)
+        self.xcombo.bind('<<ComboboxSelected>>', self._roleSelectionChanged)
+        Label(box, text='Y 轴列（可多选）').pack(anchor='w')
+        ywrap = Frame(box)
+        ywrap.pack(fill=X)
+        yscroll = Scrollbar(ywrap, orient=VERTICAL)
+        yscroll.pack(side=RIGHT, fill=Y)
+        self.ylistbox = tkinter.Listbox(ywrap, selectmode=MULTIPLE, exportselection=0,
+                                        height=5, width=18, yscrollcommand=yscroll.set)
+        self.ylistbox.pack(side=LEFT, fill=X, expand=True)
+        yscroll.configure(command=self.ylistbox.yview)
+        self.ylistbox.bind('<<ListboxSelect>>', self._roleSelectionChanged)
+        Label(box, text='分组列').pack(anchor='w')
+        self.bycombo = Combobox(box, state='readonly', width=16)
+        self.bycombo.pack(fill=X)
+        self.bycombo.bind('<<ComboboxSelected>>', self._roleSelectionChanged)
+        Label(box, text='数据范围').pack(anchor='w')
+        self.rangecombo = Combobox(box, state='readonly', width=16,
+                                   textvariable=self.rangevar,
+                                   values=['全部行', '选中行'])
+        self.rangecombo.pack(fill=X)
+        self.roleplotbtn = addButton(box, '绘图', self.plotRoles, images.plot(),
+                                     '按列角色绘图', side=TOP, compound='left',
+                                     padding=2)
+        addButton(box, '重置', self.resetRoleConfig, images.refresh(),
+                  '恢复默认数据配置', side=TOP, compound='left', padding=2)
+        self.roledesc = Label(box, text='', anchor='w', justify='left',
+                              wraplength=190)
+        self.roledesc.pack(fill=X, pady=2)
+        self.mplopts.tkvars['by'].trace_add('write', self._roleByChanged)
+        self.mplopts.tkvars['kind'].trace_add('write', lambda *a: self.syncRoleState())
+        self.refreshRoleColumns()
+        self.syncRoleState()
+        return frame
+
+    def _roleColumnText(self, column):
+        return str(column)
+
+    def _roleColumnIndex(self, column):
+        for i, existing in enumerate(self._role_columns):
+            if type(existing) is type(column) and existing == column:
+                return i
+        return -1
+
+    def _roleOption(self, key):
+        tkvars = getattr(self.mplopts, 'tkvars', None)
+        if tkvars and tkvars.get(key) is not None:
+            return tkvars[key].get()
+        return self.mplopts.kwds.get(key, '')
+
+    def refreshRoleColumns(self):
+        """Rebuild choices from the current worksheet, keeping valid picks."""
+
+        if not hasattr(self, 'xcombo'):
+            return
+        df = self.table.model.df if self.table is not None else pd.DataFrame()
+        self._role_columns = list(df.columns)
+        labels = [self._roleColumnText(c) for c in self._role_columns]
+        self.xcombo['values'] = ['（行索引）'] + labels
+        self.bycombo['values'] = ['（无）'] + labels
+        self.ylistbox.delete(0, END)
+        for label in labels:
+            self.ylistbox.insert(END, label)
+
+        missing = [c for c in (self.ycols + ([self.xcol] if self.xcol is not None else [])
+                               + ([self.groupcol] if self.groupcol is not None else []))
+                   if self._roleColumnIndex(c) < 0]
+        if missing:
+            self.ycols = [c for c in self.ycols if self._roleColumnIndex(c) >= 0]
+            if self.xcol is not None and self._roleColumnIndex(self.xcol) < 0:
+                self.xcol = None
+            if self.groupcol is not None and self._roleColumnIndex(self.groupcol) < 0:
+                self.groupcol = None
+                self._syncingRole = True
+                self.mplopts.tkvars['by'].set('')
+                self._syncingRole = False
+            self.setRoleMessage('列已不存在，请重新选择：'
+                                + '、'.join(str(c) for c in missing))
+        self._showRoleSelection()
+
+    def _showRoleSelection(self):
+        xindex = self._roleColumnIndex(self.xcol) if self.xcol is not None else -1
+        self.xcombo.current(0 if xindex < 0 else xindex + 1)
+        gindex = self._roleColumnIndex(self.groupcol) if self.groupcol is not None else -1
+        self.bycombo.current(0 if gindex < 0 else gindex + 1)
+        self.ylistbox.selection_clear(0, END)
+        for y in self.ycols:
+            index = self._roleColumnIndex(y)
+            if index >= 0:
+                self.ylistbox.selection_set(index)
+        self.xcombo.xview_moveto(0)
+        self.bycombo.xview_moveto(0)
+
+    def _roleSelectionChanged(self, event=None):
+        if self._syncingRole:
+            return
+        self._syncingRole = True
+        try:
+            index = self.xcombo.current()
+            self.xcol = None if index <= 0 else self._role_columns[index - 1]
+            # keep distinct source columns; 1 and '1' are different columns
+            picked, seen = [], set()
+            for i in self.ylistbox.curselection():
+                column = self._role_columns[i]
+                position = self._roleColumnIndex(column)
+                if position not in seen:
+                    seen.add(position)
+                    picked.append(column)
+            self.ycols = picked
+            index = self.bycombo.current()
+            self.groupcol = None if index <= 0 else self._role_columns[index - 1]
+            # keep the existing 'by' option in step with the new group column
+            self.mplopts.tkvars['by'].set(
+                '' if self.groupcol is None else self._roleColumnText(self.groupcol))
+        finally:
+            self._syncingRole = False
+        self.setRoleMessage('')
+
+    def _roleByChanged(self, *args):
+        """A group chosen in Basic Options is the same state as the new control."""
+
+        if self._syncingRole or not hasattr(self, 'bycombo'):
+            return
+        try:
+            if not self.bycombo.winfo_exists():
+                return
+        except tkinter.TclError:
+            return
+        value = self.mplopts.tkvars['by'].get()
+        if value == '':
+            if self.groupcol is not None:
+                self.groupcol = None
+                self._syncingRole = True
+                self.bycombo.current(0)
+                self._syncingRole = False
+            return
+        column = self._roleColumnFromText(value)
+        if column is None:
+            return
+        self.groupcol = column
+        self._syncingRole = True
+        self.bycombo.current(self._roleColumnIndex(column) + 1)
+        self._syncingRole = False
+
+    def _roleColumnFromText(self, text):
+        if self._roleColumnIndex(text) >= 0:
+            return text
+        matches = [c for c in self._role_columns if str(c) == text]
+        return matches[0] if len(matches) == 1 else None
+
+    def syncRoleState(self):
+        """Enable roles only for the four supported 2D plot kinds."""
+
+        if not hasattr(self, 'kindcombo'):
+            return
+        kind = self._roleOption('kind')
+        supported = kind in self.role_kinds and not self.globalopts['3D plot']
+        for widget in (self.xcombo, self.bycombo):
+            widget.configure(state='readonly' if supported else 'disabled')
+        self.ylistbox.configure(state=NORMAL if supported else DISABLED)
+        self.roleplotbtn.configure(state=NORMAL if supported else DISABLED)
+        if kind not in self.role_kinds:
+            self.setRoleMessage('列角色适用于折线图、散点图、条形图和面积图；'
+                                '其他类型请在“基本选项”中设置。')
+        elif self.globalopts['3D plot']:
+            self.setRoleMessage('三维图形不使用列角色配置。')
+        else:
+            hint = ('散点图需要 X 轴列。' if kind == 'scatter'
+                    else 'X 轴留空时使用行索引。')
+            self.setRoleMessage(hint + '分组列可不选。')
+
+    def setRoleMessage(self, text):
+        if hasattr(self, 'roledesc'):
+            self.roledesc.configure(text=text)
+
+    def leaveRoleMode(self):
+        """Role data must not leak into unsupported kinds or 3D plotting."""
+
+        if not getattr(self, '_role_mode', False):
+            return False
+        self._role_mode = False
+        table = getattr(self, 'table', None)
+        if table is not None and hasattr(table, 'getSelectedDataFrame'):
+            self.data = table.getSelectedDataFrame()
+            self.updateInputSummary()
+        return True
+
+    def resetRoleConfig(self):
+        self._role_mode = False
+        self.xcol = None
+        self.ycols = []
+        self.groupcol = None
+        self.rangevar.set('全部行')
+        self._syncingRole = True
+        self.mplopts.tkvars['kind'].set('line')
+        self.mplopts.tkvars['by'].set('')
+        self._syncingRole = False
+        self._showRoleSelection()
+        self.syncRoleState()
+        self.setRoleMessage('已恢复默认数据配置。')
+
+    def _roleSource(self):
+        df = self.table.model.df
+        if self.rangevar.get() != '选中行':
+            return df.copy()
+        rows = [r for r in getattr(self.table, 'multiplerowlist', [])
+                if isinstance(r, (int, np.integer)) and 0 <= r < len(df)]
+        if not rows:
+            raise ValueError('数据范围设为“当前选中行”，但工作表中没有选中行。')
+        return df.iloc[rows].copy()
+
+    def roleData(self, df, kind):
+        """Build the plotting frame from explicit X, Y and group roles."""
+
+        xcol, ycols, groupcol = self.xcol, list(self.ycols), self.groupcol
+        if not ycols:
+            raise ValueError('请至少选择一个 Y 轴列。')
+        for column in ycols + ([xcol] if xcol is not None else []):
+            if self._roleColumnIndex(column) < 0 or column not in df.columns:
+                raise ValueError('列“%s”已不在当前工作表中，请重新选择。' % column)
+        if kind == 'scatter' and xcol is None:
+            raise ValueError('散点图需要指定 X 轴列。')
+        if kind == 'scatter' and xcol is not None and any(
+                self._roleColumnIndex(xcol) == self._roleColumnIndex(y) for y in ycols):
+            raise ValueError('散点图的 X 轴列与 Y 轴列不能是同一个源列，请重新选择。')
+        if xcol is not None and kind == 'scatter' and not pd.api.types.is_numeric_dtype(df[xcol]):
+            raise ValueError('散点图的 X 轴列“%s”不是数值列。' % xcol)
+        for column in ycols:
+            if not pd.api.types.is_numeric_dtype(df[column]):
+                raise ValueError('Y 轴列“%s”不是可绘图的数值列。' % column)
+        by2 = self._roleOption('by2')
+        groups = [groupcol] if groupcol is not None else []
+        if groups and by2 != '' and by2 != groupcol and by2 in df.columns:
+            groups.append(by2)
+
+        work = df.reset_index(drop=True)
+        series = []
+        if groups:
+            grouped = work.groupby(groups, observed=True, sort=False, dropna=False)
+            blocks = [(key, block.index) for key, block in grouped]
+        else:
+            blocks = [(None, work.index)]
+        for y in ycols:
+            drawn = False
+            for key, index in blocks:
+                name = self._roleColumnText(y) if key is None else '%s（%s）' % (
+                    self._roleColumnText(y),
+                    ','.join(str(v) for v in (key if isinstance(key, tuple) else (key,))))
+                values = pd.Series(np.nan, index=work.index, dtype=float)
+                values.loc[index] = pd.to_numeric(work.loc[index, y], errors='coerce')
+                if not values.notna().any():
+                    continue  # an empty group must not hide the other groups
+                series.append((name, values))
+                drawn = True
+            if not drawn:
+                raise ValueError('“%s”在所选行中没有可绘图的数值。'
+                                 % self._roleColumnText(y))
+        labels = self._uniqueColumns([name for name, _ in series])
+        plotdata = pd.DataFrame({label: values for label, (_, values)
+                                 in zip(labels, series)}, index=work.index)
+        if kind == 'scatter':
+            display = self._roleColumnText(xcol)
+            xlabel = self._uniqueColumns([display], used=plotdata.columns)[0]
+            plotdata.insert(0, xlabel, pd.to_numeric(work[xcol], errors='coerce'))
+        elif xcol is not None:
+            plotdata.index = pd.Index(work[xcol].to_numpy(),
+                                      name=self._roleColumnText(xcol))
+        else:
+            plotdata.index = pd.Index(df.index)
+        return plotdata
+
+    def _uniqueColumns(self, names, used=None):
+        result, used = [], set() if used is None else set(used)
+        for name in names:
+            label, i = name, 2
+            while label in used:
+                label = '%s（%d）' % (name, i)
+                i += 1
+            used.add(label)
+            result.append(label)
+        return result
+
+    def plotRoles(self):
+        """Plot the current worksheet rows using the selected column roles."""
+
+        kind = self._roleOption('kind')
+        if kind not in self.role_kinds:
+            self.leaveRoleMode()
+            self.setRoleMessage('当前图形类型不支持列角色配置。')
+            self.showWarning('当前图形类型不支持列角色配置，\n'
+                             '请选择折线图、散点图、条形图或面积图。')
+            return False
+        if not self.ycols:
+            self.setRoleMessage('请至少选择一个 Y 轴列。')
+            self.showWarning('请至少选择一个 Y 轴列。')
+            return False
+        if self._roleOption('errorbars'):
+            self.setRoleMessage('列角色绘图暂不支持误差线列，请在“基本选项”中关闭。')
+            self.showWarning('列角色绘图暂不支持误差线列，\n请在“基本选项”中关闭。')
+            return False
+        try:
+            data = self._roleSource()
+            self.roleData(data, kind)  # validate before clearing the current plot
+        except ValueError as error:
+            self.setRoleMessage(str(error))
+            self.showWarning(str(error))
+            return False
+        self._role_mode = True
+        self.data = data
+        self.applyPlotoptions()
+        self.plotCurrent()
+        self.updateInputSummary()
+        return True
+
     def setGlobalOption(self, name='', *args):
         """Set global value from widgets"""
 
         try:
             self.globalopts[name] = self.globalvars[name].get()
+            if name == '3D plot' and hasattr(self, 'kindcombo'):
+                self.syncRoleState()
             #print (self.globalopts)
         except:
             logging.error("Exception occurred", exc_info=True)
@@ -659,6 +1004,7 @@ class PlotViewer(Frame):
             self.data = self.table.getSelectedDataFrame()
         else:
             self.data = data
+        self._role_mode = False
         self.updateInputSummary()
         self.updateStyle()
         self.applyPlotoptions()
@@ -673,6 +1019,12 @@ class PlotViewer(Frame):
             text = '当前绘图数据：尚未绘图'
         elif getattr(data, 'empty', True):
             text = '当前绘图数据：无可用选区（0 行，0 列）'
+        elif getattr(self, '_role_mode', False):
+            names = '、'.join(str(c) for c in getattr(self, 'ycols', []))
+            text = '当前绘图数据（列配置）：%d 行｜X=%s｜Y=%s%s' % (
+                len(data), getattr(self, 'xcol', None) or '行索引', names,
+                '｜分组=%s' % getattr(self, 'groupcol', None)
+                if getattr(self, 'groupcol', None) else '')
         else:
             names = '、'.join(str(c) for c in data.columns[:6])
             if len(data.columns) > 6:
@@ -696,8 +1048,24 @@ class PlotViewer(Frame):
         """Update the current plot with new options, keeping its data."""
 
         self.applyPlotoptions()
+        if getattr(self, '_role_mode', False):
+            if self.globalopts['3D plot'] or self._roleOption('kind') not in self.role_kinds:
+                self.leaveRoleMode()
+                self.plotCurrent()
+                return
+            self.plotRoles()
+            return
         self.plotCurrent()
         self.updateInputSummary()
+        return
+
+    def refreshCurrent(self):
+        """Re-draw with the active source: column roles or table selection."""
+
+        if getattr(self, '_role_mode', False):
+            self.updatePlot()
+        else:
+            self.replot()
         return
 
     def plotCurrent(self, redraw=True):
@@ -706,6 +1074,9 @@ class PlotViewer(Frame):
         layout = self.globalopts['grid layout']
         gridmode = self.layoutopts.modevar.get()
         plot3d = self.globalopts['3D plot']
+        if getattr(self, '_role_mode', False) and (
+                plot3d == 1 or self._roleOption('kind') not in self.role_kinds):
+            self.leaveRoleMode()
         self._initFigure()
         if layout == 1 and gridmode == 'multiviews':
             self.plotMultiViews()
@@ -731,7 +1102,7 @@ class PlotViewer(Frame):
         self.mplopts.increment('linewidth',val/10)
         self.mplopts.increment('ms',val)
         self.mplopts.increment('fontsize',val)
-        self.replot()
+        self.refreshCurrent()
         return
 
     def clear(self):
@@ -914,7 +1285,18 @@ class PlotViewer(Frame):
         if not hasattr(self, 'data'):
             return
 
+        kind = self._roleOption('kind')
+        if getattr(self, '_role_mode', False) and (
+                kind not in self.role_kinds or self.globalopts['3D plot']):
+            self.leaveRoleMode()
         data = self.data.copy()
+        if getattr(self, '_role_mode', False) and kind in self.role_kinds:
+            try:
+                data = self.roleData(self.data, kind)
+            except ValueError as error:
+                self.setRoleMessage(str(error))
+                self.showWarning(str(error))
+                return
         data.columns = self.checkColumnNames(data.columns)
         #print (data)
         #get all options from the mpl options object
@@ -926,6 +1308,10 @@ class PlotViewer(Frame):
         errorbars = kwds['errorbars']
         useindex = kwds['use_index']
         bw = kwds['bw']
+        if getattr(self, '_role_mode', False) and kind in self.role_kinds:
+            # roles are already resolved into columns and the index
+            by = by2 = ''
+            useindex = True
         #print (kwds)
         if self._checkNumeric(data) == False and kind != 'venn':
             self.showWarning('no numeric data to plot')
@@ -957,7 +1343,7 @@ class PlotViewer(Frame):
                 nrows = int(round(np.sqrt(size),0))
                 ncols = int(np.ceil(size/nrows))
                 self.ax.set_visible(False)
-                del kwargs['subplots']
+                kwargs['subplots'] = False
                 for n,df in g:
                     if ncols==1 and nrows==1:
                         ax = self.fig.add_subplot(111)
@@ -965,7 +1351,7 @@ class PlotViewer(Frame):
                     else:
                         ax = self.fig.add_subplot(nrows,ncols,i)
                     kwargs['legend'] = False #remove axis legends
-                    d = df.drop(by,axis=1) #remove grouping columns
+                    d = df.drop(columns=by, errors='ignore') #remove grouping columns
                     axs = self._doplot(d, ax, kind, False,  errorbars, useindex,
                                   bw=bw, yerr=None, kwargs=kwargs)
                     ax.set_title(n)
@@ -995,7 +1381,7 @@ class PlotViewer(Frame):
                 elif kind == 'scatter':
                     #we plot multiple groups and series in different colors
                     #this logic could be placed in the scatter method?
-                    d = data.drop(by,1)
+                    d = data.drop(columns=[by])
                     d = d._get_numeric_data()
                     xcol = d.columns[0]
                     ycols = d.columns[1:]
@@ -1750,6 +2136,7 @@ class PlotViewer(Frame):
             return
         df = self.table.model.df
         self.mplopts.update(df)
+        self.refreshRoleColumns()
         return
 
     def updateStyle(self):
@@ -2217,7 +2604,7 @@ class AnnotationOptions(TkOptions):
     def clear(self):
         """Clear annotations"""
         self.textboxes = {}
-        self.parent.replot()
+        self.parent.refreshCurrent()
         return
 
     def addObject(self):
@@ -2374,13 +2761,13 @@ class ExtraOptions(TkOptions):
     def apply(self):
         mpl.rcParams.update(mpl.rcParamsDefault)
         self.parent.style = self.stylevar.get()
-        self.parent.replot()
+        self.parent.refreshCurrent()
         return
 
     def reset(self):
         mpl.rcParams.update(mpl.rcParamsDefault)
         self.parent.style = None
-        self.parent.replot()
+        self.parent.refreshCurrent()
         return
 
 class AnimateOptions(TkOptions):

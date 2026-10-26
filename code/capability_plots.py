@@ -8,6 +8,7 @@ independently of the capability spread K. Only beyond-limit tests are marked.
 import numpy as np
 import pandas as pd
 from matplotlib.figure import Figure
+from matplotlib.patches import Patch
 from scipy import special, stats
 
 from chart_style import style_axes
@@ -231,3 +232,116 @@ def plot_capability(result, figure=None, sixpack=True, recent=25):
     fig.suptitle(f"过程能力诊断 · {scale} · 控制限≠规格限；仅标记超控制限点{approximation}",
                  fontfamily=axes[0].title.get_fontfamily(), fontsize=12)
     return fig
+
+
+def _shared_range(stages):
+    """两阶段与规格共用同一横轴范围，避免视觉上夸大差异。"""
+    low = min(np.min(np.asarray(stage["data"], dtype=float)) for stage in stages)
+    high = max(np.max(np.asarray(stage["data"], dtype=float)) for stage in stages)
+    specs = [value for stage in stages
+             for value in (stage.get("lsl"), stage.get("usl"), stage.get("target"))
+             if value is not None]
+    if specs:
+        low, high = min([low] + specs), max([high] + specs)
+    pad = (high - low) * .05 or 1.
+    return low - pad, high + pad
+
+
+def _diagnostics_text(result, index):
+    stage = result.plot["diagnostics"][index]
+    fit = result.plot["results"][index]["fit"]
+    lines = ["异常 %d/%d（%s）；超限 %d（%s）" % (
+        stage["alarms"], stage["points"], stage["primary"], stage["beyond"],
+        stage["secondary"]),
+             "分布失配，预计 PPM 不可靠" if fit["mismatch"] else "分布未拒绝"]
+    if stage["alarms"] or stage["beyond"]:
+        lines.append("能力仅描述样本期，不宜预测稳定运行")
+    return "\n".join(lines)
+
+
+def _ppm_panel(ax, result):
+    """实测超规率与预计 PPM 分开画；对数轴，0 不写成可读的有限值。"""
+    rows = [("实测超规率", "observed"), ("预计 PPM（整体）", "overall")]
+    if "within" in result["results"][0]["ppm"]:
+        rows.append(("预计 PPM（组内）", "within"))
+    values = [[item["ppm"]["observed"]["total"] if key == "observed"
+               else item["ppm"].get(key, {}).get("total") for item in result["results"]]
+              for key, _ in rows]
+    known = [value for pair in values for value in pair if value is not None]
+    floor = min([1.] + [value / 10 for value in known if value > 0])
+    height, colors = .36, ["#4a7fa7", "#2f7d5f"]
+    for row, (_, label) in enumerate(rows):
+        for index, name in enumerate(result["names"]):
+            value = values[row][index]
+            y = row + (index - .5) * height
+            # 零值不画条形：对数轴上任何可见长度都会夸大实际超规率。
+            if value:
+                ax.barh(y, max(value, floor), .9 * height, color=colors[index])
+            ax.text(max(value or 0., floor) * 1.2, y,
+                    "不可用" if value is None else "%.4g" % value, va="center", fontsize=8)
+    ax.set_yticks(range(len(rows)), [item[1] for item in rows])
+    ax.set_xscale("log")
+    ax.set_xlim(left=floor / 2, right=max(known + [1.]) * 10)
+    ax.set_xlabel("比例或 PPM（对数轴，条形下限 %.3g）" % floor)
+    ax.invert_yaxis()
+    ax.legend(handles=[Patch(color=color, label=name) for color, name
+                       in zip(colors, result["names"])], fontsize=8, loc="lower right")
+
+
+def plot_capability_comparison(result, figure=None):
+    """两阶段能力对比图：统一原始尺度与同一规格，复用现有直方图样式。"""
+    stages = result.plot["results"]
+    if len(stages) != 2:
+        raise ValueError("对比图需要恰好两个阶段")
+    pairs = [stage for stage in stages if np.ptp(np.asarray(stage["data"], dtype=float)) > 0]
+    if len(pairs) != 2:
+        raise ValueError("对比图要求每阶段至少两个不全相同的观测值")
+    figure = figure if figure is not None else Figure(figsize=(12, 9))
+    figure.clear()
+    axes = figure.subplots(2, 2).ravel()
+    low, high = _shared_range(stages)
+    xs = np.linspace(low, high, 400)
+    indices = [stage["indices"] for stage in stages]
+    keys = [key for key in ("Cp", "Cpk", "Pp", "Ppk")
+            if any(isinstance(item.get(key), (int, float)) and np.isfinite(item.get(key))
+                   for item in indices)]
+    for position, (name, stage) in enumerate(zip(result.plot["names"], stages)):
+        ax = axes[position]
+        _histogram(ax, stage["data"], stage["model"], stage)
+        ax.set_xlim(low, high)
+        ax.set_title(name + "能力直方图")
+        ax.set_xlabel("原始测量值")
+        ax.set_ylabel("密度")
+        ax.text(.02, .96, "  ".join("%s=%.3g" % (key, indices[position][key])
+                                   for key in keys) or "无可用能力指数",
+                transform=ax.transAxes, va="top", fontsize=8)
+        ax.text(.02, .04, _diagnostics_text(result, position), transform=ax.transAxes,
+                va="bottom", fontsize=7.5, color="#a03c1c")
+    if keys:
+        bar_width = .8 / len(keys)
+        for position, index in enumerate(indices):
+            positions = np.arange(len(keys)) + (position - .5) * bar_width
+            values = [index.get(key) if isinstance(index.get(key), (int, float))
+                      and np.isfinite(index.get(key)) else np.nan for key in keys]
+            axes[2].bar(positions, values, bar_width, label=result.plot["names"][position])
+            for x, value in zip(positions, values):
+                if np.isfinite(value):
+                    axes[2].text(x, value, "%.3g" % value, ha="center", fontsize=7,
+                                 va="bottom" if value >= 0 else "top")
+        axes[2].set_xticks(range(len(keys)), keys)
+        axes[2].axhline(0, color="#444444", linewidth=.8)
+        axes[2].set_ylabel("指数值")
+        axes[2].legend(fontsize=8)
+        axes[2].set_title("能力指数对比")
+    else:
+        axes[2].text(.5, .5, "非正态百分位法不定义 Cp/Cpk，见 PPM 面板",
+                     transform=axes[2].transAxes, ha="center", va="center", fontsize=9)
+        axes[2].set_axis_off()
+    _ppm_panel(axes[3], result.plot)
+    axes[3].set_title("实测超规率与预计 PPM（口径不同）")
+    for ax in axes:
+        style_axes(ax)
+    figure.suptitle("改善前后过程能力对比 · 原始尺度 · 规格与 K 两阶段一致",
+                    fontsize=12)
+    return figure
+
