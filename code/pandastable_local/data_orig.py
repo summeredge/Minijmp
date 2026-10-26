@@ -25,9 +25,147 @@ from types import *
 import operator
 import os, string, types, copy
 import pickle
+from decimal import Decimal, InvalidOperation
 import numpy as np
 import pandas as pd
 from . import util
+
+
+def _nullable_dtype(dtype):
+    if pd.api.types.is_extension_array_dtype(dtype):
+        return None
+    if pd.api.types.is_bool_dtype(dtype):
+        return 'boolean'
+    if pd.api.types.is_integer_dtype(dtype):
+        dtype = np.dtype(dtype)
+        return ('UInt' if dtype.kind == 'u' else 'Int') + str(dtype.itemsize * 8)
+    return None
+
+
+def _missing_cell_value(dtype):
+    if (pd.api.types.is_datetime64_any_dtype(dtype)
+            or pd.api.types.is_timedelta64_dtype(dtype)):
+        return pd.NaT
+    if (pd.api.types.is_extension_array_dtype(dtype)
+            or pd.api.types.is_integer_dtype(dtype)
+            or pd.api.types.is_bool_dtype(dtype)):
+        return pd.NA
+    return np.nan
+
+
+def _is_missing_cell_value(value):
+    if value is None or value is pd.NA or value is pd.NaT:
+        return True
+    return pd.api.types.is_scalar(value) and bool(pd.isna(value))
+
+
+def _coerce_cell_value(value, dtype):
+    if isinstance(value, str) and value == '':
+        value = pd.NA
+    if _is_missing_cell_value(value):
+        return _missing_cell_value(dtype)
+
+    if isinstance(dtype, pd.CategoricalDtype):
+        if value not in dtype.categories:
+            raise ValueError(f'“{value}”不属于该分类列的现有类别。')
+        return value
+    if pd.api.types.is_bool_dtype(dtype):
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in ('true', '1'):
+                return True
+            if normalized in ('false', '0'):
+                return False
+            raise ValueError(f'“{value}”不是有效的布尔值。')
+        if isinstance(value, (bool, np.bool_)):
+            return bool(value)
+        if isinstance(value, (int, np.integer)) and value in (0, 1):
+            return bool(value)
+        raise ValueError(f'“{value}”不是有效的布尔值。')
+    if pd.api.types.is_integer_dtype(dtype):
+        if isinstance(value, (bool, np.bool_)):
+            raise ValueError('布尔值不能写入整数列。')
+        try:
+            number = Decimal(str(value).strip())
+        except (InvalidOperation, ValueError) as error:
+            raise ValueError(f'“{value}”不是有效的整数。') from error
+        if not number.is_finite() or number != number.to_integral_value():
+            raise ValueError(f'“{value}”不是有效的整数。')
+        number = int(number)
+        limits = np.iinfo(getattr(dtype, 'numpy_dtype', dtype))
+        if number < limits.min or number > limits.max:
+            raise ValueError(f'“{value}”超出当前整数列可表示范围。')
+        return number
+    if pd.api.types.is_float_dtype(dtype):
+        if isinstance(value, (bool, np.bool_)):
+            raise ValueError('布尔值不能写入数值列。')
+        if isinstance(value, (str, Decimal, int, np.integer)):
+            try:
+                number = Decimal(str(value).strip())
+            except (InvalidOperation, ValueError) as error:
+                raise ValueError(f'“{value}”不是有效的数值。') from error
+            if number.is_nan():
+                return _missing_cell_value(dtype)
+            converted = float(number)
+            if number.is_finite() and (
+                    not np.isfinite(converted) or Decimal(str(converted)) != number):
+                raise ValueError(f'“{value}”超出浮点列可保留的精度。')
+            return converted
+        return float(value)
+    if pd.api.types.is_datetime64_any_dtype(dtype):
+        try:
+            value = pd.Timestamp(value)
+            timezone = getattr(dtype, 'tz', None)
+            if timezone is None and value.tz is not None:
+                raise ValueError('时区时间不能写入无时区日期列。')
+            if timezone is not None:
+                value = value.tz_localize(timezone) if value.tz is None else value.tz_convert(timezone)
+            unit = getattr(dtype, 'unit', None)
+            if unit:
+                value = value.as_unit(unit, round_ok=False)
+        except (TypeError, ValueError, OverflowError) as error:
+            raise ValueError(f'“{value}”不能在不损失精度的情况下写入日期时间列。') from error
+        return value
+    if pd.api.types.is_timedelta64_dtype(dtype):
+        try:
+            return pd.to_timedelta(value)
+        except (TypeError, ValueError, OverflowError) as error:
+            raise ValueError(f'“{value}”不是有效的时间间隔。') from error
+    if pd.api.types.is_string_dtype(dtype) and not pd.api.types.is_object_dtype(dtype):
+        return str(value)
+    return value
+
+
+def _prepare_cell_updates(frame, updates):
+    """Build typed positional column replacements without mutating the frame."""
+    prepared = {}
+    for col, (rows, values) in updates.items():
+        rows = [rows] if pd.api.types.is_scalar(rows) else list(rows)
+        values = ([values] * len(rows) if pd.api.types.is_scalar(values)
+                  else list(values))
+        if len(rows) != len(values):
+            raise ValueError('单元格更新行数与数据数量不一致。')
+        if not rows:
+            continue
+        series = frame.iloc[:, col].copy()
+        dtype = series.dtype
+        values = [_coerce_cell_value(value, dtype) for value in values]
+        nullable = _nullable_dtype(dtype)
+        if nullable and any(_is_missing_cell_value(value) for value in values):
+            series = series.astype(nullable)
+        try:
+            for row, value in zip(rows, values):
+                series.iloc[row] = value
+        except (TypeError, ValueError, OverflowError) as error:
+            raise ValueError(f'单元格数据无法安全写入：{error}') from error
+        prepared[col] = series
+    return prepared
+
+
+def _commit_cell_updates(frame, prepared):
+    for col, series in prepared.items():
+        frame.isetitem(col, series)
+
 
 class TableModel(object):
     """A data model for the Table class that uses pandas
@@ -286,7 +424,7 @@ class TableModel(object):
 
         df = self.df
         colnames = df.columns[cols]
-        grps = df.groupby(colnames)
+        grps = df.groupby(colnames, observed=False)
         return grps
 
     def getColumnType(self, columnIndex):
@@ -334,22 +472,13 @@ class TableModel(object):
                 raise ValueError('Cannot edit filtered data with non-unique source columns')
             target_row = df.index.get_loc(self.df.index[row])
             target_col = df.columns.get_loc(self.df.columns[col])
-        if value == '':
-            value = np.nan
-        dtype = df.dtypes.iloc[target_col]
-        #try to cast to column type
-        try:
-            if dtype == 'float64':
-                value = float(value)
-            elif dtype == 'int':
-                value = int(value)
-            elif dtype == 'datetime64[ns]':
-                value = pd.to_datetime(value)
-        except Exception as e:
-            print (e)
-        df.iloc[target_row,target_col] = value
-        if df is not self.df:
-            self.df.iloc[row,col] = value
+        updated = _prepare_cell_updates(
+            df, {target_col: ([target_row], [value])})
+        source_updated = (_prepare_cell_updates(
+            self.df, {col: ([row], [value])}) if df is not self.df else None)
+        _commit_cell_updates(df, updated)
+        if source_updated is not None:
+            _commit_cell_updates(self.df, source_updated)
         return
 
     def transpose(self):
@@ -364,10 +493,7 @@ class TableModel(object):
                 df.columns = df.columns.astype(str)
             except:
                 pass
-        try:
-            self.df = df.infer_objects()
-        except:
-            self.df = df.convert_objects()
+        self.df = df.infer_objects()
         #self.columnwidths = {}
         return
 

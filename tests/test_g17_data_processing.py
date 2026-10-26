@@ -166,6 +166,60 @@ def test_exact_find_matches_g15_rules_with_boolean_mask(query, case):
     assert_frame_equal(frame, original)
 
 
+def test_find_replace_updates_typed_columns_without_rounding():
+    frame = pd.DataFrame({
+        'number': pd.Series([2**60 + 1, 2**60 + 3], index=[8, 4], dtype='int64'),
+        'text': pd.Series(['old', 'keep'], index=[8, 4], dtype='str'),
+    })
+    table = SimpleNamespace(
+        requireUnfiltered=lambda: True, model=SimpleNamespace(df=frame),
+        _formula_targets_in=lambda rows, cols: [],
+        _reject_formula_edit=lambda columns: False,
+        storeCurrent=Mock(), tableChanged=Mock(return_value=False),
+        redraw=Mock(), parentframe=None)
+    search = SimpleNamespace(
+        table=table, find=Mock(), coords=[(0, 0), (1, 1)],
+        replacevar=SimpleNamespace(get=lambda: '9007199254740995'),
+        search_changed=False)
+
+    findRepDialog.replace(search)
+
+    assert frame['number'].iloc[0] == 9007199254740995
+    assert frame['number'].iloc[1] == 2**60 + 3
+    assert frame['text'].iloc[1] == '9007199254740995'
+    assert frame['number'].dtype == np.dtype('int64')
+    table.storeCurrent.assert_called_once()
+    table.tableChanged.assert_called_once()
+
+
+def test_find_replace_invalid_numeric_value_is_atomic(monkeypatch):
+    frame = pd.DataFrame({
+        'text': pd.Series(['keep'], dtype='str'),
+        'integer': pd.Series([1], dtype='int64'),
+    })
+    before = frame.copy(deep=True)
+    table = SimpleNamespace(
+        requireUnfiltered=lambda: True, model=SimpleNamespace(df=frame),
+        _formula_targets_in=lambda rows, cols: [],
+        _reject_formula_edit=lambda columns: False,
+        storeCurrent=Mock(), tableChanged=Mock(return_value=False),
+        redraw=Mock(), parentframe=None)
+    search = SimpleNamespace(
+        table=table, find=Mock(), coords=[(0, 0), (1, 0)],
+        replacevar=SimpleNamespace(get=lambda: '1.5'),
+        search_changed=False)
+    warnings = []
+    monkeypatch.setattr('dialog.messagebox.showwarning',
+                        lambda title, message, **kw: warnings.append(message))
+
+    findRepDialog.replace(search)
+
+    assert_frame_equal(frame, before)
+    table.storeCurrent.assert_not_called()
+    table.tableChanged.assert_not_called()
+    assert warnings and '整数' in warnings[-1]
+
+
 @pytest.mark.parametrize('cls', [FindReplaceDialog, findRepDialog])
 @pytest.mark.parametrize('shape', [(0, 0), (0, 3), (3, 0)])
 def test_find_empty_shapes(cls, shape):
@@ -197,32 +251,45 @@ def test_pandas3_legacy_assignment_failure_is_fixed():
     assert obj.table.highlighted['text'].dtype == bool
 
 
-@pytest.mark.parametrize('method', ['paste', 'paste_header'])
+@pytest.mark.parametrize('rows,cols,axis', [
+    ([3, 1], [3, 1], 'cell'), ([3, 1], [], 'row'),
+    ([], [1, 3], 'column'), ([], [], 'cell'),
+])
+def test_mtable_paste_dispatches_to_safe_selection(rows, cols, axis):
+    paste = Mock(return_value=True)
+    table = SimpleNamespace(multiplerowlist=rows, multiplecollist=cols,
+                            allrows=False, currentrow=0, currentcol=0,
+                            paste_context_selection=paste)
+
+    assert MTable.paste(table)
+    paste.assert_called_once_with(axis, rows or [0], cols or [0])
+
+
 @pytest.mark.parametrize('selected', [True, False])
-def test_real_mtable_paste_path_preserves_offset_headers_and_undo(monkeypatch, method, selected):
+def test_paste_header_preserves_offset_headers(monkeypatch, selected):
     old = pd.DataFrame([[1, 'old'], [2, 'keep']], columns=['a', 'b'], index=[20, 10])
     pasted = pd.DataFrame([['new', None], ['next', 'tail']], columns=['b', 'b'])
     table = SimpleNamespace(requireUnfiltered=lambda: True, storeCurrent=Mock(),
                             model=SimpleNamespace(df=old.copy()), redraw=Mock(), updateIndex=Mock(),
                             parentframe=None, multiplerowlist=[3, 1] if selected else [],
-                            multiplecollist=[3, 1] if selected else [])
+                            multiplecollist=[3, 1] if selected else [],
+                            _formula_targets_in=lambda rows, cols: [],
+                            _reject_formula_edit=lambda columns: False)
     table.updateModel = lambda model: setattr(table, 'model', model)
     reader = Mock(return_value=pasted)
     monkeypatch.setattr(pd, 'read_clipboard', reader)
-    getattr(MTable, method)(table)
+    MTable.paste_header(table)
     x, y = (1, 1) if selected else (0, 0)
-    if method == 'paste_header':
-        y = 0
+    y = 0
     expected = legacy('df_combine.py:df_combine')(old, pasted, x, y)
-    if method == 'paste_header':
-        names = list(expected)
-        for i, name in enumerate(pasted.columns):
-            names[x + i] = verifyNewColName(name, names)
-        expected.columns = names
+    names = list(expected)
+    for i, name in enumerate(pasted.columns):
+        names[x + i] = verifyNewColName(name, names)
+    expected.columns = names
     assert_frame_equal(table.model.df, expected)
     table.storeCurrent.assert_called_once()
-    assert reader.call_args.kwargs == ({'sep': ',', 'header': None} if method == 'paste' else {'sep': ','})
-    table.updateIndex.assert_called_once_with(**({'ask': False} if method == 'paste_header' else {}))
+    assert reader.call_args.kwargs == {'sep': ','}
+    table.updateIndex.assert_called_once_with(ask=False)
 
 
 def test_active_overrides_and_no_scalar_access_hotspots():
@@ -237,7 +304,8 @@ def test_active_overrides_and_no_scalar_access_hotspots():
         for node in ast.walk(tree):
             if isinstance(node, ast.Attribute):
                 assert node.attr not in ('iloc', 'iat', 'iterrows', 'iteritems'), function.__qualname__
-    for method in [MTable.paste, MTable.paste_header, MTable.stackColumn]:
+    assert 'paste_context_selection(' in inspect.getsource(MTable.paste)
+    for method in [MTable.paste_header, MTable.stackColumn]:
         assert 'df_combine(' in inspect.getsource(method)
 
 

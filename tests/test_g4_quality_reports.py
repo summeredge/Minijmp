@@ -555,6 +555,13 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
             added_import = ast.parse('from inspect import getattr_static').body[0]
             assert sum(ast.dump(n) == ast.dump(added_import) for n in current.body) == 1
             current.body = [n for n in current.body if ast.dump(n) != ast.dump(added_import)]
+            authorized_imports = [
+                ast.parse('from tkinter import messagebox').body[0],
+                ast.parse('from pandastable_local.data_orig import _prepare_cell_updates, _commit_cell_updates').body[0],
+            ]
+            for imported in authorized_imports:
+                assert sum(ast.dump(n) == ast.dump(imported) for n in current.body) == 1
+                current.body = [n for n in current.body if ast.dump(n) != ast.dump(imported)]
             owner = next(n for n in current.body if isinstance(n, ast.ClassDef) and n.name == 'Dialogs')
             init = next(n for n in owner.body if isinstance(n, ast.FunctionDef) and n.name == '__init__')
             binding = next(n for n in init.body if isinstance(n, ast.Assign)
@@ -566,9 +573,9 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
             for tree in trees:
                 owner = next(n for n in tree.body if isinstance(n, ast.ClassDef)
                              and n.name == 'findRepDialog')
-                # G17 保留其他对话框全文，只由查找边界/坐标测试接管 find。
+                # G17 查找、类型化替换有独立边界测试；其余共享方法仍冻结。
                 owner.body = [n for n in owner.body if not (
-                    isinstance(n, ast.FunctionDef) and n.name == 'find')]
+                    isinstance(n, ast.FunctionDef) and n.name in {'find', 'replace'})]
             assert ast.dump(trees[0]) == ast.dump(trees[1])
             continue
         assert (ROOT / 'code' / name).read_text(encoding='utf-8') == old.replace('\r\n', '\n')

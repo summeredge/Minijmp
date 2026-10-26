@@ -2,7 +2,9 @@
 import codecs
 import csv
 import io
+import math
 import re
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 import pandas as pd
@@ -24,6 +26,52 @@ def read_records(text, delimiter):
         if len(row) != width:
             raise ValueError(f"第 {line} 条记录有 {len(row)} 列，预期 {width} 列。请检查分隔符或使用 Advanced Import。")
     return rows
+
+
+def _safe_number(value, decimal="."):
+    if not isinstance(value, str):
+        return False
+    normalized = value.replace(decimal, ".") if decimal and decimal != "." else value
+    if not NUMBER.fullmatch(normalized):
+        return False
+    mantissa = re.split("[eE]", normalized, maxsplit=1)[0]
+    integer = mantissa.partition(".")[0].lstrip("+-")
+    if len(integer) > 1 and integer.startswith("0"):
+        return False
+    if "." not in normalized and "e" not in normalized.lower() \
+            and len(normalized.lstrip("+-")) > 15:
+        return False
+    try:
+        exact = Decimal(normalized)
+        number = float(normalized)
+    except (InvalidOperation, OverflowError, ValueError):
+        return False
+    return math.isfinite(number) and Decimal(str(number)) == exact
+
+
+def infer_numeric_columns(frame, decimal="."):
+    """Infer only numeric columns whose source tokens survive float parsing."""
+    for position in range(frame.shape[1]):
+        values = frame.iloc[:, position]
+        raw = values.tolist()
+        present = [(i, value) for i, value in enumerate(raw)
+                   if not pd.isna(value) and not (isinstance(value, str) and value == "")]
+        tokens = {value for _, value in present}
+        if present and all(_safe_number(value, decimal) for value in tokens):
+            cleaned = pd.Series([
+                float("nan") if pd.isna(value) or value == "" else
+                value.replace(decimal, ".") if isinstance(value, str) and decimal != "." else value
+                for value in raw
+            ], index=values.index, dtype=object)
+            converted = pd.to_numeric(cleaned, errors="coerce")
+            parsed = converted.iloc[[i for i, _ in present]]
+            if parsed.notna().all() and not converted.isin([float("inf"), -float("inf")]).any():
+                frame.isetitem(position, converted)
+                continue
+        frame.isetitem(position, values.map(
+            lambda value: float("nan") if pd.isna(value) or
+            (isinstance(value, str) and value == "") else value))
+    return frame
 
 
 def detect_csv(filename):
@@ -89,17 +137,4 @@ def read_csv(filename, encoding, delimiter, header):
     if header and (not all(names) or len(set(names)) != len(names)):
         raise ValueError("表头包含空名称或重复名称，请取消首行表头选项或使用 Advanced Import。")
     frame = pd.DataFrame(rows, columns=names)
-    for col in frame:
-        values = frame[col]
-        present = values[values != ""]
-        cleaned = values.replace("", float("nan"))
-        # Preserve identifiers and long integers instead of rounding them as floats.
-        if len(present) and NUMBER.fullmatch(next(iter(present))) and all(NUMBER.fullmatch(v) and
-                                ("." in v or "e" in v.lower() or
-                                 len(v.lstrip("+-")) <= 15) for v in pd.unique(present.to_numpy())):
-            converted = pd.to_numeric(cleaned, errors="coerce")
-            if converted[present.index].notna().all() and not converted.isin([float("inf"), -float("inf")]).any():
-                frame[col] = converted
-                continue
-        frame[col] = cleaned
-    return frame
+    return infer_numeric_columns(frame)

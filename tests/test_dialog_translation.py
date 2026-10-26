@@ -383,6 +383,51 @@ def test_original_analysis_code_is_unchanged():
                 if kw.arg == 'title' and isinstance(node.func, ast.Name) and node.func.id == 'MultipleValDialog':
                     kw.value = ast.Constant('probability dialog title')
             return self.generic_visit(node)
+
+    class PearsonSwitchHook(ast.NodeTransformer):
+        """Remove only CorrelationDialog's explicit pearson switch from fit_plot."""
+        removed = 0
+
+        def visit_ClassDef(self, node):
+            if node.name != 'CorrelationDialog':
+                return node
+            method = next(m for m in node.body
+                          if isinstance(m, ast.FunctionDef) and m.name == 'apply')
+            calls = [n for n in ast.walk(method) if isinstance(n, ast.Call)
+                     and isinstance(n.func, ast.Name) and n.func.id == 'fit_plot']
+            assert len(calls) == 1
+            call = calls[0]
+            assert [ast.unparse(arg) for arg in call.args] == ['x', 'y']
+            names = [kw.arg for kw in call.keywords]
+            assert names.count('pearson') == 1
+            index = names.index('pearson')
+            assert names[index - 1] == 'alpha' and names[index + 1] == 'ellipse'
+            switch = call.keywords[index]
+            assert ast.dump(switch.value) == ast.dump(ast.parse('self.cor_p.get()', mode='eval').body)
+            call.keywords.remove(switch)
+            self.removed += 1
+            return node
+
+    class ReportOnly(ast.NodeTransformer):
+        """Remove only G4 added report lines and translated texts."""
+        texts = {'Received %d valid data pairs for group ID and measurement.':
+                     '子组标识与测量值的有效配对数 = %d。',
+                 'WARNING: Unbalanced subgrouping.': '警告：子组大小不相等。'}
+
+        def visit_Expr(self, node):
+            call = node.value
+            if (isinstance(call, ast.Call) and ast.unparse(call.func) == 'self.app.print'
+                    and call.args and isinstance(call.args[0], ast.JoinedStr)
+                    and isinstance(call.args[0].values[0], ast.Constant)
+                    and call.args[0].values[0].value == '分析变量：'):
+                return None
+            return self.generic_visit(node)
+
+        def visit_Constant(self, node):
+            if isinstance(node.value, str):
+                node.value = self.texts.get(node.value, node.value)
+            return node
+
     paths = sorted({Path(getattr(MiniJMP, cls).__module__.replace('.', '/')) for _, cls, _ in CALLS})
     for path in paths:
         file = 'code/' + str(path).replace('\\','/') + '.py'
@@ -439,22 +484,28 @@ def test_original_analysis_code_is_unchanged():
             new_plot = "            pf.ax.set_ylabel(self.xvar.get())\n            style_axes(pf.ax)"
             assert current.count(new_plot) == 1
             current = current.replace(new_plot, old_plot)
-        def methods(source):
-            if file == 'code/qc_dialog.py':
-                # G4 只增加五处变量标签及翻译两条消息；其余 apply AST 仍完整比较。
-                source = '\n'.join(line for line in source.splitlines()
-                                   if 'self.app.print(f"分析变量：' not in line)
-                source = source.replace('Received %d valid data pairs for group ID and measurement.',
-                                        '子组标识与测量值的有效配对数 = %d。')
-                source = source.replace('WARNING: Unbalanced subgrouping.', '警告：子组大小不相等。')
+        pearson_switch = PearsonSwitchHook()
+        if file == 'code/fit_dialog.py':
+            # REVIEW-017：Pearson 报告独立于椭圆显示，当前已由运行时测试保护。
+            current = ast.unparse(pearson_switch.visit(ast.parse(current)))
+            assert pearson_switch.removed == 1
+        def methods(source, legacy=False):
             tree = ast.parse(source)
+            if file == 'code/qc_dialog.py':
+                if legacy:
+                    # 列记忆与 REVIEW-018/019 均按整函数哈希冻结后再还原。
+                    from source_baselines import normalize_column_memory, normalize_p2_legacy
+                    tree = normalize_p2_legacy(normalize_column_memory(tree, 'qc_dialog.py'),
+                                               'qc_dialog.py', ast.parse(baseline))
+                # G4 新增标签与翻译由 ReportOnly 还原。
+                tree = ReportOnly().visit(tree)
             if file == 'code/ctrlchart_dialog.py':
                 # 阶段对比分支由 SPC 测试覆盖；其余 apply AST 仍完整比较。
                 tree = StageCompareHook().visit(tree)
             tree = ErrorsToMarker().visit(ColumnMemoryHooks().visit(tree))
             return {c.name + '.' + m.name: ast.dump(m, include_attributes=False) for c in tree.body if isinstance(c, ast.ClassDef)
                     for m in c.body if isinstance(m, ast.FunctionDef) and m.name in ('apply','ok','preview','get_values','get_box_settings','get_histo_setting')}
-        actual, original = methods(current), methods(baseline)
+        actual, original = methods(current, True), methods(baseline)
         if file == 'code/sb_box_dialog.py':
             # Preview lifecycle moved to SBDialog; runtime coverage is in test_plot_window_lifecycle.py.
             for method in ('singleBoxDialog.preview', 'multiBoxDialog.preview'):

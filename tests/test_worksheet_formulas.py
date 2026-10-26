@@ -1,9 +1,12 @@
 """Worksheet formula evaluation, dependencies, editing rules and persistence."""
+from types import SimpleNamespace
+
 import numpy as np
 import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
+from dialog import findRepDialog
 from test_csv_import import csv_app
 from worksheet_formulas import FormulaError, cycle_message, evaluate, make_formula
 
@@ -115,6 +118,50 @@ def test_one_shot_does_not_follow_source_and_formula_columns_are_readonly(csv_ap
     table.setSelectedCol(2)
     table.delete_column_formula()
     assert table.model.df['结果'].iloc[0] == 50.0
+
+
+def test_fill_down_rejects_formula_results_and_recalculates_sources(csv_app, monkeypatch):
+    app, table, errors = sheet_app(csv_app)
+    assign(table)
+    before = table.model.df.copy(deep=True)
+    history = [frame.copy(deep=True) for frame in table.prevdf]
+    warnings = []
+    monkeypatch.setattr('modified_table.messagebox.showwarning',
+                        lambda title, message, **kw: warnings.append(message))
+
+    table.fillDown([0, 1], [2])
+    assert_frame_equal(table.model.df, before)
+    assert warnings and '结果' in warnings[-1]
+    assert len(table.prevdf) == len(history)
+    for actual, expected in zip(table.prevdf, history):
+        assert_frame_equal(actual, expected)
+
+    table.fillDown([0, 1], [0])
+    assert table.model.df['C1'].tolist() == [100.0, 100.0]
+    assert table.model.df['结果'].iloc[1] == pytest.approx((100 - 45) / 45 * 100)
+    errors.assert_not_called()
+
+
+def test_find_replace_rejects_linked_formula_results(csv_app, monkeypatch):
+    app, table, errors = sheet_app(csv_app)
+    assign(table)
+    before = table.model.df.copy(deep=True)
+    history = [frame.copy(deep=True) for frame in table.prevdf]
+    warnings = []
+    monkeypatch.setattr('modified_table.messagebox.showwarning',
+                        lambda title, message, **kw: warnings.append(message))
+    search = SimpleNamespace(table=table, find=lambda: None,
+                             coords=[(2, 0)],
+                             replacevar=SimpleNamespace(get=lambda: '999'))
+
+    findRepDialog.replace(search)
+
+    assert_frame_equal(table.model.df, before)
+    assert len(table.prevdf) == len(history)
+    for actual, expected in zip(table.prevdf, history):
+        assert_frame_equal(actual, expected)
+    assert warnings and '结果' in warnings[-1]
+    errors.assert_not_called()
 
 
 def test_failed_expression_leaves_data_untouched(csv_app):

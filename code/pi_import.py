@@ -98,7 +98,8 @@ def query_size(tags, start, end, interval):
     def timestamp(value):
         match = re.fullmatch(r'\*(?:-([0-9]+)([smhd]))?', value)
         if match:
-            return now - (pd.Timedelta(int(match[1]), unit=match[2]) if match[1]
+            unit = 'D' if match[2] == 'd' else match[2]
+            return now - (pd.Timedelta(int(match[1]), unit=unit) if match[1]
                           else pd.Timedelta(0))
         if value.startswith('*'):
             return None

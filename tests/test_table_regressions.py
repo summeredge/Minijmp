@@ -301,6 +301,125 @@ def test_clean_data_cancel_preserves_data(table, monkeypatch):
     assert_frame_equal(table.model.df, original)
 
 
+@pytest.mark.parametrize(('method', 'expected'), [
+    ('ffill', [1., 1., pd.NA, 4.]),
+    ('bfill', [1., pd.NA, 4., 4.]),
+])
+def test_clean_data_forward_and_backward_fill_keep_limit(table, monkeypatch, method, expected):
+    replace(table, pd.DataFrame({'a': pd.array([1, pd.NA, pd.NA, 4], dtype='Float64')}))
+    monkeypatch.setattr(core_orig, 'MultipleValDialog', lambda **kw:
+        SimpleNamespace(result=True, results=[method, '', '1', 0, 0,
+                                              'all', '', 0, 0, 0]))
+    monkeypatch.setattr(core_orig.messagebox, 'askyesno', lambda *a, **kw: True)
+
+    table.cleanData()
+
+    pd.testing.assert_series_equal(
+        table.model.df['a'], pd.Series(pd.array(expected, dtype='Float64'), name='a'))
+
+
+def test_values_to_colors_supports_string_categorical_missing_and_constant(table):
+    columns = [
+        pd.Series(['a', 'b', pd.NA], dtype='str'),
+        pd.Series(['a', 'b', pd.NA], dtype='string'),
+        pd.Series(pd.Categorical(['a', 'b', None])),
+        pd.Series([7, 7, pd.NA], dtype='Int64'),
+        pd.Series([pd.NA, pd.NA], dtype='string'),
+    ]
+
+    for column in columns:
+        colors = table.values_to_colors(column)
+        assert len(colors) == len(column)
+        assert all(isinstance(color, str) and color.startswith('#') for color in colors)
+    assert table.values_to_colors(columns[3])[0] == table.values_to_colors(columns[3])[1]
+
+
+@pytest.mark.parametrize(('force', 'expected'), [
+    (False, ['2026-01-01', 'invalid']),
+    (True, [pd.Timestamp('2026-01-01'), pd.NaT]),
+])
+def test_convert_dates_keeps_ignore_and_force_semantics(table, monkeypatch, force, expected):
+    replace(table, pd.DataFrame({'date': ['2026-01-01', 'invalid']}))
+    table.multiplecollist = [0]
+    monkeypatch.setattr(core_orig, 'MultipleValDialog', lambda **kw:
+        SimpleNamespace(result=True, results=['', 'infer', 'year', False, force]))
+    warnings = []
+    monkeypatch.setattr(core_orig.messagebox, 'showwarning',
+                        lambda *a, **kw: warnings.append(a[1]))
+
+    table.convertDates()
+
+    assert table.model.df['date'].tolist() == expected
+    assert not warnings
+
+
+def test_convert_dates_extracts_from_pandas3_datetime_resolution(table, monkeypatch):
+    replace(table, pd.DataFrame({'date': ['2026-01-02', '2026-04-09']}))
+    table.multiplecollist = [0]
+    monkeypatch.setattr(core_orig, 'MultipleValDialog', lambda **kw:
+        SimpleNamespace(result=True, results=['', 'infer', 'year', True, False]))
+
+    table.convertDates()
+    assert pd.api.types.is_datetime64_any_dtype(table.model.df['date'].dtype)
+    table.convertDates()
+
+    assert table.model.df['year'].tolist() == [2026, 2026]
+
+
+def test_convert_dates_extracts_iso_week_after_pandas3_removal(table, monkeypatch):
+    replace(table, pd.DataFrame({'date': ['2021-01-01', '2021-01-04']}))
+    table.multiplecollist = [0]
+    results = iter([
+        ['', 'infer', 'year', True, False],
+        ['', 'infer', 'weekofyear', True, False],
+    ])
+    monkeypatch.setattr(core_orig, 'MultipleValDialog', lambda **kw:
+        SimpleNamespace(result=True, results=next(results)))
+
+    table.convertDates()
+    table.convertDates()
+
+    assert table.model.df['weekofyear'].tolist() == [53, 1]
+
+
+def test_value_counts_keeps_unobserved_categorical_combinations(table, monkeypatch):
+    frame = pd.DataFrame({
+        'row': pd.Categorical(['A'], categories=['A', 'B']),
+        'column': pd.Categorical(['x'], categories=['x', 'y']),
+    })
+    replace(table, frame)
+    table.multiplecollist = [0, 1]
+    results = []
+    monkeypatch.setattr(table, 'createChildTable', lambda result, *a, **kw: results.append(result))
+
+    table.valueCounts()
+
+    assert results[0].loc['y', 'B'] == 0
+
+
+def test_groupby_paths_keep_unobserved_categories():
+    from pandastable_local.dialogs import AggregateDialog
+
+    frame = pd.DataFrame({
+        'group': pd.Categorical(['a'], categories=['a', 'b']),
+        'value': [2],
+    })
+    model = TableModel(frame)
+    assert model.groupby(0).size().to_dict() == {'a': 1, 'b': 0}
+
+    parent = SimpleNamespace(createChildTable=lambda *args, **kwargs: None)
+    dialog = SimpleNamespace(
+        df=frame, parent=parent,
+        funcvar=SimpleNamespace(getSelectedItem=lambda: ['sum']),
+        grpvar=SimpleNamespace(getSelectedItem=lambda: ['group']),
+        aggvar=SimpleNamespace(getSelectedItem=lambda: ['value']),
+        mapcolfuncs=SimpleNamespace(get=lambda: False),
+        keepcols=SimpleNamespace(get=lambda: True),
+    )
+    AggregateDialog.apply(dialog)
+    assert dialog.result.loc['b', 'value'] == 0
+
+
 def test_convert_negative_numbers_keeps_sign(table, monkeypatch):
     replace(table, pd.DataFrame({'a': ['-1.5', '($2.5)', '3.0']}))
     table.multiplecollist = [0]
@@ -308,6 +427,49 @@ def test_convert_negative_numbers_keeps_sign(table, monkeypatch):
         SimpleNamespace(result=True, results=['float', 1, 1, 1, 0]))
     table.convertNumeric()
     assert table.model.df.a.tolist() == [-1.5, -2.5, 3.0]
+
+
+def test_cell_edit_preserves_precision_and_column_types(table):
+    index = [9, 4]
+    frame = pd.DataFrame({
+        'signed': pd.Series([2**60 + 1, 2**60 + 3], index=index, dtype='int64'),
+        'unsigned': pd.Series([2**63 + 1, 2**63 + 3], index=index, dtype='uint64'),
+        'nullable': pd.Series([2**60 + 5, 2**60 + 7], index=index, dtype='Int64'),
+        'decimal': pd.Series([1.25, pd.NA], index=index, dtype='Float64'),
+        'text': pd.Series(['007', '008'], index=index, dtype='str'),
+        'flag': pd.Series([True, False], index=index, dtype='bool'),
+        'when': pd.Series(pd.to_datetime(['2026-01-01', '2026-01-02'], format='mixed'),
+                          index=index),
+    })
+    replace(table, frame)
+    model = table.model
+
+    model.setValueAt('9007199254740995', 0, 0)
+    model.setValueAt('', 1, 0)
+    model.setValueAt('18446744073709551614', 0, 1)
+    model.setValueAt('9007199254740995', 0, 2)
+    model.setValueAt('3.75', 1, 3)
+    model.setValueAt(123, 0, 4)
+    model.setValueAt('false', 0, 5)
+    model.setValueAt('2026-03-01 00:00:00.123456', 0, 6)
+
+    assert model.df['signed'].dtype == pd.Int64Dtype()
+    assert model.df['signed'].iloc[0] == 9007199254740995
+    assert pd.isna(model.df['signed'].iloc[1])
+    assert model.df['unsigned'].iloc[0] == 18446744073709551614
+    assert model.df['unsigned'].iloc[1] == 2**63 + 3
+    assert model.df['nullable'].iloc[0] == 9007199254740995
+    assert model.df['decimal'].iloc[1] == 3.75
+    assert model.df['text'].iloc[0] == '123'
+    assert not bool(model.df['flag'].iloc[0])
+    assert model.df['when'].iloc[0] == pd.Timestamp('2026-03-01 00:00:00.123456')
+
+    before = model.df.copy(deep=True)
+    with pytest.raises(ValueError, match='整数'):
+        model.setValueAt('1.5', 1, 2)
+    with pytest.raises(ValueError, match='精度'):
+        model.setValueAt('0.123456789012345678', 0, 3)
+    assert_frame_equal(model.df, before)
 
 
 def test_existing_column_expansion_apis(table, monkeypatch):

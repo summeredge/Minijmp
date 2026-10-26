@@ -2,14 +2,65 @@
 import gzip
 import os
 import pickle
+import posixpath
 import tempfile
+import zipfile
+from decimal import Decimal, InvalidOperation
+from numbers import Number
 from pathlib import Path
 from tkinter import Menu, TclError, ttk, filedialog, messagebox, simpledialog
+from xml.etree import ElementTree as ET
 
 import pandas as pd
 
 from modified_table import MTable
 from pandastable_local import config
+
+
+def _restore_excel_precision(filename, frames):
+    main_ns = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+    relation_id = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
+    with zipfile.ZipFile(filename) as workbook:
+        relationships = ET.fromstring(workbook.read("xl/_rels/workbook.xml.rels"))
+        targets = {item.get("Id"): item.get("Target") for item in relationships}
+        sheets = ET.fromstring(workbook.read("xl/workbook.xml"))
+        for sheet in sheets.iter(main_ns + "sheet"):
+            frame = frames.get(sheet.get("name"))
+            if frame is None:
+                continue
+            target = targets[sheet.get(relation_id)]
+            path = (target.lstrip("/") if target.startswith("/") else
+                    posixpath.normpath(posixpath.join("xl", target)))
+            root = ET.fromstring(workbook.read(path))
+            replacements = {}
+            for cell in root.iter(main_ns + "c"):
+                if cell.get("t") not in (None, "n"):
+                    continue
+                value = cell.find(main_ns + "v")
+                reference = cell.get("r", "")
+                split = next((i for i, char in enumerate(reference) if not char.isalpha()), 0)
+                if value is None or not value.text or split == 0:
+                    continue
+                column = 0
+                for char in reference[:split].upper():
+                    column = column * 26 + ord(char) - ord("A") + 1
+                row, column = int(reference[split:]) - 2, column - 1
+                if row < 0 or row >= len(frame) or column < 0 or column >= frame.shape[1]:
+                    continue
+                current = frame.iat[row, column]
+                if pd.isna(current) or not isinstance(current, Number):
+                    continue
+                try:
+                    if Decimal(value.text) == Decimal(str(current)):
+                        continue
+                except InvalidOperation:
+                    continue
+                replacements.setdefault(column, {})[row] = value.text
+            for column, cells in replacements.items():
+                values = frame.iloc[:, column].astype(object)
+                for row, value in cells.items():
+                    values.iloc[row] = value
+                frame.isetitem(column, values)
 
 
 class Worksheets:
@@ -394,7 +445,13 @@ class Worksheets:
             if advanced:
                 df = core_orig.ImportDialog(table, filename=filename).df
             elif kwargs:
-                df = pd.read_csv(filename, **kwargs)
+                if kwargs.get('dtype') is None and 'converters' not in kwargs:
+                    from pandastable_local.csv_import import infer_numeric_columns
+                    options = {**kwargs, 'dtype': object}
+                    df = infer_numeric_columns(pd.read_csv(filename, **options),
+                                              decimal=kwargs.get('decimal', '.'))
+                else:
+                    df = pd.read_csv(filename, **kwargs)
             else:
                 options = core_orig.detect_csv(filename)
                 confirm = options.pop('confirm')
@@ -416,8 +473,19 @@ class Worksheets:
             return False
         try:
             frames = pd.read_excel(filename, sheet_name=None, dtype=object)
-            self._import_frames({name: df.infer_objects() for name, df in frames.items()},
-                                os.path.dirname(os.path.abspath(filename)))
+            for df in frames.values():
+                for position in range(df.shape[1]):
+                    values = df.iloc[:, position]
+                    large_integer = any(isinstance(value, int) and abs(value) > 2**53
+                                        for value in values if not pd.isna(value))
+                    # A nullable large-integer column would become float64 here.
+                    if not large_integer:
+                        df.isetitem(position, values.infer_objects())
+            if Path(filename).suffix.lower() == '.xlsx':
+                # shortcut: XML token recovery is .xlsx-only; legacy .xls stores numeric cells as doubles.
+                # Recover numeric tokens rounded by the Excel engine from the source XML.
+                _restore_excel_precision(filename, frames)
+            self._import_frames(frames, os.path.dirname(os.path.abspath(filename)))
             return True
         except Exception as error:
             messagebox.showerror('Excel 导入失败', str(error), parent=self.main)

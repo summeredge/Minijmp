@@ -79,7 +79,8 @@ def test_detection_contract_and_no_selected_reparse(tmp_path, monkeypatch, text,
     ('-123456789012345', True), ('+1234567890123456', False),
     ('001', False), ('+01', False), ('-01', False), ('00.5', False),
     ('0.5', True), ('-0', True), ('+2', True), ('1e3', True), ('1E-3', True),
-    ('0.1234567890123456789', True), ('1234567890123456789.0', True),
+    ('0.123456789012345', True), ('0.1234567890123456789', False),
+    ('1234567890123456789.0', False), ('1.23456789012345678e+20', False),
     ('1e309', False), ('NaN', False), ('inf', False),
     ('1,25', False), (' 1', False), ('1 ', False), ('1.', False),
     ('.5', False), ('１', False), ('NA', False), ('2026-10-21', False),
@@ -110,7 +111,21 @@ def test_numeric_checks_scale_with_distinct_values_per_column(tmp_path, monkeypa
     number.reset_mock()
     frame = csv_import.read_csv(path, 'utf-8', ',', header)
     assert len(frame) == (2000 if header else 2001)
-    assert Counter(call.args[0] for call in number.fullmatch.call_args_list) == {'1': 2, '2': 2}
+    assert Counter(call.args[0] for call in number.fullmatch.call_args_list) == {'1': 1, '2': 1}
+
+
+def test_numeric_inference_handles_pd_na_and_chinese_columns():
+    frame = pd.DataFrame({
+        '编号': pd.Series(['9007199254740993', pd.NA, '9007199254740995'], dtype='string'),
+        '混合状态': pd.Series(['运行', pd.NA, 'NA'], dtype='string'),
+        '精确值': pd.Series(['0.123456789012345678', '1.25', '2.5'], dtype='string'),
+    })
+    result = csv_import.infer_numeric_columns(frame)
+    assert result['编号'].iloc[[0, 2]].tolist() == ['9007199254740993', '9007199254740995']
+    assert pd.isna(result['编号'].iloc[1])
+    assert result['混合状态'].iloc[[0, 2]].tolist() == ['运行', 'NA']
+    assert pd.isna(result['混合状态'].iloc[1])
+    assert result['精确值'].tolist() == ['0.123456789012345678', '1.25', '2.5']
 
 
 @pytest.mark.parametrize('tail', ['3', '3,4,5', '"unterminated,3', '3,\x00'])

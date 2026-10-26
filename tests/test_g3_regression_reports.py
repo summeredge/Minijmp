@@ -214,6 +214,30 @@ def test_scoped_report_source_and_public_signature(filename, function, old):
     assert 'print_out' in ast.unparse(node.args)
 
 
+@pytest.mark.parametrize('pearson', [True, False])
+def test_correlation_dialog_forwards_pearson_switch(monkeypatch, pearson):
+    captured = {}
+    def fit(x, y, **kwargs):
+        captured.update(x=x, y=y, kwargs=kwargs)
+        return {}
+    monkeypatch.setattr(fit_dialog, 'fit_plot', fit)
+    d = SimpleNamespace(df=pd.DataFrame({'X': X, 'Y': Y}), xvar=variable('X'), yvar=variable('Y'),
+        error=Mock(), remember_columns=Mock(), get_plot_settings=lambda: None,
+        app=SimpleNamespace(print=Mock(), showPlotViewer=lambda: SimpleNamespace(fig=Figure())))
+    for key, value in dict(cor_p=pearson, cor_s=False, cor_k=False, cor_h=False, ellipse=True,
+            red_ellipse=False, scatter=True, alpha=.05, ax_margin=.1).items():
+        setattr(d, key, variable(value))
+    for key, value in dict(xlabel=None, ylabel=None, x_min=None, x_max=None, y_min=None,
+            y_max=None, show_legend=False, grid=False).items():
+        setattr(d, key, value)
+    fit_dialog.CorrelationDialog.apply(d)
+    d.error.assert_not_called()
+    assert captured['x'] == X and captured['y'] == Y
+    kwargs = captured['kwargs']
+    assert kwargs['pearson'] is pearson
+    assert kwargs['ellipse'] is pearson and kwargs['print_out'] is pearson
+
+
 @pytest.mark.parametrize('model_name', ['OLS', 'GLS', 'Logit'])
 def test_statsviewer_reuses_complete_native_model_summary(model_name, monkeypatch):
     import statsmodels.api as sm
@@ -233,3 +257,21 @@ def test_statsviewer_reuses_complete_native_model_summary(model_name, monkeypatc
     assert summary == str(result.summary())
     assert model_name in str(summary) and 'coef' in str(summary) and '[0.025' in str(summary)
     np.testing.assert_array_equal(result.params, before)
+
+
+def test_statsviewer_regression_plot_iterates_native_parameters():
+    import statsmodels.api as sm
+    from pandastable_local.stats import StatsViewer
+
+    x = np.arange(1., 7.)
+    design = pd.DataFrame({'const': np.ones(len(x)), 'x': x})
+    response = pd.Series(1 + 2*x, name='y')
+    model = sm.OLS(response, design)
+    fit = model.fit()
+    viewer = SimpleNamespace(model=model, sub=[0, 1, 2, 3], X=design, y=response)
+    axis = Figure().add_subplot(111)
+
+    StatsViewer.plotRegression(viewer, fit, 'x', axis, marker='', colormap='viridis')
+
+    assert len(axis.collections) == 3
+    assert any(text.get_text().startswith('x: ') for text in axis.texts)

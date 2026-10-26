@@ -316,7 +316,7 @@ class StatsViewer(Frame):
             marker='o'
         #s=kwds['s']
         s = 10
-        cmap = plt.cm.get_cmap(kwds['colormap'])
+        cmap = plt.get_cmap(kwds['colormap'])
         ax.scatter(Xin[indvar], yin, alpha=0.6, color=cmap(.2), label='fitted data',
                     marker=marker,s=s)
 
@@ -326,7 +326,7 @@ class StatsViewer(Frame):
                    color='red', s=s, lw=0.5, label='fit (out sample)')
 
         i=0.05
-        for k,p in fit.params.iteritems():
+        for k,p in fit.params.items():
             ax.text(0.9,i, k+': '+ str(round(p,3)), ha='right',
                         va='top', transform=ax.transAxes)
             i+=.05
@@ -390,9 +390,7 @@ class StatsViewer(Frame):
             return 0
 
     def _checkNumeric(self, df):
-        x = df.convert_objects()._get_numeric_data()
-        if x.empty==True:
-            return False
+        return False if df.select_dtypes(include='number').empty else None
 
     def updateData(self):
         """Update data widgets"""

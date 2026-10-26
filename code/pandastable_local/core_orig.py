@@ -742,11 +742,17 @@ class Table(Canvas):
 
         import pylab as plt
         import matplotlib as mpl
-        cmap = plt.cm.get_cmap(cmap)
-        # if x.dtype in ['int','float64']:
-        if x.dtype in ['object']:  # ,'category']:
-            x = pd.Categorical(x).codes
-        x = (x - x.min()) / (x.max() - x.min())
+        cmap = plt.get_cmap(cmap)
+        if (pd.api.types.is_object_dtype(x.dtype)
+                or pd.api.types.is_string_dtype(x.dtype)
+                or pd.api.types.is_bool_dtype(x.dtype)
+                or isinstance(x.dtype, pd.CategoricalDtype)):
+            x = pd.Series(pd.Categorical(x).codes, index=x.index)
+        low, high = x.min(), x.max()
+        if pd.isna(low) or pd.isna(high) or low == high:
+            x = np.where(pd.isna(x), np.nan, .5)
+        else:
+            x = (x - low) / (high - low)
         clrs = cmap(x)
         clrs = mpl.colors.to_rgba_array(clrs, alpha)
         clrs = [mpl.colors.rgb2hex(i) for i in clrs]
@@ -1552,8 +1558,10 @@ class Table(Canvas):
             df = df.fillna(symbol)
         elif method == 'interpolate':
             df = df.interpolate()
-        else:
-            df = df.fillna(method=method, limit=limit)
+        elif method == 'ffill':
+            df = df.ffill(limit=limit)
+        elif method == 'bfill':
+            df = df.bfill(limit=limit)
         if dropdups == 1:
             df = df.drop_duplicates()
         if dropdupcols == 1:
@@ -1857,7 +1865,8 @@ class Table(Canvas):
             df = df.pivot_table(index=cols[0],
                                 columns=cols[1:],
                                 aggfunc='size',
-                                fill_value=0).T
+                                fill_value=0,
+                                observed=False).T
         self.createChildTable(df, index=True)
         return
 
@@ -1977,7 +1986,8 @@ class Table(Canvas):
             colname = '-'.join(cols)
             temp = df[cols]
 
-        if len(cols) == 1 and temp.dtype == 'datetime64[ns]':
+        is_datetime = len(cols) == 1 and pd.api.types.is_datetime64_any_dtype(temp.dtype)
+        if is_datetime:
             title = 'Date->string extract'
         else:
             title = 'String->datetime convert'
@@ -2021,18 +2031,23 @@ class Table(Canvas):
         force = d.results[4]
         if fmt == 'infer':
             fmt = None
-        if force:
-            errors = 'coerce'
-        else:
-            errors = 'ignore'
-
-        if len(cols) == 1 and temp.dtype == 'datetime64[ns]':
+        if is_datetime:
             if newname == '':
                 colname = prop
-            df[colname] = getattr(temp.dt, prop)
+            df[colname] = (temp.dt.isocalendar().week if prop == 'weekofyear'
+                           else getattr(temp.dt, prop))
         else:
             try:
-                df[colname] = pd.to_datetime(temp, format=fmt, errors=errors)
+                df[colname] = pd.to_datetime(
+                    temp, format=fmt, errors='coerce' if force else 'raise')
+            except (ValueError, TypeError, OverflowError) as e:
+                if not force:
+                    df[colname] = temp
+                else:
+                    logging.error("Exception occurred", exc_info=True)
+                    messagebox.showwarning("Convert error", e,
+                                           parent=self.parentframe)
+                    return
             except Exception as e:
                 logging.error("Exception occurred", exc_info=True)
                 messagebox.showwarning("Convert error", e,
@@ -3087,7 +3102,8 @@ class Table(Canvas):
             index=index,
             columns=column,
             values=values,
-            aggfunc=func)
+            aggfunc=func,
+            observed=False)
         #print (p)
         self.tableChanged()
         if isinstance(p, pd.Series):

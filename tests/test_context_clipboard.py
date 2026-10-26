@@ -312,6 +312,38 @@ def test_cell_menu_paste_and_clear_are_undoable(table, monkeypatch):
     assert_frame_equal(table.model.df, original)
 
 
+def test_empty_paste_preserves_unselected_large_integers_and_undo(table, monkeypatch):
+    original = pd.DataFrame({'value': np.array([2**60 + 1, 2**60 + 3], dtype=np.int64)})
+    replace(table, original)
+    monkeypatch.setattr(table, 'clipboard_get', lambda: '')
+
+    assert table.paste_context_selection('cell', [0], [0])
+
+    assert pd.isna(table.model.df.iloc[0, 0])
+    assert table.model.df.iloc[1, 0] == 2**60 + 3
+    assert table.model.df['value'].dtype == pd.Int64Dtype()
+    table.undo()
+    assert_frame_equal(table.model.df, original)
+
+
+def test_invalid_cell_type_paste_is_atomic(table, monkeypatch):
+    original = pd.DataFrame({
+        'text': pd.Series(['keep'], dtype='string'),
+        'category': pd.Categorical(['A'], categories=['A', 'B']),
+    })
+    replace(table, original)
+    warnings = []
+    monkeypatch.setattr(table, 'clipboard_get', lambda: 'changed\tunknown')
+    monkeypatch.setattr('modified_table.messagebox.showwarning',
+                        lambda *args, **kwargs: warnings.append(args[1]))
+
+    assert not table.paste_context_selection('cell', [0], [0, 1])
+
+    assert_frame_equal(table.model.df, original)
+    assert table.prevdf is None
+    assert warnings
+
+
 @pytest.mark.parametrize('filtered,editable', [(True, True), (False, False)])
 def test_readonly_and_filter_protect_context_paste_and_clear(table, monkeypatch, filtered, editable):
     original = table.model.df.copy()

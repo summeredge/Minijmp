@@ -2,6 +2,7 @@ from pandastable_local.dialogs import (
     BaseDialog, EasyListbox, FindReplaceDialog,
     apply_dialog_theme, dialog_style, listbox_colors)
 from tkinter import Frame, TOP, LEFT, X, BOTH, Listbox, Scrollbar, VERTICAL, N, S, E, W, END, EXTENDED
+from tkinter import messagebox
 from tkinter import ttk
 import tkinter as tk
 import numpy as np
@@ -17,6 +18,7 @@ from prettytable import PrettyTable as PT
 ############### Own Modules ############
 from utilities import is_void, get_number
 from help_link import open_help
+from pandastable_local.data_orig import _prepare_cell_updates, _commit_cell_updates
 
 
 class findRepDialog(FindReplaceDialog):
@@ -53,13 +55,28 @@ class findRepDialog(FindReplaceDialog):
         table = self.table
         if not table.requireUnfiltered():
             return
-        table.storeCurrent()
         df = table.model.df
         self.find()
+        if not self.coords:
+            return
+        cols = {col for col, _ in self.coords}
+        if table._reject_formula_edit(table._formula_targets_in([], cols)):
+            return
         r = self.replacevar.get()
-        for x, y in self.coords:
-            df.iloc[y, x] = r
-        table.redraw()
+        updates = {}
+        for col, row in self.coords:
+            rows, values = updates.setdefault(col, ([], []))
+            rows.append(row)
+            values.append(r)
+        try:
+            prepared = _prepare_cell_updates(df, updates)
+        except ValueError as error:
+            messagebox.showwarning('替换失败', str(error), parent=table.parentframe)
+            return
+        table.storeCurrent()
+        _commit_cell_updates(df, prepared)
+        if not table.tableChanged():
+            table.redraw()
         self.search_changed = True
         return
 
