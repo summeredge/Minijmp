@@ -278,6 +278,60 @@ def test_click_release_without_single_ax_keeps_multiplot_viewer_usable(capsys):
     assert capsys.readouterr().out == ""
 
 
+@pytest.mark.parametrize('ind,labels', [([1], ['r1']), ([1, 3], ['r1', 'r3']),
+                                        ([], [])])
+def test_scatter_pick_uses_positions_on_custom_index(capsys, ind, labels):
+    from pandastable_local.handlers import DragHandler
+
+    fig = Figure()
+    FigureCanvasAgg(fig)
+    ax = fig.add_subplot(111)
+    data = pd.DataFrame({'x': [1., 2., 3., 4.], 'y': [4., 3., 2., 1.]},
+                        index=['r0', 'r1', 'r2', 'r3'])
+    collection = ax.scatter(data['x'], data['y'])
+    handler = DragHandler(SimpleNamespace(fig=fig, data=data, ax=ax))
+    assert handler.on_pick_event(SimpleNamespace(artist=collection, ind=ind)) is True
+    out = capsys.readouterr().out
+    assert out.startswith('onpick scatter:')
+    for label in labels:
+        assert label in out
+    assert 'r0' not in out and 'r2' not in out
+    assert handler.dragged is collection
+
+
+def test_scatter_pick_with_invalid_indices_does_not_raise(capsys):
+    from pandastable_local.handlers import DragHandler
+
+    fig = Figure()
+    FigureCanvasAgg(fig)
+    ax = fig.add_subplot(111)
+    data = pd.DataFrame({'x': [1., 2.], 'y': [2., 1.]}, index=[30, 10])
+    collection = ax.scatter(data['x'], data['y'])
+    handler = DragHandler(SimpleNamespace(fig=fig, data=data, ax=ax))
+    assert handler.on_pick_event(SimpleNamespace(artist=collection, ind=None)) is True
+    assert handler.on_pick_event(SimpleNamespace(artist=collection, ind=[9])) is True
+    assert capsys.readouterr().out.count('onpick scatter:') == 2
+
+
+def test_line_pick_and_other_artists_keep_working(capsys):
+    from matplotlib.lines import Line2D
+    from pandastable_local.handlers import DragHandler
+
+    fig = Figure()
+    FigureCanvasAgg(fig)
+    ax = fig.add_subplot(111)
+    line, = ax.plot([0., 1., 2.], [0., 1., 4.])
+    handler = DragHandler(SimpleNamespace(fig=fig, data=pd.DataFrame(), ax=ax))
+    assert isinstance(line, Line2D)
+    assert handler.on_pick_event(SimpleNamespace(artist=line, ind=[1])) is True
+    out = capsys.readouterr().out
+    assert 'onpick line:' in out
+    from matplotlib.patches import Rectangle
+    patch = ax.add_patch(Rectangle((0., 0.), 1., 1.))
+    assert handler.on_pick_event(SimpleNamespace(artist=patch, ind=[])) is True
+    assert 'onpick patch:' in capsys.readouterr().out
+
+
 def test_normal_qq_and_residual_dialogs_reach_styled_plot_and_keep_reports():
     from basic_dialogs import NormTestDialog
     from fit_dialog import ResidDialog

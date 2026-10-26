@@ -74,7 +74,11 @@ class DragHandler(object):
         #print(self.dragged)
         if isinstance(event.artist, PathCollection):
             ind = event.ind
-            print('onpick scatter:', ind, df.ix[ind])
+            try:
+                picked = df.iloc[ind]
+            except (IndexError, TypeError):
+                picked = df.iloc[:0]
+            print('onpick scatter:', ind, picked)
         elif isinstance(event.artist, Line2D):
             thisline = event.artist
             xdata = thisline.get_xdata()

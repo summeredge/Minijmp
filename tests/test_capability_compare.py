@@ -188,6 +188,141 @@ def test_comparison_plot_shares_scale_specs_and_indices():
     assert len(reuse.axes) == 4
 
 
+def ppm_axis(figure):
+    """返回 PPM 面板的 (行中心 y, 条形) 与文字，用于核对单位与数值。"""
+    ax = figure.axes[3]
+    bars = [(patch.get_y() + patch.get_height() / 2, patch) for patch in ax.patches]
+    return ax, bars, [text.get_text() for text in ax.texts]
+
+
+def stage_bar(bars, row, index):
+    """条形中心 = 行号 + (阶段序-.5)*.36；只取位于该位置的条形。"""
+    target = row + (index - .5) * .36
+    return [patch for center, patch in bars if abs(center - target) < .1]
+
+
+def test_ppm_panel_uses_data_keys_and_ppm_units():
+    rng = np.random.default_rng(101)
+    before = rng.normal(10, 2., 200)
+    after = rng.normal(10, .5, 200)
+    before[0], before[1] = 2.5, 17.5      # 两阶段实际超规数不同
+    frame = phases(before, after)
+    result = analyze_capability_comparison(frame, '测量', lsl=4, usl=16, stage='阶段')
+    spread = result.tables['波动与超规对比'].set_index('指标')
+    counts = [spread.at['实测超规数', name] for name in result.plot['names']]
+    assert counts[0] != counts[1]          # 两阶段实际超规数不同
+    assert 0 in counts                     # 其中一侧完全无超规
+
+    figure = plot_capability_comparison(result)
+    ax, bars, labels = ppm_axis(figure)
+    assert [tick.get_text() for tick in ax.get_yticklabels()] == [
+        '实测超规 PPM', '预计 PPM（整体）', '预计 PPM（组内）']
+    # 实测行以 PPM 为单位，与统计表的超规率×1e4 一致；0 只标注不画条形。
+    for name, count in zip(result.plot['names'], counts):
+        ppm = float(spread.at['实测超规率（%）', name]) * 1e4
+        assert ppm == pytest.approx(count / 200 * 1e6)
+        assert ('%.4g' % ppm) in labels
+    for index, count in enumerate(counts):
+        assert len(stage_bar(bars, 0, index)) == (1 if count else 0)
+    # 预计 PPM 两阶段不同、与表中一致，且不与实测行混用同一数值。
+    predicted = [spread.at['预计 PPM（整体）', name] for name in result.plot['names']]
+    assert predicted[0] != pytest.approx(predicted[1])
+    assert all('%.4g' % value in labels for value in predicted)
+
+
+def test_ppm_panel_marks_missing_as_na_and_zero_predicts():
+    rng = np.random.default_rng(102)
+    frame = phases(rng.normal(10, 1., 120), rng.normal(13, 1., 120))
+    result = analyze_capability_comparison(frame, '测量', lsl=5, usl=15, stage='阶段')
+    spread = result.tables['波动与超规对比'].set_index('指标')
+    assert spread.at['实测超规数', '改善前'] == 0     # 实测为零
+    predicted = spread.at['预计 PPM（整体）', '改善前']
+    assert predicted > 0                            # 预计非零
+    figure = plot_capability_comparison(result)
+    ax, bars, labels = ppm_axis(figure)
+    assert ('%.4g' % predicted) in labels
+    # 实测为 0 的一侧不画条形，零值只有文字 "0"。
+    assert '0' in labels
+    assert len(stage_bar(bars, 0, 0)) == 0   # 实测 0：不画误导性的非零条形
+    assert len(stage_bar(bars, 0, 1)) == 1   # 改善后实测非零
+
+    # 组内 PPM 未定义（非正态）时该行整体消失，不留下“NA”占位。
+    nonnormal = analyze_capability_comparison(
+        phases(rng.lognormal(.4, .2, 120), rng.lognormal(.5, .2, 120)),
+        '测量', lsl=1., usl=8., distribution='lognormal', stage='阶段')
+    ax2, bars2, labels2 = ppm_axis(plot_capability_comparison(nonnormal))
+    ticks = [tick.get_text() for tick in ax2.get_yticklabels()]
+    assert '预计 PPM（组内）' not in ticks and not any('组内' in t for t in ticks)
+    assert all(tick in ('实测超规 PPM', '预计 PPM（整体）') for tick in ticks)
+
+
+def test_nonnormal_special_causes_only_flag_limits():
+    """非正态 I 图上下限不对称；只判越限，不套 Nelson。"""
+    from capability_compare import _special_causes
+    from capability import analyze_capability
+
+    rng = np.random.default_rng(103)
+    values = rng.lognormal(.6, .3, 200)
+    stage = analyze_capability(values, lsl=1., usl=12., distribution='lognormal')
+    special = _special_causes(stage)
+    assert special['rules'] is False
+    lower, upper = stage['model'].ppf([.00135, .99865])
+    assert upper - stage['mean'] > stage['mean'] - lower   # 确实不对称
+    outside = int((values < lower).sum() + (values > upper).sum())
+    assert special['alarms'] == outside
+    assert special['beyond'] <= special['points']
+
+    normal = analyze_capability(rng.normal(10, 1., 200), lsl=5, usl=15)
+    assert _special_causes(normal)['rules'] is True
+
+
+def test_nonnormal_in_limit_sequence_does_not_trigger_nelson():
+    """限内的连续上升点：旧做法按对称尺度误报连续模式，新做法只判越界。"""
+    from capability_compare import _special_causes
+    from capability import analyze_capability
+    from capability_plots import _charts
+    from control_chart import _panel_events
+
+    rng = np.random.default_rng(11)
+    values = rng.lognormal(.6, .2, 300)
+    ramp = np.arange(150, 159)
+    values[ramp] = values[ramp].mean() + np.linspace(-.6, .6, 9) * .3
+    stage = analyze_capability(values, lsl=.5, usl=25., distribution='lognormal')
+    chart, _, _ = _charts(stage, [np.asarray(g, float) for g in stage['groups']])
+    plotted = np.asarray(chart['Y1'], float)
+    assert plotted.min() > chart['lcl1'] and plotted.max() < chart['ucl1']  # 全部在限内
+
+    # 旧做法把 (UCL-CL)/3 当公共尺度：同一数据命中连续模式规则。
+    scales = [(chart['ucl1'] - chart['bar1']) / 3] * len(plotted)
+    legacy = _panel_events(chart['Y1'], chart['bar1'], chart['lcl1'], chart['ucl1'],
+                           None, scales, panel='I')
+    assert {event['rule'] for event in legacy} & {'Nelson 2', 'Nelson 3', 'Nelson 7'}
+    # 新做法只判越界：限内连续点不产生任何异常。
+    assert not _special_causes(stage)['rules']
+    assert _special_causes(stage)['alarms'] == 0
+
+
+def test_nonnormal_two_sided_limit_crossings():
+    """非对称分布的上下控制限：两侧越界都计入，预期数按重拟合后的实际限计算。"""
+    from capability_compare import _special_causes
+    from capability import analyze_capability
+
+    rng = np.random.default_rng(104)
+    base = np.sort(rng.lognormal(.6, .25, 240))
+    stage = analyze_capability(base, lsl=1., usl=12., distribution='lognormal')
+    lower, upper = stage['model'].ppf([.00135, .99865])
+    data = base.copy()
+    data[0], data[-1] = lower * .9, upper * 1.1
+    # 插入越界点后参数会变，预期必须以重拟合后的控制限为准。
+    stage = analyze_capability(data, lsl=1., usl=12., distribution='lognormal')
+    lower, upper = stage['model'].ppf([.00135, .99865])
+    below, above = int((data < lower).sum()), int((data > upper).sum())
+    assert below >= 1 and above >= 1          # 上下两侧都确实越界
+    special = _special_causes(stage)
+    assert not special['rules']
+    assert special['alarms'] == below + above
+
+
 def test_invalid_inputs_are_rejected():
     frame = phases([1., 2., 3.], [4., 5., 6.])
     with pytest.raises(ValueError, match='规格'):

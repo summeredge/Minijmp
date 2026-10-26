@@ -801,12 +801,19 @@ class RowHeader(Canvas):
         self.delete('rect')
         return
 
+    def _clear_column_selection(self):
+        self.table.multiplecollist = []
+        self.table.allrows = False
+        self.table.delete('colrect', 'multicellrect')
+        self.table.colheader.delete('rect')
+
     def handle_left_click(self, event):
         """Handle left click"""
 
         rowclicked = self.table.get_row_clicked(event)
         self.startrow = rowclicked
         if 0 <= rowclicked < self.table.rows:
+            self._clear_column_selection()
             self.delete('rect')
             self.table.delete('entry')
             self.table.delete('multicellrect')
@@ -825,6 +832,7 @@ class RowHeader(Canvas):
         rowclicked = self.table.get_row_clicked(event)
         multirowlist = self.table.multiplerowlist
         if 0 <= rowclicked < self.table.rows:
+            self._clear_column_selection()
             if rowclicked not in multirowlist:
                 multirowlist.append(rowclicked)
             else:
@@ -855,6 +863,8 @@ class RowHeader(Canvas):
             return
         if rowclicked not in self.table.multiplerowlist:
             self.handle_left_click(event)
+        else:
+            self._clear_column_selection()
         self.table.allrows = False
         self.rightmenu = self.popupMenu(event, outside=1)
         # # ADD THESE 3 LINES HERE

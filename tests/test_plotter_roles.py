@@ -266,3 +266,46 @@ def test_switching_kind_or_3d_leaves_role_mode(tk_root):
         viewer.close()
         table.destroy()
         frame.destroy()
+
+
+def test_linked_formula_results_flow_into_replotted_roles(tk_root):
+    data = pd.DataFrame({'X': [0., 1., 2.], '来源': [2., 3., 4.]})
+    frame = tk.Frame(tk_root)
+    frame.pack()
+    table = MTable(frame, dataframe=data.copy(), showtoolbar=False, showstatusbar=False)
+    table.show()
+    table.define_formula('结果', 'C2 * 2', link=True)
+    viewer = PlotViewer(table=table)
+    viewer.mplopts.tkvars['kind'].set('line')
+    viewer.xcol, viewer.ycols = 'X', ['结果']
+    viewer.groupcol = None
+
+    try:
+        assert viewer.plotRoles()
+        np.testing.assert_allclose(viewer.ax.lines[0].get_ydata(), [4., 6., 8.])
+
+        table.formulas_auto = False
+        table.drawCellEntry(0, 1)
+        table.cellentryvar.set('5')
+        table.handleCellEntry(0, 1)
+        assert table.formulas['结果']['stale'] is True
+        assert table.model.df['结果'].tolist() == [4., 6., 8.]
+        viewer.updatePlot()
+        np.testing.assert_allclose(viewer.ax.lines[0].get_ydata(), [4., 6., 8.])
+
+        table.recalculate_formulas()
+        viewer.updatePlot()
+        np.testing.assert_allclose(viewer.ax.lines[0].get_ydata(), [10., 6., 8.])
+
+        table.formulas_auto = True
+        table.drawCellEntry(1, 1)
+        table.cellentryvar.set('7')
+        table.handleCellEntry(1, 1)
+        viewer.updatePlot()
+        np.testing.assert_allclose(viewer.ax.lines[0].get_ydata(), [10., 14., 8.])
+        assert table.model.df['来源'].tolist() == [5., 7., 4.]
+        assert table.model.df['结果'].tolist() == [10., 14., 8.]
+    finally:
+        viewer.close()
+        table.destroy()
+        frame.destroy()

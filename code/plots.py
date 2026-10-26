@@ -47,6 +47,9 @@ class plot_viewer(PlotViewer):
         self.m.pack(fill=BOTH, expand=1)
         # frame for figure
         self.plotfr = Frame(self.m)
+        #host for chart navigation bars; keeps them off the figure and the options dock
+        self.plot_tools = Frame(self.m)
+        self.plot_tools.pack(side=TOP, fill=X)
         # add it to the panedwindow
         self.fig, self.canvas = addFigure(
             self.plotfr, figure=Figure(

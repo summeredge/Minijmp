@@ -220,6 +220,50 @@ def test_row_paste_covering_formula_column_is_rejected(csv_app, monkeypatch):
     assert_frame_equal(table.model.df, original)
 
 
+def test_keyboard_row_paste_cannot_overwrite_formula_column(csv_app, monkeypatch):
+    app, table, errors = sheet_app(csv_app)
+    assign(table)
+    original = table.model.df.copy(deep=True)
+    warnings = []
+    monkeypatch.setattr('modified_table.messagebox.showwarning',
+                        lambda title, message, **kw: warnings.append(message))
+    monkeypatch.setattr(table, 'clipboard_get', lambda: '1\t2\t3')
+    table.multiplerowlist, table.multiplecollist = [0], []
+    table.allrows = False
+    history_before = table.prevdf
+    history_end_before = table.prevdf_end
+
+    table.paste()
+
+    assert_frame_equal(table.model.df, original)
+    assert warnings and '先解除公式关联' in warnings[0]
+    assert table.prevdf is history_before
+    assert table.prevdf_end == history_end_before
+    errors.assert_not_called()
+
+
+def test_keyboard_column_paste_cannot_overwrite_formula_column(csv_app, monkeypatch):
+    app, table, errors = sheet_app(csv_app)
+    assign(table)
+    original = table.model.df.copy(deep=True)
+    warnings = []
+    monkeypatch.setattr('modified_table.messagebox.showwarning',
+                        lambda title, message, **kw: warnings.append(message))
+    monkeypatch.setattr(table, 'clipboard_get', lambda: '10\n20')
+    table.multiplerowlist, table.multiplecollist = [], [2]
+    table.allrows = True
+    history_before = table.prevdf
+    history_end_before = getattr(table, 'prevdf_end', None)
+
+    assert table.paste() is False
+
+    assert_frame_equal(table.model.df, original)
+    assert warnings and '先解除公式关联' in warnings[0]
+    assert table.prevdf is history_before
+    assert getattr(table, 'prevdf_end', None) == history_end_before
+    errors.assert_not_called()
+
+
 def test_row1_to_header_rebinds_formula_sources_by_position(csv_app):
     app, table, errors = sheet_app(csv_app)
     table.model.df = pd.DataFrame({'C1': [101., 100., 90.],
@@ -274,6 +318,23 @@ def test_sorting_formula_source_updates_formula_results(csv_app, monkeypatch):
     np.testing.assert_allclose(table.model.df['结果'], [12.5, 100 / 45 * 100 - 100])
 
 
+def test_insert_and_delete_rows_refresh_linked_formulas(csv_app):
+    app, table, errors = sheet_app(csv_app)
+    table.model.df = pd.DataFrame({'C1': [100., 90.], 'C2': [80., 45.]})
+    assign(table)
+
+    table.setSelectedRow(1)
+    table.insertRow()
+    assert len(table.model.df) == 3
+    assert table.model.df['结果'].iloc[[0, 2]].tolist() == [25., 100.]
+    assert pd.isna(table.model.df['结果'].iloc[1])
+
+    table.setSelectedRow(1)
+    table.deleteRow()
+    assert table.model.df['结果'].tolist() == [25., 100.]
+    errors.assert_not_called()
+
+
 def test_formula_undo_redo_keeps_definitions_and_data_in_sync(csv_app):
     app, table, errors = sheet_app(csv_app)
     before = table.model.df.copy(deep=True)
@@ -299,3 +360,70 @@ def test_repeated_undo_redo_never_detaches_formula_from_data(csv_app):
         table.redo()
         assert_frame_equal(table.model.df, after)
         assert '结果' in table.formulas
+
+
+@pytest.mark.parametrize(('operation', 'auto'), [
+    ('clear', True), ('clear', False), ('shift', True), ('shift', False),
+])
+def test_clearing_formula_sources_updates_or_marks_stale(
+        csv_app, monkeypatch, operation, auto):
+    app, table, errors = sheet_app(csv_app)
+    monkeypatch.setattr('modified_table.messagebox.askyesno', lambda *a, **k: True)
+    table.model.df = pd.DataFrame({'C1': [100., 90., 70.],
+                                   'C2': [80., 45., 50.]})
+    assign(table)
+    table.formulas_auto = auto
+    table.multiplerowlist, table.multiplecollist = [0], [0]
+    table.allrows = False
+
+    if operation == 'clear':
+        table.clearData()
+    else:
+        table.clearDataUp()
+
+    if auto:
+        expected = ([np.nan, 100., 40.] if operation == 'clear'
+                    else [(90. - 80.) / 80. * 100.,
+                          (70. - 45.) / 45. * 100., np.nan])
+        np.testing.assert_allclose(table.model.df['结果'], expected, equal_nan=True)
+        assert table.formulas['结果']['stale'] is False
+    else:
+        assert table.model.df['结果'].tolist() == [25., 100., 40.]
+        assert table.formulas['结果']['stale'] is True
+    errors.assert_not_called()
+
+
+def test_multiple_sheet_formula_state_roundtrip_is_isolated(csv_app, monkeypatch, tmp_path):
+    import worksheets
+    app, first, errors = sheet_app(csv_app)
+    monkeypatch.setattr(worksheets.messagebox, 'askyesno', lambda *a, **k: True)
+    monkeypatch.setattr(worksheets.messagebox, 'askyesnocancel', lambda *a, **k: False)
+    assign(first)
+
+    second = app.addSheet('第二张', pd.DataFrame({'C1': [60., 40.], 'C2': [20., 10.]}))
+    assign(second)
+    second.formulas_auto = False
+    second.model.df.loc[0, 'C1'] = 80.
+    second.tableChanged()
+    first.model.df.loc[0, 'C1'] = 120.
+    first.tableChanged()
+    assert first.formulas_auto is True and second.formulas_auto is False
+    assert first.model.df['结果'].tolist() == [50., 100.]
+    assert second.model.df['结果'].tolist() == [200., 300.]
+    assert second.formulas['结果']['stale'] is True
+
+    path = tmp_path / '多工作表公式.dexpl'
+    assert app._save_project(path)
+    assert app.load_file(path)
+    restored_first = app.sheets['公式']
+    restored_second = app.sheets['第二张']
+    assert restored_first.formulas_auto is True
+    assert restored_first.model.df['结果'].tolist() == [50., 100.]
+    assert restored_second.formulas_auto is False
+    assert restored_second.model.df['结果'].tolist() == [200., 300.]
+    assert restored_second.formulas['结果']['stale'] is True
+
+    restored_second.recalculate_formulas()
+    assert restored_second.model.df['结果'].tolist() == [300., 300.]
+    assert restored_first.model.df['结果'].tolist() == [50., 100.]
+    errors.assert_not_called()

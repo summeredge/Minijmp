@@ -19,7 +19,7 @@ def table_stub(frame, rows, cols):
         requireUnfiltered=lambda: True, allrows=False, editable=True,
         parentframe=None, multiplerowlist=rows, multiplecollist=cols,
         model=TableModel(frame.copy()), filtered=False, prevdf=None,
-        redraw=Mock(), updateModel=Mock())
+        redraw=Mock(), updateModel=Mock(), tableChanged=lambda: False)
     table.storeCurrent = lambda: MTable.storeCurrent(table)
     return table
 

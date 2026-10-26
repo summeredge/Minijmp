@@ -432,10 +432,240 @@ PLOT_COLORS = {'aliceblue': '爱丽丝蓝',
  'yellow': '黄色',
  'yellowgreen': '黄绿色'}
 
+class _OptionPage(Frame):
+    """Scrollable option page: a short window scrolls instead of clipping."""
+
+    def __init__(self, parent):
+        Frame.__init__(self, parent)
+        self._columns = None
+        self._groups = []
+        self.canvas = Canvas(self, bd=0, highlightthickness=0, width=1, height=1)
+        self.scroll = Scrollbar(self, orient=VERTICAL, command=self.canvas.yview)
+        self.canvas.configure(yscrollcommand=self.scroll.set)
+        self.canvas.grid(row=0, column=0, sticky='nsew')
+        self.scroll.grid(row=0, column=1, sticky='ns')
+        self.rowconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
+        self.body = Frame(self.canvas)
+        self._window = self.canvas.create_window(0, 0, window=self.body, anchor='nw')
+        self.body.bind('<Configure>', self._content)
+        self.canvas.bind('<Configure>', self._viewport)
+        self.bind_wheel(self.canvas)
+        self.bind_wheel(self.body)
+        return
+
+    def bind_wheel(self, widget):
+        """Scroll with the wheel over the page; value widgets keep native wheel."""
+
+        if widget.winfo_class() in ('TCombobox', 'Listbox', 'Text', 'Scale', 'TSpinbox'):
+            return
+        widget.bind('<MouseWheel>', self._wheel)
+        for child in widget.winfo_children():
+            self.bind_wheel(child)
+        return
+
+    def _wheel(self, event):
+        if self.scroll.winfo_ismapped():
+            self.canvas.yview_scroll(-1 if event.delta > 0 else 1, 'units')
+        return
+
+    def _content(self, event=None):
+        #the inner frame must always be as wide as the visible page area
+        view = self.canvas.winfo_width()
+        if view > 1 and self.body.winfo_width() != view:
+            self.canvas.itemconfigure(self._window, width=view)
+        self._flow()
+        self.canvas.configure(scrollregion=self.canvas.bbox('all') or (0, 0, 0, 0))
+        self._sync_scroll()
+        self.after_idle(self._sync_scroll)
+        return
+
+    def _viewport(self, event=None):
+        self.canvas.itemconfigure(self._window, width=self.canvas.winfo_width())
+        self._flow()
+        self._sync_scroll()
+        self.after_idle(self._sync_scroll)
+        return
+
+    def _sync_scroll(self):
+        needed = self.body.winfo_reqheight() > self.canvas.winfo_height() + 1
+        if needed:
+            self.scroll.grid()
+        else:
+            self.canvas.yview_moveto(0)
+            self.scroll.grid_remove()
+        return
+
+    def flow(self, groups):
+        """Place groups in up to four equal columns, widest content first."""
+
+        self._groups = list(groups)
+        self._flow(force=True)
+        return self
+
+    def _flow(self, force=False):
+        if not self._groups:
+            return
+        width = self.canvas.winfo_width()
+        if width <= 1:
+            width = self.master.winfo_width()
+        if width <= 1:
+            width = 700
+        #never create a column narrower than the widest group needs
+        need = max([180] + [g.winfo_reqwidth() + 4 for g in self._groups])
+        columns = max(1, min(4, int(width) // int(need), len(self._groups)))
+        if not force and columns == self._columns:
+            return
+        self._columns = columns
+        for column in range(6):
+            self.body.columnconfigure(column, weight=0, uniform='')
+        for row in range(8):
+            self.body.rowconfigure(row, weight=0)
+        for column in range(columns):
+            self.body.columnconfigure(column, weight=1, uniform='option')
+        #balance column heights so no group leaves a tall empty column beside it
+        heights = [0] * columns
+        slots = [[] for _ in range(columns)]
+        for group in self._groups:
+            column = heights.index(min(heights))
+            slots[column].append(group)
+            heights[column] += group.winfo_reqheight() + 5
+        for column in range(columns):
+            for row, group in enumerate(slots[column]):
+                group.grid(row=row, column=column, sticky='new',
+                           padx=(0, 4), pady=(0, 4))
+        return
+
+    def attach(self, group):
+        """Add an option group so it joins the same flow as generated ones."""
+
+        self._groups.append(group)
+        self._flow(force=True)
+        self.bind_wheel(group)
+        return group
+
+
+def _option_var(opt):
+    if opt['type'] == 'checkbutton':
+        var = IntVar()
+        var.set(opt['default'])
+    elif opt['type'] == 'scale':
+        var = DoubleVar()
+        var.set(opt['default'])
+    elif opt['type'] == 'entry' and type(opt['default']) is int:
+        var = IntVar()
+        var.set(opt['default'])
+    else:
+        var = StringVar()
+        var.set(opt['default'])
+    return var
+
+
+def _scale_readout(frame, var, row, column):
+    """Compact slider: no built-in value box, one aligned number instead."""
+
+    shown = StringVar(value='%g' % var.get())
+    var.trace_add('write', lambda *a: shown.set('%g' % var.get()))
+    Label(frame, textvariable=shown, width=5, anchor='e').grid(
+        row=row, column=column, sticky='e')
+    return
+
+
+def _option_group(page, name, keys, opts, tkvars, widgets):
+    """One group of options: label at the left, control at the right."""
+
+    frame = LabelFrame(page.body, text=name, padding=(5, 0, 3, 2))
+    frame.columnconfigure(0, weight=1, uniform='row')
+    frame.columnconfigure(1, weight=0)
+    frame.columnconfigure(2, weight=1, uniform='row')
+    row = 0
+    for key in keys:
+        opt = opts[key]
+        if key not in tkvars:
+            tkvars[key] = _option_var(opt)
+        var = tkvars[key]
+        if opt['type'] == 'checkbutton':
+            widget = Checkbutton(frame, text=opt['label'], variable=var)
+            widget.grid(row=row // 2, column=(row % 2) * 2, sticky='w',
+                        padx=(0, 4))
+            widgets[key] = widget
+            row += 1
+            continue
+        label = Label(frame, text=opt.get('label', key))
+        if opt['type'] == 'combobox':
+            label.grid(row=row, column=0, sticky='w', padx=(0, 6))
+            widget = Combobox(frame, values=opt['items'], textvariable=var, width=10)
+            widget.set(opt['default'])
+            widget.grid(row=row, column=1, columnspan=2, sticky='ew', pady=(1, 0))
+            if 'tooltip' in opt:
+                ToolTip.createToolTip(widget, opt['tooltip'])
+        elif opt['type'] == 'spinbox':
+            label.grid(row=row, column=0, sticky='w', padx=(0, 6))
+            widget = Spinbox(frame, values=opt['items'], textvariable=var, width=8)
+            widget.set(opt['default'])
+            widget.grid(row=row, column=1, sticky='w', pady=(1, 0))
+        elif opt['type'] == 'scale':
+            label.grid(row=row, column=0, sticky='w', padx=(0, 6))
+            widget = Scale(frame, label='', from_=opt['range'][0], to=opt['range'][1],
+                           orient='horizontal', resolution=opt['interval'],
+                           showvalue=False, variable=var, length=96)
+            widget.grid(row=row, column=1, sticky='ew')
+            _scale_readout(frame, var, row, 2)
+            frame.columnconfigure(1, weight=1, uniform='')
+            frame.columnconfigure(2, weight=0)
+        elif opt['type'] == 'scrolledtext':
+            label.grid(row=row, column=0, sticky='nw', padx=(0, 6))
+            widget = ScrolledText(frame, width=20, height=4, wrap=WORD)
+            widget.grid(row=row, column=1, sticky='nsew', pady=1)
+            frame.rowconfigure(row, weight=1)
+            tkvars[key] = None
+        elif opt['type'] == 'listbox':
+            label.grid(row=row, column=0, sticky='w', padx=(0, 6))
+            holder = Frame(frame)
+            holder.grid(row=row, column=1, sticky='news')
+            scroll = Scrollbar(holder, orient=VERTICAL)
+            scroll.pack(side=RIGHT, fill=Y)
+            widget = Listbox(holder, height=5, selectmode=MULTIPLE,
+                             exportselection=0, yscrollcommand=scroll.set)
+            widget.pack(side=LEFT, fill=BOTH, expand=True)
+            scroll.configure(command=widget.yview)
+            for item in opt['items']:
+                widget.insert(END, item)
+            widgets[key] = widget
+            tkvars[key] = widget
+            row += 1
+            continue
+        elif opt['type'] == 'colorchooser':
+            label.grid(row=row, column=0, sticky='w', padx=(0, 6))
+            widget = Button(frame, text=opt['label'],
+                            command=lambda v=var: v.set(pickColor(page, v.get()) or v.get()))
+            widget.grid(row=row, column=1, sticky='w', pady=1)
+        else:
+            label.grid(row=row, column=0, sticky='w', padx=(0, 6))
+            widget = Entry(frame, textvariable=var, width=8)
+            widget.grid(row=row, column=1, sticky='w', pady=1)
+        widgets[key] = widget
+        row += 1
+    return frame
+
+
 def plot_dialog_options(parent, opts, groups, **kwargs):
     from dialog import display_variable
-    frame, variables, widgets = dialogFromOptions(parent, opts, groups, **kwargs)
-    for widget in _plot_widgets(frame):
+    page = _OptionPage(parent)
+    variables, widgets = {}, {}
+    frames = []
+    #'hidden' keeps state for options shown elsewhere (e.g. plot type lives on the data page)
+    skipped = list(groups.get('hidden', []))
+    for name in groups:
+        if name == 'hidden':
+            continue
+        keys = [key for key in groups[name] if key not in skipped]
+        if keys:
+            frames.append(_option_group(page, name, keys, opts, variables, widgets))
+    for key in skipped:
+        variables[key] = _option_var(opts[key])
+    page.flow(frames)
+    for widget in _plot_widgets(page):
         for key in ('text', 'label'):
             if key in widget.keys():
                 text = str(widget.cget(key))
@@ -450,7 +680,7 @@ def plot_dialog_options(parent, opts, groups, **kwargs):
             shown = display_variable(variables[key], values, labels, owner=widget)
             widget.configure(values=[labels.get(v, v) for v in values], textvariable=shown)
             widget.display_variable = shown
-    return frame, variables, widgets
+    return page, variables, widgets
 
 
 def _plot_widgets(parent):
@@ -521,25 +751,24 @@ class PlotViewer(Frame):
     def setupGUI(self):
         """Add GUI elements"""
 
-        #import tkinter as tk
-        #self.m = PanedWindow(self.main, orient=self.orient)
-        #pack the controls first so a short window clips the figure, not settings
+        #toolbar first: plot actions stay in one place however the panel is docked
+        bf = Frame(self.main, padding=(4, 4, 4, 2))
+        bf.pack(side=TOP, fill=X)
+        self.actionbar = bf
+
         self.ctrlfr = Frame(self.main)
-        self.ctrlfr.pack(side=BOTTOM,fill=X)
         self.m = Frame(self.main)
-        self.m.pack(fill=BOTH,expand=1)
-        #frame for figure
+        self.m.pack(side=LEFT, fill=BOTH, expand=1)
+
+        #what is being plotted belongs to the canvas, not to the settings
+        self.plot_tools = Frame(self.m)
+        self.plot_tools.pack(side=TOP, fill=X)
+        self.statusbar = Frame(self.m, padding=(6, 0, 6, 2))
+        self.statusbar.pack(side=BOTTOM, fill=X)
         self.plotfr = Frame(self.m)
-        #add it to the panedwindow
         self.fig, self.canvas = addFigure(self.plotfr)
         self.ax = self.fig.add_subplot(111)
-
-        #self.m.add(self.plotfr, weight=12)
-        self.plotfr.pack(side=TOP,fill=BOTH, expand=1)
-
-        #button frame
-        bf = Frame(self.ctrlfr, padding=2)
-        bf.pack(side=TOP,fill=BOTH)
+        self.plotfr.pack(side=TOP, fill=BOTH, expand=1)
 
         side = LEFT
         #add button toolbar
@@ -558,48 +787,122 @@ class PlotViewer(Frame):
         addButton(bf, '保存', self.savePlot, images.save(),
                   '保存图形', side=side)
 
-        #dicts to store global options, can be saved with projects
         self.globalvars = {}
         self.globalopts = OrderedDict({ 'dpi': 80, 'grid layout': False,'3D plot':False })
+        self.inputvar = StringVar(value='当前绘图数据：尚未绘图')
+        self.inputlabel = Label(self.statusbar, textvariable=self.inputvar,
+                                anchor='w')
+        self.inputlabel.pack(side=TOP, fill=X)
+
+        #project-level switches sit with the options they affect, not among plot actions
+        self.panelhead = Frame(self.ctrlfr, padding=(4, 2, 4, 2))
+        self.panelhead.columnconfigure(0, weight=1)
+        self.panelhead.bind('<Configure>', self._flow_panelhead, add='+')
         from functools import partial
         for n in self.globalopts:
             val = self.globalopts[n]
             if type(val) is bool:
                 v = self.globalvars[n] = BooleanVar()
                 v.set(val)
-                b = Checkbutton(bf,text=PLOT_LABELS.get(n, n), variable=v, command=partial(self.setGlobalOption, n))
+                b = Checkbutton(self.panelhead, text=PLOT_LABELS.get(n, n), variable=v,
+                                command=partial(self.setGlobalOption, n))
             else:
                 v = self.globalvars[n] = IntVar()
                 v.set(val)
-                Label(bf, text=PLOT_LABELS.get(n, n)).pack(side=LEFT,fill=X,padx=2)
-                b = Entry(bf,textvariable=v, width=5)
+                holder = Frame(self.panelhead)
+                Label(holder, text=PLOT_LABELS.get(n, n)).pack(side=LEFT, padx=(0, 3))
+                b = Entry(holder, textvariable=v, width=4)
+                b.pack(side=LEFT)
                 util.trace_write(v, partial(self.setGlobalOption, n))
-            b.pack(side=LEFT,padx=2)
+                b = holder
+            b.pack(side=LEFT, padx=(8, 0))
         self.options_visible = bool(self.showoptions)
+        self.panelhead.pack(side=TOP, fill=X)
         self.options_button = addButton(
                   bf, '隐藏参数区' if self.options_visible else '显示参数区',
                   self.toggle_options,
                   images.prefs(), PLOT_LABELS['show/hide plot options'],
                   side=RIGHT)
-        self.inputvar = StringVar(value='当前绘图数据：尚未绘图')
-        self.inputlabel = Label(self.ctrlfr, textvariable=self.inputvar,
-                                anchor='w')
-        self.inputlabel.pack(side=TOP, fill=X, padx=4, pady=1)
         self.addWidgets()
+        self.main.bind('<Configure>', self._dock_panel, add='+')
+        self._dock_panel()
 
-        #def onpick(event):
-        #    print(event)
-        #self.fig.canvas.mpl_connect('pick_event', onpick)
-        #self.fig.canvas.mpl_connect('button_release_event', onpick)
         from . import handlers
-        dr = handlers.DragHandler(self)
-        dr.connect()
+        self._drag_handler = handlers.DragHandler(self)
+        self._drag_handler.connect()
+
+    def _flow_panelhead(self, event=None):
+        """Stack the panel switches when the dock is narrow."""
+
+        width = self.panelhead.winfo_width()
+        if width <= 1:
+            return
+        narrow = width < self.panelhead.winfo_reqwidth()
+        if getattr(self, '_panelhead_narrow', None) == narrow:
+            return
+        self._panelhead_narrow = narrow
+        for child in self.panelhead.winfo_children():
+            child.pack_forget()
+        for index, child in enumerate(self.panelhead.winfo_children()):
+            if narrow:
+                child.pack(side=TOP, fill=X, pady=(1, 0))
+            else:
+                child.pack(side=LEFT, padx=(8, 0))
+        return
+
+    def _dock_panel(self, event=None):
+        """Options live in a resizable right dock; the canvas owns the rest."""
+
+        if event is not None and event.widget is not self.main:
+            return
+        width = self.main.winfo_width()
+        if not hasattr(self, 'nb'):
+            return
+        if width <= 1:
+            #before the first map, use the geometry we asked for
+            try:
+                width = int(self.main.geometry().split('x')[0])
+            except (ValueError, IndexError):
+                width = 0
+        if width <= 1:
+            if not getattr(self, '_dock_waiting', False):
+                self._dock_waiting = True
+                self.main.after(120, self._dock_panel)
+            return
+        self._dock_waiting = False
+        scale = float(self.main.tk.call('tk', 'scaling')) / 1.3333
+        #the dock must fit a label plus its control, or its groups clip themselves
+        dock = max(int(300 * scale), min(int(width * 0.36), int(380 * scale)))
+        dock = min(dock, int(width * 0.48))
+        if getattr(self, '_dock_width', None) == dock:
+            return
+        self._dock_width = dock
+        self._dock_side = RIGHT
+        self.ctrlfr.pack_forget()
+        self.m.pack_forget()
+        style = Style(self.main)
+        style.layout('Docked.TNotebook', [('TNotebook.client', {'sticky': 'nswe'})])
+        self.nb.configure(style='Docked.TNotebook')
+        self.ctrlfr.configure(width=dock)
+        self.ctrlfr.pack_propagate(False)
+        self.nb.configure(width=dock, height=1)
+        if self.options_visible:
+            #dock first: pack gives earlier slaves their requested width
+            self.ctrlfr.pack(side=RIGHT, fill=Y)
+        self.m.pack(side=LEFT, fill=BOTH, expand=1)
         return
 
     def addWidgets(self):
         """Add option widgets to control panel"""
 
         self.nb = Notebook(self.ctrlfr)
+        #right dock: a one-line page picker saves the width seven tabs would take
+        self.sectionbar = Frame(self.ctrlfr, padding=(4, 3, 4, 0))
+        self.sectionvar = StringVar()
+        self.sectioncombo = Combobox(self.sectionbar, state='readonly',
+                                     textvariable=self.sectionvar, width=12)
+        self.sectioncombo.pack(side=LEFT, fill=X, expand=1)
+        self.sectioncombo.bind('<<ComboboxSelected>>', self._select_section)
         #add plotter tool dialogs
         w1 = self.mplopts.showDialog(self.nb)
         w0 = self.addDataConfig(self.nb)
@@ -622,8 +925,24 @@ class PlotViewer(Frame):
         self.mplopts3d.updateFromDict()
         w6 = self.animateopts.showDialog(self.nb)
         self.nb.add(w6, text='动画', sticky='news')
+        sections = [self.nb.tab(tab, 'text') for tab in self.nb.tabs()]
+        self.sectioncombo.configure(values=sections)
+        self.sectioncombo.current(0)
+        self.nb.bind('<<NotebookTabChanged>>', self._sync_section, add='+')
         if self.showoptions == 1:
-            self.nb.pack(side=TOP,fill=BOTH,expand=0)
+            self.nb.pack(side=TOP, fill=BOTH, expand=1)
+            self.sectionbar.pack(side=TOP, fill=X, before=self.nb)
+        return
+
+    def _select_section(self, event=None):
+        index = self.sectioncombo.current()
+        if 0 <= index < len(self.nb.tabs()):
+            self.nb.select(self.nb.tabs()[index])
+        return
+
+    def _sync_section(self, event=None):
+        if self.nb.select():
+            self.sectionvar.set(self.nb.tab(self.nb.select(), 'text'))
         return
 
     role_kinds = ('line', 'scatter', 'bar', 'area')
@@ -637,54 +956,66 @@ class PlotViewer(Frame):
         self.ycols = []
         self.groupcol = None
         self._syncingRole = False
-        frame = Frame(parent)
-        box = LabelFrame(frame, text='数据配置')
-        box.pack(side=LEFT, fill=Y, padx=2, pady=2)
+        page = _OptionPage(parent)
         self.rangevar = StringVar(value='全部行')
-        Label(box, text='图形类型').pack(anchor='w')
-        self.kindcombo = Combobox(box, state='readonly', width=16,
+
+        plot = LabelFrame(page.body, text='图形', padding=(6, 1, 4, 3))
+        plot.columnconfigure(1, weight=1)
+        Label(plot, text='类型').grid(row=0, column=0, sticky='w', padx=(0, 6))
+        self.kindcombo = Combobox(plot, state='readonly',
                                   values=[PLOT_OPTIONS[k] for k in self.mplopts.kinds])
         shown = display_variable(self.mplopts.tkvars['kind'], self.mplopts.kinds,
                                  PLOT_OPTIONS, owner=self.kindcombo)
         self.kindcombo.configure(textvariable=shown)
-        self.kindcombo.pack(fill=X)
+        self.kindcombo.grid(row=0, column=1, sticky='ew')
         self.kindcombo.bind('<<ComboboxSelected>>', lambda e: self.syncRoleState())
-        Label(box, text='X 轴列').pack(anchor='w')
-        self.xcombo = Combobox(box, state='readonly', width=16)
-        self.xcombo.pack(fill=X)
+        Label(plot, text='数据范围').grid(row=1, column=0, sticky='w', padx=(0, 6), pady=1)
+        self.rangecombo = Combobox(plot, state='readonly', textvariable=self.rangevar,
+                                   values=['全部行', '选中行'])
+        self.rangecombo.grid(row=1, column=1, sticky='ew')
+        icon = images.plot()
+        self.roleplotbtn = Button(plot, text='绘图', command=self.plotRoles,
+                                  image=icon, compound='left')
+        self.roleplotbtn.image = icon
+        self.roleplotbtn.grid(row=2, column=0, sticky='ew', pady=(3, 0), padx=(0, 3))
+        icon = images.refresh()
+        reset = Button(plot, text='重置', command=self.resetRoleConfig,
+                       image=icon, compound='left')
+        reset.image = icon
+        reset.grid(row=2, column=1, sticky='ew', pady=(3, 0))
+
+        columns = LabelFrame(page.body, text='列', padding=(6, 1, 4, 3))
+        columns.columnconfigure(1, weight=1)
+        columns.rowconfigure(1, weight=1)
+        Label(columns, text='X 轴').grid(row=0, column=0, sticky='w', padx=(0, 6))
+        self.xcombo = Combobox(columns, state='readonly')
+        self.xcombo.grid(row=0, column=1, sticky='ew')
         self.xcombo.bind('<<ComboboxSelected>>', self._roleSelectionChanged)
-        Label(box, text='Y 轴列（可多选）').pack(anchor='w')
-        ywrap = Frame(box)
-        ywrap.pack(fill=X)
+        Label(columns, text='Y 轴').grid(row=1, column=0, sticky='nw', padx=(0, 6), pady=(2, 0))
+        ywrap = Frame(columns)
+        ywrap.grid(row=1, column=1, sticky='nsew', pady=(2, 0))
         yscroll = Scrollbar(ywrap, orient=VERTICAL)
         yscroll.pack(side=RIGHT, fill=Y)
         self.ylistbox = tkinter.Listbox(ywrap, selectmode=MULTIPLE, exportselection=0,
-                                        height=5, width=18, yscrollcommand=yscroll.set)
-        self.ylistbox.pack(side=LEFT, fill=X, expand=True)
+                                        height=4, width=16, yscrollcommand=yscroll.set,
+                                        bd=0, highlightthickness=1)
+        self.ylistbox.pack(side=LEFT, fill=BOTH, expand=True)
         yscroll.configure(command=self.ylistbox.yview)
         self.ylistbox.bind('<<ListboxSelect>>', self._roleSelectionChanged)
-        Label(box, text='分组列').pack(anchor='w')
-        self.bycombo = Combobox(box, state='readonly', width=16)
-        self.bycombo.pack(fill=X)
+        Label(columns, text='分组').grid(row=2, column=0, sticky='w', padx=(0, 6), pady=(2, 0))
+        self.bycombo = Combobox(columns, state='readonly')
+        self.bycombo.grid(row=2, column=1, sticky='ew', pady=(2, 0))
         self.bycombo.bind('<<ComboboxSelected>>', self._roleSelectionChanged)
-        Label(box, text='数据范围').pack(anchor='w')
-        self.rangecombo = Combobox(box, state='readonly', width=16,
-                                   textvariable=self.rangevar,
-                                   values=['全部行', '选中行'])
-        self.rangecombo.pack(fill=X)
-        self.roleplotbtn = addButton(box, '绘图', self.plotRoles, images.plot(),
-                                     '按列角色绘图', side=TOP, compound='left',
-                                     padding=2)
-        addButton(box, '重置', self.resetRoleConfig, images.refresh(),
-                  '恢复默认数据配置', side=TOP, compound='left', padding=2)
-        self.roledesc = Label(box, text='', anchor='w', justify='left',
-                              wraplength=190)
-        self.roledesc.pack(fill=X, pady=2)
+        note = LabelFrame(page.body, text='说明', padding=(6, 1, 4, 3))
+        self.roledesc = Label(note, text='', anchor='w', justify='left',
+                              wraplength=300)
+        self.roledesc.pack(fill=BOTH, expand=True)
+        page.flow([plot, columns, note])
         self.mplopts.tkvars['by'].trace_add('write', self._roleByChanged)
         self.mplopts.tkvars['kind'].trace_add('write', lambda *a: self.syncRoleState())
         self.refreshRoleColumns()
         self.syncRoleState()
-        return frame
+        return page
 
     def _roleColumnText(self, column):
         return str(column)
@@ -2176,12 +2507,18 @@ class PlotViewer(Frame):
         """Show/hide plot options"""
 
         self.options_visible = not self.options_visible
-        if not self.options_visible:
-            self.nb.pack_forget()
-            self.options_button.configure(text='显示参数区')
+        if self.options_visible:
+            self.panelhead.pack(side=TOP, fill=X)
+            self.nb.pack(side=TOP, fill=BOTH, expand=1)
+            self.sectionbar.pack(side=TOP, fill=X, before=self.nb)
+            self.ctrlfr.pack(side=RIGHT, fill=Y, before=self.m)
         else:
-            self.nb.pack(side=TOP,fill=BOTH,expand=0)
-            self.options_button.configure(text='隐藏参数区')
+            self.ctrlfr.pack_forget()
+            self.nb.pack_forget()
+            self.sectionbar.pack_forget()
+            self.panelhead.pack_forget()
+        self.options_button.configure(
+            text='隐藏参数区' if self.options_visible else '显示参数区')
         return
 
     def close(self):
@@ -2189,6 +2526,7 @@ class PlotViewer(Frame):
 
         self.table.pf = None
         self.animateopts.stop()
+        self._drag_handler = None
         self.main.destroy()
         return
 
@@ -2301,6 +2639,8 @@ class MPLBaseOptions(TkOptions):
                 'colors':['colormap','bw','clrcol','cscale','colorbar']}
         order = ['general','data','axes','sizes','formats','colors']
         self.groups = OrderedDict((key, grps[key]) for key in order)
+        #the data page owns the plot type; keep the state, not a second control
+        grps['hidden'] = ['kind']
         opts = self.opts = {'font':{'type':'combobox','default':self.defaultfont,'items':fonts},
                 'fontsize':{'type':'scale','default':12,'range':(5,40),'interval':1,'label':'font size'},
                 'marker':{'type':'combobox','default':'','items': markers},
@@ -2413,66 +2753,60 @@ class PlotLayoutOptions(TkOptions):
         """Override because we need to add custom bits"""
 
         self.tkvars = {}
-        self.main = Frame(parent)
-        self.plotgrid = c = PlotLayoutGrid(self.main)
-        self.plotgrid.update_callback = self.updateFromGrid
-        c.pack(side=LEFT,fill=Y,pady=2,padx=2)
+        self.main = page = _OptionPage(parent)
 
-        frame = Frame(self.main)
-        frame.pack(side=LEFT,fill=Y)
+        grid = LabelFrame(page.body, text='网格', padding=(6, 1, 4, 3))
+        grid.columnconfigure(1, weight=1)
+        self.plotgrid = c = PlotLayoutGrid(grid, width=170, height=126)
+        self.plotgrid.update_callback = self.updateFromGrid
+        c.grid(row=0, column=0, columnspan=3, sticky='nw')
         v = self.rowsvar = IntVar()
         v.set(self.rows)
-        w = Scale(frame,label='行数',
-                 from_=1,to=6,
-                 orient='vertical',
-                 resolution=1,
-                 variable=v,
-                 command=self.resetGrid)
-        w.pack(fill=X,pady=2)
+        Label(grid, text='行数').grid(row=1, column=0, sticky='w', padx=(0, 6), pady=(3, 0))
+        w = Scale(grid, label='', from_=1, to=6, orient='horizontal', resolution=1,
+                  showvalue=False, variable=v, command=self.resetGrid, length=96)
+        w.grid(row=1, column=1, sticky='ew', pady=(3, 0))
+        _scale_readout(grid, v, 1, 2)
         v = self.colsvar = IntVar()
         v.set(self.cols)
-        w = Scale(frame,label='列数',
-                 from_=1,to=6,
-                 orient='horizontal',
-                 resolution=1,
-                 variable=v,
-                 command=self.resetGrid)
-        w.pack(side=TOP,fill=X,pady=2)
+        Label(grid, text='列数').grid(row=2, column=0, sticky='w', padx=(0, 6))
+        w = Scale(grid, label='', from_=1, to=6, orient='horizontal', resolution=1,
+                  showvalue=False, variable=v, command=self.resetGrid, length=96)
+        w.grid(row=2, column=1, sticky='ew')
+        _scale_readout(grid, v, 2, 2)
 
+        modes = LabelFrame(page.body, text='模式', padding=(6, 1, 4, 3))
         self.modevar = StringVar()
         self.modevar.set('normal')
-        frame = LabelFrame(self.main, text='模式')
-        Radiobutton(frame, text='常规', variable=self.modevar, value='normal').pack(fill=X)
-        Radiobutton(frame, text='拆分数据', variable=self.modevar, value='splitdata').pack(fill=X)
-        Radiobutton(frame, text='多视图', variable=self.modevar, value='multiviews').pack(fill=X)
-        frame.pack(side=LEFT,fill=Y)
+        for row, (text, value) in enumerate((('常规', 'normal'),
+                                             ('拆分数据', 'splitdata'),
+                                             ('多视图', 'multiviews'))):
+            Radiobutton(modes, text=text, variable=self.modevar,
+                        value=value).grid(row=row, column=0, sticky='w')
 
-        frame = LabelFrame(self.main, text='多视图')
+        views = LabelFrame(page.body, text='多视图', padding=(6, 1, 4, 3))
+        views.columnconfigure(0, weight=1)
         #v = self.multiviewsvar = BooleanVar()
         plot_types = ['histogram','line','scatter','boxplot','dotplot','area','density','bar','barh',
                       'heatmap','contour','hexbin','imshow']
-        Label(frame,text='图形类型：').pack(fill=X)
-        w,v = addListBox(frame, values=[PLOT_OPTIONS[k] for k in plot_types],width=12,height=8)
-        w.pack(fill=X)
+        Label(views,text='图形类型').grid(row=0, column=0, sticky='w')
+        w,v = addListBox(views, values=[PLOT_OPTIONS[k] for k in plot_types],width=12,height=7)
+        w.grid(row=1, column=0, sticky='nsew')
         self.plottypeslistbox = v
-        frame.pack(side=LEFT,fill=Y)
 
-        frame = LabelFrame(self.main, text='拆分数据')
-        frame.pack(side=LEFT,fill=Y)
-
-        frame = LabelFrame(self.main, text='子图')
+        subs = LabelFrame(page.body, text='子图', padding=(6, 1, 4, 3))
+        subs.columnconfigure(1, weight=1)
         v = self.axeslistvar = StringVar()
         v.set('')
         axes = []
-        self.axeslist = Combobox(frame, values=axes,
-                        textvariable=v,width=14)
-        Label(frame,text='图形列表：').pack()
-        self.axeslist.pack(fill=BOTH,pady=2)
-        b = Button(frame, text='删除坐标轴', command=self.parent.removeSubplot)
-        b.pack(fill=X,pady=2)
-        b = Button(frame, text='设置标题', command=self.parent.setSubplotTitle)
-        b.pack(fill=X,pady=2)
-        frame.pack(side=LEFT,fill=Y)
+        self.axeslist = Combobox(subs, values=axes, textvariable=v)
+        Label(subs,text='图形列表').grid(row=0, column=0, sticky='w', padx=(0, 6))
+        self.axeslist.grid(row=0, column=1, sticky='ew')
+        Button(subs, text='删除坐标轴', command=self.parent.removeSubplot).grid(
+            row=1, column=0, sticky='ew', pady=(3, 0), padx=(0, 3))
+        Button(subs, text='设置标题', command=self.parent.setSubplotTitle).grid(
+            row=1, column=1, sticky='ew', pady=(3, 0))
+        page.flow([grid, modes, views, subs])
         self.updateFromGrid()
         return self.main
 
@@ -2579,26 +2913,27 @@ class AnnotationOptions(TkOptions):
     def addWidgets(self):
         """Custom dialogs for manually adding annotation items like text"""
 
-        frame = LabelFrame(self.main, text='添加对象')
+        frame = LabelFrame(self.main.body, text='添加对象', padding=(6, 1, 4, 3))
+        frame.columnconfigure(1, weight=1)
         v = self.objectvar = StringVar()
         v.set('textbox')
         from dialog import option_combobox
         w = option_combobox(frame, labels=PLOT_OPTIONS, values=['textbox'],#'arrow'],
                          textvariable=v,width=14)
-        Label(frame,text='添加对象').pack()
-        w.pack(fill=BOTH,pady=2)
+        Label(frame,text='对象').grid(row=0, column=0, sticky='w', padx=(0, 6))
+        w.grid(row=0, column=1, sticky='ew')
         self.coordsvar = StringVar()
         self.coordsvar.set('data')
         w = option_combobox(frame, labels=PLOT_OPTIONS, values=['data','axes fraction','figure fraction'],
                          textvariable=self.coordsvar,width=14)
-        Label(frame,text='坐标系').pack()
-        w.pack(fill=BOTH,pady=2)
+        Label(frame,text='坐标系').grid(row=1, column=0, sticky='w', padx=(0, 6), pady=1)
+        w.grid(row=1, column=1, sticky='ew')
 
         b = Button(frame, text='创建', command=self.addObject)
-        b.pack(fill=X,pady=2)
+        b.grid(row=2, column=0, sticky='ew', pady=(3, 0), padx=(0, 3))
         b = Button(frame, text='清除', command=self.clear)
-        b.pack(fill=X,pady=2)
-        frame.pack(side=LEFT,fill=Y)
+        b.grid(row=2, column=1, sticky='ew', pady=(3, 0))
+        self.main.attach(frame)
         return
 
     def clear(self):
@@ -2743,19 +3078,21 @@ class ExtraOptions(TkOptions):
         """Custom dialogs for manually adding annotation items like text"""
 
         main = self.main
-        frame = LabelFrame(main, text='样式')
+        frame = LabelFrame(main.body, text='样式', padding=(6, 1, 4, 3))
+        frame.columnconfigure(1, weight=1)
         v = self.stylevar = StringVar()
         v.set('ggplot')
         from dialog import option_combobox
         w = option_combobox(frame, values=self.styles,
                          textvariable=v, width=14,
                          labels={name: '样式（' + name + '）' for name in self.styles})
-        w.pack(side=TOP,pady=2)
-        addButton(frame, '应用', self.apply, None,
-                  '应用', side=TOP, compound="left", width=20, padding=2)
-        addButton(frame, '重置', self.reset, None,
-                  '重置', side=TOP, compound="left", width=20, padding=2)
-        frame.pack(side=LEFT,fill='y')
+        Label(frame, text='样式').grid(row=0, column=0, sticky='w', padx=(0, 6))
+        w.grid(row=0, column=1, sticky='ew')
+        Button(frame, text='应用', command=self.apply).grid(
+            row=1, column=0, sticky='ew', pady=(3, 0), padx=(0, 3))
+        Button(frame, text='重置', command=self.reset).grid(
+            row=1, column=1, sticky='ew', pady=(3, 0))
+        main.attach(frame)
         return main
 
     def apply(self):
@@ -2821,12 +3158,14 @@ class AnimateOptions(TkOptions):
         """Custom dialogs for manually adding annotation items like text"""
 
         main = self.main
-        frame = LabelFrame(main, text='运行')
-        addButton(frame, '开始', self.start, None,
-                  '应用', side=TOP, compound="left", width=20, padding=2)
-        addButton(frame, '停止', self.stop, None,
-                  '重置', side=TOP, compound="left", width=20, padding=2)
-        frame.pack(side=LEFT,fill='y')
+        frame = LabelFrame(main.body, text='运行', padding=(6, 1, 4, 3))
+        frame.columnconfigure(0, weight=1, uniform='run')
+        frame.columnconfigure(1, weight=1, uniform='run')
+        Button(frame, text='开始', command=self.start).grid(
+            row=0, column=0, sticky='ew', padx=(0, 3))
+        Button(frame, text='停止', command=self.stop).grid(
+            row=0, column=1, sticky='ew')
+        main.attach(frame)
         return main
 
     def getWriter(self):

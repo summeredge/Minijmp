@@ -166,6 +166,7 @@ def test_row_column_header_menus_copy_and_paste_multiple_targets(table, monkeypa
     invoke(colmenu, '粘贴整列')
     assert table.model.df.iloc[:, [0, 2]].values.tolist() == [
         ['x0', 'z0'], ['x1', 'z1'], ['x2', 'z2']]
+    assert len(table.colheader.find_withtag('rect')) == 2
 
     replace(table, original)
     table.multiplerowlist = [0, 2]
@@ -180,11 +181,45 @@ def test_row_column_header_menus_copy_and_paste_multiple_targets(table, monkeypa
     invoke(rowmenu, '粘贴整行')
     assert table.model.df.iloc[[0, 2]].values.tolist() == [
         ['r0', 's0', 't0'], ['r2', 's2', 't2']]
+    assert len(table.rowheader.find_withtag('rect')) == 2
 
     before_rows = len(table.model.df)
     invoke(rowmenu, '复制行')
     assert len(table.model.df) == before_rows + 2
     assert written[-1].splitlines() == ['a0\tb0\tc0', 'a2\tb2\tc2']
+
+
+def test_keyboard_copy_paste_respects_row_and_column_headers(table, monkeypatch):
+    original = pd.DataFrame([
+        ['a0', 'b0', 'c0'], ['a1', 'b1', 'c1'], ['a2', 'b2', 'c2']
+    ])
+    replace(table, original)
+    written = []
+    monkeypatch.setattr(table, 'clipboard_clear', lambda: None)
+    monkeypatch.setattr(table, 'clipboard_append', written.append)
+
+    table.multiplerowlist, table.multiplecollist = [0], [1]
+    table.allrows = True
+    table.rowheader.handle_left_click(row_event(table, 2))
+    assert table.multiplerowlist == [2]
+    assert table.multiplecollist == [] and not table.allrows
+    assert table.bind('<Control-c>')
+    assert table.copy(SimpleNamespace(widget=table))
+    assert written[-1] == 'a2\tb2\tc2\n'
+
+    monkeypatch.setattr(table, 'clipboard_get', lambda: 'r2\ts2\tt2')
+    assert table.bind('<Control-v>')
+    assert table.paste(SimpleNamespace(widget=table))
+    assert table.model.df.iloc[2].tolist() == ['r2', 's2', 't2']
+
+    table.multiplerowlist, table.multiplecollist = [], []
+    table.allrows = False
+    table.colheader.handle_left_click(cell_event(table, 0, 1), allow_resize=False)
+    assert table.multiplecollist == [1] and table.allrows
+    monkeypatch.setattr(table, 'clipboard_get', lambda: 'x0\nx1\nx2')
+    assert table.paste(SimpleNamespace(widget=table))
+    assert table.model.df.iloc[:, 1].tolist() == ['x0', 'x1', 'x2']
+    assert len(table.colheader.find_withtag('rect')) == 1
 
 
 @pytest.mark.parametrize(

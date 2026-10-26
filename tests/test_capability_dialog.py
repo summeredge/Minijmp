@@ -18,7 +18,8 @@ def create(tk_root, monkeypatch, mode='正态能力'):
     app = Minijmp(parent=tk_root)
     data = pd.DataFrame({'测量': np.random.default_rng(239).lognormal(1, .25, 80),
                          '批次': np.repeat(['A'+str(i) for i in range(20)], 4),
-                         '阶段': ['改善前'] * 40 + ['改善后'] * 40})
+                         '阶段': ['改善前'] * 40 + ['改善后'] * 40,
+                         '时间': np.arange(1, 81)})
     data.index = pd.Index([f'{i:018d}' for i in range(len(data))])
     source = app.addSheet('能力来源', data.copy(deep=True))
     dialog = CapabilityDialog(source, data, app, mode=mode)
@@ -231,6 +232,68 @@ def test_quality_menu_opens_all_five_dialogs(tk_root, monkeypatch, tmp_path):
         dispose(app)
 
 
+def test_split_combobox_choices_drive_real_analysis(tk_root, monkeypatch):
+    """下拉框显示名与内部键分离；两种划分方式都能真实执行分析。"""
+    import improvement_chart
+    dialog, app, source, data = create(tk_root, monkeypatch)
+    try:
+        dialog.stage_compare.set(True)
+        dialog.toggle_compare()
+        dialog.main.update()
+        box = dialog.compare_widgets['compare_split']
+        # 显示名是中文标签，不是内部 stage/time 键。
+        assert tuple(box.cget('values')) == tuple(improvement_chart.SPLITS.values())
+        assert box.get() == '阶段列'
+        assert dialog.split_mode() == 'stage'
+        assert str(dialog.compare_widgets['compare_stage'].cget('state')) == 'readonly'
+        for key in ('compare_time', 'compare_cutoff'):
+            assert str(dialog.compare_widgets[key].cget('state')) == 'disabled'
+
+        # 阶段列：按实际出现顺序拆分，忽略列表中的时间设置。
+        dialog.fields['missing'].set('删除不完整行')
+        dialog.compare_stage.set('阶段')
+        dialog.fit()
+        finish(tk_root, dialog)
+        by_stage = dialog.result
+        assert [len(stage['data']) for stage in by_stage.plot['results']] == [40, 40]
+        assert by_stage.tables['数据与规格摘要'].set_index('项目').at['阶段划分', '内容'] \
+            == '阶段列'
+
+        # 切到时间分界点：字段状态反转，并按分界值拆分。
+        box.set('时间分界点')
+        dialog.main.update()
+        assert dialog.split_mode() == 'time'
+        assert str(dialog.compare_widgets['compare_stage'].cget('state')) == 'disabled'
+        for key in ('compare_time', 'compare_cutoff'):
+            assert str(dialog.compare_widgets[key].cget('state')) == 'normal'
+        dialog.compare_time.set('时间')
+        dialog.compare_cutoff.set('41')
+        dialog.fit()
+        finish(tk_root, dialog)
+        by_time = dialog.result
+        assert [len(stage['data']) for stage in by_time.plot['results']] == [40, 40]
+        summary = by_time.tables['数据与规格摘要'].set_index('项目')
+        assert summary.at['阶段划分', '内容'] == '时间分界点'
+        assert '分界 = 41' in summary.at['阶段定义', '内容']
+
+        # 阶段划分不同，但同一批行的能力指数应一致（只换拆分入口）。
+        np.testing.assert_allclose(
+            by_stage.tables['能力指数对比'].set_index('指标')[['改善前', '改善后']]
+            .loc[['Cpk', 'Ppk']].astype(float),
+            by_time.tables['能力指数对比'].set_index('指标')[['改善前', '改善后']]
+            .loc[['Cpk', 'Ppk']].astype(float))
+
+        # 未知选项直接报错，不隐式归为时间模式。
+        dialog.compare_split.set('阶段')
+        dialog.fit()
+        assert '未知的阶段划分方式' in str(dialog.error.call_args.args[0])
+        dialog.error.reset_mock()
+        pd.testing.assert_frame_equal(source.model.df, data)
+    finally:
+        dialog.close()
+        dispose(app)
+
+
 def test_stage_comparison_defaults_off_then_switches_result(tk_root, monkeypatch, tmp_path):
     """默认关闭；勾选后展开设置，结果与图形切换为阶段对比。"""
     dialog, app, source, data = create(tk_root, monkeypatch)
@@ -298,31 +361,4 @@ def test_stage_comparison_defaults_off_then_switches_result(tk_root, monkeypatch
         dialog.error.reset_mock()
     finally:
         dialog.close()
-        dispose(app)
-
-    dialog, app, source, _ = create(tk_root, monkeypatch)
-    dialog.close()
-    opened = []
-    original = CapabilityDialog.__init__
-    def capture(self, *args, **kwargs):
-        original(self, *args, **kwargs)
-        opened.append(self)
-    monkeypatch.setattr(CapabilityDialog, '__init__', capture)
-    try:
-        menu = app.quality_menu['var']
-        wanted = ['正态过程能力（完整）', '非正态过程能力', 'Box-Cox / Johnson 变换',
-                  '正态能力 Sixpack', '非正态能力 Sixpack']
-        for label in wanted:
-            index = next(i for i in range(menu.index('end')+1)
-                         if menu.type(i) == 'command' and menu.entrycget(i, 'label').strip() == label)
-            menu.invoke(index)
-            assert opened[-1].main.winfo_exists()
-            opened[-1].main.update()
-        screenshot = tmp_path/'capability-dialog.png'
-        ImageGrab.grab(window=opened[-1].main.winfo_id()).save(screenshot)
-        with Image.open(screenshot) as image:
-            assert image.width >= 760 and image.height >= 580
-    finally:
-        for window in opened:
-            window.close()
         dispose(app)

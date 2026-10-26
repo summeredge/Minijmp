@@ -161,7 +161,7 @@ class TimeSeriesDialog(SBDialog):
                                 self.xlabel.get(), self.ylabels, self.show_legend.get(), self.grid.get(),
                                 prepared=prepared)
         viewer.ax = next(iter(axes.values()))
-        viewer.toolbar = NavigationToolbar2Tk(viewer.canvas, viewer.ctrlfr)
-        viewer.ctrlfr.pack_configure(before=viewer.m)
+        #the navigation bar belongs to the figure, not to the options dock
+        viewer.toolbar = NavigationToolbar2Tk(viewer.canvas, viewer.plot_tools)
         viewer.toolbar.update()
         viewer.canvas.draw_idle()
