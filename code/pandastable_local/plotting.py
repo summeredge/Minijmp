@@ -1372,7 +1372,6 @@ class PlotViewer(Frame):
         self.mplopts3d.applyOptions()
         self.labelopts.applyOptions()
         self.styleopts.applyOptions()
-        mpl.rcParams['savefig.dpi'] = self.globalopts['dpi'] #self.dpivar.get()
         return
 
     def updatePlot(self):
@@ -1663,7 +1662,7 @@ class PlotViewer(Frame):
                 return
             if by2 != '' and by2 in data.columns:
                 by = [by,by2]
-            g = data.groupby(by)
+            g = data.groupby(by, observed=True)
 
             if kwargs['subplots'] == True:
                 i=1
@@ -1705,8 +1704,8 @@ class PlotViewer(Frame):
                 cmap = mpl.colormaps.get_cmap(kwargs['colormap'])
                 #handle as pivoted data for some line, bar
                 if kind in ['line','bar','barh']:
-                    df = pd.pivot_table(data,index=by)
-                    errs = data.groupby(by).std()
+                    df = pd.pivot_table(data, index=by, observed=True)
+                    errs = data.groupby(by, observed=True).std()
                     self._doplot(df, axs, kind, False, errorbars, useindex=None, yerr=errs,
                                       bw=bw, kwargs=kwargs)
                 elif kind == 'scatter':
@@ -2441,7 +2440,7 @@ class PlotViewer(Frame):
             if by not in data.columns:
                 self.showWarning('grouping column not in selection')
                 return
-            g = data.groupby(by)
+            g = data.groupby(by, observed=True)
             i=0
             pl=None
             for n,df in g:

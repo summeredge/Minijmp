@@ -1,14 +1,28 @@
 import tkinter as tk
 import gc
 import weakref
+from types import SimpleNamespace
 
 import numpy as np
 import pandas as pd
 import pytest
+import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent, PickEvent, KeyEvent
 
 from modified_table import MTable
 from pandastable_local.plotting import PlotViewer
+
+
+def test_plot_options_do_not_change_process_save_dpi(monkeypatch):
+    dpi = mpl.rcParams['savefig.dpi']
+    monkeypatch.setitem(mpl.rcParams, 'savefig.dpi', dpi)
+    options = SimpleNamespace(applyOptions=lambda: None)
+    viewer = SimpleNamespace(globalopts={'dpi': 80}, mplopts=options, mplopts3d=options,
+                             labelopts=options, styleopts=options)
+
+    PlotViewer.applyPlotoptions(viewer)
+
+    assert mpl.rcParams['savefig.dpi'] == dpi
 
 
 @pytest.mark.parametrize('showoptions', [True, False])

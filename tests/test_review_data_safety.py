@@ -24,6 +24,75 @@ def table_stub(frame, rows, cols):
     return table
 
 
+def test_delete_cells_preserves_integer_precision_and_dtype_semantics():
+    signed = 2**60 + 3
+    unsigned = 2**63 + 7
+    frame = pd.DataFrame({
+        'signed': np.array([signed, signed + 1], dtype=np.int64),
+        'unsigned': np.array([unsigned, unsigned + 1], dtype=np.uint64),
+        'nullable': pd.Series([signed + 2, signed + 3], dtype='Int64'),
+        'float': [1.5, 2.5],
+        'bool': [True, False],
+        'date': pd.date_range('2026-01-01', periods=2),
+        'text': pd.Series(['keep', 'clear'], dtype='string'),
+    })
+    date_dtype = frame['date'].dtype
+    model = TableModel(frame)
+
+    model.deleteCells([1], list(range(len(frame.columns))))
+
+    assert model.df is frame
+    assert int(frame.at[0, 'signed']) == signed
+    assert int(frame.at[0, 'unsigned']) == unsigned
+    assert int(frame.at[0, 'nullable']) == signed + 2
+    assert frame.iloc[1].isna().all()
+    assert frame['signed'].dtype == pd.Int64Dtype()
+    assert frame['unsigned'].dtype == pd.UInt64Dtype()
+    assert frame['nullable'].dtype == pd.Int64Dtype()
+    assert frame['float'].dtype == np.dtype('float64')
+    assert frame['bool'].dtype == pd.BooleanDtype()
+    assert frame['date'].dtype == date_dtype
+    assert frame['text'].dtype == pd.StringDtype()
+
+
+def test_delete_cells_assignment_failure_leaves_entire_batch_unchanged():
+    frame = pd.DataFrame({
+        'text': ['old', 'keep'],
+        'category': pd.Categorical(['A', 'B']),
+    })
+    before = frame.copy()
+    model = TableModel(frame)
+
+    with pytest.raises(TypeError):
+        model.deleteCells([0], [0, 1], fills=['new', 'invalid'])
+
+    assert model.df is frame
+    assert_frame_equal(frame, before)
+
+
+def test_shift_up_preserves_large_integer_and_boolean_values(monkeypatch):
+    signed = 2**60 + 3
+    unsigned = 2**63 + 7
+    frame = pd.DataFrame({
+        'signed': np.array([signed, signed + 1, signed + 2], dtype=np.int64),
+        'unsigned': np.array([unsigned, unsigned + 1, unsigned + 2], dtype=np.uint64),
+        'flag': [True, False, True],
+    }, index=[8, 4, 2])
+    table = table_stub(frame, [1], [0, 1, 2])
+    monkeypatch.setattr('modified_table.messagebox.askyesno', lambda *a, **kw: True)
+
+    MTable.clearDataUp(table)
+
+    assert table.model.df['signed'].iloc[:2].tolist() == [signed, signed + 2]
+    assert table.model.df['unsigned'].iloc[:2].tolist() == [unsigned, unsigned + 2]
+    assert table.model.df['flag'].iloc[:2].tolist() == [True, True]
+    assert pd.isna(table.model.df.iloc[2]).all()
+    assert table.model.df['signed'].dtype == pd.Int64Dtype()
+    assert table.model.df['unsigned'].dtype == pd.UInt64Dtype()
+    assert table.model.df['flag'].dtype == pd.BooleanDtype()
+    assert table.model.df.index.equals(frame.index)
+
+
 @pytest.mark.parametrize('rows,cols', [([0], [0]), ([2, 0], [0, 2])])
 def test_shift_deletes_positions_and_undo_restores_values(rows, cols, monkeypatch):
     frame = pd.DataFrame({'x': [1, 65535, 3], 'keep': [7, 8, 9],

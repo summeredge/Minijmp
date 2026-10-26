@@ -732,6 +732,8 @@ class ImportDialog(Frame):
     def update(self):
         """Reload previews"""
 
+        from .csv_import import infer_numeric_columns
+
         kwds = {}
         other = ['rowsperfile','time format','numbers_as_string']
         for i in self.opts:
@@ -760,13 +762,18 @@ class ImportDialog(Frame):
         self.kwds = kwds
         self.showText(encoding=kwds['encoding'])
         self.converters = None
+        read_kwds = dict(kwds)
         try:
             if as_string == True:
                 cols = pd.read_csv(self.filename, nrows=0, **kwds).columns
                 self.converters = {col: str for col in cols}
+            else:
+                read_kwds['dtype'] = object
             with pd.read_csv(self.filename, chunksize=500,
-                             converters=self.converters, **kwds) as reader:
+                             converters=self.converters, **read_kwds) as reader:
                 df = reader.get_chunk()
+            if self.converters is None:
+                df = infer_numeric_columns(df, decimal=kwds['decimal'])
         except Exception as e:
             messagebox.showerror('CSV import error', str(e), parent=self.main)
             df = pd.DataFrame()
@@ -782,10 +789,17 @@ class ImportDialog(Frame):
     def doImport(self):
         """Do the import"""
 
+        from .csv_import import infer_numeric_columns
+
         if not self.update():
             return
         try:
-            self.df = pd.read_csv(self.filename, converters=self.converters, **self.kwds)
+            read_kwds = dict(self.kwds)
+            if self.converters is None:
+                read_kwds['dtype'] = object
+            self.df = pd.read_csv(self.filename, converters=self.converters, **read_kwds)
+            if self.converters is None:
+                self.df = infer_numeric_columns(self.df, decimal=self.kwds['decimal'])
         except Exception as e:
             messagebox.showerror('CSV import error', str(e), parent=self.main)
             return
@@ -1126,7 +1140,7 @@ class AggregateDialog(BaseDialog):
             for a in agg:
                 aggdict[a] = funcs
         #print (aggdict)
-        self.result = self.df.groupby(grpcols,as_index=keepcols).agg(aggdict)
+        self.result = self.df.groupby(grpcols, as_index=keepcols, observed=False).agg(aggdict)
         self.parent.createChildTable(self.result, 'aggregated', index=True)
         #self.quit()
         return

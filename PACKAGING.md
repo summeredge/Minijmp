@@ -10,6 +10,7 @@
 ## 前置条件
 
 - Windows x64，Python **>= 3.11**。3.11 必须与锁定环境一致；3.12 及更新版本只把锁文件差异写入 BUILD-INFO.txt。
+- 正式 pandas 版本为 **3.0.6**；Python 3.11 发布环境须匹配完整锁文件。
 - 项目解释器：**.venv\Scripts\python.exe**（64 位）。
 - PyInstaller 6.22.3。
 - 分支 main 且 HEAD == origin/main；工作区可以脏，构建取磁盘内容并记录在 BUILD-INFO.txt。

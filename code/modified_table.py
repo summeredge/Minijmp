@@ -9,6 +9,7 @@ import numpy as np
 ############ pandastable #############
 from pandastable_local.core import Table
 from pandastable_local.data import TableModel
+from pandastable_local.data_orig import _prepare_cell_updates, _commit_cell_updates
 from pandastable_local.dialogs import MultipleValDialog, applyStyle, filedialog
 ############## Own Module ###############
 #  from modified_header import MColumnHeader as ColumnHeader
@@ -504,24 +505,14 @@ class MTable(Table):
         if self._reject_formula_edit(self._formula_targets_in(target_rows, target_cols)):
             return False
 
-        updated = df.copy(deep=True)
+        updates = {
+            target_col: (target_rows,
+                         [values[row_index][col_index]
+                          for row_index in range(height)])
+            for col_index, target_col in enumerate(target_cols)
+        }
         try:
-            for row_index, target_row in enumerate(target_rows):
-                for col_index, target_col in enumerate(target_cols):
-                    value = values[row_index][col_index]
-                    dtype = df.dtypes.iloc[target_col]
-                    if pd.isna(value):
-                        value = np.nan
-                    elif pd.api.types.is_bool_dtype(dtype):
-                        lowered = value.lower()
-                        if lowered not in ('true', 'false', '1', '0'):
-                            raise ValueError(f'“{value}”不是有效的布尔值。')
-                        value = lowered in ('true', '1')
-                    elif pd.api.types.is_numeric_dtype(dtype):
-                        value = pd.to_numeric(value)
-                    elif pd.api.types.is_datetime64_any_dtype(dtype):
-                        value = pd.to_datetime(value)
-                    updated.iat[target_row, target_col] = value
+            updated = _prepare_cell_updates(df, updates)
         except Exception as error:
             messagebox.showwarning(
                 '无法粘贴', f'剪贴板数据与单元格类型不兼容：{error}',
@@ -529,7 +520,7 @@ class MTable(Table):
             return False
 
         self.storeCurrent()
-        self.model.df = updated
+        _commit_cell_updates(df, updated)
         self.redraw()
         self.tableChanged()
         if axis == 'column':
@@ -1327,6 +1318,29 @@ class MTable(Table):
     def adjustColumnWidths(self, limit=30):
         return
 
+    def fillDown(self, rowlist, collist):
+        if not self.requireUnfiltered() or not self.editable:
+            return
+        rows = list(np.atleast_1d(rowlist))
+        cols = list(np.atleast_1d(collist))
+        if len(rows) < 2 or not cols:
+            return
+        if self._reject_formula_edit(self._formula_targets_in(rows[1:], cols)):
+            return
+
+        df = self.model.df
+        value = df.iat[rows[0], cols[0]]
+        try:
+            updates = _prepare_cell_updates(
+                df, {col: (rows[1:], value) for col in cols})
+        except ValueError as error:
+            messagebox.showwarning('无法填充', str(error), parent=self.parentframe)
+            return
+        self.storeCurrent()
+        _commit_cell_updates(df, updates)
+        if not self.tableChanged():
+            self.redraw()
+
     def clearDataUp(self, evt=None):
         """Delete cells and move cells below up"""
         if not self.requireUnfiltered():
@@ -1348,15 +1362,23 @@ class MTable(Table):
         if not answer:
             return
 
-        rows = self.multiplerowlist
-        cols = self.multiplecollist
+        rows = list(self.multiplerowlist)
+        cols = list(self.multiplecollist)
         df = self.model.df
-        self.storeCurrent()
-        keep = np.ones(len(df), dtype=bool)
-        keep[rows] = False
+        deleted = set(rows)
+        keep = [row for row in range(len(df)) if row not in deleted]
+        updates = {}
         for col in cols:
-            values = df.iloc[keep, col].reset_index(drop=True)
-            df.isetitem(col, values.reindex(range(len(df))).array)
+            values = [df.iat[row, col] for row in keep]
+            values.extend([pd.NA] * len(rows))
+            updates[col] = (range(len(df)), values)
+        try:
+            prepared = _prepare_cell_updates(df, updates)
+        except ValueError as error:
+            messagebox.showwarning('无法上移', str(error), parent=self.parentframe)
+            return
+        self.storeCurrent()
+        _commit_cell_updates(df, prepared)
 
         if not self.tableChanged():
             self.redraw()

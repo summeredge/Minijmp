@@ -5,9 +5,11 @@ import io
 import pickle
 import tkinter as tk
 import warnings
+import zipfile
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
+from xml.etree import ElementTree as ET
 
 import pandas as pd
 import pytest
@@ -131,7 +133,8 @@ def test_unfiltered_duplicate_labels_edit_one_cell(model_type):
 
 def make_import_dialog(filename, monkeypatch, **overrides):
     defaults = {
-        "delimiter": ("combobox", ","), "encoding": ("combobox", "utf-8"),
+        "delimiter": ("combobox", ","), "decimal": ("combobox", "."),
+        "encoding": ("combobox", "utf-8"),
         "header": ("entry", 0), "skiprows": ("entry", 0),
         "skip_blank_lines": ("checkbutton", 0),
         "parse_dates": ("checkbutton", 1),
@@ -157,14 +160,21 @@ def make_import_dialog(filename, monkeypatch, **overrides):
 @pytest.mark.parametrize("as_string", [0, 1])
 def test_import_preview_and_full_use_same_options(tmp_path, monkeypatch, time_format, as_string):
     filename = tmp_path / "中文导入.csv"
-    filename.write_text('编号,备注\n001,"中文,逗号"\n002,"引号""和文字"\n', encoding="utf-8")
+    filename.write_text('编号,备注,整数,精确值\n001,"中文,逗号",9007199254740993,0.123456789012345678\n'
+                        '002,NA,,1.25\n003,"引号""和文字",9007199254740995,2.5\n', encoding="utf-8")
     dialog, error = make_import_dialog(filename, monkeypatch,
                                       **{"time format": time_format, "numbers_as_string": as_string})
     dialog.doImport()
     preview = dialog.previewtable.updateModel.call_args.args[0].df
     assert_frame_equal(dialog.df, preview)
     assert dialog.df.iloc[0, 1] == "中文,逗号"
-    assert dialog.df.iloc[0, 0] == ("001" if as_string else 1)
+    assert dialog.df.iloc[0, 0] == "001"
+    assert dialog.df.iloc[[0, 2], 2].tolist() == ["9007199254740993", "9007199254740995"]
+    assert dialog.df.iloc[0, 3] == "0.123456789012345678"
+    if not as_string:
+        assert pd.isna(dialog.df.iloc[1, 1]) and pd.isna(dialog.df.iloc[1, 2])
+    else:
+        assert dialog.df.iloc[1, 1] == "NA" and dialog.df.iloc[1, 2] == ""
     assert dialog.kwds.get("date_format") == (time_format if time_format not in ("", "infer") else None)
     error.assert_not_called()
     dialog.quit.assert_called_once()
@@ -247,6 +257,66 @@ def test_gb18030_dialog_import(tmp_path, monkeypatch):
     dialog.doImport()
     assert list(dialog.df.columns) == ["名称", "数值"]
     assert dialog.df.iloc[0].tolist() == ["中文", 1.5]
+    error.assert_not_called()
+
+
+def test_worksheet_csv_kwargs_preserve_precision_and_decimal(tmp_path, monkeypatch):
+    from worksheets import Worksheets
+
+    filename = tmp_path / "精度.csv"
+    filename.write_text('编号;数值\n001;1,25\n002;2,50\n', encoding="utf-8")
+    imported = Mock()
+    app = SimpleNamespace(
+        main=None,
+        getCurrentTable=lambda: SimpleNamespace(importpath=None, currentdir=str(tmp_path)),
+        _import_frames=imported,
+    )
+    error = Mock()
+    monkeypatch.setattr("worksheets.messagebox.showerror", error)
+    assert Worksheets.import_csv(app, filename=filename, sep=";", decimal=",")
+    frame = imported.call_args.args[0]["精度"]
+    assert frame["编号"].tolist() == ["001", "002"]
+    assert frame["数值"].tolist() == [1.25, 2.5]
+    error.assert_not_called()
+
+
+def test_worksheet_excel_import_preserves_exact_numeric_cells_and_sheets(tmp_path, monkeypatch):
+    from worksheets import Worksheets
+
+    filename = tmp_path / "book.xlsx"
+    with pd.ExcelWriter(filename) as writer:
+        pd.DataFrame({"编号": [1, None, 2], "精确值": [1.5, 1.25, 2.5]}).to_excel(
+            writer, sheet_name="数据", index=False)
+        pd.DataFrame({"值": [7]}).to_excel(writer, sheet_name="其他", index=False)
+    patched = tmp_path / "exact.xlsx"
+    namespace = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+    exact_values = {"A2": "9007199254740993", "A4": "9007199254740995",
+                    "B2": "0.123456789012345678"}
+    with zipfile.ZipFile(filename) as source, zipfile.ZipFile(patched, "w") as target:
+        for item in source.infolist():
+            content = source.read(item.filename)
+            if item.filename == "xl/worksheets/sheet1.xml":
+                root = ET.fromstring(content)
+                for cell in root.iter(namespace + "c"):
+                    if cell.get("r") in exact_values:
+                        cell.find(namespace + "v").text = exact_values[cell.get("r")]
+                content = ET.tostring(root, encoding="utf-8")
+            target.writestr(item, content)
+    imported = Mock()
+    app = SimpleNamespace(
+        main=None,
+        getCurrentTable=lambda: SimpleNamespace(currentdir=str(tmp_path)),
+        _import_frames=imported,
+    )
+    error = Mock()
+    monkeypatch.setattr("worksheets.messagebox.showerror", error)
+    assert Worksheets.load_excel(app, patched)
+    frames = imported.call_args.args[0]
+    assert list(frames) == ["数据", "其他"]
+    assert frames["数据"]["编号"].iloc[[0, 2]].tolist() == [9007199254740993, 9007199254740995]
+    assert pd.isna(frames["数据"]["编号"].iloc[1])
+    assert frames["数据"]["精确值"].tolist() == ["0.123456789012345678", 1.25, 2.5]
+    assert frames["其他"]["值"].tolist() == [7]
     error.assert_not_called()
 
 
