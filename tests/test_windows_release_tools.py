@@ -109,8 +109,8 @@ def test_source_stage_excludes_local_configs_and_temporary_outputs(tmp_path):
         'PIReader/OSIsoft.PITimeServer.dll', 'docs/run.log', 'tests/result.tmp',
         'docs/draft-chart.png', 'docs/chart.draft.png', 'docs/chart_draft.png',
         'docs/~$slide.xlsx', 'docs/.DS_Store', 'docs/Thumbs.db',
-        'docs/release/pyinstaller-build-V0.1-beta3.txt',
-        'docs/release/build-inputs-V0.1-beta3.txt',
+        'docs/release/pyinstaller-build-V0.1-beta4.txt',
+        'docs/release/build-inputs-V0.1-beta4.txt',
         'docs/_build/nested/index.html', 'PIReader/.vs/Project/cache.bin',
     )
     for relative in keep + exclude:
@@ -179,9 +179,9 @@ def test_python_version_gate_accepts_311_and_newer(tmp_path):
 def test_version_identifiers_and_build_info_agree():
     levels = release_metadata.check()
     assert [level for level, _ in levels] == ['PASS'], levels
-    assert 'V0.1-beta3' in levels[0][1] and '0.1.0.3' in levels[0][1]
+    assert 'V0.1-beta4' in levels[0][1] and '0.1.0.4' in levels[0][1]
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
-    assert '$productVersion = ' + "'v0.1.0-beta.3'" in script
+    assert '$productVersion = ' + "'v0.1.0-beta.4'" in script
     assert 'Release name: $releaseVersion' in script
     assert 'PIReader: bundled beside MiniJMP.exe' in script
     assert 'PI SDK/PIPC runtime and PI Server connectivity' in script

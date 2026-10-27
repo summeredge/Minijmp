@@ -66,7 +66,7 @@ class Minijmp_pre(DataExplore):
 
         Label(content, text='MiniJMP', font=('Segoe UI', 14, 'bold'),
               bg=self.bg, anchor=CENTER).pack()
-        Label(content, text='版本 v0.1.0-beta.3', font=('Segoe UI', 10),
+        Label(content, text='版本 v0.1.0-beta.4', font=('Segoe UI', 10),
               bg=self.bg, anchor=CENTER).pack(pady=(2, 0))
         Label(content, text='Copyright (C) G.Du 2024-',
               font=('Segoe UI', 10), bg=self.bg, anchor=CENTER).pack(pady=(2, 3))

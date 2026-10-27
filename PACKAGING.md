@@ -3,7 +3,7 @@
 唯一构建入口是 **tools/build_windows_release.ps1**，本文是复制即用的操作卡。
 所有命令都在仓库根目录执行；脚本按自身位置解析项目根，不依赖盘符。
 
-本轮只同步工具链与文档：未执行 PyInstaller，未生成 EXE 或 ZIP。
+beta.4 本机预验收构建已生成 EXE 和 ZIP；该构建使用未提交的版本文件，不能代替最终提交的干净发布验收。详见 docs/release/v0.1.0-beta.4-release.md。
 
 ---
 
@@ -57,12 +57,12 @@ PyInstaller 的普通 INFO 走 stderr，脚本已把它包在 Continue 作用域
 
 产物（均在 dist\）：
 
-    MiniJMP-V0.1-beta3.zip                        运行包（整目录，解压即用）
-    MiniJMP-V0.1-beta3-source.zip                 对应源码包（GPLv3 要求）
-    MiniJMP-V0.1-beta3-SHA256SUMS.txt             三个产物的校验值
-    MiniJMP-V0.1-beta3\                           未压缩运行目录
-    docs\release\pyinstaller-build-V0.1-beta3.txt 构建日志
-    docs\release\build-inputs-V0.1-beta3.txt      运行包输入清单与摘要
+    MiniJMP-V0.1-beta4.zip                        运行包（整目录，解压即用）
+    MiniJMP-V0.1-beta4-source.zip                 对应源码包（GPLv3 要求）
+    MiniJMP-V0.1-beta4-SHA256SUMS.txt             三个产物的校验值
+    MiniJMP-V0.1-beta4\                           未压缩运行目录
+    docs\release\pyinstaller-build-V0.1-beta4.txt 构建日志
+    docs\release\build-inputs-V0.1-beta4.txt      运行包输入清单与摘要
 
 运行包根目录：MiniJMP.exe、_internal\、PIReader\、README.txt、LICENSE、
 THIRD-PARTY-NOTICES.txt、THIRD-PARTY-LICENSES\、BUILD-INFO.txt、SOURCE-CODE.txt。
@@ -78,9 +78,9 @@ PIReader 必须与 MiniJMP.exe 同级：frozen onedir 的程序模块在 _intern
 
 | 用途 | 位置 | 值 |
 |---|---|---|
-| 发布文件名 | tools\build_windows_release.ps1 的 $releaseVersion | V0.1-beta3 |
-| 产品展示 | version_info.txt 的 ProductVersion、USAGE.txt、README.md、关于窗口、CHANGES | v0.1.0-beta.3 |
-| EXE 四段数值 | version_info.txt 的 filevers / prodvers / FileVersion | 0.1.0.3 |
+| 发布文件名 | tools\build_windows_release.ps1 的 $releaseVersion | V0.1-beta4 |
+| 产品展示 | version_info.txt 的 ProductVersion、USAGE.txt、README.md、关于窗口、CHANGES | v0.1.0-beta.4 |
+| EXE 四段数值 | version_info.txt 的 filevers / prodvers / FileVersion | 0.1.0.4 |
 
 预检查用 tools/release_metadata.py 分别核对这三层，不要求彼此字符串相同。
 
@@ -91,16 +91,16 @@ PIReader 必须与 MiniJMP.exe 同级：frozen onedir 的程序模块在 _intern
 ## D. 校验值与结构复核
 
     $python = (Resolve-Path ".venv\Scripts\python.exe").Path
-    Get-Content .\dist\MiniJMP-V0.1-beta3-SHA256SUMS.txt
-    & $python .\tools\make_zip.py rehash .\dist\MiniJMP-V0.1-beta3.zip --interval 15 --attempts 3
-    & $python .\tools\make_zip.py rehash .\dist\MiniJMP-V0.1-beta3-source.zip --interval 15 --attempts 3
-    & $python .\tools\make_zip.py inspect .\dist\MiniJMP-V0.1-beta3.zip --entry MiniJMP-V0.1-beta3/MiniJMP.exe
+    Get-Content .\dist\MiniJMP-V0.1-beta4-SHA256SUMS.txt
+    & $python .\tools\make_zip.py rehash .\dist\MiniJMP-V0.1-beta4.zip --interval 15 --attempts 3
+    & $python .\tools\make_zip.py rehash .\dist\MiniJMP-V0.1-beta4-source.zip --interval 15 --attempts 3
+    & $python .\tools\make_zip.py inspect .\dist\MiniJMP-V0.1-beta4.zip --entry MiniJMP-V0.1-beta4/MiniJMP.exe
 
 预期：两次 rehash 与 SHA256SUMS 三行一致；CRC=ok；ENTRY-SHA256 等于
-dist\MiniJMP-V0.1-beta3\MiniJMP.exe 的摘要；PIReader 条目与该目录实际文件数一致
+dist\MiniJMP-V0.1-beta4\MiniJMP.exe 的摘要；PIReader 条目与该目录实际文件数一致
 （exe、两个 .cs、csproj、build.bat、config.txt、tags.txt，以及组织授权的 OSIsoft DLL）。
 
-build-inputs-V0.1-beta3.txt 是打包瞬间的运行包文件清单与摘要；
+build-inputs-V0.1-beta4.txt 是打包瞬间的运行包文件清单与摘要；
 SHA256SUMS.txt 是沉降复验后的最终交付值。
 
 ---
@@ -108,15 +108,15 @@ SHA256SUMS.txt 是沉降复验后的最终交付值。
 ## E. 冒烟
 
     $python = (Resolve-Path ".venv\Scripts\python.exe").Path
-    & $python .\tools\smoke_launch.py .\dist\MiniJMP-V0.1-beta3\MiniJMP.exe 90
+    & $python .\tools\smoke_launch.py .\dist\MiniJMP-V0.1-beta4\MiniJMP.exe 90
 
 ZIP 解压版（解压到 %TEMP%，公司目录里的文件可能被透明加密改写）：
 
     $python = (Resolve-Path ".venv\Scripts\python.exe").Path
     $dest = Join-Path $env:TEMP 'mjmp-unzip'
     Remove-Item -LiteralPath $dest -Recurse -Force -ErrorAction SilentlyContinue
-    & $python -m zipfile -e .\dist\MiniJMP-V0.1-beta3.zip $dest
-    & $python .\tools\smoke_launch.py (Join-Path $dest 'MiniJMP-V0.1-beta3\MiniJMP.exe') 90
+    & $python -m zipfile -e .\dist\MiniJMP-V0.1-beta4.zip $dest
+    & $python .\tools\smoke_launch.py (Join-Path $dest 'MiniJMP-V0.1-beta4\MiniJMP.exe') 90
 
 通过标准：打印 window after Ns: ['未命名项目 — 工作表1 - Minijmp']，退出码 0。
 裸 tk 占位标题不算成功。冷启动 8–28 秒属正常，等满 90 秒再判失败。
