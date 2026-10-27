@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from fractions import Fraction
+from itertools import product
 import hashlib
 import json
 import math
@@ -16,20 +17,24 @@ from typing import Mapping
 import pandas as pd
 
 
-DOE_SCHEMA_VERSION = 1
+DOE_SCHEMA_VERSION = 2
+_READ_VERSIONS = frozenset({1, 2})
 WORKSHEET_SCHEMA_VERSION = 1
 _ID = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]{0,63}$")
 _RUN_ID = re.compile(r"^[A-Za-z0-9_.-]{1,128}$")
 _RELATION = re.compile(r"^[A-Za-z][A-Za-z0-9]*(?:=[A-Za-z][A-Za-z0-9]*)+$")
 _DESIGN_TYPES = frozenset({
     "unspecified", "two_level_full", "two_level_fractional", "central_composite",
+    "box_behnken",
 })
-_POINT_TYPES = frozenset({"factorial", "center", "axial"})
+_POINT_TYPES = frozenset({"factorial", "center", "axial", "edge"})
 _DESIGN_KEYS = {
     "schema_version", "design_id", "factors", "response_names", "seed",
     "generators", "defining_relations", "aliases", "ccd_alpha",
-    "ccd_center_points", "ccd_axial_points", "design_type",
+    "ccd_center_points", "ccd_axial_points", "design_type", "ccd_fraction",
+    "block_count",
 }
+_DESIGN_KEYS_V1 = _DESIGN_KEYS - {"ccd_fraction", "block_count"}
 _MAP_KEYS = {
     "run_id", "standard_order", "run_order", "point_type", "replicate",
     "block", "factors", "measured_levels", "responses",
@@ -149,6 +154,20 @@ def _freeze_numeric_map(values, field_name, *, nullable=False, probability=False
     return MappingProxyType(result)
 
 
+def _freeze_settings(values):
+    """连续因子存数值，分类因子存其显式水平字符串。"""
+    if not isinstance(values, Mapping):
+        raise ValueError("设定水平必须是映射")
+    result = {}
+    for key, value in values.items():
+        key = _text(key, "设定水平键")
+        if isinstance(value, str) and value == value.strip() and value:
+            result[key] = _text(value, f"设定水平[{key}]")
+        else:
+            result[key] = _number(value, f"设定水平[{key}]")
+    return MappingProxyType(result)
+
+
 @dataclass(frozen=True)
 class FactorSpec:
     """连续因子的稳定 ID、展示名、单位及实际低/高水平。"""
@@ -167,7 +186,7 @@ class FactorSpec:
         _text(self.name, "因子名称")
         if self.unit is not None:
             _text(self.unit, "因子单位")
-        if type(self.schema_version) is not int or self.schema_version != DOE_SCHEMA_VERSION:
+        if type(self.schema_version) is not int or self.schema_version not in _READ_VERSIONS:
             raise ValueError("未知因子 schema_version")
         if self.factor_type not in ("continuous", "categorical"):
             raise ValueError("factor_type 必须是 continuous 或 categorical")
@@ -175,7 +194,7 @@ class FactorSpec:
         object.__setattr__(self, "levels", levels)
         if self.factor_type == "categorical":
             if self.low is not None or self.high is not None or len(levels) < 2:
-                raise ValueError("分类因子仅保留至少两个显式字符串水平；DOE-0 不对其编码")
+                raise ValueError("分类因子需要至少两个显式字符串水平，且不得设置 low/high")
             return
         if levels or self.low is None or self.high is None:
             raise ValueError("连续因子必须提供实际 low/high，且不能提供分类水平")
@@ -261,20 +280,23 @@ class DesignSpec:
     ccd_center_points: int | None = None
     ccd_axial_points: int | None = None
     design_type: str = "unspecified"
+    ccd_fraction: str | None = None
+    block_count: int | None = None
 
     def __post_init__(self):
         _text(self.design_id, "design_id", identifier=True)
-        if type(self.schema_version) is not int or self.schema_version != DOE_SCHEMA_VERSION:
+        if type(self.schema_version) is not int or self.schema_version not in _READ_VERSIONS:
             raise ValueError("未知设计 schema_version")
         if not isinstance(self.design_type, str) or self.design_type not in _DESIGN_TYPES:
             raise ValueError(
                 "design_type 必须是 unspecified、two_level_full、"
-                "two_level_fractional 或 central_composite")
+                "two_level_fractional、central_composite 或 box_behnken")
         factors = tuple(self.factors) if isinstance(self.factors, (tuple, list)) else ()
         if not factors or not all(isinstance(item, FactorSpec) for item in factors):
             raise ValueError("设计必须包含 FactorSpec")
-        if any(item.factor_type != "continuous" for item in factors):
-            raise NotImplementedError("DOE-0 不实现分类或混合水平设计")
+        if self.design_type not in ("central_composite", "box_behnken"):
+            if any(item.factor_type != "continuous" for item in factors):
+                raise NotImplementedError("分类或混合水平设计仅用于中心复合或 Box-Behnken")
         ids = [item.factor_id for item in factors]
         names = [item.name for item in factors]
         if len(set(ids)) != len(ids):
@@ -304,6 +326,21 @@ class DesignSpec:
             value = getattr(self, key)
             if value is not None:
                 object.__setattr__(self, key, _positive_int(value, key, minimum=0))
+        if self.ccd_fraction is not None:
+            if self.ccd_fraction not in ("full", "half", "quarter", "eighth"):
+                raise ValueError("ccd_fraction 必须是 full、half、quarter 或 eighth")
+            if self.schema_version < 2 or self.design_type != "central_composite":
+                raise ValueError("ccd_fraction 只适用于 schema v2 的中心复合设计")
+        if self.block_count is not None:
+            object.__setattr__(self, "block_count",
+                               _positive_int(self.block_count, "block_count", minimum=1))
+        if self.schema_version < 2:
+            if self.block_count is not None:
+                raise ValueError("block_count 只适用于 schema v2")
+            if self.design_type == "box_behnken":
+                raise ValueError("box_behnken 只适用于 schema v2")
+            if any(item.factor_type == "categorical" for item in factors):
+                raise ValueError("schema v1 不支持分类因子")
 
     def to_dict(self):
         return {
@@ -316,6 +353,7 @@ class DesignSpec:
             "ccd_center_points": self.ccd_center_points,
             "ccd_axial_points": self.ccd_axial_points,
             "design_type": self.design_type,
+            "ccd_fraction": self.ccd_fraction, "block_count": self.block_count,
         }
 
     @classmethod
@@ -324,11 +362,15 @@ class DesignSpec:
             raise ValueError("设计元数据字段无效")
         if "design_type" not in data:
             raise ValueError("设计元数据缺少 design_type")
-        if set(data) != _DESIGN_KEYS:
-            raise ValueError("设计元数据字段无效")
         version = data.get("schema_version")
-        if type(version) is not int or version != DOE_SCHEMA_VERSION:
+        if type(version) is not int or version not in _READ_VERSIONS:
             raise ValueError(f"未知 DOE schema_version: {version!r}")
+        keys = _DESIGN_KEYS if version == 2 else _DESIGN_KEYS_V1
+        if set(data) != keys:
+            raise ValueError("设计元数据字段无效")
+        missing = object()
+        fraction = data.get("ccd_fraction", missing)
+        blocks = data.get("block_count", missing)
         if any(not isinstance(data[key], list) for key in (
                 "factors", "response_names", "generators",
                 "defining_relations", "aliases")):
@@ -337,13 +379,15 @@ class DesignSpec:
             design_id=data["design_id"],
             factors=tuple(FactorSpec.from_dict(item) for item in data["factors"]),
             response_names=tuple(data["response_names"]),
-            seed=data["seed"], schema_version=version,
+            seed=data["seed"], schema_version=DOE_SCHEMA_VERSION,
             generators=tuple(data["generators"]),
             defining_relations=tuple(data["defining_relations"]),
             aliases=tuple(data["aliases"]), ccd_alpha=data["ccd_alpha"],
             ccd_center_points=data["ccd_center_points"],
             ccd_axial_points=data["ccd_axial_points"],
             design_type=data["design_type"],
+            ccd_fraction=None if fraction is missing else fraction,
+            block_count=None if blocks is missing else blocks,
         )
 
 
@@ -363,8 +407,9 @@ class RunRecord:
     schema_version: int = DOE_SCHEMA_VERSION
 
     def __post_init__(self):
-        if type(self.schema_version) is not int or self.schema_version != DOE_SCHEMA_VERSION:
+        if type(self.schema_version) is not int or self.schema_version not in _READ_VERSIONS:
             raise ValueError("未知运行记录 schema_version")
+        object.__setattr__(self, "schema_version", DOE_SCHEMA_VERSION)
         object.__setattr__(self, "run_id", _run_id(self.run_id))
         object.__setattr__(self, "standard_order",
                            _positive_int(self.standard_order, "standard_order"))
@@ -372,7 +417,7 @@ class RunRecord:
                            _positive_int(self.run_order, "run_order"))
         object.__setattr__(self, "replicate", _positive_int(self.replicate, "replicate"))
         if self.point_type not in _POINT_TYPES:
-            raise ValueError("point_type 必须是 factorial、center 或 axial")
+            raise ValueError("point_type 必须是 factorial、center、axial 或 edge")
         if self.block is not None:
             if isinstance(self.block, Integral) and not isinstance(self.block, bool):
                 object.__setattr__(self, "block", int(self.block))
@@ -380,8 +425,7 @@ class RunRecord:
                 pass
             else:
                 raise ValueError("block 必须是安全字符串、整数或 None")
-        object.__setattr__(self, "settings",
-                           _freeze_numeric_map(self.settings, "设定水平"))
+        object.__setattr__(self, "settings", _freeze_settings(self.settings))
         object.__setattr__(self, "measured_levels",
                            _freeze_numeric_map(self.measured_levels, "实测水平",
                                                nullable=True))
@@ -398,8 +442,9 @@ class DesignResult:
     schema_version: int = DOE_SCHEMA_VERSION
 
     def __post_init__(self):
-        if type(self.schema_version) is not int or self.schema_version != DOE_SCHEMA_VERSION:
+        if type(self.schema_version) is not int or self.schema_version not in _READ_VERSIONS:
             raise ValueError("未知设计结果 schema_version")
+        object.__setattr__(self, "schema_version", DOE_SCHEMA_VERSION)
         if not isinstance(self.spec, DesignSpec):
             raise ValueError("DesignResult.spec 必须是 DesignSpec")
         runs = tuple(self.runs) if isinstance(self.runs, (tuple, list)) else ()
@@ -424,17 +469,39 @@ class DesignResult:
                 raise ValueError("每个运行的响应字段必须与设计定义一致")
             if run.point_type != "axial":
                 for factor in self.spec.factors:
-                    factor.to_coded(run.settings[factor.factor_id])
-        axial_count = sum(run.point_type == "axial" for run in runs)
-        center_count = sum(run.point_type == "center" for run in runs)
-        if axial_count and (
-                self.spec.ccd_alpha is None or self.spec.ccd_axial_points != axial_count):
-            raise ValueError("轴点记录必须匹配已声明的 CCD alpha 和轴点数")
-        if not axial_count and self.spec.ccd_axial_points not in (None, 0):
-            raise ValueError("CCD 轴点数与运行记录不一致")
-        if (self.spec.ccd_center_points is not None
-                and self.spec.ccd_center_points != center_count):
-            raise ValueError("CCD 中心点数与运行记录不一致")
+                    value = run.settings[factor.factor_id]
+                    if factor.factor_type == "categorical":
+                        if value not in factor.levels:
+                            raise ValueError("分类因子设定不在已声明的水平内")
+                    elif run.point_type == "axial":
+                        # 轴点位于 low/high 之外；范围与距离由设计模块核验。
+                        _number(value, "设定水平")
+                    else:
+                        factor.to_coded(value)
+        if self.spec.design_type == "box_behnken":
+            expected_centers = self.spec.ccd_center_points
+            if (expected_centers is not None
+                    and expected_centers != sum(run.point_type == "center"
+                                                for run in runs)):
+                raise ValueError("Box-Behnken 中心点数与运行记录不一致")
+        else:
+            axial_count = sum(run.point_type == "axial" for run in runs)
+            center_count = sum(run.point_type == "center" for run in runs)
+            # 扩展 CCD（分数/区组/分类）由 validate_ccd 统一核验。
+            extended = (self.spec.design_type == "central_composite"
+                        and (self.spec.ccd_fraction is not None
+                             or self.spec.block_count is not None
+                             or any(f.factor_type == "categorical"
+                                    for f in self.spec.factors)))
+            if axial_count and (
+                    self.spec.ccd_alpha is None
+                    or self.spec.ccd_axial_points != axial_count) and not extended:
+                raise ValueError("轴点记录必须匹配已声明的 CCD alpha 和轴点数")
+            if not axial_count and self.spec.ccd_axial_points not in (None, 0):
+                raise ValueError("CCD 轴点数与运行记录不一致")
+            if (self.spec.ccd_center_points is not None
+                    and self.spec.ccd_center_points != center_count and not extended):
+                raise ValueError("CCD 中心点数与运行记录不一致")
         object.__setattr__(self, "runs", runs)
 
 
@@ -456,8 +523,9 @@ class ModelResult:
     schema_version: int = DOE_SCHEMA_VERSION
 
     def __post_init__(self):
-        if type(self.schema_version) is not int or self.schema_version != DOE_SCHEMA_VERSION:
+        if type(self.schema_version) is not int or self.schema_version not in _READ_VERSIONS:
             raise ValueError("未知模型结果 schema_version")
+        object.__setattr__(self, "schema_version", DOE_SCHEMA_VERSION)
         _text(self.design_id, "design_id", identifier=True)
         _text(self.response_name, "响应名称")
         if not isinstance(self.coefficients, Mapping):
@@ -509,8 +577,9 @@ class OptimizationResult:
     schema_version: int = DOE_SCHEMA_VERSION
 
     def __post_init__(self):
-        if type(self.schema_version) is not int or self.schema_version != DOE_SCHEMA_VERSION:
+        if type(self.schema_version) is not int or self.schema_version not in _READ_VERSIONS:
             raise ValueError("未知优化结果 schema_version")
+        object.__setattr__(self, "schema_version", DOE_SCHEMA_VERSION)
         _text(self.design_id, "design_id", identifier=True)
         object.__setattr__(self, "factor_levels",
                            _freeze_numeric_map(self.factor_levels, "推荐因子水平"))
@@ -624,6 +693,21 @@ def _block_value(value):
     raise ValueError("block 值必须是安全字符串、整数或可精确恢复的整数")
 
 
+def _level_label(value, field_name):
+    if isinstance(value, str) and value == value.strip():
+        return _text(value, field_name)
+    raise ValueError(f"{field_name}必须是字符串水平标签")
+
+
+def category_combinations(factors):
+    """分类因子的水平组合；无分类因子时返回单个空组合。"""
+    categorical = [factor for factor in factors if factor.factor_type == "categorical"]
+    if not categorical:
+        return [{}]
+    return [{factor.factor_id: level for factor, level in zip(categorical, values)}
+            for values in product(*(factor.levels for factor in categorical))]
+
+
 def design_from_worksheet(frame, spec, column_map):
     """按显式列名和 iloc 行位置读取运行记录，不使用或修改 DataFrame.index。"""
     if not isinstance(spec, DesignSpec):
@@ -642,11 +726,13 @@ def design_from_worksheet(frame, spec, column_map):
         replicate = _positive_int(_cell(frame, row, pos("replicate")), "replicate 列")
         block = None if normalized["block"] is None else _block_value(
             _cell(frame, row, pos("block")))
-        settings = {
-            factor_id: _number(_cell(frame, row, pos("factors", factor_id)),
-                               f"因子 {factor_id} 实际设定水平")
-            for factor_id in normalized["factors"]
-        }
+        settings = {}
+        for factor_id in normalized["factors"]:
+            raw = _cell(frame, row, pos("factors", factor_id))
+            factor = next(item for item in spec.factors if item.factor_id == factor_id)
+            settings[factor_id] = (_level_label(raw, f"因子 {factor_id} 水平")
+                                   if factor.factor_type == "categorical" else
+                                   _number(raw, f"因子 {factor_id} 实际设定水平"))
         measured = {}
         for factor_id in normalized["measured_levels"]:
             value = _cell(frame, row, pos("measured_levels", factor_id))
@@ -664,19 +750,30 @@ def design_from_worksheet(frame, spec, column_map):
     if spec.design_type == "central_composite" and spec.ccd_alpha is not None:
         from doe_ccd import validate_ccd
         coded = validate_ccd(result)
-        for i, factor in enumerate(spec.factors):
+        continuous = [f for f in spec.factors if f.factor_type == "continuous"]
+        for i, factor in enumerate(continuous):
             label = f"编码_{factor.factor_id}"
             if label not in frame.columns or list(frame.columns).count(label) != 1:
                 raise ValueError("CCD 编码水平列缺失或重复")
             for row, values in enumerate(coded):
                 if _number(frame.iloc[row][label], "CCD 编码水平") != values[i]:
                     raise ValueError("CCD 编码水平与实际设定不一致")
+    elif spec.design_type == "box_behnken":
+        from doe_bbd import validate_bbd
+        coded = validate_bbd(result, frame)
+        continuous = [f for f in spec.factors if f.factor_type == "continuous"]
+        for i, factor in enumerate(continuous):
+            for row, values in enumerate(coded):
+                label = f"编码_{factor.factor_id}"
+                if _number(frame.iloc[row][label], "编码水平") != values[i]:
+                    raise ValueError("编码水平与实际设定不一致")
     return result
 
 
-def _fingerprint(spec, column_map, result):
+def _fingerprint(design, column_map, result):
+    """摘要使用“实际存储的设计字典”，使 v1 旧工程按原样复核。"""
     payload = {
-        "design": spec.to_dict(),
+        "design": design,
         "column_map": column_map,
         "runs": [{
             "run_id": run.run_id, "standard_order": run.standard_order,
@@ -707,9 +804,9 @@ def worksheet_metadata(frame, spec, column_map):
 
 def _metadata_payload(spec, column_map, labels, result, fingerprint=None):
     if fingerprint is None:
-        fingerprint = _fingerprint(spec, column_map, result)
+        fingerprint = _fingerprint(spec.to_dict(), column_map, result)
     return {
-        "schema_version": DOE_SCHEMA_VERSION,
+        "schema_version": spec.schema_version,
         "design": spec.to_dict(),
         "column_map": column_map,
         "worksheet": {
@@ -731,10 +828,14 @@ def _restore(frame, metadata):
     if not isinstance(metadata, dict) or set(metadata) != _META_KEYS:
         raise ValueError("DOE 元数据结构无效")
     version = metadata.get("schema_version")
-    if type(version) is not int or version != DOE_SCHEMA_VERSION:
+    if type(version) is not int or version not in _READ_VERSIONS:
         raise ValueError(f"未知 DOE schema_version: {version!r}")
-    spec = DesignSpec.from_dict(metadata["design"])
+    design = metadata["design"]
+    if isinstance(design, dict) and design.get("schema_version") != version:
+        raise ValueError("DOE schema_version 与设计版本不一致")
+    spec = DesignSpec.from_dict(design)
     column_map = _normalize_column_map(metadata["column_map"], spec)
+    labels = [_column_label(label) for label in frame.columns.tolist()]
     worksheet = metadata["worksheet"]
     worksheet_keys = {"schema_version", "row_count", "column_fingerprint",
                       "run_rows", "input_fingerprint"}
@@ -747,7 +848,6 @@ def _restore(frame, metadata):
     if isinstance(row_count, bool) or not isinstance(row_count, int) or row_count != len(frame):
         raise ValueError("DOE 工作表行数已变化")
     result = design_from_worksheet(frame, spec, column_map)
-    labels = [_column_label(label) for label in frame.columns.tolist()]
     column_fingerprint = worksheet["column_fingerprint"]
     if (not isinstance(column_fingerprint, str)
             or not re.fullmatch(r"[0-9a-f]{64}", column_fingerprint)
@@ -774,7 +874,7 @@ def _restore(frame, metadata):
     fingerprint = worksheet["input_fingerprint"]
     if not isinstance(fingerprint, str) or not re.fullmatch(r"[0-9a-f]{64}", fingerprint):
         raise ValueError("DOE 输入摘要无效")
-    if _fingerprint(spec, column_map, result) != fingerprint:
+    if _fingerprint(metadata["design"], column_map, result) != fingerprint:
         raise ValueError("DOE 设计输入或运行映射已变化")
     return result, column_map, labels, fingerprint
 
@@ -787,5 +887,6 @@ def restore_design_result(frame, metadata):
 def validate_worksheet_metadata(frame, metadata):
     """验证后返回脱离调用者对象的规范化元数据副本。"""
     result, column_map, labels, fingerprint = _restore(frame, metadata)
-    return _metadata_payload(result.spec, column_map, labels, result, fingerprint)
+    # 读取旧 v1 后升级为当前版本，摘要按升级后的设计重新计算。
+    return _metadata_payload(result.spec, column_map, labels, result)
 

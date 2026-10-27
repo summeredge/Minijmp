@@ -24,13 +24,13 @@ Git 基线：main，HEAD fd76b69b59f98d11751074a2d68e1b396f11773a；检查时工
 |---|---:|---:|---:|---:|---:|---:|
 | Screening | 0 | 2 | 4 | 1 | 0 | 7 |
 | Factorial | 5 | 4 | 10 | 0 | 0 | 19 |
-| Response surface | 3 | 5 | 7 | 1 | 0 | 16 |
+| Response surface | 12 | 1 | 2 | 1 | 0 | 16 |
 | Mixture | 0 | 0 | 13 | 0 | 0 | 13 |
 | Taguchi | 0 | 0 | 11 | 0 | 0 | 11 |
 | DOE 通用能力 | 2 | 2 | 7 | 2 | 1 | 14 |
-| **合计** | **10** | **13** | **52** | **4** | **1** | **80** |
+| **合计** | **19** | **9** | **47** | **4** | **1** | **80** |
 
-每行都有稳定 feature_id。65 个 partial/missing 开发能力均有唯一验收编号；另保留已实现 FAC-009 的基线编号 ACC-012，故验收编号共 66 个。旧 001–063 未重编号；本轮追加 TAG-010、TAG-011、FAC-019 与 ACC-064–066。4 个 unknown 项需先确认产品范围，1 个 excluded 项保留为明确排除。
+每行都有稳定 feature_id。RSM-002 因官方支持的 9、10 因子 BBD 尚未实现而为 partial；RSM-005（自定义响应面定义）、RSM-016 未实现，RSM-009（预测/置信区间）仍未核实官方范围。验收范围与当前证据见工作包 B 收尾报告。
 
 ### 矩阵字段解释
 
@@ -43,10 +43,10 @@ Git 基线：main，HEAD fd76b69b59f98d11751074a2d68e1b396f11773a；检查时工
 
 - **筛选设计：** 当前 regular fraction 能显示别名组效应与 Pareto 图；PB、DSD 生成与分析、筛选二元响应未实现。
 - **因子设计：** General Full Factorial、多水平/分类因子、区组、split-plot、foldover、增加运行、二元响应和变异性分析缺失。Minitab General Full Factorial 将所有因子视为 categorical；数值水平只是离散水平标签，不是连续变量的多项式回归。FAC-009 seed 总体顺序随机化已实现；区组/裂区受限随机化另列为 FAC-019。
-- **响应面：** CCD 选项受限，未实现 BBD、区组/类别响应面与自定义响应面定义；没有一般模型点预测、预测区间或多响应叠加等高线。DOE-4 只在完整 CCD 上提供候选预测与优化。
+- **响应面：** 工作包 B 已实现 BBD、CCD 分数/区组、类别因子、模型项选择、点预测、多响应叠加等高线、CCD/BBD 单/多响应优化与逐项诊断。仍缺自定义响应面设计与官方未核实的预测/置信区间。
 - **Mixture / Taguchi：** 没有组分和约束、Scheffé 类混料模型、Taguchi 正交表、S/N 或噪声因子分析。
 - **实验设计与功效：** 没有 D-optimal 或 distance-based 候选点选择、最优设计评估/增补、DOE 功效与样本量。Minitab 的 D-optimal 适用于 Factorial、Response Surface 和 Mixture；distance-based 只适用于 Response Surface/Mixture。
-- **持久化架构：** DOE_SCHEMA_VERSION=1 严格限制字段和枚举。FactorSpec 的 categorical levels 和 RunRecord.block 是数据结构占位，不代表有效设计；新 design_type、点类型、混料约束、裂区误差层级和增补 lineage 要先定义向后兼容策略。
+- **持久化架构：** 工作包 B 将 DOE schema 升到 v2：新增 box_behnken 设计类型、edge 点类型、ccd_fraction 与 block_count 字段，分类因子与区组仅在 CCD/BBD 允许。v1 工程仍可读取并在校验时升级；旧版软件不能读取 v2 工程，不是双向兼容。混料约束、裂区误差层级和增补 lineage 仍需另行定义。
 - **统计证据：** 全因子分析器存在失拟 F/p 输出路径，而帮助与开发合同写明该推断尚未核验。通过独立数学案例和文档一致性审查前，不把此项视为已验收能力。
 - **项目范围：** DOE-4 多响应搜索不保证全局最优；如实描述 MiniJMP 求解器的方法、可行域和限制即可，不把 Minitab 未承诺的全局保证当作差距。响应预测、统计推断和实验设计选点分别验收，不互相代替。
 

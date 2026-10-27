@@ -165,6 +165,8 @@ class Minijmp(Worksheets, Minijmp_pre):
 
         from doe_dialog import CreateDOE, AnalyzeDOE
         from doe_optimize_dialog import OptimizeRSM
+        from doe_predict_dialog import PredictRSM
+        from doe_overlay_dialog import OverlayContours
         self.doe_menu = self.createPulldown(self.menu, {
             '01创建两水平全因子设计': {'cmd': lambda: CreateDOE(self)},
             '02创建两水平部分因子设计': {
@@ -173,6 +175,9 @@ class Minijmp(Worksheets, Minijmp_pre):
             '04创建中心复合设计': {'cmd': lambda: CreateDOE(self, ccd=True)},
             '05分析响应面模型': {'cmd': lambda: AnalyzeDOE(self)},
             '06优化响应面（DOE-4）': {'cmd': lambda: OptimizeRSM(self)},
+            '07创建 Box-Behnken 设计': {'cmd': lambda: CreateDOE(self, bbd=True)},
+            '08响应面预测': {'cmd': lambda: PredictRSM(self)},
+            '09叠加等高线': {'cmd': lambda: OverlayContours(self)},
         })
         self.menu.add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
 

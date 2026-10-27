@@ -1,0 +1,106 @@
+# 工作包 B 收尾报告（B1～B4）
+
+> 2026-10-28 Review 修复及当前验收状态见文末；本报告原有结论为历史记录。
+
+## 一、基线与范围
+
+- 仓库 `C:\Users\shaoy\Documents\Minijmp`，分支 `main`，起始 HEAD `8c126ba`；工作区保持未提交，未推送、未打标签。
+- 解释器 `.venv\Scripts\python.exe`（Python 3.11.9、pandas 3.0.6、NumPy 2.4.6、SciPy 1.15.3）。
+- 内部分阶段：B1 schema 兼容与 BBD，B2 CCD 选项/区组/分类因子，B3 模型项/预测/叠加等高线，B4 优化扩展、诊断与 GUI 回归。
+- 不进入工作包 C；未实现 PB、DSD、split-plot、自定义 RSM、D-optimal、混料、Taguchi、二元响应与预测区间。
+
+## 二、阶段完成情况
+
+### B1 Schema v2 与 Box–Behnken
+
+- `DOE_SCHEMA_VERSION = 2`，可读版本 `{1, 2}`；v1 工程读取后在校验时升级为 v2，摘要按实际存储的设计字典核对，旧工程不因新增字段失配。
+- 新增 `box_behnken` 设计类型与 `edge` 点类型，新增 `ccd_fraction`、`block_count` 字段；分类因子与区组仅允许出现在 CCD/BBD。
+- `code/doe_bbd.py`：3–7 因子、每对因子 ±1 的边点加中心点、官方运行数（15/27/46/54/62）、区组划分、分类组合展开、设定/编码/点类型/重复/区组一致性与满秩校验。
+- 旧版软件不能读取 v2 工程；本次不做双向兼容承诺。
+
+### B2 CCD 选项、区组与分类因子
+
+- CCD 支持全因子/1/2/1/4/1/8 分数、区组与自定义 alpha；单区组默认 `F^(1/4)`，多区组使用官方正交 alpha 公式，结果与官方三位小数一致。
+- CCF 与区组不兼容、无法复现正交性的区组组合（7 half 5 区组、8 quarter 3/5 区组、9 quarter 5 区组、10 eighth 3/5 区组）显式拒绝，不生成。
+- 区组进入模型作为参考水平哑变量（列名自“区组2”），区组项与因子项分开报告；区组分配改变模型与自由度，不只是标签。
+- 分类因子使用 k−1 参考水平哑变量，每个水平各有中心点；分类平方项与分类间交互拒绝，分类×连续交互支持。
+
+### B3 模型项、点预测与叠加等高线
+
+- `code/doe_rsm_model.py::TermModel` 统一编译模型项、分类哑变量与区组列，供拟合、预测、绘图、优化共用。
+- 模型项层级强制：平方项需一阶项、交互项需两个主效应；未知项、重复项、越层级与秩亏拒绝，不自动删项。
+- `code/doe_predict.py::predict_point` 与 `code/doe_predict_dialog.py::PredictRSM`（菜单“08响应面预测”）：实际水平输入、分类水平选择、参考区组、快照标识；缺因子、未知因子、越界、缺失响应、元数据变化均拒绝。
+- `code/doe_overlay.py::overlay_contours` 与 `code/doe_overlay_dialog.py::OverlayContours`（菜单“09叠加等高线”）：至少两个响应各自上下限、两个绘图因子、其余固定、分类切片、可行交集与无交集提示。
+- 可行区域是各响应范围的网格交集，不使用优化候选点冒充。
+
+### B4 优化扩展、诊断与 GUI 回归
+
+- `optimize_rsm` 接受 CCD 与 BBD，分类水平固定切片，区组按参考区组评估；候选复核使用与拟合相同的 `TermModel` 与系数。
+- 项平方和改为对所有可拟合模型计算（不再依赖推断），并新增“诊断可用性”结果页：系数推断、项平方和、项 F、纯误差、失拟、曲率、残差图逐项给出可用状态与原因。
+- 未重复或纯误差为零时不给失拟、曲率 F/p 或系数推断，不虚构显著性。
+- 菜单、帮助、帮助索引、G12 清单与变更日志同步。
+
+## 三、ACC-021～030 验收表
+
+| 验收编号 | 能力 | 证据 | 结论 |
+| --- | --- | --- | --- |
+| ACC-021 | CCD 扩展 | `tests/test_doe_ccd_options.py`（10）、`tests/test_doe_ccd_options_gui.py`（4）、`tests/test_doe_ccd.py`（41） | 通过（实现范围内） |
+| ACC-022 | Box–Behnken | `tests/test_doe_bbd.py`（21）、`tests/test_doe_bbd_gui.py`（3） | 通过（3–7 因子） |
+| ACC-023 | 区组 RSM | `tests/test_doe_rsm_categorical.py`（6）、`tests/test_doe_ccd_options.py`、`tests/test_doe_bbd.py` 区组用例 | 通过（实现范围内） |
+| ACC-024 | 分类因子 RSM | `tests/test_doe_rsm_categorical.py`（6）、`tests/test_doe_ccd_options_gui.py` | 通过（参考水平哑变量） |
+| ACC-025 | 模型项选择 | `tests/test_doe_bbd.py` 项选择/层级/秩亏用例 | 通过 |
+| ACC-026 | 点预测 | `tests/test_doe_predict.py`（9）、`tests/test_doe_predict_gui.py`（6） | 通过；无区间（RSM-009 仍 unknown） |
+| ACC-027 | 多响应叠加等高线 | `tests/test_doe_overlay.py`（6）、`tests/test_doe_overlay_gui.py`（4） | 通过 |
+| ACC-028 | 单响应优化 | `tests/test_doe_optimize.py`（47）、`tests/test_doe_optimize_gui.py`（5） | 通过；无全局最优声明 |
+| ACC-029 | 多响应优化 | 同上，多响应期望/权重/零期望/下溢用例 | 通过 |
+| ACC-030 | 统计诊断 | `tests/test_doe_rsm_diagnostics.py`（7）、`tests/test_doe_bbd_gui.py` 诊断页断言 | 通过；残差图不作假设证明 |
+
+## 四、实际执行的验证
+
+| 命令 | 结果 |
+| --- | --- |
+| 核心专项 16 个文件（core/persistence/schema_v2/factorial/analysis/fractional/ccd/ccd_options/bbd/rsm/rsm_categorical/rsm_diagnostics/predict/overlay/optimize） | 263 passed |
+| GUI：doe/rsm/bbd/ccd_options/predict | 22 passed，5 个既有 tight-layout warning |
+| GUI：overlay/optimize/fractional | 21 passed，5 个既有 tight-layout warning |
+| `tests/test_menu_localization.py` | 66 passed |
+| `tests/test_help_center.py` | 13 passed |
+| `tests/test_g12_inventory.py` | 15 passed |
+| `tests/test_worksheets.py`、`test_sheet_context.py`、`test_file_io.py` | 69 passed |
+| 合计 | 469 passed、0 failed、0 skipped；仅既有 matplotlib tight-layout 警告 |
+
+未执行：全量 pytest（历史曾在 Windows Tk `Menu.add` 触发原生退出）；手动鼠标逐项验收；真实设备/工艺确认试验。
+
+## 五、兼容性与限制
+
+- v1 工程照常读取并在校验时升级；v2 工程旧版软件不可读。
+- 官方 BBD 表还列 9、10 因子，本实现只支持 3–7 因子；6 因子三联组存在个别因子对覆盖两次，运行数、满秩与官方表一致。
+- 官方 CCD 表中 3 因子单区组行自相矛盾（14 个运行、alpha 1.682、轴点 0），保留既有 DOE-3 语义 2^k+2k+中心点，已在 `sources.md` 记录。
+- 部分区组组合因无法复现正交性被拒绝，属明确范围限制。
+- 优化为确定性多起点 L-BFGS-B，不保证全局最优；预测与等高线为模型预测，不是确认试验结果。
+- 未实现 RSM-005（自定义响应面定义）、RSM-009（预测/置信区间，官方范围未核实）、RSM-016（响应面二元响应）。
+
+## 六、工作包 C 启动条件
+
+本次未验证 PB 与 DSD 的官方点阵、别名规则与二元响应合同，也未新增对应 fixture。工作包 C 需先补齐这些独立参考与官方范围核对，不能以本报告作为其前置验收。
+# 2026-10-28 Review ITERATE 修复记录
+
+本节取代下方 2026-10-27 收尾时对完整验收的判断。工作包 B 仍未全部完成：官方 9、10 因子 Box–Behnken 设计及区组矩阵尚待可靠参考，RSM-002 为 partial，ACC-022 未通过完整范围验收。不进入工作包 C。
+
+| 验收 | 当前状态 |
+| --- | --- |
+| ACC-021 | 已支持范围内通过 |
+| ACC-022 | 部分通过：3–7 因子；9、10 因子未实现 |
+| ACC-023 | 已支持范围内通过；带区组曲率 F/p 不可用 |
+| ACC-024 | 已支持范围内通过 |
+| ACC-025 | 已支持范围内通过 |
+| ACC-026 | 已支持范围内通过；不包含预测区间 |
+| ACC-027 | 已支持范围内通过 |
+| ACC-028、029 | 已支持范围内通过；不保证全局最优 |
+| ACC-030 | 已支持范围内通过；带区组曲率只报告均值差 |
+
+纯误差按连续编码水平、分类真实水平与区组分组。三连续因子 BBD 加两水平分类因子，Y=10+100I(L=high)：旧实现纯误差 SSE 为 75000，正确参考为 0；新的测试同时核对残差、自由度和推断不可用。带分类因子与区组的 CCD 重复噪声例，独立分组纯误差 SSE=8，旧实现为 351；独立构建二次模型矩阵并以最小二乘投影验证 SSE、失拟、自由度和 F/p。负失拟平方和仅在浮点误差界内归零，超界时显式报错。带区组中心点和外点均值未经区组调整，因此不报告曲率 F/p。
+
+优化等高线使用优化结果的参考区组及原模型，图题显示该区组。真实 Tk 测试核对区组偏移为 11 和 23 的解析响应面与候选预测；旧版本因缺少区组值无法绘图。来源数据修改后的旧结果仍按既有测试失效。
+
+本次参考与结果：`tests/test_doe_rsm_categorical.py` 新增两项独立参考，旧实现失败、新实现 8 项通过；RSM/诊断/BBD 核心 47 项通过；分类/诊断/CCD 选项/schema/工程持久化/优化核心 96 项通过；BBD 与 CCD 选项 GUI/schema 21 项通过；优化 GUI 7 项通过。Python 为项目 `.venv` 3.11.9。更多测试见项目当日日志。
+

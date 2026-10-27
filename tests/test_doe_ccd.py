@@ -46,8 +46,12 @@ def test_bad_axis_rejected_even_with_new_fingerprint():
     frame.loc[index, '设定_A'] = .5
     with pytest.raises(ValueError, match='轴点'):
         worksheet_metadata(frame, spec, meta['column_map'])
-    with pytest.raises(ValueError):
-        create_ccd(replace(spec, ccd_alpha=1.1))
+    # B2 起支持自定义 alpha；它只改变轴距，不代表具备旋转性或正交性。
+    custom, custom_meta = create_ccd(replace(spec, ccd_alpha=1.1))
+    custom_result = restore_design_result(custom, custom_meta)
+    assert custom_result.spec.ccd_alpha == 1.1
+    custom_coded = np.array(validate_ccd(custom_result), float)
+    assert np.max(np.abs(custom_coded)) == pytest.approx(1.1)
 
 
 def test_coded_levels_tampering_rejected():

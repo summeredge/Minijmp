@@ -1,5 +1,18 @@
 # MiniJMP 工作记忆
 
+## 工作包 B Review ITERATE（2026-10-28）
+
+- 已修复分类水平被混入纯误差与带区组优化等高线，独立参考及真实 Tk 已验证；带区组曲率未调整区组，F/p 不提供。详见 `docs/doe-minitab/work-package-b-closeout.md` 与 `logs/2026-10-28.md`。
+- 9、10 因子 BBD 标准矩阵及官方区组方案尚未完成，RSM-002 partial、ACC-022 未完整通过；等待网页端最终 Review，不进入工作包 C。
+
+## 工作包 B（2026-10-27，收尾）
+
+- 已完成 B1–B4 代码：schema v2（box_behnken、edge、ccd_fraction、block_count；v1 可读并升级）、doe_bbd.py、doe_rsm_model.py、doe_predict.py/doe_predict_dialog.py、doe_overlay.py/doe_overlay_dialog.py；CCD 分数/区组/分类因子、模型项选择、CCD+BBD 优化、项平方和与诊断可用性页。
+- 菜单新增 07 创建 Box-Behnken 设计、08 响应面预测、09 叠加等高线；帮助新增 doe.bbd、doe.predict、doe.ccd.overlay 并重建索引（94 主题）。
+- 验证基线（.venv）：核心 DOE 16 文件 263 passed；GUI 22 + 21 passed（仅既有 tight-layout 警告）；菜单 66、帮助 13、G12 15、工作表/工程 69 passed；合计 469 passed。全量 pytest 未运行。
+- 收尾报告 docs/doe-minitab/work-package-b-closeout.md；矩阵 RSM 13 implemented、RSM-005/016 missing、RSM-009 unknown。
+- 未提交、未推送、未打标签；不进入工作包 C。
+
 ## 当前状态（2026-10-27）
 
 DOE-3 已实现 CCD 和二次响应面：支持 2–5 因子 CCF/旋转 CCC、越界预览确认、编码与设定矩阵校验、纯误差/失拟/曲率和图形，工程可保存、重开、复制。DOE-1 含中心点时禁用模型 t/F 推断的前置修复已完成。CCD 允许十进制/指数文本按最近 binary64 保存；纯整数文本保持精确整数，无法无损转 binary64 的端点拒绝；中心和 CCC 轴点采用有界舍入，轴点必须仍在 low/high 外且反算编码误差不超过 1e-8。DOE schema v1 与 DOE-0/1/2 语义未变。DOE-4 已实现：完整 CCD 上单响应最大化/最小化/逼近目标，多响应期望函数权重优化；默认编码 bounds 为 [-1,1]，可收紧或固定。GUI 每次从当前表快照重拟合，候选含编码/实际水平、预测、期望、可行与 solver 状态；确定性多起点 L-BFGS-B 不保证全局最优，零期望/数值下溢/评价上限会明示。优化不写回响应、设定或 `.dexpl` schema v1。当前验收按范围合计 456 passed、14 warnings、0 failed、0 skipped；全量 pytest 未运行，DOE-3 之前的全量历史曾两次于 Tk `Menu.add` 原生 `0x80000003` 中断且无 summary。见 `docs/doe-development.md`、`docs/doe3-closeout-report.md` 与 `logs/2026-10-27.md`。

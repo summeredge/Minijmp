@@ -1,6 +1,7 @@
 import math
 from unittest.mock import Mock
 
+import numpy as np
 import pytest
 
 from pandas.testing import assert_frame_equal
@@ -255,3 +256,81 @@ def test_optimizer_rejects_non_ccd_and_disables_invalid_bounds(csv_app, monkeypa
     assert str(dialog.run_button['state']) == 'disabled'
     assert 'low/high' in dialog.status.get()
     dialog.close()
+
+
+def test_bbd_optimizer_reaches_the_analytic_optimum(csv_app, monkeypatch):
+    app, _ = csv_app
+    monkeypatch.setattr('worksheets.messagebox.askyesno', lambda *a, **k: True)
+    monkeypatch.setattr('worksheets.messagebox.askyesnocancel', lambda *a, **k: False)
+    create = CreateDOE(app, bbd=True)
+    create.create()
+    table = app.getCurrentTable()
+    frame = table.model.df
+    a, b, c = (frame[f'编码_{name}'].to_numpy(float) for name in 'ABC')
+    values = 7 - (a - .25)**2 - 2*(b + .5)**2 - .5*(c + .2)**2
+    column = frame.columns.get_loc('响应_Y')
+    for row, value in enumerate(values):
+        table.model.setValueAt(repr(float(value)), row, column)
+    dialog = OptimizeRSM(app)
+    dialog.high.set('100')
+    dialog.low.set('-100')
+    dialog._response_changed()
+    dialog.optimize()
+    assert dialog.last is not None, dialog.status.get()
+    best = dialog.last['result']['best']
+    assert best['coded']['A'] == pytest.approx(.25, abs=1e-4)
+    assert best['coded']['B'] == pytest.approx(-.5, abs=1e-4)
+    assert best['coded']['C'] == pytest.approx(-.2, abs=1e-4)
+    assert dialog.last['result']['global_optimum_guaranteed'] is False
+    dialog.plot()
+    assert dialog.viewer is not None, dialog.status.get()
+    dialog.close()
+
+
+@pytest.mark.parametrize('offset', [11, 23])
+def test_blocked_optimizer_contour_uses_reference_block(csv_app, monkeypatch, offset):
+    app, _ = csv_app
+    monkeypatch.setattr('worksheets.messagebox.askyesno', lambda *a, **k: True)
+    monkeypatch.setattr('worksheets.messagebox.askyesnocancel', lambda *a, **k: False)
+    create = CreateDOE(app, ccd=True)
+    create.ccd_type.set('CCC')
+    create.ccd_blocks.set('2')
+    create.create()
+    table = app.getCurrentTable()
+    frame = table.model.df
+    a = frame['编码_A'].to_numpy(dtype=float)
+    b = frame['编码_B'].to_numpy(dtype=float)
+    second_block = (frame['区组'].to_numpy(dtype=float) == 2).astype(float)
+    response = 40 - (a - .25)**2 - 2*(b + .5)**2 + offset*second_block
+    column = frame.columns.get_loc('响应_Y')
+    for row, value in enumerate(response):
+        table.model.setValueAt(repr(float(value)), row, column)
+
+    dialog = OptimizeRSM(app)
+    dialog.low.set('-100')
+    dialog.high.set('100')
+    dialog._response_changed()
+    dialog.optimize()
+    assert dialog.last is not None, dialog.status.get()
+
+    from matplotlib.axes import Axes
+    original_contourf = Axes.contourf
+    surfaces = []
+
+    def capture_contour(ax, *args, **kwargs):
+        surfaces.append(tuple(np.asarray(values) for values in args[:3]))
+        return original_contourf(ax, *args, **kwargs)
+
+    monkeypatch.setattr(Axes, 'contourf', capture_contour)
+    try:
+        dialog.plot()
+        assert dialog.viewer is not None, dialog.status.get()
+        xx, yy, zz = surfaces[0]
+        expected = 40 - (xx - .25)**2 - 2*(yy + .5)**2
+        np.testing.assert_allclose(zz, expected, rtol=1e-12, atol=1e-12)
+        best = dialog.last['result']['best']
+        assert best['predictions']['Y'] == pytest.approx(
+            40 - (best['coded']['A'] - .25)**2 - 2*(best['coded']['B'] + .5)**2)
+        assert '参考区组 1' in dialog.viewer.fig._suptitle.get_text()
+    finally:
+        dialog.close()

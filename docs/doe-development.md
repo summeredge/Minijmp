@@ -1,5 +1,26 @@
 # DOE 开发合同
 
+## 工作包 B：响应面扩展（schema v2）
+
+DOE schema 升到 v2，新增 box_behnken 设计类型、edge 点类型及 ccd_fraction、block_count 字段；读取仍接受 v1，旧工程在 validate_worksheet_metadata 时升级并按实际存储设计字典核对摘要。旧版软件不能读取 v2 工程，不做双向兼容承诺。
+
+doe_bbd.create_bbd 支持 3–7 个连续因子：每对因子 ±1、其余为 0 的边点加默认中心点（3/4 因子 3 个、5–7 因子 6 个），运行数与官方表一致；重复、seed、区组（3 因子无区组、4 因子最多 3 组、5–7 因子最多 2 组）与分类组合展开复用 DOE-0 运行合同。官方 9/10 因子表与 6 因子个别因子对覆盖两次的限制在帮助与收尾报告中写明。
+
+doe_ccd 扩展路径支持 full/half/quarter/eighth 分数、区组与分类因子；单区组 alpha=F^(1/4)，多区组按 sqrt(F(2k+ac)/(2(F+cc))) 求正交 alpha，自定义 alpha 与之不符时拒绝。CCF 与区组、以及无法复现正交性的区组组合显式拒绝。编码仍沿用 DOE-3 的 binary64 精度合同。
+
+doe_rsm_model.TermModel 统一编译模型项、分类参考哑变量与区组列；平方项需一阶项、交互项需两个主效应，秩亏与未知项拒绝。doe_rsm.analyze_rsm 按设计类型分派校验，逐项平方和对所有可拟合模型计算（不依赖推断），BBD 曲率以边点为外圈参考。系数推断仍要求残差自由度与正纯误差；无重复、纯误差为零或饱和时不产生 t/F/p。
+
+doe_predict.predict_point、doe_overlay.overlay_contours 与 doe_optimize.optimize_rsm 复用同一 TermModel 与同一分析快照；预测取参考区组，分类因子按固定水平切片，优化仍为确定性多起点 L-BFGS-B，不宣称全局最优。叠加等高线的可行区域是各响应可接受范围的网格交集，不使用优化候选点代替。
+
+| 生产入口 | 独立参考 | 验证 |
+| --- | --- | --- |
+| create_bbd、validate_bbd | 独立构造的成对 ±1 点表、运行数与满秩 | tests/test_doe_bbd.py |
+| create_ccd 扩展路径 | 官方 alpha 三位小数、区组正交性与拒绝组合 | tests/test_doe_ccd_options.py |
+| analyze_rsm 项平方和/纯误差/失拟/曲率 | 独立投影矩阵与 SciPy 分布 | tests/test_doe_rsm_diagnostics.py |
+| predict_point、predict 界面 | 解析二次多项式、分类切片、区组、越界与过期快照 | tests/test_doe_predict.py、tests/test_doe_predict_gui.py |
+| overlay_contours、叠加等高线 | 各响应范围交集、无交集、固定因子 | tests/test_doe_overlay.py、tests/test_doe_overlay_gui.py |
+| optimize_rsm（BBD/区组/分类） | 解析凹二次最优点、分类固定水平与参考区组 | tests/test_doe_optimize.py、tests/test_doe_optimize_gui.py |
+
 ## DOE-3 中心复合设计与响应面
 
 `doe_ccd.create_ccd` 支持 2–5 个连续因子的面心 CCF（α=1）和旋转外接 CCC（α=(2^k)^(1/4)）。每次独立重复包含全部因子点和轴点；中心点数是整个设计的独立运行数。标准序、随机序、点类型、重复号、编码及实际设定值随工作表保存，DOE-0 指纹和 CCD 完整矩阵校验共同保护输入；实测与响应可后填。历史仅占位的 central_composite 元数据继续可加载，但不能作为完整 CCD 分析。
@@ -150,6 +171,8 @@ DOE 结构经 Worksheets.saveMeta/loadMeta 写入每张表既有的可选 doe �
 ModelResult 和 OptimizationResult 当前只是冻结的数据合同，不含估计、检验或搜索逻辑。饱和模型要求 inference_status="unavailable_saturated"，且 t/p/F 字段为空；独立误差自由度不会使 DOE-0 合同允许在零残差自由度时填入这些推断值。
 
 ## 验证资料
+
+2026-10-28 Review 修复：响应面纯误差按连续与分类水平及区组分组；失拟平方和仅允许浮点误差范围内的负值归零，较大违反直接报错。含区组的中心点与外圈点原始均值差未调整区组效应，不给曲率 F/p。优化等高线使用优化结果参考区组。具体独立参考、验证和 9/10 因子 BBD 未完成的范围见 `docs/doe-minitab/work-package-b-closeout.md`。
 
 tests/fixtures/doe_2x2_reference.json 固定了四个编码组合的解析响应。由 Y=50+3A-2B+4AB 直接代入得到 53、41、51、55；按高水平与低水平响应均值差，以及 AB 符号对比除以 2，独立得到效应 A=6、B=-4、AB=8。该夹具和测试不调用 DOE 生成或分析函数，因此只验证参考资料本身，不能证明 DOE-1 分析器已实现。饱和 2^2 四运行模型的残差自由度为零，不能据此宣称残差 p/F/t 推断通过。
 

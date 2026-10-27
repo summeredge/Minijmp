@@ -66,6 +66,8 @@ Minitab RSM overview 确认优化因子设置的工作流，但核查过的官�
 
 ## 证据空缺与处理
 
+工作包 B 实施期间按 R-01、R-02、R-03 与官方 BBD/CCD 页复核了本次落地范围，未新增未访问页面。实现与官方页面存在两处需要在验收报告写明的事实：官方 CCD 数据表中 3 因子单区组行内部不自洽（自报 14 个运行，但 8 个因子点加 6 个轴点为 14，而 alpha 列 1.682 与轴点数 0 互相矛盾），MiniJMP 保留既有 DOE-3 语义 2^k+2k+中心点；官方 BBD 数据表还列出 9、10 因子运行数，本实现只支持 3–7 因子。二者都作为范围限制记录，不据此扩展或删减验收。
+
 - **未确认的软件版本：** 页面未注明适用版本；本次报告只能称为 Minitab Statistical Software 在线帮助基准，不能归属到某具体版本或本机安装。
 - **未确认的命令/选项：** 独立的 custom screening design、预测区间、自动 DOE 异常值处理、通用 sequential-design 命令均未从已访问页面确认。矩阵使用 not_verified/unknown，禁止据此补造功能。自定义响应面定义已由 R-03 官方页确认。
 - **筛选细节：** DSD 设计范围与因子水平在 overview 中有说明；本次没有固定完整 DSD 点阵算法、别名显示或全部模型项规则的官方方法页。后续要先锁定独立矩阵和页面。
@@ -83,4 +85,9 @@ Minitab RSM overview 确认优化因子设置的工作流，但核查过的官�
 - DSD、Factorial、Response Surface 各有二元响应分析入口；Variability 属于 Factorial 菜单，且输入依赖预处理标准差。
 - DOE 功效/样本量位于 Power and Sample Size 菜单，而非 DOE 子菜单；它仍纳入本次 DOE 相关能力调查。
 - Overlaid Contour 是可用于多个 DOE 模型类型的工作流，不等同于单响应等高线，也不等同于数值优化器。
+
+# 2026-10-28：Box–Behnken 范围复核
+
+- [Minitab Box–Behnken 设计汇总](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/response-surface-designs/summary-of-box-behnken-designs/) 列出 9 因子 130 次和 10 因子 170 次，默认中心点均为 10；该汇总未给出点阵。
+- [Minitab Box–Behnken 区组](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/response-surface-designs/blocks-in-a-box-behnken-design/) 列出 9 因子 5 或 10 区组、10 因子 2 区组并声明区组正交；页面未给出区组分配矩阵。不能仅凭这些数量构造或验收标准设计。
 
