@@ -8,17 +8,17 @@
     "bounds": "追踪显式导入/构造别名、本函数赋值、字符串包装、原生表方法及多行 ASCII/tab 字面量；静态审计不模拟任意跨函数动态对象流。所有现有字符串格式、join、原生 summary、DataFrame 文本与控制台数据路径已人工复核。"
   },
   "summary": {
-    "python_files": 108,
-    "files_with_production_sites": 32,
-    "producer_scopes": 59,
-    "constructor_calls": 129,
+    "python_files": 110,
+    "files_with_production_sites": 33,
+    "producer_scopes": 61,
+    "constructor_calls": 131,
     "constructors": {
       "gen_table": 55,
-      "StatTable": 70,
+      "StatTable": 72,
       "PrettyTable": 4
     },
-    "statistical_source_positions": 65,
-    "logical_statistical_tables": 183,
+    "statistical_source_positions": 67,
+    "logical_statistical_tables": 185,
     "table_text_conversions": {
       "to_string": 2,
       "pred_table": 1,
@@ -71,6 +71,8 @@
     "doe_factorial.py",
     "doe_fractional.py",
     "doe_fractional_analysis.py",
+    "doe_optimize.py",
+    "doe_optimize_dialog.py",
     "doe_rsm.py",
     "fit_dialog.py",
     "freeze.py",
@@ -175,6 +177,8 @@
     "doe_factorial.py": "两水平全因子运行表生成；不构造统计报告表或执行表格输出。",
     "doe_fractional.py": "正规部分因子运行表生成及验证，不构造统计报告表。",
     "doe_fractional_analysis.py": "正规部分因子模型纯计算，不构造统计报告表。",
+    "doe_optimize.py": "完整 CCD 二次模型的纯计算优化，不构造统计报告表。",
+    "doe_optimize_dialog.py": "DOE-4 优化界面及候选结果表，StatTable 位置见 producers。",
     "fit_dialog.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "freeze.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "grr_plot.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
@@ -263,6 +267,26 @@
       "entry_points": ["AnalyzeDOE.publish"],
       "status": "已迁移 StatTable",
       "tests": ["tests/test_doe_gui.py::test_doe_create_analyze_save_load_and_source_binding", "tests/test_doe_fractional_gui.py::test_fractional_roundtrip_analysis_and_plot_are_alias_aware", "tests/test_doe_rsm_gui.py::test_ccd_roundtrip_and_plot"],
+      "exception_reason": ""
+    },
+    "doe_optimize_dialog.py::OptimizeRSM.optimize": {
+      "sites": ["construct:StatTable#1"],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": ["搜索候选"],
+      "entry_points": ["OptimizeRSM.optimize"],
+      "status": "在优化窗口显示并支持导出",
+      "tests": ["tests/test_doe_optimize_gui.py::test_ccd_optimize_reopens_and_recomputes"],
+      "exception_reason": ""
+    },
+    "doe_optimize_dialog.py::OptimizeRSM._show_best": {
+      "sites": ["construct:StatTable#1"],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": ["优化建议与响应预测"],
+      "entry_points": ["OptimizeRSM.optimize"],
+      "status": "在优化窗口显示并支持导出",
+      "tests": ["tests/test_doe_optimize_gui.py::test_ccd_optimize_reopens_and_recomputes"],
       "exception_reason": ""
     },
     "GRR.py::_grr_tables": {

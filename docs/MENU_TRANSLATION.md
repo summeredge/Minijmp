@@ -31,6 +31,7 @@
 | Analyze Factorial Design | 分析因子设计 |
 | Create Central Composite Design | 创建中心复合设计 |
 | Analyze Response Surface Model | 分析响应面模型 |
+| Optimize Response Surface (DOE-4) | 优化响应面（DOE-4） |
 
 ## 文件（File）
 
