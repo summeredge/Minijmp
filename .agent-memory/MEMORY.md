@@ -81,7 +81,7 @@ pandas 3 兼容性定向修复已完成：`core_orig.py` 的 `getRowsFromMask()`
 
 - 只支持工作表内 C 列引用，不支持跨表、Excel 语法、宏或完整 Minitab 函数库。
 - 公式结果为浮点列；部分溢出或除零写为空值并提示。
-- `.venv` 的 Tk 缺少运行时脚本，项目 Tk 测试改用 `C:\Users\shaoy\Documents\PythonEnvs\minijmp`。
+- 环境状态（2026-10-27）：旧 `C:\Users\shaoy\Documents\PythonEnvs\minijmp`（Python 3.11.9、pandas 2.2.3）已停用并列入退役；递归删除被执行策略拒绝，目录目前仍存在。后续 MiniJMP 仅使用项目 `.venv`（Python 3.11.9、pandas 3.0.6）。此前 Tk 测试改用旧环境的记录及 beta.3 基线均保留为历史事实；若 `.venv` 的 Tcl/Tk 运行时脚本问题影响后续测试，应在 `.venv` 内处理，不复用旧环境。
 - 改善前后分析未实现 P/NP/C/U 图、复杂时间序列模型、规则 1～8 以外的判异规则；固定基线模式的 Xbar-S 为获得可绘制 S 限，保留原算法对 bar2 的已知口径差异并单独校正（子组大小取改善后各组的 n）。
 
 ## 公式收尾修复（2026-10-25）
