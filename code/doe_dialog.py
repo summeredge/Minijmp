@@ -22,63 +22,150 @@ def number(text):
 
 
 class CreateDOE:
-    def __init__(self, app):
+    def __init__(self, app, fractional=False):
         self.app = app
+        self.fractional = fractional
         self.main = tk.Toplevel(app.main)
-        self.main.title('创建两水平全因子设计')
-        self.main.bind('<F1>', lambda event: open_help('doe.full_factorial', parent=self.main))
+        self.main.title('创建两水平部分因子设计' if fractional else '创建两水平全因子设计')
+        help_topic = 'doe.fractional' if fractional else 'doe.full_factorial'
+        self.main.bind('<F1>', lambda event: open_help(help_topic, parent=self.main))
         self.fields = []
         grid = ttk.Frame(self.main, padding=8)
         grid.pack(fill='both', expand=True)
         for col, label in enumerate(('因子', '名称', '低水平', '高水平', '单位')):
             ttk.Label(grid, text=label).grid(row=0, column=col, padx=3)
-        for i in range(6):
+        factor_limit = 6
+        for i in range(factor_limit):
             ttk.Label(grid, text=chr(65+i)).grid(row=i+1, column=0)
             entries = []
             for col in range(1, 5):
                 entry = ttk.Entry(grid, width=15)
                 entry.grid(row=i+1, column=col, padx=3, pady=2)
                 entries.append(entry)
-            if i < 2:
+            if i < (6 if fractional else 2):
                 entries[0].insert(0, chr(65+i))
                 entries[1].insert(0, '0')
                 entries[2].insert(0, '1')
             self.fields.append(entries)
+        options_start = factor_limit + 1
+        if fractional:
+            ttk.Label(grid, text='预置方案').grid(row=options_start, column=0, sticky='w')
+            self.preset = ttk.Combobox(grid, values=(
+                '自定义', '3因子（C=AB）', '4因子（D=ABC）',
+                '5因子（E=ABCD）', '5因子（D=AB;E=AC）'),
+                state='readonly', width=25)
+            self.preset.set('自定义')
+            self.preset.grid(row=options_start, column=1, columnspan=2, sticky='w', pady=2)
+            self.preset.bind('<<ComboboxSelected>>', self.apply_fractional_preset)
+            options_start += 1
+            ttk.Label(grid, text='因子数').grid(row=options_start, column=0, sticky='w')
+            self.factor_count = ttk.Combobox(
+                grid, values=list(range(3, 7)), state='readonly', width=5)
+            self.factor_count.set('4')
+            self.factor_count.grid(row=options_start, column=1, sticky='w', pady=2)
+            self.factor_count.bind('<<ComboboxSelected>>', self.update_factor_rows)
+            self.update_factor_rows()
+            options_start += 1
         self.options = {}
         for row, (key, default) in enumerate((('重复数', '1'), ('中心点数', '0'),
-                                               ('随机 seed', '1'), ('响应名称', 'Y')), 7):
+                                               ('随机 seed', '1'), ('响应名称', 'Y')),
+                                             options_start):
             ttk.Label(grid, text=key).grid(row=row, column=0, sticky='w')
             entry = ttk.Entry(grid, width=25)
             entry.insert(0, default)
             entry.grid(row=row, column=1, columnspan=2, sticky='ew', pady=2)
             self.options[key] = entry
+        preview_row = options_start + len(self.options)
+        if fractional:
+            ttk.Label(grid, text='生成元（D=AB;E=AC）').grid(
+                row=preview_row, column=0, sticky='w')
+            self.generators = ttk.Entry(grid, width=25)
+            self.generators.grid(row=preview_row, column=1, columnspan=4, sticky='ew', pady=2)
+            self.generators.bind('<KeyRelease>',
+                                 lambda event: self.preset.set('自定义'))
+            preview_row += 1
         self.preview_text = tk.StringVar(value='')
-        ttk.Label(grid, textvariable=self.preview_text).grid(row=11, column=0, columnspan=5)
+        ttk.Label(grid, textvariable=self.preview_text, wraplength=720).grid(
+            row=preview_row, column=0, columnspan=5, sticky='ew')
         bar = ttk.Frame(grid)
-        bar.grid(row=12, column=0, columnspan=5, sticky='e')
+        bar.grid(row=preview_row + 1, column=0, columnspan=5, sticky='e')
         ttk.Button(bar, text='预览', command=self.preview).pack(side='left')
         ttk.Button(bar, text='创建', command=self.create).pack(side='left', padx=4)
         ttk.Button(bar, text='取消', command=self.main.destroy).pack(side='left')
 
+    def update_factor_rows(self, event=None):
+        if event is not None:
+            self.preset.set('自定义')
+        count = int(self.factor_count.get())
+        for index, entries in enumerate(self.fields):
+            for widget in entries:
+                if index < count:
+                    widget.grid()
+                else:
+                    widget.grid_remove()
+
+    def apply_fractional_preset(self, event=None):
+        preset = {
+            '3因子（C=AB）': (3, 'C=AB'),
+            '4因子（D=ABC）': (4, 'D=ABC'),
+            '5因子（E=ABCD）': (5, 'E=ABCD'),
+            '5因子（D=AB;E=AC）': (5, 'D=AB;E=AC'),
+        }.get(self.preset.get())
+        if preset is None:
+            return
+        count, generators = preset
+        self.factor_count.set(str(count))
+        self.update_factor_rows()
+        self.generators.delete(0, 'end')
+        self.generators.insert(0, generators)
+
     def build(self):
         factors = []
-        for i, entries in enumerate(self.fields):
+        field_count = int(self.factor_count.get()) if self.fractional else len(self.fields)
+        for i, entries in enumerate(self.fields[:field_count]):
             name, low, high, unit = (entry.get().strip() for entry in entries)
             if not any((name, low, high, unit)):
                 continue
             factors.append(FactorSpec(chr(65+i), name, number(low), number(high), unit or None))
         responses = tuple(s.strip() for s in self.options['响应名称'].get().split(','))
+        generator_text = self.generators.get() if self.fractional else ''
+        generators = tuple(generator_text.split(';')) if generator_text else ()
         spec = DesignSpec('DOE', tuple(factors), responses,
                           seed=int(self.options['随机 seed'].get()),
-                          design_type='two_level_full')
-        return create_factorial(spec, int(self.options['重复数'].get()),
-                                int(self.options['中心点数'].get()))
+                          generators=generators,
+                          design_type='two_level_fractional' if self.fractional
+                          else 'two_level_full')
+        replicates = int(self.options['重复数'].get())
+        centers = int(self.options['中心点数'].get())
+        if self.fractional:
+            if centers:
+                raise ValueError('正规部分因子设计当前不支持中心点，请将中心点数设为 0。')
+            from doe_fractional import create_fractional
+            return create_fractional(spec, replicates, centers)
+        return create_factorial(spec, replicates, centers)
 
     def preview(self):
         try:
-            frame, _ = self.build()
-            self.preview_text.set(f'{len(frame)} 次运行；前 5 个运行 ID：' +
-                                  ', '.join(frame['运行ID'].head().tolist()))
+            frame, meta = self.build()
+            summary = f'{len(frame)} 次运行；前 5 个运行 ID：' + ', '.join(
+                frame['运行ID'].head().tolist())
+            if self.fractional:
+                design = meta['design']
+                relations = design['defining_relations']
+                resolution = min(len(item.split('=', 1)[1]) for item in relations)
+                aliases = design['aliases']
+                shown_aliases = '；'.join(aliases[:6]) or '无'
+                if len(aliases) > 6:
+                    shown_aliases += f'；…（共 {len(aliases)} 项）'
+                shown_relations = '；'.join(relations[:6])
+                if len(relations) > 6:
+                    shown_relations += f'；…（共 {len(relations)} 项）'
+                roman = {3: 'III', 4: 'IV', 5: 'V', 6: 'VI'}.get(resolution, resolution)
+                summary += (f'；分辨度 {roman}'
+                            f"；生成元 {'；'.join(design['generators'])}"
+                            f'；定义字 {shown_relations}'
+                            f'；别名组（混杂，不能单独估计）{shown_aliases}')
+            self.preview_text.set(summary)
         except (ValueError, TypeError, OverflowError) as exc:
             messagebox.showerror('试验设计', str(exc), parent=self.main)
 
@@ -101,9 +188,15 @@ class AnalyzeDOE:
         if not metadata:
             messagebox.showerror('试验设计', '当前工作表不是 DOE 设计。', parent=app.main)
             return
+        design_type = metadata.get('design', {}).get('design_type')
+        if design_type not in ('two_level_full', 'two_level_fractional'):
+            messagebox.showerror('试验设计', '当前 DOE 设计类型暂不支持分析。', parent=app.main)
+            return
+        self.fractional = design_type == 'two_level_fractional'
         self.main = tk.Toplevel(app.main)
-        self.main.title('分析因子设计')
-        self.main.bind('<F1>', lambda event: open_help('doe.full_factorial', parent=self.main))
+        self.main.title('分析两水平部分因子设计' if self.fractional else '分析因子设计')
+        help_topic = 'doe.fractional' if self.fractional else 'doe.full_factorial'
+        self.main.bind('<F1>', lambda event: open_help(help_topic, parent=self.main))
         self.result = None
         controls = ttk.Frame(self.main, padding=8)
         controls.pack(fill='x')
@@ -142,8 +235,14 @@ class AnalyzeDOE:
                 raise ValueError('来源工作表已切换，请切回后重新分析。')
             self.owner._finish_edit()
             frame = self.source.model.df.copy(deep=True)
-            result = analyze_factorial(frame, self.source.doe_metadata,
-                                       self.response.get(), int(self.order.get()))
+            if self.fractional:
+                from doe_fractional_analysis import analyze_fractional
+                result = analyze_fractional(
+                    frame, self.source.doe_metadata, self.response.get(),
+                    int(self.order.get()))
+            else:
+                result = analyze_factorial(frame, self.source.doe_metadata,
+                                           self.response.get(), int(self.order.get()))
             self.publish(result)
         except (ValueError, TypeError, RuntimeError, OverflowError) as exc:
             self.result = None
@@ -156,6 +255,45 @@ class AnalyzeDOE:
         self.status.set(f"响应 {result['response']}，{result['n']} 行分析快照；数据修改后需重新分析；" +
                         result['status'] + '；' + result['assumption'])
         inf = result['inference']
+        if self.fractional:
+            alias_by_representative = {
+                group['representative']: group['label']
+                for group in result['alias_groups'] if group['representative']
+            }
+            rows = []
+            for i, name in enumerate(result['names']):
+                rows.append([name, alias_by_representative.get(name, name),
+                             result['coefficients'][i], result['effects'][i]] +
+                            ([inf['se'][i], inf['t'][i], inf['p'][i],
+                              inf['ci_low'][i], inf['ci_high'][i]] if inf else [None]*5))
+            self.show_table('系数与别名组效应',
+                            ['代表项', '完整别名组', '系数', '别名组效应',
+                             'SE', 't', 'p', 'CI低', 'CI高'], rows)
+            self.show_table('别名与代表项', ['当前代表项', '别名组', '状态'], [
+                [group['representative'] or '', group['label'],
+                 '截距' if group['representative'] == '截距' else
+                 '已纳入当前模型' if group['representative'] else '未纳入当前模型']
+                for group in result['alias_groups']])
+            self.show_table('模型', ['n', '项数', '秩', '模型残差自由度', 'SSE',
+                                     '纯误差自由度', '纯误差平方和', '失拟自由度', '失拟平方和', 'SSR', 'SST',
+                                     'R²', '调整R²', 'F', '模型p'], [[
+                result['n'], result['p'], result['rank'], result['df'], result['sse'],
+                result['pure_error_df'], result['pure_error_sse'], result['lack_of_fit_df'],
+                result['lack_of_fit_sse'], result['ssr'],
+                result['sst'], result['r2'], result['adjusted_r2'],
+                inf['f'] if inf else None, inf['model_p'] if inf else None]])
+            if inf:
+                self.show_table('方差分析', ['来源', '平方和', '自由度', '均方', 'F', 'p'],
+                                [['模型', result['ssr'], result['p']-1,
+                                  result['ssr']/(result['p']-1), inf['f'], inf['model_p']],
+                                 ['残差', result['sse'], result['df'], inf['mse'], None, None],
+                                 ['总计', result['sst'], result['n']-1, None, None, None]])
+            self.show_table('拟合与残差', ['来源行号', '运行ID', '运行序', '响应', '拟合值', '残差'],
+                            [[i+1, run.run_id, run.run_order, run.responses[result['response']],
+                              result['fitted'][i], result['residuals'][i]]
+                             for i, run in enumerate(result['design'].runs)])
+            self.result = result
+            return
         rows = []
         for i, name in enumerate(result['names']):
             rows.append([name, result['coefficients'][i], result['effects'][i]] +
@@ -209,6 +347,7 @@ class AnalyzeDOE:
                 raise ValueError('请先分析。')
             r = self.result
             factors = r['design'].spec.factors
+            fractional = r['design'].spec.design_type == 'two_level_fractional'
             ids = [factor.factor_id for factor in factors]
             first_id, second_id = self.factor_x.get(), self.factor_y.get()
             if first_id not in ids or second_id not in ids or first_id == second_id:
@@ -223,19 +362,32 @@ class AnalyzeDOE:
                 for i, factor in enumerate(factors):
                     means = [y[coded[:, i] == v].mean() for v in (-1, 1)]
                     axes[0, 0].plot([-1, 1], means, marker='o', label=factor.factor_id)
-                axes[0, 0].set_title('主效应图'); axes[0, 0].legend()
+                axes[0, 0].set_title(
+                    '主效应条件均值（按别名组解释）' if fractional else '主效应图')
+                axes[0, 0].legend()
                 for v in (-1, 1):
                     means = [y[(coded[:, first_index] == x) &
                                (coded[:, second_index] == v)].mean() for x in (-1, 1)]
                     axes[0, 1].plot([-1, 1], means, marker='o',
                                     label=f'{second_id}={v}')
-                axes[0, 1].set_title(f'{first_id} × {second_id} 交互图')
+                axes[0, 1].set_title(
+                    f'{first_id} × {second_id} 交互图（描述性；可能混杂）'
+                    if fractional else f'{first_id} × {second_id} 交互图')
                 axes[0, 1].legend()
-                effects = [(name, abs(effect)) for name, effect in zip(r['names'], r['effects'])
-                           if effect is not None]
+                if fractional:
+                    effect_by_name = dict(zip(r['names'], r['effects']))
+                    effects = [(group['label'], abs(effect_by_name[group['representative']]))
+                               for group in r['alias_groups']
+                               if group['representative'] in effect_by_name and
+                               effect_by_name[group['representative']] is not None]
+                else:
+                    effects = [(name, abs(effect))
+                               for name, effect in zip(r['names'], r['effects'])
+                               if effect is not None]
                 effects.sort(key=lambda item: item[1])
                 axes[1, 0].barh([x[0] for x in effects], [x[1] for x in effects])
-                axes[1, 0].set_title('效应绝对值 Pareto 图')
+                axes[1, 0].set_title('可估计别名组效应绝对值 Pareto 图'
+                                     if fractional else '效应绝对值 Pareto 图')
                 if r['inference'] is None:
                     axes[1, 1].text(.5, .5, '残差诊断不可用', ha='center')
                 else:

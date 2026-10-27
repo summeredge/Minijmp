@@ -2,6 +2,8 @@
 
 ## 当前状态（2026-10-27）
 
+DOE-2 正规部分因子实现进行中：新增 `doe_fractional.py`、`doe_fractional_analysis.py` 和创建/分析界面，支持 3–6 连续因子、正生成元、独立重复、定义字及别名组、DOE 元数据保存恢复；拒绝中心点、负生成元和派生因子循环。模型按别名组解释，只有独立重复且纯误差可辨时才在模型充分等假设下提供 OLS 推断。DOE-2 专项、G12、菜单和离线帮助合并 132 passed，后续新增分析参考、GUI、帮助及生成器检查见日志。关联 DOE-0/1、工作表、工程、公式及绘图窗口回归 208 passed、2 failed：现有 HEAD 的中心点状态测试与实现不一致，原 GUI 测试遗漏已有“失拟与曲率”页。进一步复现既有全因子中心点设计在纯误差非零时仍会输出推断，与原合同冲突；本任务未修改 DOE-1，使用帮助已提示该风险。LRM Review 与完整验收仍待完成，见 `logs/2026-10-27.md`。
+
 beta.4 已固化：beta.3 基线 `d21a924abf6f437f82e2736ac09c5a38dc636d5f`；pandas 迁移提交 `d321c59806230572bc6d7ba2c752ad8c80a62891`；版本提交 `e770bb9b22bca9aad2de3e167f77407a5608dff5`；本地 annotated 标签 `v0.1.0-beta.4` 指向实际构建基线 `0d9f5730029905745856d6bda1f4e7a24fc97b50`，标签未推送。产品/包/EXE 版本分别为 `v0.1.0-beta.4`、`V0.1-beta4`、`0.1.0.4`。迁移全量历史结果 3810 passed、0 failed、0 skipped；发布工具 25 passed、启动测试 17 passed。干净基线 Windows EXE/ZIP 构建、哈希和按进程 ID 的运行目录与解压版窗口冒烟通过。原冒烟脚本此前曾误识别 Edge，办公终端与实际 PI Server 未验收。详见当日日志。
 
 beta.3 已冻结在提交 `d21a924abf6f437f82e2736ac09c5a38dc636d5f`；迁移开始时 `main`、`origin/main` 相同且工作区干净，未创建标签。pandas 3.0.6 迁移已完成并由提交 `d321c59806230572bc6d7ba2c752ad8c80a62891` 固化，正式依赖 `requirements.txt` 与 Windows Python 3.11 锁文件一致。数据安全写入、CSV/Excel 精度、旧 API、类别/日期时间绘图、分组语义及绘图 DPI 全局状态已修复；统计计算定义未改。
