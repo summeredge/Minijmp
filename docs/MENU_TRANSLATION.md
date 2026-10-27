@@ -29,6 +29,8 @@
 | Create Two-Level Full Factorial | 创建两水平全因子设计 |
 | Create Two-Level Fractional Factorial | 创建两水平部分因子设计 |
 | Analyze Factorial Design | 分析因子设计 |
+| Create Central Composite Design | 创建中心复合设计 |
+| Analyze Response Surface Model | 分析响应面模型 |
 
 ## 文件（File）
 

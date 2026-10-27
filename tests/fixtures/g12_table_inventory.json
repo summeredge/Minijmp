@@ -18,7 +18,7 @@
       "PrettyTable": 4
     },
     "statistical_source_positions": 65,
-    "logical_statistical_tables": 181,
+    "logical_statistical_tables": 183,
     "table_text_conversions": {
       "to_string": 2,
       "pred_table": 1,
@@ -65,11 +65,13 @@
     "dist_fit.py",
     "dist_plot_dialog.py",
     "doe_analysis.py",
+    "doe_ccd.py",
     "doe_core.py",
     "doe_dialog.py",
     "doe_factorial.py",
     "doe_fractional.py",
     "doe_fractional_analysis.py",
+    "doe_rsm.py",
     "fit_dialog.py",
     "freeze.py",
     "generalized_regression.py",
@@ -167,6 +169,8 @@
     "dist_plot_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "doe_core.py": "DOE-0 版本化纯数据合同与工作表映射；不构造统计报告表或执行表格输出。",
     "doe_analysis.py": "全因子模型纯计算，不构造统计报告表或执行表格输出。",
+    "doe_ccd.py": "中心复合设计生成及校验，不构造统计报告表。",
+    "doe_rsm.py": "响应面模型纯计算，不构造统计报告表。",
     "doe_dialog.py": "DOE 分析结果表展示及来源表输出，见 producers。",
     "doe_factorial.py": "两水平全因子运行表生成；不构造统计报告表或执行表格输出。",
     "doe_fractional.py": "正规部分因子运行表生成及验证，不构造统计报告表。",
@@ -254,11 +258,11 @@
     "doe_dialog.py::AnalyzeDOE.show_table": {
       "sites": ["construct:StatTable#1", "emit:structured:print#1"],
       "classification": "statistical",
-      "logical_tables": 7,
-      "titles": ["系数与效应", "系数与别名组效应", "别名与代表项", "模型", "方差分析", "失拟与曲率", "拟合与残差"],
+      "logical_tables": 9,
+      "titles": ["系数与效应", "系数与别名组效应", "别名与代表项", "因子编码", "系数", "模型", "方差分析", "失拟与曲率", "拟合与残差"],
       "entry_points": ["AnalyzeDOE.publish"],
       "status": "已迁移 StatTable",
-      "tests": ["tests/test_doe_gui.py::test_doe_create_analyze_save_load_and_source_binding", "tests/test_doe_fractional_gui.py::test_fractional_roundtrip_analysis_and_plot_are_alias_aware"],
+      "tests": ["tests/test_doe_gui.py::test_doe_create_analyze_save_load_and_source_binding", "tests/test_doe_fractional_gui.py::test_fractional_roundtrip_analysis_and_plot_are_alias_aware", "tests/test_doe_rsm_gui.py::test_ccd_roundtrip_and_plot"],
       "exception_reason": ""
     },
     "GRR.py::_grr_tables": {

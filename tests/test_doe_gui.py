@@ -67,7 +67,7 @@ def test_replicates_show_anova(csv_app, monkeypatch):
     dialog.analyze()
     assert dialog.result['inference'] is not None
     assert [dialog.tabs.tab(tab, 'text') for tab in dialog.tabs.tabs()] == [
-        '系数与效应', '模型', '方差分析', '拟合与残差']
+        '系数与效应', '模型', '方差分析', '失拟与曲率', '拟合与残差']
     error.assert_not_called()
     dialog.main.destroy()
 
