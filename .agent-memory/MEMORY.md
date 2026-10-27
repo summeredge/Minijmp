@@ -2,7 +2,7 @@
 
 ## 当前状态（2026-10-27）
 
-beta.4 版本准备：beta.3 基线 `d21a924abf6f437f82e2736ac09c5a38dc636d5f`；pandas 迁移提交 `d321c59806230572bc6d7ba2c752ad8c80a62891`。版本提交可由 `git log -1 --format=%H` 在提交后读取；产品/包/EXE 版本分别为 `v0.1.0-beta.4`、`V0.1-beta4`、`0.1.0.4`。迁移全量历史结果 3810 passed；本轮发布工具 25 passed、启动测试 17 passed。Windows EXE/ZIP 已在版本文件未提交状态构建，资源版本和按进程 ID 的两次窗口冒烟已核实；原冒烟脚本误识别 Edge。未推送；最终提交与 origin/main 不一致会阻止发布预检查，标签待该限制解决并验证最终源码后创建。办公终端与实际 PI Server 未验收。详见当日日志。
+beta.4 版本准备：beta.3 基线 `d21a924abf6f437f82e2736ac09c5a38dc636d5f`；pandas 迁移提交 `d321c59806230572bc6d7ba2c752ad8c80a62891`。版本提交可由 `git log -1 --format=%H` 在提交后读取；产品/包/EXE 版本分别为 `v0.1.0-beta.4`、`V0.1-beta4`、`0.1.0.4`。迁移全量历史结果 3810 passed；本轮发布工具 25 passed、启动测试 17 passed。Windows EXE/ZIP 已在版本文件未提交状态构建，资源版本和按进程 ID 的两次窗口冒烟已核实；原冒烟脚本误识别 Edge。版本提交 `e770bb9b22bca9aad2de3e167f77407a5608dff5` 已推送；标签待最终干净源码的构建和验收后创建。办公终端与实际 PI Server 未验收。详见当日日志。
 
 beta.3 已冻结在提交 `d21a924abf6f437f82e2736ac09c5a38dc636d5f`；迁移开始时 `main`、`origin/main` 相同且工作区干净，未创建标签。pandas 3.0.6 迁移已完成并由提交 `d321c59806230572bc6d7ba2c752ad8c80a62891` 固化，正式依赖 `requirements.txt` 与 Windows Python 3.11 锁文件一致。数据安全写入、CSV/Excel 精度、旧 API、类别/日期时间绘图、分组语义及绘图 DPI 全局状态已修复；统计计算定义未改。
 
