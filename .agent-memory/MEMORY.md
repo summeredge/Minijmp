@@ -117,3 +117,11 @@ pandas 3 兼容性定向修复已完成：`core_orig.py` 的 `getRowsFromMask()`
 - `load_formulas()` 不再要求目标是 `str`，也不对所有来源执行 `str()`；`_match_column_name()` 仅对非字符串列名按当前 DataFrame 列匹配，字符串保持原样以兼容旧工程。
 - `export_formulas()` 返回原类型，pickle 工程往返后可正常重算。`C1`、`C2` 表达式语法未变。
 - 验证：`tests/test_worksheet_formulas.py` 27 项（新增数值列名保存/加载/重算）及上下文剪贴板、表格、工作表、工作表右键菜单共 207 项通过。
+
+## DOE Minitab 功能对标工作包 A（2026-10-27）
+
+- 基线：main HEAD fd76b69b59f98d11751074a2d68e1b396f11773a；开始时工作区干净。DOE-0～DOE-4 APPROVE 未变。
+- 只读调查 Minitab Statistical Software 官方在线帮助及 MiniJMP 源码/测试；产品版本未由官方页面注明。已新增 docs/doe-minitab/README.md、feature-matrix.csv、acceptance.md、roadmap.md、sources.md。
+- Review 修正后矩阵 80 项（10 implemented、13 partial、52 missing、4 unknown、1 excluded），66 个唯一验收号；原 001–063 稳定，新增 TAG-010/011、FAC-019 与 ACC-064–066。P0 与 Level 1 完全一致；已实现 P0 项复用 DOE-0～4 基线，不重复安排开发，FAC-009 的 ACC-012 保留为回归验收。
+- Review 修正官方定义：General Full Factorial 的数值水平仍是分类水平；Taguchi 覆盖 4/5/mixed-level 与四类静态 S/N、adjusted 公式及独立数值参考；D-optimality 与 distance-based 按设计家族限定；不要求无官方承诺的全局最优保证。B/D/E 完成 Level 1 ANOVA、诊断和 schema 前置验收，H 保留最终跨类别验收。
+- 最终自动检查：项目 .venv Python 3.11.9 下验证 CSV 80×20 结构、状态计数、66 个连续且一一映射的验收编号、P0/Level 1、A–H 路线映射、UTF-8/Markdown 本地链接/尾随空白；`git diff --check` 通过。未跑 pytest、未改产品代码/schema/菜单/测试/CHANGELOG_DEV；待用户最终审查。详见当日日志。
