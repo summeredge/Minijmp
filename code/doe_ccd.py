@@ -1,24 +1,61 @@
 """中心复合设计生成与设计矩阵校验。"""
 from collections import Counter
+from fractions import Fraction
 from itertools import product
 from numbers import Integral
 import math
 
 import pandas as pd
 
-from doe_core import DesignSpec, _number, randomized_run_order, worksheet_metadata
+from doe_core import DesignSpec, randomized_run_order, worksheet_metadata
+
+_CCD_CODE_TOLERANCE = Fraction(1, 100_000_000)
+
+
+def _coded_level(factor, actual):
+    low, high = Fraction(factor.low), Fraction(factor.high)
+    return 2 * (Fraction(actual) - low) / (high - low) - 1
+
+
+def _center_level(factor):
+    center = factor.from_coded(0)
+    if isinstance(center, Fraction):
+        try:
+            center = float(center)
+        except OverflowError as error:
+            raise ValueError('中心点超出浮点数范围') from error
+    if (isinstance(center, float) and not math.isfinite(center)) or not factor.low < center < factor.high:
+        raise ValueError('中心点因浮点精度不足无法与低高水平区分')
+    if abs(_coded_level(factor, center)) > _CCD_CODE_TOLERANCE:
+        raise ValueError('中心点舍入后无法保持 CCD 编码精度')
+    return center
 
 
 def axial_levels(factor, alpha):
-    """返回由浮点运算得到的轴点；拒绝无法区分的设定水平。"""
+    """返回按存储水平计算并舍入到 float64 的轴点。"""
     low, high = factor.low, factor.high
-    if any(isinstance(v, int) and int(float(v)) != v for v in (low, high)):
-        raise ValueError('因子水平不能无损表示为浮点数')
-    center = _number(factor.from_coded(0), '中心点水平')
-    half = (float(high) - float(low)) / 2
-    levels = (float(center) - alpha * half, float(center) + alpha * half)
+    try:
+        if any(isinstance(v, int) and int(float(v)) != v for v in (low, high)):
+            raise ValueError('因子水平不能无损表示为浮点数')
+    except OverflowError as error:
+        raise ValueError('因子水平超出浮点数范围') from error
+    center = _center_level(factor)
+    if alpha == 1:
+        return low, high
+    low_exact, high_exact = Fraction(low), Fraction(high)
+    center_exact = (low_exact + high_exact) / 2
+    offset = Fraction(alpha) * (high_exact - low_exact) / 2
+    try:
+        levels = (float(center_exact - offset), float(center_exact + offset))
+    except OverflowError as error:
+        raise ValueError('轴点超出有限数值范围') from error
     if not all(math.isfinite(v) for v in levels) or not levels[0] < center < levels[1]:
         raise ValueError('轴点超出有限数值范围或因精度不足无法区分')
+    if alpha > 1 and (levels[0] >= low or levels[1] <= high):
+        raise ValueError('CCC 轴点舍入后未超出低高水平')
+    if any(abs(_coded_level(factor, level) - Fraction(sign * alpha)) > _CCD_CODE_TOLERANCE
+           for level, sign in zip(levels, (-1, 1))):
+        raise ValueError('CCC 轴点舍入后无法保持 CCD 编码精度')
     return levels
 
 
@@ -33,7 +70,7 @@ def validate_ccd(result):
     alpha = spec.ccd_alpha
     if alpha != 1 and not math.isclose(alpha, (2 ** k) ** .25, rel_tol=1e-14):
         raise ValueError('仅支持面心或旋转外接 CCD')
-    centers = [_number(f.from_coded(0), '中心点水平') for f in spec.factors]
+    centers = [_center_level(f) for f in spec.factors]
     axial = [axial_levels(f, alpha) for f in spec.factors]
     groups = {}
     center_replicates = []
@@ -89,7 +126,7 @@ def create_ccd(spec, replicates=1, measured=False):
     total = replicates * (2**k + 2*k) + spec.ccd_center_points
     if total > 10000:
         raise ValueError('运行总数不能超过 10000')
-    centers = [_number(f.from_coded(0), '中心点水平') for f in spec.factors]
+    centers = [_center_level(f) for f in spec.factors]
     axial = [axial_levels(f, spec.ccd_alpha) for f in spec.factors]
     columns = {'run_id': '运行ID', 'standard_order': '标准序', 'run_order': '运行序',
                'point_type': '点类型', 'replicate': '重复',

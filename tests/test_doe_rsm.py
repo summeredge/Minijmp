@@ -1,4 +1,5 @@
 from dataclasses import replace
+from fractions import Fraction
 import numpy as np
 import pytest
 from scipy import stats
@@ -23,6 +24,29 @@ def test_analytic_polynomial():
     np.testing.assert_allclose(result['coefficients'], [40, 3, -2, 5, -1.5, 4], atol=1e-12, rtol=0)
     assert result['sse'] < 1e-24
     assert result['inference'] is None
+
+
+def test_decimal_levels_roundtrip_into_the_complete_quadratic_model():
+    factors = (FactorSpec('A', '温度', 0.1, 0.2),
+               FactorSpec('B', '压力', 65.3, 68.3))
+    spec = DesignSpec('decimal-ccd', factors, ('Y',), seed=17,
+                      design_type='central_composite', ccd_alpha=2**.5,
+                      ccd_center_points=5, ccd_axial_points=4)
+    frame, metadata = create_ccd(spec)
+    coded = np.array([
+        [float(2*(Fraction(row[f'设定_{factor.factor_id}']) - Fraction(factor.low)) /
+                  (Fraction(factor.high) - Fraction(factor.low)) - 1)
+         for factor in factors]
+        for _, row in frame.iterrows()
+    ])
+    np.testing.assert_allclose(frame[['编码_A', '编码_B']].to_numpy(float), coded,
+                               rtol=0, atol=1e-14)
+    a, b = coded.T
+    frame['响应_Y'] = 40 + 3*a - 2*b + 4*a*b + 5*a*a - 1.5*b*b
+    result = analyze_rsm(frame, metadata, 'Y')
+    np.testing.assert_allclose(result['coefficients'], [40, 3, -2, 5, -1.5, 4],
+                               atol=1e-11, rtol=0)
+    assert result['sse'] < 1e-24
 
 
 def test_independent_noisy_reference():

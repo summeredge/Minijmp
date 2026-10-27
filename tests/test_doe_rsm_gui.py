@@ -13,6 +13,12 @@ def test_ccd_roundtrip_and_plot(csv_app, tmp_path, monkeypatch):
     monkeypatch.setattr('worksheets.messagebox.askyesnocancel', lambda *a, **k: False)
     create = CreateDOE(app, ccd=True)
     create.ccd_type.set('CCC')
+    for field, value in ((create.fields[0][1], '0.1'),
+                         (create.fields[0][2], '0.2'),
+                         (create.fields[1][1], '65.3'),
+                         (create.fields[1][2], '68.3')):
+        field.delete(0, 'end')
+        field.insert(0, value)
     create.preview()
     assert '超出' in create.preview_text.get()
     before = list(app.sheets)
@@ -22,8 +28,9 @@ def test_ccd_roundtrip_and_plot(csv_app, tmp_path, monkeypatch):
     create.create()
     table = app.getCurrentTable()
     frame = table.model.df
-    a = (frame['设定_A'].to_numpy(float)-.5)*2
-    b = (frame['设定_B'].to_numpy(float)-.5)*2
+    a = frame['编码_A'].to_numpy(float)
+    b = frame['编码_B'].to_numpy(float)
+    saved_levels = frame[['设定_A', '设定_B', '编码_A', '编码_B']].to_dict('records')
     values = 40+3*a-2*b+4*a*b+5*a*a-1.5*b*b
     for i, value in enumerate(values):
         table.model.setValueAt(str(value), i, frame.columns.get_loc('响应_Y'))
@@ -35,6 +42,10 @@ def test_ccd_roundtrip_and_plot(csv_app, tmp_path, monkeypatch):
     target = tmp_path / 'ccd.dexpl'
     assert app._save_project(target)
     assert app.load_file(target)
+    restored_table = app.getCurrentTable()
+    assert restored_table.model.df[['设定_A', '设定_B', '编码_A', '编码_B']].to_dict('records') == saved_levels
+    assert [factor['low'] for factor in restored_table.doe_metadata['design']['factors']] == [0.1, 65.3]
+    assert [factor['high'] for factor in restored_table.doe_metadata['design']['factors']] == [0.2, 68.3]
     dialog.main.destroy()
     reopened = AnalyzeDOE(app)
     reopened.analyze()
@@ -64,17 +75,19 @@ def test_ccf_create_cancel(csv_app):
     assert '实测_A' in app.getCurrentTable().model.df
 
 
-def test_lossy_input_does_not_create_sheet(csv_app, monkeypatch):
+def test_center_that_rounds_to_an_endpoint_does_not_create_sheet(csv_app, monkeypatch):
     app, _ = csv_app
     error = Mock()
     monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
     before = list(app.sheets)
     create = CreateDOE(app, ccd=True)
     create.fields[0][1].delete(0, 'end')
-    create.fields[0][1].insert(0, '0.1')
+    create.fields[0][1].insert(0, '1.0')
+    create.fields[0][2].delete(0, 'end')
+    create.fields[0][2].insert(0, '1.0000000000000002')
     create.create()
     assert list(app.sheets) == before
-    assert '无损' in error.call_args.args[1]
+    assert '中心点' in error.call_args.args[1]
     create.main.destroy()
 
 
