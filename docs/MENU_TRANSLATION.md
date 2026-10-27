@@ -27,6 +27,7 @@
 | 英文原文 | 中文译名 |
 | --- | --- |
 | Create Two-Level Full Factorial | 创建两水平全因子设计 |
+| Create Two-Level Fractional Factorial | 创建两水平部分因子设计 |
 | Analyze Factorial Design | 分析因子设计 |
 
 ## 文件（File）
