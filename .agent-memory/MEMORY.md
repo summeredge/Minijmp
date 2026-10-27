@@ -79,12 +79,16 @@ pandas 3 兼容性定向修复已完成：`core_orig.py` 的 `getRowsFromMask()`
 
 ## DOE-0 工程基础（2026-10-27）
 
+- DOE-1 推断及交互图修复：无独立重复的简化全因子模型禁用推断；独立重复按相同组合计算纯误差 SSE/df，无中心点时拆分失拟 SSE/df，但不检验失拟显著性。OLS 推断使用模型残差均方，明确要求模型充分、误差独立同方差且正态；中心点推断仍禁用。交互图可选择任意两个因子并标示上次分析快照。真实 Tk 已覆盖三因子各因子对、多响应、非法创建、两个独立工作表、删除和重开后旧来源失效。`.venv` DOE 专项 26 passed、2 warnings；关联 DOE-0/工作表/工程/公式/G12/菜单/帮助/绘图生命周期 278 passed、9 warnings。见当日日志。
+
+- DOE-1 基础：`doe_factorial.py` 生成 2–6 因子的完整组合、独立重复和中心点；`doe_analysis.py` 验证 DOE-0 摘要及组合并拟合层级模型；`doe_dialog.py` 和菜单支持创建、响应后填、分析、StatTable 与基础图。饱和模型不推断；中心点单独建模且推断暂不可用。先前 19 项专项和 278 项回归为历史结果，当前修复及验证见上条；未做 LRM 评审。
+
 - 基于 beta.4 后的当前 HEAD e61d43c0bc21 增加纯数据模块 code/doe_core.py；beta.4 tag、版本文件和发布产物未修改。
 - 公共类型/API：FactorSpec、DesignSpec（含受控 design_type）、RunRecord、DesignResult、ModelResult、OptimizationResult、randomized_run_order()、design_from_worksheet()、worksheet_metadata()、restore_design_result()。design_type 区分 two_level_full、two_level_fractional、central_composite 与明确的 unspecified，进入 schema v1 序列化和输入摘要；缺失/未知值拒绝。连续因子编码保持精确，必要时返回 Fraction；分类因子仅有结构占位，不允许混合水平设计或设计生成。
 - Worksheets.saveMeta/loadMeta 增加可选每表 doe schema；列名保留原类型，run_id 映射到 iloc 行，不用 DataFrame.index。列顺序用 SHA-256 指纹校验，未映射列名不重复进入元数据；设计定义、映射、行 ID 和输入摘要仍保留，不复制 X/Y 原值。实测水平与响应是观察字段，可晚填/修正；设计设定或行映射变化会让保存/恢复失败。摘要不是匿名化；映射列名和 run_id 必须使用非敏感值，通用代码不具备 PII 语义检测；.dexpl 仍是原有可信 pickle 边界。
 - 记录合同区分 standard/run order、点类型、重复、区组、设定与实测水平及可空多响应；轴点必须匹配 CCD alpha/轴点数声明。residual_df == 0 的 ModelResult 禁止 t/p/F 字段。独立 2² 解析参考得到 Y=(53,41,51,55)、效应 A=6、B=-4、AB=8；未实现 DOE-1 分析器。
 - 最终验证：项目 .venv Python 3.11.9、pandas 3.0.6；py_compile 通过；DOE 核心/持久化、worksheets、sheet context、file I/O、公式及 G12 inventory 合并 160 passed、0 failed、0 skipped。G12 已核对 103 个 code/**/*.py 文件。
-- 下一步 DOE-1 才生成 2 水平全因子/部分因子设计并验证生成元、别名、顺序与随机化。
+- 下一步继续 DOE-1 验收与缺口处理；部分因子、生成元和别名不在当前范围内。
 
 ## 当前限制
 

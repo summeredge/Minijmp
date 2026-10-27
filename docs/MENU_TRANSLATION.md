@@ -15,11 +15,19 @@
 | Data | 数据 |
 | Tools | 工具 |
 | Calculator | 计算 |
+| Design of Experiments | 试验设计（DOE） |
 | Stats | 统计 |
 | Quality | 质量 |
 | Plots | 图形 |
 | Debug | 调试 |
 | Help | 帮助 |
+
+## 试验设计（DOE）（Design of Experiments）
+
+| 英文原文 | 中文译名 |
+| --- | --- |
+| Create Two-Level Full Factorial | 创建两水平全因子设计 |
+| Analyze Factorial Design | 分析因子设计 |
 
 ## 文件（File）
 

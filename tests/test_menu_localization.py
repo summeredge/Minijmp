@@ -11,7 +11,7 @@ from modified_table import MTable
 from pandastable_local.data import TableModel
 
 
-CASCADES = ['文件', '工作表', '编辑', '视图', '数据', '工具', '计算',
+CASCADES = ['文件', '工作表', '编辑', '视图', '数据', '工具', '计算', '试验设计（DOE）',
             '统计', '质量', '图形', '调试', '帮助']
 
 
@@ -101,6 +101,7 @@ def test_every_pulldown_entry_is_chinese(app):
 
 
 EXPECTED_LAYOUT = {
+    '试验设计（DOE）': ['创建两水平全因子设计', '分析因子设计'],
     '文件': ['新建项目', '打开项目', '保存', '另存为', 'sep',
             '导入 CSV', '高级导入', '导入 PI 数据', '导入 Excel', '导出 CSV', '导出当前表（单表 / Excel）', 'sep', '退出'],
     '工作表': ['新增工作表', '复制工作表', '重命名工作表', '删除工作表'],

@@ -8,17 +8,17 @@
     "bounds": "追踪显式导入/构造别名、本函数赋值、字符串包装、原生表方法及多行 ASCII/tab 字面量；静态审计不模拟任意跨函数动态对象流。所有现有字符串格式、join、原生 summary、DataFrame 文本与控制台数据路径已人工复核。"
   },
   "summary": {
-    "python_files": 103,
-    "files_with_production_sites": 31,
-    "producer_scopes": 58,
-    "constructor_calls": 128,
+    "python_files": 106,
+    "files_with_production_sites": 32,
+    "producer_scopes": 59,
+    "constructor_calls": 129,
     "constructors": {
       "gen_table": 55,
-      "StatTable": 69,
+      "StatTable": 70,
       "PrettyTable": 4
     },
-    "statistical_source_positions": 64,
-    "logical_statistical_tables": 174,
+    "statistical_source_positions": 65,
+    "logical_statistical_tables": 179,
     "table_text_conversions": {
       "to_string": 2,
       "pred_table": 1,
@@ -64,7 +64,10 @@
     "dialog.py",
     "dist_fit.py",
     "dist_plot_dialog.py",
+    "doe_analysis.py",
     "doe_core.py",
+    "doe_dialog.py",
+    "doe_factorial.py",
     "fit_dialog.py",
     "freeze.py",
     "generalized_regression.py",
@@ -161,6 +164,9 @@
     "dist_fit.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "dist_plot_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "doe_core.py": "DOE-0 版本化纯数据合同与工作表映射；不构造统计报告表或执行表格输出。",
+    "doe_analysis.py": "全因子模型纯计算，不构造统计报告表或执行表格输出。",
+    "doe_dialog.py": "DOE 分析结果表展示及来源表输出，见 producers。",
+    "doe_factorial.py": "两水平全因子运行表生成；不构造统计报告表或执行表格输出。",
     "fit_dialog.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "freeze.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "grr_plot.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
@@ -241,6 +247,16 @@
     "quality_tools_plots.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。"
   },
   "producers": {
+    "doe_dialog.py::AnalyzeDOE.show_table": {
+      "sites": ["construct:StatTable#1", "emit:structured:print#1"],
+      "classification": "statistical",
+      "logical_tables": 5,
+      "titles": ["系数与效应", "模型", "方差分析", "失拟与曲率", "拟合与残差"],
+      "entry_points": ["AnalyzeDOE.publish"],
+      "status": "已迁移 StatTable",
+      "tests": ["tests/test_doe_gui.py::test_doe_create_analyze_save_load_and_source_binding"],
+      "exception_reason": ""
+    },
     "GRR.py::_grr_tables": {
       "sites": [
         "construct:gen_table#1",

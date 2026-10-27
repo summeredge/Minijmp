@@ -163,6 +163,13 @@ class Minijmp(Worksheets, Minijmp_pre):
         self.calc_menu = self.createPulldown(self.menu, self.calc_menu)
         self.menu.add_cascade(label='计算', menu=self.calc_menu['var'])
 
+        from doe_dialog import CreateDOE, AnalyzeDOE
+        self.doe_menu = self.createPulldown(self.menu, {
+            '01创建两水平全因子设计': {'cmd': lambda: CreateDOE(self)},
+            '02分析因子设计': {'cmd': lambda: AnalyzeDOE(self)},
+        })
+        self.menu.add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
+
         self.stats_menu = {
             '01描述性统计': {'cmd': self.describe},
             '02多变量描述性统计': {'cmd': self.multi_describe},
