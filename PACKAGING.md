@@ -3,7 +3,7 @@
 唯一构建入口是 **tools/build_windows_release.ps1**，本文是复制即用的操作卡。
 所有命令都在仓库根目录执行；脚本按自身位置解析项目根，不依赖盘符。
 
-beta.4 本机预验收构建已生成 EXE 和 ZIP；该构建使用未提交的版本文件，不能代替最终提交的干净发布验收。详见 docs/release/v0.1.0-beta.4-release.md。
+beta.4 已在干净提交 0d9f573 上完成本机构建、ZIP 校验及 EXE 冒烟；办公终端验收仍待完成。详见 docs/release/v0.1.0-beta.4-release.md。
 
 ---
 
