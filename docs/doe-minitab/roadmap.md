@@ -44,7 +44,7 @@
 - **完成定义：** README、feature-matrix.csv、acceptance.md、roadmap.md、sources.md 完整；来源范围未知处明确标记；结构检查通过。
 - **进入下一包：** 先确定 schema 演进策略，且下一包所需官方来源及独立数学 oracle 已固定。
 
-### B — 响应面设计扩展
+### B — 响应面设计扩展（已完成，见 [work-package-b-closeout.md](work-package-b-closeout.md)）
 
 - **目标与 feature_id：** RSM-001/002/003/004/007/008/012/013/014/015；补齐官方确认的 CCD 选项、BBD、RSM 预测/优化、多响应图形和 Level 1 诊断。RSM-005 自定义设计归工作包 E；RSM-016 二元分析归工作包 H。
 - **依赖：** A；schema 扩展审查；DOE-3/4 通过范围与算法必须保留。

@@ -10,6 +10,7 @@ from matplotlib import font_manager
 
 from doe_core import restore_design_result
 from doe_dialog import ccd_number
+from doe_rsm import analyze_rsm
 from help_link import open_help
 from sheet_context import SheetApp
 from stat_table import StatTable, TableBlock
@@ -63,16 +64,20 @@ class OptimizeRSM:
             self.metadata = deepcopy(metadata)
             frame = app._full_frame(self.source).copy(deep=True)
             self.design = restore_design_result(frame, self.metadata)
-            if self.design.spec.design_type != 'central_composite':
-                raise ValueError('DOE-4 仅支持完整中心复合设计（CCD）。')
-            from doe_ccd import validate_ccd
-            validate_ccd(self.design)
+            if self.design.spec.design_type not in ('central_composite',
+                                                    'box_behnken'):
+                raise ValueError('优化仅支持中心复合设计或 Box-Behnken 设计。')
+            from doe_rsm import validate_design
+            validate_design(self.design)
         except (AttributeError, KeyError, TypeError, ValueError, RuntimeError) as exc:
-            messagebox.showerror('DOE-4 优化', str(exc) or '当前工作表不是有效 CCD。',
+            messagebox.showerror('响应优化', str(exc) or '当前工作表不是有效响应面设计。',
                                  parent=app.main)
             return
 
-        self.factors = self.design.spec.factors
+        self.factors = [factor for factor in self.design.spec.factors
+                        if factor.factor_type == 'continuous']
+        self.categorical = [factor for factor in self.design.spec.factors
+                            if factor.factor_type == 'categorical']
         self.responses = self.design.spec.response_names
         self.active_response = self.responses[0]
         self.response_settings = {
@@ -84,14 +89,17 @@ class OptimizeRSM:
         self.viewer = None
 
         self.main = tk.Toplevel(app.main)
-        self.main.title('优化响应面（DOE-4）')
+        self.main.title('优化响应面')
         self.main.geometry('1080x740')
         self.main.minsize(900, 620)
         self.main.protocol('WM_DELETE_WINDOW', self.close)
-        self.main.bind('<F1>', lambda event: open_help('doe.ccd', parent=self.main))
+        self.main.bind('<F1>', lambda event: open_help(
+            'doe.bbd' if self.design.spec.design_type == 'box_behnken'
+            else 'doe.ccd', parent=self.main))
 
         self.source_info = tk.StringVar(
-            value=f'来源：{app.getCurrentSheet()}，完整 CCD，{len(self.factors)} 个因子')
+            value=f'来源：{app.getCurrentSheet()}，{len(self.factors)} 个连续因子'
+                  + (f'，{len(self.categorical)} 个分类因子' if self.categorical else ''))
         ttk.Label(self.main, textvariable=self.source_info).pack(fill='x', padx=8, pady=(8, 2))
         ttk.Label(self.main, text='模型预测候选，须现场安全审核并进行确认试验。').pack(
             anchor='w', padx=8)
@@ -116,6 +124,19 @@ class OptimizeRSM:
             lower.bind('<KeyRelease>', self._bounds_changed)
             upper.bind('<KeyRelease>', self._bounds_changed)
         bounds.columnconfigure(3, weight=1)
+        self.category_choice = {}
+        if self.categorical:
+            category = ttk.Frame(self.main, padding=(8, 0))
+            category.pack(fill='x')
+            for factor in self.categorical:
+                ttk.Label(category, text=f'{factor.factor_id} {factor.name}').pack(side='left')
+                choice = ttk.Combobox(category, values=factor.levels,
+                                      state='readonly', width=12)
+                choice.set(factor.levels[0])
+                choice.pack(side='left', padx=(2, 10))
+                choice.bind('<<ComboboxSelected>>',
+                            lambda event: self._invalidate('分类水平已更改，请重新优化。'))
+                self.category_choice[factor.factor_id] = choice
 
         settings = ttk.LabelFrame(self.main, text='响应目标', padding=6)
         settings.pack(fill='x', padx=8, pady=4)
@@ -396,11 +417,19 @@ class OptimizeRSM:
                 raise ValueError(f'{factor.name} 的编码与实际建议值不一致。')
             if not actual_low <= Fraction.from_float(actual) <= actual_high:
                 raise ValueError(f'{factor.name} 的实际建议超出用户边界。')
-        from doe_rsm import model_matrix
-        coded = np.asarray([[float(best['coded'][factor.factor_id]) for factor in self.factors]])
-        design_row = model_matrix(coded)
+        settings = {factor.factor_id: float(best['coded'][factor.factor_id])
+                    for factor in self.factors}
+        settings.update({key: choice.get()
+                         for key, choice in self.category_choice.items()})
+        from doe_rsm import analyze_rsm
+        frame, _ = self._capture_current()
+        analysis = analyze_rsm(frame, self.metadata, next(iter(result['models'])))
+        blocks = analysis['blocks']
+        design_row = analysis['term_model'].row(
+            settings, blocks[0] if blocks else None)
         for name, model in result['models'].items():
-            prediction = float((design_row @ model['coefficients'])[0])
+            prediction = float(np.asarray(design_row) @
+                               np.asarray(model['coefficients'], dtype=float))
             reported = float(best['predictions'][name])
             if not math.isfinite(prediction) or not math.isfinite(reported) or not np.isclose(
                     prediction, reported, rtol=1e-12, atol=np.finfo(float).eps * max(1., abs(prediction)) * 8):
@@ -417,7 +446,10 @@ class OptimizeRSM:
             coded_bounds, actual_bounds = self._read_bounds()
             objectives = self._read_objectives()
             from doe_optimize import optimize_rsm
-            result = optimize_rsm(frame, metadata, objectives, coded_bounds)
+            categories = {key: choice.get()
+                          for key, choice in self.category_choice.items()}
+            result = optimize_rsm(frame, metadata, objectives, coded_bounds,
+                                  categories)
             candidates = result['candidates']
             candidate_headers = ('序号', '候选来源', '可行', '目标函数值', 'D', '编码点', '状态')
             candidate_values = [[
@@ -552,9 +584,21 @@ class OptimizeRSM:
             coded = np.tile(np.asarray([[best['coded'][fid] for fid in ids]], dtype=float),
                             (xx.size, 1))
             coded[:, first], coded[:, second] = xx.ravel(), yy.ravel()
-            from doe_rsm import model_matrix
             coefficients = result['models'][response]['coefficients']
-            zz = (model_matrix(coded) @ coefficients).reshape(xx.shape)
+            analysis = analyze_rsm(self.last['frame'], self.last['metadata'], response)
+            model = analysis['term_model']
+            reference_block = result['block']
+            block = analysis['blocks'].index(reference_block) + 1 if model.blocks > 1 else None
+            settings = {fid: float(best['coded'][fid]) for fid in ids}
+            settings.update({key: choice.get()
+                             for key, choice in self.category_choice.items()})
+            rows = []
+            for x_value, y_value in zip(xx.ravel(), yy.ravel()):
+                point = dict(settings)
+                point[first_id] = x_value
+                point[second_id] = y_value
+                rows.append(model.row(point, block))
+            zz = (np.vstack(rows) @ coefficients).reshape(xx.shape)
             if self.viewer is not None:
                 try:
                     if self.viewer.main.winfo_exists():
@@ -577,8 +621,9 @@ class OptimizeRSM:
                 fixed = ', '.join(
                     f'{fid}={float(best["coded"][fid]):.6g}' for fid in ids
                     if fid not in (first_id, second_id)) or '无'
+                block_text = f'，参考区组 {reference_block}' if reference_block is not None else ''
                 viewer.fig.suptitle(
-                    f'{response} 预测等高线，固定其余因子：{fixed}，快照 {result["snapshot_id"]}')
+                    f'{response} 预测等高线，固定其余因子：{fixed}{block_text}，快照 {result["snapshot_id"]}')
                 from chart_style import font_families
                 font = font_manager.FontProperties(family=font_families('Microsoft YaHei'))
                 viewer.fig._suptitle.set_fontproperties(font)

@@ -5,6 +5,7 @@ import pytest
 
 import doe_optimize
 from doe_ccd import create_ccd
+from doe_bbd import create_bbd
 from doe_core import DesignSpec, FactorSpec
 from doe_optimize import _candidate_rank, _model_value_gradient, optimize_rsm
 
@@ -525,4 +526,57 @@ def test_function_evaluation_limit_is_reported_as_failure(monkeypatch):
     assert len(result["candidates"]) == 18
     assert all({"feasible", "coded", "objective_value", "status"} <= item.keys()
                for item in result["candidates"])
+
+
+def test_bbd_optimization_recovers_the_analytic_quadratic_optimum():
+    factors = tuple(FactorSpec(chr(65+i), chr(65+i), -1, 1) for i in range(3))
+    spec = DesignSpec('opt-bbd', factors, ('Y',), seed=23,
+                      design_type='box_behnken', ccd_center_points=3)
+    frame, metadata = create_bbd(spec)
+    a, b, c = (frame[f'编码_{name}'].to_numpy(float) for name in 'ABC')
+    frame['响应_Y'] = -(a - .25)**2 - 2*(b + .5)**2 - .5*(c + .2)**2 + 7
+    result = optimize_rsm(frame, metadata, {'Y': _objective('maximize', -100, 100)})
+    assert result['status'] == 'success'
+    assert result['best']['coded']['A'] == pytest.approx(.25, abs=1e-6)
+    assert result['best']['coded']['B'] == pytest.approx(-.5, abs=1e-6)
+    assert result['best']['coded']['C'] == pytest.approx(-.2, abs=1e-6)
+    assert result['best']['predictions']['Y'] == pytest.approx(7, abs=1e-9)
+    assert result['terms']['Y']
+
+
+def test_categorical_factor_is_fixed_for_each_run_not_optimized_as_continuous():
+    factors = (FactorSpec('A', 'A', -1, 1), FactorSpec('B', 'B', -1, 1),
+               FactorSpec('L', 'lot', None, None, factor_type='categorical',
+                          levels=('甲', '乙')))
+    spec = DesignSpec('opt-cat', factors, ('Y',), seed=23,
+                      design_type='central_composite', ccd_alpha=1,
+                      ccd_center_points=5, ccd_axial_points=6)
+    frame, metadata = create_ccd(spec)
+    a = frame['编码_A'].to_numpy(float)
+    second = (frame['设定_L'] == '乙').to_numpy(float)
+    frame['响应_Y'] = a + 2*second
+    result = optimize_rsm(frame, metadata, {'Y': _objective('maximize', -5, 5)},
+                          categories={'L': '乙'})
+    assert result['categories'] == {'L': '乙'}
+    assert result['best']['coded']['A'] == pytest.approx(1, abs=1e-6)
+    assert result['best']['predictions']['Y'] == pytest.approx(3, abs=1e-6)
+    assert 'L' not in result['best']['coded']
+    with pytest.raises(ValueError, match='水平'):
+        optimize_rsm(frame, metadata, {'Y': _objective('maximize', -5, 5)},
+                     categories={'L': '丙'})
+
+
+def test_blocked_design_is_optimized_at_the_reference_block():
+    factors = (FactorSpec('A', 'A', -1, 1), FactorSpec('B', 'B', -1, 1))
+    spec = DesignSpec('opt-block', factors, ('Y',), seed=23,
+                      design_type='central_composite', ccd_alpha=None,
+                      ccd_center_points=5, ccd_axial_points=4, block_count=2)
+    frame, metadata = create_ccd(spec)
+    a = frame['编码_A'].to_numpy(float)
+    second = (frame['区组'] == 2).to_numpy(float)
+    frame['响应_Y'] = 3*a + 4*second
+    result = optimize_rsm(frame, metadata, {'Y': _objective('maximize', -5, 5)})
+    assert result['status'] == 'success'
+    assert result['best']['coded']['A'] == pytest.approx(1, abs=1e-6)
+    assert result['best']['predictions']['Y'] == pytest.approx(3, abs=1e-6)
 

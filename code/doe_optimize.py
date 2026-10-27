@@ -1,34 +1,19 @@
 """完整 CCD 二次响应面的有界确定性多起点优化。"""
 from collections.abc import Mapping
 from itertools import product
-import hashlib
-import json
 import math
 from numbers import Real
 
 import numpy as np
-import pandas as pd
 from scipy.optimize import minimize
 
 import doe_ccd
 import doe_rsm
+from doe_predict import snapshot_id as _snapshot_id
 
 
 _TARGET_TOLERANCE = 1e-8
 _MAX_EVALUATIONS_PER_START = 200
-
-
-def _snapshot_id(frame, metadata):
-    digest = hashlib.sha256()
-    structure = {
-        "columns": [(type(column).__name__, repr(column)) for column in frame.columns],
-        "dtypes": [str(dtype) for dtype in frame.dtypes],
-    }
-    digest.update(json.dumps(structure, sort_keys=True, separators=(",", ":")).encode())
-    digest.update(pd.util.hash_pandas_object(frame, index=True).to_numpy(dtype=np.uint64).tobytes())
-    digest.update(json.dumps(metadata, sort_keys=True, separators=(",", ":"),
-                             allow_nan=False).encode())
-    return digest.hexdigest()[:16]
 
 
 def _finite(value, name):
@@ -118,6 +103,39 @@ def _model_value_gradient(coefficients, coded):
                 gradient[i] += coefficients[index] * coded[j]
                 gradient[j] += coefficients[index] * coded[i]
                 index += 1
+    return value, gradient
+
+
+def _term_value_gradient(model, coefficients, coded, block=None):
+    """用正式模型项求值；分类与区组项固定为参考水平，不送入连续求解变量。"""
+    coefficients = np.asarray(coefficients, dtype=float)
+    row = model.row(coded, block)
+    value = float(row @ coefficients)
+    continuous = model.continuous()
+    index = {name: i for i, name in enumerate(continuous)}
+    gradient = np.zeros(len(continuous))
+    for column, coefficient in zip(model.columns[1:], coefficients[1:]):
+        name, spec = column
+        if spec is None:
+            if name.endswith('²'):
+                gradient[index[name[:-1]]] += 2 * coefficient * coded[name[:-1]]
+            elif '*' in name:
+                first, second = name.split('*')
+                gradient[index[first]] += coefficient * coded[second]
+                gradient[index[second]] += coefficient * coded[first]
+            else:
+                gradient[index[name]] += coefficient
+            continue
+        if spec[0] == 'block':
+            continue
+        term, level = spec
+        category = next(part for part in term.split('*')
+                        if model.by_id[part].factor_type == 'categorical')
+        if coded[category] != level:
+            continue
+        if '*' in term:
+            other = next(part for part in term.split('*') if part != category)
+            gradient[index[other]] += coefficient
     return value, gradient
 
 
@@ -256,24 +274,39 @@ def _candidate_rank(candidate, objectives):
             log_score if log_score is not None else -math.inf)
 
 
-def optimize_rsm(frame, metadata, objectives, bounds=None):
-    """优化完整 CCD 响应面。
+def optimize_rsm(frame, metadata, objectives, bounds=None, categories=None):
+    """优化响应面（CCD 或 Box-Behnken）。
 
     objectives 每项必须包含 mode/low/high/target/power_low/power_high/weight。
     多响应评分使用 Derringer-Suich desirability 的加权几何平均；bounds 是
-    [-1, 1] 编码域的收紧范围，等值上下界表示固定因子。
+    [-1, 1] 编码域的收紧范围，等值上下界表示固定因子。分类因子不是连续
+    变量：categories 指定其水平，缺省取第一个水平，并在结果中报告。
     """
     objectives = _normalize_objectives(objectives)
     analyses = {}
     for name in objectives:
         result = doe_rsm.analyze_rsm(frame, metadata, name)
-        coded = np.asarray(doe_ccd.validate_ccd(result["design"]), dtype=float)
+        coded = np.asarray(doe_rsm.validate_design(result["design"]), dtype=float)
         if not np.array_equal(coded, np.asarray(result["coded"], dtype=float)):
-            raise ValueError("RSM 编码与已验证 CCD 设定不一致")
+            raise ValueError("RSM 编码与已验证设计设定不一致")
         analyses[name] = result
 
     design = analyses[next(iter(analyses))]["design"]
-    factors = design.spec.factors
+    all_factors = design.spec.factors
+    factors = [factor for factor in all_factors
+               if factor.factor_type == "continuous"]
+    categorical = [factor for factor in all_factors
+                   if factor.factor_type == "categorical"]
+    fixed_categories = {}
+    for factor in categorical:
+        level = (categories or {}).get(factor.factor_id, factor.levels[0])
+        if level not in factor.levels:
+            raise ValueError(f"分类因子 {factor.factor_id} 的水平不在已声明范围内")
+        fixed_categories[factor.factor_id] = level
+    if categories:
+        unknown = set(categories) - {factor.factor_id for factor in categorical}
+        if unknown:
+            raise ValueError("categories 含未知或非分类因子")
     coded_limits = _coded_bounds(factors, bounds)
     models = {name: _response_model(analyses[name], objectives[name])
               for name in objectives}
@@ -284,15 +317,22 @@ def optimize_rsm(frame, metadata, objectives, bounds=None):
 
     def evaluate(point):
         point = np.asarray(point, dtype=float)
+        settings = {factor.factor_id: float(value)
+                    for factor, value in zip(factors, point)}
+        settings.update(fixed_categories)
         predictions, normalized_predictions, gradients = {}, {}, {}
         objective_predictions, objective_gradients = {}, {}
         for name, model in models.items():
             with np.errstate(over="ignore", invalid="ignore"):
-                value, _ = _model_value_gradient(model["coefficients"], point)
-                scaled, gradient = _model_value_gradient(
-                    model["normalized_coefficients"], point)
-                objective_value, objective_gradient = _model_value_gradient(
-                    model["objective_coefficients"], point)
+                term_model = analyses[name]["term_model"]
+                # 区组项按参考区组（第 1 组）评估，区组不作为连续变量搜索。
+                block = 1 if term_model.blocks > 1 else None
+                value, _ = _term_value_gradient(
+                    term_model, model["coefficients"], settings, block)
+                scaled, gradient = _term_value_gradient(
+                    term_model, model["normalized_coefficients"], settings, block)
+                objective_value, objective_gradient = _term_value_gradient(
+                    term_model, model["objective_coefficients"], settings, block)
             if (not math.isfinite(value) or not math.isfinite(scaled)
                     or not np.isfinite(gradient).all() or not math.isfinite(objective_value)
                     or not np.isfinite(objective_gradient).all()):
@@ -406,6 +446,7 @@ def optimize_rsm(frame, metadata, objectives, bounds=None):
                                             f"因子 {factor.factor_id} 编码往返误差超限")
                 actual[factor.factor_id] = actual_value
                 encoding_errors[factor.factor_id] = error
+            actual.update(fixed_categories)
         except (OverflowError, ValueError):
             return reject_candidate(point, solver_success, candidate_type,
                                     "实际水平转换或编码复核失败")
@@ -514,8 +555,12 @@ def optimize_rsm(frame, metadata, objectives, bounds=None):
         "success": success, "status": status, "method": "deterministic multi-start L-BFGS-B",
         "global_optimum_guaranteed": False, "snapshot_id": snapshot_id,
         "best": best, "candidates": candidates,
+        "block": (analyses[next(iter(analyses))]["blocks"] or [None])[0],
         "models": {name: {"coefficients": analysis["coefficients"]}
                    for name, analysis in analyses.items()},
+        "categories": fixed_categories,
+        "terms": {name: list(analysis["terms"])
+                  for name, analysis in analyses.items()},
         "solver_evaluations": solver_evaluations,
         "evaluation_limit_per_start": _MAX_EVALUATIONS_PER_START,
         "solver_failures": solver_failures,

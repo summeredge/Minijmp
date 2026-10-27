@@ -32,6 +32,9 @@
 | Create Central Composite Design | 创建中心复合设计 |
 | Analyze Response Surface Model | 分析响应面模型 |
 | Optimize Response Surface (DOE-4) | 优化响应面（DOE-4） |
+| Create Box-Behnken Design | 创建 Box-Behnken 设计 |
+| Response Surface Prediction | 响应面预测 |
+| Overlaid Contour Plot | 叠加等高线 |
 
 ## 文件（File）
 
