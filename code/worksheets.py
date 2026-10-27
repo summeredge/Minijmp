@@ -15,6 +15,7 @@ import pandas as pd
 
 from modified_table import MTable
 from pandastable_local import config
+from doe_core import validate_worksheet_metadata
 
 
 def _restore_excel_precision(filename, frames):
@@ -232,16 +233,24 @@ class Worksheets:
     def _full_frame(table):
         return table.dataframe if table.filtered else table.model.df
 
-    def saveMeta(self, table):
-        return {'minijmp': 1, 'columnwidths': dict(table.columnwidths),
+    def saveMeta(self, table, *, validate_doe=True):
+        meta = {'minijmp': 1, 'columnwidths': dict(table.columnwidths),
                 'formulas': table.export_formulas(), 'formula_auto': table.formulas_auto,
                 'options': {k: getattr(table, k) for k in
                             ('floatprecision', 'cellwidth', 'rowheight', 'showindex',
                              'cellbackgr', 'textcolor', 'grid_color', 'thefont')}}
+        doe = getattr(table, 'doe_metadata', None)
+        if doe is not None:
+            # Dirty-state snapshots remain usable after DOE inputs change; saves still validate.
+            meta['doe'] = (validate_worksheet_metadata(self._full_frame(table), doe)
+                           if validate_doe else doe)
+        return meta
 
     def loadMeta(self, table, meta):
         if not isinstance(meta, dict):
             return
+        table.doe_metadata = (validate_worksheet_metadata(self._full_frame(table), meta['doe'])
+                              if 'doe' in meta else None)
         if 'formulas' in meta and not isinstance(meta['formulas'], dict):
             raise ValueError('无效的列公式定义')
         if 'formula_auto' in meta and meta['formula_auto'] not in (True, False):
@@ -254,7 +263,7 @@ class Worksheets:
         if not isinstance(widths, dict) or not all(isinstance(v, (int, float)) and 1 <= v <= 10000 for v in widths.values()):
             raise ValueError('无效的列宽设置')
         options = meta.get('options', {})
-        allowed = self.saveMeta(table)['options']
+        allowed = self.saveMeta(table, validate_doe=False)['options']
         if not isinstance(options, dict) or any(k not in allowed for k in options):
             raise ValueError('无效的显示设置')
         for key in ('floatprecision', 'cellwidth', 'rowheight'):
@@ -270,14 +279,15 @@ class Worksheets:
         table.columnwidths = dict(widths)
         table.redraw()
 
-    def _payload(self):
-        data = {n: {'table': self._full_frame(t), 'meta': self.saveMeta(t)}
+    def _payload(self, *, validate_doe=True):
+        data = {n: {'table': self._full_frame(t),
+                    'meta': self.saveMeta(t, validate_doe=validate_doe)}
                 for n, t in self.sheets.items()}
         data['meta'] = {'active': self.getCurrentSheet(), 'minijmp': 1}
         return data
 
     def _state(self):
-        data = self._payload()
+        data = self._payload(validate_doe=False)
         # Selecting a tab alone is not a data change.
         data.pop('meta')
         return pickle.dumps(data, protocol=pickle.HIGHEST_PROTOCOL)
