@@ -164,6 +164,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         self.menu.add_cascade(label='计算', menu=self.calc_menu['var'])
 
         from doe_dialog import CreateDOE, AnalyzeDOE
+        from doe_optimize_dialog import OptimizeRSM
         self.doe_menu = self.createPulldown(self.menu, {
             '01创建两水平全因子设计': {'cmd': lambda: CreateDOE(self)},
             '02创建两水平部分因子设计': {
@@ -171,6 +172,7 @@ class Minijmp(Worksheets, Minijmp_pre):
             '03分析因子设计': {'cmd': lambda: AnalyzeDOE(self)},
             '04创建中心复合设计': {'cmd': lambda: CreateDOE(self, ccd=True)},
             '05分析响应面模型': {'cmd': lambda: AnalyzeDOE(self)},
+            '06优化响应面（DOE-4）': {'cmd': lambda: OptimizeRSM(self)},
         })
         self.menu.add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
 
