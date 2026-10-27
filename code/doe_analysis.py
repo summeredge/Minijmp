@@ -92,7 +92,9 @@ def analyze_factorial(frame, metadata, response, order=2):
         effects.append(None)
     inference = None
     status = '残差自由度不足，不能进行统计推断' if df == 0 else '可推断'
-    if not pure_df:
+    if has_center:
+        status = '含中心点设计的模型统计推断尚未实现'
+    elif not pure_df:
         status = ('残差自由度不足，不能进行统计推断' if df == 0 else
                   '无独立纯误差，剩余项可能是未拟合交互，不能进行统计推断')
     elif pure_sse ** .5 > tolerance:

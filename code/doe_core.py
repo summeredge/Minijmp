@@ -660,7 +660,18 @@ def design_from_worksheet(frame, spec, column_map):
             run_id=run_id, standard_order=standard_order, run_order=run_order,
             point_type=point_type, settings=settings, replicate=replicate,
             block=block, measured_levels=measured, responses=responses))
-    return DesignResult(spec, tuple(runs))
+    result = DesignResult(spec, tuple(runs))
+    if spec.design_type == "central_composite" and spec.ccd_alpha is not None:
+        from doe_ccd import validate_ccd
+        coded = validate_ccd(result)
+        for i, factor in enumerate(spec.factors):
+            label = f"编码_{factor.factor_id}"
+            if label not in frame.columns or list(frame.columns).count(label) != 1:
+                raise ValueError("CCD 编码水平列缺失或重复")
+            for row, values in enumerate(coded):
+                if _number(frame.iloc[row][label], "CCD 编码水平") != values[i]:
+                    raise ValueError("CCD 编码水平与实际设定不一致")
+    return result
 
 
 def _fingerprint(spec, column_map, result):

@@ -169,6 +169,8 @@ class Minijmp(Worksheets, Minijmp_pre):
             '02创建两水平部分因子设计': {
                 'cmd': lambda: CreateDOE(self, fractional=True)},
             '03分析因子设计': {'cmd': lambda: AnalyzeDOE(self)},
+            '04创建中心复合设计': {'cmd': lambda: CreateDOE(self, ccd=True)},
+            '05分析响应面模型': {'cmd': lambda: AnalyzeDOE(self)},
         })
         self.menu.add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
 

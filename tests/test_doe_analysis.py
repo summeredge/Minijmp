@@ -71,6 +71,33 @@ def test_replicated_exact_fit_does_not_infer_from_roundoff():
     assert result['df'] == 4 and result['inference'] is None
 
 
+def test_center_with_nonzero_pure_error_does_not_enable_model_inference():
+    frame, meta = example(replicates=2, center_points=2)
+    frame['响应_Y'] = [10 + (1 if rep == 1 else -1)
+                       for rep in frame['重复']]
+    result = analyze_factorial(frame, meta, 'Y')
+    assert result['pure_error_df'] > 0 and result['pure_error_sse'] > 0
+    assert result['inference'] is None
+    assert '尚未实现' in result['status']
+
+
+def test_center_curvature_uses_factorial_center_mean_contrast():
+    frame, meta = example(replicates=2, center_points=2)
+    frame['响应_Y'] = [
+        (20 if point == 'center' else 10) + (1 if rep == 1 else -1)
+        for point, rep in zip(frame['点类型'], frame['重复'])
+    ]
+    result = analyze_factorial(frame, meta, 'Y')
+    # Ten observations: each of four factorial cells and the center has ±1 error.
+    assert result['pure_error_sse'] == pytest.approx(10)
+    assert result['pure_error_df'] == 5
+    curvature = result['curvature']
+    assert curvature['difference'] == pytest.approx(10)
+    assert curvature['ss'] == pytest.approx(160)
+    assert curvature['f'] == pytest.approx(80)
+    assert curvature['p'] == pytest.approx(stats.f.sf(80, 1, 5))
+
+
 def test_three_factor_independent_projection():
     spec = DesignSpec('three', tuple(FactorSpec(x, x, -1, 1) for x in 'ABC'),
                       ('Y',), seed=7, design_type='two_level_full')
