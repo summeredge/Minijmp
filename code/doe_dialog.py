@@ -21,17 +21,20 @@ def number(text):
         return float(text)
 
 
-def exact_number(text):
+def ccd_number(text):
     from decimal import Decimal, InvalidOperation
-    from fractions import Fraction
-    from doe_core import _number
+    import math
+    raw = text.strip()
     try:
-        value = Decimal(text.strip())
-        if not value.is_finite():
-            raise ValueError('因子水平必须是有限数值')
-        return _number(Fraction(value), '因子水平')
-    except (InvalidOperation, OverflowError) as exc:
-        raise ValueError('因子水平必须是可无损表示的数值') from exc
+        decimal_value = Decimal(raw)
+        value = number(raw)
+    except (InvalidOperation, OverflowError, ValueError) as exc:
+        raise ValueError('因子水平必须是有限数值') from exc
+    if not decimal_value.is_finite() or (isinstance(value, float) and not math.isfinite(value)):
+        raise ValueError('因子水平必须是有限数值')
+    if decimal_value != 0 and value == 0:
+        raise ValueError('因子水平过小，不能安全表示为浮点数')
+    return value
 
 
 class CreateDOE:
@@ -164,7 +167,7 @@ class CreateDOE:
             name, low, high, unit = (entry.get().strip() for entry in entries)
             if not any((name, low, high, unit)):
                 continue
-            parse = exact_number if self.ccd else number
+            parse = ccd_number if self.ccd else number
             factors.append(FactorSpec(chr(65+i), name, parse(low), parse(high), unit or None))
         responses = tuple(s.strip() for s in self.options['响应名称'].get().split(','))
         generator_text = self.generators.get() if self.fractional else ''
