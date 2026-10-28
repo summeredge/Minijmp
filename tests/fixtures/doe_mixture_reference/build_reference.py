@@ -317,11 +317,11 @@ def main():
     path = Path(__file__).with_name('reference.json')
     payload = json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True)
     path.write_text(payload + '\n', encoding='utf-8')
-    digest = hashlib.sha256(payload.encode('utf-8')).hexdigest()
+    digest = hashlib.sha256((payload + '\n').encode('utf-8')).hexdigest()
     manifest = {
         'source': '独立标准库精确分数与自写线性代数；不导入 MiniJMP 生产模块',
         'files': {'reference.json': {'sha256': digest,
-                                     'bytes': len(payload.encode('utf-8'))}},
+                                     'bytes': len((payload + '\n').encode('utf-8'))}},
     }
     Path(__file__).with_name('manifest.json').write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')

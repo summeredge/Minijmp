@@ -8,6 +8,44 @@ from doe_core import DesignSpec, FactorSpec
 from doe_predict import predict_point, snapshot_id
 
 
+def test_custom_rsm_prediction_uses_declared_terms_and_reference_block():
+    from doe_custom import define_custom
+    from test_doe_custom_rsm import _blocked_columns, _blocked_frame
+
+    frame, metadata, _ = define_custom(
+        _blocked_frame(), design_type='custom_rsm',
+        factors=(FactorSpec('X1', 'X1', -1, 1), FactorSpec('X2', 'X2', -1, 1)),
+        responses=('Y',), column_map=_blocked_columns(), block_count=2,
+        model_terms=('X1', 'X2', 'X1*X2'))
+    result = predict_point(frame, metadata, 'Y', {'X1': 0.5, 'X2': -0.5})
+    assert result['prediction'] == pytest.approx(9.5, abs=1e-9)
+    assert result['block'] == 'B1'
+    assert result['terms'] == ('X1', 'X2', 'X1*X2')
+    with pytest.raises(ValueError):
+        predict_point(frame, metadata, 'Y', {'X1': 2, 'X2': 0})
+
+
+def test_custom_rsm_prediction_preserves_text_category():
+    from doe_custom import define_custom
+    from test_doe_custom_rsm import columns, reference_frame
+
+    frame = reference_frame().drop(columns='X3')
+    frame['C'] = ['低' if i % 2 else '高' for i in range(len(frame))]
+    frame['Y'] = 5 + 2 * frame['X1'] + 3 * frame['X2'] + 7 * (frame['C'] == '高')
+    mapping = columns()
+    mapping['factors'] = {name: name for name in ('X1', 'X2', 'C')}
+    factors = (FactorSpec('X1', 'X1', -1, 1), FactorSpec('X2', 'X2', -1, 1),
+               FactorSpec('C', 'C', None, None, factor_type='categorical',
+                          levels=('低', '高')))
+    frame, metadata, _ = define_custom(
+        frame, design_type='custom_rsm', factors=factors, responses=('Y',),
+        column_map=mapping, model_terms=('X1', 'X2', 'C'))
+    result = predict_point(frame, metadata, 'Y', {'X1': 0.5, 'X2': -0.5, 'C': '高'})
+    assert result['prediction'] == pytest.approx(11.5, abs=1e-9)
+    with pytest.raises(ValueError, match='水平'):
+        predict_point(frame, metadata, 'Y', {'X1': 0, 'X2': 0, 'C': '未知'})
+
+
 def ccd(two_factors=True):
     factors = (FactorSpec('A', 'A', -1, 1), FactorSpec('B', 'B', -1, 1),
                FactorSpec('C', 'C', -1, 1))

@@ -44,6 +44,8 @@ class CreateTaguchi:
         self.factor_count.set('3')
         self.factor_count.pack(side='left')
         self.factor_count.bind('<<ComboboxSelected>>', self.update_rows)
+        self.limit_label = ttk.Label(self.main, foreground='firebrick', wraplength=940)
+        self.limit_label.pack(fill='x', padx=8)
 
         grid = ttk.Frame(self.main, padding=(8, 0))
         grid.pack(fill='x')
@@ -69,6 +71,8 @@ class CreateTaguchi:
             role = ttk.Combobox(grid, values=_ROLES, state='readonly', width=7)
             role.set('控制')
             role.grid(row=index + 1, column=5, padx=4, pady=2)
+            column.bind('<<ComboboxSelected>>', self.update_projection_notice)
+            role.bind('<<ComboboxSelected>>', self.update_projection_notice)
             self.rows.append((name, label_type, levels, column, role))
         grid.columnconfigure(3, weight=1)
 
@@ -132,6 +136,35 @@ class CreateTaguchi:
                 free = next((value for value in columns if value not in used), '')
                 column.set(free)
             used.add(column.get())
+        self.update_projection_notice()
+
+    @staticmethod
+    def _projection_limit(array, columns):
+        if not columns:
+            return ''
+        projected_rows = {
+            tuple(row[column - 1] for column in columns)
+            for row in array.matrix
+        }
+        if len(projected_rows) == array.run_count:
+            return ''
+        if array.array_id == 'L8(2^7)':
+            if len(columns) == 2:
+                return ('L8 两列投影的四种 2×2 组合各重复 2 次；当前合同要求每行设定唯一。'
+                        '请改用 L4，或选择能区分 8 行的列组合（如 1、2、4）。')
+            return ('L8 所选列不能区分全部 8 行；当前合同要求每行设定唯一。'
+                    '请调整列数或分配（如 1、2、4）。')
+        return ('所选控制列会产生重复设定；当前合同要求每行设定唯一。'
+                '请调整因子数或列分配。')
+
+    def update_projection_notice(self, event=None):
+        array = ARRAYS[self.array.get()]
+        count = int(self.factor_count.get())
+        columns = [int(column.get()) for _, _, _, column, role
+                   in self.rows[:count]
+                   if role.get() == '控制' and column.get().isdigit()]
+        self.limit_label.configure(
+            text=self._projection_limit(array, columns))
 
     def _parse_levels(self, entry, label_type):
         raw = [value.strip() for value in entry.get().split(';')]
@@ -178,6 +211,8 @@ class CreateTaguchi:
         validate_independent_columns(array, columns, '控制')
         if noise is not None:
             validate_independent_columns(noise, noise_columns, '噪声')
+        if limit := self._projection_limit(array, list(columns.values())):
+            raise ValueError(limit)
         spec = DesignSpec(
             'Taguchi', tuple(factors),
             tuple(value.strip() for value in self.responses.get().split(',')),

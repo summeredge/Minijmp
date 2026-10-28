@@ -1012,17 +1012,24 @@ class DesignResult:
                         raise ValueError("实测水平与因子类型不一致")
             if set(run.responses) != response_names:
                 raise ValueError("每个运行的响应字段必须与设计定义一致")
-            if run.point_type != "axial":
-                for factor in self.spec.factors:
-                    value = run.settings[factor.factor_id]
-                    if factor.factor_type == "categorical":
-                        if value not in factor.levels:
-                            raise ValueError("分类因子设定不在已声明的水平内")
-                    elif run.point_type == "axial":
-                        # 轴点位于 low/high 之外；范围与距离由设计模块核验。
-                        _number(value, "设定水平")
-                    else:
-                        factor.to_coded(value)
+            if (run.point_type == "axial" and self.spec.design_type not in
+                    ("central_composite", "custom_rsm", "unspecified")):
+                raise ValueError("此设计类型不支持轴点")
+            for factor in self.spec.factors:
+                value = run.settings[factor.factor_id]
+                if factor.factor_type == "categorical":
+                    if value not in factor.levels:
+                        raise ValueError("分类因子设定不在已声明的水平内")
+                elif run.point_type == "axial":
+                    low, high = _fraction(factor.low, "因子 low"), _fraction(factor.high, "因子 high")
+                    try:
+                        coded = float(2 * (_fraction(value, "设定水平") - low) / (high - low) - 1)
+                    except (OverflowError, ValueError) as error:
+                        raise ValueError("轴点编码必须为有限数值") from error
+                    if not math.isfinite(coded):
+                        raise ValueError("轴点编码必须为有限数值")
+                else:
+                    factor.to_coded(value)
         if self.spec.design_type in ("two_level_full", "two_level_fractional",
                                      "general_full_factorial", "split_plot",
                                      "custom_factorial"):

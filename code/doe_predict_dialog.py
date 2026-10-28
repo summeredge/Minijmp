@@ -25,8 +25,8 @@ class PredictRSM:
             self.frame = frame
             self.design = restore_design_result(frame, metadata)
             if self.design.spec.design_type not in ('central_composite',
-                                                    'box_behnken'):
-                raise ValueError('预测仅支持中心复合设计或 Box-Behnken 设计。')
+                                                    'box_behnken', 'custom_rsm'):
+                raise ValueError('预测仅支持中心复合、Box-Behnken 或自定义响应面设计。')
         except (AttributeError, KeyError, TypeError, ValueError, RuntimeError) as exc:
             messagebox.showerror('响应预测', str(exc) or '当前工作表不是有效响应面设计。',
                                  parent=app.main)
@@ -38,8 +38,8 @@ class PredictRSM:
         self.main.title('响应面预测')
         self.main.geometry('720x520')
         self.main.bind('<F1>', lambda event: open_help(
-            'doe.bbd' if self.design.spec.design_type == 'box_behnken'
-            else 'doe.ccd', parent=self.main))
+            {'box_behnken': 'doe.bbd', 'custom_rsm': 'doe.predict'}.get(
+                self.design.spec.design_type, 'doe.ccd'), parent=self.main))
         self.status = tk.StringVar(value='')
         bar = ttk.Frame(self.main, padding=8)
         bar.pack(fill='x')

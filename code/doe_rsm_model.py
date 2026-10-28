@@ -140,6 +140,9 @@ class TermModel:
         """按列顺序构造单行模型向量。"""
         values = (settings if isinstance(settings, dict)
                   else self.coded(settings))
+        for factor in self.factors:
+            if factor.factor_type == 'categorical' and values[factor.factor_id] not in factor.levels:
+                raise ValueError(f'因子 {factor.factor_id} 的水平不在已声明范围内')
         row = [1.0]
         for _name, spec in self.columns[1:]:
             if spec is None:

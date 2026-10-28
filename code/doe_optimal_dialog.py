@@ -117,7 +117,8 @@ class OptimalDesignDialog:
             frame, design_type=expected_kind, factors=design.spec.factors,
             responses=design.spec.response_names,
             column_map=metadata['column_map'], count=count,
-            model_terms=terms, criterion=criterion, seed=seed)
+            model_terms=terms, criterion=criterion, seed=seed,
+            block_count=design.spec.block_count)
         return result, result_metadata, summary
 
     def _show(self, text):
