@@ -14,7 +14,7 @@ def _layout(spec):
     if not isinstance(spec, DesignSpec) or spec.design_type != "split_plot":
         raise ValueError("需要 split_plot 设计定义")
     if spec.schema_version < 4:
-        raise ValueError("Split-Plot 需要 schema v4")
+        raise ValueError("Split-Plot 需要 schema v4 或更高")
     if len(spec.factors) != 2:
         raise ValueError("当前 Split-Plot 仅支持两个连续两水平因子")
     hard = [factor for factor in spec.factors

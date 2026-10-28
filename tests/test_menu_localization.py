@@ -59,7 +59,8 @@ def is_chinese_label(text):
 
     kept = ('PI', 'CSV', 'Excel', 'PDF', 'SPC', 'DOE', 'Cpk', 'R&R', 'I-MR', 'Del',
             'MR', 'NP', 'Xbar-R', 'Xbar-S', 'hdf5', 'Logistic', 'PLS', 'Box-Cox',
-            'Box-Behnken', 'Plackett–Burman', 'DSD', 'Johnson', 'Sixpack')
+            'Box-Behnken', 'Plackett–Burman', 'DSD', 'Johnson', 'Sixpack',
+            'Taguchi')
     single = set('PCUtZVCFDI')
     if not any('一' <= ch <= '鿿' for ch in text):
         return False
@@ -111,7 +112,9 @@ EXPECTED_LAYOUT = {
                         '定义自定义筛选设计', 'sep',
                         '修改设计', '增加运行', '选择最优设计', '评价设计', 'sep',
                         '创建混料设计', '分析混料设计', '混料预测',
-                        '优化混料响应', '混料图形'],
+                        '优化混料响应', '混料图形', 'sep',
+                        '创建 Taguchi 设计（静态）', '创建 Taguchi 设计（动态）',
+                        '分析 Taguchi 设计'],
     '文件': ['新建项目', '打开项目', '保存', '另存为', 'sep',
             '导入 CSV', '高级导入', '导入 PI 数据', '导入 Excel', '导出 CSV', '导出当前表（单表 / Excel）', 'sep', '退出'],
     '工作表': ['新增工作表', '复制工作表', '重命名工作表', '删除工作表'],

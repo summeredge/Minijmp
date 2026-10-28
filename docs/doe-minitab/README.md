@@ -13,6 +13,7 @@
 2026-10-28 工作包 E：自定义 Factorial/RSM/Screening 定义、设计修改、通用增补、D-optimal 与 distance-based 选点及增补、设计评价、跨设计诊断和 Schema v5 的限定范围已完成，可提交独立 Review。距离准则仅响应面；Mixture 距离合同与 Mixture 增补仍未实现。详细范围见 [工作包 E 收尾记录](work-package-e-closeout.md)。
 
 2026-10-28 工作包 F：完成混料专属合同、Simplex Lattice/Centroid/Extreme Vertices、Scheffé 模型与 ANOVA、预测、单/多响应优化、Trace/等高线/曲面/叠加等高线、混料 GUI 与工作表演示；混料语义以独立 `meta['mixture']`（schema 1）保存，DOE 部分使用 schema v5 的 `design_type='mixture'`。MIX-005 保留 partial（总量固定）。证据见 [工作包 F 收尾记录](work-package-f-closeout.md) 和 [混料参考核验](mixture-reference-validation.md)。
+2026-10-28 工作包 G（Taguchi）：G0–G6 限定范围完成，DOE Schema 升至 v5 并保留 v1–v4 读取迁移。已实现 L4/L8/L9/L16/L18/L25 官方矩阵、静态四类 S/N 与 adjusted nominal (I)、动态 signal-response 回归与动态 S/N、噪声条件描述性稳健性、最佳设置与确认建议，以及真实 Tk 保存/重开/复制/再分析。L18 官方表自身有 5 对不平衡列，已按构造事实记录，ACC-049 保持 partial；详见 [工作包 G 收尾记录](work-package-g-closeout.md) 与 [Taguchi 参考核验](taguchi-reference-validation.md)。
 
 ## 范围与基线
 
@@ -30,7 +31,7 @@
 - **DOE-3：CCD 与响应面。** 2–5 个连续因子，支持面心 CCF 与旋转 CCC、中心点、完整二次模型、残差/响应面图及现有工程保存恢复；不支持区组或 BBD。
 - **DOE-4：响应优化。** 仅接受完整 CCD；单响应最大化/最小化/目标逼近，多响应加权几何期望；在声明的编码 bounds 中确定性多起点搜索。搜索不是全局最优证明，功能不写回试验数据。
 
-除历史正规部分因子路径外，现有 PB 和 DSD 的有限筛选路径见工作包 C 收尾记录。Mixture 已具备限定范围的独立实现；Taguchi 尚无 DOE 专属入口或模型实现。
+除历史正规部分因子路径外，现有 PB 和 DSD 的有限筛选路径见工作包 C 收尾记录；Mixture 与 Taguchi 的限定入口分别见工作包 F、G 收尾记录。
 
 ## 矩阵统计
 
@@ -42,9 +43,9 @@
 | Factorial | 10 | 7 | 2 | 0 | 0 | 19 |
 | Response surface | 14 | 0 | 1 | 1 | 0 | 16 |
 | Mixture | 12 | 1 | 0 | 0 | 0 | 13 |
-| Taguchi | 0 | 0 | 11 | 0 | 0 | 11 |
 | DOE 通用能力 | 7 | 2 | 2 | 2 | 1 | 14 |
-| **合计** | **44** | **15** | **17** | **3** | **1** | **80** |
+| Taguchi | 8 | 3 | 0 | 0 | 0 | 11 |
+| **合计** | **52** | **18** | **6** | **3** | **1** | **80** |
 
 每行都有稳定 feature_id。RSM-002 已实现 9、10 因子 BBD，用户提供的 Minitab 22 五种配置经重排数学等价；RSM-005（自定义响应面定义）在工作包 E 实现，RSM-016 未实现，RSM-009（预测/置信区间）仍未核实官方范围。验收范围与当前证据见工作包 B、E 收尾报告。
 
@@ -61,9 +62,13 @@
 - **因子设计：** General Full Factorial 现支持 2–10 个分类因子、文本/数值水平、完整笛卡尔积、上限 10,000、完整重复区组、分类 ANOVA、水平/组合均值及真实 GUI 工程往返；分析模型矩阵最多 10,000,000 个单元。数值水平仍是离散标签。Factorial 区组只支持完整重复分区组；Split-Plot 只支持两个连续两水平因子的平衡 2×2 裂区。自定义分块、更大或不平衡裂区及 Minitab 产品输出一致性仍未覆盖；FAC-012 仅覆盖正规分数的全因子或单因子 Foldover，不包含 PB/Split-Plot 折叠。
 - **响应面：** 工作包 B 已实现 BBD、CCD 分数/区组、类别因子、模型项选择、点预测、多响应叠加等高线、CCD/BBD 单/多响应优化与逐项诊断；工作包 E 增加自定义响应面定义。仍缺官方未核实的预测/置信区间。
 - **Mixture：** 工作包 F 已实现总和/边界/线性约束、三类混料设计、Scheffé 1–3 阶、纯误差/失拟、预测、受约束优化及四类图形；MIX-005 的总量变化设计仍为 partial，复杂产品选项、Mixture 距离合同/增补和 Minitab 标准序未核实。
-- **Taguchi：** 仍缺正交表、S/N 与噪声因子分析。
+- **Taguchi：** 工作包 G 已实现 L4/L8/L9/L16/L18/L25 官方矩阵、静态四类 S/N 与 adjusted nominal (I)、动态 signal-response 回归、噪声条件描述性稳健性和最佳设置预测。仍缺其他目录数组、动态 ANOVA F/p、经核验的控制×噪声交互与交互修正最优；L18 官方表自身有 5 对不平衡列，ACC-049 保持 partial。
 - **实验设计与功效：** 工作包 E 已实现 Factorial/自定义 RSM 候选集的 D-optimal 选点、固定设计评价、D-optimal 增补，以及仅限响应面的 distance-based 选点与增补；Mixture 候选合同与 DOE 功效/样本量仍缺。Minitab 的 D-optimal 适用于 Factorial、Response Surface 和 Mixture；distance-based 只适用于 Response Surface/Mixture。
-- **持久化架构：** 工作包 D 将 DOE schema 升到 v4（有类型的分类水平、设计构造/随机化字段与 Foldover lineage），工作包 E 升到 v5（自定义类型、模型项、最优选点与增补 lineage）；工作包 F 的混料语义以独立 `meta['mixture']`（schema 1）保存，DOE 部分仅增加 `design_type='mixture'`。v1–v4 先校验原始摘要再升级；旧版 MiniJMP 不保证读取 v5 工程。裂区生成、分层分析和运行单元持久化仅覆盖平衡 2×2 两因子方案。
+- **响应面：** 工作包 B 已实现 BBD、CCD 分数/区组、类别因子、模型项选择、点预测、多响应叠加等高线、CCD/BBD 单/多响应优化与逐项诊断；工作包 E 增加自定义响应面定义。仍缺官方未核实的预测/置信区间。
+- **Mixture：** 工作包 F 已实现总和/边界/线性约束、三类混料设计、Scheffé 1–3 阶、纯误差/失拟、预测、受约束优化及四类图形；MIX-005 的总量变化设计仍为 partial，复杂产品选项、Mixture 距离合同/增补和 Minitab 标准序未核实。
+- **Taguchi：** 工作包 G 已实现 L4/L8/L9/L16/L18/L25 官方矩阵、静态四类 S/N 与 adjusted nominal (I)、动态 signal-response 回归、噪声条件描述性稳健性和最佳设置预测。仍缺其他目录数组、动态 ANOVA F/p、经核验的控制×噪声交互与交互修正最优；L18 官方表自身有 5 对不平衡列，ACC-049 保持 partial。
+- **实验设计与功效：** 工作包 E 已实现 Factorial/自定义 RSM 候选集的 D-optimal 选点、固定设计评价、D-optimal 增补，以及仅限响应面的 distance-based 选点与增补；Mixture 候选合同与 DOE 功效/样本量仍缺。Minitab 的 D-optimal 适用于 Factorial、Response Surface 和 Mixture；distance-based 只适用于 Response Surface/Mixture。
+- **持久化架构：** 工作包 D 将 DOE schema 升到 v4；工作包 E 将 v5 扩展为自定义类型、模型项、最优选点与增补 lineage；工作包 G 将 Taguchi 身份与控制/噪声/信号映射并入同一 schema v5。工作包 F 的混料语义以独立 `meta['mixture']`（schema 1）保存，DOE 部分使用 `design_type='mixture'`。v1–v4 先校验原始摘要再升级；旧版 MiniJMP 不保证读取 v5 工程。裂区生成、分层分析和运行单元持久化仅覆盖平衡 2×2 两因子方案。
 - **统计证据：** 两水平、正规分数、一般全因子、完整重复区组和 2×2 裂区已使用独立 fixture 核对项 SS/df/F/p。纯误差按相同因子设置及区组分组；无独立纯误差时不提供失拟 F/p。官方帮助用于定义产品范围，不证明 Minitab 输出逐项一致。
 - **项目范围：** DOE-4 多响应搜索不保证全局最优；如实描述 MiniJMP 求解器的方法、可行域和限制即可，不把 Minitab 未承诺的全局保证当作差距。响应预测、统计推断和实验设计选点分别验收，不互相代替。
 
