@@ -17,8 +17,8 @@ from typing import Mapping
 import pandas as pd
 
 
-DOE_SCHEMA_VERSION = 4
-_READ_VERSIONS = frozenset({1, 2, 3, 4})
+DOE_SCHEMA_VERSION = 5
+_READ_VERSIONS = frozenset({1, 2, 3, 4, 5})
 WORKSHEET_SCHEMA_VERSION = 1
 _ID = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]{0,63}$")
 _RUN_ID = re.compile(r"^[A-Za-z0-9_.-]{1,128}$")
@@ -27,8 +27,11 @@ _DESIGN_TYPES = frozenset({
     "unspecified", "two_level_full", "two_level_fractional", "central_composite",
     "box_behnken", "plackett_burman", "definitive_screening",
     "general_full_factorial", "split_plot",
+    "custom_factorial", "custom_rsm", "custom_screening",
 })
 _SCREENING_TYPES = frozenset({"plackett_burman", "definitive_screening"})
+_CUSTOM_TYPES = frozenset({"custom_factorial", "custom_rsm", "custom_screening"})
+_SCREENING_POINTS = _SCREENING_TYPES | {"custom_screening"}
 _SCREENING_SOURCES = {
     ("plackett_burman", f"pb{n}.v1", "publication", f"nist.pb{n}")
     for n in (12, 20, 24, 28, 36)
@@ -54,6 +57,9 @@ _DESIGN_KEYS_V3 = _DESIGN_KEYS | {"screening_matrix"}
 _DESIGN_KEYS_V4 = _DESIGN_KEYS_V3 | {
     "construction_version", "randomization_unit", "error_structure",
     "foldover_lineage", "center_point_count",
+}
+_DESIGN_KEYS_V5 = _DESIGN_KEYS_V4 | {
+    "model_terms", "optimal_lineage", "augmentation_lineage",
 }
 _FACTOR_KEYS = {"schema_version", "factor_id", "name", "unit", "factor_type",
                 "low", "high", "levels"}
@@ -219,6 +225,77 @@ def _freeze_numeric_map(values, field_name, *, nullable=False, probability=False
     return MappingProxyType(result)
 
 
+def _sha256_text(value, field_name):
+    if not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{64}", value):
+        raise ValueError(f"{field_name} 必须是 SHA-256 十六进制摘要")
+    return value
+
+
+def _freeze_optimal_lineage(value):
+    """D-optimal/distance 选点的父候选集、准则与选点顺序身份。"""
+    if value is None:
+        return None
+    keys = {"parent_design_id", "criterion", "candidate_sha256",
+            "selection_order", "batch_id"}
+    if not isinstance(value, Mapping) or set(value) != keys:
+        raise ValueError("最优设计谱系字段无效")
+    criterion = value["criterion"]
+    if criterion not in ("d_optimal", "distance"):
+        raise ValueError("最优设计准则必须是 d_optimal 或 distance")
+    order = value["selection_order"]
+    if not isinstance(order, (list, tuple)) or not order:
+        raise ValueError("最优设计谱系必须记录选点顺序")
+    run_ids = [_run_id(item, "selection_order") for item in order]
+    if len({_run_id_key(item) for item in run_ids}) != len(run_ids):
+        raise ValueError("选点顺序中的 run_id 不得重复")
+    return MappingProxyType({
+        "parent_design_id": _text(value["parent_design_id"], "parent_design_id",
+                                   identifier=True),
+        "criterion": criterion,
+        "candidate_sha256": _sha256_text(value["candidate_sha256"], "candidate_sha256"),
+        "selection_order": tuple(run_ids),
+        "batch_id": _text(value["batch_id"], "batch_id", identifier=True),
+    })
+
+
+def _freeze_augmentation_lineage(value):
+    """通用增补谱系：父设计、批次、新增映射与前后矩阵摘要。"""
+    if value is None:
+        return None
+    keys = {"parent_design_id", "batch_id", "criterion", "run_map",
+            "source_matrix_sha256", "current_matrix_sha256"}
+    if not isinstance(value, Mapping) or set(value) != keys:
+        raise ValueError("增补谱系字段无效")
+    criterion = value["criterion"]
+    if criterion not in ("manual", "d_optimal", "distance"):
+        raise ValueError("增补准则必须是 manual、d_optimal 或 distance")
+    pairs = value["run_map"]
+    if not isinstance(pairs, (list, tuple)) or not pairs:
+        raise ValueError("增补谱系必须包含新增运行映射")
+    run_map, additions = [], set()
+    for pair in pairs:
+        if not isinstance(pair, (list, tuple)) or len(pair) != 2:
+            raise ValueError("增补映射必须是来源/新增 ID 对")
+        source = None if pair[0] is None else _run_id(pair[0], "增补来源 run_id")
+        addition = _run_id(pair[1], "增补新 run_id")
+        key = _run_id_key(addition)
+        if key in additions:
+            raise ValueError("增补 run_id 不得重复")
+        additions.add(key)
+        run_map.append((source, addition))
+    return MappingProxyType({
+        "parent_design_id": _text(value["parent_design_id"], "parent_design_id",
+                                   identifier=True),
+        "batch_id": _text(value["batch_id"], "batch_id", identifier=True),
+        "criterion": criterion,
+        "run_map": tuple(run_map),
+        "source_matrix_sha256": _sha256_text(value["source_matrix_sha256"],
+                                              "source_matrix_sha256"),
+        "current_matrix_sha256": _sha256_text(value["current_matrix_sha256"],
+                                               "current_matrix_sha256"),
+    })
+
+
 def _freeze_settings(values, *, nullable=False):
     """保留数值或文本因子水平的原始类型。"""
     if not isinstance(values, Mapping):
@@ -362,7 +439,7 @@ class FactorSpec:
         if not isinstance(data, dict):
             raise ValueError("因子元数据字段无效")
         version = data.get("schema_version")
-        keys = _FACTOR_KEYS_V4 if version == 4 else _FACTOR_KEYS
+        keys = _FACTOR_KEYS_V4 if version >= 4 else _FACTOR_KEYS
         if (not isinstance(data, dict) or set(data) != keys
                 or not isinstance(data["levels"], list)):
             raise ValueError("因子元数据字段无效")
@@ -393,6 +470,9 @@ class DesignSpec:
     error_structure: str = "fixed"
     foldover_lineage: Mapping | None = None
     center_point_count: int | None = None
+    model_terms: tuple[str, ...] = ()
+    optimal_lineage: Mapping | None = None
+    augmentation_lineage: Mapping | None = None
 
     def __post_init__(self):
         _text(self.design_id, "design_id", identifier=True)
@@ -404,13 +484,24 @@ class DesignSpec:
         if not factors or not all(isinstance(item, FactorSpec) for item in factors):
             raise ValueError("设计必须包含 FactorSpec")
         categorical_types = ("central_composite", "box_behnken", "plackett_burman",
-                             "definitive_screening", "general_full_factorial")
+                             "definitive_screening", "general_full_factorial",
+                             "custom_factorial", "custom_rsm", "custom_screening")
         if self.design_type not in categorical_types:
             if any(item.factor_type != "continuous" for item in factors):
                 raise NotImplementedError("分类或混合水平设计仅用于中心复合或 Box-Behnken")
         if self.design_type == "general_full_factorial" and any(
                 item.factor_type != "categorical" for item in factors):
             raise ValueError("General Full Factorial 的所有因子必须是分类因子")
+        if self.design_type in _CUSTOM_TYPES and self.schema_version < 5:
+            raise ValueError("自定义设计需要 schema v5")
+        if self.design_type == "custom_factorial" and any(
+                item.factor_type == "categorical" and len(item.levels) != 2
+                for item in factors):
+            raise ValueError("自定义两水平因子设计只接受两水平分类因子")
+        if self.design_type == "custom_screening" and any(
+                item.factor_type == "categorical" and len(item.levels) != 2
+                for item in factors):
+            raise ValueError("自定义筛选设计只接受两水平分类因子")
         ids = [item.factor_id for item in factors]
         names = [item.name for item in factors]
         if len(set(ids)) != len(ids):
@@ -464,6 +555,8 @@ class DesignSpec:
             if (self.construction_version != "v1" or self.randomization_unit != "run"
                     or self.error_structure != "fixed" or self.foldover_lineage is not None
                     or self.center_point_count is not None
+                    or self.model_terms or self.optimal_lineage is not None
+                    or self.augmentation_lineage is not None
                     or any(item.randomization_role is not None for item in factors)
                     or any(item.factor_type == "categorical" and item.level_type == "numeric"
                            for item in factors)):
@@ -519,6 +612,28 @@ class DesignSpec:
             object.__setattr__(self, "screening_matrix", MappingProxyType(identity))
         elif self.screening_matrix is not None:
             raise ValueError("非筛选设计不得声明筛选矩阵身份")
+        if self.schema_version < 5:
+            if (self.model_terms or self.optimal_lineage is not None
+                    or self.augmentation_lineage is not None):
+                raise ValueError("模型项与最优/增补谱系只适用于 schema v5")
+        else:
+            terms = _string_tuple(self.model_terms, "model_terms")
+            object.__setattr__(self, "model_terms", terms)
+            if terms and self.design_type not in (
+                    "custom_rsm", "custom_factorial", "custom_screening"):
+                raise ValueError("model_terms 只适用于自定义设计")
+            optimal = _freeze_optimal_lineage(self.optimal_lineage)
+            augmentation = _freeze_augmentation_lineage(self.augmentation_lineage)
+            if optimal is not None and augmentation is not None:
+                raise ValueError("最优选点谱系与增补谱系不能同时存在")
+            for name, lineage in (("optimal", optimal), ("augmentation", augmentation)):
+                if lineage is not None and lineage["parent_design_id"] == self.design_id:
+                    raise ValueError(f"{name} 父设计不能与当前设计相同")
+            if optimal is not None and self.design_type not in (
+                    "custom_factorial", "custom_rsm", "general_full_factorial"):
+                raise ValueError("最优设计谱系只适用于自定义/一般全因子设计")
+            object.__setattr__(self, "optimal_lineage", optimal)
+            object.__setattr__(self, "augmentation_lineage", augmentation)
 
     def to_dict(self):
         result = {
@@ -558,6 +673,29 @@ class DesignSpec:
                 }),
                 "center_point_count": self.center_point_count,
             })
+        if self.schema_version >= 5:
+            result.update({
+                "model_terms": list(self.model_terms),
+                "optimal_lineage": (None if self.optimal_lineage is None else {
+                    "parent_design_id": self.optimal_lineage["parent_design_id"],
+                    "criterion": self.optimal_lineage["criterion"],
+                    "candidate_sha256": self.optimal_lineage["candidate_sha256"],
+                    "selection_order": list(self.optimal_lineage["selection_order"]),
+                    "batch_id": self.optimal_lineage["batch_id"],
+                }),
+                "augmentation_lineage": (
+                    None if self.augmentation_lineage is None else {
+                        "parent_design_id": self.augmentation_lineage["parent_design_id"],
+                        "batch_id": self.augmentation_lineage["batch_id"],
+                        "criterion": self.augmentation_lineage["criterion"],
+                        "run_map": [list(pair) for pair in
+                                    self.augmentation_lineage["run_map"]],
+                        "source_matrix_sha256":
+                            self.augmentation_lineage["source_matrix_sha256"],
+                        "current_matrix_sha256":
+                            self.augmentation_lineage["current_matrix_sha256"],
+                    }),
+            })
         return result
 
     @classmethod
@@ -570,7 +708,7 @@ class DesignSpec:
         if type(version) is not int or version not in _READ_VERSIONS:
             raise ValueError(f"未知 DOE schema_version: {version!r}")
         keys = {1: _DESIGN_KEYS_V1, 2: _DESIGN_KEYS, 3: _DESIGN_KEYS_V3,
-                4: _DESIGN_KEYS_V4}[version]
+                4: _DESIGN_KEYS_V4, 5: _DESIGN_KEYS_V5}[version]
         if set(data) != keys:
             raise ValueError("设计元数据字段无效")
         missing = object()
@@ -602,6 +740,9 @@ class DesignSpec:
             error_structure=data.get("error_structure", "fixed"),
             foldover_lineage=data.get("foldover_lineage"),
             center_point_count=data.get("center_point_count"),
+            model_terms=tuple(data.get("model_terms") or ()),
+            optimal_lineage=data.get("optimal_lineage"),
+            augmentation_lineage=data.get("augmentation_lineage"),
         )
         from dataclasses import replace
         return replace(result,
@@ -700,7 +841,7 @@ class DesignResult:
         factor_ids = {factor.factor_id for factor in self.spec.factors}
         response_names = set(self.spec.response_names)
         for run in runs:
-            if self.spec.design_type not in _SCREENING_TYPES and run.point_type in ("screening", "pseudo_center"):
+            if self.spec.design_type not in _SCREENING_POINTS and run.point_type in ("screening", "pseudo_center"):
                 raise ValueError("筛选点类型只适用于筛选设计")
             if set(run.settings) != factor_ids:
                 raise ValueError("每个运行的设定水平必须覆盖全部因子")
@@ -726,7 +867,8 @@ class DesignResult:
                     else:
                         factor.to_coded(value)
         if self.spec.design_type in ("two_level_full", "two_level_fractional",
-                                     "general_full_factorial", "split_plot"):
+                                     "general_full_factorial", "split_plot",
+                                     "custom_factorial"):
             if self.spec.block_count is not None:
                 blocks = {run.block for run in runs}
                 if None in blocks or len(blocks) != self.spec.block_count:
@@ -798,7 +940,10 @@ class DesignResult:
                         raise ValueError("whole plot 运行必须连续")
                     seen_whole_plots.append(run.whole_plot_id)
                     current_wp = run.whole_plot_id
-        if self.spec.design_type == "box_behnken":
+        if self.spec.design_type in _CUSTOM_TYPES:
+            # 自定义设计的点集与模型项由 doe_custom 按实际矩阵核验。
+            pass
+        elif self.spec.design_type == "box_behnken":
             expected_centers = self.spec.ccd_center_points
             if expected_centers is not None:
                 expected_centers *= (len({run.replicate for run in runs}) *
@@ -1273,6 +1418,34 @@ def design_from_worksheet(frame, spec, column_map):
                 label = f"编码_{factor.factor_id}"
                 if _number(frame.iloc[row][label], "编码水平") != values[i]:
                     raise ValueError("编码水平与实际设定不一致")
+    if spec.design_type in _CUSTOM_TYPES:
+        from doe_custom import validate_custom
+        # 欠秩的自定义响应面允许保存为候选集，分析时仍会明确拒绝。
+        validate_custom(result, require_estimable=False)
+    if spec.optimal_lineage is not None:
+        from doe_optimal import candidate_digest
+        selected = [run.run_id for run in result.runs
+                    if run.run_id in spec.optimal_lineage["selection_order"]]
+        if tuple(selected) != spec.optimal_lineage["selection_order"]:
+            raise ValueError("最优选点顺序与当前运行不一致")
+    if spec.augmentation_lineage is not None:
+        from doe_custom import matrix_sha256
+        lineage = spec.augmentation_lineage
+        base = [run for run in result.runs if run.batch_id != lineage["batch_id"]]
+        added = [run for run in result.runs if run.batch_id == lineage["batch_id"]]
+        if (len(base) + len(added) != len(result.runs) or not added
+                or {_run_id_key(run.run_id) for run in added}
+                != {_run_id_key(pair[1]) for pair in lineage["run_map"]}
+                or any(run.batch_id not in (None, "BASE") for run in base)):
+            raise ValueError("增补批次映射与运行记录不一致")
+        from dataclasses import replace as _replace
+        parent = _replace(result, spec=_replace(
+            spec, design_id=lineage["parent_design_id"],
+            augmentation_lineage=None), runs=tuple(base))
+        if matrix_sha256(parent) != lineage["source_matrix_sha256"]:
+            raise ValueError("增补前模型矩阵摘要与父设计不一致")
+        if matrix_sha256(result) != lineage["current_matrix_sha256"]:
+            raise ValueError("增补后模型矩阵摘要与设计不一致")
     return result
 
 

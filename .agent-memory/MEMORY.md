@@ -1,5 +1,24 @@
 # MiniJMP 工作记忆
 
+## 工作包 E E0–E6（2026-10-28，本地收尾）
+
+- 状态 `WORK_PACKAGE_E_READY_FOR_REVIEW`（限定范围）；BASE/HEAD `c3720d2737f44ad130d8b61cd07ae31073073c2d`，分支 `main`，开始时工作区干净；E 全部修改未提交，未启动 F/G/H。独立 Review 尚未执行。
+- 新增 `code/doe_custom.py`（定义/校验/矩阵摘要/DSD 结构）、`doe_custom_analysis.py`、`doe_custom_dialog.py`、`doe_modify.py`、`doe_augment.py`、`doe_optimal.py`（select/exact_select/select_distance/evaluate）、`doe_optimal_design.py`、`doe_optimal_dialog.py`、`doe_diagnostics.py`；`doe_rsm.py` 拆出 `fit_rsm` 供自定义 RSM 复用。
+- DOE Schema v5：新增 `model_terms`、`optimal_lineage`、`augmentation_lineage` 与自定义 Factorial/RSM/Screening 类型；v1–v4 按原字段与原输入摘要校验后迁移，坏元数据不替换当前工作簿。`doe_splitplot` 版本检查改为 `>= 4`。
+- D-optimal 用 `logdet(XᵀX)`；候选 ≤40 穷举并标记 `global_optimum_proven`，更大候选集为确定性贪婪+交换且不宣称全局最优。Distance-based 仅响应面编码空间，Factorial 拒绝；增补同样支持：父设计运行作为固定锚点（`select_distance(initial=…)` / `doe_augment._distance_augment`），GUI 仅在响应面父设计开放。Mixture 距离合同依赖 F，GUI 未开放。
+- 独立参考 `tests/fixtures/doe_optimal_reference/`（含 `verify.py`、`reference.json`、`manifest.json`），不导入生产模块；D-optimal 最低案例 x∈{-1,0,1}、截距+x、选 2 点，最优 -1/+1，det=4。自定义 DSD 参考为 6 因子会议矩阵 foldover+中心行与 4 连续+1 文本分类。
+- 旧功能回归修复（同轮）：`doe_dialog.AnalyzeDOE` 曾把 `plot_custom_screening` 及各族发布分支并入 `show_diagnostics`，导致 PB/DSD/一般全因子/RSM/两水平设计分析后 `self.result` 不赋值；现拆为 `publish`→`show_diagnostics`（仅诊断页）→`publish_tables`（各族原分支），`plot_custom_screening` 独立其后。`doe_diagnostics` 的模型 F/p 改为按 `inference` 是否含 `f` 判定，一般全因子/裂区不再 `KeyError`。相关既有测试期望同步：诊断合同页首项、schema v5。
+- 绘图路径修复：自定义 RSM 项平方和的行键为 `source`、自定义 Factorial 为 `term`，统一用 `row.get('source', row.get('term'))`；`analyze_custom_factorial` 补齐 `coded` 与 `effects`（2×系数），修复交互图与发布表崩溃。新增三条真实 Tk 绘图回归（Factorial 6 子图、RSM 4 子图、Screening 6 子图）。
+- 自定义 RSM 模型项回退缺陷：`analyze_custom_rsm` 在 `terms=None` 时把 None 传给 `fit_rsm`，后者按完整二次模型建模，导致只声明部分项的合法自定义设计（主效应+交互）被判秩亏。现默认取 `DesignSpec.model_terms`；带区组的自定义设计在分析矩阵中加入区组项（`区组2` 列），独立核对系数 X1=1、X2=2、区组2=3。
+- `docs/doe-minitab/sources.md` 补写 E 实施证据（自定义定义只描述既有运行、DSD 构造按官方页、D/distance 家族范围、无 Minitab 22 导出），并把 A 阶段“SCR-005 missing”条目标注为历史。矩阵的代码/测试证据路径与 acceptance 验收号映射经脚本核对：0 条失效路径、0 个未映射编号。
+- 增补边界补测（`test_doe_augment.py` 6→9 项）：父设计行内容改变、行顺序调换、run_id 改写、父来源空表均按摘要/映射失效拒绝；`_MAX_RUNS=10000` 超限在写入前拒绝且来源表不变；父设计已满秩 3/3 时增补如实报告 `rank_improved=False`。
+- ACC-054 补齐修改类型：`doe_modify.renumber`（按标准序重写运行序，保留设定/响应/重复）、`doe_modify.replicate`（完整重复：新重复编号与新运行 ID、新响应留空、上限 10000、折叠/增补设计拒绝、拼接后恢复响应列 dtype）；`doe_custom._validate_factorial` 改为按 `(重复编号, 因子点)` 查重，允许独立重复。GUI 修改窗口新增“按标准序重编号”“增加完整重复”与重复数输入。
+- GUI（目标 8.1/8.2）：修改设计窗口新增“预览对照”（前 6 行 `run_id@运行序`、按 run_id 统计运行序变化、明示设定/响应不变，预览不写工作簿）；修改/增补/最优三个窗口的按钮条改为 `side='bottom'` 先占位，420×260 与 360×200 下按钮全部可见。
+- 验证快照（2026-10-28 ITERATE 修复后，各组重叠不可相加；全量 pytest 未运行）：指定八文件 63、E 非 GUI+GUI+工程与 Schema 22 文件 204（30 warnings）、B/C/D 冻结参考+分析优化+help/menu/G12+工作表 19 文件 489（8:38）、help/menu/G12 94。筛选 GUI 排除 PB 参数组 118（200 deselected），PB 200 案例按运行数拆进程 20/28/32/36/40/44 全通过（整文件单进程在 PB 参数案例触发 Tk 原生 `0x80000003`，不计通过）。帮助索引 98 主题。
+- ITERATE 四项阻断修复：`select()` 精确搜索改按 `comb(n,count) ≤ 200000` 预算（20 选 10 穷举、21 选 10 降级），返回 method/exact_budget/subsets/evaluations/stop_reason；`select_augment()` 同样按组合数判定，启发式只换新增位置；`manual` 准则改为严格按输入顺序（GUI 增「按输入顺序」）；增补矩阵与 distance 选点统一 `coded_value(factor,value,point_type)`，轴点可越界、标 factorial 仍拒绝；Distance 选点后按选中运行重建矩阵，秩亏拒绝并回填 selected_n/p/rank/estimable。参考 fixture 未改，SHA-256 `499fd66c…`。
+- 参考集新增 `distance_augment`（四角固定 + 中心/边中点，选点顺序 [0,1]、增补后最小平方间距 1），构建器与核验器各自手算；`reference.json` SHA-256 重建后为 `499fd66c8…`（manifest 同步）。ACC-056、ACC-058 仍标 partial，但原因只剩 Mixture 距离合同与 Mixture 增补；响应面 distance-based 选点与增补已在限定范围通过。文档：`work-package-e-closeout.md`、`optimal-reference-validation.md`、acceptance/roadmap/README/CHANGELOG_DEV/MENU_TRANSLATION/help。
+- 遗留：Minitab 22 对自定义/最优/增补的导出案例缺失；旧版 MiniJMP 读取 v5 工程的产品行为未验证；矩阵统计已按 CSV 更新为 32 implemented / 14 partial / 30 missing / 3 unknown / 1 excluded。
+
 ## 工作包 D D0–D5（2026-10-28，本地收尾）
 
 - 独立 Review 遗留两项已修复：General Full Factorial 创建与恢复统一限制 2–10 因子（1/11 拒绝，10 因子仍受 10,000 行上限）；Split-Plot 预览显示运行/区组/整区数，仅插入前 100 行并提示总数，增加水平滚动，实际创建保持完整。专项八文件 42 passed、D 非 GUI 182、B/C 非 GUI 358、Factorial Tk 22、菜单帮助/G12 94 passed；测试组重叠，全量 pytest 未运行。ACC 状态未变，工作区仍未提交。
@@ -14,50 +33,12 @@
 - D5 的创建、预览、响应填写、分析、图形、保存/重开/复制/再分析和旧 Schema 回归已覆盖。帮助索引重建成功；Help/G12 28 passed、menu 66 passed；独立 factorial verifier 通过。
 - 筛选 Tk 大文件本轮未完整执行：约 22% 时停止长进程；D4 影响的 PB 绘图和代表性 DSD 工程用例分组复跑通过，但该整文件未在最终快照重跑。独立网页端 LRM Review 尚未执行，未提交/推送。
 
-## 工作包 B+C 联合 Review 收尾（2026-10-28）
+## 工作包 B/C 收尾（2026-10-28，细节见当日日志归档）
 
-- 状态 **BC_READY_FOR_INDEPENDENT_REVIEW**：HEAD `886a0311164f691aba4c96093013f645107cb128`，B 四项阻断修复已在联合工作区本地验证；C 的 ACC-001/002/003/005/006 仍 partial，独立 LRM Review 尚未通过。完整范围、未提交文件清单、测试与外部参考缺口见 `docs/doe-minitab/work-package-bc-review-closeout.md`。
-- 官方确认 SCR-005 自定义筛选定义；MiniJMP missing，追加 ACC-067 并规划后续 E，本轮未实现。DSD 4 连续加 2 分类的主效应不两两正交，与二阶项交叉积为零；新增独立交叉积回归。
-- 联合快照：B 核心/对标/旧工程 274 passed，DOE-1/2 52 passed，C 核心/schema 156 passed，双分类交叉积专项 1 passed；B Tk 69 passed、11 warnings，C Tk 118 passed、200 deselected、107 warnings；帮助/菜单/G12/工程基础 163 passed。历史 PB 中间因子数 200 项未在本次重跑，不能当作联合快照新测试。测试组重叠，不相加；全量 pytest 未运行。
-- 已重建帮助索引；八份 C0 矩阵与五份用户提供的 Minitab 22 BBD 参考按清单校验。未提交、未推送、未启动 D；下一步针对限定范围独立 Review，产品标准序和其他设置仍需外部导出。
-
-## 工作包 C 第二轮收尾（2026-10-28）
-
-- 最终审计补齐 PB 新增六种运行数的全部连续因子数真实 Tk 工程流程：原 200 案例单进程接近尾声时触发 Windows Tk 原生 `0x80000003`，无汇总，不计通过；按进度推定 PB48/43 单独 1 passed。按运行数拆分独立进程重跑，PB24/32/36/40/44/48 分别 **20/28/32/36/40/44 passed**，共 200 个互不重叠案例，各组 warnings 数与案例数相同；前述 118 项已覆盖各运行数的 3 因子及满容量。
-
-- 状态 **WORK_PACKAGE_C_PARTIAL**：PB 全部官方基础运行数、文本因子与伪中心、重复区组；DSD 2–48 连续、1–47 连续加 1 分类、4 连续加 2 分类及完整重复均分区组；Lenth PSE、标准化效应图、DSD 零空间和对比已实现。ACC-001/002/003/005/006 均仍 partial，产品标准序、多分类及其他产品选项未齐；可对限定范围发起独立 Review，尚无 APPROVE。构造、验收与 Minitab 22 导出需求见 `docs/doe-minitab/work-package-c-closeout.md` 和 `docs/doe-minitab/screening-reference-validation.md`。
-- Schema v3 对 PB/DSD 的矩阵来源、编码、标准序、重复和区组做摘要及固定构造复核；v1/v2 可读并升级，响应/实测可后填。原八份 C0 数学参考与 SHA-256 未改；不能将数学构造与产品逐点一致混为一谈。
-- 最终代码验证：筛选参考/PB/DSD/分析非 Tk **136 passed**，核验器新增回归 **1 passed**；筛选 Tk GUI **118 passed、107 tight-layout warnings**；DOE-0～4 非 Tk 与 schema v2 **316 passed**；schema v3、工程持久化、DOE GUI 与菜单 **164 passed、11 warnings**；帮助/G12 **28 passed**。测试组重叠，不相加；全量 pytest 未执行。
-- 修复 C0 的 DSD 独立核验脚本清单范围不一致：本地 manifest 仅有四个连续参考，混合参考由上级 manifest 测试；旧脚本失败，修复后四项精确审计和新增回归通过。自动检查缺失的过程细节见 `logs/2026-10-28.md` 与 C 收尾报告。
-- 未提交、未推送、未启动工作包 D；B 的 CCD/RSM 图形缺陷另行处理。工作包 C 首轮及第二轮阶段过程详见上述收尾报告和当日日志。
-
-## 工作包 C0 技术准备（2026-10-28）
-
-- HEAD `886a0311164f691aba4c96093013f645107cb128`；C0 结论为 C0_READY_FOR_REVIEW，等待网页端独立 Review。未实现 PB/DSD 生产功能，B 的独立 Review 也未完成。SCR-001/002/003 保持 missing、SCR-006/007 保持 partial。
-- 已建立 NIST PB 12/20/28、独立 conference matrix DSD 6/7/8/10 全连续及 4 连续加 1 分类 DSD 矩阵与 SHA-256、可执行数学核验；Schema v3 迁移方案与 ACC-001/002/003/005/006 的 STD/EDGE/GUI/PERSIST 合同见 `docs/doe-minitab/work-package-c0-closeout.md`。
-- 本轮旧 Schema/持久化/分数设计回归 52 passed；筛选矩阵审计 9 passed，DSD 精确构造审计 4 个通过。Minitab 产品标准序及其他分类组合、规模、区组和 seed 的逐点一致性仍未验证；后续先 Review，再冻结 Schema，未核实配置取得参考前暂缓。
-
-## 工作包 B Review ITERATE（2026-10-28）
-
-- 用户提供并确认 Minitab 22 五份原始 CSV：9 因子无区组/5/10 组和 10 因子无区组/2 组。独立数学与多重集审计均通过；点集及区组重编号后逐点分配一致，标准序不同。ACC-022B 在这五份指定设置下数学等价通过，独立 Review 仍未提交；详情及哈希见 `docs/doe-minitab/bbd-reference-validation.md` 和 fixture manifest。
-
-- 用户批准 ACC-022 分层：022A 数学和工程为功能 Review 必需，022B Minitab 精确一致性 pending_external_reference 不阻断。现已按 Box–Behnken (1960) 表 4 实现 9/10 因子及正交区组，并修复显式中心点与重复/分类组合合同；022A 本地验证通过，RSM-002 implemented，独立 Review 待网页端发起。证据与命令见 `docs/doe-minitab/work-package-b-closeout.md`；不进入 C。
-- 公共 DOE 合同修复后补跑 DOE-1～4 及响应面相关核心回归 187 passed；两种 computer-use 初始化入口均因 kernel assets 路径错误不可用，网页 Review 请求尚未提交。
-
-- 后续补全：6/8/9/10 因子 CCD 真实 Tk 工程关闭、重开、复制及二次分析通过；本轮核心 181、GUI 30（3 warnings）、菜单/帮助/工作表 163 项通过，测试组不可相加。原始 Box–Behnken 论文与 Crosier 10 因子表均不足以证明 Minitab 逐点等价；五种导出需求见 `docs/doe-minitab/bbd-reference-validation.md`，ACC-022 仍 partial，工作包 B 未完成。
-
-- 第二轮已修复 CCD 6/8/9/10 因子 GUI 入口和分类预览/CCC 确认，响应优化高维起点有界；核心 241、GUI 51（10 warnings）、菜单/帮助/G12/工作表 163 项通过；帮助更新后 94 项通过，新增 GUI 文件 11、优化文件 50 项通过（各组有重叠）。9/10 BBD 官方点阵及区组仍无证据，工作包 B 未完成，见 `docs/doe-minitab/work-package-b-closeout.md`。
-
-- 已修复分类水平被混入纯误差与带区组优化等高线，独立参考及真实 Tk 已验证；带区组曲率未调整区组，F/p 不提供。详见 `docs/doe-minitab/work-package-b-closeout.md` 与 `logs/2026-10-28.md`。
-- 9、10 因子 BBD 标准矩阵及官方区组方案尚未完成，RSM-002 partial、ACC-022 未完整通过；等待网页端最终 Review，不进入工作包 C。
-
-## 工作包 B（2026-10-27，收尾）
-
-- 已完成 B1–B4 代码：schema v2（box_behnken、edge、ccd_fraction、block_count；v1 可读并升级）、doe_bbd.py、doe_rsm_model.py、doe_predict.py/doe_predict_dialog.py、doe_overlay.py/doe_overlay_dialog.py；CCD 分数/区组/分类因子、模型项选择、CCD+BBD 优化、项平方和与诊断可用性页。
-- 菜单新增 07 创建 Box-Behnken 设计、08 响应面预测、09 叠加等高线；帮助新增 doe.bbd、doe.predict、doe.ccd.overlay 并重建索引（94 主题）。
-- 验证基线（.venv）：核心 DOE 16 文件 263 passed；GUI 22 + 21 passed（仅既有 tight-layout 警告）；菜单 66、帮助 13、G12 15、工作表/工程 69 passed；合计 469 passed。全量 pytest 未运行。
-- 收尾报告 docs/doe-minitab/work-package-b-closeout.md；矩阵 RSM 13 implemented、RSM-005/016 missing、RSM-009 unknown。
-- 未提交、未推送、未打标签；不进入工作包 C。
+- 状态：B+C 联合收尾 `BC_READY_FOR_INDEPENDENT_REVIEW`；C 最终 `WORK_PACKAGE_C_PARTIAL`（ACC-001/002/003/005/006 partial）。B 的核心/对标/旧工程 274、DOE-1/2 52、C 核心/schema 156、B Tk 69、C Tk 118（200 deselected）、帮助/菜单/G12/工程基础 163 passed 均为该轮快照。
+- C 已实现 PB 全部官方基础运行数、文本因子/伪中心/重复区组，DSD 2–48 连续、混合 1 分类与 4+2 分类、均分区组，Lenth PSE/标准化效应图/零空间/对比；PB 200 案例按运行数拆进程 20/28/32/36/40/44 全通过（单进程触发 Tk 原生 0x80000003）。
+- B 五份 Minitab 22 导出：点集与区组重编号后一致，标准序分别差 60/116/123/120/163 行；ACC-022B 仅限这五种设置。C0 的 NIST PB 与 conference-matrix DSD 参考与 SHA-256 有效。
+- 上述过程的完整数字、命令与 C0 构造细节见 `.agent-memory/logs/2026-10-28.md` 的“归档”两节。
 
 ## 当前状态（2026-10-27）
 
@@ -114,7 +95,6 @@ pandas 3 兼容性定向修复已完成：`core_orig.py` 的 `getRowsFromMask()`
 （该项为收尾前基线，已被下方 2026-10-26 最终验收记录取代）验证基线：`.venv` 下 `test_capability_compare.py` 9 项、`test_capability_dialog.py` 13 项（含真实 Tk 阶段对比）、`test_capability.py`+`test_capability_plots.py` 合计 93 项通过；`test_g12_inventory.py`+`test_g12_tables.py` 24 项、`test_help_center.py` 13 项、`test_improvement_chart.py`+`test_review_p2_legacy.py`+`test_review_data_safety.py` 69 项、`test_menu_localization.py`+`test_plot_window_lifecycle.py` 104 项通过。
 
 未实现：两阶段分别 Box-Cox/Johnson 后比较能力指数（窗口明确提示，单阶段变换仍可用）；能力指数差值区间/检验。
-
 
 ## 验证基线
 

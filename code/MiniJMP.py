@@ -169,6 +169,9 @@ class Minijmp(Worksheets, Minijmp_pre):
         from doe_optimize_dialog import OptimizeRSM
         from doe_predict_dialog import PredictRSM
         from doe_overlay_dialog import OverlayContours
+        from doe_custom_dialog import DefineCustomDOE
+        from doe_optimal_dialog import (AugmentDesignDialog, EvaluateDesignDialog,
+                                        ModifyDesignDialog, OptimalDesignDialog)
         self.doe_menu = self.createPulldown(self.menu, {
             '01创建两水平全因子设计': {'cmd': lambda: CreateDOE(self)},
             '02创建两水平部分因子设计': {
@@ -186,6 +189,18 @@ class Minijmp(Worksheets, Minijmp_pre):
             '13创建一般全因子设计': {'cmd': lambda: CreateGeneralFactorial(self)},
             '14折叠两水平部分因子设计': {'cmd': lambda: FoldoverDOE(self)},
             '15创建两水平裂区设计': {'cmd': lambda: CreateSplitPlot(self)},
+            '16sep': '',
+            '17定义自定义因子设计': {
+                'cmd': lambda: DefineCustomDOE(self, 'custom_factorial')},
+            '18定义自定义响应面设计': {
+                'cmd': lambda: DefineCustomDOE(self, 'custom_rsm')},
+            '19定义自定义筛选设计': {
+                'cmd': lambda: DefineCustomDOE(self, 'custom_screening')},
+            '20sep': '',
+            '21修改设计': {'cmd': lambda: ModifyDesignDialog(self)},
+            '22增加运行': {'cmd': lambda: AugmentDesignDialog(self)},
+            '23选择最优设计': {'cmd': lambda: OptimalDesignDialog(self)},
+            '24评价设计': {'cmd': lambda: EvaluateDesignDialog(self)},
         })
         self.menu.add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
 

@@ -77,7 +77,7 @@ def test_splitplot_menu_preview_analysis_save_reopen_copy_and_plot(
     assert anova["B"]["f"] == pytest.approx(expected["f"]["B"])
     assert anova["A:B"]["f"] == pytest.approx(expected["f"]["A:B"])
     assert [analysis.tabs.tab(tab, "text") for tab in analysis.tabs.tabs()] == [
-        "裂区方差分析", "拟合与残差"]
+        "诊断合同", "裂区方差分析", "拟合与残差"]
     analysis.plot()
     assert table.pf is not None
     assert table.pf.fig.axes[2].get_title() == '残差与实际运行顺序'

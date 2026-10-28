@@ -64,7 +64,7 @@ def test_original_v2_fingerprint_is_checked_before_upgrade():
     metadata['worksheet']['input_fingerprint'] = _fingerprint(
         metadata['design'], _normalize_column_map(columns, spec), design_from_worksheet(frame, spec, columns))
     upgraded = validate_worksheet_metadata(frame, metadata)
-    assert upgraded['schema_version'] == 4
+    assert upgraded['schema_version'] == 5
     assert upgraded['design']['screening_matrix'] is None
     bad = deepcopy(metadata)
     bad['design']['seed'] = 99

@@ -1,0 +1,7 @@
+{
+  "reference.json": {
+    "sha256": "499fd66c8dbcb3f448174549f4474a9c08ee8fac2fc41471fe6c111b7c8b1524",
+    "source": "build_reference.py; standard-library exact rational derivations",
+    "production_imports": []
+  }
+}

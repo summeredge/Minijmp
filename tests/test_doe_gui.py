@@ -71,7 +71,8 @@ def test_replicates_show_anova(csv_app, monkeypatch):
     assert '残差正态概率图' in titles
     assert '残差与实际运行顺序' in titles
     assert [dialog.tabs.tab(tab, 'text') for tab in dialog.tabs.tabs()] == [
-        '系数与效应', '模型', '项方差分析', '方差分析', '失拟与曲率', '拟合与残差']
+        '诊断合同', '系数与效应', '模型', '项方差分析', '方差分析', '失拟与曲率',
+        '拟合与残差']
     error.assert_not_called()
     dialog.main.destroy()
 

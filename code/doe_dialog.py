@@ -638,7 +638,8 @@ class AnalyzeDOE:
         if design_type not in ('two_level_full', 'two_level_fractional',
                                'central_composite', 'box_behnken', 'plackett_burman',
                                'definitive_screening', 'general_full_factorial',
-                               'split_plot'):
+                               'split_plot', 'custom_factorial', 'custom_rsm',
+                               'custom_screening'):
             messagebox.showerror('试验设计', '当前 DOE 设计类型暂不支持分析。', parent=app.main)
             return
         self.fractional = design_type == 'two_level_fractional'
@@ -648,13 +649,18 @@ class AnalyzeDOE:
         self.bbd = design_type == 'box_behnken'
         self.general = design_type == 'general_full_factorial'
         self.splitplot = design_type == 'split_plot'
-        self.rsm = self.ccd or self.bbd
+        self.custom = design_type.startswith('custom_')
+        self.custom_factorial = design_type == 'custom_factorial'
+        self.custom_rsm = design_type == 'custom_rsm'
+        self.custom_screening = design_type == 'custom_screening'
+        self.rsm = self.ccd or self.bbd or self.custom_rsm
         self.main = tk.Toplevel(app.main)
         self.main.title('分析 Split-Plot 裂区设计' if self.splitplot else
                         '分析一般全因子设计' if self.general else
                         '分析筛选设计' if self.dsd else '分析 Plackett–Burman 设计' if self.pb else '分析响应面模型' if self.rsm else
                         '分析两水平部分因子设计' if self.fractional else '分析因子设计')
-        help_topic = ('doe.split_plot' if self.splitplot else
+        help_topic = ('doe.custom' if self.custom else
+                      'doe.split_plot' if self.splitplot else
                       'doe.general_factorial' if self.general else
                       'doe.dsd' if self.dsd else 'doe.pb' if self.pb else 'doe.bbd' if self.bbd else 'doe.ccd' if self.ccd
                       else 'doe.fractional' if self.fractional else 'doe.full_factorial')
@@ -756,7 +762,7 @@ class AnalyzeDOE:
                 raise ValueError('来源工作表已切换，请切回后重新分析。')
             self.owner._finish_edit()
             frame = self.source.model.df.copy(deep=True)
-            if self.rsm:
+            if self.rsm and not self.custom:
                 from doe_rsm import analyze_rsm
                 terms = None
                 omitted = self.omit_terms.get().strip()
@@ -771,6 +777,23 @@ class AnalyzeDOE:
                     terms = [term for term in full if term not in excluded]
                 result = analyze_rsm(frame, self.source.doe_metadata, self.response.get(),
                                      terms, self.use_blocks.get())
+            elif self.custom:
+                from doe_custom_analysis import analyze_custom
+                terms = None
+                omitted = self.omit_terms.get().strip() if self.custom_rsm else ''
+                if omitted:
+                    from doe_rsm_model import TermModel
+                    full = TermModel(DesignSpec.from_dict(
+                        self.source.doe_metadata['design']).factors,
+                        DesignSpec.from_dict(self.source.doe_metadata['design']).model_terms).terms
+                    excluded = {item.strip() for item in omitted.split(';') if item.strip()}
+                    unknown = excluded - set(full)
+                    if unknown:
+                        raise ValueError('排除项不在当前模型中：' + '、'.join(sorted(unknown)))
+                    terms = [term for term in full if term not in excluded]
+                result = analyze_custom(
+                    frame, self.source.doe_metadata, self.response.get(),
+                    int(self.order.get()), terms, self.use_blocks.get() if self.custom_rsm else True)
             elif self.dsd:
                 from doe_screening_analysis import analyze_dsd
                 factors = DesignSpec.from_dict(self.source.doe_metadata['design']).factors
@@ -829,6 +852,7 @@ class AnalyzeDOE:
     def publish(self, result):
         for tab in self.tabs.tabs():
             self.tabs.nametowidget(tab).destroy()
+        self.show_diagnostics(result)
         self.status.set(f"响应 {result['response']}，{result['n']} 行分析快照；数据修改后需重新分析；" +
                         result['status'] + '；' + result['assumption'])
         if self.splitplot:
@@ -849,6 +873,49 @@ class AnalyzeDOE:
                 for index, run in enumerate(design.runs)])
             self.result = result
             return
+        if self.custom:
+            inf = result['inference']
+            if self.custom_screening:
+                self.show_table('模型', ['运行数', '项数', '秩', '残差自由度', 'SSE'], [[
+                    result['n'], result['p'], result['rank'], result['df'],
+                    result['sse']]])
+                self.show_table('系数与效应', ['项', '系数', '效应'], [
+                    [name, result['coefficients'][i], result['effects'][i]]
+                    for i, name in enumerate(result['names'])])
+            else:
+                self.show_table('模型', ['运行数', '项数', '秩', '残差自由度', 'SSE',
+                                         '纯误差自由度', '失拟自由度', '条件数'], [[
+                    result['n'], result['p'], result['rank'], result['df'],
+                    result['sse'], result['pure_error_df'],
+                    result['lack_of_fit_df'], result.get('condition')]])
+                self.show_table('系数与效应', ['项', '系数', 'SE', 't', 'p'], [
+                    [name, result['coefficients'][i],
+                     inf['se'][i] if inf else None,
+                     inf['t'][i] if inf else None,
+                     inf['p'][i] if inf else None]
+                    for i, name in enumerate(result['names'])])
+                if result['anova']:
+                    self.show_table('项平方和', ['来源', '平方和', '自由度', '均方', 'F', 'p'], [
+                        [row.get('source', row.get('term')), row['ss'], row['df'], row['ms'],
+                         row['f'], row['p']] for row in result['anova']])
+            self.show_table('拟合与残差', ['运行ID', '响应', '拟合值', '残差'], [
+                [run.run_id, run.responses[result['response']],
+                 result['fitted'][index], result['residuals'][index]]
+                for index, run in enumerate(result['design'].runs)])
+            self.result = result
+            return
+
+        self.publish_tables(result)
+
+    def show_diagnostics(self, result):
+        """统一诊断字段语义；不同设计仍保留各自的统计模型。"""
+        from doe_diagnostics import contract
+        design_type = result['design'].spec.design_type
+        data = contract(result, design_type)
+        self.show_table('诊断合同', ['项目', '值', '说明'], [
+            [row['item'], row['value'], row['note']] for row in data['rows']])
+
+    def publish_tables(self, result):
         inf = result['inference']
         if self.pb or self.dsd:
             def available(value):
@@ -1081,6 +1148,42 @@ class AnalyzeDOE:
                          for i, run in enumerate(result['design'].runs)])
         self.result = result
 
+    def plot_custom_screening(self, result):
+        from chart_style import font_families
+        font = font_manager.FontProperties(family=font_families('Microsoft YaHei'))
+        viewer = self.app.showPlotViewer(deferred=True, figsize=(12, 8))
+        try:
+            axes = viewer.fig.subplots(2, 3)
+            names, values = [], []
+            for index, name in enumerate(result['names'][1:], 1):
+                effect = result['effects'][index]
+                if effect is None:
+                    continue
+                names.append(name)
+                values.append(abs(effect))
+            axes[0, 0].barh(names, values)
+            axes[0, 0].set_title('主效应绝对值 Pareto 图')
+            axes[0, 0].set_xlabel('|效应|')
+            properties = result['properties']
+            axes[0, 1].axis('off')
+            axes[0, 1].text(.02, .98,
+                            f"主效应正交：{'是' if properties['main_orthogonal'] else '否'}\n"
+                            f"主效应×二因子交互正交："
+                            f"{'是' if properties['main_two_factor_orthogonal'] else '否'}\n"
+                            f"含中心水平：{'是' if properties['has_zeros'] else '否'}",
+                            va='top', fontproperties=font)
+            self.plot_factorial_residuals([axes[1, 0], axes[1, 1], axes[1, 2]],
+                                          result)
+            axes[0, 2].axis('off')
+            viewer.fig.suptitle('自定义筛选设计（按实际矩阵）', fontproperties=font)
+            viewer.fig.tight_layout()
+            viewer.canvas.draw()
+            self.app.replacePlotViewer(viewer)
+            viewer.main.deiconify()
+        except Exception:
+            viewer.close()
+            raise
+
     def show_table(self, title, headers, values):
         tab = ttk.Frame(self.tabs)
         self.tabs.add(tab, text=title)
@@ -1105,6 +1208,9 @@ class AnalyzeDOE:
             r = self.result
             if self.dsd:
                 self.plot_dsd(r)
+                return
+            if self.custom_screening:
+                self.plot_custom_screening(r)
                 return
             if self.general:
                 self.plot_general_factorial(r)
@@ -1430,7 +1536,16 @@ class AnalyzeDOE:
                 or factors[first].factor_type != 'continuous'
                 or factors[second].factor_type != 'continuous'):
             raise ValueError('响应面绘图需要选择两个不同的连续因子。')
-        alpha = spec.ccd_alpha if spec.design_type == 'central_composite' else 1
+        if spec.design_type == 'central_composite':
+            alpha = spec.ccd_alpha
+        else:
+            # 自定义响应面：轴点范围取实际编码最大值，不使用未声明的 alpha。
+            from doe_custom import coded_value
+            alpha = max([1.0] + [
+                abs(coded_value(factor, run.settings[factor.factor_id],
+                                run.point_type))
+                for factor in factors if factor.factor_type == 'continuous'
+                for run in result['design'].runs if run.point_type == 'axial'])
         axis_ids = {factors[first].factor_id, factors[second].factor_id}
         fixed_continuous = {}
         categorical = {}

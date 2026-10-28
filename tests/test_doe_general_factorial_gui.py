@@ -82,7 +82,7 @@ def test_create_preview_cancel_analysis_plot_save_reopen_copy(csv_app, tmp_path,
     analysis.main.destroy()
     assert app.load_file(path)
     reopened = app.getCurrentTable()
-    assert reopened.doe_metadata['schema_version'] == 4
+    assert reopened.doe_metadata['schema_version'] == 5
     assert reopened.doe_metadata['design']['factors'][1]['levels'] == [100, 150, 200]
     copied = app.copySheet()
     assert copied.doe_metadata == reopened.doe_metadata

@@ -57,10 +57,15 @@ def analyze_rsm(frame, metadata, response, terms=None, use_blocks=True):
     不纳入区组效应（仅用于对照，不作为推荐输出）。
     """
     design = restore_design_result(frame, metadata)
-    spec, runs = design.spec, design.runs
     if not isinstance(use_blocks, bool):
         raise ValueError('use_blocks 必须是布尔值')
     coded = _coded_rows(frame, design)
+    return fit_rsm(design, response, coded, terms=terms, use_blocks=use_blocks)
+
+
+def fit_rsm(design, response, coded, terms=None, use_blocks=True):
+    """按显式连续因子编码矩阵拟合响应面模型；CCD/BBD 与自定义设计共用。"""
+    spec, runs = design.spec, design.runs
     if response not in spec.response_names:
         raise ValueError('响应不属于该设计')
     values = [run.responses[response] for run in runs]

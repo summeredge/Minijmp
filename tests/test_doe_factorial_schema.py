@@ -19,7 +19,7 @@ def general_spec():
 def test_schema_v4_preserves_numeric_and_text_factor_labels():
     spec = general_spec()
     payload = spec.to_dict()
-    assert DOE_SCHEMA_VERSION == payload["schema_version"] == 4
+    assert DOE_SCHEMA_VERSION == payload["schema_version"] == 5
     assert payload["construction_version"] == "v1"
     assert payload["randomization_unit"] == "run"
     assert payload["error_structure"] == "fixed"
