@@ -1,0 +1,139 @@
+{
+ "source": "Minitab Support, Catalogue of Taguchi designs",
+ "source_url": "https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/taguchi-designs/catalogue-of-taguchi-designs/",
+ "accessed": "2026-10-28",
+ "source_version": "online help; version not stated",
+ "row_order": "official page order",
+ "encoding": "1..L internal codes",
+ "fixtures": [
+  {
+   "id": "l4_2_3",
+   "path": "l4_2_3.csv",
+   "array_id": "L4(2^3)",
+   "title": "L4 (2^3)",
+   "runs": 4,
+   "levels": [
+    2,
+    2,
+    2
+   ],
+   "sha256": "36e38b04086c1cca2ff46858c444191aed0201aff98957c459cbf34b6ddb931e",
+   "matrix_sha256": "4dbb7e61e08456a2fc73beec0f684e6fe6ff23be5ce583257d0cf77d4eab5293",
+   "independent_validation": "pytest independent audit 2026-10-28"
+  },
+  {
+   "id": "l8_2_7",
+   "path": "l8_2_7.csv",
+   "array_id": "L8(2^7)",
+   "title": "L8 (2^7)",
+   "runs": 8,
+   "levels": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "sha256": "3f2bcff42339aaa4ae214b46b95b1cc496158f5e1ef2b386189a9020185a51b6",
+   "matrix_sha256": "531143ce471a565b2f70ecebb09175a25eea579009276cc8258e850032a7865a",
+   "independent_validation": "pytest independent audit 2026-10-28"
+  },
+  {
+   "id": "l9_3_4",
+   "path": "l9_3_4.csv",
+   "array_id": "L9(3^4)",
+   "title": "L9 (3^4)",
+   "runs": 9,
+   "levels": [
+    3,
+    3,
+    3,
+    3
+   ],
+   "sha256": "69b67312f67be4e18dd1e628975f4542ad12a5bd1ff137c833c495e7b6568da9",
+   "matrix_sha256": "4cd700b782235ade8c075a72423ab3eae1d22bbf3f878e6ec5cac93646eaa66a",
+   "independent_validation": "pytest independent audit 2026-10-28"
+  },
+  {
+   "id": "l16_4_5",
+   "path": "l16_4_5.csv",
+   "array_id": "L16(4^5)",
+   "title": "L16 (4^5)",
+   "runs": 16,
+   "levels": [
+    4,
+    4,
+    4,
+    4,
+    4
+   ],
+   "sha256": "1ff77c0da051f1b8158acfb9fc2dcbad7e2b85e064e8203bd47fa4553637dcb0",
+   "matrix_sha256": "e6c88b54262a476cae750396a8fd8156955b9383e491ad643e9ebe60cf311398",
+   "independent_validation": "pytest independent audit 2026-10-28"
+  },
+  {
+   "id": "l18_2_1_3_7",
+   "path": "l18_2_1_3_7.csv",
+   "array_id": "L18(2^1 3^7)",
+   "title": "L18 (2^1 3^7)",
+   "runs": 18,
+   "levels": [
+    2,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "sha256": "767f1ad05d8f96ba082346c8bd4c06bad848e7e82a88438d1756f6d6c3b99a76",
+   "matrix_sha256": "eab04abe4b2eb33d6866358c5ff4fe09340cf79629a2d8d8e0d4dd342dddcb1f",
+   "independent_validation": "pytest independent audit 2026-10-28"
+  },
+  {
+   "id": "l25_5_6",
+   "path": "l25_5_6.csv",
+   "array_id": "L25(5^6)",
+   "title": "L25 (5^6)",
+   "runs": 25,
+   "levels": [
+    5,
+    5,
+    5,
+    5,
+    5,
+    5
+   ],
+   "sha256": "86845223d1e019205ad36faa592b62b7d87b546d34054d07ffb1374affd85ea2",
+   "matrix_sha256": "1cc4e9cdf1413f5bcc16ad97ff8b032f8a97d985ab56138dbae862cc30287fa1",
+   "independent_validation": "pytest independent audit 2026-10-28"
+  }
+ ],
+ "documented_unbalanced_pairs": {
+  "l18_2_1_3_7": [
+   [
+    3,
+    8
+   ],
+   [
+    4,
+    8
+   ],
+   [
+    5,
+    8
+   ],
+   [
+    6,
+    8
+   ],
+   [
+    7,
+    8
+   ]
+  ]
+ }
+}

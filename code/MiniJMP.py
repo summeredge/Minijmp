@@ -174,6 +174,8 @@ class Minijmp(Worksheets, Minijmp_pre):
                                         ModifyDesignDialog, OptimalDesignDialog)
         from doe_mixture_dialog import (AnalyzeMixtureDesign, CreateMixtureDesign,
                                         MixturePlots, OptimizeMixture, PredictMixture)
+        from doe_taguchi_dialog import CreateTaguchi
+        from doe_taguchi_analysis_dialog import AnalyzeTaguchi
         self.doe_menu = self.createPulldown(self.menu, {
             '01创建两水平全因子设计': {'cmd': lambda: CreateDOE(self)},
             '02创建两水平部分因子设计': {
@@ -209,6 +211,11 @@ class Minijmp(Worksheets, Minijmp_pre):
             '28混料预测': {'cmd': lambda: PredictMixture(self)},
             '29优化混料响应': {'cmd': lambda: OptimizeMixture(self)},
             '30混料图形': {'cmd': lambda: MixturePlots(self)},
+            '31sep': '',
+            '32创建 Taguchi 设计（静态）': {'cmd': lambda: CreateTaguchi(self)},
+            '33创建 Taguchi 设计（动态）': {
+                'cmd': lambda: CreateTaguchi(self, dynamic=True)},
+            '34分析 Taguchi 设计': {'cmd': lambda: AnalyzeTaguchi(self)},
         })
         self.menu.add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
 

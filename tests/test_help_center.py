@@ -132,8 +132,8 @@ def test_menu_inventory_and_dialog_ids_match_the_source():
             callback = topic["entry"].split(".", 1)[1].split("(", 1)[0]
             assert callback in menu_callbacks, topic["id"]
             assert any("\u4e00" <= char <= "\u9fff" for char in menu_callbacks[callback]), topic["id"]
-    assert len(seen_classes - {"PIImportDialog"}) == 60
-    assert len(seen_classes) == 61
+    assert len(seen_classes - {"PIImportDialog"}) == 62
+    assert len(seen_classes) == 63
 
 
 def test_generated_search_index_matches_every_nonempty_help_section():
