@@ -163,7 +163,9 @@ class Minijmp(Worksheets, Minijmp_pre):
         self.calc_menu = self.createPulldown(self.menu, self.calc_menu)
         self.menu.add_cascade(label='计算', menu=self.calc_menu['var'])
 
-        from doe_dialog import CreateDOE, AnalyzeDOE
+        from doe_dialog import CreateDOE, CreateGeneralFactorial, AnalyzeDOE
+        from doe_foldover_dialog import FoldoverDOE
+        from doe_splitplot_dialog import CreateSplitPlot
         from doe_optimize_dialog import OptimizeRSM
         from doe_predict_dialog import PredictRSM
         from doe_overlay_dialog import OverlayContours
@@ -181,6 +183,9 @@ class Minijmp(Worksheets, Minijmp_pre):
             '10创建 Plackett–Burman 设计': {'cmd': lambda: CreateDOE(self, pb=True)},
             '11创建筛选设计（DSD）': {'cmd': lambda: CreateDOE(self, dsd=True)},
             '12分析筛选设计': {'cmd': lambda: AnalyzeDOE(self, screening=True)},
+            '13创建一般全因子设计': {'cmd': lambda: CreateGeneralFactorial(self)},
+            '14折叠两水平部分因子设计': {'cmd': lambda: FoldoverDOE(self)},
+            '15创建两水平裂区设计': {'cmd': lambda: CreateSplitPlot(self)},
         })
         self.menu.add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
 

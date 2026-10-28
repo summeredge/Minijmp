@@ -66,10 +66,42 @@ def test_replicates_show_anova(csv_app, monkeypatch):
     dialog = AnalyzeDOE(app)
     dialog.analyze()
     assert dialog.result['inference'] is not None
+    dialog.plot()
+    titles = [axis.get_title() for axis in table.pf.fig.axes]
+    assert '残差正态概率图' in titles
+    assert '残差与实际运行顺序' in titles
     assert [dialog.tabs.tab(tab, 'text') for tab in dialog.tabs.tabs()] == [
-        '系数与效应', '模型', '方差分析', '失拟与曲率', '拟合与残差']
+        '系数与效应', '模型', '项方差分析', '方差分析', '失拟与曲率', '拟合与残差']
     error.assert_not_called()
     dialog.main.destroy()
+
+
+def test_replicate_blocks_preview_creation_and_adjusted_analysis(csv_app, monkeypatch):
+    app, error = csv_app
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    create = CreateDOE(app)
+    create.options['重复数'].delete(0, 'end')
+    create.options['重复数'].insert(0, '3')
+    create.block_replicates.set(True)
+    create.preview()
+    assert '3 个区组，每个完整重复为一区组' in create.preview_text.get()
+    create.create()
+    table = app.getCurrentTable()
+    frame = table.model.df
+    assert table.doe_metadata['design']['block_count'] == 3
+    assert set(frame.groupby('区组').size()) == {4}
+    for index, row in frame.iterrows():
+        a, b = 2 * row['设定_A'] - 1, 2 * row['设定_B'] - 1
+        block = int(row['区组'][1:]) - 2
+        value = 50 + 3*a - 2*b + 4*a*b + block
+        table.model.setValueAt(str(value), index, frame.columns.get_loc('响应_Y'))
+    analysis = AnalyzeDOE(app)
+    analysis.analyze()
+    assert analysis.result is not None
+    assert analysis.result['block_df'] == 2
+    assert analysis.result['block_ss'] == 8
+    assert error.call_count == 0
+    analysis.main.destroy()
 
 
 def test_three_factor_pairs_multiple_responses_and_deleted_source(csv_app, monkeypatch):

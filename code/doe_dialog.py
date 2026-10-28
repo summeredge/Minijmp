@@ -205,6 +205,12 @@ class CreateDOE:
             entry.grid(row=row, column=1, columnspan=2, sticky='ew', pady=2)
             self.options[key] = entry
         preview_row = options_start + len(self.options)
+        if not (ccd or bbd or pb or dsd):
+            self.block_replicates = tk.BooleanVar(value=False)
+            ttk.Checkbutton(grid, text='每个完整重复作为一个区组',
+                            variable=self.block_replicates).grid(
+                                row=preview_row, column=0, columnspan=3, sticky='w')
+            preview_row += 1
         if fractional:
             ttk.Label(grid, text='生成元（D=AB;E=AC）').grid(
                 row=preview_row, column=0, sticky='w')
@@ -360,14 +366,15 @@ class CreateDOE:
                               block_count=blocks)
             return create_ccd(spec, replicates, measured=self.measured.get())
         centers = int(center_text)
+        blocked = (hasattr(self, 'block_replicates') and self.block_replicates.get())
         spec = DesignSpec('DOE', tuple(factors), responses,
                           seed=int(self.options['随机 seed'].get()),
                           generators=generators,
                           design_type='two_level_fractional' if self.fractional
-                          else 'two_level_full')
+                          else 'two_level_full',
+                          block_count=replicates if blocked else None,
+                          randomization_unit='block' if blocked else 'run')
         if self.fractional:
-            if centers:
-                raise ValueError('正规部分因子设计当前不支持中心点，请将中心点数设为 0。')
             from doe_fractional import create_fractional
             return create_fractional(spec, replicates, centers)
         return create_factorial(spec, replicates, centers)
@@ -377,6 +384,8 @@ class CreateDOE:
             frame, meta = self.build()
             summary = f'{len(frame)} 次运行；前 5 个运行 ID：' + ', '.join(
                 frame['运行ID'].head().tolist())
+            if '区组' in frame:
+                summary += f'；{frame["区组"].nunique()} 个区组，每个完整重复为一区组'
             if self.pb:
                 spec = DesignSpec.from_dict(meta['design'])
                 summary += '；因子水平：' + '；'.join(
@@ -411,7 +420,8 @@ class CreateDOE:
             if self.fractional:
                 design = meta['design']
                 relations = design['defining_relations']
-                resolution = min(len(item.split('=', 1)[1]) for item in relations)
+                resolution = min(len(item.split('=', 1)[1].lstrip('-'))
+                                 for item in relations)
                 aliases = design['aliases']
                 shown_aliases = '；'.join(aliases[:6]) or '无'
                 if len(aliases) > 6:
@@ -466,6 +476,152 @@ class CreateDOE:
         self.main.destroy()
 
 
+class CreateGeneralFactorial:
+    """一般全因子创建、限量预览及确认。"""
+
+    def __init__(self, app):
+        self.app = app
+        self.main = tk.Toplevel(app.main)
+        self.main.title('创建一般全因子设计')
+        self.main.geometry('900x680')
+        self.main.bind('<F1>', lambda event: open_help('doe.general_factorial', parent=self.main))
+        area = ttk.Frame(self.main)
+        area.pack(fill='both', expand=True)
+        canvas = tk.Canvas(area, highlightthickness=0)
+        scrollbar = ttk.Scrollbar(area, orient='vertical', command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side='right', fill='y')
+        canvas.pack(side='left', fill='both', expand=True)
+        grid = ttk.Frame(canvas, padding=8)
+        canvas.create_window((0, 0), window=grid, anchor='nw')
+        grid.bind('<Configure>', lambda event: canvas.configure(scrollregion=canvas.bbox('all')))
+        ttk.Label(grid, text='因子数').grid(row=0, column=0, sticky='w')
+        self.factor_count = ttk.Combobox(grid, values=tuple(range(2, 11)),
+                                         state='readonly', width=5)
+        self.factor_count.set('2')
+        self.factor_count.grid(row=0, column=1, sticky='w')
+        self.factor_count.bind('<<ComboboxSelected>>', self.update_factor_rows)
+        headers = ('因子', '名称', '标签类型', '水平标签（用 ; 分隔）')
+        for col, title in enumerate(headers):
+            ttk.Label(grid, text=title).grid(row=1, column=col, padx=4, sticky='w')
+        self.labels, self.fields = [], []
+        for index in range(10):
+            label = ttk.Label(grid, text=chr(65 + index))
+            label.grid(row=index + 2, column=0, sticky='w')
+            name = ttk.Entry(grid, width=18)
+            name.insert(0, chr(65 + index))
+            name.grid(row=index + 2, column=1, padx=4, pady=2)
+            kind = ttk.Combobox(grid, values=('文字', '数值'), state='readonly', width=8)
+            kind.set('文字')
+            kind.grid(row=index + 2, column=2, padx=4, pady=2)
+            levels = ttk.Entry(grid, width=42)
+            levels.insert(0, '低;高')
+            levels.grid(row=index + 2, column=3, padx=4, pady=2, sticky='ew')
+            self.labels.append(label)
+            self.fields.append((name, kind, levels))
+        row = 13
+        ttk.Label(grid, text='重复数').grid(row=row, column=0, sticky='w')
+        self.replicates = ttk.Entry(grid, width=8)
+        self.replicates.insert(0, '1')
+        self.replicates.grid(row=row, column=1, sticky='w')
+        ttk.Label(grid, text='随机 seed').grid(row=row, column=2, sticky='w')
+        self.seed = ttk.Entry(grid, width=12)
+        self.seed.insert(0, '1')
+        self.seed.grid(row=row, column=3, sticky='w')
+        row += 1
+        ttk.Label(grid, text='响应名称').grid(row=row, column=0, sticky='w')
+        self.responses = ttk.Entry(grid, width=42)
+        self.responses.insert(0, 'Y')
+        self.responses.grid(row=row, column=1, columnspan=3, sticky='ew')
+        row += 1
+        self.block_replicates = tk.BooleanVar(value=False)
+        ttk.Checkbutton(grid, text='每个完整重复作为一个区组',
+                        variable=self.block_replicates).grid(
+            row=row, column=0, columnspan=3, sticky='w')
+        self.preview_text = tk.StringVar(value='')
+        ttk.Label(grid, textvariable=self.preview_text, wraplength=780).grid(
+            row=row + 1, column=0, columnspan=4, sticky='w', pady=6)
+        self.update_factor_rows()
+        bar = ttk.Frame(self.main, padding=8)
+        bar.pack(fill='x')
+        ttk.Button(bar, text='预览', command=self.preview).pack(side='left')
+        ttk.Button(bar, text='创建', command=self.create).pack(side='left', padx=4)
+        ttk.Button(bar, text='取消', command=self.main.destroy).pack(side='left')
+
+    def update_factor_rows(self, event=None):
+        count = int(self.factor_count.get())
+        for index, (label, fields) in enumerate(zip(self.labels, self.fields)):
+            widgets = (label, *fields)
+            for widget in widgets:
+                if index < count:
+                    widget.grid()
+                else:
+                    widget.grid_remove()
+
+    def build(self):
+        factors = []
+        for index, (name_entry, kind_box, levels_entry) in enumerate(
+                self.fields[:int(self.factor_count.get())]):
+            name = name_entry.get().strip()
+            if not name:
+                raise ValueError(f'因子 {chr(65+index)} 名称不能为空。')
+            raw = [value.strip() for value in levels_entry.get().split(';')]
+            if any(not value for value in raw):
+                raise ValueError(f'因子 {chr(65+index)} 的水平标签不能为空。')
+            level_type = 'text' if kind_box.get() == '文字' else 'numeric'
+            levels = tuple(raw) if level_type == 'text' else tuple(ccd_number(value) for value in raw)
+            factors.append(FactorSpec(chr(65 + index), name, None, None,
+                                      factor_type='categorical', levels=levels,
+                                      level_type=level_type))
+        response_names = tuple(value.strip() for value in self.responses.get().split(','))
+        replicates = int(self.replicates.get())
+        seed = int(self.seed.get())
+        block_count = replicates if self.block_replicates.get() else None
+        spec = DesignSpec('DOE', tuple(factors), response_names, seed=seed,
+                          design_type='general_full_factorial', block_count=block_count,
+                          randomization_unit='block' if block_count else 'run')
+        from doe_general_factorial import create_general_factorial
+        return create_general_factorial(spec, replicates=replicates)
+
+    def preview(self):
+        try:
+            frame, _ = self.build()
+            self.preview_text.set(
+                f'{len(frame)} 次运行；每因子水平数：' + ' × '.join(
+                    str(len(fields[2].get().split(';'))) for fields in
+                    self.fields[:int(self.factor_count.get())]))
+            preview = tk.Toplevel(self.main)
+            preview.title('一般全因子运行预览')
+            preview.geometry('900x460')
+            shown = min(len(frame), 100)
+            ttk.Label(preview, text=f'显示前 {shown} 行（共 {len(frame)} 行）').pack(anchor='w')
+            columns = tuple(frame.columns)
+            tree = ttk.Treeview(preview, columns=columns, show='headings')
+            vertical = ttk.Scrollbar(preview, orient='vertical', command=tree.yview)
+            horizontal = ttk.Scrollbar(preview, orient='horizontal', command=tree.xview)
+            tree.configure(yscrollcommand=vertical.set, xscrollcommand=horizontal.set)
+            vertical.pack(side='right', fill='y')
+            horizontal.pack(side='bottom', fill='x')
+            tree.pack(fill='both', expand=True)
+            for name in columns:
+                tree.heading(name, text=str(name))
+                tree.column(name, width=100, minwidth=60, stretch=False)
+            for row in frame.iloc[:shown].itertuples(index=False, name=None):
+                tree.insert('', 'end', values=tuple('' if pd.isna(value) else value
+                                                    for value in row))
+        except (ValueError, TypeError, OverflowError) as error:
+            messagebox.showerror('试验设计', str(error), parent=self.main)
+
+    def create(self):
+        try:
+            frame, metadata = self.build()
+            self.app.addSheet('DOE', frame, {'doe': metadata})
+        except (ValueError, TypeError, OverflowError) as error:
+            messagebox.showerror('试验设计', str(error), parent=self.main)
+            return
+        self.main.destroy()
+
+
 class AnalyzeDOE:
     def __init__(self, app, screening=False):
         self.owner = app
@@ -480,7 +636,9 @@ class AnalyzeDOE:
             messagebox.showerror('试验设计', '请从对应的设计分析入口打开当前工作表。', parent=app.main)
             return
         if design_type not in ('two_level_full', 'two_level_fractional',
-                               'central_composite', 'box_behnken', 'plackett_burman', 'definitive_screening'):
+                               'central_composite', 'box_behnken', 'plackett_burman',
+                               'definitive_screening', 'general_full_factorial',
+                               'split_plot'):
             messagebox.showerror('试验设计', '当前 DOE 设计类型暂不支持分析。', parent=app.main)
             return
         self.fractional = design_type == 'two_level_fractional'
@@ -488,11 +646,17 @@ class AnalyzeDOE:
         self.dsd = design_type == 'definitive_screening'
         self.ccd = design_type == 'central_composite'
         self.bbd = design_type == 'box_behnken'
+        self.general = design_type == 'general_full_factorial'
+        self.splitplot = design_type == 'split_plot'
         self.rsm = self.ccd or self.bbd
         self.main = tk.Toplevel(app.main)
-        self.main.title('分析筛选设计' if self.dsd else '分析 Plackett–Burman 设计' if self.pb else '分析响应面模型' if self.rsm else
+        self.main.title('分析 Split-Plot 裂区设计' if self.splitplot else
+                        '分析一般全因子设计' if self.general else
+                        '分析筛选设计' if self.dsd else '分析 Plackett–Burman 设计' if self.pb else '分析响应面模型' if self.rsm else
                         '分析两水平部分因子设计' if self.fractional else '分析因子设计')
-        help_topic = ('doe.dsd' if self.dsd else 'doe.pb' if self.pb else 'doe.bbd' if self.bbd else 'doe.ccd' if self.ccd
+        help_topic = ('doe.split_plot' if self.splitplot else
+                      'doe.general_factorial' if self.general else
+                      'doe.dsd' if self.dsd else 'doe.pb' if self.pb else 'doe.bbd' if self.bbd else 'doe.ccd' if self.ccd
                       else 'doe.fractional' if self.fractional else 'doe.full_factorial')
         self.main.bind('<F1>', lambda event: open_help(help_topic, parent=self.main))
         self.result = None
@@ -506,8 +670,8 @@ class AnalyzeDOE:
         ttk.Label(controls, text='模型阶次').pack(side='left')
         self.order = ttk.Combobox(controls, values=list(range(1, len(metadata['design']['factors'])+1)),
                                   state='readonly', width=4)
-        self.order.set('2')
-        if self.rsm or self.pb or self.dsd:
+        self.order.set(str(min(2, len(metadata['design']['factors']))))
+        if self.rsm or self.pb or self.dsd or self.splitplot:
             self.order.configure(state='disabled')
         if self.pb or self.dsd:
             self.order.set('1')
@@ -517,7 +681,8 @@ class AnalyzeDOE:
         plot_factor_ids = ([factor['factor_id'] for factor in design_factors
                             if factor['factor_type'] == 'continuous']
                            if self.rsm else factor_ids)
-        ttk.Label(controls, text='绘图因子' if self.rsm else '交互因子').pack(side='left')
+        ttk.Label(controls, text='绘图因子' if self.rsm else
+                  '主效应/交互因子' if self.general else '交互因子').pack(side='left')
         self.factor_x = ttk.Combobox(controls, values=plot_factor_ids,
                                      state='readonly', width=4)
         self.factor_y = ttk.Combobox(controls, values=plot_factor_ids,
@@ -639,6 +804,13 @@ class AnalyzeDOE:
             elif self.pb:
                 from doe_screening_analysis import analyze_pb
                 result = analyze_pb(frame, self.source.doe_metadata, self.response.get())
+            elif self.general:
+                from doe_general_factorial_analysis import analyze_general_factorial
+                result = analyze_general_factorial(
+                    frame, self.source.doe_metadata, self.response.get(), int(self.order.get()))
+            elif self.splitplot:
+                from doe_splitplot_analysis import analyze_split_plot
+                result = analyze_split_plot(frame, self.source.doe_metadata, self.response.get())
             elif self.fractional:
                 from doe_fractional_analysis import analyze_fractional
                 result = analyze_fractional(
@@ -648,8 +820,7 @@ class AnalyzeDOE:
                 result = analyze_factorial(frame, self.source.doe_metadata,
                                            self.response.get(), int(self.order.get()))
             self.publish(result)
-            if self.pb or self.dsd:
-                self.analysis_frame = frame
+            self.analysis_frame = frame
         except (ValueError, TypeError, RuntimeError, OverflowError) as exc:
             self.result = None
             self.status.set('分析失败：' + str(exc))
@@ -660,6 +831,24 @@ class AnalyzeDOE:
             self.tabs.nametowidget(tab).destroy()
         self.status.set(f"响应 {result['response']}，{result['n']} 行分析快照；数据修改后需重新分析；" +
                         result['status'] + '；' + result['assumption'])
+        if self.splitplot:
+            labels = {'block': '区组', 'whole_plot_error': '整区误差',
+                      'subplot_error': '子区误差', 'total': '总计'}
+            self.show_table('裂区方差分析',
+                            ['来源', '平方和', '自由度', '均方', 'F', 'p', '误差层'], [
+                [labels.get(row['term'], row['term']), row['ss'], row['df'],
+                 row['ms'], row['f'], row['p'],
+                 labels.get(row['error_stratum'], row['error_stratum'])]
+                for row in result['anova']])
+            design = result['design']
+            self.show_table('拟合与残差', ['运行ID', '区组', '整区ID', '子区ID',
+                                           '运行序', '响应', '拟合值', '残差'], [
+                [run.run_id, run.block, run.whole_plot_id, run.subplot_id,
+                 run.run_order, run.responses[result['response']],
+                 result['fitted'][index], result['residuals'][index]]
+                for index, run in enumerate(design.runs)])
+            self.result = result
+            return
         inf = result['inference']
         if self.pb or self.dsd:
             def available(value):
@@ -708,6 +897,35 @@ class AnalyzeDOE:
                              for i, run in enumerate(result['design'].runs)])
             self.result = result
             return
+        if self.general:
+            self.show_table('模型', ['运行数', '秩', '模型自由度', '残差自由度',
+                                     'SSE', '纯误差自由度', '纯误差平方和',
+                                     '区组误差自由度', '区组误差平方和'], [[
+                result['n'], result['rank'], result['rank'] - 1, result['df'],
+                result['sse'], result['pure_error_df'], result['pure_error_sse'],
+                result['block_error_df'], result['block_error_sse']]])
+            self.show_table('分类因子 ANOVA', ['来源', '偏平方和', '自由度', '均方', 'F', 'p'], [
+                [row['term'], row['ss'], row['df'], row['ms'], row['f'], row['p']]
+                for row in result['anova']])
+            self.show_table('边际均值', ['因子', '水平', '均值', '运行数'], [
+                [item['factor_id'], item['level'], item['mean'], item['n']]
+                for item in result['marginal_means']])
+            self.show_table('组合均值', ['因子水平组合', '均值', '运行数'], [
+                ['；'.join(f'{key}={value}' for key, value in item['levels'].items()),
+                 item['mean'], item['n']] for item in result['cell_means']])
+            lof = result['lack_of_fit']
+            diagnostics = [
+                ['纯误差', result['pure_error_sse'], result['pure_error_df'], None, None],
+                ['区组×处理误差', result['block_error_sse'], result['block_error_df'], None, None],
+                ['失拟', result['lack_of_fit_sse'], result['lack_of_fit_df'],
+                 lof['f'] if lof else None, lof['p'] if lof else None],
+            ]
+            self.show_table('纯误差与失拟', ['来源', '平方和', '自由度', 'F', 'p'], diagnostics)
+            self.show_table('拟合与残差', ['运行ID', '响应', '拟合值', '残差'], [
+                [run.run_id, run.responses[result['response']], result['fitted'][i],
+                 result['residuals'][i]] for i, run in enumerate(result['design'].runs)])
+            self.result = result
+            return
         if self.rsm:
             factors = result['design'].spec.factors
             self.show_table('因子编码', ['因子', '名称', '低水平', '高水平', '单位'], [
@@ -732,19 +950,36 @@ class AnalyzeDOE:
                  '已纳入当前模型' if group['representative'] else '未纳入当前模型']
                 for group in result['alias_groups']])
             self.show_table('模型', ['n', '项数', '秩', '模型残差自由度', 'SSE',
-                                     '纯误差自由度', '纯误差平方和', '失拟自由度', '失拟平方和', 'SSR', 'SST',
+                                     '纯误差自由度', '纯误差平方和', '失拟自由度', '失拟平方和',
+                                     '区组误差自由度', '区组误差平方和', 'SSR', 'SST',
                                      'R²', '调整R²', 'F', '模型p'], [[
                 result['n'], result['p'], result['rank'], result['df'], result['sse'],
                 result['pure_error_df'], result['pure_error_sse'], result['lack_of_fit_df'],
-                result['lack_of_fit_sse'], result['ssr'],
+                result['lack_of_fit_sse'], result['block_error_df'], result['block_error_sse'],
+                result['ssr'],
                 result['sst'], result['r2'], result['adjusted_r2'],
                 inf['f'] if inf else None, inf['model_p'] if inf else None]])
+            self.show_table('项方差分析', ['来源', '平方和', '自由度', '均方', 'F', 'p'], [
+                [row['term'], row['ss'], row['df'], row['ms'], row['f'], row['p']]
+                for row in result['anova']])
+            if result['curvature']:
+                curvature = result['curvature']
+                self.show_table('中心点曲率', ['中心点偏移', '对比平方和', '自由度', 'F', 'p'], [[
+                    curvature['difference'], curvature['ss'], curvature['df'],
+                    curvature['f'], curvature['p']]])
             if inf:
                 self.show_table('方差分析', ['来源', '平方和', '自由度', '均方', 'F', 'p'],
                                 [['模型', result['ssr'], result['p']-1,
                                   result['ssr']/(result['p']-1), inf['f'], inf['model_p']],
                                  ['残差', result['sse'], result['df'], inf['mse'], None, None],
                                  ['总计', result['sst'], result['n']-1, None, None, None]])
+            lof = result['lack_of_fit']
+            self.show_table('纯误差与失拟', ['来源', '平方和', '自由度', 'F', 'p'], [
+                ['纯误差', result['pure_error_sse'], result['pure_error_df'], None, None],
+                ['区组×处理误差', result['block_error_sse'], result['block_error_df'], None, None],
+                ['失拟', result['lack_of_fit_sse'], result['lack_of_fit_df'],
+                 lof['f'] if lof else None, lof['p'] if lof else None],
+            ])
             self.show_table('拟合与残差', ['来源行号', '运行ID', '运行序', '响应', '拟合值', '残差'],
                             [[i+1, run.run_id, run.run_order, run.responses[result['response']],
                               result['fitted'][i], result['residuals'][i]]
@@ -799,13 +1034,22 @@ class AnalyzeDOE:
                 ])
         else:
             self.show_table('系数与效应', ['项', '系数', '效应', 'SE', 't', 'p', 'CI低', 'CI高'], rows)
-        self.show_table('模型', ['n', '项数', '秩', '残差自由度', 'SSE', '纯误差自由度', '纯误差平方和',
-                              '失拟自由度', '失拟平方和', 'SSR', 'SST', 'R²', '调整R²', 'F', '模型p'],
-                        [[result['n'], result['p'], result['rank'], result['df'], result['sse'],
-                          result['pure_error_df'], result['pure_error_sse'],
-                          result['lack_of_fit_df'], result['lack_of_fit_sse'],
-                          result['ssr'], result['sst'], result['r2'], result['adjusted_r2'],
-                          inf['f'] if inf else None, inf['model_p'] if inf else None]])
+        model_headers = ['n', '项数', '秩', '残差自由度', 'SSE', '纯误差自由度', '纯误差平方和',
+                         '失拟自由度', '失拟平方和']
+        model_row = [result['n'], result['p'], result['rank'], result['df'], result['sse'],
+                     result['pure_error_df'], result['pure_error_sse'],
+                     result['lack_of_fit_df'], result['lack_of_fit_sse']]
+        if not self.rsm:
+            model_headers.extend(['区组误差自由度', '区组误差平方和'])
+            model_row.extend([result['block_error_df'], result['block_error_sse']])
+        model_headers.extend(['SSR', 'SST', 'R²', '调整R²', 'F', '模型p'])
+        model_row.extend([result['ssr'], result['sst'], result['r2'], result['adjusted_r2'],
+                          inf['f'] if inf else None, inf['model_p'] if inf else None])
+        self.show_table('模型', model_headers, [model_row])
+        if not self.rsm:
+            self.show_table('项方差分析', ['来源', '平方和', '自由度', '均方', 'F', 'p'], [
+                [row['term'], row['ss'], row['df'], row['ms'], row['f'], row['p']]
+                for row in result['anova']])
         if inf:
             self.show_table('方差分析', ['来源', '平方和', '自由度', '均方', 'F', 'p'],
                             [['模型', result['ssr'], result['p']-1,
@@ -814,9 +1058,17 @@ class AnalyzeDOE:
                              ['总计', result['sst'], result['n']-1, None, None, None]])
         lof = result['lack_of_fit']
         curvature = result['curvature']
-        tests = [['失拟', result['lack_of_fit_sse'], result['lack_of_fit_df'],
+        tests = []
+        if not self.rsm:
+            tests.extend([
+                ['纯误差', result['pure_error_sse'], result['pure_error_df'], None, None,
+                 '按相同因子设定及相同区组分组。'],
+                ['区组×处理误差', result['block_error_sse'], result['block_error_df'], None, None,
+                 '区组模型残差；推断假设无处理×区组交互。'],
+            ])
+        tests.append(['失拟', result['lack_of_fit_sse'], result['lack_of_fit_df'],
                   lof['f'] if lof else None, lof['p'] if lof else None,
-                  '已计算' if lof else '纯误差或失拟自由度不足，或纯误差为零']]
+                  '已计算' if lof else '纯误差或失拟自由度不足，或纯误差为零'])
         if curvature:
             tests.append(['曲率（中心−因子均值）', curvature['ss'], 1,
                           curvature['f'], curvature['p'],
@@ -844,16 +1096,21 @@ class AnalyzeDOE:
                 raise ValueError('来源工作表已切换，请切回后查看分析快照。')
             if self.result is None:
                 raise ValueError('请先分析。')
-            if (self.pb or self.dsd) and not self.source.model.df.equals(self.analysis_frame):
+            if not hasattr(self, 'analysis_frame') or not self.source.model.df.equals(self.analysis_frame):
                 raise ValueError('工作表已更改，请重新分析。')
-            if self.pb or self.dsd:
-                from doe_core import restore_design_result
-                current = restore_design_result(self.source.model.df, self.source.doe_metadata)
-                if current.spec.to_dict() != self.result['design'].spec.to_dict():
-                    raise ValueError('设计定义已更改，请重新分析。')
+            from doe_core import restore_design_result
+            current = restore_design_result(self.source.model.df, self.source.doe_metadata)
+            if current.spec.to_dict() != self.result['design'].spec.to_dict():
+                raise ValueError('设计定义已更改，请重新分析。')
             r = self.result
             if self.dsd:
                 self.plot_dsd(r)
+                return
+            if self.general:
+                self.plot_general_factorial(r)
+                return
+            if self.splitplot:
+                self.plot_split_plot(r)
                 return
             factors = r['design'].spec.factors
             fractional = r['design'].spec.design_type == 'two_level_fractional'
@@ -869,9 +1126,7 @@ class AnalyzeDOE:
             try:
                 from chart_style import font_families
                 font = font_manager.FontProperties(family=font_families('Microsoft YaHei'))
-                axes = viewer.fig.subplots(2, 3 if self.pb else 2)
-                if self.pb:
-                    axes[0, 2].axis('off')
+                axes = viewer.fig.subplots(2, 3)
                 factorial = np.array([run.point_type == 'factorial' for run in r['design'].runs])
                 coded = r['coded'][factorial]
                 y = np.array([run.responses[r['response']] for run in r['design'].runs])[factorial]
@@ -913,19 +1168,8 @@ class AnalyzeDOE:
                     axes[1, 0].barh([x[0] for x in effects], [x[1] for x in effects])
                     axes[1, 0].set_title('可估计别名组效应绝对值 Pareto 图'
                                          if fractional else '效应绝对值 Pareto 图')
-                if r['inference'] is None:
-                    axes[1, 1].text(.5, .5, '残差诊断不可用', ha='center')
-                    if self.pb:
-                        axes[1, 2].text(.5, .5, '残差诊断不可用', ha='center')
-                else:
-                    axes[1, 1].scatter(r['fitted'], r['residuals'])
-                    axes[1, 1].axhline(0, color='black')
-                    axes[1, 1].set_title('残差与拟合值')
-                    if self.pb:
-                        from scipy import stats
-                        (quantiles, ordered), _ = stats.probplot(r['residuals'], dist='norm')
-                        axes[1, 2].scatter(quantiles, ordered)
-                        axes[1, 2].set_title('残差正态概率图')
+                self.plot_factorial_residuals(
+                    [axes[1, 1], axes[1, 2], axes[0, 2]], r)
                 viewer.fig.suptitle(f"响应 {r['response']}：上次分析快照，数据修改后请重新分析",
                                     fontproperties=font)
                 for axis in axes.flat:
@@ -943,6 +1187,100 @@ class AnalyzeDOE:
                 raise
         except (ValueError, RuntimeError) as exc:
             messagebox.showerror('试验设计', str(exc), parent=self.main)
+
+    def plot_factorial_residuals(self, axes, result):
+        from scipy import stats
+
+        residuals = np.asarray(result['residuals'], dtype=float)
+        fitted = np.asarray(result['fitted'], dtype=float)
+        axes[0].scatter(fitted, residuals)
+        axes[0].axhline(0, color='black')
+        axes[0].set_title('残差与拟合值')
+        axes[0].set_xlabel('拟合值')
+        axes[0].set_ylabel('残差')
+
+        if len(residuals) > 1:
+            (quantiles, ordered), _ = stats.probplot(residuals, dist='norm')
+            axes[1].scatter(quantiles, ordered)
+            axes[1].set_xlabel('正态理论分位数')
+            axes[1].set_ylabel('残差')
+        axes[1].set_title('残差正态概率图')
+
+        runs = result['design'].runs
+        run_order = np.asarray([run.run_order for run in runs])
+        order = np.argsort(run_order, kind='stable')
+        axes[2].scatter(run_order[order], residuals[order])
+        axes[2].axhline(0, color='black')
+        axes[2].set_title('残差与实际运行顺序')
+        axes[2].set_xlabel('运行序')
+        axes[2].set_ylabel('残差')
+
+    def plot_general_factorial(self, result):
+        factors = result['design'].spec.factors
+        factor_by_id = {factor.factor_id: factor for factor in factors}
+        first_id, second_id = self.factor_x.get(), self.factor_y.get()
+        if first_id not in factor_by_id:
+            raise ValueError('请选择主效应因子。')
+        if second_id and (second_id not in factor_by_id or second_id == first_id):
+            raise ValueError('交互图需要选择两个不同的因子。')
+        viewer = self.app.showPlotViewer(deferred=True, figsize=(12, 8))
+        try:
+            from chart_style import font_families
+            font = font_manager.FontProperties(family=font_families('Microsoft YaHei'))
+            axes = viewer.fig.subplots(2, 3)
+            first = factor_by_id[first_id]
+            first_means = [next(item['mean'] for item in result['marginal_means']
+                                if item['factor_id'] == first_id and
+                                item['level'] == level)
+                           for level in first.levels]
+            positions = list(range(len(first.levels)))
+            axes[0, 0].plot(positions, first_means, marker='o')
+            axes[0, 0].set_xticks(positions, [str(level) for level in first.levels])
+            axes[0, 0].set_title(f'{first.name} 主效应图')
+            axes[0, 0].set_xlabel('分类水平')
+            axes[0, 0].set_ylabel('响应边际均值')
+
+            if second_id:
+                second = factor_by_id[second_id]
+                cell_means = result['cell_means']
+                for second_level in second.levels:
+                    means = []
+                    for first_level in first.levels:
+                        selected = [item['mean'] for item in cell_means
+                                    if item['levels'][first_id] == first_level
+                                    and item['levels'][second_id] == second_level]
+                        means.append(float(np.mean(selected)))
+                    axes[0, 1].plot(positions, means, marker='o',
+                                    label=f'{second.name}={second_level}')
+                axes[0, 1].set_xticks(positions, [str(level) for level in first.levels])
+                axes[0, 1].set_title(f'{first.name} × {second.name} 交互作用图')
+                axes[0, 1].set_xlabel(first.name)
+                axes[0, 1].set_ylabel('响应均值')
+                axes[0, 1].legend(prop=font)
+            else:
+                axes[0, 1].axis('off')
+
+            effects = [row for row in result['anova']
+                       if row['term'] not in ('区组', '误差', '总计')]
+            effects.sort(key=lambda row: row['ss'])
+            axes[0, 2].barh([row['term'] for row in effects], [row['ss'] for row in effects])
+            axes[0, 2].set_title('模型项偏平方和')
+            axes[0, 2].set_xlabel('偏平方和')
+            self.plot_factorial_residuals(axes[1], result)
+            viewer.fig.suptitle('一般全因子分类模型', fontproperties=font)
+            for axis in axes.flat:
+                axis.title.set_fontproperties(font)
+                axis.xaxis.label.set_fontproperties(font)
+                axis.yaxis.label.set_fontproperties(font)
+                for label in (*axis.get_xticklabels(), *axis.get_yticklabels()):
+                    label.set_fontproperties(font)
+            viewer.fig.tight_layout()
+            viewer.canvas.draw()
+            self.app.replacePlotViewer(viewer)
+            viewer.main.deiconify()
+        except Exception:
+            viewer.close()
+            raise
 
     def plot_screening_effects(self, axis, result):
         from scipy import stats
@@ -1027,6 +1365,54 @@ class AnalyzeDOE:
                 axis.yaxis.label.set_fontproperties(font)
                 for text in axis.texts:
                     text.set_fontproperties(font)
+            viewer.fig.tight_layout()
+            viewer.canvas.draw()
+            self.app.replacePlotViewer(viewer)
+            viewer.main.deiconify()
+        except Exception:
+            viewer.close()
+            raise
+
+    def plot_split_plot(self, result):
+        design = result['design']
+        factors = design.spec.factors
+        hard = next(factor for factor in factors
+                    if factor.randomization_role == 'hard_to_change')
+        easy = next(factor for factor in factors
+                    if factor.randomization_role == 'easy_to_change')
+        runs = design.runs
+        y = np.asarray([run.responses[result['response']] for run in runs], dtype=float)
+        coded_hard = np.asarray([hard.to_coded(run.settings[hard.factor_id]) for run in runs])
+        coded_easy = np.asarray([easy.to_coded(run.settings[easy.factor_id]) for run in runs])
+        viewer = self.app.showPlotViewer(deferred=True, figsize=(10, 7))
+        try:
+            from chart_style import font_families
+            font = font_manager.FontProperties(family=font_families('Microsoft YaHei'))
+            axes = viewer.fig.subplots(2, 3)
+            hard_means = [float(y[coded_hard == level].mean()) for level in (-1, 1)]
+            easy_means = [float(y[coded_easy == level].mean()) for level in (-1, 1)]
+            axes[0, 0].plot([hard.low, hard.high], hard_means, marker='o')
+            axes[0, 0].set_title(f'{hard.name} 整区主效应')
+            axes[0, 0].set_xlabel('Hard-to-change 因子水平')
+            axes[0, 1].plot([easy.low, easy.high], easy_means, marker='o')
+            axes[0, 1].set_title(f'{easy.name} 子区主效应')
+            axes[0, 1].set_xlabel('Easy-to-change 因子水平')
+            for easy_level in (-1, 1):
+                means = [float(y[(coded_hard == hard_level)
+                                 & (coded_easy == easy_level)].mean())
+                         for hard_level in (-1, 1)]
+                axes[1, 0].plot([hard.low, hard.high], means, marker='o',
+                                label=f'{easy.name}={easy.low if easy_level == -1 else easy.high}')
+            axes[1, 0].set_title(f'{hard.name} × {easy.name} 交互作用')
+            axes[1, 0].legend(prop=font)
+            self.plot_factorial_residuals(
+                [axes[1, 1], axes[1, 2], axes[0, 2]], result)
+            viewer.fig.suptitle(f"响应 {result['response']}：整区/子区描述图",
+                                fontproperties=font)
+            for axis in axes.flat:
+                axis.title.set_fontproperties(font)
+                axis.xaxis.label.set_fontproperties(font)
+                axis.yaxis.label.set_fontproperties(font)
             viewer.fig.tight_layout()
             viewer.canvas.draw()
             self.app.replacePlotViewer(viewer)

@@ -60,6 +60,27 @@ def test_multiple_generators_return_complete_defining_and_alias_groups():
         "D=AB", "E=AC")
 
 
+def test_signed_generator_builds_the_negative_fraction_and_signed_aliases():
+    positive, positive_meta = create_fractional(spec("ABCD", ("D=ABC",)))
+    negative, negative_meta = create_fractional(spec("ABCD", ("D=-ABC",)))
+    assert positive_meta["design"]["defining_relations"] == ["I=ABCD"]
+    assert negative_meta["design"]["defining_relations"] == ["I=-ABCD"]
+    assert positive_meta["design"]["aliases"] == [
+        "A=BCD", "B=ACD", "C=ABD", "D=ABC", "AB=CD", "AC=BD", "AD=BC"]
+    assert negative_meta["design"]["aliases"] == [
+        "A=-BCD", "B=-ACD", "C=-ABD", "D=-ABC", "AB=-CD", "AC=-BD", "AD=-BC"]
+    positive_design = validate_fractional_design(positive, positive_meta)
+    negative_design = validate_fractional_design(negative, negative_meta)
+    for design, sign in ((positive_design, 1), (negative_design, -1)):
+        for run in design.runs:
+            coded = [int(factor.to_coded(run.settings[factor.factor_id]))
+                     for factor in design.spec.factors]
+            assert coded[3] == sign * coded[0] * coded[1] * coded[2]
+    assert set(map(tuple, positive[[f"设定_{factor}" for factor in "ABCD"]].itertuples(
+        index=False, name=None))) != set(map(tuple, negative[[f"设定_{factor}" for factor in "ABCD"]].itertuples(
+        index=False, name=None)))
+
+
 def test_re_signed_factor_tampering_fails_strict_validation():
     frame, metadata = create_fractional(spec())
     row = frame.index[frame["运行ID"] == "R00001"][0]
@@ -94,8 +115,11 @@ def test_design_definition_and_run_limits_are_checked():
         create_fractional(spec(), replicates=10001)
     with pytest.raises(ValueError, match="seed"):
         create_fractional(spec(seed=None))
-    with pytest.raises(ValueError, match="中心点"):
-        create_fractional(spec(), center_points=1)
+    centers, center_metadata = create_fractional(spec(), center_points=2)
+    assert len(centers) == 10
+    assert centers["点类型"].value_counts().to_dict() == {"factorial": 8, "center": 2}
+    assert center_metadata["design"]["center_point_count"] == 2
+    assert len(validate_fractional_design(centers, center_metadata).runs) == 10
     with pytest.raises(ValueError, match="A、B、C"):
         create_fractional(spec("BACD", ("D=AB",)))
     with pytest.raises(ValueError, match="右侧"):

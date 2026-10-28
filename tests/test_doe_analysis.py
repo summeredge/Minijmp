@@ -60,7 +60,8 @@ def test_center_does_not_become_pseudo_error_and_missing_fails():
     result = analyze_factorial(frame, meta, 'Y')
     assert result['inference'] is None
     assert result['coefficients'][-1] == pytest.approx(99)
-    assert '尚未实现' in result['status']
+    assert result['curvature']['f'] is None
+    assert '纯误差' in result['status']
 
 
 def test_replicated_exact_fit_does_not_infer_from_roundoff():
@@ -71,14 +72,15 @@ def test_replicated_exact_fit_does_not_infer_from_roundoff():
     assert result['df'] == 4 and result['inference'] is None
 
 
-def test_center_with_nonzero_pure_error_does_not_enable_model_inference():
+def test_center_with_nonzero_pure_error_enables_model_inference():
     frame, meta = example(replicates=2, center_points=2)
     frame['响应_Y'] = [10 + (1 if rep == 1 else -1)
                        for rep in frame['重复']]
     result = analyze_factorial(frame, meta, 'Y')
     assert result['pure_error_df'] > 0 and result['pure_error_sse'] > 0
-    assert result['inference'] is None
-    assert '尚未实现' in result['status']
+    assert result['inference'] is not None
+    assert result['lack_of_fit'] is None
+    assert result['curvature']['f'] == pytest.approx(0)
 
 
 def test_center_curvature_uses_factorial_center_mean_contrast():

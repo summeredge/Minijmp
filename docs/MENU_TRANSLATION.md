@@ -27,7 +27,10 @@
 | 英文原文 | 中文译名 |
 | --- | --- |
 | Create Two-Level Full Factorial | 创建两水平全因子设计 |
+| Create General Full Factorial Design | 创建一般全因子设计 |
 | Create Two-Level Fractional Factorial | 创建两水平部分因子设计 |
+| Foldover Two-Level Fractional Design | 折叠两水平部分因子设计 |
+| Create Two-Level Split-Plot Design | 创建两水平裂区设计 |
 | Analyze Factorial Design | 分析因子设计 |
 | Create Central Composite Design | 创建中心复合设计 |
 | Analyze Response Surface Model | 分析响应面模型 |
