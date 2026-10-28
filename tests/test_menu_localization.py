@@ -59,7 +59,8 @@ def is_chinese_label(text):
 
     kept = ('PI', 'CSV', 'Excel', 'PDF', 'SPC', 'DOE', 'Cpk', 'R&R', 'I-MR', 'Del',
             'MR', 'NP', 'Xbar-R', 'Xbar-S', 'hdf5', 'Logistic', 'PLS', 'Box-Cox',
-            'Box-Behnken', 'Plackett–Burman', 'DSD', 'Johnson', 'Sixpack')
+            'Box-Behnken', 'Plackett–Burman', 'DSD', 'Johnson', 'Sixpack',
+            'Taguchi')
     single = set('PCUtZVCFDI')
     if not any('一' <= ch <= '鿿' for ch in text):
         return False
@@ -106,7 +107,9 @@ EXPECTED_LAYOUT = {
                         '创建中心复合设计', '分析响应面模型', '优化响应面（DOE-4）',
                         '创建 Box-Behnken 设计', '响应面预测', '叠加等高线', '创建 Plackett–Burman 设计',
                         '创建筛选设计（DSD）', '分析筛选设计', '创建一般全因子设计',
-                        '折叠两水平部分因子设计', '创建两水平裂区设计'],
+                        '折叠两水平部分因子设计', '创建两水平裂区设计',
+                        '创建 Taguchi 设计（静态）', '创建 Taguchi 设计（动态）',
+                        '分析 Taguchi 设计'],
     '文件': ['新建项目', '打开项目', '保存', '另存为', 'sep',
             '导入 CSV', '高级导入', '导入 PI 数据', '导入 Excel', '导出 CSV', '导出当前表（单表 / Excel）', 'sep', '退出'],
     '工作表': ['新增工作表', '复制工作表', '重命名工作表', '删除工作表'],
