@@ -124,3 +124,9 @@ Minitab RSM overview 确认优化因子设置的工作流，但核查过的官�
 - [Minitab Box–Behnken 设计汇总](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/response-surface-designs/summary-of-box-behnken-designs/) 列出 9 因子 130 次和 10 因子 170 次，默认中心点均为 10；该汇总未给出点阵。
 - [Minitab Box–Behnken 区组](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/response-surface-designs/blocks-in-a-box-behnken-design/) 列出 9 因子 5 或 10 区组、10 因子 2 区组并声明区组正交；页面未给出区组分配矩阵。不能仅凭这些数量构造或验收标准设计。
 
+# 2026-10-28：混料设计来源与独立参考
+
+工作包 F 使用 `feature-matrix.csv` 已记录的 Minitab mixture 方法、创建、分析与叠加等高线页面确认产品菜单和限定输入范围；这些页面没有提供可复现的 Minitab 标准序或逐点导出，因此不作为数值 oracle，也不声称与 XVERT/CONAEV 的输出顺序一致。
+
+独立参考位于 `tests/fixtures/doe_mixture_reference/`，使用标准库 `Fraction`、自写高斯消元和确定性网格，不导入生产模块。覆盖三组分 2/3 阶格点、7 点重心、约束多面体 5 个顶点、不可行/退化区域、线性/二次 Scheffé、过程/总量语义、纯误差/失拟 ANOVA、优化网格界、Trace/三元网格与双响应叠加可行域。参考 JSON 与核验脚本的 SHA-256 见该目录 manifest；生产实现按参考逐值比较。
+

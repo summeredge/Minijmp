@@ -41,6 +41,11 @@
 | Create Plackett–Burman Design | 创建 Plackett–Burman 设计 |
 | Create Definitive Screening Design | 创建筛选设计（DSD） |
 | Analyze Screening Design | 分析筛选设计 |
+| Create Mixture Design | 创建混料设计 |
+| Analyze Mixture Design | 分析混料设计 |
+| Mixture Prediction | 混料预测 |
+| Optimize Mixture Response | 优化混料响应 |
+| Mixture Plots | 混料图形 |
 
 ## 文件（File）
 

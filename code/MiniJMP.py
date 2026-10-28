@@ -169,6 +169,8 @@ class Minijmp(Worksheets, Minijmp_pre):
         from doe_optimize_dialog import OptimizeRSM
         from doe_predict_dialog import PredictRSM
         from doe_overlay_dialog import OverlayContours
+        from doe_mixture_dialog import (AnalyzeMixtureDesign, CreateMixtureDesign,
+                                        MixturePlots, OptimizeMixture, PredictMixture)
         self.doe_menu = self.createPulldown(self.menu, {
             '01创建两水平全因子设计': {'cmd': lambda: CreateDOE(self)},
             '02创建两水平部分因子设计': {
@@ -186,6 +188,11 @@ class Minijmp(Worksheets, Minijmp_pre):
             '13创建一般全因子设计': {'cmd': lambda: CreateGeneralFactorial(self)},
             '14折叠两水平部分因子设计': {'cmd': lambda: FoldoverDOE(self)},
             '15创建两水平裂区设计': {'cmd': lambda: CreateSplitPlot(self)},
+            '16创建混料设计': {'cmd': lambda: CreateMixtureDesign(self)},
+            '17分析混料设计': {'cmd': lambda: AnalyzeMixtureDesign(self)},
+            '18混料预测': {'cmd': lambda: PredictMixture(self)},
+            '19优化混料响应': {'cmd': lambda: OptimizeMixture(self)},
+            '20混料图形': {'cmd': lambda: MixturePlots(self)},
         })
         self.menu.add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
 

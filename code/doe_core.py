@@ -26,7 +26,7 @@ _RELATION = re.compile(r"^[A-Za-z][A-Za-z0-9]*(?:=-?[A-Za-z][A-Za-z0-9]*)+$")
 _DESIGN_TYPES = frozenset({
     "unspecified", "two_level_full", "two_level_fractional", "central_composite",
     "box_behnken", "plackett_burman", "definitive_screening",
-    "general_full_factorial", "split_plot",
+    "general_full_factorial", "split_plot", "mixture",
 })
 _SCREENING_TYPES = frozenset({"plackett_burman", "definitive_screening"})
 _SCREENING_SOURCES = {

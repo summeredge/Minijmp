@@ -8,17 +8,17 @@
     "bounds": "追踪显式导入/构造别名、本函数赋值、字符串包装、原生表方法及多行 ASCII/tab 字面量；静态审计不模拟任意跨函数动态对象流。所有现有字符串格式、join、原生 summary、DataFrame 文本与控制台数据路径已人工复核。"
   },
   "summary": {
-    "python_files": 130,
-    "files_with_production_sites": 34,
-    "producer_scopes": 62,
-    "constructor_calls": 132,
+    "python_files": 139,
+    "files_with_production_sites": 35,
+    "producer_scopes": 63,
+    "constructor_calls": 133,
     "constructors": {
       "gen_table": 55,
-      "StatTable": 73,
+      "StatTable": 74,
       "PrettyTable": 4
     },
-    "statistical_source_positions": 68,
-    "logical_statistical_tables": 192,
+    "statistical_source_positions": 69,
+    "logical_statistical_tables": 203,
     "table_text_conversions": {
       "to_string": 2,
       "pred_table": 1,
@@ -78,6 +78,15 @@
     "doe_fractional_analysis.py",
     "doe_general_factorial.py",
     "doe_general_factorial_analysis.py",
+    "doe_mixture.py",
+    "doe_mixture_analysis.py",
+    "doe_mixture_constraints.py",
+    "doe_mixture_designs.py",
+    "doe_mixture_dialog.py",
+    "doe_mixture_model.py",
+    "doe_mixture_optimize.py",
+    "doe_mixture_plots.py",
+    "doe_mixture_predict.py",
     "doe_optimize.py",
     "doe_optimize_dialog.py",
     "doe_overlay.py",
@@ -204,6 +213,15 @@
     "doe_fractional_analysis.py": "正规部分因子模型纯计算，不构造统计报告表。",
     "doe_general_factorial.py": "分类一般全因子运行表生成及验证，不构造统计报告表。",
     "doe_general_factorial_analysis.py": "分类对比、ANOVA 与均值纯计算；报告表由 AnalyzeDOE.publish 构造。",
+    "doe_mixture.py": "混料专属数据合同与 v4 工作表适配，不构造统计报告表。",
+    "doe_mixture_analysis.py": "Scheffé 最小二乘与 ANOVA 纯计算，不构造统计报告表。",
+    "doe_mixture_constraints.py": "混料比例约束与单位换算纯计算，不构造统计报告表。",
+    "doe_mixture_designs.py": "三类混料设计生成与结构校验，不构造统计报告表。",
+    "doe_mixture_dialog.py": "混料创建、分析、预测、优化与图形界面；结果表见 producers。",
+    "doe_mixture_model.py": "Scheffé 模型项与模型矩阵，不构造统计报告表。",
+    "doe_mixture_optimize.py": "混料受约束优化纯计算，不构造统计报告表。",
+    "doe_mixture_plots.py": "Trace、等高线、曲面与叠加可行域采样纯计算，不构造统计报告表。",
+    "doe_mixture_predict.py": "混料点预测与约束核验纯计算，不构造统计报告表。",
     "doe_splitplot.py": "两水平 Split-Plot 整区/子区运行表生成及结构验证，不构造统计报告表。",
     "doe_splitplot_analysis.py": "平衡裂区 ANOVA 和误差层推断纯计算；报告表由 AnalyzeDOE.publish 构造。",
     "doe_splitplot_dialog.py": "两水平 Split-Plot 创建窗口，不构造统计报告表。",
@@ -295,6 +313,16 @@
     "quality_tools_plots.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。"
   },
   "producers": {
+    "doe_mixture_dialog.py::_ResultWindow.show_table": {
+      "sites": ["construct:StatTable#1", "emit:structured:print#1"],
+      "classification": "statistical",
+      "logical_tables": 11,
+      "titles": ["系数", "模型", "项平方和", "纯误差与失拟", "拟合与残差", "可估计性", "预测", "实际条件", "优化结果", "最优组分", "响应预测"],
+      "entry_points": ["AnalyzeMixtureDesign.publish", "PredictMixture.predict", "OptimizeMixture.optimize"],
+      "status": "混料结果窗口显示并支持导出",
+      "tests": ["tests/test_doe_mixture_gui.py::test_mixture_gui_full_lifecycle"],
+      "exception_reason": ""
+    },
     "doe_dialog.py::AnalyzeDOE.show_table": {
       "sites": ["construct:StatTable#1", "emit:structured:print#1"],
       "classification": "statistical",
