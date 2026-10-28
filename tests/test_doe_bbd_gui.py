@@ -2,8 +2,100 @@
 from unittest.mock import Mock
 
 import numpy as np
+import pytest
+from pandas.testing import assert_frame_equal
 from doe_dialog import AnalyzeDOE, CreateDOE
 from test_csv_import import csv_app
+
+
+@pytest.mark.parametrize(('count', 'blocks'), [(9, 1), (9, 5), (9, 10), (10, 1), (10, 2)])
+def test_high_dimension_bbd_gui_project_lifecycle(csv_app, tmp_path, monkeypatch, count, blocks):
+    app, error = csv_app
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    monkeypatch.setattr('worksheets.messagebox.askyesno', lambda *a, **k: True)
+    monkeypatch.setattr('worksheets.messagebox.askyesnocancel', lambda *a, **k: False)
+    create = CreateDOE(app, bbd=True)
+    assert '8' not in tuple(map(str, create.factor_count['values']))
+    create.factor_count.set(str(count))
+    create.update_factor_rows()
+    assert str(blocks) in create.block_count['values']
+    create.block_count.set(str(blocks))
+    before = list(app.sheets)
+    create.preview()
+    assert list(app.sheets) == before
+    assert f'{130 if count == 9 else 170} 次运行' in create.preview_text.get()
+    create.create()
+    table = app.getCurrentTable()
+    frame = table.model.df
+    x = frame[[f'编码_{chr(65+i)}' for i in range(count)]].to_numpy(float)
+    frame['响应_Y'] = 5 + x.sum(axis=1) + (x*x).sum(axis=1) + x[:, 0]*x[:, 1] + frame['区组']
+    expected = frame.copy(deep=True)
+    metadata = table.doe_metadata.copy()
+    path = tmp_path / f'bbd-{count}-{blocks}.dexpl'
+    assert app._save_project(path)
+    assert app.new_file()
+    assert app.load_file(path)
+    restored = app.getCurrentTable()
+    assert_frame_equal(restored.model.df, expected)
+    assert restored.doe_metadata == metadata
+    copy = app.copySheet()
+    assert copy.doe_metadata == metadata and copy.doe_metadata is not restored.doe_metadata
+    dialog = AnalyzeDOE(app)
+    dialog.analyze()
+    assert dialog.result is not None
+    np.testing.assert_allclose(dialog.result['fitted'], expected['响应_Y'], atol=1e-8)
+    dialog.main.destroy()
+    from doe_predict import predict_point
+    prediction = predict_point(copy.model.df, copy.doe_metadata, 'Y',
+                               {chr(65+i): 0.75 for i in range(count)})
+    assert prediction['prediction'] == pytest.approx(6 + .5*count + .25*count + .25, abs=1e-8)
+    from doe_predict_dialog import PredictRSM
+    predictor = PredictRSM(app)
+    for entry in predictor.entries.values():
+        entry.delete(0, 'end')
+        entry.insert(0, '0.75')
+    predictor.predict()
+    assert any(isinstance(row[1], float) and row[1] == pytest.approx(prediction['prediction'])
+               for row in predictor.block.table.values)
+    predictor.main.destroy()
+    error.assert_not_called()
+
+
+def test_high_dimension_bbd_invalid_block_and_window_buttons(csv_app, monkeypatch):
+    app, error = csv_app
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    create = CreateDOE(app, bbd=True)
+    create.main.geometry('640x480')
+    create.factor_count.set('9')
+    create.update_factor_rows()
+    create.block_count.set('10')
+    create.factor_count.set('10')
+    create.update_factor_rows()
+    assert create.block_count.get() == '自动'
+    create.block_count.set('5')
+    before = list(app.sheets)
+    create.main.update()
+    bar = next(widget for widget in create.main.winfo_children()
+               if any(child.winfo_class() == 'TButton' for child in widget.winfo_children()))
+    buttons = bar.winfo_children()
+    assert all(button.winfo_ismapped() and button.winfo_rooty()+button.winfo_height()
+               <= create.main.winfo_rooty()+create.main.winfo_height() for button in buttons)
+    buttons[1].invoke()
+    assert list(app.sheets) == before
+    error.assert_called_once()
+    buttons[2].invoke()
+
+
+def test_bbd_block_choices_follow_continuous_factors(csv_app):
+    app, _ = csv_app
+    create = CreateDOE(app, bbd=True)
+    create.factor_count.set('10')
+    create.update_factor_rows()
+    assert tuple(create.block_count['values']) == ('自动', '1', '2')
+    create.fields[9][4].insert(0, '甲;乙')
+    create.update_factor_rows()
+    assert tuple(create.block_count['values']) == ('自动', '1', '5', '10')
+    create.main.destroy()
 
 
 def _fill(create, rows):

@@ -2,7 +2,8 @@
 
 连续因子取低/中/高三水平；分类因子按水平组合展开，每个水平组合各自
 包含一组中心点（Minitab 官方说明：每个分类水平同样增加中心点）。
-区组布局按官方 BBD 区组页：4 因子 3 区组，5-7 因子 2 区组。
+9/10 因子区组依据 Box 与 Behnken (1960) 的正交构造；用户提供的
+Minitab 22 默认设计经行与区组重排后等价，标准序不同。
 """
 from fractions import Fraction
 from itertools import product
@@ -16,8 +17,9 @@ from doe_core import (DesignSpec, category_combinations, randomized_run_order,
 
 
 _MAX_RUNS = 10000
-_DEFAULT_CENTERS = {3: 3, 4: 3, 5: 6, 6: 6, 7: 6}
-_BLOCK_OPTIONS = {3: (1,), 4: (1, 3), 5: (1, 2), 6: (1, 2), 7: (1, 2)}
+_DEFAULT_CENTERS = {3: 3, 4: 3, 5: 6, 6: 6, 7: 6, 9: 10, 10: 10}
+_BLOCK_OPTIONS = {3: (1,), 4: (1, 3), 5: (1, 2), 6: (1, 2), 7: (1, 2),
+                  9: (1, 5, 10), 10: (1, 2)}
 _TRIPLES = {
     3: ((0, 1), (0, 2), (1, 2)),
     4: ((0, 1), (2, 3), (0, 3), (1, 2), (0, 2), (1, 3)),
@@ -26,18 +28,27 @@ _TRIPLES = {
     6: ((0, 1, 3), (1, 2, 4), (2, 3, 5), (0, 3, 4), (1, 4, 5), (0, 2, 5)),
     7: ((3, 4, 5), (0, 5, 6), (1, 4, 6), (0, 1, 3),
         (2, 3, 6), (0, 2, 4), (1, 2, 5)),
+    # Box and Behnken (1960), Table 4, designs 6 and 7.
+    9: ((0, 3, 6), (1, 4, 7), (2, 5, 8),
+        (0, 1, 2), (3, 4, 5), (6, 7, 8),
+        (0, 4, 8), (2, 3, 7), (1, 5, 6),
+        (0, 5, 7), (1, 3, 8), (2, 4, 6),
+        (0, 3, 6), (1, 4, 7), (2, 5, 8)),
+    10: ((1, 5, 6, 9), (0, 1, 4, 9), (1, 2, 6, 7),
+         (1, 3, 5, 8), (0, 7, 8, 9), (2, 3, 4, 9),
+         (0, 3, 6, 7), (2, 4, 6, 8), (0, 2, 5, 8), (3, 4, 5, 7)),
 }
 
 
 def _structure(spec):
-    """校验设计定义，返回 (连续因子, 三联组, 中心点数, 区组数)。"""
+    """校验设计定义，返回连续因子、因子组、中心点数与区组数。"""
     if not isinstance(spec, DesignSpec) or spec.design_type != 'box_behnken':
         raise ValueError('需要 box_behnken 设计定义')
     continuous = [factor for factor in spec.factors
                   if factor.factor_type == 'continuous']
     k = len(continuous)
     if k not in _TRIPLES:
-        raise ValueError('Box-Behnken 设计需要 3 至 7 个连续因子')
+        raise ValueError('Box-Behnken 设计支持 3 至 7、9 或 10 个连续因子')
     if spec.seed is None:
         raise ValueError('随机化必须指定整数 seed')
     if spec.generators or spec.defining_relations or spec.aliases:
@@ -76,6 +87,12 @@ def _rows(spec, replicates):
                         row[index] = sign
                     if blocks == 1:
                         block = 0
+                    elif k == 9:
+                        block = group // 3
+                        if blocks == 10:
+                            block = 2 * block + int(math.prod(signs) < 0)
+                    elif k == 10:
+                        block = int(math.prod(signs) < 0)
                     elif blocks == 3:
                         block = group // 2
                     elif pair_groups:

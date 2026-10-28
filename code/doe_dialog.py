@@ -52,15 +52,27 @@ class CreateDOE:
         self.main.bind('<F1>', lambda event: open_help(help_topic, parent=self.main))
         self.fields = []
         self.factor_labels = []
-        grid = ttk.Frame(self.main, padding=8)
-        grid.pack(fill='both', expand=True)
+        if ccd or bbd:
+            area = ttk.Frame(self.main)
+            area.pack(fill='both', expand=True)
+            canvas = tk.Canvas(area, highlightthickness=0, height=500)
+            scrollbar = ttk.Scrollbar(area, orient='vertical', command=canvas.yview)
+            canvas.configure(yscrollcommand=scrollbar.set)
+            scrollbar.pack(side='right', fill='y')
+            canvas.pack(side='left', fill='both', expand=True)
+            grid = ttk.Frame(canvas, padding=8)
+            canvas.create_window((0, 0), window=grid, anchor='nw')
+            grid.bind('<Configure>', lambda event: canvas.configure(scrollregion=canvas.bbox('all')))
+        else:
+            grid = ttk.Frame(self.main, padding=8)
+            grid.pack(fill='both', expand=True)
         categorical_column = ccd or bbd
         headers = ('因子', '名称', '低水平', '高水平', '单位')
         if categorical_column:
             headers += ('分类水平',)
         for col, label in enumerate(headers):
             ttk.Label(grid, text=label).grid(row=0, column=col, padx=3)
-        factor_limit = 7 if bbd else 5 if ccd else 6
+        factor_limit = 10 if bbd or ccd else 6
         for i in range(factor_limit):
             label = ttk.Label(grid, text=chr(65+i))
             label.grid(row=i+1, column=0)
@@ -74,7 +86,7 @@ class CreateDOE:
                 levels = ttk.Entry(grid, width=18)
                 levels.grid(row=i+1, column=5, padx=3, pady=2)
                 entries.append(levels)
-            if i < (6 if fractional else 5 if ccd else 7 if bbd else 2):
+            if i < (6 if fractional else 10 if ccd or bbd else 2):
                 entries[0].insert(0, chr(65+i))
                 entries[1].insert(0, '0')
                 entries[2].insert(0, '1')
@@ -100,7 +112,7 @@ class CreateDOE:
             options_start += 1
         if ccd:
             ttk.Label(grid, text='因子数').grid(row=options_start, column=0, sticky='w')
-            self.factor_count = ttk.Combobox(grid, values=list(range(2, 9)), state='readonly', width=5)
+            self.factor_count = ttk.Combobox(grid, values=list(range(2, 11)), state='readonly', width=5)
             self.factor_count.set('2')
             self.factor_count.grid(row=options_start, column=1, sticky='w')
             self.factor_count.bind('<<ComboboxSelected>>', self.update_factor_rows)
@@ -130,7 +142,7 @@ class CreateDOE:
             options_start += 1
         if bbd:
             ttk.Label(grid, text='因子数').grid(row=options_start, column=0, sticky='w')
-            self.factor_count = ttk.Combobox(grid, values=list(range(3, 8)),
+            self.factor_count = ttk.Combobox(grid, values=(3, 4, 5, 6, 7, 9, 10),
                                              state='readonly', width=5)
             self.factor_count.set('3')
             self.factor_count.grid(row=options_start, column=1, sticky='w')
@@ -138,10 +150,12 @@ class CreateDOE:
             self.update_factor_rows()
             options_start += 1
             ttk.Label(grid, text='区组数').grid(row=options_start, column=0, sticky='w')
-            self.block_count = ttk.Combobox(grid, values=('自动', '1', '2', '3'),
+            self.block_count = ttk.Combobox(grid, values=('自动', '1'),
                                             state='readonly', width=8)
             self.block_count.set('自动')
             self.block_count.grid(row=options_start, column=1, sticky='w')
+            for entries in self.fields:
+                entries[4].bind('<KeyRelease>', self.update_factor_rows)
             options_start += 1
             self.measured = tk.BooleanVar(value=False)
             ttk.Checkbutton(grid, text='添加实测水平列', variable=self.measured).grid(
@@ -169,8 +183,11 @@ class CreateDOE:
         self.preview_text = tk.StringVar(value='')
         ttk.Label(grid, textvariable=self.preview_text, wraplength=720).grid(
             row=preview_row, column=0, columnspan=5, sticky='ew')
-        bar = ttk.Frame(grid)
-        bar.grid(row=preview_row + 1, column=0, columnspan=5, sticky='e')
+        bar = ttk.Frame(self.main if ccd or bbd else grid)
+        if ccd or bbd:
+            bar.pack(side='bottom', anchor='e', padx=8, pady=8, before=area)
+        else:
+            bar.grid(row=preview_row + 1, column=0, columnspan=5, sticky='e')
         ttk.Button(bar, text='预览', command=self.preview).pack(side='left')
         ttk.Button(bar, text='创建', command=self.create).pack(side='left', padx=4)
         ttk.Button(bar, text='取消', command=self.main.destroy).pack(side='left')
@@ -179,6 +196,14 @@ class CreateDOE:
         if event is not None and self.fractional:
             self.preset.set('自定义')
         count = int(self.factor_count.get())
+        if self.bbd and hasattr(self, 'block_count'):
+            from doe_bbd import _BLOCK_OPTIONS
+            continuous_count = sum(not entries[4].get().strip()
+                                   for entries in self.fields[:count])
+            choices = ('自动',) + tuple(map(str, _BLOCK_OPTIONS.get(continuous_count, ())))
+            self.block_count.configure(values=choices)
+            if self.block_count.get() not in choices:
+                self.block_count.set('自动')
         for index, entries in enumerate(self.fields):
             if index < count:
                 self.factor_labels[index].grid()
@@ -300,11 +325,15 @@ class CreateDOE:
                 from doe_ccd import axial_levels
                 spec = DesignSpec.from_dict(meta['design'])
                 points = [f'{f.name}: {lo!r} / {hi!r} {f.unit or ""}'
-                          for f in spec.factors for lo, hi in [axial_levels(f, spec.ccd_alpha)]]
+                          for f in spec.factors if f.factor_type == 'continuous'
+                          for lo, hi in [axial_levels(f, spec.ccd_alpha)]]
+                categories = [f'{f.name}: {" / ".join(map(str, f.levels))}'
+                              for f in spec.factors if f.factor_type == 'categorical']
                 counts = frame['点类型'].value_counts()
                 summary += (f"；α={spec.ccd_alpha:.8g}；因子点 {counts.get('factorial', 0)}"
                             f"，轴点 {counts.get('axial', 0)}，中心点 {counts.get('center', 0)}；"
-                            + '；'.join(points))
+                            + '；'.join(points + categories)
+                            + f"；区组 {frame['区组'].nunique() if '区组' in frame else 1}")
                 if spec.ccd_alpha > 1:
                     summary += '；警告：轴点超出低高水平'
             if self.fractional:
@@ -334,7 +363,8 @@ class CreateDOE:
                 from doe_ccd import axial_levels
                 spec = DesignSpec.from_dict(meta['design'])
                 levels = '\n'.join(f'{f.name}: {lo!r} / {hi!r} {f.unit or ""}'
-                                   for f in spec.factors for lo, hi in [axial_levels(f, spec.ccd_alpha)])
+                                   for f in spec.factors if f.factor_type == 'continuous'
+                                   for lo, hi in [axial_levels(f, spec.ccd_alpha)])
                 if not messagebox.askyesno('轴点超出低高水平',
                         '外接设计的轴点超出低高水平，请确认工艺安全：\n' + levels,
                         parent=self.main):

@@ -1,7 +1,72 @@
 from unittest.mock import Mock
+import copy
 import numpy as np
+import pytest
+from pandas.testing import assert_frame_equal
+from doe_core import restore_design_result
 from doe_dialog import CreateDOE, AnalyzeDOE
 from test_csv_import import csv_app
+
+
+@pytest.mark.parametrize(('count', 'display_fraction', 'fraction'), [
+    (6, '全因子', None), (8, '1/2 分数', 'half'),
+    (9, '1/4 分数', 'quarter'), (10, '1/8 分数', 'eighth'),
+])
+def test_high_dimension_ccd_project_lifecycle(
+        csv_app, tmp_path, monkeypatch, count, display_fraction, fraction):
+    app, error = csv_app
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    monkeypatch.setattr('worksheets.messagebox.askyesno', lambda *a, **k: True)
+    monkeypatch.setattr('worksheets.messagebox.askyesnocancel', lambda *a, **k: False)
+    create = CreateDOE(app, ccd=True)
+    create.factor_count.set(str(count))
+    create.update_factor_rows()
+    create.ccd_fraction.set(display_fraction)
+    before = list(app.sheets)
+    create.preview()
+    assert list(app.sheets) == before
+    preview = create.preview_text.get()
+    create.create()
+    table = app.getCurrentTable()
+    frame = table.model.df
+    factors = [chr(65 + i) for i in range(count)]
+    coded = frame[[f'编码_{name}' for name in factors]].to_numpy(float)
+    response = 10 + coded @ np.arange(1, count + 1) + (coded ** 2).sum(axis=1)
+    frame['响应_Y'] = response
+    snapshot = frame.copy(deep=True)
+    metadata = copy.deepcopy(table.doe_metadata)
+    assert f'{len(frame)} 次运行' in preview
+    assert metadata['schema_version'] == 2
+    assert metadata['design']['ccd_fraction'] == fraction
+    assert len(metadata['design']['factors']) == count
+    assert metadata['column_map']['responses']['Y'] == '响应_Y'
+    old_frame = app.sheetframes[app.getCurrentSheet()]
+    target = tmp_path / f'ccd-{count}.dexpl'
+    assert app._save_project(target)
+    assert app.new_file()
+    assert not old_frame.winfo_exists()
+    assert app.load_file(target)
+    restored = app.getCurrentTable()
+    assert restored is not table
+    assert_frame_equal(restored.model.df, snapshot)
+    assert restored.doe_metadata == metadata
+    result = restore_design_result(restored.model.df, restored.doe_metadata)
+    assert len(result.runs) == len(snapshot)
+    assert result.spec.ccd_fraction == fraction
+    assert result.spec.block_count is None
+    assert all(factor.to_coded(value) == pytest.approx(code)
+               for run, row in zip(result.runs, coded)
+               for factor, code in zip(result.spec.factors, row)
+               for value in [run.settings[factor.factor_id]])
+    copied = app.copySheet()
+    assert copied.doe_metadata == metadata and copied.doe_metadata is not restored.doe_metadata
+    assert_frame_equal(copied.model.df, snapshot)
+    analysis = AnalyzeDOE(app)
+    analysis.analyze()
+    assert analysis.result is not None
+    np.testing.assert_allclose(analysis.result['fitted'], response, atol=1e-8)
+    analysis.main.destroy()
+    error.assert_not_called()
 
 
 def test_ccd_roundtrip_and_plot(csv_app, tmp_path, monkeypatch):

@@ -1,0 +1,311 @@
+{
+  "source": "用户提供，声明为 Minitab 桌面版导出；CSV 内容本身不能证明来源",
+  "minitab_version": "22（用户提供）",
+  "export_settings": {
+    "design": "Box-Behnken",
+    "low": -1,
+    "high": 1,
+    "categorical_factors": 0,
+    "center_points": 10,
+    "replicates": 1,
+    "randomized": false,
+    "display": "coded units; standard order"
+  },
+  "files": {
+    "bbd10-block2.csv": {
+      "sha256": "f9406c49440c590f5be3f6fbe52a39ee4bb8273b436af4163a64646ffa727bcc",
+      "bytes": 5803,
+      "encoding": "utf-8-sig",
+      "columns": [
+        "标准序",
+        "运行序",
+        "点类型",
+        "区组",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "J",
+        "K"
+      ],
+      "system_column_mapping": {
+        "standard_order": "标准序",
+        "run_order": "运行序",
+        "point_type": "点类型",
+        "block": "区组"
+      },
+      "factor_columns": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "J",
+        "K"
+      ],
+      "factor_mapping_to_minijmp": {
+        "A": "A",
+        "B": "B",
+        "C": "C",
+        "D": "D",
+        "E": "E",
+        "F": "F",
+        "G": "G",
+        "H": "H",
+        "J": "I",
+        "K": "J"
+      },
+      "rows": 170,
+      "continuous_factors": 10,
+      "blocks": 2,
+      "block_sizes": {
+        "1": 85,
+        "2": 85
+      },
+      "center_points": 10
+    },
+    "bbd10-unblocked.csv": {
+      "sha256": "32dfa3ac8b0610f9babcbe77e0a1e045fca8e6eafd77dd118189110bf423def9",
+      "bytes": 5803,
+      "encoding": "utf-8-sig",
+      "columns": [
+        "标准序",
+        "运行序",
+        "点类型",
+        "区组",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "J",
+        "K"
+      ],
+      "system_column_mapping": {
+        "standard_order": "标准序",
+        "run_order": "运行序",
+        "point_type": "点类型",
+        "block": "区组"
+      },
+      "factor_columns": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "J",
+        "K"
+      ],
+      "factor_mapping_to_minijmp": {
+        "A": "A",
+        "B": "B",
+        "C": "C",
+        "D": "D",
+        "E": "E",
+        "F": "F",
+        "G": "G",
+        "H": "H",
+        "J": "I",
+        "K": "J"
+      },
+      "rows": 170,
+      "continuous_factors": 10,
+      "blocks": 1,
+      "block_sizes": {
+        "1": 170
+      },
+      "center_points": 10
+    },
+    "bbd9-block10.csv": {
+      "sha256": "5496845699f0d3f65cd8c9a6701553bb62c139467e493b244bc594e43d5bafaa",
+      "bytes": 4092,
+      "encoding": "utf-8-sig",
+      "columns": [
+        "标准序",
+        "运行序",
+        "点类型",
+        "区组",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "J"
+      ],
+      "system_column_mapping": {
+        "standard_order": "标准序",
+        "run_order": "运行序",
+        "point_type": "点类型",
+        "block": "区组"
+      },
+      "factor_columns": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "J"
+      ],
+      "factor_mapping_to_minijmp": {
+        "A": "A",
+        "B": "B",
+        "C": "C",
+        "D": "D",
+        "E": "E",
+        "F": "F",
+        "G": "G",
+        "H": "H",
+        "J": "I"
+      },
+      "rows": 130,
+      "continuous_factors": 9,
+      "blocks": 10,
+      "block_sizes": {
+        "1": 13,
+        "2": 13,
+        "3": 13,
+        "4": 13,
+        "5": 13,
+        "6": 13,
+        "7": 13,
+        "8": 13,
+        "9": 13,
+        "10": 13
+      },
+      "center_points": 10
+    },
+    "bbd9-block5.csv": {
+      "sha256": "c0d5c95828b57769a60d08d60f6e9c681415f7e4558a80622e614b75d0cb02a1",
+      "bytes": 4079,
+      "encoding": "utf-8-sig",
+      "columns": [
+        "标准序",
+        "运行序",
+        "点类型",
+        "区组",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "J"
+      ],
+      "system_column_mapping": {
+        "standard_order": "标准序",
+        "run_order": "运行序",
+        "point_type": "点类型",
+        "block": "区组"
+      },
+      "factor_columns": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "J"
+      ],
+      "factor_mapping_to_minijmp": {
+        "A": "A",
+        "B": "B",
+        "C": "C",
+        "D": "D",
+        "E": "E",
+        "F": "F",
+        "G": "G",
+        "H": "H",
+        "J": "I"
+      },
+      "rows": 130,
+      "continuous_factors": 9,
+      "blocks": 5,
+      "block_sizes": {
+        "1": 26,
+        "2": 26,
+        "3": 26,
+        "4": 26,
+        "5": 26
+      },
+      "center_points": 10
+    },
+    "bbd9-unblocked.csv": {
+      "sha256": "a12d3877b72a111501880e9c386be5425eeb106f3a7880103047b17758897781",
+      "bytes": 4079,
+      "encoding": "utf-8-sig",
+      "columns": [
+        "标准序",
+        "运行序",
+        "点类型",
+        "区组",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "J"
+      ],
+      "system_column_mapping": {
+        "standard_order": "标准序",
+        "run_order": "运行序",
+        "point_type": "点类型",
+        "block": "区组"
+      },
+      "factor_columns": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "J"
+      ],
+      "factor_mapping_to_minijmp": {
+        "A": "A",
+        "B": "B",
+        "C": "C",
+        "D": "D",
+        "E": "E",
+        "F": "F",
+        "G": "G",
+        "H": "H",
+        "J": "I"
+      },
+      "rows": 130,
+      "continuous_factors": 9,
+      "blocks": 1,
+      "block_sizes": {
+        "1": 130
+      },
+      "center_points": 10
+    }
+  }
+}

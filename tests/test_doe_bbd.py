@@ -40,6 +40,144 @@ def quadratic(coded):
                             for i in range(k) for j in range(i+1, k)])
 
 
+@pytest.mark.parametrize(('k', 'blocks'), [(9, 1), (9, 5), (9, 10), (10, 1), (10, 2)])
+def test_high_dimension_literature_points_and_orthogonal_blocks(k, blocks):
+    # Independent construction from Box and Behnken (1960), Table 4.
+    if k == 9:
+        groups = ([tuple(3*r+c for r in range(3)) for c in range(3)] +
+                  [tuple(3*r+c for c in range(3)) for r in range(3)] +
+                  [tuple(3*r+(c+r)%3 for r in range(3)) for c in range(3)] +
+                  [tuple(3*r+(c-r)%3 for r in range(3)) for c in range(3)] +
+                  [tuple(3*r+c for r in range(3)) for c in range(3)])
+    else:
+        groups = [(1,5,6,9), (0,1,4,9), (1,2,6,7), (1,3,5,8),
+                  (0,7,8,9), (2,3,4,9), (0,3,6,7), (2,4,6,8),
+                  (0,2,5,8), (3,4,5,7)]
+    expected = reference_matrix(groups, k, 10)
+    frame, metadata = create_bbd(spec(k, blocks=blocks))
+    result = restore_design_result(frame, metadata)
+    coded = np.asarray(validate_bbd(result, frame))
+    assert Counter(map(tuple, coded)) == Counter(map(tuple, expected))
+    assert Counter(frame['点类型']) == {'edge': len(expected)-10, 'center': 10}
+    model = quadratic(coded)
+    p = 55 if k == 9 else 66
+    assert model.shape[1] == p and np.linalg.matrix_rank(model) == p
+    assert np.linalg.cond(model) < 10
+    for i in range(k):
+        assert sum(coded[:, i] == -1) == sum(coded[:, i] == 1)
+        for j in range(i+1, k):
+            assert np.any(coded[:, i] * coded[:, j])
+    if blocks > 1:
+        indicator = np.column_stack([frame['区组'].to_numpy() == b
+                                     for b in range(1, blocks+1)]).astype(float)
+        assert set(indicator.sum(axis=0)) == {len(frame) / blocks}
+        centered_model = model - model.mean(axis=0)
+        centered_blocks = indicator - indicator.mean(axis=0)
+        np.testing.assert_allclose(centered_model.T @ centered_blocks, 0, atol=1e-12)
+        assert np.linalg.matrix_rank(np.column_stack([model, indicator[:, 1:]])) == p+blocks-1
+        assert all(sum((frame['区组'] == b) & (frame['点类型'] == 'center')) == 10//blocks
+                   for b in range(1, blocks+1))
+
+
+@pytest.mark.parametrize(('k', 'blocks'), [(9, 5), (9, 10), (10, 2)])
+def test_high_dimension_quadratic_block_fit_and_prediction(k, blocks):
+    from doe_predict import predict_point
+    frame, metadata = create_bbd(spec(k, blocks=blocks))
+    coded = frame[[f'编码_{chr(65+i)}' for i in range(k)]].to_numpy(float)
+    frame['响应_Y'] = (7 + coded @ np.arange(1, k+1) +
+                       (coded*coded).sum(axis=1) + 3*coded[:, 0]*coded[:, 1] +
+                       2*(frame['区组'].to_numpy()-1))
+    result = analyze_rsm(frame, metadata, 'Y')
+    assert result['sse'] < 1e-20
+    assert result['df'] == len(frame) - (1+2*k+k*(k-1)//2+blocks-1)
+    coeff = dict(zip(result['names'], result['coefficients']))
+    assert coeff['截距'] == pytest.approx(7, abs=1e-9)
+    assert coeff['A*B'] == pytest.approx(3, abs=1e-9)
+    for i in range(k):
+        assert coeff[chr(65+i)] == pytest.approx(i+1, abs=1e-9)
+        assert coeff[chr(65+i)+'²'] == pytest.approx(1, abs=1e-9)
+        for j in range(i+1, k):
+            expected_interaction = 3 if (i, j) == (0, 1) else 0
+            assert coeff[f'{chr(65+i)}*{chr(65+j)}'] == pytest.approx(expected_interaction, abs=1e-9)
+    for b in range(2, blocks+1):
+        assert coeff[f'区组{b}'] == pytest.approx(2*(b-1), abs=1e-9)
+    values = {chr(65+i): 0.5 for i in range(k)}
+    prediction = predict_point(frame, metadata, 'Y', values)
+    expected = 7 + .5*sum(range(1,k+1)) + .25*k + .75
+    assert prediction['prediction'] == pytest.approx(expected, abs=1e-8)
+
+
+@pytest.mark.parametrize(('k', 'blocks'), [(9, 5), (10, 2)])
+def test_high_dimension_independent_repeats_and_pure_error(k, blocks):
+    frame, metadata = create_bbd(spec(k, blocks=blocks), replicates=2)
+    x = frame[[f'编码_{chr(65+i)}' for i in range(k)]].to_numpy(float)
+    frame['响应_Y'] = 7 + x.sum(axis=1) + (x*x).sum(axis=1) + np.where(frame['重复'] == 1, -1, 1)
+    result = analyze_rsm(frame, metadata, 'Y')
+    groups = frame.groupby(['区组'] + [f'编码_{chr(65+i)}' for i in range(k)])['响应_Y']
+    pure_sse = sum(((values - values.mean())**2).sum() for _, values in groups)
+    distinct = groups.ngroups
+    assert result['sse'] == pytest.approx(len(frame), abs=1e-8)
+    assert result['pure_error_sse'] == pytest.approx(pure_sse, abs=1e-8)
+    assert result['pure_error_df'] == len(frame)-distinct
+    assert result['lack_of_fit_df'] == distinct - (1+2*k+k*(k-1)//2+blocks-1)
+    assert result['lack_of_fit_sse'] == pytest.approx(0, abs=1e-8)
+    assert result['inference'] is not None
+    assert result['lack_of_fit']['f'] == pytest.approx(0, abs=1e-8)
+    assert result['lack_of_fit']['p'] == pytest.approx(1, abs=1e-8)
+    assert result['curvature']['f'] is None and result['curvature']['p'] is None
+
+
+@pytest.mark.parametrize(('k', 'blocks'), [(9, 5), (9, 10), (10, 2)])
+def test_high_dimension_randomization_and_strict_recovery(k, blocks):
+    first, meta = create_bbd(spec(k, seed=11, blocks=blocks), replicates=2)
+    same, _ = create_bbd(spec(k, seed=11, blocks=blocks), replicates=2)
+    other, _ = create_bbd(spec(k, seed=12, blocks=blocks), replicates=2)
+    assert first['运行ID'].tolist() == same['运行ID'].tolist()
+    assert first['运行ID'].tolist() != other['运行ID'].tolist()
+    columns = ['标准序', '区组', '重复'] + [f'编码_{chr(65+i)}' for i in range(k)]
+    assert (first.sort_values('标准序')[columns].to_numpy() ==
+            other.sort_values('标准序')[columns].to_numpy()).all()
+    assert Counter(first['重复']) == {1: len(first)//2, 2: len(first)//2}
+    for block in range(1, blocks+1):
+        orders = first.loc[first['区组'] == block, '运行序'].tolist()
+        assert orders == list(range(min(orders), max(orders)+1))
+    restore_design_result(first, meta)
+    damaged = first.copy()
+    damaged.loc[0, '设定_A'] = 0.3
+    with pytest.raises(ValueError):
+        restore_design_result(damaged, meta)
+
+
+@pytest.mark.parametrize(('k', 'blocks'), [(9, 2), (9, 3), (10, 5), (10, 10)])
+def test_high_dimension_invalid_block_options(k, blocks):
+    with pytest.raises(ValueError, match='区组数'):
+        create_bbd(spec(k, blocks=blocks))
+
+
+def test_high_dimension_bbd_categorical_pure_error_separates_levels():
+    factors = spec(9).factors + (FactorSpec('J', 'batch', None, None,
+                                           factor_type='categorical', levels=('low', 'high')),)
+    design = DesignSpec('high-categorical', factors, ('Y',), seed=11,
+                        design_type='box_behnken', block_count=5, ccd_center_points=10)
+    frame, metadata = create_bbd(design, replicates=2)
+    assert sum(frame['点类型'] == 'center') == 40
+    frame['响应_Y'] = np.where(frame['设定_J'] == 'high', 100.0, 0.0)
+    result = analyze_rsm(frame, metadata, 'Y')
+    assert result['pure_error_sse'] == pytest.approx(0, abs=1e-18)
+    assert result['sse'] == pytest.approx(0, abs=1e-18)
+
+
+@pytest.mark.parametrize(('k', 'blocks', 'centers'), [(9, 5, 15), (9, 10, 20), (10, 2, 12)])
+def test_high_dimension_custom_centers_and_replication(k, blocks, centers):
+    frame, metadata = create_bbd(spec(k, blocks=blocks, centers=centers), replicates=2)
+    assert sum(frame['点类型'] == 'center') == 2*centers
+    for block in range(1, blocks+1):
+        assert sum((frame['区组'] == block) & (frame['点类型'] == 'center')) == 2*centers//blocks
+    validate_bbd(restore_design_result(frame, metadata), frame)
+    with pytest.raises(ValueError, match='均分'):
+        create_bbd(spec(k, blocks=blocks, centers=centers+1))
+
+
 def test_three_factor_points_match_independent_construction():
     frame, metadata = create_bbd(spec(3))
     result = restore_design_result(frame, metadata)

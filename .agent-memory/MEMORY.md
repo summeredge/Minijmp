@@ -2,6 +2,15 @@
 
 ## 工作包 B Review ITERATE（2026-10-28）
 
+- 用户提供并确认 Minitab 22 五份原始 CSV：9 因子无区组/5/10 组和 10 因子无区组/2 组。独立数学与多重集审计均通过；点集及区组重编号后逐点分配一致，标准序不同。ACC-022B 在这五份指定设置下数学等价通过，独立 Review 仍未提交；详情及哈希见 `docs/doe-minitab/bbd-reference-validation.md` 和 fixture manifest。
+
+- 用户批准 ACC-022 分层：022A 数学和工程为功能 Review 必需，022B Minitab 精确一致性 pending_external_reference 不阻断。现已按 Box–Behnken (1960) 表 4 实现 9/10 因子及正交区组，并修复显式中心点与重复/分类组合合同；022A 本地验证通过，RSM-002 implemented，独立 Review 待网页端发起。证据与命令见 `docs/doe-minitab/work-package-b-closeout.md`；不进入 C。
+- 公共 DOE 合同修复后补跑 DOE-1～4 及响应面相关核心回归 187 passed；两种 computer-use 初始化入口均因 kernel assets 路径错误不可用，网页 Review 请求尚未提交。
+
+- 后续补全：6/8/9/10 因子 CCD 真实 Tk 工程关闭、重开、复制及二次分析通过；本轮核心 181、GUI 30（3 warnings）、菜单/帮助/工作表 163 项通过，测试组不可相加。原始 Box–Behnken 论文与 Crosier 10 因子表均不足以证明 Minitab 逐点等价；五种导出需求见 `docs/doe-minitab/bbd-reference-validation.md`，ACC-022 仍 partial，工作包 B 未完成。
+
+- 第二轮已修复 CCD 6/8/9/10 因子 GUI 入口和分类预览/CCC 确认，响应优化高维起点有界；核心 241、GUI 51（10 warnings）、菜单/帮助/G12/工作表 163 项通过；帮助更新后 94 项通过，新增 GUI 文件 11、优化文件 50 项通过（各组有重叠）。9/10 BBD 官方点阵及区组仍无证据，工作包 B 未完成，见 `docs/doe-minitab/work-package-b-closeout.md`。
+
 - 已修复分类水平被混入纯误差与带区组优化等高线，独立参考及真实 Tk 已验证；带区组曲率未调整区组，F/p 不提供。详见 `docs/doe-minitab/work-package-b-closeout.md` 与 `logs/2026-10-28.md`。
 - 9、10 因子 BBD 标准矩阵及官方区组方案尚未完成，RSM-002 partial、ACC-022 未完整通过；等待网页端最终 Review，不进入工作包 C。
 

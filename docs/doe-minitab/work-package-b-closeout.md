@@ -1,5 +1,125 @@
 # 工作包 B 收尾报告（B1～B4）
 
+## 2026-10-28 Minitab 22 五份参考审计
+
+用户提供并确认版本为 Minitab 22 的 9 因子无区组/5/10 区组和 10 因子无区组/2 区组 CSV 均已原样存档并计算 SHA-256。独立审计及逐项比较见 [BBD 参考核验](bbd-reference-validation.md)：五份点多重集和映射后的逐点区组分配均相同；标准序不同。ACC-022A 本地通过；ACC-022B 对这些特定参考及设置的数学等价通过，不能宣称标准序精确一致或推及其他版本。CSV 软件来源来自用户陈述。独立 Review 尚未提交或通过，不进入工作包 C。
+
+本轮实际命令（项目 `.venv` Python 3.11.9，测试组重叠）：
+
+```powershell
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_bbd_minitab_parity.py -q --tb=short
+# 12 passed
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_bbd_minitab_parity.py tests/test_doe_bbd.py tests/test_doe_rsm_categorical.py tests/test_doe_optimize.py tests/test_doe_schema_v2.py tests/test_doe_persistence.py -q --tb=short
+# 140 passed
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_bbd_gui.py tests/test_doe_optimize_gui.py -q --tb=short
+# 19 passed, 1 warning (Matplotlib tight_layout)
+& .\.venv\Scripts\python.exe -m pytest tests/test_menu_localization.py tests/test_help_center.py -q --tb=short
+# 79 passed
+& .\.venv\Scripts\python.exe tools/build_help_index.py
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_bbd_minitab_parity.py tests/test_menu_localization.py tests/test_help_center.py -q --tb=short
+# 91 passed（帮助更新及索引重建后）
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_bbd_minitab_parity.py -q --tb=short
+# 13 passed（新增英文表头及无区组列兼容测试后）
+```
+
+以下双层验收实施阶段中的 ACC-022B 待外部参考描述为历史状态，由本节取代。
+
+## 2026-10-28 双层验收实现进展
+
+用户批准 ACC-022A 数学及工程验收与 ACC-022B Minitab 逐点一致性分开；前者为 Level 1 功能 Review 条件，后者 `pending_external_reference`，父编号不变。9/10 因子 BBD 已按 Box–Behnken (1960) 表 4 构造，支持 9 因子 1/5/10 区组、10 因子 1/2 区组；8 因子拒绝。参考及独立构造见 [BBD 参考核验](bbd-reference-validation.md)。ACC-022A 本地验证通过，RSM-002 为 implemented；独立 Review 尚未提交或通过，ACC-022B 未证实，不进入工作包 C。
+
+当前实测：9/10 因子各 55/66 列完整二次矩阵满秩、条件数分别约 7.076/8.299；5/10/2 区组中心化指示列与完整二次模型正交。独立解析响应验证系数、预测、区组偏移及带独立重复的纯误差分解；高维单/多响应优化与真实 Tk 优化图通过。五种高维配置真实 Tk 完成预览、创建、保存、关闭、重开、复制、分析与预测；640×480 按钮和非法区组拒绝通过。
+
+本轮命令与结果（各组有重叠，不相加；`deselected` 不计通过）：
+
+```powershell
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_bbd.py tests/test_doe_ccd.py tests/test_doe_ccd_options.py tests/test_doe_rsm.py tests/test_doe_rsm_categorical.py tests/test_doe_rsm_diagnostics.py tests/test_doe_predict.py tests/test_doe_optimize.py tests/test_doe_schema_v2.py tests/test_doe_persistence.py -q --tb=short
+# 193 passed；此后增加测试，未改核心数值实现
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_bbd.py tests/test_doe_optimize.py tests/test_doe_rsm_categorical.py tests/test_doe_rsm_diagnostics.py tests/test_doe_schema_v2.py tests/test_doe_persistence.py -q --tb=short
+# 132 passed；其后扩展现有系数断言，专项 3 passed
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_bbd_gui.py tests/test_doe_ccd_options_gui.py tests/test_doe_optimize_gui.py -q --tb=short
+# 30 passed, 1 warning
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_core.py tests/test_doe_factorial.py tests/test_doe_analysis.py tests/test_doe_fractional.py tests/test_doe_ccd.py tests/test_doe_ccd_options.py tests/test_doe_rsm.py tests/test_doe_predict.py tests/test_doe_overlay.py -q --tb=short
+# 147 passed
+& .\.venv\Scripts\python.exe -m pytest tests/test_menu_localization.py tests/test_help_center.py tests/test_g12_inventory.py tests/test_worksheets.py tests/test_sheet_context.py tests/test_file_io.py -q --tb=short
+# 163 passed
+```
+
+首次 GUI 预测测试误将实际水平 0.5 作为编码值 0.5，五项失败；将实际输入改为 0.75 后重跑通过。全部结果均为本次运行，无未解释失败；未运行全量 pytest。
+
+补充验证发现 BBD 显式中心点与重复/分类组合的公共合同不一致，旧实现对新测试 3 项失败；修复后以下套件通过。分类组合下每次重复保留单独中心点，旧版 schema 的字段名称和数据形态不变。
+
+```powershell
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_bbd.py tests/test_doe_schema_v2.py tests/test_doe_core.py tests/test_doe_persistence.py -q --tb=short
+# 95 passed
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_bbd.py -k categorical_pure_error -q --tb=short
+# 1 passed, 41 deselected
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_bbd_gui.py tests/test_doe_ccd_options_gui.py tests/test_doe_optimize_gui.py tests/test_doe_rsm_gui.py -q --tb=short
+# 39 passed, 3 warnings
+```
+
+按双层合同，本地 ACC-021、022A、023–030 的已支持范围通过，ACC-022B pending_external_reference；软件功能验收结论不等于独立 Review APPROVE。当前可用连接器没有发起网页端 Review 的接口；检查可用网页端会话时 computer-use 初始化失败（`failed to write kernel assets: 系统找不到指定的路径。 (os error 3)`），因此尚未提交，需由网页端发起独立 Review。
+
+公共 DOE 合同修复后补跑受影响的旧功能回归：
+
+```powershell
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_factorial.py tests/test_doe_analysis.py tests/test_doe_fractional.py tests/test_doe_ccd.py tests/test_doe_ccd_options.py tests/test_doe_rsm.py tests/test_doe_rsm_categorical.py tests/test_doe_rsm_diagnostics.py tests/test_doe_predict.py tests/test_doe_overlay.py tests/test_doe_optimize.py -q --tb=short
+# 187 passed，0 failed，0 skipped，0 warnings
+```
+
+后续再次检查 computer-use 的另一初始化入口，仍返回同一 `failed to write kernel assets` 路径错误；没有创建 Review 请求。
+
+## 历史记录：高维 CCD 工程验收与 BBD 参考（2026-10-28）
+
+本节保留双层验收合同修订前的状态及证据，其中关于 9/10 因子 BBD 未实现、ACC-022 partial 和不提交 Review 的描述已被本文开头的“双层验收实现进展”取代。
+
+本次是原工作包 B 的后续补全。原关联：Goal `goal-712216c8-e5ed-4b5b-8aab-a2ea89a84047`，Task `task-d2937ac6-7867-4014-bedc-67e5e850defc`，Execution `goal-execution-ed824efd458bad14970af66ee773e8b6`，Review Request `auto-review-84217312dbf50b498200551a29bb7fcf`，Review Result `result-78832f8a-a61f-480c-a010-822732698c7c`。原执行 passed，但 Review 的协议确认超时；本次没有修改或重启原 Goal。新任务所在 Codex chat 为 `01a17fa7-e815-74f2-a784-e5fe6bde23e7`；本地 Goal 工具未提供独立的新 Task/Execution 标识。
+
+`tests/test_doe_rsm_gui.py::test_high_dimension_ccd_project_lifecycle` 通过真实 Tk 创建 6 全因子、8 half、9 quarter、10 eighth 的 CCF；预览不创建表，填写解析二次响应，保存 `.dexpl`，以新建工程关闭原表，重开后核对 schema、完整表数据、设计元数据、输入指纹、响应映射、无区组、编码往返，复制工作表并从副本重新分析，拟合值与解析响应一致。高维 CCD 的这部分缺口已补齐，ACC-021 在当前实现范围内通过；未证明未列出的设计组合。
+
+Box 与 Behnken 原始论文提供 9/10 因子正交区组构造，另找到 Crosier 10 因子两区组公开矩阵；这些资料未能证明 Minitab 的逐点设计及分组等价。五份所需导出、实际来源、数学边界见 [BBD 参考核验](bbd-reference-validation.md)。9/10 因子 BBD 均未实现，ACC-022 仍 partial；其余 ACC-023–030 在现有支持范围内通过，9/10 因子 BBD 范围仍无法验收。不进入工作包 C，不提交最终 Review。
+
+本轮指定解释器 `.venv` Python 3.11.9；实际命令与结果（各组不相加）：
+
+```powershell
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_rsm_gui.py -k high_dimension_ccd_project_lifecycle -q --tb=short
+# 4 passed, 5 deselected
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_bbd.py tests/test_doe_ccd.py tests/test_doe_ccd_options.py tests/test_doe_rsm.py tests/test_doe_rsm_categorical.py tests/test_doe_rsm_diagnostics.py tests/test_doe_predict.py tests/test_doe_optimize.py tests/test_doe_schema_v2.py tests/test_doe_persistence.py -q --tb=short
+# 181 passed
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_bbd_gui.py tests/test_doe_ccd_options_gui.py tests/test_doe_rsm_gui.py tests/test_doe_optimize_gui.py -q --tb=short
+# 30 passed, 3 warnings (Matplotlib tight_layout)
+& .\.venv\Scripts\python.exe -m pytest tests/test_menu_localization.py tests/test_help_center.py tests/test_g12_inventory.py tests/test_worksheets.py tests/test_sheet_context.py tests/test_file_io.py -q --tb=short
+# 163 passed
+```
+
+以上运行均无失败、无跳过；`deselected` 指过滤而非通过。全量 pytest 未运行。
+
+## 2026-10-28 第二轮修复：仍未完成
+
+当前基线 main b60c6eaca57495690b0c65ed500b97d4ffd87533。CCD 窗口可选至 10 因子；分类 CCD 预览及 CCC 轴点确认只对连续因子计算轴点。超过 5 个自由因子的优化使用中心、两个对角边界及逐轴边界起点，9/10 因子分别 21/23 起点，单起点函数评价上限 200。解析二次响应的 CCD 9/10 因子测试核对最优点、预测及重现性。无全局最优保证。
+
+| 验收 | 本轮状态及范围 |
+| --- | --- |
+| ACC-021 | partial：6/8/9/10 因子真实 Tk 创建与预览通过；高维保存重开及窗口尺寸交互未独立验证。 |
+| ACC-022 | partial：3–7 因子原回归通过；未获 9/10 因子官方矩阵和区组分配，不生成且不宣称等价。 |
+| ACC-023、024、030 | partial：原分类与区组回归通过；新 BBD 因子类型不存在，未能验收该范围。 |
+| ACC-025、026、027 | partial：现有核心与 GUI 回归通过；9/10 因子 BBD 范围无法验证。 |
+| ACC-028、029 | partial：低维原回归及高维 CCD 解析案例通过；高维 BBD 尚不可用。 |
+
+本轮 .venv 验证：DOE 核心/统计/schema/持久化 14 文件 241 passed；DOE GUI 8 文件 51 passed、10 warnings；菜单、帮助、G12、工作表和文件 6 文件 163 passed。帮助索引更新后菜单、帮助、G12 94 passed；补充的 640×480 按钮及非法分数 GUI 文件 11 passed；补充函数评价硬上限后优化文件 50 passed。各组有重叠，不能相加为独立测试数。所有结果均为本轮运行，未运行全量 pytest。具体命令以最终交付说明为准。下一步取得 Minitab 9/10 因子实际设计表及各区组分配后，建立独立 fixture 并完成缺失验收，不进入工作包 C。
+
+实际命令（PowerShell，仓库根目录；无失败或跳过，警告如上）：
+
+```powershell
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_core.py tests/test_doe_factorial.py tests/test_doe_fractional.py tests/test_doe_ccd.py tests/test_doe_ccd_options.py tests/test_doe_bbd.py tests/test_doe_rsm.py tests/test_doe_rsm_categorical.py tests/test_doe_rsm_diagnostics.py tests/test_doe_predict.py tests/test_doe_overlay.py tests/test_doe_optimize.py tests/test_doe_schema_v2.py tests/test_doe_persistence.py -q --tb=short
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_gui.py tests/test_doe_rsm_gui.py tests/test_doe_bbd_gui.py tests/test_doe_ccd_options_gui.py tests/test_doe_predict_gui.py tests/test_doe_overlay_gui.py tests/test_doe_optimize_gui.py tests/test_doe_fractional_gui.py -q --tb=short
+& .\.venv\Scripts\python.exe -m pytest tests/test_menu_localization.py tests/test_help_center.py tests/test_g12_inventory.py tests/test_worksheets.py tests/test_sheet_context.py tests/test_file_io.py -q --tb=short
+& .\.venv\Scripts\python.exe tools/build_help_index.py
+& .\.venv\Scripts\python.exe -m pytest tests/test_help_center.py tests/test_menu_localization.py tests/test_g12_inventory.py -q --tb=short
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_ccd_options_gui.py -q --tb=short
+& .\.venv\Scripts\python.exe -m pytest tests/test_doe_optimize.py -q --tb=short
+```
+
 > 2026-10-28 Review 修复及当前验收状态见文末；本报告原有结论为历史记录。
 
 ## 一、基线与范围

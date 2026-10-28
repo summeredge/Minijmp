@@ -480,6 +480,9 @@ class DesignResult:
                         factor.to_coded(value)
         if self.spec.design_type == "box_behnken":
             expected_centers = self.spec.ccd_center_points
+            if expected_centers is not None:
+                expected_centers *= (len({run.replicate for run in runs}) *
+                                     len(category_combinations(self.spec.factors)))
             if (expected_centers is not None
                     and expected_centers != sum(run.point_type == "center"
                                                 for run in runs)):
