@@ -1,5 +1,19 @@
 # MiniJMP 工作记忆
 
+## 工作包 G Taguchi（2026-10-28，限定收尾）
+
+- 状态 `WORK_PACKAGE_G_PARTIAL_READY_FOR_REVIEW`；BASE/HEAD `c3720d2737f44ad130d8b61cd07ae31073073c2d`，工作树 detached HEAD（同 main 提交），全部未提交/推送。G0–G6 限定范围与本轮 ITERATE 修复已完成，待独立 Review。详见 `docs/doe-minitab/work-package-g-closeout.md` 与 `taguchi-reference-validation.md`。
+- DOE Schema 升至 v5：新增 `taguchi` 身份（kind/array_id/matrix_sha256/columns/noise_array_id/noise_matrix_sha256/noise_columns/signal_factor）与 RunRecord/列映射 `control_run_id`、`noise_condition_id`；v1–v4 仍按原摘要校验后升级。旧版 MiniJMP 不保证读 v5。
+- 新增 code/doe_taguchi_arrays.py（L4/L8/L9/L16/L18/L25 官方矩阵，SHA-256 固定）、doe_taguchi.py（控制×噪声×信号×重复网格）、doe_taguchi_sn.py（四类静态 S/N、adjusted nominal (I)、响应表、动态回归与 dynamic S/N）、doe_taguchi_analysis.py（动态分析、噪声稳健性、最佳设置）、doe_taguchi_dialog.py、doe_taguchi_analysis_dialog.py；菜单 16/17/18 与帮助主题 doe.taguchi。
+- 关键发现：Minitab L18 官方页表头列为 1–7、9，且第 8 列与第 3–7 列组合频数为 1/2/3 而非各 2 次，与页面"两两平衡"声明矛盾；生产按记录事实校验，ACC-049 保持 partial。静态 adjusted 归属按详细公式放 (I)，来源冲突已在帮助保留。
+- 参考 fixture `tests/fixtures/doe_taguchi_reference/`：六份 CSV + manifest（含 matrix_sha256）+ cases.json；核验器 tests/test_doe_taguchi_references.py 不导入生产 Taguchi。静态 Y=[1,2] 五值：−3.979400086720376 / 2.041199826559248 / 6.532125137753438 / 3.010299956639812 / 6.020599913279624；动态自由截距 S/N 13.80211241711606，过参考点 12.041199826559248（adjusted 11.903316981702915）。
+- 分析选项持久化（本轮补充）：analysis 为可选元数据字段，静态保存 sn_kind/adjusted/ln_sd，动态保存 reference_mode/reference/adjusted；仅允许出现在 Taguchi 设计上，按静态/动态形状校验，重开与复制时恢复。best_settings 与噪声窗口读取该字段，避免最佳设置与上次分析使用不同 S/N 或回归形式。
+- GUI 修正：原“平均响应参考点”只有标签、实际走固定参考点分支，已从界面移除并在帮助标明未实现；噪声条件不足时是显式拒绝，不再是“只作描述性统计”。
+- 验证快照：Taguchi 七文件 138 passed（2 tight_layout warnings）；Schema/工作表 121；菜单 66；帮助/G12 37；普通 DOE Tk 11+4 warnings 与 39+6 warnings。组间重叠；全量 pytest 未跑。
+- ACC 状态：045/046/047/048/050/051/064/065 implemented（限定范围）；049/052/053 partial。未实现动态 ANOVA F/p、平均响应参考点、置信区间、控制×噪声交互及其他目录数组。
+- ITERATE 修复：n=1 允许 Smaller/Larger 并令 SD/ln(SD) 为 None；目标均值/斜率改全组合加性精确搜索（20,000 预算、稳定并列），负预测 SD 标为不可用；L18 按控制/噪声实际列对平衡性拒绝异常组合，保持原矩阵与 SHA-256。L4/Y=[2]、L4目标均值/斜率反例、L18创建/恢复/分析/GUI 均有测试。
+- 复核旧 target_mean fixture：旧逐因子输出 A2B2C2=17，但完整加性组合 A3B1C1=19 正好达到目标；fixture 保留原值作为旧错例，独立核验器改为全组合计算。
+
 ## 工作包 D D0–D5（2026-10-28，本地收尾）
 
 - 独立 Review 遗留两项已修复：General Full Factorial 创建与恢复统一限制 2–10 因子（1/11 拒绝，10 因子仍受 10,000 行上限）；Split-Plot 预览显示运行/区组/整区数，仅插入前 100 行并提示总数，增加水平滚动，实际创建保持完整。专项八文件 42 passed、D 非 GUI 182、B/C 非 GUI 358、Factorial Tk 22、菜单帮助/G12 94 passed；测试组重叠，全量 pytest 未运行。ACC 状态未变，工作区仍未提交。
