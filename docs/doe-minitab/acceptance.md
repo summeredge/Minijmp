@@ -25,6 +25,28 @@ ACC-067 待开发合同：用独立构造的工作表验证因子、水平及顺
 
 截至 D1，专项命令 `pytest tests/test_doe_factorial_schema.py tests/test_doe_general_factorial.py tests/test_doe_general_factorial_analysis.py tests/test_doe_general_factorial_gui.py tests/test_doe_core.py tests/test_doe_schema_v2.py tests/test_doe_schema_v3.py tests/test_doe_factorial_references.py -q --tb=short` 为 **83 passed、1 tight_layout warning**；`tests/test_help_center.py` 为 **13 passed**；`tests/test_menu_localization.py` 为 **66 passed**。帮助索引已重建。测试按组记录，不相加为唯一总数。
 
+### 工作包 F 逐项状态（2026-10-28）
+
+工作包 F 在隔离 worktree 完成混料合同、三类设计、Scheffé 模型、ANOVA、预测、优化、图形、GUI 与 v4 适配。独立参考位于 `tests/fixtures/doe_mixture_reference/`，`reference.json` SHA-256 为 `8ae2c0712fdb423a0570336ebf96cca0dd8366e56c7dddf1be007ad36099c913`。Minitab 官方页只用于产品范围，不作为数值 oracle；E 的工作表/公共 Schema 联合回归与独立 Review 尚未完成。
+
+| 验收 | 状态 | 当前支持及已核验证据 | 未覆盖范围 |
+|---|---|---|---|
+| ACC-032 | implemented（限定范围） | 三组分 2/3 阶格点与独立枚举一致；q 2–12、阶数 1–10、10,000 行上限、seed 与标准序；真实 Tk 创建/预览/取消。 | Minitab 标准序及按阶数的组分数上限未由导出核实。 |
+| ACC-033 | implemented（限定范围） | 2^q−1 点、三组分 7 点结构（3 顶点/3 边中点/1 重心）、重复与模型秩；保存重开复制。 | 未核对产品标准序。 |
+| ACC-034 | implemented（限定范围） | 活动约束枚举三组分 5 顶点与独立参考一致；去重、可行性、质心、点来源；无解/退化显式报告。 | 2–8 组分范围；不声称复制 XVERT/CONAEV 顺序或增补目录。 |
+| ACC-035 | implemented（限定范围） | 总和、上下界、线性不等式、伪组分、总量换算；非法点拒绝且不归一化；不可行创建不写工作簿。 | 仅显式数值容差。 |
+| ACC-036 | partial（限定范围） | 混料/过程/总量角色分离；过程变量完整低/高水平组合；一个固定总量设定；实际量=总量×比例；xi*z 项独立核验。 | 总量随运行变化、复杂交叉设计及全部产品选项。 |
+| ACC-037 | implemented（限定范围） | 无截距线性/二次/三次 Scheffé；自定义合法项；过程/总量编码；秩与可估计性。 | 1–3 阶混料结构外的项被拒绝。 |
+| ACC-038 | implemented（限定范围） | 独立参考核对系数、拟合、残差、SSE/SST、项 SS、纯误差、失拟、R²；饱和/秩亏/无纯误差禁用推断；组分主效应不显示 p。 | 产品表格格式与其他推断选项未核实。 |
+| ACC-039 | implemented（限定范围） | 解析线性/二次点预测；总和、越界、非有限、缺项、设计快照变化拒绝；模型范围与快照标识。 | 不提供预测/置信区间。 |
+| ACC-040 | implemented（限定范围） | SLSQP 单/多响应最大化、最小化、目标与期望；不劣于独立网格界；约束残差、状态与零综合期望报告。 | 局部多起点，不宣称全局最优。 |
+| ACC-041 | implemented（限定范围） | Trace 参考混合物、其余比例缩放、逐点总和与预测独立核验；不可行点跳过计数。 | 未比较产品图形布局。 |
+| ACC-042 | implemented（限定范围） | 三组分三元图与高维合法切片；不可行网格以掩码保持空值；总和与轴映射核验。 | 产品样式/标签位置未比较。 |
+| ACC-043 | implemented（限定范围） | 曲面复用同一合法切片；顶点、边界、重心、总和与三元轴映射独立核验。 | 未比较产品布局。 |
+| ACC-044 | implemented（限定范围） | 多响应上下限交集 11 个独立网格点；空交集状态；固定工艺条件；与期望优化分离。 | 未比较产品样式。 |
+
+专项测试按组记录于 [工作包 F 收尾记录](work-package-f-closeout.md)，测试组存在重叠，不相加为唯一总数。
+
 ### 工作包 C 第二轮逐项状态（2026-10-28）
 
 以下均为 **partial**。最终快照筛选 GUI、DOE 回归和工程测试已完成，独立 Review 尚未提交；独立数学依据及测试详情见 [参考核验](screening-reference-validation.md) 和 [收尾记录](work-package-c-closeout.md)。产品标准序及随机序均未由 Minitab 22 导出核实。

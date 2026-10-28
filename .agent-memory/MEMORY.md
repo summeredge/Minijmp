@@ -1,5 +1,15 @@
 # MiniJMP 工作记忆
 
+## 工作包 F 混料设计（2026-10-28，隔离 worktree）
+
+- 状态 `WORK_PACKAGE_F_READY_FOR_REVIEW`；BASE `c3720d2`，worktree `C:\Users\shaoy\.codex\worktrees\e9e5\Minijmp`（detached HEAD），未提交/推送/合并，未启动 G/H。E 最终 Schema 合并、跨 E 联合回归和独立 Review 未完成。
+- 新增 `code/doe_mixture*.py` 九个模块：约束、专属合同、三类设计、Scheffé 模型/ANOVA、预测、优化、图形、GUI。菜单新增创建/分析/预测/优化/图形五项；帮助新增 `doe.mixture*` 并重建索引。
+- 混料语义存 `table.mixture_metadata`（schema 1），最近分析模型存 `table.mixture_model`（响应/阶次/模型项/输入摘要），DOE v4 仅新增 `design_type='mixture'`，不改 v4 字段集；`worksheets.saveMeta/loadMeta` 先验证后赋值。总量目前固定一个设计设定，MIX-005/ACC-036 为 partial。
+- 独立参考 `tests/fixtures/doe_mixture_reference/`（Fraction + 自写高斯消元），`reference.json` SHA-256 `8ae2c0712fdb423a0570336ebf96cca0dd8366e56c7dddf1be007ad36099c913`；覆盖格点/重心/5 顶点/ANOVA/优化网格/Trace/叠加 11 点。
+- 独立 Review ITERATE 五项已修复：默认 Mixture×Process 去掉过程主项 `P`（保留 `xi*P` 与秩检查）、模型 F/df 改用增量秩（校正/未校正平方和分流）、可估计性改判行空间、组分主项只报删除项条件平方和、双组分图形改为拒绝二维并提示 Trace。closeout 文档含“Review ITERATE 修正”段。
+- 验证快照（最终状态）：混料 12 文件 64 passed（24.01s）；DOE 非 GUI 427 passed（348.77s）；既有 DOE GUI 15/11/9/13/10 passed；菜单/帮助/G12/工作表/文件/工程 173（菜单单项 66）。测试组重叠，全量 pytest 未运行。
+- ACC-032/033/034/035/037/038/039/040/041/042/043/044 implemented（限定范围），ACC-036 partial；Minitab 标准序、XVERT/CONAEV 顺序、图形布局与预测区间未核实。详见 `docs/doe-minitab/work-package-f-closeout.md` 与 `work-package-f-integration-plan.md`。
+
 ## 工作包 D D0–D5（2026-10-28，本地收尾）
 
 - 独立 Review 遗留两项已修复：General Full Factorial 创建与恢复统一限制 2–10 因子（1/11 拒绝，10 因子仍受 10,000 行上限）；Split-Plot 预览显示运行/区组/整区数，仅插入前 100 行并提示总数，增加水平滚动，实际创建保持完整。专项八文件 42 passed、D 非 GUI 182、B/C 非 GUI 358、Factorial Tk 22、菜单帮助/G12 94 passed；测试组重叠，全量 pytest 未运行。ACC 状态未变，工作区仍未提交。
