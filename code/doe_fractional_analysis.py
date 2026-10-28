@@ -7,6 +7,7 @@ import numpy as np
 from scipy import stats
 
 from doe_fractional import validate_fractional_design
+from doe_factorial_anova import partition_factorial_error
 
 
 def _fractional_design(frame, metadata):
@@ -140,9 +141,20 @@ def analyze_fractional(frame, metadata, response, order=2, representatives=None)
         else:
             group['representative'] = chosen_by_group.get(group_index)
 
+    centers = np.asarray([run.point_type == 'center' for run in runs])
+    has_center = bool(centers.any())
     columns = [np.ones(len(coded))]
     columns.extend(np.prod(coded[:, term], axis=1) for term in selected)
-    x = np.column_stack(columns)
+    if has_center:
+        columns.append(centers.astype(float))
+    block_levels = list(dict.fromkeys(run.block for run in runs if run.block is not None))
+    block_df = max(0, len(block_levels) - 1)
+    block_basis = (np.column_stack([
+        [1.0 if run.block == block else 0.0 for run in runs]
+        for block in block_levels[:-1]
+    ]) if len(block_levels) > 1 else np.empty((len(runs), 0)))
+    x = np.column_stack(columns + [block_basis[:, index]
+                                   for index in range(block_basis.shape[1])])
     beta, _, rank, _ = np.linalg.lstsq(x, y, rcond=None)
     n, p = x.shape
     if rank != p:
@@ -155,23 +167,30 @@ def analyze_fractional(frame, metadata, response, order=2, representatives=None)
         raise ValueError('响应超出可分析的数值范围')
     ssr = max(0.0, sst - sse)
 
-    cells = defaultdict(list)
-    for row, value in zip(coded, y):
-        cells[tuple(row)].append(value)
-    pure_error_df = sum(len(cell) - 1 for cell in cells.values())
-    pure_error_sse = sum(float(np.sum((np.asarray(cell) - np.mean(cell)) ** 2))
-                         for cell in cells.values())
-    lack_of_fit_df = n - p - pure_error_df
-    lack_of_fit_sse = max(0.0, sse - pure_error_sse)
-    tolerance = np.finfo(float).eps * max(n, p) * max(float(np.linalg.norm(y)), 1.0)
-    inference = None
+    treatment_cells = [tuple(row) for row in coded]
+    error = partition_factorial_error(
+        y, treatment_cells, [run.block for run in runs] if block_df else None)
+    pure_error_df, pure_error_sse = error['pure_error_df'], error['pure_error_ss']
+    block_error_df, block_error_sse = error['block_error_df'], error['block_error_ss']
+    model_treatment_df = len(selected) + int(has_center)
+    lack_of_fit_df = len(set(treatment_cells)) - 1 - model_treatment_df
+    lack_of_fit_sse = max(0.0, sse - pure_error_sse - block_error_sse)
     df = n - p
+    ss_tolerance = np.finfo(float).eps * max(n, p) * max(float(y @ y), 1.0)
+    if df != pure_error_df + block_error_df + lack_of_fit_df:
+        raise ValueError('残差自由度无法分解为纯误差、区组误差和失拟')
+    pure_mse = pure_error_sse / pure_error_df if pure_error_df else None
+    pure_error_available = pure_error_df > 0 and pure_error_sse > ss_tolerance
+    error_available = (df > 0 and lack_of_fit_df == 0 and sse > ss_tolerance
+                       if block_df else df > 0 and pure_error_available)
+    inference = None
     if df == 0:
         status = '模型饱和，不能进行统计推断'
-    elif not pure_error_df:
-        status = '无独立纯误差，不能进行统计推断'
-    elif pure_error_sse ** .5 <= tolerance:
-        status = '纯误差方差为零或无法辨认，不能进行统计推断'
+    elif block_df and lack_of_fit_df:
+        status = '区组模型未包含全部别名自由度，不能分离失拟与区组误差'
+    elif not error_available:
+        status = ('区组调整误差自由度或方差不可用，统计推断不可用' if block_df else
+                  '无正的独立纯误差自由度或方差，统计推断不可用')
     else:
         mse = sse / df
         se = np.sqrt(np.diag(np.linalg.inv(x.T @ x)) * mse)
@@ -186,22 +205,84 @@ def analyze_fractional(frame, metadata, response, order=2, representatives=None)
             'f': float(f) if f is not None else None,
             'model_p': float(stats.f.sf(f, model_df, df)) if f is not None else None,
         }
-        status = '可推断；系数按完整别名组解释'
+        status = '可推断；系数按完整别名组解释，区组误差假设无处理×区组交互'
 
     names = ['截距'] + [_term_label(term, factor_ids) for term in selected]
     effects = [None] + [2 * float(value) for value in beta[1:1 + len(selected)]]
+    if has_center:
+        names.append('中心点偏移')
+        effects.append(None)
+    block_names = [f'区组 {block}' for block in block_levels[:-1]]
+    names.extend(block_names)
+    effects.extend([None] * len(block_names))
+    block_values = {block: [value for run, value in zip(runs, y) if run.block == block]
+                    for block in block_levels}
+    block_ss = (sum(len(values) * (float(np.mean(values)) - float(np.mean(y))) ** 2
+                    for values in block_values.values()) if block_names else 0.0)
+    curvature = None
+    if has_center:
+        factorial_y = y[~centers]
+        center_y = y[centers]
+        difference = float(np.mean(center_y) - np.mean(factorial_y))
+        contrast_ss = difference ** 2 / (1 / len(center_y) + 1 / len(factorial_y))
+        curvature = {'difference': difference, 'ss': contrast_ss, 'df': 1,
+                     'f': None, 'p': None}
+        if pure_error_available:
+            curvature_mse, curvature_df = pure_mse, pure_error_df
+        else:
+            curvature_mse, curvature_df = None, None
+        if curvature_mse is not None:
+            f_curvature = contrast_ss / curvature_mse
+            curvature.update(f=float(f_curvature),
+                             p=float(stats.f.sf(f_curvature, 1, curvature_df)))
+    lack_of_fit = None
+    if not block_df and pure_error_available and lack_of_fit_df > 0:
+        f_lof = (lack_of_fit_sse / lack_of_fit_df) / pure_mse
+        lack_of_fit = {'ss': lack_of_fit_sse, 'df': lack_of_fit_df,
+                       'pure_error_ss': pure_error_sse, 'pure_error_df': pure_error_df,
+                       'f': float(f_lof),
+                       'p': float(stats.f.sf(f_lof, lack_of_fit_df, pure_error_df))}
+    mse = sse / df if error_available else None
+    anova = []
+    if block_df:
+        block_ms = block_ss / block_df
+        block_f = block_ms / mse if mse is not None else None
+        anova.append({'term': '区组', 'ss': block_ss, 'df': block_df, 'ms': block_ms,
+                      'f': block_f,
+                      'p': float(stats.f.sf(block_f, block_df, df)) if block_f is not None else None})
+    for index, term in enumerate(selected, start=1):
+        term_ss = float(beta[index] ** 2 * (x[:, index] @ x[:, index]))
+        term_f = term_ss / mse if mse is not None else None
+        anova.append({'term': _term_label(term, factor_ids), 'ss': term_ss, 'df': 1,
+                      'ms': term_ss, 'f': term_f,
+                      'p': float(stats.f.sf(term_f, 1, df)) if term_f is not None else None})
+    if curvature:
+        term_f = curvature['ss'] / mse if mse is not None else None
+        anova.append({'term': '中心点偏移', 'ss': curvature['ss'], 'df': 1,
+                      'ms': curvature['ss'], 'f': term_f,
+                      'p': float(stats.f.sf(term_f, 1, df)) if term_f is not None else None})
+    anova.extend([
+        {'term': '残差', 'ss': sse, 'df': df, 'ms': mse, 'f': None, 'p': None},
+        {'term': '总计', 'ss': sst, 'df': n - 1, 'ms': None, 'f': None, 'p': None},
+    ])
     return {
         'design': design, 'response': response, 'order': order,
-        'names': names, 'representatives': tuple(names[1:]),
+        'names': names, 'representatives': tuple(
+            _term_label(term, factor_ids) for term in selected),
         'alias_groups': alias_groups, 'coefficients': beta, 'effects': effects,
         'fitted': fitted, 'residuals': residuals, 'coded': coded,
         'n': n, 'p': p, 'rank': int(rank), 'df': df,
+        'block_ss': block_ss, 'block_df': len(block_names),
+        'block_error_sse': block_error_sse, 'block_error_df': block_error_df,
+        'block_error_ms': block_error_sse / block_error_df if block_error_df else None,
         'sse': sse, 'sst': sst, 'ssr': ssr,
         'pure_error_df': pure_error_df, 'pure_error_sse': pure_error_sse,
         'lack_of_fit_df': lack_of_fit_df, 'lack_of_fit_sse': lack_of_fit_sse,
+        'lack_of_fit': lack_of_fit, 'anova': anova,
+        'curvature': curvature,
         'r2': 1 - sse / sst if sst > 0 else None,
         'adjusted_r2': 1 - (sse / df) / (sst / (n - 1)) if df > 0 and sst > 0 else None,
         'inference': inference, 'status': status,
-        'assumption': ('每个效应仅能解释为其完整别名组；推断以重复纯误差可估为前提，'
-                       '并使用模型残差 MSE，假设误差独立、同方差且正态及模型充分。'),
+        'assumption': ('每个效应仅解释为完整别名组；纯误差按相同因子设置及相同区组分组。'
+                       '区组推断假设模型充分且无处理×区组交互；推断还假设误差独立、同方差且正态。'),
     }

@@ -6,6 +6,25 @@ SCR-005 已由官方页面确认，MiniJMP 尚未实现；新追加 **MTB-DOE-AC
 
 ACC-067 待开发合同：用独立构造的工作表验证因子、水平及顺序等设计列的导入和筛选分析；无效或冲突列必须拒绝且不更改工作簿；真实 GUI 覆盖预览、取消、定义及分析；工程保存、重开、复制后保持映射。具体受支持选项和数学解释须在开发前另行核定。
 
+### 工作包 D D0–D5 状态（2026-10-28）
+
+限定范围的 D0–D5 实现、独立数学证据、真实 Tk 工作流和工程生命周期已完成，状态为 **WORK_PACKAGE_D_READY_FOR_REVIEW**。功能矩阵中保留 partial 的项目没有被扩张成全量 Minitab 实现声明；完整测试快照见 [工作包 D 收尾记录](work-package-d-closeout.md)。独立 Review 尚未执行。
+
+| 验收 | 状态 | 当前支持及已核验证据 | 未覆盖范围 |
+|---|---|---|---|
+| ACC-008 | implemented（限定范围） | 2×3 与 2×3×4 完整笛卡尔积；文字/数值标签类型往返；重复、seed、10,000 行前拒绝；真实 Tk 预览/取消/创建；.dexpl 保存、重开、复制和再分析。 | Minitab 标准序、上限和所有产品专属选项未由导出验证。 |
+| ACC-009 | implemented（限定范围） | 100/150/200 用 2 df 分类对比，输出边际均值、组合均值、ANOVA；独立非线性 cell-mean 参考确认不产生自动连续趋势项。 | Minitab 参数编码与调整均值表的逐项格式/数值一致性未核实。 |
+| ACC-010 | implemented（限定范围） | 混合水平 2×3 与 2×3×4 及独立分类对比；每重复完整区组的 block-adjusted ANOVA 已核验。 | 任意不完整区组划分和 Minitab 标准序/分配未支持或未核实。 |
+| ACC-007 | partial（限定范围） | D=ABC 与 D=−ABC 正规分数；符号别名、中心点与解析效应由独立矩阵核验。 | 其他正规分数选项和产品标准序未导出验证。 |
+| ACC-015 | partial（限定范围） | 3–6 因子未分区组正规分数支持全因子或单因子单批次 Foldover；源响应保留、实际 alias/秩/分辨度重算，谱系随工程保存。 | PB/Split-Plot、重复折叠及 Minitab 22 输出一致性未覆盖。 |
+| ACC-011 / 066 | partial（限定范围） | 两水平全、正规分数及一般全因子只按完整重复成区组；区组随机化、估计性和 ANOVA 已核验。 | 自定义不完整分块和其他随机化模式未支持。 |
+| ACC-013 | partial（限定范围） | 两连续两水平因子、至少两个平衡区组；A 使用整区误差，B 与 AB 使用子区误差。 | 更多因子、不平衡配置和 REML 未支持。 |
+| ACC-017 / 018 | partial（限定范围） | 系数/效应、逐项 SS/df/F/p、中心对比、按区组修正纯误差和失拟；没有独立纯误差时不显示 LOF F/p。 | 更广产品选项及 Minitab 表格逐项一致性未验证。 |
+
+独立参考位于 `tests/fixtures/doe_factorial_reference/`，当前 `reference.json` SHA-256 为 `0c3e379a6962efe224695ba79a21d101319d4298d1ed6962c9a8a9b6dfef37ba`。Schema v4 严格字段与 v1/v2/v3 旧摘要校验由 `tests/test_doe_factorial_schema.py`、`tests/test_doe_schema_v2.py`、`tests/test_doe_schema_v3.py` 覆盖。真实工程生命周期由各创建 GUI 专项覆盖。
+
+截至 D1，专项命令 `pytest tests/test_doe_factorial_schema.py tests/test_doe_general_factorial.py tests/test_doe_general_factorial_analysis.py tests/test_doe_general_factorial_gui.py tests/test_doe_core.py tests/test_doe_schema_v2.py tests/test_doe_schema_v3.py tests/test_doe_factorial_references.py -q --tb=short` 为 **83 passed、1 tight_layout warning**；`tests/test_help_center.py` 为 **13 passed**；`tests/test_menu_localization.py` 为 **66 passed**。帮助索引已重建。测试按组记录，不相加为唯一总数。
+
 ### 工作包 C 第二轮逐项状态（2026-10-28）
 
 以下均为 **partial**。最终快照筛选 GUI、DOE 回归和工程测试已完成，独立 Review 尚未提交；独立数学依据及测试详情见 [参考核验](screening-reference-validation.md) 和 [收尾记录](work-package-c-closeout.md)。产品标准序及随机序均未由 Minitab 22 导出核实。
@@ -91,7 +110,7 @@ ACC-067 待开发合同：用独立构造的工作表验证因子、水平及顺
 | MTB-DOE-ACC-004 | SCR-004 | DSD 二元响应按事件数/试验数输入，不接收伪装为连续响应的 0/1 单次观测替代合同。 | 与独立二项似然/logistic 拟合核对系数与预测；检查 0/全事件、完全分离、非整数计数及零试验数。 |
 | MTB-DOE-ACC-005 | SCR-006 | 统一验证 PB、DSD 与正规分数筛选的主效应/候选交互展示。 | 用已知信号因子和无信号因子的独立模型，核对效应/Pareto 输入与排序；混杂效应不得标成单一因子真效应。 |
 | MTB-DOE-ACC-006 | SCR-007 | 输出设计混杂关系和指定模型可估计项；不要默认别名组系数代表唯一效应。 | 从独立 X 矩阵精确求秩/零空间及别名关系；检查用户模型含混杂项、矩阵秩亏和不支持项。 |
-| MTB-DOE-ACC-007 | FAC-002 | 两水平正规分数：生成元、分辨率、seed、重复和不支持的中心/区组输入明确拒绝或提示。 | 用 D=ABC 的 2^(4−1) 独立重建 8 个运行、定义关系和别名；检验反号、循环生成元、重复因子和秩边界。 |
+| MTB-DOE-ACC-007 | FAC-002 | 两水平正规分数：生成元符号、分辨率、seed、重复及中心点需校验；尚不支持的区组输入明确拒绝。 | 独立重建 D=ABC 与 D=-ABC，核对 8 个运行、带符号定义关系/别名；覆盖循环生成元、重复因子、中心点及秩边界。 |
 | MTB-DOE-ACC-008 | FAC-003 | General Full Factorial；每个分类因子的 text/numeric level labels 单独输入。 | 以 2×3 完整 Cartesian product 独立重建 6 行；核对每个组合一次、标签保留、模型矩阵秩及水平缺失。 |
 | MTB-DOE-ACC-009 | FAC-004 | 数值型水平标签仍按分类因子建模；需与连续变量的多项式响应面建模明确区分。 | 对 100/150/200 三水平和两类配方用独立 contrasts/ANOVA 核对类别均值；确认不自动加入线性或平方项。另用独立 RSM 多项式证明两种模型合同不同。 |
 | MTB-DOE-ACC-010 | FAC-005 | 至少两个因子具有不同的类别水平数；每个水平标签保持原值。 | 独立构造 2×3 混合水平 Cartesian product；核对 6 个组合、两因子 contrasts、秩及缺水平边界。 |
@@ -99,10 +118,10 @@ ACC-067 待开发合同：用独立构造的工作表验证因子、水平及顺
 | MTB-DOE-ACC-012 | FAC-009 | 对当前支持的全因子、正规部分因子和 CCD 保持 seeded overall run order。此项是已有基线回归，不安排重复开发。 | 固定 seed 独立重算排列，核对运行集合不变、不同 seed 仍为同一设计点集合；在保存/重开后保持记录的实际顺序。Block/whole-plot 约束由 ACC-066 单独验收。 |
 | MTB-DOE-ACC-013 | FAC-010 | Split-plot 指定 hard-to-change 因子、whole plot/subplot 随机化和各自误差项。 | 采用独立 2×2 因子 A/B、3 个区组的 12 行构造；逐项核对总 df、whole-plot error df=2、subplot error df=4 及 A/B/AB 分母。 |
 | MTB-DOE-ACC-014 | FAC-011 | 从用户已有两水平工作表定义设计；列映射、因子名、运行次序、响应列显式选择。 | 独立重建用户矩阵与生成元/alias；核对定义-分析往返、列缺失/重排、非 ±1 水平和重复 run ID。 |
-| MTB-DOE-ACC-015 | FAC-012 | Foldover 选择全部因子或指定因子时必须记录原设计、折叠因子和新增批次。 | 对 D=ABC 独立构造原 fraction 与 foldover，比较定义关系/别名和秩；覆盖折叠仅成重复、不提升分辨率的情形。 |
+| MTB-DOE-ACC-015 | FAC-012 | 正规两水平部分因子支持全因子或单因子 Foldover；记录父设计、原/新增 run ID、折叠因子及批次，并保留原响应、将新增响应留空。PB、Split-Plot、多因子子集及重复折叠仍未支持。 | 独立构造 D=ABC 点集；对比全因子折叠不提升分辨率的 8 点反例与单因子 A 折叠的完整 16 点；核验完整 alias、精确模型秩、lineage 和工程往返。 |
 | MTB-DOE-ACC-016 | FAC-013 | 增补运行声明原设计、目标模型、候选新运行、批次和种子。 | 独立计算增补前后矩阵秩、信息矩阵与目标项估计性；检查重复增补、父工程未保存、同名 run ID 和 stale fingerprint。 |
-| MTB-DOE-ACC-017 | FAC-014 | 全因子主效应及交互模型明确阶次、编码、重复和响应。 | 用 Y=50+3A−2B+4AB 解析对照系数/效应；检查包含/遗漏交互项及饱和模型。 |
-| MTB-DOE-ACC-018 | FAC-015 | ANOVA 报告平方和、df、均方、F/p 和实际不可用条件。 | 用独立对比/投影矩阵重算 SS 与 df；单次无纯误差、饱和、含中心点及自由度为零时不得填推断值；先解决帮助页与代码的失拟冲突。 |
+| MTB-DOE-ACC-017 | FAC-014 | 两水平全因子、正规部分因子、一般全因子、完整重复区组、裂区和 Foldover 按各自模型报告主效应/交互；部分因子结果明确为别名组效应。 | `Y=50+3A−2B+4AB` 核对系数、效应与逐项 SS；2×3 分类 contrasts 和平衡裂区用独立 fixture；检查选项阶次、数值标签、别名与真实折叠后矩阵。 |
+| MTB-DOE-ACC-018 | FAC-015 | 支持的平衡模型报告 SST/SSR/SSE、项 SS/df/MS/F/p；纯误差按同一因子设定与同一区组分组；区组与裂区使用各自残差层。 | `test_doe_factorial_anova.py` 用手算系数、投影和 3 区组独立 fixture 核验；重算中心偏移、LOF SS/df/F/p。无独立纯误差时不显示 LOF F/p；零方差、饱和、秩亏或不可用误差层不伪造显著性。 |
 | MTB-DOE-ACC-019 | FAC-017 | Factorial 二元响应按事件/试验计数及可支持的设计类型输入。 | 独立二项似然拟合；检查 0/全事件、分离、无效计数、模型秩和预测边界。 |
 | MTB-DOE-ACC-020 | FAC-018 | Variability 分析需先按官方预处理合同从重复/重复测量得到标准差。 | 以小型重复数组独立计算 mean 与 SD，分母严格按官方方法；核对样本数不足、零方差和预处理响应缺失。 |
 | MTB-DOE-ACC-021 | RSM-001 | CCD 每种新增选项单独记录因子数、因子点类型、alpha、中心点、轴点、区组与 seed。 | 独立重建 2 因子、4 个因子点、4 个轴点及中心点的 CCF/CCC 矩阵；核对点数、轴距、编码回算、旋转性声明及矩阵秩。 |

@@ -1,0 +1,877 @@
+{
+  "analytic_two_level": {
+    "coefficients": {
+      "A": 3,
+      "A:B": 4,
+      "B": -2,
+      "intercept": 50
+    },
+    "effects": {
+      "A": 6,
+      "A:B": 8,
+      "B": -4
+    },
+    "rows": [
+      {
+        "A": -1,
+        "B": -1,
+        "Y": 53
+      },
+      {
+        "A": 1,
+        "B": -1,
+        "Y": 51
+      },
+      {
+        "A": -1,
+        "B": 1,
+        "Y": 41
+      },
+      {
+        "A": 1,
+        "B": 1,
+        "Y": 55
+      }
+    ]
+  },
+  "block_factorial": {
+    "error_assumptions": "balanced randomized complete block; independent runs; normal homoscedastic errors",
+    "expected": {
+      "df": {
+        "A": 1,
+        "A:B": 1,
+        "B": 1,
+        "block": 2,
+        "error": 6,
+        "total": 11
+      },
+      "f": {
+        "A": 81.0,
+        "A:B": 144.0,
+        "B": 36.0
+      },
+      "p": {
+        "A": 0.00010527146251560386,
+        "A:B": 2.0307406195373195e-05,
+        "B": 0.0009645351944151318
+      },
+      "ss": {
+        "A": 108,
+        "A:B": 192,
+        "B": 48,
+        "block": 8,
+        "error": 8
+      }
+    },
+    "model": "block + A + B + A:B",
+    "rows": [
+      {
+        "A": -1,
+        "B": -1,
+        "Y": 51,
+        "block": 1
+      },
+      {
+        "A": -1,
+        "B": 1,
+        "Y": 41,
+        "block": 1
+      },
+      {
+        "A": 1,
+        "B": -1,
+        "Y": 51,
+        "block": 1
+      },
+      {
+        "A": 1,
+        "B": 1,
+        "Y": 53,
+        "block": 1
+      },
+      {
+        "A": -1,
+        "B": -1,
+        "Y": 53,
+        "block": 2
+      },
+      {
+        "A": -1,
+        "B": 1,
+        "Y": 41,
+        "block": 2
+      },
+      {
+        "A": 1,
+        "B": -1,
+        "Y": 51,
+        "block": 2
+      },
+      {
+        "A": 1,
+        "B": 1,
+        "Y": 55,
+        "block": 2
+      },
+      {
+        "A": -1,
+        "B": -1,
+        "Y": 55,
+        "block": 3
+      },
+      {
+        "A": -1,
+        "B": 1,
+        "Y": 41,
+        "block": 3
+      },
+      {
+        "A": 1,
+        "B": -1,
+        "Y": 51,
+        "block": 3
+      },
+      {
+        "A": 1,
+        "B": 1,
+        "Y": 57,
+        "block": 3
+      }
+    ]
+  },
+  "foldover": {
+    "all_factor_expected": {
+      "alias_groups": [
+        "A=BCD",
+        "B=ACD",
+        "C=ABD",
+        "D=ABC",
+        "AB=CD",
+        "AC=BD",
+        "AD=BC"
+      ],
+      "defining_relations": [
+        "I=ABCD"
+      ],
+      "model_rank": 8,
+      "resolution": 4
+    },
+    "all_factor_resolution_increases": false,
+    "all_factor_unique_points": 8,
+    "all_factors_added_rows": [
+      [
+        1,
+        1,
+        1,
+        1
+      ],
+      [
+        -1,
+        1,
+        1,
+        -1
+      ],
+      [
+        1,
+        -1,
+        1,
+        -1
+      ],
+      [
+        -1,
+        -1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        -1,
+        -1
+      ],
+      [
+        -1,
+        1,
+        -1,
+        1
+      ],
+      [
+        1,
+        -1,
+        -1,
+        1
+      ],
+      [
+        -1,
+        -1,
+        -1,
+        -1
+      ]
+    ],
+    "parent": "D=ABC",
+    "single_A_added_rows": [
+      [
+        1,
+        -1,
+        -1,
+        -1
+      ],
+      [
+        -1,
+        -1,
+        -1,
+        1
+      ],
+      [
+        1,
+        1,
+        -1,
+        1
+      ],
+      [
+        -1,
+        1,
+        -1,
+        -1
+      ],
+      [
+        1,
+        -1,
+        1,
+        1
+      ],
+      [
+        -1,
+        -1,
+        1,
+        -1
+      ],
+      [
+        1,
+        1,
+        1,
+        -1
+      ],
+      [
+        -1,
+        1,
+        1,
+        1
+      ]
+    ],
+    "single_A_combined_full_factorial": true,
+    "single_A_expected": {
+      "alias_groups": [],
+      "defining_relations": [],
+      "model_rank": 16,
+      "resolution": null
+    },
+    "single_A_unique_points": 16,
+    "source_expected": {
+      "alias_groups": [
+        "A=BCD",
+        "B=ACD",
+        "C=ABD",
+        "D=ABC",
+        "AB=CD",
+        "AC=BD",
+        "AD=BC"
+      ],
+      "defining_relations": [
+        "I=ABCD"
+      ],
+      "model_rank": 8,
+      "resolution": 4
+    }
+  },
+  "general_full_factorial": {
+    "numeric_categorical": {
+      "categorical_df": 2,
+      "expected_cell_means": [
+        10,
+        20,
+        50
+      ],
+      "levels": [
+        100,
+        150,
+        200
+      ],
+      "reference_coding_coefficients": [
+        10,
+        10,
+        40
+      ],
+      "rows": [
+        {
+          "T": 100,
+          "Y": 9,
+          "replicate": 1
+        },
+        {
+          "T": 100,
+          "Y": 10,
+          "replicate": 2
+        },
+        {
+          "T": 100,
+          "Y": 11,
+          "replicate": 3
+        },
+        {
+          "T": 150,
+          "Y": 19,
+          "replicate": 1
+        },
+        {
+          "T": 150,
+          "Y": 20,
+          "replicate": 2
+        },
+        {
+          "T": 150,
+          "Y": 21,
+          "replicate": 3
+        },
+        {
+          "T": 200,
+          "Y": 49,
+          "replicate": 1
+        },
+        {
+          "T": 200,
+          "Y": 50,
+          "replicate": 2
+        },
+        {
+          "T": 200,
+          "Y": 51,
+          "replicate": 3
+        }
+      ]
+    },
+    "two_by_three": {
+      "expected": {
+        "additive_model": {
+          "lack_of_fit_df": 2,
+          "lack_of_fit_f": 32,
+          "lack_of_fit_p": 0.0006297376093294461,
+          "lack_of_fit_sse": 128,
+          "pure_error_df": 6,
+          "pure_error_sse": 12,
+          "residual_df": 8,
+          "sse": 140
+        },
+        "full_model_df": {
+          "A": 1,
+          "A:B": 2,
+          "B": 2,
+          "pure_error": 6
+        },
+        "full_model_f": {
+          "A": 24,
+          "A:B": 32,
+          "B": 18
+        },
+        "full_model_ss": {
+          "A": 48,
+          "A:B": 128,
+          "B": 72,
+          "pure_error": 12
+        }
+      },
+      "levels": [
+        [
+          "low",
+          "high"
+        ],
+        [
+          100,
+          150,
+          200
+        ]
+      ],
+      "rows": [
+        {
+          "A": "low",
+          "B": 100,
+          "Y": 8,
+          "replicate": 1
+        },
+        {
+          "A": "low",
+          "B": 100,
+          "Y": 10,
+          "replicate": 2
+        },
+        {
+          "A": "high",
+          "B": 100,
+          "Y": 4,
+          "replicate": 1
+        },
+        {
+          "A": "high",
+          "B": 100,
+          "Y": 6,
+          "replicate": 2
+        },
+        {
+          "A": "low",
+          "B": 150,
+          "Y": 7,
+          "replicate": 1
+        },
+        {
+          "A": "low",
+          "B": 150,
+          "Y": 9,
+          "replicate": 2
+        },
+        {
+          "A": "high",
+          "B": 150,
+          "Y": 11,
+          "replicate": 1
+        },
+        {
+          "A": "high",
+          "B": 150,
+          "Y": 13,
+          "replicate": 2
+        },
+        {
+          "A": "low",
+          "B": 200,
+          "Y": 6,
+          "replicate": 1
+        },
+        {
+          "A": "low",
+          "B": 200,
+          "Y": 8,
+          "replicate": 2
+        },
+        {
+          "A": "high",
+          "B": 200,
+          "Y": 18,
+          "replicate": 1
+        },
+        {
+          "A": "high",
+          "B": 200,
+          "Y": 20,
+          "replicate": 2
+        }
+      ]
+    },
+    "two_by_three_by_four": {
+      "levels": [
+        [
+          "off",
+          "on"
+        ],
+        [
+          100,
+          150,
+          200
+        ],
+        [
+          "c1",
+          "c2",
+          "c3",
+          "c4"
+        ]
+      ],
+      "rows": [
+        {
+          "A": "off",
+          "B": 100,
+          "C": "c1",
+          "Y": 10
+        },
+        {
+          "A": "on",
+          "B": 100,
+          "C": "c1",
+          "Y": 11
+        },
+        {
+          "A": "off",
+          "B": 150,
+          "C": "c1",
+          "Y": 12
+        },
+        {
+          "A": "on",
+          "B": 150,
+          "C": "c1",
+          "Y": 14
+        },
+        {
+          "A": "off",
+          "B": 200,
+          "C": "c1",
+          "Y": 14
+        },
+        {
+          "A": "on",
+          "B": 200,
+          "C": "c1",
+          "Y": 17
+        },
+        {
+          "A": "off",
+          "B": 100,
+          "C": "c2",
+          "Y": 13
+        },
+        {
+          "A": "on",
+          "B": 100,
+          "C": "c2",
+          "Y": 16
+        },
+        {
+          "A": "off",
+          "B": 150,
+          "C": "c2",
+          "Y": 16
+        },
+        {
+          "A": "on",
+          "B": 150,
+          "C": "c2",
+          "Y": 20
+        },
+        {
+          "A": "off",
+          "B": 200,
+          "C": "c2",
+          "Y": 19
+        },
+        {
+          "A": "on",
+          "B": 200,
+          "C": "c2",
+          "Y": 24
+        },
+        {
+          "A": "off",
+          "B": 100,
+          "C": "c3",
+          "Y": 16
+        },
+        {
+          "A": "on",
+          "B": 100,
+          "C": "c3",
+          "Y": 21
+        },
+        {
+          "A": "off",
+          "B": 150,
+          "C": "c3",
+          "Y": 20
+        },
+        {
+          "A": "on",
+          "B": 150,
+          "C": "c3",
+          "Y": 26
+        },
+        {
+          "A": "off",
+          "B": 200,
+          "C": "c3",
+          "Y": 24
+        },
+        {
+          "A": "on",
+          "B": 200,
+          "C": "c3",
+          "Y": 31
+        },
+        {
+          "A": "off",
+          "B": 100,
+          "C": "c4",
+          "Y": 19
+        },
+        {
+          "A": "on",
+          "B": 100,
+          "C": "c4",
+          "Y": 26
+        },
+        {
+          "A": "off",
+          "B": 150,
+          "C": "c4",
+          "Y": 24
+        },
+        {
+          "A": "on",
+          "B": 150,
+          "C": "c4",
+          "Y": 32
+        },
+        {
+          "A": "off",
+          "B": 200,
+          "C": "c4",
+          "Y": 29
+        },
+        {
+          "A": "on",
+          "B": 200,
+          "C": "c4",
+          "Y": 38
+        }
+      ]
+    }
+  },
+  "regular_fraction": {
+    "D=-ABC": {
+      "alias_groups": [
+        "A=-BCD",
+        "B=-ACD",
+        "C=-ABD",
+        "D=-ABC",
+        "AB=-CD",
+        "AC=-BD",
+        "AD=-BC"
+      ],
+      "defining_relation": "I=-ABCD",
+      "resolution": 4,
+      "rows": [
+        [
+          -1,
+          -1,
+          -1,
+          1
+        ],
+        [
+          1,
+          -1,
+          -1,
+          -1
+        ],
+        [
+          -1,
+          1,
+          -1,
+          -1
+        ],
+        [
+          1,
+          1,
+          -1,
+          1
+        ],
+        [
+          -1,
+          -1,
+          1,
+          -1
+        ],
+        [
+          1,
+          -1,
+          1,
+          1
+        ],
+        [
+          -1,
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          -1
+        ]
+      ],
+      "sign": -1
+    },
+    "D=ABC": {
+      "alias_groups": [
+        "A=BCD",
+        "B=ACD",
+        "C=ABD",
+        "D=ABC",
+        "AB=CD",
+        "AC=BD",
+        "AD=BC"
+      ],
+      "defining_relation": "I=ABCD",
+      "resolution": 4,
+      "rows": [
+        [
+          -1,
+          -1,
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1,
+          -1,
+          1
+        ],
+        [
+          -1,
+          1,
+          -1,
+          1
+        ],
+        [
+          1,
+          1,
+          -1,
+          -1
+        ],
+        [
+          -1,
+          -1,
+          1,
+          1
+        ],
+        [
+          1,
+          -1,
+          1,
+          -1
+        ],
+        [
+          -1,
+          1,
+          1,
+          -1
+        ],
+        [
+          1,
+          1,
+          1,
+          1
+        ]
+      ],
+      "sign": 1
+    }
+  },
+  "sources": {
+    "foldover": "Minitab Support: Fold design; sign/subgroup calculations independently derived over {-1,+1}.",
+    "general_full_factorial": "Minitab Support: Specify the factors for Create General Full Factorial Design; full Cartesian products and model contrasts independently constructed for this fixture.",
+    "randomization": "Minitab Support: Randomize design; ordering reproducibility is implementation-specific and is tested as an invariant, not an exact vendor sequence.",
+    "split_plot": "Minitab Support: Split-plot designs in design of experiments; split-plot error strata independently derived for the balanced 2x2, 3-block case."
+  },
+  "split_plot": {
+    "error_assumptions": "balanced randomized complete split plot; blocks fixed; independent whole plots; normal homoscedastic errors within each stratum",
+    "expected": {
+      "df": {
+        "A": 1,
+        "A:B": 1,
+        "B": 1,
+        "block": 2,
+        "subplot_error": 4,
+        "total": 11,
+        "whole_plot_error": 2
+      },
+      "f": {
+        "A": 27.0,
+        "A:B": 13.714285714285714,
+        "B": 3.4285714285714284
+      },
+      "p": {
+        "A": 0.035098718645984656,
+        "A:B": 0.020775715825157068,
+        "B": 0.13772748938219245
+      },
+      "ss": {
+        "A": 108,
+        "A:B": 192,
+        "B": 48,
+        "subplot_error": 56,
+        "whole_plot_error": 8
+      }
+    },
+    "model": "block + A + B + A:B",
+    "rows": [
+      {
+        "A": -1,
+        "B": -1,
+        "Y": 12,
+        "block": 1
+      },
+      {
+        "A": -1,
+        "B": 1,
+        "Y": 2,
+        "block": 1
+      },
+      {
+        "A": 1,
+        "B": -1,
+        "Y": 6,
+        "block": 1
+      },
+      {
+        "A": 1,
+        "B": 1,
+        "Y": 16,
+        "block": 1
+      },
+      {
+        "A": -1,
+        "B": -1,
+        "Y": 7,
+        "block": 2
+      },
+      {
+        "A": -1,
+        "B": 1,
+        "Y": 7,
+        "block": 2
+      },
+      {
+        "A": 1,
+        "B": -1,
+        "Y": 9,
+        "block": 2
+      },
+      {
+        "A": 1,
+        "B": 1,
+        "Y": 17,
+        "block": 2
+      },
+      {
+        "A": -1,
+        "B": -1,
+        "Y": 8,
+        "block": 3
+      },
+      {
+        "A": -1,
+        "B": 1,
+        "Y": 6,
+        "block": 3
+      },
+      {
+        "A": 1,
+        "B": -1,
+        "Y": 6,
+        "block": 3
+      },
+      {
+        "A": 1,
+        "B": 1,
+        "Y": 24,
+        "block": 3
+      }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 # DOE 对标后续路线图
 
-> 2026-10-28 状态更新：工作包 C 已有有限 PB/DSD 实现，验收仍按 [收尾记录](work-package-c-closeout.md) 标为部分完成。下方原工作包规划和 schema 审计为历史设计输入，不代表当前代码仅支持 v1。
+> 2026-10-28 状态更新：工作包 C 的有限 PB/DSD 范围见 [收尾记录](work-package-c-closeout.md)，验收仍为 partial。工作包 D 的限定范围 D0–D5 已完成，可提交独立 Review；部分 feature 仍为 partial，且尚无独立 Review 结论。下方标注为历史的 schema 审计记录 D 开始前状态。
 
 ## 管理规则
 
@@ -8,9 +8,9 @@
 
 推荐顺序：A → B → C → D → E → F/G → H。F 与 G 的模型独立，可在数据合同决定后并行。工作包进入开发前，先将该包全部 MTB-DOE-ACC 编号绑定到具体实现分支与独立数值 fixture。没有数值参考、官方范围或 schema 兼容方案时，不进入实现。
 
-## 历史规划：Schema 与原有代码合同
+## D 开始前的 Schema 审计（历史快照）
 
-当前证据来自 code/doe_core.py、DOE 生成/分析模块和 tests/test_doe_core.py、tests/test_doe_persistence.py；本路线图不修改 schema。
+以下条目仅记录 D0 前的代码状态；已被后续 D1 的 schema v4 实现取代，不应作为当前能力描述。
 
 ### 可直接复用
 
@@ -30,7 +30,14 @@
 
 - DOE-1/2 的两水平对比和别名组方法可沿用，但 General Full Factorial、多水平/类别 contrasts、PB/DSD screening、二元响应 logistic、split-plot 误差层级、Scheffé mixture、Taguchi S/N、optimal-design criteria 和 power/sample-size 均是独立数学工作。
 - DOE-4 优化响应预测，不是最优实验设计点选择。不可复用 DOE-4 的目标函数来宣称具备 optimal design。
-- 全因子失拟推断存在代码/帮助说明差异，必须先按 MTB-DOE-ACC-018 独立核实，不把当前输出升级为通过依据。
+- 历史全因子失拟推断与帮助说明曾不一致；D4 已按独立 pure-error 与区组分层参考修正，并同步更新帮助和验收。未提供独立纯误差时不输出失拟 F/p。
+
+### D1 已交付（2026-10-28）
+
+- DOE schema v4 增加强类型分类水平、设计构造版本、随机化单位、误差结构及严格 Foldover lineage 字段；v1/v2/v3 先按原字段和摘要校验，再迁移到 v4。旧版 MiniJMP 不能保证读取 v4 工程。
+- General Full Factorial 支持 2–10 个因子、每因子独立的文字/数值水平、完整笛卡尔积、独立重复、seed、完整重复区组及 10,000 行前置限制。数字水平不被转成连续模型。
+- 分类分析使用 sum-to-zero contrasts，输出模型项自由度、ANOVA、边际/组合均值及可用时的失拟 F/p；真实 Tk 创建、预览、取消、图形、保存/重开/复制/再分析已覆盖。
+- 本地证据见 `tests/fixtures/doe_factorial_reference/`、`tests/test_doe_general_factorial*.py` 和 `tests/test_doe_factorial_schema.py`。Minitab 标准序与分析表格式尚未由导出核对。
 
 ## 工作包
 
@@ -72,17 +79,18 @@
 - **完成定义：** 设计类型、可估计性、连续响应分析、图形和帮助限制分别验收；PB/DSD 不互相冒充。
 - **进入下一包：** 新 screening 类型稳定保存和恢复；别名组显示和统计推断限制经独立复核。
 
-### D — 因子设计扩展
+### D — 因子设计扩展（D0–D5 本地完成，待独立 Review）
 
+- **阶段进展（2026-10-28）：** D0–D5 的限定实现、独立数学 fixture、真实 GUI 和工程保存/恢复回归均已完成。Schema v4 支持一般全因子、带符号正规分数、中心点、有限 Foldover、完整重复区组和两因子平衡 Split-Plot；D4 已验证逐项 ANOVA、区组/裂区误差分母、纯误差/失拟边界和残差诊断图。区组仅按完整重复分配；Split-Plot 限两个因子；Foldover 未覆盖 PB/Split-Plot、重复批次及 Minitab 输出一致性。逐项范围见 [D 收尾记录](work-package-d-closeout.md)；独立 Review 尚未执行，不表示 APPROVE。
 - **目标与 feature_id：** FAC-002、FAC-003、FAC-004、FAC-005、FAC-008、FAC-010、FAC-012、FAC-014、FAC-015、FAC-019；扩展部分因子、General Full Factorial、分类因子层级分析、区组、split-plot、foldover、受限随机化和因子效应/ANOVA。FAC-006/007/009 属 A 的已实现基线，D 只按需核对回归证据、不安排重复开发；FAC-011/013 属工作包 E；FAC-017/018 属工作包 H。
 - **依赖：** A；DOE-1/2；C 可复用别名合同但不要求 PB/DSD 完成后才开始 General Full Factorial。
-- **复用 / 预计文件：** code/doe_factorial.py、code/doe_fractional.py、code/doe_analysis.py、code/doe_fractional_analysis.py、code/doe_core.py、code/doe_dialog.py、worksheets.py、菜单/帮助和测试。
+- **复用 / 预计文件：** code/doe_factorial.py、code/doe_fractional.py、code/doe_factorial_anova.py、各设计分析器、code/doe_core.py、code/doe_dialog.py、worksheets.py、菜单/帮助和测试。
 - **Schema：** 多水平/分类 contrasts、blocks、whole-plot/subplot error strata、foldover ancestry 要区别建模；不可只设置 block 标签或追加工作表行。
 - **关键数学风险：** 设计矩阵与 contrasts、区组 confounding、restricted randomization、裂区分母误差项、重复与重复测量区别、ANOVA/LOF 自由度。
 - **GUI / 持久化：** 因子和水平动态输入；随机化受 block 约束；折叠/增补保留 parent run IDs、标准序和新增批次；老工程在取消/失败时不被覆盖。
 - **独立案例：** ACC-007–011、013、015、017、018、066；包括 D=ABC 的正规分数、2×3 General Full Factorial、数值水平标签的分类 ANOVA、2×2 且 3 blocks 的 split-plot、解析交互效应与非法水平案例。ACC-012 仅回归核验既有总体 run order。
 - **完成定义：** 各设计矩阵和推断按家族验收；诊断声明与帮助保持一致；未支持的条件明确拒绝。
-- **进入下一包：** 主流因子设计合同稳定，且不再用无结构的 unspecified 代表任意设计。
+- **本地收尾状态：** `WORK_PACKAGE_D_READY_FOR_REVIEW`。按 D 收尾记录保留 ACC/FAC 的 partial 状态和未验证选项；本路线图不据此自动启动后续工作包。
 
 ### E — 自定义及最优设计
 

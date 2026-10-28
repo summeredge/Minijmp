@@ -17,15 +17,16 @@ from typing import Mapping
 import pandas as pd
 
 
-DOE_SCHEMA_VERSION = 3
-_READ_VERSIONS = frozenset({1, 2, 3})
+DOE_SCHEMA_VERSION = 4
+_READ_VERSIONS = frozenset({1, 2, 3, 4})
 WORKSHEET_SCHEMA_VERSION = 1
 _ID = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]{0,63}$")
 _RUN_ID = re.compile(r"^[A-Za-z0-9_.-]{1,128}$")
-_RELATION = re.compile(r"^[A-Za-z][A-Za-z0-9]*(?:=[A-Za-z][A-Za-z0-9]*)+$")
+_RELATION = re.compile(r"^[A-Za-z][A-Za-z0-9]*(?:=-?[A-Za-z][A-Za-z0-9]*)+$")
 _DESIGN_TYPES = frozenset({
     "unspecified", "two_level_full", "two_level_fractional", "central_composite",
     "box_behnken", "plackett_burman", "definitive_screening",
+    "general_full_factorial", "split_plot",
 })
 _SCREENING_TYPES = frozenset({"plackett_burman", "definitive_screening"})
 _SCREENING_SOURCES = {
@@ -50,9 +51,22 @@ _DESIGN_KEYS = {
 }
 _DESIGN_KEYS_V1 = _DESIGN_KEYS - {"ccd_fraction", "block_count"}
 _DESIGN_KEYS_V3 = _DESIGN_KEYS | {"screening_matrix"}
+_DESIGN_KEYS_V4 = _DESIGN_KEYS_V3 | {
+    "construction_version", "randomization_unit", "error_structure",
+    "foldover_lineage", "center_point_count",
+}
+_FACTOR_KEYS = {"schema_version", "factor_id", "name", "unit", "factor_type",
+                "low", "high", "levels"}
+_FACTOR_KEYS_V4 = _FACTOR_KEYS | {"level_type", "randomization_role"}
 _MAP_KEYS = {
     "run_id", "standard_order", "run_order", "point_type", "replicate",
-    "block", "factors", "measured_levels", "responses",
+    "block", "factors", "measured_levels", "responses", "whole_plot_id",
+    "subplot_id", "whole_plot_order", "subplot_order", "batch_id",
+    "source_run_id",
+}
+_MAP_KEYS_V3 = _MAP_KEYS - {
+    "whole_plot_id", "subplot_id", "whole_plot_order", "subplot_order",
+    "batch_id", "source_run_id",
 }
 _META_KEYS = {"schema_version", "design", "column_map", "worksheet"}
 
@@ -153,6 +167,42 @@ def _string_tuple(values, field_name):
     return result
 
 
+def _freeze_foldover_lineage(value):
+    if value is None:
+        return None
+    keys = {"parent_design_id", "batch_id", "folded_factors", "run_map",
+            "source_matrix_sha256", "current_matrix_sha256"}
+    if not isinstance(value, Mapping) or set(value) != keys:
+        raise ValueError("Foldover 谱系字段无效")
+    parent = _text(value["parent_design_id"], "parent_design_id", identifier=True)
+    batch = _text(value["batch_id"], "batch_id", identifier=True)
+    factors = _string_tuple(value["folded_factors"], "folded_factors")
+    pairs = value["run_map"]
+    if not factors or not isinstance(pairs, (list, tuple)) or not pairs:
+        raise ValueError("Foldover 谱系必须包含因子和运行映射")
+    run_map, sources, additions = [], set(), set()
+    for pair in pairs:
+        if not isinstance(pair, (list, tuple)) or len(pair) != 2:
+            raise ValueError("Foldover 运行映射必须是来源/新增 ID 对")
+        source, addition = (_run_id(pair[0], "Foldover 来源 run_id"),
+                            _run_id(pair[1], "Foldover 新 run_id"))
+        source_key, addition_key = _run_id_key(source), _run_id_key(addition)
+        if source_key == addition_key or source_key in sources or addition_key in additions:
+            raise ValueError("Foldover 运行映射必须一一对应且 ID 不同")
+        sources.add(source_key)
+        additions.add(addition_key)
+        run_map.append((source, addition))
+    hashes = {}
+    for key in ("source_matrix_sha256", "current_matrix_sha256"):
+        digest = value[key]
+        if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+            raise ValueError(f"Foldover {key} 无效")
+        hashes[key] = digest
+    return MappingProxyType({"parent_design_id": parent, "batch_id": batch,
+                             "folded_factors": factors, "run_map": tuple(run_map),
+                             **hashes})
+
+
 def _freeze_numeric_map(values, field_name, *, nullable=False, probability=False):
     if not isinstance(values, Mapping):
         raise ValueError(f"{field_name} 必须是映射")
@@ -169,13 +219,16 @@ def _freeze_numeric_map(values, field_name, *, nullable=False, probability=False
     return MappingProxyType(result)
 
 
-def _freeze_settings(values):
-    """连续因子存数值，分类因子存其显式水平字符串。"""
+def _freeze_settings(values, *, nullable=False):
+    """保留数值或文本因子水平的原始类型。"""
     if not isinstance(values, Mapping):
         raise ValueError("设定水平必须是映射")
     result = {}
     for key, value in values.items():
         key = _text(key, "设定水平键")
+        if value is None and nullable:
+            result[key] = None
+            continue
         if isinstance(value, str) and value == value.strip() and value:
             result[key] = _text(value, f"设定水平[{key}]")
         else:
@@ -185,7 +238,7 @@ def _freeze_settings(values):
 
 @dataclass(frozen=True)
 class FactorSpec:
-    """连续因子的稳定 ID、展示名、单位及实际低/高水平。"""
+    """连续因子或有序分类水平的稳定定义。"""
 
     factor_id: str
     name: str
@@ -193,8 +246,10 @@ class FactorSpec:
     high: int | float | None
     unit: str | None = None
     factor_type: str = "continuous"
-    levels: tuple[str, ...] = ()
+    levels: tuple[str | int | float, ...] = ()
     schema_version: int = DOE_SCHEMA_VERSION
+    level_type: str | None = None
+    randomization_role: str | None = None
 
     def __post_init__(self):
         _text(self.factor_id, "factor_id", identifier=True)
@@ -205,14 +260,43 @@ class FactorSpec:
             raise ValueError("未知因子 schema_version")
         if self.factor_type not in ("continuous", "categorical"):
             raise ValueError("factor_type 必须是 continuous 或 categorical")
-        levels = _string_tuple(self.levels, "分类因子水平")
+        if self.schema_version < 4:
+            if self.level_type is not None or self.randomization_role is not None:
+                raise ValueError("分类标签类型与随机化角色只适用于 schema v4")
+            levels = _string_tuple(self.levels, "分类因子水平")
+        elif self.factor_type == "categorical":
+            level_type = self.level_type
+            raw_levels = tuple(self.levels) if isinstance(self.levels, (tuple, list)) else ()
+            if level_type is None:
+                level_type = ("text" if all(isinstance(value, str) for value in raw_levels)
+                              else "numeric" if all(isinstance(value, Real) and not isinstance(value, bool)
+                                                    for value in raw_levels)
+                              else None)
+            if level_type == "text":
+                levels = _string_tuple(raw_levels, "分类因子水平")
+            elif level_type == "numeric":
+                levels = tuple(_number(value, "分类因子数值水平") for value in raw_levels)
+                if len(set(levels)) != len(levels):
+                    raise ValueError("分类因子水平不得重复")
+            else:
+                raise ValueError("分类因子 level_type 必须是 text 或 numeric")
+            object.__setattr__(self, "level_type", level_type)
+        else:
+            levels = tuple(self.levels) if isinstance(self.levels, (tuple, list)) else ()
+            if self.level_type is not None:
+                raise ValueError("连续因子不得设置 level_type")
         object.__setattr__(self, "levels", levels)
         if self.factor_type == "categorical":
-            if self.low is not None or self.high is not None or len(levels) < 2:
-                raise ValueError("分类因子需要至少两个显式字符串水平，且不得设置 low/high")
+            if (self.low is not None or self.high is not None or len(levels) < 2
+                    or self.schema_version < 4 and any(not isinstance(v, str) for v in levels)):
+                raise ValueError("分类因子需有至少两个合法水平，且不得设置 low/high")
+            if self.randomization_role not in (None, "hard_to_change", "easy_to_change"):
+                raise ValueError("随机化角色必须是 hard_to_change 或 easy_to_change")
             return
         if levels or self.low is None or self.high is None:
             raise ValueError("连续因子必须提供实际 low/high，且不能提供分类水平")
+        if self.randomization_role not in (None, "hard_to_change", "easy_to_change"):
+            raise ValueError("随机化角色必须是 hard_to_change 或 easy_to_change")
         low = _number(self.low, "因子 low")
         high = _number(self.high, "因子 high")
         if _fraction(low, "因子 low") >= _fraction(high, "因子 high"):
@@ -263,16 +347,22 @@ class FactorSpec:
         return actual
 
     def to_dict(self):
-        return {
+        result = {
             "schema_version": self.schema_version, "factor_id": self.factor_id,
             "name": self.name, "unit": self.unit, "factor_type": self.factor_type,
             "low": self.low, "high": self.high, "levels": list(self.levels),
         }
+        if self.schema_version >= 4:
+            result["level_type"] = self.level_type
+            result["randomization_role"] = self.randomization_role
+        return result
 
     @classmethod
     def from_dict(cls, data):
-        keys = {"schema_version", "factor_id", "name", "unit", "factor_type",
-                "low", "high", "levels"}
+        if not isinstance(data, dict):
+            raise ValueError("因子元数据字段无效")
+        version = data.get("schema_version")
+        keys = _FACTOR_KEYS_V4 if version == 4 else _FACTOR_KEYS
         if (not isinstance(data, dict) or set(data) != keys
                 or not isinstance(data["levels"], list)):
             raise ValueError("因子元数据字段无效")
@@ -281,7 +371,7 @@ class FactorSpec:
 
 @dataclass(frozen=True)
 class DesignSpec:
-    """设计定义；预留的生成元和 CCD 字段只存储，不执行设计生成。"""
+    """版本化设计定义及其构造、随机化和误差结构身份。"""
 
     design_id: str
     factors: tuple[FactorSpec, ...]
@@ -298,21 +388,29 @@ class DesignSpec:
     ccd_fraction: str | None = None
     block_count: int | None = None
     screening_matrix: Mapping | None = None
+    construction_version: str = "v1"
+    randomization_unit: str = "run"
+    error_structure: str = "fixed"
+    foldover_lineage: Mapping | None = None
+    center_point_count: int | None = None
 
     def __post_init__(self):
         _text(self.design_id, "design_id", identifier=True)
         if type(self.schema_version) is not int or self.schema_version not in _READ_VERSIONS:
             raise ValueError("未知设计 schema_version")
         if not isinstance(self.design_type, str) or self.design_type not in _DESIGN_TYPES:
-            raise ValueError(
-                "design_type 必须是 unspecified、two_level_full、"
-                "two_level_fractional、central_composite 或 box_behnken")
+            raise ValueError("design_type 必须是受支持的 DOE 设计类型")
         factors = tuple(self.factors) if isinstance(self.factors, (tuple, list)) else ()
         if not factors or not all(isinstance(item, FactorSpec) for item in factors):
             raise ValueError("设计必须包含 FactorSpec")
-        if self.design_type not in ("central_composite", "box_behnken", "plackett_burman", "definitive_screening"):
+        categorical_types = ("central_composite", "box_behnken", "plackett_burman",
+                             "definitive_screening", "general_full_factorial")
+        if self.design_type not in categorical_types:
             if any(item.factor_type != "continuous" for item in factors):
                 raise NotImplementedError("分类或混合水平设计仅用于中心复合或 Box-Behnken")
+        if self.design_type == "general_full_factorial" and any(
+                item.factor_type != "categorical" for item in factors):
+            raise ValueError("General Full Factorial 的所有因子必须是分类因子")
         ids = [item.factor_id for item in factors]
         names = [item.name for item in factors]
         if len(set(ids)) != len(ids):
@@ -350,6 +448,11 @@ class DesignSpec:
         if self.block_count is not None:
             object.__setattr__(self, "block_count",
                                _positive_int(self.block_count, "block_count", minimum=1))
+        if self.center_point_count is not None:
+            if self.schema_version < 4 or self.design_type != "two_level_fractional":
+                raise ValueError("center_point_count 只适用于 schema v4 正规部分因子设计")
+            object.__setattr__(self, "center_point_count",
+                               _positive_int(self.center_point_count, "center_point_count", minimum=0))
         if self.schema_version < 2:
             if self.block_count is not None:
                 raise ValueError("block_count 只适用于 schema v2")
@@ -357,6 +460,47 @@ class DesignSpec:
                 raise ValueError("box_behnken 只适用于 schema v2")
             if any(item.factor_type == "categorical" for item in factors):
                 raise ValueError("schema v1 不支持分类因子")
+        if self.schema_version < 4:
+            if (self.construction_version != "v1" or self.randomization_unit != "run"
+                    or self.error_structure != "fixed" or self.foldover_lineage is not None
+                    or self.center_point_count is not None
+                    or any(item.randomization_role is not None for item in factors)
+                    or any(item.factor_type == "categorical" and item.level_type == "numeric"
+                           for item in factors)):
+                raise ValueError("新设计身份字段只适用于 schema v4")
+        else:
+            construction = _text(self.construction_version, "construction_version", identifier=True)
+            if not re.fullmatch(r"v[1-9][0-9]*", construction):
+                raise ValueError("construction_version 必须使用 vN 格式")
+            object.__setattr__(self, "construction_version", construction)
+            if self.randomization_unit not in ("run", "block", "whole_plot"):
+                raise ValueError("randomization_unit 无效")
+            if self.error_structure not in ("fixed", "split_plot"):
+                raise ValueError("error_structure 无效")
+            if self.design_type == "split_plot":
+                roles = [factor.randomization_role for factor in factors]
+                if (self.randomization_unit != "whole_plot"
+                        or self.error_structure != "split_plot"
+                        or roles.count("hard_to_change") != 1
+                        or roles.count("easy_to_change") < 1
+                        or any(factor.factor_type != "continuous" for factor in factors)):
+                    raise ValueError("Split-Plot 需一个 hard-to-change 和至少一个 easy-to-change 连续因子")
+            elif (self.randomization_unit == "whole_plot" or self.error_structure == "split_plot"
+                  or any(factor.randomization_role is not None for factor in factors)):
+                raise ValueError("只有 Split-Plot 才能声明裂区随机化角色或误差层")
+            lineage = _freeze_foldover_lineage(self.foldover_lineage)
+            if lineage is not None and self.design_type != "two_level_fractional":
+                raise ValueError("当前 Foldover 谱系只支持正规两水平部分因子")
+            if lineage is not None and any(factor.factor_type != "continuous" for factor in factors):
+                raise ValueError("正规部分因子 Foldover 不支持分类因子")
+            if lineage is not None and (
+                    lineage["parent_design_id"] == self.design_id
+                    or not set(lineage["folded_factors"]) <= set(ids)
+                    or len(lineage["folded_factors"]) not in (1, len(ids))):
+                raise ValueError("Foldover 因子或父设计身份无效")
+            object.__setattr__(self, "foldover_lineage", lineage)
+        if self.design_type == "split_plot" and self.schema_version < 4:
+            raise ValueError("Split-Plot 需要 schema v4")
         if self.design_type in _SCREENING_TYPES:
             if self.schema_version < 3 or not isinstance(self.screening_matrix, Mapping):
                 raise ValueError("筛选设计需要 schema v3 和矩阵身份")
@@ -379,7 +523,7 @@ class DesignSpec:
     def to_dict(self):
         result = {
             "schema_version": self.schema_version, "design_id": self.design_id,
-            "factors": [factor.to_dict() for factor in self.factors],
+            "factors": [],
             "response_names": list(self.response_names), "seed": self.seed,
             "generators": list(self.generators),
             "defining_relations": list(self.defining_relations),
@@ -389,9 +533,31 @@ class DesignSpec:
             "design_type": self.design_type,
             "ccd_fraction": self.ccd_fraction, "block_count": self.block_count,
         }
+        for factor in self.factors:
+            item = factor.to_dict()
+            item["schema_version"] = self.schema_version
+            if self.schema_version < 4:
+                item.pop("level_type", None)
+                item.pop("randomization_role", None)
+            result["factors"].append(item)
         if self.schema_version >= 3:
             result["screening_matrix"] = (dict(self.screening_matrix)
                                           if self.screening_matrix is not None else None)
+        if self.schema_version >= 4:
+            result.update({
+                "construction_version": self.construction_version,
+                "randomization_unit": self.randomization_unit,
+                "error_structure": self.error_structure,
+                "foldover_lineage": (None if self.foldover_lineage is None else {
+                    "parent_design_id": self.foldover_lineage["parent_design_id"],
+                    "batch_id": self.foldover_lineage["batch_id"],
+                    "folded_factors": list(self.foldover_lineage["folded_factors"]),
+                    "run_map": [list(pair) for pair in self.foldover_lineage["run_map"]],
+                    "source_matrix_sha256": self.foldover_lineage["source_matrix_sha256"],
+                    "current_matrix_sha256": self.foldover_lineage["current_matrix_sha256"],
+                }),
+                "center_point_count": self.center_point_count,
+            })
         return result
 
     @classmethod
@@ -403,7 +569,8 @@ class DesignSpec:
         version = data.get("schema_version")
         if type(version) is not int or version not in _READ_VERSIONS:
             raise ValueError(f"未知 DOE schema_version: {version!r}")
-        keys = {1: _DESIGN_KEYS_V1, 2: _DESIGN_KEYS, 3: _DESIGN_KEYS_V3}[version]
+        keys = {1: _DESIGN_KEYS_V1, 2: _DESIGN_KEYS, 3: _DESIGN_KEYS_V3,
+                4: _DESIGN_KEYS_V4}[version]
         if set(data) != keys:
             raise ValueError("设计元数据字段无效")
         missing = object()
@@ -413,6 +580,9 @@ class DesignSpec:
                 "factors", "response_names", "generators",
                 "defining_relations", "aliases")):
             raise ValueError("设计列表字段结构无效")
+        if any(not isinstance(item, dict) or item.get("schema_version") != version
+               for item in data["factors"]):
+            raise ValueError("因子与设计 schema_version 不一致")
         result = cls(
             design_id=data["design_id"],
             factors=tuple(FactorSpec.from_dict(item) for item in data["factors"]),
@@ -427,9 +597,17 @@ class DesignSpec:
             ccd_fraction=None if fraction is missing else fraction,
             block_count=None if blocks is missing else blocks,
             screening_matrix=data.get("screening_matrix"),
+            construction_version=data.get("construction_version", "v1"),
+            randomization_unit=data.get("randomization_unit", "run"),
+            error_structure=data.get("error_structure", "fixed"),
+            foldover_lineage=data.get("foldover_lineage"),
+            center_point_count=data.get("center_point_count"),
         )
         from dataclasses import replace
-        return replace(result, schema_version=DOE_SCHEMA_VERSION)
+        return replace(result,
+                       factors=tuple(replace(factor, schema_version=DOE_SCHEMA_VERSION)
+                                     for factor in result.factors),
+                       schema_version=DOE_SCHEMA_VERSION)
 
 
 @dataclass(frozen=True)
@@ -440,15 +618,22 @@ class RunRecord:
     standard_order: int
     run_order: int
     point_type: str
-    settings: Mapping[str, int | float]
+    settings: Mapping[str, str | int | float]
     replicate: int = 1
     block: str | int | None = None
-    measured_levels: Mapping[str, int | float | None] = field(default_factory=dict)
+    measured_levels: Mapping[str, str | int | float | None] = field(default_factory=dict)
     responses: Mapping[str, int | float | None] = field(default_factory=dict)
     schema_version: int = DOE_SCHEMA_VERSION
+    whole_plot_id: str | None = None
+    subplot_id: str | None = None
+    whole_plot_order: int | None = None
+    subplot_order: int | None = None
+    batch_id: str | None = None
+    source_run_id: str | int | None = None
 
     def __post_init__(self):
-        if type(self.schema_version) is not int or self.schema_version not in _READ_VERSIONS:
+        version = self.schema_version
+        if type(version) is not int or version not in _READ_VERSIONS:
             raise ValueError("未知运行记录 schema_version")
         object.__setattr__(self, "schema_version", DOE_SCHEMA_VERSION)
         object.__setattr__(self, "run_id", _run_id(self.run_id))
@@ -466,10 +651,23 @@ class RunRecord:
                 pass
             else:
                 raise ValueError("block 必须是安全字符串、整数或 None")
+        if version < 4 and any(value is not None for value in (
+                self.whole_plot_id, self.subplot_id, self.whole_plot_order,
+                self.subplot_order, self.batch_id, self.source_run_id)):
+            raise ValueError("裂区与 Foldover 运行字段只适用于 schema v4")
+        for key in ("whole_plot_id", "subplot_id", "batch_id"):
+            value = getattr(self, key)
+            if value is not None:
+                object.__setattr__(self, key, _text(value, key, identifier=True))
+        for key in ("whole_plot_order", "subplot_order"):
+            value = getattr(self, key)
+            if value is not None:
+                object.__setattr__(self, key, _positive_int(value, key))
+        if self.source_run_id is not None:
+            object.__setattr__(self, "source_run_id", _run_id(self.source_run_id, "source_run_id"))
         object.__setattr__(self, "settings", _freeze_settings(self.settings))
         object.__setattr__(self, "measured_levels",
-                           _freeze_numeric_map(self.measured_levels, "实测水平",
-                                               nullable=True))
+                           _freeze_settings(self.measured_levels, nullable=True))
         object.__setattr__(self, "responses",
                            _freeze_numeric_map(self.responses, "响应值", nullable=True))
 
@@ -508,6 +706,12 @@ class DesignResult:
                 raise ValueError("每个运行的设定水平必须覆盖全部因子")
             if not set(run.measured_levels) <= factor_ids:
                 raise ValueError("实测水平包含未知因子")
+            for factor in self.spec.factors:
+                if factor.factor_id in run.measured_levels:
+                    value = run.measured_levels[factor.factor_id]
+                    if value is not None and _factor_level(
+                            value, factor, f"因子 {factor.factor_id} 实测水平") != value:
+                        raise ValueError("实测水平与因子类型不一致")
             if set(run.responses) != response_names:
                 raise ValueError("每个运行的响应字段必须与设计定义一致")
             if run.point_type != "axial":
@@ -521,6 +725,79 @@ class DesignResult:
                         _number(value, "设定水平")
                     else:
                         factor.to_coded(value)
+        if self.spec.design_type in ("two_level_full", "two_level_fractional",
+                                     "general_full_factorial", "split_plot"):
+            if self.spec.block_count is not None:
+                blocks = {run.block for run in runs}
+                if None in blocks or len(blocks) != self.spec.block_count:
+                    raise ValueError("实际区组数量与设计声明不一致")
+        if self.spec.design_type == "split_plot":
+            hard = [f for f in self.spec.factors if f.randomization_role == "hard_to_change"]
+            easy = [f for f in self.spec.factors if f.randomization_role == "easy_to_change"]
+            whole_plots = {}
+            for run in runs:
+                if (run.block is None or run.whole_plot_id is None or run.subplot_id is None
+                        or run.whole_plot_order is None or run.subplot_order is None):
+                    raise ValueError("每个裂区运行都必须保留 block/whole-plot/subplot 身份和顺序")
+                whole_plots.setdefault(run.whole_plot_id, []).append(run)
+            if not whole_plots:
+                raise ValueError("Split-Plot 缺少 whole plots")
+            block_orders, subplot_ids = {}, {}
+            for whole_plot_id, group in whole_plots.items():
+                blocks = {run.block for run in group}
+                orders = {run.whole_plot_order for run in group}
+                if len(blocks) != 1 or len(orders) != 1:
+                    raise ValueError("whole plot 不得跨区组或有多个顺序")
+                block = next(iter(blocks))
+                order = next(iter(orders))
+                block_orders.setdefault(block, {})[order] = whole_plot_id
+                if any(any(run.settings[f.factor_id] != group[0].settings[f.factor_id]
+                           for f in hard) for run in group):
+                    raise ValueError("同一 whole plot 内 hard-to-change 因子水平必须固定")
+                if len(group) != 1 << len(easy):
+                    raise ValueError("每个 whole plot 必须包含完整 easy-to-change 全因子组合")
+                expected_subplots = set(product((-1, 1), repeat=len(easy)))
+                observed_subplots, local_orders = set(), set()
+                for run in group:
+                    coded = tuple(next(f for f in easy if f.factor_id == factor_id).to_coded(
+                        run.settings[factor_id]) for factor_id in [f.factor_id for f in easy])
+                    if coded in observed_subplots:
+                        raise ValueError("whole plot 内 subplot 因子组合不得重复")
+                    observed_subplots.add(coded)
+                    local_orders.add(run.subplot_order)
+                if observed_subplots != expected_subplots or local_orders != set(range(1, len(group)+1)):
+                    raise ValueError("whole plot 的 subplot 组合或顺序不完整")
+                sorted_runs = sorted(group, key=lambda run: run.subplot_order)
+                if [run.run_order for run in sorted_runs] != list(range(
+                        sorted_runs[0].run_order, sorted_runs[0].run_order + len(group))):
+                    raise ValueError("同一 whole plot 的 subplot 运行必须连续")
+                subplot_ids[whole_plot_id] = {run.subplot_id for run in group}
+            for block, orders in block_orders.items():
+                if set(orders) != set(range(1, len(orders)+1)):
+                    raise ValueError("区组内 whole-plot 顺序必须连续")
+            expected_hard = set(product((-1, 1), repeat=len(hard)))
+            for block in block_orders:
+                observed_hard = {
+                    tuple(f.to_coded(whole_plots[whole_plot_id][0].settings[f.factor_id])
+                          for f in hard)
+                    for whole_plot_id in block_orders[block].values()
+                }
+                if observed_hard != expected_hard:
+                    raise ValueError("每个区组都必须包含全部 hard-to-change 组合")
+            by_order = sorted(runs, key=lambda run: run.run_order)
+            current_block, current_wp = None, None
+            seen_blocks, seen_whole_plots = [], []
+            for run in by_order:
+                if run.block != current_block:
+                    if run.block in seen_blocks:
+                        raise ValueError("区组内运行必须连续")
+                    seen_blocks.append(run.block)
+                    current_block, current_wp = run.block, None
+                if run.whole_plot_id != current_wp:
+                    if run.whole_plot_id in seen_whole_plots:
+                        raise ValueError("whole plot 运行必须连续")
+                    seen_whole_plots.append(run.whole_plot_id)
+                    current_wp = run.whole_plot_id
         if self.spec.design_type == "box_behnken":
             expected_centers = self.spec.ccd_center_points
             if expected_centers is not None:
@@ -771,6 +1048,11 @@ def _normalize_column_map(value, spec):
         raise ValueError("因子列映射与设计定义不一致")
     if set(responses) != response_names:
         raise ValueError("响应列映射与设计定义不一致")
+    if spec.design_type == "split_plot" and not {
+            "whole_plot_id", "subplot_id", "whole_plot_order", "subplot_order"} <= set(value):
+        raise ValueError("Split-Plot 列映射缺少 whole-plot/subplot 随机化字段")
+    if spec.foldover_lineage is not None and not {"batch_id", "source_run_id"} <= set(value):
+        raise ValueError("Foldover 列映射缺少批次或来源运行字段")
     result = {
         "run_id": _column_label(value["run_id"]),
         "standard_order": _column_label(value["standard_order"]),
@@ -783,6 +1065,12 @@ def _normalize_column_map(value, spec):
             key: _column_label(measured[key]) for key in sorted(measured)},
         "responses": {key: _column_label(responses[key]) for key in sorted(responses)},
     }
+    for key in ("whole_plot_id", "subplot_id", "batch_id", "source_run_id"):
+        if key in value:
+            result[key] = _column_label(value[key])
+    for key in ("whole_plot_order", "subplot_order"):
+        if key in value:
+            result[key] = _column_label(value[key])
     labels = [
         result[key] for key in ("run_id", "standard_order", "run_order",
                                 "point_type", "replicate")
@@ -791,6 +1079,9 @@ def _normalize_column_map(value, spec):
         labels.append(result["block"])
     for group in ("factors", "measured_levels", "responses"):
         labels.extend(result[group].values())
+    labels.extend(result[key] for key in (
+        "whole_plot_id", "subplot_id", "whole_plot_order", "subplot_order",
+        "batch_id", "source_run_id") if key in result)
     keys = [_label_key(label) for label in labels]
     if len(set(keys)) != len(keys):
         raise ValueError("DOE 列映射不能将多个字段指向同一列")
@@ -810,6 +1101,9 @@ def _column_positions(frame, column_map):
         mapped.append(column_map["block"])
     for group in ("factors", "measured_levels", "responses"):
         mapped.extend(column_map[group].values())
+    mapped.extend(column_map[key] for key in (
+        "whole_plot_id", "subplot_id", "whole_plot_order", "subplot_order",
+        "batch_id", "source_run_id") if key in column_map)
     result = {}
     for label in mapped:
         key = _label_key(label)
@@ -846,10 +1140,29 @@ def _block_value(value):
     raise ValueError("block 值必须是安全字符串、整数或可精确恢复的整数")
 
 
-def _level_label(value, field_name):
-    if isinstance(value, str) and value == value.strip():
-        return _text(value, field_name)
-    raise ValueError(f"{field_name}必须是字符串水平标签")
+def _factor_level(value, factor, field_name):
+    if factor.factor_type != "categorical":
+        return _number(value, field_name)
+    if factor.level_type == "text":
+        if isinstance(value, str) and value == value.strip():
+            return _text(value, field_name)
+        raise ValueError(f"{field_name}必须是文本分类水平")
+    return _number(value, field_name)
+
+
+def foldover_matrix_fingerprint(runs, factors):
+    factor_ids = tuple(factor.factor_id for factor in factors)
+    factor_map = {factor.factor_id: factor for factor in factors}
+    rows = []
+    for run in sorted((item for item in runs if item.point_type == "factorial"),
+                      key=lambda item: item.standard_order):
+        coded = [int(factor_map[key].to_coded(run.settings[key])) for key in factor_ids]
+        if any(value not in (-1, 1) for value in coded):
+            raise ValueError("Foldover 因子点必须是低或高水平")
+        rows.append([run.run_id, run.standard_order, run.replicate, coded])
+    encoded = json.dumps({"factors": factor_ids, "runs": rows}, ensure_ascii=False,
+                         allow_nan=False, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def category_combinations(factors):
@@ -883,27 +1196,63 @@ def design_from_worksheet(frame, spec, column_map):
         for factor_id in normalized["factors"]:
             raw = _cell(frame, row, pos("factors", factor_id))
             factor = next(item for item in spec.factors if item.factor_id == factor_id)
-            settings[factor_id] = (_level_label(raw, f"因子 {factor_id} 水平")
-                                   if factor.factor_type == "categorical" else
-                                   _number(raw, f"因子 {factor_id} 实际设定水平"))
+            settings[factor_id] = _factor_level(raw, factor, f"因子 {factor_id} 设定水平")
         measured = {}
         for factor_id in normalized["measured_levels"]:
             value = _cell(frame, row, pos("measured_levels", factor_id))
-            measured[factor_id] = None if _missing(value) else _number(
-                value, f"因子 {factor_id} 实测水平")
+            factor = next(item for item in spec.factors if item.factor_id == factor_id)
+            measured[factor_id] = (None if _missing(value) else
+                                    _factor_level(value, factor, f"因子 {factor_id} 实测水平"))
         responses = {}
         for name in normalized["responses"]:
             value = _cell(frame, row, pos("responses", name))
             responses[name] = None if _missing(value) else _number(value, f"响应 {name}")
+        def optional(field, convert):
+            if field not in normalized:
+                return None
+            value = _cell(frame, row, pos(field))
+            return None if _missing(value) else convert(value)
         runs.append(RunRecord(
             run_id=run_id, standard_order=standard_order, run_order=run_order,
             point_type=point_type, settings=settings, replicate=replicate,
-            block=block, measured_levels=measured, responses=responses))
+            block=block, measured_levels=measured, responses=responses,
+            whole_plot_id=optional("whole_plot_id", lambda v: _text(v, "whole_plot_id", identifier=True)),
+            subplot_id=optional("subplot_id", lambda v: _text(v, "subplot_id", identifier=True)),
+            whole_plot_order=optional("whole_plot_order", lambda v: _positive_int(v, "whole_plot_order")),
+            subplot_order=optional("subplot_order", lambda v: _positive_int(v, "subplot_order")),
+            batch_id=optional("batch_id", lambda v: _text(v, "batch_id", identifier=True)),
+            source_run_id=optional("source_run_id", lambda v: _run_id(v, "source_run_id"))))
     result = DesignResult(spec, tuple(runs))
     if spec.design_type in _SCREENING_TYPES:
         if screening_matrix_sha256(result) != spec.screening_matrix["matrix_sha256"]:
             raise ValueError("筛选矩阵摘要与设计不一致")
         _validate_screening_construction(result)
+    if spec.foldover_lineage is not None:
+        run_by_id = {_run_id_key(run.run_id): run for run in result.runs}
+        lineage = spec.foldover_lineage
+        base_runs = [run for run in result.runs if run.batch_id == "BASE"]
+        added_runs = [run for run in result.runs if run.batch_id == lineage["batch_id"]]
+        sources, additions = set(), set()
+        for source_id, addition_id in lineage["run_map"]:
+            sources.add(_run_id_key(source_id))
+            additions.add(_run_id_key(addition_id))
+        if (len(base_runs) + len(added_runs) != len(result.runs)
+                or sources != {_run_id_key(run.run_id) for run in base_runs
+                               if run.point_type == "factorial"}
+                or additions != {_run_id_key(run.run_id) for run in added_runs}
+                or any(run.source_run_id is not None for run in base_runs)
+                or foldover_matrix_fingerprint(base_runs, spec.factors)
+                != lineage["source_matrix_sha256"]
+                or foldover_matrix_fingerprint((*base_runs, *added_runs), spec.factors)
+                != lineage["current_matrix_sha256"]):
+            raise ValueError("Foldover 批次映射或原始/当前模型矩阵摘要不匹配")
+        for source_id, addition_id in spec.foldover_lineage["run_map"]:
+            source = run_by_id.get(_run_id_key(source_id))
+            addition = run_by_id.get(_run_id_key(addition_id))
+            if (source is None or addition is None or source.batch_id != "BASE"
+                    or addition.source_run_id != source_id
+                    or addition.batch_id != lineage["batch_id"]):
+                raise ValueError("Foldover 谱系与运行批次映射不一致")
     if spec.design_type == "central_composite" and spec.ccd_alpha is not None:
         from doe_ccd import validate_ccd
         coded = validate_ccd(result)
@@ -929,15 +1278,24 @@ def design_from_worksheet(frame, spec, column_map):
 
 def _fingerprint(design, column_map, result):
     """摘要使用“实际存储的设计字典”，使 v1 旧工程按原样复核。"""
+    rows = [{
+        "run_id": run.run_id, "standard_order": run.standard_order,
+        "run_order": run.run_order, "point_type": run.point_type,
+        "replicate": run.replicate, "block": run.block,
+        "settings": dict(run.settings),
+    } for run in result.runs]
+    if design.get("schema_version", 0) >= 4:
+        for row, run in zip(rows, result.runs):
+            row.update({
+                "whole_plot_id": run.whole_plot_id, "subplot_id": run.subplot_id,
+                "whole_plot_order": run.whole_plot_order,
+                "subplot_order": run.subplot_order, "batch_id": run.batch_id,
+                "source_run_id": run.source_run_id,
+            })
     payload = {
         "design": design,
         "column_map": column_map,
-        "runs": [{
-            "run_id": run.run_id, "standard_order": run.standard_order,
-            "run_order": run.run_order, "point_type": run.point_type,
-            "replicate": run.replicate, "block": run.block,
-            "settings": dict(run.settings),
-        } for run in result.runs],
+        "runs": rows,
     }
     encoded = json.dumps(payload, ensure_ascii=False, allow_nan=False,
                          sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -988,6 +1346,9 @@ def _restore(frame, metadata):
     if type(version) is not int or version not in _READ_VERSIONS:
         raise ValueError(f"未知 DOE schema_version: {version!r}")
     design = metadata["design"]
+    if version < 4 and isinstance(metadata.get("column_map"), Mapping):
+        if set(metadata["column_map"]) - _MAP_KEYS_V3:
+            raise ValueError("旧版 DOE 列映射包含 schema v4 字段")
     if isinstance(design, dict) and design.get("schema_version") != version:
         raise ValueError("DOE schema_version 与设计版本不一致")
     spec = DesignSpec.from_dict(design)

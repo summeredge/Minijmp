@@ -1,5 +1,19 @@
 # MiniJMP 工作记忆
 
+## 工作包 D D0–D5（2026-10-28，本地收尾）
+
+- 独立 Review 遗留两项已修复：General Full Factorial 创建与恢复统一限制 2–10 因子（1/11 拒绝，10 因子仍受 10,000 行上限）；Split-Plot 预览显示运行/区组/整区数，仅插入前 100 行并提示总数，增加水平滚动，实际创建保持完整。专项八文件 42 passed、D 非 GUI 182、B/C 非 GUI 358、Factorial Tk 22、菜单帮助/G12 94 passed；测试组重叠，全量 pytest 未运行。ACC 状态未变，工作区仍未提交。
+- 状态 `WORK_PACKAGE_D_READY_FOR_REVIEW`；BASE/HEAD `e7a46737612cf5b56cd7d02911c4d13ec4753087`，分支 `main`，开始时工作区干净。D0–D5 限定范围已完成；独立网页端 LRM Review 尚未执行，未提交/推送，不启动 E/F/G/H。
+- D0 独立参考位于 `tests/fixtures/doe_factorial_reference/`，`reference.json` SHA-256 `0c3e379a6962efe224695ba79a21d101319d4298d1ed6962c9a8a9b6dfef37ba`；包含一般全因子、正负定义关系、Foldover 完整别名/精确秩、完整区组和 3-block 2×2 Split-Plot SS/df/F/p。核验器不导入生产模块。
+- DOE Schema 当前 v4；v1/v2/v3 按旧字段与原输入摘要校验后迁移。D1 一般全因子范围为 2–10 分类因子、文本/数值标签、完整笛卡尔积和完整重复区组；分析密集矩阵上限 10,000,000 个单元。旧版 MiniJMP 不保证读取 v4 工程。
+- D2 正规分数支持 signed generators、中心点和每个完整重复一区组；Foldover 只支持未分区组正规分数的全因子或单因子单批次，保留响应并存 parent/run map/batch 和原始/当前矩阵 SHA-256。PB、Split-Plot、重复折叠和 Minitab 输出/标准序未覆盖；FAC-012 维持 partial。
+- D3 区组仅按完整重复分配，适用于两水平全因子、正规部分因子和 General Full Factorial；中心点须平均分配。Split-Plot 限两个连续两水平因子、一个 hard-to-change 与一个 easy-to-change、至少两个平衡区组；A 用整区误差，B/AB 用子区误差。自定义区组分割、更大/不平衡裂区和 REML 未覆盖，FAC-008/010/019 为 partial。
+- D3 验证快照：数学/Schema/区组/Split-Plot 专项 140 passed；Foldover+独立参考 13 passed；普通 DOE GUI 5 passed（2 warnings）、Fractional GUI 15 passed（1 warning）、Split-Plot GUI 2 passed（1 warning）、Foldover GUI 2 passed、menu 66 passed、help/G12 28 passed；帮助索引成功重建。测试组有重叠，未运行全量 pytest。
+- D4 统一三类 factorial 分析器的 pure-error/区组误差分解；无独立纯误差时不输出 LOF F/p。中心曲率使用独立纯误差；分层 ANOVA 与真实水平诊断图有独立参考验证。ACC-007/011/013/015/017/018/066 及未核实产品范围维持 partial。
+- 验证快照：factorial 分析/误差分解 45 passed；D 非 GUI 设计/Schema/分析组 176 passed；B/C 非 GUI 回归 358 passed（310.15 秒）。GUI 分组、帮助、菜单、工作表和文件测试明细见 `docs/doe-minitab/work-package-d-closeout.md`；各组重叠，不相加，全量 pytest 未运行。
+- D5 的创建、预览、响应填写、分析、图形、保存/重开/复制/再分析和旧 Schema 回归已覆盖。帮助索引重建成功；Help/G12 28 passed、menu 66 passed；独立 factorial verifier 通过。
+- 筛选 Tk 大文件本轮未完整执行：约 22% 时停止长进程；D4 影响的 PB 绘图和代表性 DSD 工程用例分组复跑通过，但该整文件未在最终快照重跑。独立网页端 LRM Review 尚未执行，未提交/推送。
+
 ## 工作包 B+C 联合 Review 收尾（2026-10-28）
 
 - 状态 **BC_READY_FOR_INDEPENDENT_REVIEW**：HEAD `886a0311164f691aba4c96093013f645107cb128`，B 四项阻断修复已在联合工作区本地验证；C 的 ACC-001/002/003/005/006 仍 partial，独立 LRM Review 尚未通过。完整范围、未提交文件清单、测试与外部参考缺口见 `docs/doe-minitab/work-package-bc-review-closeout.md`。
