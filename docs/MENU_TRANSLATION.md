@@ -48,6 +48,11 @@
 | Add Runs | 增加运行 |
 | Select Optimal Design | 选择最优设计 |
 | Evaluate Design | 评价设计 |
+| Create Mixture Design | 创建混料设计 |
+| Analyze Mixture Design | 分析混料设计 |
+| Mixture Prediction | 混料预测 |
+| Optimize Mixture Response | 优化混料响应 |
+| Mixture Plots | 混料图形 |
 
 ## 文件（File）
 

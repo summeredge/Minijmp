@@ -172,6 +172,8 @@ class Minijmp(Worksheets, Minijmp_pre):
         from doe_custom_dialog import DefineCustomDOE
         from doe_optimal_dialog import (AugmentDesignDialog, EvaluateDesignDialog,
                                         ModifyDesignDialog, OptimalDesignDialog)
+        from doe_mixture_dialog import (AnalyzeMixtureDesign, CreateMixtureDesign,
+                                        MixturePlots, OptimizeMixture, PredictMixture)
         self.doe_menu = self.createPulldown(self.menu, {
             '01创建两水平全因子设计': {'cmd': lambda: CreateDOE(self)},
             '02创建两水平部分因子设计': {
@@ -201,6 +203,12 @@ class Minijmp(Worksheets, Minijmp_pre):
             '22增加运行': {'cmd': lambda: AugmentDesignDialog(self)},
             '23选择最优设计': {'cmd': lambda: OptimalDesignDialog(self)},
             '24评价设计': {'cmd': lambda: EvaluateDesignDialog(self)},
+            '25sep': '',
+            '26创建混料设计': {'cmd': lambda: CreateMixtureDesign(self)},
+            '27分析混料设计': {'cmd': lambda: AnalyzeMixtureDesign(self)},
+            '28混料预测': {'cmd': lambda: PredictMixture(self)},
+            '29优化混料响应': {'cmd': lambda: OptimizeMixture(self)},
+            '30混料图形': {'cmd': lambda: MixturePlots(self)},
         })
         self.menu.add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
 

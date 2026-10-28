@@ -244,13 +244,36 @@ class Worksheets:
             # Dirty-state snapshots remain usable after DOE inputs change; saves still validate.
             meta['doe'] = (validate_worksheet_metadata(self._full_frame(table), doe)
                            if validate_doe else doe)
+        mixture = getattr(table, 'mixture_metadata', None)
+        if mixture is not None:
+            from doe_mixture import validate_mixture_metadata
+            meta['mixture'] = (validate_mixture_metadata(self._full_frame(table), mixture)
+                               if validate_doe else mixture)
+            model = getattr(table, 'mixture_model', None)
+            if model is not None:
+                from doe_mixture import restore_mixture_model
+                if validate_doe:
+                    restore_mixture_model(self._full_frame(table), mixture, model)
+                meta['mixture_model'] = (dict(model) if validate_doe else model)
         return meta
 
     def loadMeta(self, table, meta):
         if not isinstance(meta, dict):
             return
-        table.doe_metadata = (validate_worksheet_metadata(self._full_frame(table), meta['doe'])
-                              if 'doe' in meta else None)
+        doe = (validate_worksheet_metadata(self._full_frame(table), meta['doe'])
+               if 'doe' in meta else None)
+        mixture = None
+        mixture_model = None
+        if 'mixture' in meta:
+            from doe_mixture import restore_mixture_model, validate_mixture_metadata
+            mixture = validate_mixture_metadata(self._full_frame(table), meta['mixture'])
+            if 'mixture_model' in meta:
+                restore_mixture_model(self._full_frame(table), mixture,
+                                      meta['mixture_model'])
+                mixture_model = dict(meta['mixture_model'])
+        table.doe_metadata = doe
+        table.mixture_metadata = mixture
+        table.mixture_model = mixture_model
         if 'formulas' in meta and not isinstance(meta['formulas'], dict):
             raise ValueError('无效的列公式定义')
         if 'formula_auto' in meta and meta['formula_auto'] not in (True, False):
