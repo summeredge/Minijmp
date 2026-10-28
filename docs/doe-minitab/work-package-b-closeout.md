@@ -1,8 +1,48 @@
 # 工作包 B 收尾报告（B1～B4）
 
+> 联合工作区的当前状态与本轮回归见 [B+C 联合收尾](work-package-bc-review-closeout.md)。以下隔离 worktree 记录是历史执行环境；四项修复已进入当前工作区。本地测试通过不等于独立 LRM Review 通过。
+
+## 2026-10-28 最终 Review 阻断修复（当前）
+
+本轮只在隔离 worktree 修复 B 的代码与测试，未触碰主工作区 C0 文件；未提交、未推送、未重置历史。修复四项确定性问题：
+
+- CCD 重复校验从每个分类组合的非中心点数推导重复数，再按完整预期结构核验点类型、轴点、编码、区组、中心点编号及元数据。5 因子 half、6 中心点在 1/2/3 次重复时分别有 32/58/84 行设计；移除轴点、改重复号、编码或中心点元数据均被拒绝。
+- 区组 CCD 中心点默认值为自动计算并在预览/元数据展示；显式整数只接受布局要求的数量，错误输入不创建工作表。连续因子数、分数和区组切换后自动值按当前布局重算。
+- CCD/BBD 在分类组合或运行列表展开前估算总行数；超过 10,000 拒绝，恰好 10,000 允许。
+- 分类响应面图仅提供连续 X/Y 轴；分类水平使用只读下拉框并传入 TermModel.row，标题显示真实水平及参考区组。真实 Tk 测试用独立解析模型核对网格预测与水平切换后的曲面变化。
+
+ACC-021 与 ACC-024 已按本轮相关的创建/分析范围恢复本地验收；ACC-022A/B、ACC-023、ACC-025～030 的既有结论在本轮回归中保持。ACC-022B 仅限五份用户提供并确认版本为 Minitab 22 的配置：点多重集及区组重编号后的点–区组多重集相同，标准序不同 60/116/123/120/163 行，不外推。正式完成仍需网页端独立 Review 的可验证通过记录。
+
+五份 CSV 的表格内容未改。仓库 .gitattributes 将行尾规范为 LF；对标测试在需要时从 LF 还原原始 CRLF 字节并按 manifest 的原始字节数与 SHA-256 校验。
+
+### 本轮回归
+
+解释器为主工作区项目 .venv（Python 3.11.9），当前目录为 B 隔离 worktree。各组存在重叠，不合计。
+
+```powershell
+& 'C:\Users\shaoy\Documents\Minijmp\.venv\Scripts\python.exe' -m pytest tests/test_doe_core.py tests/test_doe_factorial.py tests/test_doe_analysis.py tests/test_doe_fractional.py tests/test_doe_fractional_analysis.py tests/test_doe_ccd.py tests/test_doe_ccd_options.py tests/test_doe_rsm.py tests/test_doe_rsm_categorical.py tests/test_doe_rsm_diagnostics.py tests/test_doe_predict.py tests/test_doe_overlay.py tests/test_doe_optimize.py tests/test_doe_bbd.py tests/test_doe_schema_v2.py tests/test_doe_persistence.py -q --tb=short
+# 308 passed；0 failed，0 skipped，0 warnings
+
+& 'C:\Users\shaoy\Documents\Minijmp\.venv\Scripts\python.exe' -m pytest tests/test_doe_bbd_minitab_parity.py tests/test_doe_bbd.py -q --tb=short
+# 62 passed；0 failed，0 skipped，0 warnings
+
+& 'C:\Users\shaoy\Documents\Minijmp\.venv\Scripts\python.exe' -m pytest tests/test_doe_bbd_gui.py tests/test_doe_ccd_options_gui.py tests/test_doe_rsm_gui.py tests/test_doe_optimize_gui.py tests/test_doe_gui.py tests/test_doe_fractional_gui.py tests/test_doe_predict_gui.py tests/test_doe_overlay_gui.py -q --tb=short
+# 69 passed；0 failed，0 skipped，11 个 Matplotlib tight_layout 警告
+
+& 'C:\Users\shaoy\Documents\Minijmp\.venv\Scripts\python.exe' -m pytest tests/test_menu_localization.py tests/test_help_center.py -q --tb=short
+# 79 passed；0 failed，0 skipped，0 warnings
+
+为确保编码输入与实际低/高水平不同，该分类响应面 Tk 用例改用 A=10..20、B=100..200，并再次运行：
+& 'C:\Users\shaoy\Documents\Minijmp\.venv\Scripts\python.exe' -m pytest tests/test_doe_rsm_gui.py -q --tb=short -k categorical_rsm_plot_uses_selected_level_and_continuous_axes
+# 1 passed，10 deselected，1 个 Matplotlib tight_layout 警告
+```
+
+未运行全量 pytest（既有 Windows Tk 原生崩溃风险）；开发日志已合入 CCD 中心点、分类响应面绘图和运行数上限条目。本轮未修改帮助页或索引；help/pages/doe.html 与 help/assets/search-index.js 仍由 C0 更新，需协调合并 B 规则说明后统一重建帮助索引。
+
+
 ## 2026-10-28 Minitab 22 五份参考审计
 
-用户提供并确认版本为 Minitab 22 的 9 因子无区组/5/10 区组和 10 因子无区组/2 区组 CSV 均已原样存档并计算 SHA-256。独立审计及逐项比较见 [BBD 参考核验](bbd-reference-validation.md)：五份点多重集和映射后的逐点区组分配均相同；标准序不同。ACC-022A 本地通过；ACC-022B 对这些特定参考及设置的数学等价通过，不能宣称标准序精确一致或推及其他版本。CSV 软件来源来自用户陈述。独立 Review 尚未提交或通过，不进入工作包 C。
+用户提供并确认版本为 Minitab 22 的 9 因子无区组/5/10 区组和 10 因子无区组/2 区组 CSV 表格内容已纳入 fixture；manifest 记录原始 SHA-256 和字节数，测试对 Git 行尾规范化作还原后校验。独立审计及逐项比较见 [BBD 参考核验](bbd-reference-validation.md)：五份点多重集和映射后的逐点区组分配均相同；标准序不同。ACC-022A 本地通过；ACC-022B 对这些特定参考及设置的数学等价通过，不能宣称标准序精确一致或推及其他版本。CSV 软件来源来自用户陈述。独立 Review 尚未提交或通过，不进入工作包 C。
 
 本轮实际命令（项目 `.venv` Python 3.11.9，测试组重叠）：
 
@@ -24,7 +64,9 @@
 
 以下双层验收实施阶段中的 ACC-022B 待外部参考描述为历史状态，由本节取代。
 
-## 2026-10-28 双层验收实现进展
+> 本页首部记录最终修复与当前验收状态。下方旧阶段报告、ACC 状态表、测试结果及 C 启动条件均为历史记录；其中“BBD 未实现”“ACC-022B pending”等旧结论已被本页首部和 BBD 参考核验当前结果取代。
+
+## 历史记录：2026-10-28 双层验收实现进展（取得参考前）
 
 用户批准 ACC-022A 数学及工程验收与 ACC-022B Minitab 逐点一致性分开；前者为 Level 1 功能 Review 条件，后者 `pending_external_reference`，父编号不变。9/10 因子 BBD 已按 Box–Behnken (1960) 表 4 构造，支持 9 因子 1/5/10 区组、10 因子 1/2 区组；8 因子拒绝。参考及独立构造见 [BBD 参考核验](bbd-reference-validation.md)。ACC-022A 本地验证通过，RSM-002 为 implemented；独立 Review 尚未提交或通过，ACC-022B 未证实，不进入工作包 C。
 
@@ -94,7 +136,7 @@ Box 与 Behnken 原始论文提供 9/10 因子正交区组构造，另找到 Cro
 
 以上运行均无失败、无跳过；`deselected` 指过滤而非通过。全量 pytest 未运行。
 
-## 2026-10-28 第二轮修复：仍未完成
+## 历史记录：2026-10-28 第二轮修复（五份参考与最终修复前）
 
 当前基线 main b60c6eaca57495690b0c65ed500b97d4ffd87533。CCD 窗口可选至 10 因子；分类 CCD 预览及 CCC 轴点确认只对连续因子计算轴点。超过 5 个自由因子的优化使用中心、两个对角边界及逐轴边界起点，9/10 因子分别 21/23 起点，单起点函数评价上限 200。解析二次响应的 CCD 9/10 因子测试核对最优点、预测及重现性。无全局最优保证。
 
@@ -122,14 +164,14 @@ Box 与 Behnken 原始论文提供 9/10 因子正交区组构造，另找到 Cro
 
 > 2026-10-28 Review 修复及当前验收状态见文末；本报告原有结论为历史记录。
 
-## 一、基线与范围
+## 历史记录：一、基线与范围
 
 - 仓库 `C:\Users\shaoy\Documents\Minijmp`，分支 `main`，起始 HEAD `8c126ba`；工作区保持未提交，未推送、未打标签。
 - 解释器 `.venv\Scripts\python.exe`（Python 3.11.9、pandas 3.0.6、NumPy 2.4.6、SciPy 1.15.3）。
 - 内部分阶段：B1 schema 兼容与 BBD，B2 CCD 选项/区组/分类因子，B3 模型项/预测/叠加等高线，B4 优化扩展、诊断与 GUI 回归。
 - 不进入工作包 C；未实现 PB、DSD、split-plot、自定义 RSM、D-optimal、混料、Taguchi、二元响应与预测区间。
 
-## 二、阶段完成情况
+## 历史记录：二、阶段完成情况
 
 ### B1 Schema v2 与 Box–Behnken
 
@@ -160,7 +202,7 @@ Box 与 Behnken 原始论文提供 9/10 因子正交区组构造，另找到 Cro
 - 未重复或纯误差为零时不给失拟、曲率 F/p 或系数推断，不虚构显著性。
 - 菜单、帮助、帮助索引、G12 清单与变更日志同步。
 
-## 三、ACC-021～030 验收表
+## 历史记录：三、ACC-021～030 验收表
 
 | 验收编号 | 能力 | 证据 | 结论 |
 | --- | --- | --- | --- |
@@ -175,7 +217,7 @@ Box 与 Behnken 原始论文提供 9/10 因子正交区组构造，另找到 Cro
 | ACC-029 | 多响应优化 | 同上，多响应期望/权重/零期望/下溢用例 | 通过 |
 | ACC-030 | 统计诊断 | `tests/test_doe_rsm_diagnostics.py`（7）、`tests/test_doe_bbd_gui.py` 诊断页断言 | 通过；残差图不作假设证明 |
 
-## 四、实际执行的验证
+## 历史记录：四、实际执行的验证
 
 | 命令 | 结果 |
 | --- | --- |
@@ -190,7 +232,7 @@ Box 与 Behnken 原始论文提供 9/10 因子正交区组构造，另找到 Cro
 
 未执行：全量 pytest（历史曾在 Windows Tk `Menu.add` 触发原生退出）；手动鼠标逐项验收；真实设备/工艺确认试验。
 
-## 五、兼容性与限制
+## 历史记录：五、兼容性与限制
 
 - v1 工程照常读取并在校验时升级；v2 工程旧版软件不可读。
 - 官方 BBD 表还列 9、10 因子，本实现只支持 3–7 因子；6 因子三联组存在个别因子对覆盖两次，运行数、满秩与官方表一致。
@@ -199,7 +241,7 @@ Box 与 Behnken 原始论文提供 9/10 因子正交区组构造，另找到 Cro
 - 优化为确定性多起点 L-BFGS-B，不保证全局最优；预测与等高线为模型预测，不是确认试验结果。
 - 未实现 RSM-005（自定义响应面定义）、RSM-009（预测/置信区间，官方范围未核实）、RSM-016（响应面二元响应）。
 
-## 六、工作包 C 启动条件
+## 历史记录：六、工作包 C 启动条件（C0 开始前）
 
 本次未验证 PB 与 DSD 的官方点阵、别名规则与二元响应合同，也未新增对应 fixture。工作包 C 需先补齐这些独立参考与官方范围核对，不能以本报告作为其前置验收。
 # 2026-10-28 Review ITERATE 修复记录

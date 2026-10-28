@@ -1,5 +1,13 @@
 # Minitab 官方来源与核查记录
 
+## 2026-10-28 自定义筛选设计补充核查
+
+[Define Custom Screening Design 数据要求](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/screening/define-custom-screening-design/before-you-start/data-considerations/) 与 [Create Definitive Screening Design 概览](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/screening/create-definitive-screening-design/before-you-start/overview/) 确认可将工作表中已有因子及其他设计列定义为自定义筛选设计；前页说明 2–48 因子、文本因子两个水平。SCR-005 为官方已确认、MiniJMP missing，安排后续 E；本轮不实现。下方早期来源未确认结论属于历史。
+
+## 2026-10-28 工作包 C 实施证据
+
+生产 PB12/20/24/28/36 按 NIST 固定表选取前缀列，其余官方基础运行数使用 Hadamard 数学构造；DSD 使用 conference matrix、有限域和反向配对构造。来源、原始参考、哈希、区组选项、Lenth 公式及独立数学性质见 [筛选设计参考核验](screening-reference-validation.md)。这些参考不是 Minitab 实际工作表；产品标准序、随机序和多分类伪中心仍需真实导出比较。当前支持与测试范围见 [工作包 C 收尾记录](work-package-c-closeout.md)。
+
 ## 产品范围与版本
 
 - 调查对象：Minitab Statistical Software 在线帮助中以 DOE / Statistical Modeling 为路径的功能页。
@@ -10,6 +18,15 @@
 - 资料访问方式：使用 agent-reach 网页搜索及网页阅读，沿 Minitab 官方 DOE 帮助导航核对。来源事实仅取自 support.minitab.com 官方页面。搜索受限时不从第三方摘要补齐缺失功能。
 
 ## 来源目录
+
+### C0 补充来源（2026-10-28）
+
+- [Plackett–Burman designs](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/factorial-and-screening-designs/plackett-burman-designs/)：12–48 的 4 倍数、因子少于运行数；28 次是特殊构造；PB 在 Factorial 中分析；8/16 次不作为 PB 创建选项。表格不等于用户导出的产品工作表。
+- [Available definitive screening designs](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/factorial-and-screening-designs/available-definitive-screening-designs/)：给出 2–48 因子的全连续单重复运行数；包含分类因子的每次重复增加一次运行。无法仅据运行数推出伪中心分配或完整矩阵。
+- [DSD 模型信息及公式](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/screening/analyze-screening-design/methods-and-formulas/model-information/)：连续设计由 conference matrix 或其列子集构造；分类设计用两个伪中心替换一个中心；多个分类因子的选择算法与仅靠点数推导不同。
+- [DSD 重复与区组设置](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/screening/create-definitive-screening-design/create-the-design/specify-the-design/)：每个区组含相同数量的重复；区组数等于重复数时每次重复为独立区组。
+- [Xiao、Lin、Bai (2012)](https://www.stat.purdue.edu/~dkjlin/documents/publications/2012/2012_JQT.pdf)：独立的 conference matrix 数学构造依据；产品矩阵和运行序仍须另证。
+- 数学参考、构造来源、验证结果及尚需产品导出的配置见 [screening-reference-validation.md](screening-reference-validation.md)。在线帮助未标明产品版本。
 
 | source_id | 官方页面 | 官方页面能支持的事实 | 相关 feature_id |
 |---|---|---|---|
@@ -66,10 +83,10 @@ Minitab RSM overview 确认优化因子设置的工作流，但核查过的官�
 
 ## 证据空缺与处理
 
-工作包 B 实施期间按 R-01、R-02、R-03 与官方 BBD/CCD 页复核了本次落地范围，未新增未访问页面。实现与官方页面存在两处需要在验收报告写明的事实：官方 CCD 数据表中 3 因子单区组行内部不自洽（自报 14 个运行，但 8 个因子点加 6 个轴点为 14，而 alpha 列 1.682 与轴点数 0 互相矛盾），MiniJMP 保留既有 DOE-3 语义 2^k+2k+中心点；官方 BBD 数据表还列出 9、10 因子运行数，本实现只支持 3–7 因子。二者都作为范围限制记录，不据此扩展或删减验收。
+历史核查：官方 CCD 数据表中 3 因子单区组行内部不自洽（自报 14 个运行，但 8 个因子点加 6 个轴点为 14，而 alpha 列 1.682 与轴点数 0 互相矛盾），MiniJMP 保留既有 DOE-3 语义 2^k+2k+中心点。原先仅支持 3–7 因子 BBD 的结论已过时，现也支持 9、10 因子；数学等价只验证五份 Minitab 22 配置。
 
 - **未确认的软件版本：** 页面未注明适用版本；本次报告只能称为 Minitab Statistical Software 在线帮助基准，不能归属到某具体版本或本机安装。
-- **未确认的命令/选项：** 独立的 custom screening design、预测区间、自动 DOE 异常值处理、通用 sequential-design 命令均未从已访问页面确认。矩阵使用 not_verified/unknown，禁止据此补造功能。自定义响应面定义已由 R-03 官方页确认。
+- **未确认的命令/选项：** 预测区间、自动 DOE 异常值处理、通用 sequential-design 命令仍需单独核实。自定义响应面定义已由 R-03 官方页确认；自定义筛选定义已由本页顶部补充核查确认。
 - **筛选细节：** DSD 设计范围与因子水平在 overview 中有说明；本次没有固定完整 DSD 点阵算法、别名显示或全部模型项规则的官方方法页。后续要先锁定独立矩阵和页面。
 - **自定义设计边界：** 已确认的 Define Custom 2-Level Factorial Design 是定义工作表中的既有设计，不代表所有设计类型都支持任意自定义生成。
 - **最优准则：** D-optimal 适用于 Factorial、Response Surface 和 Mixture；Factorial 仅 D-optimal，distance-based 只适用于 Response Surface/Mixture。A/G/I-optimality 不作为选点准则；结果页可显示 A/G/V 等评估统计量，但这不代表支持用它们作为选点准则。O-04 记录 distance-based 起点和逐步选点方法，验收仍需独立小候选集复算。

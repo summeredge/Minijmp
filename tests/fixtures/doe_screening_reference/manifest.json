@@ -1,0 +1,439 @@
+{
+  "fixtures": [
+    {
+      "id": "pb12",
+      "path": "pb/pb12.csv",
+      "family": "pb",
+      "factors": 11,
+      "runs": 12,
+      "factor_types": [
+        "continuous"
+      ],
+      "encoding": [
+        -1,
+        1
+      ],
+      "replicates": 1,
+      "blocks": 1,
+      "source": "NIST Dataplot PB12.DAT",
+      "source_url": "https://www.itl.nist.gov/div898/software/dataplot/dex/PB12.DAT",
+      "source_version": "NIST online; version not stated",
+      "equivalence": "row/column permutation and individual column sign reversal",
+      "sha256": "0266e0d7967a61119ddd1849fe380032c3421987cec9f4a8387e686db2bb728e",
+      "independent_validation": "pytest mathematical audit passed 2026-10-28"
+    },
+    {
+      "id": "pb20",
+      "path": "pb/pb20.csv",
+      "family": "pb",
+      "factors": 19,
+      "runs": 20,
+      "factor_types": [
+        "continuous"
+      ],
+      "encoding": [
+        -1,
+        1
+      ],
+      "replicates": 1,
+      "blocks": 1,
+      "source": "NIST Dataplot PB20.DAT",
+      "source_url": "https://www.itl.nist.gov/div898/software/dataplot/dex/PB20.DAT",
+      "source_version": "NIST online; version not stated",
+      "equivalence": "row/column permutation and individual column sign reversal",
+      "sha256": "4b052486041ac0d59a8e572f4e0f8bfb1bc7273af4d7871033a780dc020c4f24",
+      "independent_validation": "pytest mathematical audit passed 2026-10-28"
+    },
+    {
+      "id": "pb24",
+      "path": "pb/pb24.csv",
+      "family": "pb",
+      "factors": 23,
+      "runs": 24,
+      "factor_types": [
+        "continuous"
+      ],
+      "encoding": [
+        -1,
+        1
+      ],
+      "replicates": 1,
+      "blocks": 1,
+      "source": "NIST Dataplot PB24.DAT",
+      "source_url": "https://www.itl.nist.gov/div898/software/dataplot/dex/PB24.DAT",
+      "source_version": "NIST online; version not stated",
+      "equivalence": "row/column permutation and individual column sign reversal",
+      "sha256": "e10e4014c68e4a1e5a0a33503913c7a6a241f58a3baf969f35ab007062284aa1",
+      "independent_validation": "pytest mathematical audit passed 2026-10-28"
+    },
+    {
+      "id": "pb28",
+      "path": "pb/pb28.csv",
+      "family": "pb",
+      "factors": 27,
+      "runs": 28,
+      "factor_types": [
+        "continuous"
+      ],
+      "encoding": [
+        -1,
+        1
+      ],
+      "replicates": 1,
+      "blocks": 1,
+      "source": "NIST Dataplot PB28.DAT",
+      "source_url": "https://www.itl.nist.gov/div898/software/dataplot/dex/PB28.DAT",
+      "source_version": "NIST online; version not stated",
+      "equivalence": "row/column permutation and individual column sign reversal",
+      "sha256": "cdd99044bfb7210b2a6a4c7e10bd7fd8e58f3cc364a904c630bd59edc67162fa",
+      "independent_validation": "pytest mathematical audit passed 2026-10-28"
+    },
+    {
+      "id": "dsd-06-continuous",
+      "path": "dsd/dsd_06_cont_13.csv",
+      "matrix_file": "dsd_06_cont_13.csv",
+      "family": "dsd",
+      "factors": 6,
+      "factor_count": 6,
+      "runs": 13,
+      "factor_types": [
+        "continuous"
+      ],
+      "encoding": [
+        -1,
+        0,
+        1
+      ],
+      "replicates": 1,
+      "blocks": 1,
+      "source": "Xiao, Lin & Bai (2012) conference-matrix DSD; Paley finite-field construction (1933), independently checked as a DSD (Wang, Liu & Lin, 2022)",
+      "source_url": "https://doi.org/10.1016/j.spl.2021.109267",
+      "source_version": "Xiao et al., JQT 44(1), 2012; Minitab help accessed 2026-10-28; no software output used",
+      "source_ids": [
+        "xiao-lin-bai-2012",
+        "paley-1933",
+        "wang-liu-lin-2022",
+        "minitab-methods",
+        "minitab-available"
+      ],
+      "equivalence": "row permutation; factor permutation; individual continuous-factor sign reversal with low/high labels swapped; vendor standard/run order unverified",
+      "sha256": "9a813f1efaeb80b068944a60f1a80674b440e25ec6993992eef82d33cff64dba",
+      "independent_validation": "verify.py passed with exact rational rank and integer cross-products",
+      "construction": {
+        "method": "Paley conference matrix",
+        "finite_field_order": 5,
+        "finite_field_representation": "GF(5)",
+        "conference_order": 6,
+        "selected_columns": 6,
+        "matrix_form": "[C; -C; 0]",
+        "row_order": "C rows, corresponding -C rows, then overall center row"
+      },
+      "product_pointwise_match": "unverified",
+      "independent_math_evidence": {
+        "run_count": 13,
+        "factor_count": 6,
+        "level_counts_per_factor": {
+          "-1": 5,
+          "0": 3,
+          "1": 5
+        },
+        "main_effect_rank_with_intercept": 7,
+        "main_gram_diagonal": [
+          13,
+          10,
+          10,
+          10,
+          10,
+          10,
+          10
+        ],
+        "main_effects_orthogonal_to_all_second_order_columns": true,
+        "main_plus_quadratic_rank": 13,
+        "full_second_order_parameter_count": 28,
+        "full_second_order_rank": 13,
+        "full_second_order_residual_df": 0,
+        "three_factor_projection_count": 20,
+        "every_three_factor_full_second_order_rank": 10,
+        "interaction_pair_count": 105,
+        "nonorthogonal_interaction_pairs": 105,
+        "perfectly_aliased_interaction_pairs": 0
+      }
+    },
+    {
+      "id": "dsd-07-continuous",
+      "path": "dsd/dsd_07_cont_17.csv",
+      "matrix_file": "dsd_07_cont_17.csv",
+      "family": "dsd",
+      "factors": 7,
+      "factor_count": 7,
+      "runs": 17,
+      "factor_types": [
+        "continuous"
+      ],
+      "encoding": [
+        -1,
+        0,
+        1
+      ],
+      "replicates": 1,
+      "blocks": 1,
+      "source": "Xiao, Lin & Bai (2012) conference-matrix DSD; Paley finite-field construction (1933), independently checked as a DSD (Wang, Liu & Lin, 2022)",
+      "source_url": "https://doi.org/10.1016/j.spl.2021.109267",
+      "source_version": "Xiao et al., JQT 44(1), 2012; Minitab help accessed 2026-10-28; no software output used",
+      "source_ids": [
+        "xiao-lin-bai-2012",
+        "paley-1933",
+        "wang-liu-lin-2022",
+        "minitab-methods",
+        "minitab-available"
+      ],
+      "equivalence": "row permutation; factor permutation; individual continuous-factor sign reversal with low/high labels swapped; vendor standard/run order unverified",
+      "sha256": "9a4e5c96419594da76294d34fc2e0028d7a450270407d56910e7ae47673fcbb9",
+      "independent_validation": "verify.py passed with exact rational rank and integer cross-products",
+      "construction": {
+        "method": "Paley conference matrix",
+        "finite_field_order": 7,
+        "finite_field_representation": "GF(7)",
+        "conference_order": 8,
+        "selected_columns": 7,
+        "matrix_form": "[C; -C; 0]",
+        "row_order": "C rows, corresponding -C rows, then overall center row"
+      },
+      "product_pointwise_match": "unverified",
+      "independent_math_evidence": {
+        "run_count": 17,
+        "factor_count": 7,
+        "level_counts_per_factor": {
+          "-1": 7,
+          "0": 3,
+          "1": 7
+        },
+        "main_effect_rank_with_intercept": 8,
+        "main_gram_diagonal": [
+          17,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14
+        ],
+        "main_effects_orthogonal_to_all_second_order_columns": true,
+        "main_plus_quadratic_rank": 15,
+        "full_second_order_parameter_count": 36,
+        "full_second_order_rank": 16,
+        "full_second_order_residual_df": 1,
+        "three_factor_projection_count": 35,
+        "every_three_factor_full_second_order_rank": 10,
+        "interaction_pair_count": 210,
+        "nonorthogonal_interaction_pairs": 147,
+        "perfectly_aliased_interaction_pairs": 0
+      }
+    },
+    {
+      "id": "dsd-08-continuous",
+      "path": "dsd/dsd_08_cont_17.csv",
+      "matrix_file": "dsd_08_cont_17.csv",
+      "family": "dsd",
+      "factors": 8,
+      "factor_count": 8,
+      "runs": 17,
+      "factor_types": [
+        "continuous"
+      ],
+      "encoding": [
+        -1,
+        0,
+        1
+      ],
+      "replicates": 1,
+      "blocks": 1,
+      "source": "Xiao, Lin & Bai (2012) conference-matrix DSD; Paley finite-field construction (1933), independently checked as a DSD (Wang, Liu & Lin, 2022)",
+      "source_url": "https://doi.org/10.1016/j.spl.2021.109267",
+      "source_version": "Xiao et al., JQT 44(1), 2012; Minitab help accessed 2026-10-28; no software output used",
+      "source_ids": [
+        "xiao-lin-bai-2012",
+        "paley-1933",
+        "wang-liu-lin-2022",
+        "minitab-methods",
+        "minitab-available"
+      ],
+      "equivalence": "row permutation; factor permutation; individual continuous-factor sign reversal with low/high labels swapped; vendor standard/run order unverified",
+      "sha256": "738706e6e20fb7b006734c428983c6547d7e9e71835739456666305c3137982e",
+      "independent_validation": "verify.py passed with exact rational rank and integer cross-products",
+      "construction": {
+        "method": "Paley conference matrix",
+        "finite_field_order": 7,
+        "finite_field_representation": "GF(7)",
+        "conference_order": 8,
+        "selected_columns": 8,
+        "matrix_form": "[C; -C; 0]",
+        "row_order": "C rows, corresponding -C rows, then overall center row"
+      },
+      "product_pointwise_match": "unverified",
+      "independent_math_evidence": {
+        "run_count": 17,
+        "factor_count": 8,
+        "level_counts_per_factor": {
+          "-1": 7,
+          "0": 3,
+          "1": 7
+        },
+        "main_effect_rank_with_intercept": 9,
+        "main_gram_diagonal": [
+          17,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14
+        ],
+        "main_effects_orthogonal_to_all_second_order_columns": true,
+        "main_plus_quadratic_rank": 17,
+        "full_second_order_parameter_count": 45,
+        "full_second_order_rank": 17,
+        "full_second_order_residual_df": 0,
+        "three_factor_projection_count": 56,
+        "every_three_factor_full_second_order_rank": 10,
+        "interaction_pair_count": 378,
+        "nonorthogonal_interaction_pairs": 252,
+        "perfectly_aliased_interaction_pairs": 0
+      }
+    },
+    {
+      "id": "dsd-10-continuous",
+      "path": "dsd/dsd_10_cont_21.csv",
+      "matrix_file": "dsd_10_cont_21.csv",
+      "family": "dsd",
+      "factors": 10,
+      "factor_count": 10,
+      "runs": 21,
+      "factor_types": [
+        "continuous"
+      ],
+      "encoding": [
+        -1,
+        0,
+        1
+      ],
+      "replicates": 1,
+      "blocks": 1,
+      "source": "Xiao, Lin & Bai (2012) conference-matrix DSD; Paley finite-field construction (1933), independently checked as a DSD (Wang, Liu & Lin, 2022)",
+      "source_url": "https://doi.org/10.1016/j.spl.2021.109267",
+      "source_version": "Xiao et al., JQT 44(1), 2012; Minitab help accessed 2026-10-28; no software output used",
+      "source_ids": [
+        "xiao-lin-bai-2012",
+        "paley-1933",
+        "wang-liu-lin-2022",
+        "minitab-methods",
+        "minitab-available"
+      ],
+      "equivalence": "row permutation; factor permutation; individual continuous-factor sign reversal with low/high labels swapped; vendor standard/run order unverified",
+      "sha256": "33054fca13b9e6527eac1027ea1532f5f62662d654b149d2acd77d4bf025e50e",
+      "independent_validation": "verify.py passed with exact rational rank and integer cross-products",
+      "construction": {
+        "method": "Paley conference matrix",
+        "finite_field_order": 9,
+        "finite_field_representation": "GF(3)[u]/(u^2+1)",
+        "conference_order": 10,
+        "selected_columns": 10,
+        "matrix_form": "[C; -C; 0]",
+        "row_order": "C rows, corresponding -C rows, then overall center row"
+      },
+      "product_pointwise_match": "unverified",
+      "independent_math_evidence": {
+        "run_count": 21,
+        "factor_count": 10,
+        "level_counts_per_factor": {
+          "-1": 9,
+          "0": 3,
+          "1": 9
+        },
+        "main_effect_rank_with_intercept": 11,
+        "main_gram_diagonal": [
+          21,
+          18,
+          18,
+          18,
+          18,
+          18,
+          18,
+          18,
+          18,
+          18,
+          18
+        ],
+        "main_effects_orthogonal_to_all_second_order_columns": true,
+        "main_plus_quadratic_rank": 21,
+        "full_second_order_parameter_count": 66,
+        "full_second_order_rank": 21,
+        "full_second_order_residual_df": 0,
+        "three_factor_projection_count": 120,
+        "every_three_factor_full_second_order_rank": 10,
+        "interaction_pair_count": 990,
+        "nonorthogonal_interaction_pairs": 990,
+        "perfectly_aliased_interaction_pairs": 0
+      }
+    },
+    {
+      "id": "dsd-04-cont-01-cat",
+      "path": "dsd/dsd_04_cont_01_cat_14.csv",
+      "family": "dsd_mixed",
+      "factors": 5,
+      "runs": 14,
+      "factor_types": [
+        "continuous",
+        "continuous",
+        "continuous",
+        "continuous",
+        "categorical"
+      ],
+      "encoding": {
+        "continuous": [
+          -1,
+          0,
+          1
+        ],
+        "categorical": [
+          -1,
+          1
+        ]
+      },
+      "replicates": 1,
+      "blocks": 1,
+      "source": "Jones and Nachtsheim 2013, DSD-augment, independently constructed",
+      "source_url": "https://www.jmp.com/content/dam/jmp/documents/en/white-papers/dsd-with-added-two-level-categorical-factors.pdf",
+      "source_version": "Journal of Quality Technology 45(2), 2013",
+      "equivalence": "row permutation, factor permutation within type, sign reversal with level labels swapped",
+      "sha256": "101a2e6c5095e0208ba8094a51af4a2c5f16db9bb499476041a5f6ec39e0e093",
+      "independent_validation": "pytest mathematical audit passed 2026-10-28",
+      "product_pointwise_match": "unverified"
+    },
+    {
+      "id": "pb36",
+      "path": "pb/pb36.csv",
+      "family": "pb",
+      "factors": 35,
+      "runs": 36,
+      "factor_types": [
+        "continuous"
+      ],
+      "encoding": [
+        -1,
+        1
+      ],
+      "replicates": 1,
+      "blocks": 1,
+      "source": "NIST Dataplot PB36.DAT",
+      "source_url": "https://www.itl.nist.gov/div898/software/dataplot/dex/PB36.DAT",
+      "source_version": "NIST online; version not stated",
+      "equivalence": "row/column permutation and individual column sign reversal",
+      "sha256": "d8d84eddab02b4b6f72b90f39d7413e580065be1e698b3821730de0207325d32",
+      "independent_validation": "pytest mathematical audit passed 2026-10-28"
+    }
+  ]
+}

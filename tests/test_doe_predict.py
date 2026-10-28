@@ -100,7 +100,7 @@ def test_block_term_uses_the_reference_block():
     factors = (FactorSpec('A', 'A', -1, 1), FactorSpec('B', 'B', -1, 1))
     spec = DesignSpec('blk', factors, ('Y',), seed=2,
                       design_type='central_composite', ccd_alpha=None,
-                      ccd_center_points=5, ccd_axial_points=4, block_count=2)
+                      ccd_center_points=None, ccd_axial_points=4, block_count=2)
     frame, metadata = create_ccd(spec)
     block = (frame['区组'] == 2).to_numpy(float)
     frame['响应_Y'] = 10 + 2*frame['编码_A'] + 5*block

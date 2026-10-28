@@ -23,7 +23,11 @@ def load_reference(k, suffix):
     path = ROOT / 'original' / f'bbd{k}-{suffix}.csv'
     manifest = json.loads((ROOT / 'manifest.json').read_text(encoding='utf-8'))
     entry = manifest['files'][path.name]
-    assert hashlib.sha256(path.read_bytes()).hexdigest() == entry['sha256']
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != entry['sha256'] and b'\r\n' not in raw:
+        raw = raw.replace(b'\n', b'\r\n')
+    assert len(raw) == entry['bytes']
+    assert hashlib.sha256(raw).hexdigest() == entry['sha256']
     data = pd.read_csv(path, encoding=entry['encoding'])
     assert list(data.columns) == entry['columns']
     aliases = {'standard_order': ('标准序', 'StdOrder'),
@@ -32,10 +36,21 @@ def load_reference(k, suffix):
     mapping = dict(entry['system_column_mapping'])
     assert {'standard_order', 'run_order', 'point_type'} <= mapping.keys()
     assert all(key in aliases and mapping[key] in aliases[key] for key in mapping)
+    factor_columns = entry['factor_columns']
+    factor_mapping = entry['factor_mapping_to_minijmp']
+    expected_mapping = {source: chr(65 + index)
+                        for index, source in enumerate(factor_columns)}
+    assert len(factor_columns) == len(set(factor_columns))
+    assert set(factor_mapping) == set(factor_columns) <= set(data.columns)
+    assert len(set(factor_mapping.values())) == len(factor_columns)
+    assert factor_mapping == expected_mapping
+    mapped_factor_columns = sorted(factor_mapping, key=factor_mapping.get)
+    assert [factor_mapping[source] for source in mapped_factor_columns] == [
+        chr(65 + index) for index in range(len(factor_columns))]
     if 'block' not in mapping:
         data = data.assign(__unblocked=1)
         mapping['block'] = '__unblocked'
-    return data, mapping, entry['factor_columns']
+    return data, mapping, mapped_factor_columns
 
 
 def quadratic(x):
@@ -49,15 +64,31 @@ def test_english_headers_and_unblocked_column_absence(tmp_path, monkeypatch):
     path = original / 'bbd9-unblocked.csv'
     raw = b'StdOrder,RunOrder,PtType,A,B\n1,1,0,0,0\n'
     path.write_bytes(raw)
-    entry = {'sha256': hashlib.sha256(raw).hexdigest(), 'encoding': 'utf-8-sig',
+    entry = {'sha256': hashlib.sha256(raw).hexdigest(), 'bytes': len(raw),
+             'encoding': 'utf-8-sig',
              'columns': ['StdOrder', 'RunOrder', 'PtType', 'A', 'B'],
              'system_column_mapping': {'standard_order': 'StdOrder', 'run_order': 'RunOrder',
-                                       'point_type': 'PtType'}, 'factor_columns': ['A', 'B']}
+                                       'point_type': 'PtType'}, 'factor_columns': ['A', 'B'],
+              'factor_mapping_to_minijmp': {'A': 'A', 'B': 'B'}}
     (tmp_path / 'manifest.json').write_text(json.dumps({'files': {path.name: entry}}), encoding='utf-8')
     monkeypatch.setattr(__import__(__name__), 'ROOT', tmp_path)
     data, columns, factors = load_reference(9, 'unblocked')
     assert data[columns['block']].tolist() == [1]
     assert columns['standard_order'] == 'StdOrder' and factors == ['A', 'B']
+
+
+@pytest.mark.parametrize(('k', '_blocks', 'suffix', '_difference'), CASES)
+def test_reference_factor_mapping_uses_declared_minitab_names(k, _blocks, suffix, _difference):
+    manifest = json.loads((ROOT / 'manifest.json').read_text(encoding='utf-8'))
+    path = ROOT / 'original' / f'bbd{k}-{suffix}.csv'
+    mapping = manifest['files'][path.name]['factor_mapping_to_minijmp']
+    expected = {letter: letter for letter in 'ABCDEFGH'}
+    expected['J'] = 'I'
+    if k == 10:
+        expected['K'] = 'J'
+    assert mapping == expected
+    _, _, mapped_columns = load_reference(k, suffix)
+    assert mapped_columns == manifest['files'][path.name]['factor_columns']
 
 
 @pytest.mark.parametrize(('k', 'blocks', 'suffix', '_'), CASES)

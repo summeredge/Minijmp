@@ -1,6 +1,8 @@
 {
   "topics": [
     {"id":"doe.full_factorial","title":"两水平全因子设计","original_name":"Two-level full factorial","category":"统计分析","menu":"试验设计（DOE）","entry":"MiniJMP.createMenuBar","source":"code/doe_dialog.py","dialog_classes":[],"page":"pages/doe.html#doe.full_factorial","status":"已实现"},
+    {"id":"doe.pb","title":"Plackett–Burman 筛选设计","original_name":"Plackett–Burman design","category":"统计分析","menu":"试验设计（DOE）","entry":"MiniJMP.createMenuBar","source":"code/doe_pb.py; code/doe_dialog.py","dialog_classes":[],"page":"pages/doe.html#doe.pb","status":"已实现"},
+    {"id":"doe.dsd","title":"Definitive Screening 设计","original_name":"Definitive screening design","category":"统计分析","menu":"试验设计（DOE）","entry":"MiniJMP.createMenuBar","source":"code/doe_dsd.py; code/doe_dialog.py","dialog_classes":[],"page":"pages/doe.html#doe.dsd","status":"已实现"},
     {"id":"doe.fractional","title":"两水平正规部分因子设计","original_name":"Regular two-level fractional factorial","category":"统计分析","menu":"试验设计（DOE）","entry":"MiniJMP.createMenuBar","source":"code/doe_dialog.py","dialog_classes":[],"page":"pages/doe.html#doe.fractional","status":"已实现"},
     {"id":"doe.ccd","title":"中心复合设计与响应面","original_name":"Central composite design and response surface","category":"统计分析","menu":"试验设计（DOE）","entry":"MiniJMP.createMenuBar","source":"code/doe_dialog.py","dialog_classes":[],"page":"pages/doe.html#doe.ccd","status":"已实现"},
     {"id":"doe.bbd","title":"Box-Behnken 设计与响应面","original_name":"Box-Behnken design and response surface","category":"统计分析","menu":"试验设计（DOE）","entry":"MiniJMP.createMenuBar","source":"code/doe_bbd.py; code/doe_dialog.py","dialog_classes":[],"page":"pages/doe.html#doe.bbd","status":"已实现"},

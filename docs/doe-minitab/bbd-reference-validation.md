@@ -2,7 +2,7 @@
 
 ## Minitab 22 用户提供参考对比（2026-10-28）
 
-用户提供五份桌面版导出的原始 CSV，并确认产品版本为 **22**；来源和版本为用户陈述，CSV 本身不能独立证明软件来源。设计设置：连续因子 −1/+1、10 中心点、1 次重复、无分类因子、不随机化、编码值及标准序。原文件逐字节保存在 `tests/fixtures/doe_bbd_reference/original/`；编码 UTF-8 BOM、原始列、列映射、运行数及 SHA-256 见同目录上层 `manifest.json`。原始列为“标准序、运行序、点类型、区组、A、B、C、D、E、F、G、H、J”，10 因子另含 K；按顺序将 Minitab J 映射到 MiniJMP I、K 映射到 J，其余 A–H 同名。点类型 0 为中心、2 为非中心。
+用户提供五份桌面版导出的原始 CSV，并确认产品版本为 **22**；来源和版本为用户陈述，CSV 本身不能独立证明软件来源。设计设置：连续因子 −1/+1、10 中心点、1 次重复、无分类因子、不随机化、编码值及标准序。CSV 表格内容纳入 tests/fixtures/doe_bbd_reference/original/；因仓库 .gitattributes 统一将文本行尾规范为 LF，测试在需要时将 LF 还原为原始 CRLF 字节，再核对 manifest 记录的原始 SHA-256 与字节数；编码 UTF-8 BOM、原始列、列映射、运行数及 SHA-256 见同目录上层 `manifest.json`。原始列为“标准序、运行序、点类型、区组、A、B、C、D、E、F、G、H、J”，10 因子另含 K；按顺序将 Minitab J 映射到 MiniJMP I、K 映射到 J，其余 A–H 同名。点类型 0 为中心、2 为非中心。
 
 | 参考文件 | 数学审计 | 标准序逐行不同数 | 未重映射区组的点–区组多重集差异 | 明确区组映射：Minitab → MiniJMP | 变换后点集 / 区组差异 | 结论 |
 | --- | --- | ---: | ---: | --- | --- | --- |
@@ -20,17 +20,17 @@ ACC-022A 保持通过；ACC-022B **数学等价通过（适用上述用户提供
 
 以下为导出取得前的历史记录；其中 ACC-022B pending 的结论已由本节取代。
 
-## 用户批准的双层合同
+## 历史记录：用户批准的双层合同（取得五份参考前）
 
 ACC-022A 验收原始文献支持的数学构造、独立矩阵、区组正交性及软件功能；本地验证通过，独立 Review 待完成。ACC-022B 验收与 Minitab 特定版本的点阵、标准序和区组分配一致性，目前为 `pending_external_reference`，不阻断 ACC-022A 实施或其后的功能 Review。两类证据不得混用，父编号仍为 MTB-DOE-ACC-022。
 
 实现进展：9 因子按表 4 的五组各三个三因子组合（第一与第五组相同），十区组进一步按三因子符号乘积拆分；10 因子按表 4 的十个四因子组合并按四因子符号乘积拆分。独立测试以 3×3 模运算重构 9 因子组，分别核对模型 55/66 列满秩、条件数小于 10、每个区组与模型项的中心化正交、中心点分配、拟合与预测。高维解析优化和真实 Tk 的五种配置工程往返已通过，详细命令及结果见工作包 B 收尾报告。
 
-## 结论
+## 历史结论（已由顶部五份参考结果取代）
 
-**未证明与 Minitab 设计矩阵等价，不能作为 ACC-022B 通过的依据。** 9 因子无区组、5 区组、10 区组及 10 因子无区组、2 区组均缺少 Minitab 版本明确的完整对照数据；`RSM-002` 的 implemented 状态仅指 ACC-022A 本地数学及工程能力。独立资料可用于数学实现，但 Minitab 官方汇总没有给出其因子组及区组分配，也没有证明其与下述构造只相差列置换、符号翻转、区组重编号或运行顺序。
+**当时未证明与 Minitab 设计矩阵等价，不能作为 ACC-022B 通过的依据。** 9 因子无区组、5 区组、10 区组及 10 因子无区组、2 区组均缺少 Minitab 版本明确的完整对照数据；`RSM-002` 的 implemented 状态仅指 ACC-022A 本地数学及工程能力。独立资料可用于数学实现，但 Minitab 官方汇总没有给出其因子组及区组分配，也没有证明其与下述构造只相差列置换、符号翻转、区组重编号或运行顺序。
 
-## 已查资料与证据边界
+## 历史资料与证据边界
 
 1. [Minitab 设计汇总](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/response-surface-designs/summary-of-box-behnken-designs/)：9 因子 130 次、10 因子 170 次，默认中心点均为 10，不列 8 因子；网页未注明版本或完整矩阵。
 2. [Minitab 区组规则](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/response-surface-designs/blocks-in-a-box-behnken-design/)：9 因子 5 或 10 区组、10 因子 2 区组，设计内区组正交；无具体逐行区组表。重复是否分组取决于是否选择按重复分组。
@@ -40,7 +40,9 @@ ACC-022A 验收原始文献支持的数学构造、独立矩阵、区组正交�
 
 论文构造、点数、模型满秩和区组正交都是必要的数学证据，仍不能单独证明与某个 Minitab 版本的矩阵或区组分配等价。现阶段未计算或声称以上公开表的具体秩、条件数或逐项正交验收结果。
 
-## 需要的 Minitab 导出
+## 历史导出收集要求（五份参考已取得）
+
+以下记录取得参考前的采集标准，不再是待办事项。本页顶部已记录五份用户参考及核验结果。
 
 在同一已记录版本的 Minitab Statistical Software 中，对下表五种设置分别创建工作表。路径：**Stat > DOE > Response Surface > Create Response Surface Design > Box-Behnken**。因子均为连续因子，低/高水平分别设为 −1/+1；中心点数 10、重复数 1，不添加分类因子，不勾选按重复分组。选择不随机化；如版本不提供该选项，保留实际 seed、StdOrder 与 RunOrder。使用 Display Design 显示编码单位和标准序，导出各自 CSV 或工作表文件。
 

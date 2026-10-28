@@ -178,6 +178,9 @@ class Minijmp(Worksheets, Minijmp_pre):
             '07创建 Box-Behnken 设计': {'cmd': lambda: CreateDOE(self, bbd=True)},
             '08响应面预测': {'cmd': lambda: PredictRSM(self)},
             '09叠加等高线': {'cmd': lambda: OverlayContours(self)},
+            '10创建 Plackett–Burman 设计': {'cmd': lambda: CreateDOE(self, pb=True)},
+            '11创建筛选设计（DSD）': {'cmd': lambda: CreateDOE(self, dsd=True)},
+            '12分析筛选设计': {'cmd': lambda: AnalyzeDOE(self, screening=True)},
         })
         self.menu.add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
 

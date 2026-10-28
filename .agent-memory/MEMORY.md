@@ -1,5 +1,28 @@
 # MiniJMP 工作记忆
 
+## 工作包 B+C 联合 Review 收尾（2026-10-28）
+
+- 状态 **BC_READY_FOR_INDEPENDENT_REVIEW**：HEAD `886a0311164f691aba4c96093013f645107cb128`，B 四项阻断修复已在联合工作区本地验证；C 的 ACC-001/002/003/005/006 仍 partial，独立 LRM Review 尚未通过。完整范围、未提交文件清单、测试与外部参考缺口见 `docs/doe-minitab/work-package-bc-review-closeout.md`。
+- 官方确认 SCR-005 自定义筛选定义；MiniJMP missing，追加 ACC-067 并规划后续 E，本轮未实现。DSD 4 连续加 2 分类的主效应不两两正交，与二阶项交叉积为零；新增独立交叉积回归。
+- 联合快照：B 核心/对标/旧工程 274 passed，DOE-1/2 52 passed，C 核心/schema 156 passed，双分类交叉积专项 1 passed；B Tk 69 passed、11 warnings，C Tk 118 passed、200 deselected、107 warnings；帮助/菜单/G12/工程基础 163 passed。历史 PB 中间因子数 200 项未在本次重跑，不能当作联合快照新测试。测试组重叠，不相加；全量 pytest 未运行。
+- 已重建帮助索引；八份 C0 矩阵与五份用户提供的 Minitab 22 BBD 参考按清单校验。未提交、未推送、未启动 D；下一步针对限定范围独立 Review，产品标准序和其他设置仍需外部导出。
+
+## 工作包 C 第二轮收尾（2026-10-28）
+
+- 最终审计补齐 PB 新增六种运行数的全部连续因子数真实 Tk 工程流程：原 200 案例单进程接近尾声时触发 Windows Tk 原生 `0x80000003`，无汇总，不计通过；按进度推定 PB48/43 单独 1 passed。按运行数拆分独立进程重跑，PB24/32/36/40/44/48 分别 **20/28/32/36/40/44 passed**，共 200 个互不重叠案例，各组 warnings 数与案例数相同；前述 118 项已覆盖各运行数的 3 因子及满容量。
+
+- 状态 **WORK_PACKAGE_C_PARTIAL**：PB 全部官方基础运行数、文本因子与伪中心、重复区组；DSD 2–48 连续、1–47 连续加 1 分类、4 连续加 2 分类及完整重复均分区组；Lenth PSE、标准化效应图、DSD 零空间和对比已实现。ACC-001/002/003/005/006 均仍 partial，产品标准序、多分类及其他产品选项未齐；可对限定范围发起独立 Review，尚无 APPROVE。构造、验收与 Minitab 22 导出需求见 `docs/doe-minitab/work-package-c-closeout.md` 和 `docs/doe-minitab/screening-reference-validation.md`。
+- Schema v3 对 PB/DSD 的矩阵来源、编码、标准序、重复和区组做摘要及固定构造复核；v1/v2 可读并升级，响应/实测可后填。原八份 C0 数学参考与 SHA-256 未改；不能将数学构造与产品逐点一致混为一谈。
+- 最终代码验证：筛选参考/PB/DSD/分析非 Tk **136 passed**，核验器新增回归 **1 passed**；筛选 Tk GUI **118 passed、107 tight-layout warnings**；DOE-0～4 非 Tk 与 schema v2 **316 passed**；schema v3、工程持久化、DOE GUI 与菜单 **164 passed、11 warnings**；帮助/G12 **28 passed**。测试组重叠，不相加；全量 pytest 未执行。
+- 修复 C0 的 DSD 独立核验脚本清单范围不一致：本地 manifest 仅有四个连续参考，混合参考由上级 manifest 测试；旧脚本失败，修复后四项精确审计和新增回归通过。自动检查缺失的过程细节见 `logs/2026-10-28.md` 与 C 收尾报告。
+- 未提交、未推送、未启动工作包 D；B 的 CCD/RSM 图形缺陷另行处理。工作包 C 首轮及第二轮阶段过程详见上述收尾报告和当日日志。
+
+## 工作包 C0 技术准备（2026-10-28）
+
+- HEAD `886a0311164f691aba4c96093013f645107cb128`；C0 结论为 C0_READY_FOR_REVIEW，等待网页端独立 Review。未实现 PB/DSD 生产功能，B 的独立 Review 也未完成。SCR-001/002/003 保持 missing、SCR-006/007 保持 partial。
+- 已建立 NIST PB 12/20/28、独立 conference matrix DSD 6/7/8/10 全连续及 4 连续加 1 分类 DSD 矩阵与 SHA-256、可执行数学核验；Schema v3 迁移方案与 ACC-001/002/003/005/006 的 STD/EDGE/GUI/PERSIST 合同见 `docs/doe-minitab/work-package-c0-closeout.md`。
+- 本轮旧 Schema/持久化/分数设计回归 52 passed；筛选矩阵审计 9 passed，DSD 精确构造审计 4 个通过。Minitab 产品标准序及其他分类组合、规模、区组和 seed 的逐点一致性仍未验证；后续先 Review，再冻结 Schema，未核实配置取得参考前暂缓。
+
 ## 工作包 B Review ITERATE（2026-10-28）
 
 - 用户提供并确认 Minitab 22 五份原始 CSV：9 因子无区组/5/10 组和 10 因子无区组/2 组。独立数学与多重集审计均通过；点集及区组重编号后逐点分配一致，标准序不同。ACC-022B 在这五份指定设置下数学等价通过，独立 Review 仍未提交；详情及哈希见 `docs/doe-minitab/bbd-reference-validation.md` 和 fixture manifest。

@@ -1,12 +1,14 @@
 # DOE 对标后续路线图
 
+> 2026-10-28 状态更新：工作包 C 已有有限 PB/DSD 实现，验收仍按 [收尾记录](work-package-c-closeout.md) 标为部分完成。下方原工作包规划和 schema 审计为历史设计输入，不代表当前代码仅支持 v1。
+
 ## 管理规则
 
-工作包固定为 A–H。A 已完成，当前矩阵 80 项、验收编号 001–066；原 001–063 保持稳定，本轮新增 TAG-010、TAG-011、FAC-019 与 ACC-064–066。后续开发只实现矩阵中有官方证据的项目；先更新范围再开发。DOE-0～DOE-4 继续作为已接受基线，不改写成新阶段编号。
+工作包固定为 A–H。A 已完成，当前矩阵 80 项；原验收编号保持稳定，自定义筛选设计追加 ACC-067。后续开发只实现矩阵中有官方证据的项目；先更新范围再开发。DOE-0～DOE-4 继续作为已接受基线，不改写成新阶段编号。
 
 推荐顺序：A → B → C → D → E → F/G → H。F 与 G 的模型独立，可在数据合同决定后并行。工作包进入开发前，先将该包全部 MTB-DOE-ACC 编号绑定到具体实现分支与独立数值 fixture。没有数值参考、官方范围或 schema 兼容方案时，不进入实现。
 
-## Schema 与现有代码合同
+## 历史规划：Schema 与原有代码合同
 
 当前证据来自 code/doe_core.py、DOE 生成/分析模块和 tests/test_doe_core.py、tests/test_doe_persistence.py；本路线图不修改 schema。
 
@@ -44,7 +46,7 @@
 - **完成定义：** README、feature-matrix.csv、acceptance.md、roadmap.md、sources.md 完整；来源范围未知处明确标记；结构检查通过。
 - **进入下一包：** 先确定 schema 演进策略，且下一包所需官方来源及独立数学 oracle 已固定。
 
-### B — 响应面设计扩展（已完成，见 [work-package-b-closeout.md](work-package-b-closeout.md)）
+### B — 响应面设计扩展（限定范围本地验证完成，独立 Review 待完成；见 [收尾](work-package-b-closeout.md)）
 
 - **目标与 feature_id：** RSM-001/002/003/004/007/008/012/013/014/015；补齐官方确认的 CCD 选项、BBD、RSM 预测/优化、多响应图形和 Level 1 诊断。RSM-005 自定义设计归工作包 E；RSM-016 二元分析归工作包 H。
 - **依赖：** A；schema 扩展审查；DOE-3/4 通过范围与算法必须保留。
@@ -58,14 +60,16 @@
 
 ### C — 筛选设计
 
-- **目标与 feature_id：** SCR-001/002/003/006/007；PB、DSD、连续响应、效应与混杂分析。SCR-004 二元响应归工作包 H；SCR-005 尚未确认官方功能范围。
-- **依赖：** A；DOE-2 现有正规 fraction alias 方法；建议先保留现有别名算法，再独立加入 PB/DSD 生成。
+2026-10-28 C0 技术准备与实施边界见 [C0 规格](work-package-c0-spec.md)、[参考核验](screening-reference-validation.md) 和 [Schema 方案](screening-schema-plan.md)。C1 为 PB，C2 为 DSD 生成，C3 为连续响应与图形；二元响应仍归 H。C0 的参考准备不改变功能实现状态，也不代表工作包 B 已通过独立 Review。
+
+- **目标与 feature_id：** SCR-001/002/003/006/007；PB、DSD、连续响应、效应与混杂分析。SCR-004 二元响应归工作包 H；SCR-005 已确认官方功能，尚未实现，安排工作包 E。
+- **依赖：** A 和 DOE 公共合同；保留 DOE-2 正规 fraction 算法供其原用途，PB/DSD 采用实际矩阵秩及投影，不将正规别名等式直接用于非正规设计。
 - **复用 / 预计文件：** code/doe_fractional.py、code/doe_fractional_analysis.py、code/doe_analysis.py、code/doe_dialog.py、菜单、帮助、测试；PB/DSD 的点生成可分模块。
 - **Schema：** 需新增 screening design type 及相应点结构；检查 design_type/point_type enum 和混杂元数据；二元响应不能挤入 continuous responses 语义。
 - **关键数学风险：** PB 主效应与交互混杂；DSD 水平与矩阵性质；不把 alias-group effects 解读为单一真实效应；二元响应分离与稀疏事件。
-- **GUI / 持久化：** PB 入口与 Factorial 菜单归属要与官方语义一致；DSD 预览、分析项、二元响应事件/试验数；保存和重开时来源设计与 alias 可重建。
+- **GUI / 持久化：** PB 入口与 Factorial 菜单归属要与官方语义一致；DSD 预览与连续响应分析；保存和重开时来源设计与混杂关系可重建。二元响应不属于 C。
 - **独立案例：** ACC-001–003、005–006；PB 用独立公开矩阵；DSD 用固定独立矩阵；回归与别名由独立矩阵核对。
-- **完成定义：** 设计类型、可估计性、连续/二元分析、图形和帮助限制分别验收；PB/DSD 不互相冒充。
+- **完成定义：** 设计类型、可估计性、连续响应分析、图形和帮助限制分别验收；PB/DSD 不互相冒充。
 - **进入下一包：** 新 screening 类型稳定保存和恢复；别名组显示和统计推断限制经独立复核。
 
 ### D — 因子设计扩展
@@ -82,7 +86,7 @@
 
 ### E — 自定义及最优设计
 
-- **目标与 feature_id：** FAC-011/013、RSM-005、GEN-002–006/009/011；自定义因子/响应面设计、增补、修改、候选集选择、D/距离准则、诊断和 schema 兼容。
+- **目标与 feature_id：** SCR-005、FAC-011/013、RSM-005、GEN-002–006/009/011；自定义筛选/因子/响应面设计、增补、修改、候选集选择、D/距离准则、诊断和 schema 兼容。SCR-005 需后续建立独立验收合同，本次不实现。
 - **依赖：** A 与设计类型扩展策略；复用 B/C/D 已通过的模型矩阵和候选点验证，不自建平行响应优化接口。
 - **复用 / 预计文件：** code/doe_core.py、实际设计 analyzer、worksheet metadata、workbooks 与 GUI；最优设计准则应是独立核心实现，不复用 DOE-4 搜索目标。
 - **Schema：** arbitrary candidate rows、模型项、选中点、selection order、parent design 和 augmentation batch 需要清晰的可持久化结构；Level 1 schema 兼容方案须在开始 F/G 前通过。
