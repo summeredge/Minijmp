@@ -17,8 +17,8 @@ from typing import Mapping
 import pandas as pd
 
 
-DOE_SCHEMA_VERSION = 4
-_READ_VERSIONS = frozenset({1, 2, 3, 4})
+DOE_SCHEMA_VERSION = 5
+_READ_VERSIONS = frozenset({1, 2, 3, 4, 5})
 WORKSHEET_SCHEMA_VERSION = 1
 _ID = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]{0,63}$")
 _RUN_ID = re.compile(r"^[A-Za-z0-9_.-]{1,128}$")
@@ -26,7 +26,7 @@ _RELATION = re.compile(r"^[A-Za-z][A-Za-z0-9]*(?:=-?[A-Za-z][A-Za-z0-9]*)+$")
 _DESIGN_TYPES = frozenset({
     "unspecified", "two_level_full", "two_level_fractional", "central_composite",
     "box_behnken", "plackett_burman", "definitive_screening",
-    "general_full_factorial", "split_plot",
+    "general_full_factorial", "split_plot", "taguchi",
 })
 _SCREENING_TYPES = frozenset({"plackett_burman", "definitive_screening"})
 _SCREENING_SOURCES = {
@@ -42,7 +42,8 @@ _SCREENING_SOURCES = {
     ("definitive_screening", f"dsd{n}c1.v1", "mathematical_construction", f"jones.dsd{n}c1")
     for n in range(1, 48)
 } | {("definitive_screening", "dsd4c2.v1", "mathematical_construction", "foldover.dsd4c2")}
-_POINT_TYPES = frozenset({"factorial", "center", "axial", "edge", "screening", "pseudo_center"})
+_POINT_TYPES = frozenset({"factorial", "center", "axial", "edge", "screening",
+                          "pseudo_center", "taguchi"})
 _DESIGN_KEYS = {
     "schema_version", "design_id", "factors", "response_names", "seed",
     "generators", "defining_relations", "aliases", "ccd_alpha",
@@ -55,6 +56,10 @@ _DESIGN_KEYS_V4 = _DESIGN_KEYS_V3 | {
     "construction_version", "randomization_unit", "error_structure",
     "foldover_lineage", "center_point_count",
 }
+_DESIGN_KEYS_V5 = _DESIGN_KEYS_V4 | {"taguchi"}
+_TAGUCHI_KEYS = {"kind", "array_id", "matrix_sha256", "columns",
+                 "noise_array_id", "noise_matrix_sha256", "noise_columns",
+                 "signal_factor"}
 _FACTOR_KEYS = {"schema_version", "factor_id", "name", "unit", "factor_type",
                 "low", "high", "levels"}
 _FACTOR_KEYS_V4 = _FACTOR_KEYS | {"level_type", "randomization_role"}
@@ -62,13 +67,19 @@ _MAP_KEYS = {
     "run_id", "standard_order", "run_order", "point_type", "replicate",
     "block", "factors", "measured_levels", "responses", "whole_plot_id",
     "subplot_id", "whole_plot_order", "subplot_order", "batch_id",
-    "source_run_id",
+    "source_run_id", "control_run_id", "noise_condition_id",
 }
 _MAP_KEYS_V3 = _MAP_KEYS - {
     "whole_plot_id", "subplot_id", "whole_plot_order", "subplot_order",
-    "batch_id", "source_run_id",
+    "batch_id", "source_run_id", "control_run_id", "noise_condition_id",
 }
+_MAP_KEYS_V4 = _MAP_KEYS - {"control_run_id", "noise_condition_id"}
 _META_KEYS = {"schema_version", "design", "column_map", "worksheet"}
+_ANALYSIS_KEYS = {
+    "static": {"kind", "sn_kind", "adjusted", "ln_sd"},
+    "dynamic": {"kind", "reference_mode", "reference", "adjusted"},
+}
+_SN_KINDS = {"smaller", "larger", "nominal", "nominal_ii"}
 
 
 def _text(value, field_name, *, identifier=False):
@@ -236,6 +247,124 @@ def _freeze_settings(values, *, nullable=False):
     return MappingProxyType(result)
 
 
+def _taguchi_columns(value, factors, levels, field_name):
+    """校验 {factor_id: 列号} 映射，返回冻结副本。"""
+    if not isinstance(value, Mapping) or not value:
+        raise ValueError(f"{field_name} 必须是非空映射")
+    by_id = {factor.factor_id: factor for factor in factors}
+    result, used = {}, set()
+    for factor_id, column in value.items():
+        factor = by_id.get(factor_id)
+        if factor is None:
+            raise ValueError(f"{field_name} 含未知因子")
+        if factor.factor_type != "categorical":
+            raise ValueError("Taguchi 因子必须使用分类水平")
+        if type(column) is not int or not 1 <= column <= len(levels):
+            raise ValueError(f"{field_name} 列号超出数组范围")
+        if column in used:
+            raise ValueError(f"{field_name} 不得把两个因子分配到同一列")
+        if len(factor.levels) != levels[column - 1]:
+            raise ValueError(f"因子 {factor_id} 的水平数与第 {column} 列不一致")
+        used.add(column)
+        result[factor_id] = column
+    return MappingProxyType(result)
+
+
+def _require_distinct_rows(array, columns, field_name):
+    """列子集必须仍产生互不相同的行，否则控制/噪声组合会重复。"""
+    if not columns:
+        return
+    seen = {tuple(row[column - 1] for _, column in sorted(columns.items()))
+            for row in array.matrix}
+    if len(seen) != array.run_count:
+        raise ValueError(f"{field_name}所选列存在重复行")
+
+
+def _freeze_taguchi(value, factors):
+    """冻结并核验 Taguchi 正交表身份、列分配与信号因子。"""
+    if not isinstance(value, Mapping) or set(value) != _TAGUCHI_KEYS:
+        raise ValueError("Taguchi 正交表身份字段无效")
+    from doe_taguchi_arrays import ARRAYS, validate_independent_columns
+    if value["kind"] not in ("static", "dynamic"):
+        raise ValueError("Taguchi 设计类型必须是 static 或 dynamic")
+    array = ARRAYS.get(value["array_id"]) if isinstance(value["array_id"], str) else None
+    if array is None:
+        raise ValueError("未知 Taguchi 数组")
+    if value["matrix_sha256"] != array.sha256:
+        raise ValueError("Taguchi 数组摘要与标准矩阵不一致")
+    columns = _taguchi_columns(value["columns"], factors, array.levels, "因子列分配")
+    validate_independent_columns(array, columns, "控制")
+    _require_distinct_rows(array, columns, "因子列分配")
+    noise_array = None
+    noise_columns = value["noise_columns"]
+    if noise_columns:
+        noise_array = (ARRAYS.get(value["noise_array_id"])
+                       if isinstance(value["noise_array_id"], str) else None)
+        if noise_array is None:
+            raise ValueError("未知 Taguchi 噪声正交表")
+        if value["noise_matrix_sha256"] != noise_array.sha256:
+            raise ValueError("噪声正交表摘要与标准矩阵不一致")
+        noise_columns = _taguchi_columns(noise_columns, factors, noise_array.levels,
+                                         "噪声因子列分配")
+        validate_independent_columns(noise_array, noise_columns, "噪声")
+    elif value["noise_array_id"] is not None or value["noise_matrix_sha256"] is not None:
+        raise ValueError("未分配噪声因子时不得声明噪声正交表")
+    else:
+        noise_columns = MappingProxyType({})
+    signal = value["signal_factor"]
+    if value["kind"] == "dynamic":
+        factor = next((item for item in factors if item.factor_id == signal), None)
+        if (factor is None or factor.level_type != "numeric" or len(factor.levels) < 2
+                or list(factor.levels) != sorted(factor.levels)):
+            raise ValueError("动态 Taguchi 需要升序数值水平的信号因子")
+    elif signal is not None:
+        raise ValueError("静态 Taguchi 不得声明信号因子")
+    roles = list(columns) + list(noise_columns)
+    if len(roles) + (signal is not None) != len(factors) or len(set(roles)) != len(roles):
+        raise ValueError("每个 Taguchi 因子必须恰好分配为控制、噪声或信号因子")
+    if signal is not None and signal in roles:
+        raise ValueError("信号因子不得同时分配到正交表列")
+    return MappingProxyType({
+        "kind": value["kind"], "array_id": array.array_id,
+        "matrix_sha256": array.sha256, "columns": columns,
+        "noise_array_id": None if noise_array is None else noise_array.array_id,
+        "noise_matrix_sha256": None if noise_array is None else noise_array.sha256,
+        "noise_columns": noise_columns, "signal_factor": signal,
+    })
+
+
+def _freeze_analysis(value, kind):
+    """校验随工程保存的 Taguchi 分析选项；形状随静态/动态固定。"""
+    if not isinstance(value, Mapping) or set(value) != _ANALYSIS_KEYS[kind]:
+        raise ValueError("Taguchi 分析选项字段无效")
+    if value["kind"] != kind:
+        raise ValueError("Taguchi 分析选项与设计类型不一致")
+    adjusted, ln_sd = value.get("adjusted"), value.get("ln_sd")
+    if not isinstance(adjusted, bool) or (kind == "static"
+                                          and not isinstance(ln_sd, bool)):
+        raise ValueError("Taguchi 分析选项的标志必须是布尔值")
+    if kind == "static":
+        if value["sn_kind"] not in _SN_KINDS:
+            raise ValueError("未知的 Taguchi S/N 类型")
+        if adjusted and value["sn_kind"] != "nominal":
+            raise ValueError("adjusted 公式只适用于 nominal-is-best (I)")
+        return {"kind": "static", "sn_kind": value["sn_kind"],
+                "adjusted": adjusted, "ln_sd": ln_sd}
+    if value["reference_mode"] not in ("free", "fixed"):
+        raise ValueError("未知的 Taguchi 动态参考形式")
+    reference = value["reference"]
+    if value["reference_mode"] == "free":
+        if reference is not None:
+            raise ValueError("自由截距回归不得声明参考点")
+    else:
+        if not isinstance(reference, (list, tuple)) or len(reference) != 2:
+            raise ValueError("固定参考点必须给出参考信号与参考响应")
+        reference = [_number(reference[0], "参考信号"),
+                     _number(reference[1], "参考响应")]
+    return {"kind": "dynamic", "reference_mode": value["reference_mode"],
+            "reference": reference, "adjusted": adjusted}
+
+
 @dataclass(frozen=True)
 class FactorSpec:
     """连续因子或有序分类水平的稳定定义。"""
@@ -362,7 +491,7 @@ class FactorSpec:
         if not isinstance(data, dict):
             raise ValueError("因子元数据字段无效")
         version = data.get("schema_version")
-        keys = _FACTOR_KEYS_V4 if version == 4 else _FACTOR_KEYS
+        keys = _FACTOR_KEYS_V4 if version >= 4 else _FACTOR_KEYS
         if (not isinstance(data, dict) or set(data) != keys
                 or not isinstance(data["levels"], list)):
             raise ValueError("因子元数据字段无效")
@@ -393,6 +522,7 @@ class DesignSpec:
     error_structure: str = "fixed"
     foldover_lineage: Mapping | None = None
     center_point_count: int | None = None
+    taguchi: Mapping | None = None
 
     def __post_init__(self):
         _text(self.design_id, "design_id", identifier=True)
@@ -404,7 +534,8 @@ class DesignSpec:
         if not factors or not all(isinstance(item, FactorSpec) for item in factors):
             raise ValueError("设计必须包含 FactorSpec")
         categorical_types = ("central_composite", "box_behnken", "plackett_burman",
-                             "definitive_screening", "general_full_factorial")
+                             "definitive_screening", "general_full_factorial",
+                             "taguchi")
         if self.design_type not in categorical_types:
             if any(item.factor_type != "continuous" for item in factors):
                 raise NotImplementedError("分类或混合水平设计仅用于中心复合或 Box-Behnken")
@@ -519,6 +650,13 @@ class DesignSpec:
             object.__setattr__(self, "screening_matrix", MappingProxyType(identity))
         elif self.screening_matrix is not None:
             raise ValueError("非筛选设计不得声明筛选矩阵身份")
+        if self.design_type == "taguchi":
+            if self.schema_version < 5:
+                raise ValueError("Taguchi 设计需要 schema v5")
+            object.__setattr__(self, "taguchi",
+                               _freeze_taguchi(self.taguchi, factors))
+        elif self.taguchi is not None:
+            raise ValueError("非 Taguchi 设计不得声明正交表身份")
 
     def to_dict(self):
         result = {
@@ -558,6 +696,12 @@ class DesignSpec:
                 }),
                 "center_point_count": self.center_point_count,
             })
+        if self.schema_version >= 5:
+            result["taguchi"] = (None if self.taguchi is None else {
+                **dict(self.taguchi),
+                "columns": dict(self.taguchi["columns"]),
+                "noise_columns": dict(self.taguchi["noise_columns"]),
+            })
         return result
 
     @classmethod
@@ -570,7 +714,7 @@ class DesignSpec:
         if type(version) is not int or version not in _READ_VERSIONS:
             raise ValueError(f"未知 DOE schema_version: {version!r}")
         keys = {1: _DESIGN_KEYS_V1, 2: _DESIGN_KEYS, 3: _DESIGN_KEYS_V3,
-                4: _DESIGN_KEYS_V4}[version]
+                4: _DESIGN_KEYS_V4, 5: _DESIGN_KEYS_V5}[version]
         if set(data) != keys:
             raise ValueError("设计元数据字段无效")
         missing = object()
@@ -602,6 +746,7 @@ class DesignSpec:
             error_structure=data.get("error_structure", "fixed"),
             foldover_lineage=data.get("foldover_lineage"),
             center_point_count=data.get("center_point_count"),
+            taguchi=data.get("taguchi"),
         )
         from dataclasses import replace
         return replace(result,
@@ -630,6 +775,8 @@ class RunRecord:
     subplot_order: int | None = None
     batch_id: str | None = None
     source_run_id: str | int | None = None
+    control_run_id: str | int | None = None
+    noise_condition_id: str | int | None = None
 
     def __post_init__(self):
         version = self.schema_version
@@ -665,6 +812,13 @@ class RunRecord:
                 object.__setattr__(self, key, _positive_int(value, key))
         if self.source_run_id is not None:
             object.__setattr__(self, "source_run_id", _run_id(self.source_run_id, "source_run_id"))
+        if version < 5 and (self.control_run_id is not None
+                            or self.noise_condition_id is not None):
+            raise ValueError("Taguchi 运行映射只适用于 schema v5")
+        for key in ("control_run_id", "noise_condition_id"):
+            value = getattr(self, key)
+            if value is not None:
+                object.__setattr__(self, key, _run_id(value, key))
         object.__setattr__(self, "settings", _freeze_settings(self.settings))
         object.__setattr__(self, "measured_levels",
                            _freeze_settings(self.measured_levels, nullable=True))
@@ -798,6 +952,8 @@ class DesignResult:
                         raise ValueError("whole plot 运行必须连续")
                     seen_whole_plots.append(run.whole_plot_id)
                     current_wp = run.whole_plot_id
+        if self.spec.design_type == "taguchi":
+            _validate_taguchi_runs(self.spec, runs)
         if self.spec.design_type == "box_behnken":
             expected_centers = self.spec.ccd_center_points
             if expected_centers is not None:
@@ -826,6 +982,90 @@ class DesignResult:
                     and self.spec.ccd_center_points != center_count and not extended):
                 raise ValueError("CCD 中心点数与运行记录不一致")
         object.__setattr__(self, "runs", runs)
+
+
+def taguchi_grid(spec):
+    """返回 (控制行编码, 噪声行编码, 信号水平) 的完整期望网格。"""
+    from doe_taguchi_arrays import ARRAYS
+    identity = spec.taguchi
+    array = ARRAYS[identity["array_id"]]
+    if identity["noise_array_id"] is None:
+        noise = [()]
+    else:
+        noise = list(dict.fromkeys(
+            tuple(row[column - 1] for _, column in
+                  sorted(identity["noise_columns"].items()))
+            for row in ARRAYS[identity["noise_array_id"]].matrix))
+    factors = {factor.factor_id: factor for factor in spec.factors}
+    levels = (() if identity["signal_factor"] is None
+              else factors[identity["signal_factor"]].levels)
+    return {"array": array, "noise": noise, "signal_levels": levels,
+            "columns": identity["columns"],
+            "noise_columns": identity["noise_columns"],
+            "factors": factors}
+
+
+def _taguchi_code(factor, value):
+    if value not in factor.levels:
+        raise ValueError("Taguchi 设定水平不在已声明水平内")
+    return factor.levels.index(value) + 1
+
+
+def _taguchi_key(settings, grid, signal_factor):
+    control = tuple(sorted((factor_id,
+                            _taguchi_code(grid["factors"][factor_id], settings[factor_id]))
+                           for factor_id in grid["columns"]))
+    noise = tuple(sorted((factor_id,
+                          _taguchi_code(grid["factors"][factor_id], settings[factor_id]))
+                         for factor_id in grid["noise_columns"]))
+    signal = None if signal_factor is None else settings[signal_factor]
+    return control, noise, signal
+
+
+def _validate_taguchi_runs(spec, runs):
+    """核验控制×噪声×信号×重复的完整网格及内外表身份。"""
+    from collections import Counter
+    grid = taguchi_grid(spec)
+    array, noise_rows = grid["array"], grid["noise"]
+    signal_factor = spec.taguchi["signal_factor"]
+    if any(run.point_type != "taguchi" for run in runs):
+        raise ValueError("Taguchi 运行的点类型必须是 taguchi")
+    signal_levels = grid["signal_levels"] or (None,)
+    columns, noise_columns = grid["columns"], grid["noise_columns"]
+    expected = Counter({(control, noise, signal): 1
+                        for control in (
+                            tuple((factor_id, row[column - 1])
+                                  for factor_id, column in sorted(columns.items()))
+                            for row in array.matrix)
+                        for noise in (
+                            tuple((factor_id, row[index])
+                                  for index, (factor_id, _) in
+                                  enumerate(sorted(noise_columns.items())))
+                            for row in noise_rows)
+                        for signal in signal_levels})
+    observed = Counter()
+    groups = {}
+    for run in runs:
+        if run.control_run_id is None or run.noise_condition_id is None:
+            raise ValueError("Taguchi 运行必须保留控制运行与噪声条件身份")
+        key = _taguchi_key(run.settings, grid, signal_factor)
+        observed[key] += 1
+        control_id, noise_id = run.control_run_id, run.noise_condition_id
+        if groups.setdefault(("control", control_id), key[0]) != key[0]:
+            raise ValueError("同一控制运行 ID 的控制因子水平必须一致")
+        if groups.setdefault(("noise", noise_id), key[1]) != key[1]:
+            raise ValueError("同一噪声条件 ID 的噪声因子水平必须一致")
+    if set(observed) - set(expected):
+        raise ValueError("Taguchi 运行不在控制×噪声×信号网格内")
+    if set(expected) - set(observed):
+        raise ValueError("Taguchi 缺少控制×噪声×信号组合")
+    counts = set(observed.values())
+    if len(counts) != 1:
+        raise ValueError("Taguchi 每个组合的重复次数必须相同")
+    replicates = counts.pop()
+    if {run.replicate for run in runs} != set(range(1, replicates + 1)):
+        raise ValueError("Taguchi 重复编号必须从 1 连续编号")
+    return replicates
 
 
 def _screening_level(factor, value):
@@ -1053,6 +1293,9 @@ def _normalize_column_map(value, spec):
         raise ValueError("Split-Plot 列映射缺少 whole-plot/subplot 随机化字段")
     if spec.foldover_lineage is not None and not {"batch_id", "source_run_id"} <= set(value):
         raise ValueError("Foldover 列映射缺少批次或来源运行字段")
+    if spec.design_type == "taguchi" and not {
+            "control_run_id", "noise_condition_id"} <= set(value):
+        raise ValueError("Taguchi 列映射缺少控制运行或噪声条件字段")
     result = {
         "run_id": _column_label(value["run_id"]),
         "standard_order": _column_label(value["standard_order"]),
@@ -1068,6 +1311,9 @@ def _normalize_column_map(value, spec):
     for key in ("whole_plot_id", "subplot_id", "batch_id", "source_run_id"):
         if key in value:
             result[key] = _column_label(value[key])
+    for key in ("control_run_id", "noise_condition_id"):
+        if key in value:
+            result[key] = _column_label(value[key])
     for key in ("whole_plot_order", "subplot_order"):
         if key in value:
             result[key] = _column_label(value[key])
@@ -1081,7 +1327,8 @@ def _normalize_column_map(value, spec):
         labels.extend(result[group].values())
     labels.extend(result[key] for key in (
         "whole_plot_id", "subplot_id", "whole_plot_order", "subplot_order",
-        "batch_id", "source_run_id") if key in result)
+        "batch_id", "source_run_id", "control_run_id",
+        "noise_condition_id") if key in result)
     keys = [_label_key(label) for label in labels]
     if len(set(keys)) != len(keys):
         raise ValueError("DOE 列映射不能将多个字段指向同一列")
@@ -1103,7 +1350,8 @@ def _column_positions(frame, column_map):
         mapped.extend(column_map[group].values())
     mapped.extend(column_map[key] for key in (
         "whole_plot_id", "subplot_id", "whole_plot_order", "subplot_order",
-        "batch_id", "source_run_id") if key in column_map)
+        "batch_id", "source_run_id", "control_run_id",
+        "noise_condition_id") if key in column_map)
     result = {}
     for label in mapped:
         key = _label_key(label)
@@ -1221,7 +1469,10 @@ def design_from_worksheet(frame, spec, column_map):
             whole_plot_order=optional("whole_plot_order", lambda v: _positive_int(v, "whole_plot_order")),
             subplot_order=optional("subplot_order", lambda v: _positive_int(v, "subplot_order")),
             batch_id=optional("batch_id", lambda v: _text(v, "batch_id", identifier=True)),
-            source_run_id=optional("source_run_id", lambda v: _run_id(v, "source_run_id"))))
+            source_run_id=optional("source_run_id", lambda v: _run_id(v, "source_run_id")),
+            control_run_id=optional("control_run_id", lambda v: _run_id(v, "control_run_id")),
+            noise_condition_id=optional(
+                "noise_condition_id", lambda v: _run_id(v, "noise_condition_id"))))
     result = DesignResult(spec, tuple(runs))
     if spec.design_type in _SCREENING_TYPES:
         if screening_matrix_sha256(result) != spec.screening_matrix["matrix_sha256"]:
@@ -1317,10 +1568,11 @@ def worksheet_metadata(frame, spec, column_map):
     return _metadata_payload(spec, normalized, labels, result)
 
 
-def _metadata_payload(spec, column_map, labels, result, fingerprint=None):
+def _metadata_payload(spec, column_map, labels, result, fingerprint=None,
+                      analysis=None):
     if fingerprint is None:
         fingerprint = _fingerprint(spec.to_dict(), column_map, result)
-    return {
+    payload = {
         "schema_version": spec.schema_version,
         "design": spec.to_dict(),
         "column_map": column_map,
@@ -1335,12 +1587,16 @@ def _metadata_payload(spec, column_map, labels, result, fingerprint=None):
             "input_fingerprint": fingerprint,
         },
     }
+    if analysis is not None:
+        payload["analysis"] = analysis
+    return payload
 
 
 def _restore(frame, metadata):
     if not isinstance(frame, pd.DataFrame):
         raise ValueError("DOE 数据源必须是 pandas DataFrame")
-    if not isinstance(metadata, dict) or set(metadata) != _META_KEYS:
+    if (not isinstance(metadata, dict)
+            or set(metadata) not in (_META_KEYS, _META_KEYS | {"analysis"})):
         raise ValueError("DOE 元数据结构无效")
     version = metadata.get("schema_version")
     if type(version) is not int or version not in _READ_VERSIONS:
@@ -1394,6 +1650,10 @@ def _restore(frame, metadata):
         raise ValueError("DOE 输入摘要无效")
     if _fingerprint(metadata["design"], column_map, result) != fingerprint:
         raise ValueError("DOE 设计输入或运行映射已变化")
+    if "analysis" in metadata:
+        if spec.design_type != "taguchi":
+            raise ValueError("只有 Taguchi 设计可以保存分析选项")
+        _freeze_analysis(metadata["analysis"], spec.taguchi["kind"])
     return result, column_map, labels, fingerprint
 
 
@@ -1406,5 +1666,9 @@ def validate_worksheet_metadata(frame, metadata):
     """验证后返回脱离调用者对象的规范化元数据副本。"""
     result, column_map, labels, fingerprint = _restore(frame, metadata)
     # 读取旧 v1 后升级为当前版本，摘要按升级后的设计重新计算。
-    return _metadata_payload(result.spec, column_map, labels, result)
+    analysis = metadata.get("analysis")
+    return _metadata_payload(
+        result.spec, column_map, labels, result,
+        analysis=(None if analysis is None
+                  else _freeze_analysis(analysis, result.spec.taguchi["kind"])))
 

@@ -1,6 +1,6 @@
 # DOE 对标后续路线图
 
-> 2026-10-28 状态更新：工作包 C 的有限 PB/DSD 范围见 [收尾记录](work-package-c-closeout.md)，验收仍为 partial。工作包 D 的限定范围 D0–D5 已完成，可提交独立 Review；部分 feature 仍为 partial，且尚无独立 Review 结论。下方标注为历史的 schema 审计记录 D 开始前状态。
+> 2026-10-28 状态更新：工作包 C 的有限 PB/DSD 范围见 [收尾记录](work-package-c-closeout.md)，验收仍为 partial。工作包 D 的限定范围 D0–D5 已完成，可提交独立 Review；部分 feature 仍为 partial，且尚无独立 Review 结论。工作包 G 的 G0–G6 限定范围已完成，schema v5 增加 Taguchi 身份，详见 [工作包 G 收尾记录](work-package-g-closeout.md)；H 仍未启动。下方标注为历史的 schema 审计记录 D 开始前状态。
 
 ## 管理规则
 

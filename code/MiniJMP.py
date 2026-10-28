@@ -169,6 +169,8 @@ class Minijmp(Worksheets, Minijmp_pre):
         from doe_optimize_dialog import OptimizeRSM
         from doe_predict_dialog import PredictRSM
         from doe_overlay_dialog import OverlayContours
+        from doe_taguchi_dialog import CreateTaguchi
+        from doe_taguchi_analysis_dialog import AnalyzeTaguchi
         self.doe_menu = self.createPulldown(self.menu, {
             '01创建两水平全因子设计': {'cmd': lambda: CreateDOE(self)},
             '02创建两水平部分因子设计': {
@@ -186,6 +188,10 @@ class Minijmp(Worksheets, Minijmp_pre):
             '13创建一般全因子设计': {'cmd': lambda: CreateGeneralFactorial(self)},
             '14折叠两水平部分因子设计': {'cmd': lambda: FoldoverDOE(self)},
             '15创建两水平裂区设计': {'cmd': lambda: CreateSplitPlot(self)},
+            '16创建 Taguchi 设计（静态）': {'cmd': lambda: CreateTaguchi(self)},
+            '17创建 Taguchi 设计（动态）': {
+                'cmd': lambda: CreateTaguchi(self, dynamic=True)},
+            '18分析 Taguchi 设计': {'cmd': lambda: AnalyzeTaguchi(self)},
         })
         self.menu.add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
 

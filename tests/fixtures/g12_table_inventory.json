@@ -8,17 +8,17 @@
     "bounds": "追踪显式导入/构造别名、本函数赋值、字符串包装、原生表方法及多行 ASCII/tab 字面量；静态审计不模拟任意跨函数动态对象流。所有现有字符串格式、join、原生 summary、DataFrame 文本与控制台数据路径已人工复核。"
   },
   "summary": {
-    "python_files": 130,
-    "files_with_production_sites": 34,
-    "producer_scopes": 62,
-    "constructor_calls": 132,
+    "python_files": 136,
+    "files_with_production_sites": 64,
+    "producer_scopes": 65,
+    "constructor_calls": 134,
     "constructors": {
       "gen_table": 55,
-      "StatTable": 73,
+      "StatTable": 76,
       "PrettyTable": 4
     },
-    "statistical_source_positions": 68,
-    "logical_statistical_tables": 192,
+    "statistical_source_positions": 128,
+    "logical_statistical_tables": 204,
     "table_text_conversions": {
       "to_string": 2,
       "pred_table": 1,
@@ -92,6 +92,12 @@
     "doe_splitplot.py",
     "doe_splitplot_analysis.py",
     "doe_splitplot_dialog.py",
+    "doe_taguchi.py",
+    "doe_taguchi_analysis.py",
+    "doe_taguchi_analysis_dialog.py",
+    "doe_taguchi_arrays.py",
+    "doe_taguchi_dialog.py",
+    "doe_taguchi_sn.py",
     "fit_dialog.py",
     "freeze.py",
     "generalized_regression.py",
@@ -296,43 +302,96 @@
   },
   "producers": {
     "doe_dialog.py::AnalyzeDOE.show_table": {
-      "sites": ["construct:StatTable#1", "emit:structured:print#1"],
+      "sites": [
+        "construct:StatTable#1",
+        "emit:structured:print#1"
+      ],
       "classification": "statistical",
       "logical_tables": 15,
-      "titles": ["系数与效应", "系数与别名组效应", "别名与代表项", "因子编码", "系数", "模型", "方差分析", "项方差分析", "纯误差与失拟", "失拟与曲率", "拟合与残差", "分类因子 ANOVA", "边际均值", "组合均值", "裂区方差分析"],
-      "entry_points": ["AnalyzeDOE.publish"],
+      "titles": [
+        "系数与效应",
+        "系数与别名组效应",
+        "别名与代表项",
+        "因子编码",
+        "系数",
+        "模型",
+        "方差分析",
+        "项方差分析",
+        "纯误差与失拟",
+        "失拟与曲率",
+        "拟合与残差",
+        "分类因子 ANOVA",
+        "边际均值",
+        "组合均值",
+        "裂区方差分析"
+      ],
+      "entry_points": [
+        "AnalyzeDOE.publish"
+      ],
       "status": "已迁移 StatTable",
-      "tests": ["tests/test_doe_gui.py::test_doe_create_analyze_save_load_and_source_binding", "tests/test_doe_fractional_gui.py::test_fractional_roundtrip_analysis_and_plot_are_alias_aware", "tests/test_doe_rsm_gui.py::test_ccd_roundtrip_and_plot", "tests/test_doe_general_factorial_gui.py::test_create_preview_cancel_analysis_plot_save_reopen_copy", "tests/test_doe_splitplot_gui.py::test_splitplot_menu_preview_analysis_save_reopen_copy_and_plot", "tests/test_doe_factorial_anova.py::test_two_level_anova_effects_and_terms_match_independent_effect_contract", "tests/test_doe_factorial_anova.py::test_block_factorial_term_tests_use_block_adjusted_error_not_pooled_cells"],
+      "tests": [
+        "tests/test_doe_gui.py::test_doe_create_analyze_save_load_and_source_binding",
+        "tests/test_doe_fractional_gui.py::test_fractional_roundtrip_analysis_and_plot_are_alias_aware",
+        "tests/test_doe_rsm_gui.py::test_ccd_roundtrip_and_plot",
+        "tests/test_doe_general_factorial_gui.py::test_create_preview_cancel_analysis_plot_save_reopen_copy",
+        "tests/test_doe_splitplot_gui.py::test_splitplot_menu_preview_analysis_save_reopen_copy_and_plot",
+        "tests/test_doe_factorial_anova.py::test_two_level_anova_effects_and_terms_match_independent_effect_contract",
+        "tests/test_doe_factorial_anova.py::test_block_factorial_term_tests_use_block_adjusted_error_not_pooled_cells"
+      ],
       "exception_reason": ""
     },
     "doe_optimize_dialog.py::OptimizeRSM.optimize": {
-      "sites": ["construct:StatTable#1"],
+      "sites": [
+        "construct:StatTable#1"
+      ],
       "classification": "statistical",
       "logical_tables": 1,
-      "titles": ["搜索候选"],
-      "entry_points": ["OptimizeRSM.optimize"],
+      "titles": [
+        "搜索候选"
+      ],
+      "entry_points": [
+        "OptimizeRSM.optimize"
+      ],
       "status": "在优化窗口显示并支持导出",
-      "tests": ["tests/test_doe_optimize_gui.py::test_ccd_optimize_reopens_and_recomputes"],
+      "tests": [
+        "tests/test_doe_optimize_gui.py::test_ccd_optimize_reopens_and_recomputes"
+      ],
       "exception_reason": ""
     },
     "doe_optimize_dialog.py::OptimizeRSM._show_best": {
-      "sites": ["construct:StatTable#1"],
+      "sites": [
+        "construct:StatTable#1"
+      ],
       "classification": "statistical",
       "logical_tables": 1,
-      "titles": ["优化建议与响应预测"],
-      "entry_points": ["OptimizeRSM.optimize"],
+      "titles": [
+        "优化建议与响应预测"
+      ],
+      "entry_points": [
+        "OptimizeRSM.optimize"
+      ],
       "status": "在优化窗口显示并支持导出",
-      "tests": ["tests/test_doe_optimize_gui.py::test_ccd_optimize_reopens_and_recomputes"],
+      "tests": [
+        "tests/test_doe_optimize_gui.py::test_ccd_optimize_reopens_and_recomputes"
+      ],
       "exception_reason": ""
     },
     "doe_predict_dialog.py::PredictRSM.predict": {
-      "sites": ["construct:StatTable#1"],
+      "sites": [
+        "construct:StatTable#1"
+      ],
       "classification": "statistical",
       "logical_tables": 1,
-      "titles": ["点预测"],
-      "entry_points": ["PredictRSM.predict"],
+      "titles": [
+        "点预测"
+      ],
+      "entry_points": [
+        "PredictRSM.predict"
+      ],
       "status": "在预测窗口显示并支持导出",
-      "tests": ["tests/test_doe_predict_gui.py::test_prediction_dialog_matches_single_point_analysis"],
+      "tests": [
+        "tests/test_doe_predict_gui.py::test_prediction_dialog_matches_single_point_analysis"
+      ],
       "exception_reason": ""
     },
     "GRR.py::_grr_tables": {
@@ -1780,6 +1839,70 @@
         "tests/test_quality_tools_dialog.py::test_attribute_gui",
         "tests/test_quality_tools_dialog.py::test_pareto_gui"
       ]
+    },
+    "doe_taguchi_analysis_dialog.py::AnalyzeTaguchi.show_table": {
+      "sites": [
+        "construct:StatTable#1",
+        "emit:structured:print#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 6,
+      "titles": [
+        "组合统计",
+        "S/N响应表",
+        "S/N Delta",
+        "动态拟合",
+        "斜率响应表",
+        "动态 S/N响应表"
+      ],
+      "entry_points": [
+        "AnalyzeTaguchi.publish"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_doe_taguchi_gui.py::test_taguchi_static_menu_preview_analysis_best_save_reopen_copy"
+      ],
+      "exception_reason": ""
+    },
+    "doe_taguchi_analysis_dialog.py::BestTaguchi._tab": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "推荐水平",
+        "预测与确认",
+        "目标最优组合"
+      ],
+      "entry_points": [
+        "AnalyzeTaguchi.best"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_doe_taguchi_gui.py::test_taguchi_static_menu_preview_analysis_best_save_reopen_copy"
+      ],
+      "exception_reason": ""
+    },
+    "doe_taguchi_analysis_dialog.py::NoiseTaguchi._tab": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "控制设定",
+        "因子水平 S/N",
+        "Delta/Rank"
+      ],
+      "entry_points": [
+        "AnalyzeTaguchi.noise"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_doe_taguchi_gui.py::test_noise_robustness_window_reports_control_levels"
+      ],
+      "exception_reason": ""
     }
   },
   "output_entry_review": {

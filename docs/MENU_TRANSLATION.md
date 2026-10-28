@@ -41,6 +41,9 @@
 | Create Plackett–Burman Design | 创建 Plackett–Burman 设计 |
 | Create Definitive Screening Design | 创建筛选设计（DSD） |
 | Analyze Screening Design | 分析筛选设计 |
+| Create Taguchi Design (Static) | 创建 Taguchi 设计（静态） |
+| Create Taguchi Design (Dynamic) | 创建 Taguchi 设计（动态） |
+| Analyze Taguchi Design | 分析 Taguchi 设计 |
 
 ## 文件（File）
 

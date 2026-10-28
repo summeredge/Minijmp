@@ -36,7 +36,7 @@ def test_high_dimension_ccd_project_lifecycle(
     snapshot = frame.copy(deep=True)
     metadata = copy.deepcopy(table.doe_metadata)
     assert f'{len(frame)} 次运行' in preview
-    assert metadata['schema_version'] == 4
+    assert metadata['schema_version'] == 5
     assert metadata['design']['ccd_fraction'] == fraction
     assert len(metadata['design']['factors']) == count
     assert metadata['column_map']['responses']['Y'] == '响应_Y'

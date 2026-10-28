@@ -69,7 +69,7 @@ def test_v1_project_metadata_still_loads_and_keeps_its_values():
     result = restore_design_result(frame, metadata)
     assert result.spec.design_type == 'two_level_full'
     # 读入旧工程即升级为当前版本；设计内容保持原值。
-    assert result.spec.schema_version == doe_core.DOE_SCHEMA_VERSION == 4
+    assert result.spec.schema_version == doe_core.DOE_SCHEMA_VERSION == 5
     assert result.spec.design_id == 'old-project'
     assert result.spec.factors[0].low == 10
     assert result.runs[1].responses['Y'] is None
@@ -79,8 +79,8 @@ def test_v1_project_metadata_still_loads_and_keeps_its_values():
 def test_v1_metadata_is_upgraded_on_the_next_validation_not_rejected():
     frame, spec, columns = v1_frame(), v1_spec(), v1_columns()
     upgraded = validate_worksheet_metadata(frame, v1_metadata(frame, spec, columns))
-    assert upgraded['schema_version'] == 4
-    assert upgraded['design']['schema_version'] == 4
+    assert upgraded['schema_version'] == 5
+    assert upgraded['design']['schema_version'] == 5
     assert restore_design_result(frame, upgraded).spec.design_type == 'two_level_full'
 
 
@@ -122,7 +122,7 @@ def test_bbd_roundtrip_is_v2_and_reports_design_type():
     spec = DesignSpec('bbd-v2', tuple(FactorSpec(c, c, -1, 1) for c in 'ABC'),
                       ('Y',), seed=3, design_type='box_behnken')
     frame, metadata = create_bbd(spec)
-    assert metadata['schema_version'] == 4
+    assert metadata['schema_version'] == 5
     assert metadata['design']['design_type'] == 'box_behnken'
     restored = restore_design_result(frame, metadata)
     assert restored.spec.design_type == 'box_behnken'
