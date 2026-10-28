@@ -88,6 +88,14 @@ Minitab RSM overview 确认优化因子设置的工作流，但核查过的官�
 
 # 2026-10-28：Box–Behnken 范围复核
 
+用户提供的 Minitab 22 五份 CSV（版本由用户确认）已按原样存档并完成数学及多重集对比；详见 [BBD 参考核验](bbd-reference-validation.md) 和 fixture manifest。五配置数学等价，标准序不相同；CSV 本身不能证明软件来源。
+
+用户批准双层合同：原始论文用于 ACC-022A 数学设计；Minitab 点阵及区组分配一致性属于 ACC-022B。用户提供 Minitab 22 五份参考后已逐项比较，数学等价、标准序不同，不以数值性质代替来源比对。
+
+后续补充原始论文、Crosier 公开表与具体证据缺口，见 [BBD 参考核验](bbd-reference-validation.md)；资料不证明与 Minitab 逐点等价。
+
+第二轮再次核查：Minitab 在线汇总与区组页均未标明软件版本，分别支持运行数和可选区组的结论，但没有给出 9/10 因子的完整点阵、标准序或区组分配；因此不能证明任何候选矩阵与 Minitab 等价。
+
 - [Minitab Box–Behnken 设计汇总](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/response-surface-designs/summary-of-box-behnken-designs/) 列出 9 因子 130 次和 10 因子 170 次，默认中心点均为 10；该汇总未给出点阵。
 - [Minitab Box–Behnken 区组](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/response-surface-designs/blocks-in-a-box-behnken-design/) 列出 9 因子 5 或 10 区组、10 因子 2 区组并声明区组正交；页面未给出区组分配矩阵。不能仅凭这些数量构造或验收标准设计。
 

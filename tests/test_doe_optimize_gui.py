@@ -11,6 +11,30 @@ from doe_optimize_dialog import OptimizeRSM
 from test_csv_import import csv_app
 
 
+@pytest.mark.parametrize('count', [9, 10])
+def test_high_dimension_bbd_gui_optimization(csv_app, count):
+    app, _ = csv_app
+    create = CreateDOE(app, bbd=True)
+    create.factor_count.set(str(count))
+    create.update_factor_rows()
+    create.create()
+    frame = app.getCurrentTable().model.df
+    x = frame[[f'编码_{chr(65+i)}' for i in range(count)]].to_numpy(float)
+    frame['响应_Y'] = 10 - ((x-.2)**2).sum(axis=1)
+    dialog = OptimizeRSM(app)
+    dialog.low.set('-10')
+    dialog.high.set('20')
+    dialog._response_changed()
+    dialog.optimize()
+    assert dialog.last is not None, dialog.status.get()
+    result = dialog.last['result']
+    assert result['success'] and result['solver_starts'] == 2*count+3
+    assert result['best']['predictions']['Y'] == pytest.approx(10, abs=1e-7)
+    dialog.plot()
+    assert dialog.viewer is not None, dialog.status.get()
+    dialog.close()
+
+
 def _make_ccd(app, two_responses=True):
     create = CreateDOE(app, ccd=True)
     create.fields[0][0].delete(0, 'end')

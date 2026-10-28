@@ -494,7 +494,7 @@ class OptimizeRSM:
                         if result['solver_failures'] else '')
             self.source_info.set(
                 f'来源：{self.owner.getCurrentSheet()}，快照 {result["snapshot_id"]}，'
-                f'{method}，函数评价 {result["solver_evaluations"]}，'
+                f'{method}，起点 {result["solver_starts"]}，函数评价 {result["solver_evaluations"]}，'
                 f'单起点上限 {result["evaluation_limit_per_start"]}，全局最优保证：'
                 f'{"是" if result["global_optimum_guaranteed"] else "否"}{failures}')
             self.plot_response.configure(values=list(objectives))

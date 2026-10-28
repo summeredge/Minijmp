@@ -399,7 +399,18 @@ def optimize_rsm(frame, metadata, objectives, bounds=None, categories=None):
         return float(value), gradient
 
     start_axes = [tuple(sorted({low, (low + high) / 2, high})) for low, high in limits]
-    starts = list(product(*(start_axes[i] for i in free))) if free else [()]
+    if len(free) <= 5:
+        starts = list(product(*(start_axes[i] for i in free))) if free else [()]
+    else:
+        axes = [start_axes[i] for i in free]
+        middle = tuple(axis[1] for axis in axes)
+        starts = [middle, tuple(axis[0] for axis in axes),
+                  tuple(axis[-1] for axis in axes)]
+        for i, axis in enumerate(axes):
+            for edge in (axis[0], axis[-1]):
+                point = list(middle)
+                point[i] = edge
+                starts.append(tuple(point))
     single = next(iter(objectives.items())) if len(objectives) == 1 else None
 
     candidate_records = []
@@ -489,6 +500,9 @@ def optimize_rsm(frame, metadata, objectives, bounds=None, categories=None):
     solver_successes = solver_evaluations = 0
     evaluation_limit_hit = False
     solver_failures = []
+    class EvaluationLimit(Exception):
+        pass
+
     if not free:
         solver_successes = int(add_candidate(fixed, True, "固定点") is not None)
     else:
@@ -497,14 +511,31 @@ def optimize_rsm(frame, metadata, objectives, bounds=None, categories=None):
             full_start = fixed.copy()
             full_start[free] = start
             add_candidate(full_start, candidate_type="起点")
+            evaluations_used = 0
+
+            def bounded_objective(point):
+                nonlocal evaluations_used
+                if evaluations_used >= _MAX_EVALUATIONS_PER_START:
+                    raise EvaluationLimit
+                evaluations_used += 1
+                return solver_objective(point)
+
             try:
                 result = minimize(
-                    solver_objective, start, jac=True, method="L-BFGS-B",
+                    bounded_objective if len(free) > 5 else solver_objective,
+                    start, jac=True, method="L-BFGS-B",
                     bounds=[limits[i] for i in free],
                     options={"maxiter": 300, "maxfun": _MAX_EVALUATIONS_PER_START,
                              "ftol": 1e-13, "gtol": 1e-9, "maxls": 40},
                 )
+            except EvaluationLimit:
+                solver_evaluations += evaluations_used
+                evaluation_limit_hit = True
+                solver_failures.append("函数评价达到上限")
+                continue
             except (FloatingPointError, ValueError, OverflowError):
+                if len(free) > 5:
+                    solver_evaluations += evaluations_used
                 solver_failures.append("优化器抛出数值错误")
                 continue
             evaluations = int(getattr(result, "nfev", 0))
@@ -547,7 +578,7 @@ def optimize_rsm(frame, metadata, objectives, bounds=None, categories=None):
             "综合期望低于 binary64 最小正数，数值下溢为 0；不能据此判定目标组合严格不可行")
     success = status == "success"
     limitations = [
-        f"采用确定性三水平起点和 L-BFGS-B 局部搜索，每个起点设置 {_MAX_EVALUATIONS_PER_START} 次函数评价上限；候选不是全局最优证明。",
+        f"采用确定性起点和 L-BFGS-B 局部搜索，共 {len(starts)} 个起点，每个起点设置 {_MAX_EVALUATIONS_PER_START} 次函数评价上限；候选不是全局最优证明。",
         "优化范围限于 coded [-1, 1] 内的 bounds；二次响应面在该模型范围外不外推。",
         "零 desirability 的搜索阶段使用有限连续延拓；返回评分仍按精确 desirability 与 log(0) 语义计算。",
     ]
@@ -562,6 +593,7 @@ def optimize_rsm(frame, metadata, objectives, bounds=None, categories=None):
         "terms": {name: list(analysis["terms"])
                   for name, analysis in analyses.items()},
         "solver_evaluations": solver_evaluations,
+        "solver_starts": len(starts),
         "evaluation_limit_per_start": _MAX_EVALUATIONS_PER_START,
         "solver_failures": solver_failures,
         "reason": reason, "feasible": bool(best and best["feasible"]),

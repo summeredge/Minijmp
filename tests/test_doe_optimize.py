@@ -45,6 +45,80 @@ def test_two_factor_prediction_and_analytic_gradient_reference():
     np.testing.assert_allclose(gradient, reference_gradient, rtol=0, atol=1e-13)
 
 
+@pytest.mark.parametrize(('k', 'fraction'), [(9, 'quarter'), (10, 'eighth')])
+def test_high_dimension_optimization_is_bounded_and_reproducible(k, fraction):
+    factors = tuple(FactorSpec(chr(65+i), chr(65+i), -1, 1) for i in range(k))
+    spec = DesignSpec('high', factors, ('Y',), seed=23,
+                      design_type='central_composite', ccd_alpha=1,
+                      ccd_center_points=5, ccd_axial_points=2*k,
+                      ccd_fraction=fraction)
+    frame, metadata = create_ccd(spec)
+    coded = frame[[f'编码_{f.factor_id}' for f in factors]].to_numpy(float)
+    target = np.linspace(-.4, .4, k)
+    frame['响应_Y'] = 10 - ((coded - target)**2).sum(axis=1)
+    results = [optimize_rsm(frame, metadata, {'Y': _objective('maximize', -20, 20)})
+               for _ in range(2)]
+    for result in results:
+        assert result['success']
+        assert result['solver_starts'] == 2*k + 3
+        assert result['solver_evaluations'] <= (2*k + 3)*result['evaluation_limit_per_start']
+        np.testing.assert_allclose(list(result['best']['coded'].values()), target, atol=1e-6)
+        assert result['best']['predictions']['Y'] == pytest.approx(10, abs=1e-8)
+    assert results[0]['best']['coded'] == results[1]['best']['coded']
+
+
+def test_high_dimension_evaluation_limit_is_enforced(monkeypatch):
+    factors = tuple(FactorSpec(chr(65+i), chr(65+i), -1, 1) for i in range(6))
+    frame, metadata = _design(factors=factors)
+    coded = frame[[f'编码_{f.factor_id}' for f in factors]].to_numpy(float)
+    frame['响应_Y'] = 10 - (coded**2).sum(axis=1)
+    monkeypatch.setattr(doe_optimize, '_MAX_EVALUATIONS_PER_START', 2)
+
+    def excessive_solver(function, start, **kwargs):
+        for _ in range(3):
+            function(start)
+
+    monkeypatch.setattr(doe_optimize, 'minimize', excessive_solver)
+    result = optimize_rsm(frame, metadata, {'Y': _objective('maximize')})
+    assert result['status'] == 'solver_failure'
+    assert result['solver_evaluations'] == 2 * result['solver_starts']
+
+
+@pytest.mark.parametrize('k', [9, 10])
+def test_high_dimension_bbd_optimization_matches_analytic_optimum(k):
+    factors = tuple(FactorSpec(chr(65+i), chr(65+i), -1, 1) for i in range(k))
+    spec = DesignSpec('bbd-high', factors, ('Y',), seed=23, design_type='box_behnken')
+    frame, metadata = create_bbd(spec)
+    coded = frame[[f'编码_{f.factor_id}' for f in factors]].to_numpy(float)
+    target = np.linspace(-.3, .3, k)
+    frame['响应_Y'] = 10 - ((coded-target)**2).sum(axis=1)
+    result = optimize_rsm(frame, metadata, {'Y': _objective('maximize', -20, 20)})
+    assert result['success'] and result['solver_starts'] == 2*k+3
+    assert result['solver_evaluations'] <= result['solver_starts']*result['evaluation_limit_per_start']
+    np.testing.assert_allclose(list(result['best']['coded'].values()), target, atol=1e-6)
+    assert result['best']['predictions']['Y'] == pytest.approx(10, abs=1e-8)
+
+
+@pytest.mark.parametrize('k', [9, 10])
+def test_high_dimension_bbd_multiresponse_is_reproducible(k):
+    factors = tuple(FactorSpec(chr(65+i), chr(65+i), -1, 1) for i in range(k))
+    spec = DesignSpec('bbd-multi', factors, ('Y', 'Z'), seed=23, design_type='box_behnken')
+    frame, metadata = create_bbd(spec)
+    x = frame[[f'编码_{f.factor_id}' for f in factors]].to_numpy(float)
+    target = np.linspace(-.25, .25, k)
+    frame['响应_Y'] = 10 - ((x-target)**2).sum(axis=1)
+    frame['响应_Z'] = 5 - ((x-target)**2).sum(axis=1)
+    objectives = {'Y': _objective('maximize', 0, 20),
+                  'Z': _objective('maximize', -5, 15, weight=2)}
+    first = optimize_rsm(frame, metadata, objectives)
+    second = optimize_rsm(frame, metadata, objectives)
+    assert first['success'] and first['solver_starts'] == 2*k+3
+    assert first['solver_evaluations'] <= first['solver_starts'] * first['evaluation_limit_per_start']
+    assert first['best']['coded'] == second['best']['coded']
+    np.testing.assert_allclose(list(first['best']['coded'].values()), target, atol=1e-5)
+    assert first['best']['predictions'] == pytest.approx({'Y': 10, 'Z': 5}, abs=1e-7)
+
+
 @pytest.mark.parametrize(
     "mode, polynomial, expected",
     [
