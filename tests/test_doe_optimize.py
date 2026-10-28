@@ -644,7 +644,7 @@ def test_blocked_design_is_optimized_at_the_reference_block():
     factors = (FactorSpec('A', 'A', -1, 1), FactorSpec('B', 'B', -1, 1))
     spec = DesignSpec('opt-block', factors, ('Y',), seed=23,
                       design_type='central_composite', ccd_alpha=None,
-                      ccd_center_points=5, ccd_axial_points=4, block_count=2)
+                      ccd_center_points=None, ccd_axial_points=4, block_count=2)
     frame, metadata = create_ccd(spec)
     a = frame['编码_A'].to_numpy(float)
     second = (frame['区组'] == 2).to_numpy(float)

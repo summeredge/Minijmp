@@ -118,7 +118,7 @@ def _cube_block(row, cubes, k):
 
 
 def _plan(spec, replicates):
-    """扩展路径的标准序行；返回 (行, alpha, 区组数)。"""
+    """扩展路径的标准序行；返回 (行, alpha, 区组数, 分类组合数)。"""
     continuous = [f for f in spec.factors if f.factor_type == "continuous"]
     k = len(continuous)
     fraction = spec.ccd_fraction or "full"
@@ -129,29 +129,44 @@ def _plan(spec, replicates):
         raise ValueError(f"{fraction} 设计需要 {low} 至 {high} 个连续因子")
     if spec.generators or spec.defining_relations or spec.aliases:
         raise ValueError("CCD 不接受生成元，请使用设计分数")
+
+    fraction_order = {"full": 0, "half": 1, "quarter": 2, "eighth": 3}[fraction]
+    cube_count = 1 << (k - fraction_order)
     blocks = 1 if spec.block_count is None else spec.block_count
     if blocks != 1:
         if (k, fraction) not in _BLOCKS or blocks not in _BLOCKS[(k, fraction)]:
             raise ValueError(f"{k} 因子 {fraction} CCD 不支持 {blocks} 个区组")
         cubes, cube_centers, axial_centers = _BLOCKS[(k, fraction)][blocks]
-        alpha = math.sqrt(len(cube_rows(k, fraction)) * (2*k + axial_centers)
-                          / (2 * (len(cube_rows(k, fraction)) + cube_centers)))
+        alpha = math.sqrt(cube_count * (2*k + axial_centers)
+                          / (2 * (cube_count + cube_centers)))
         if spec.ccd_alpha is not None and not math.isclose(
                 spec.ccd_alpha, alpha, rel_tol=1e-6):
             raise ValueError(
                 f"{blocks} 区组设计的正交 alpha 必须是 {alpha:.10g}；"
                 "自定义 alpha 会破坏区组正交性")
         centers_per_category = cube_centers + axial_centers
+        if (spec.ccd_center_points is not None
+                and spec.ccd_center_points != centers_per_category):
+            raise ValueError(
+                f"区组设计需要 {centers_per_category} 个中心点；"
+                f"当前输入为 {spec.ccd_center_points}。请选择默认或输入所需数量。")
     else:
         cubes, cube_centers, axial_centers = 1, 0, 0
-        alpha = spec.ccd_alpha
-        if alpha is None:
-            alpha = len(cube_rows(k, fraction)) ** 0.25
+        alpha = spec.ccd_alpha if spec.ccd_alpha is not None else cube_count ** 0.25
         centers_per_category = spec.ccd_center_points
         if centers_per_category is None:
             raise ValueError("CCD 需要中心点数")
     if not math.isfinite(alpha) or alpha <= 0:
         raise ValueError("CCD alpha 必须是正有限数")
+
+    category_count = math.prod(
+        len(factor.levels) for factor in spec.factors
+        if factor.factor_type == "categorical")
+    total = category_count * (replicates * (cube_count + 2*k)
+                              + centers_per_category)
+    if total > _MAX_RUNS:
+        raise ValueError(f"运行总数不能超过 {_MAX_RUNS}")
+
     categories = category_combinations(spec.factors)
     cube = cube_rows(k, fraction)
     rows = []
@@ -184,8 +199,6 @@ def _plan(spec, replicates):
 def _create_extended(spec, replicates, measured):
     rows, alpha, blocks, categories = _plan(spec, int(replicates))
     total = len(rows)
-    if total > _MAX_RUNS:
-        raise ValueError(f"运行总数不能超过 {_MAX_RUNS}")
     # 元数据记录实际使用的 alpha 与点数，供恢复时核验。
     normalized = replace(
         spec, ccd_alpha=alpha,
@@ -367,15 +380,63 @@ def create_ccd(spec, replicates=1, measured=False):
 
 
 def _validate_extended(result):
-    """扩展路径的严格核验：点数、编码、区组与分类水平一致。"""
+    """扩展路径的严格核验：重复、点数、编码、区组与分类水平一致。"""
     spec, runs = result.spec, result.runs
     if spec.ccd_axial_points is None or spec.ccd_center_points is None:
         raise ValueError('CCD 设计定义不完整')
-    rows, alpha, blocks, categories = _plan(spec, 1)
-    per_category = len(rows)
-    if len(runs) % per_category:
-        raise ValueError('CCD 运行数不是基础设计的整数倍')
-    replicates = len(runs) // per_category
+    base_rows, alpha, blocks, categories = _plan(spec, 1)
+    categorical = [factor for factor in spec.factors
+                   if factor.factor_type == 'categorical']
+
+    def category_key(values):
+        return tuple(values.get(factor.factor_id) for factor in categorical)
+
+    noncenter_per_category = Counter()
+    centers_per_category = Counter()
+    axial_per_category = Counter()
+    for point, _coded, _block, _replicate, category in base_rows:
+        key = category_key(category)
+        if point == 'center':
+            centers_per_category[key] += 1
+        else:
+            noncenter_per_category[key] += 1
+        if point == 'axial':
+            axial_per_category[key] += 1
+    if (len(noncenter_per_category) != categories
+            or len(set(noncenter_per_category.values())) != 1
+            or len(set(centers_per_category.get(key, 0)
+                       for key in noncenter_per_category)) != 1
+            or len(set(axial_per_category.values())) != 1):
+        raise ValueError('CCD 基础设计的分类组合结构无效')
+
+    counts = {key: Counter() for key in noncenter_per_category}
+    for run in runs:
+        key = tuple(run.settings[factor.factor_id] for factor in categorical)
+        if key not in counts:
+            raise ValueError('CCD 分类因子水平与设计定义不一致')
+        counts[key][run.point_type] += 1
+    repeats = set()
+    for key, point_counts in counts.items():
+        noncenter = sum(count for point, count in point_counts.items()
+                        if point != 'center')
+        base_noncenter = noncenter_per_category[key]
+        if noncenter % base_noncenter:
+            raise ValueError('CCD 非中心点数不能组成完整重复')
+        repeats.add(noncenter // base_noncenter)
+        if point_counts['center'] != centers_per_category.get(key, 0):
+            raise ValueError('CCD 中心点数与设计定义不一致')
+    if len(repeats) != 1 or not repeats or next(iter(repeats)) < 1:
+        raise ValueError('CCD 各分类组合的重复数不一致或缺失')
+    replicates = next(iter(repeats))
+    expected_axial = next(iter(axial_per_category.values())) * replicates
+    expected_centers = next(iter(centers_per_category.values()), 0)
+    if (spec.ccd_axial_points != expected_axial
+            or spec.ccd_center_points != expected_centers):
+        raise ValueError('CCD 轴点数或中心点数与重复结构不一致')
+
+    rows, alpha, blocks, categories = _plan(spec, replicates)
+    if len(runs) != len(rows):
+        raise ValueError('CCD 运行数与完整重复结构不一致')
     continuous = [f for f in spec.factors if f.factor_type == 'continuous']
     centers = [_center_level(f) for f in continuous]
     ordered = sorted(runs, key=lambda run: run.standard_order)
@@ -383,11 +444,9 @@ def _validate_extended(result):
     for index, run in enumerate(ordered):
         if run.run_id != f'R{index + 1:05d}':
             raise ValueError('CCD 运行 ID 与标准序不一致')
-        point, coded, block, replicate, category = rows[index % per_category]
-        expected = index // per_category + 1
+        point, coded, block, replicate, category = rows[index]
         if (run.point_type != point
-                or (point != 'center' and run.replicate != expected)
-                or (point == 'center' and run.replicate < 1)
+                or run.replicate != replicate
                 or (blocks > 1 and run.block != block + 1)
                 or (blocks == 1 and run.block is not None)):
             raise ValueError('CCD 点类型、区组或重复编号与设计定义不一致')
@@ -397,7 +456,6 @@ def _validate_extended(result):
                 if actual != centers[continuous.index(factor)]:
                     raise ValueError('CCD 中心点设定错误')
             elif abs(value) > 1:
-                # 轴点：实际水平在 [low, high] 之外，按轴点比对。
                 levels = axial_levels(factor, alpha)
                 if actual != (levels[0] if value < 0 else levels[1]):
                     raise ValueError('CCD 轴点设定错误')

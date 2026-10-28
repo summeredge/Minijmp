@@ -160,7 +160,7 @@ def test_bbd_create_analyze_plot_and_project_roundtrip(csv_app, tmp_path, monkey
     assert app.load_file(target)
     restored = app.getCurrentTable()
     assert restored.doe_metadata['design']['design_type'] == 'box_behnken'
-    assert restored.doe_metadata['schema_version'] == 2
+    assert restored.doe_metadata['schema_version'] == 3
     assert restored.model.df[['设定_A', '设定_B', '设定_C', '编码_A',
                               '编码_B', '编码_C']].to_dict('records') == saved
     reopened = AnalyzeDOE(app)

@@ -136,3 +136,66 @@ def test_ccd_invalid_fraction_and_buttons_at_small_window(csv_app, monkeypatch):
     error.assert_called_once()
     buttons[2].invoke()
     assert not create.main.winfo_exists()
+
+
+def test_blocked_ccd_automatic_centers_follow_configuration(csv_app, monkeypatch):
+    app, error = csv_app
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    create = CreateDOE(app, ccd=True)
+    create.ccd_type.set('CCC')
+    create.ccd_blocks.set('2')
+    assert create.options['中心点数'].get() == '默认'
+
+    create.factor_count.set('5')
+    create.update_factor_rows()
+    create.preview()
+    assert '中心点 12' in create.preview_text.get()
+
+    create.factor_count.set('6')
+    create.update_factor_rows()
+    create.preview()
+    assert '中心点 14' in create.preview_text.get()
+
+    create.ccd_fraction.set('1/2 分数')
+    create.preview()
+    assert '中心点 10' in create.preview_text.get()
+
+    create.factor_count.set('5')
+    create.update_factor_rows()
+    create.preview()
+    assert '中心点 7' in create.preview_text.get()
+    error.assert_not_called()
+    create.main.destroy()
+
+
+def test_blocked_ccd_explicit_centers_must_match_layout(csv_app, monkeypatch):
+    app, error = csv_app
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    monkeypatch.setattr('doe_dialog.messagebox.askyesno', lambda *a, **k: True)
+
+    create = CreateDOE(app, ccd=True)
+    create.factor_count.set('5')
+    create.update_factor_rows()
+    create.ccd_type.set('CCC')
+    create.ccd_blocks.set('2')
+    create.options['中心点数'].delete(0, 'end')
+    create.options['中心点数'].insert(0, '12')
+    create.create()
+    table = app.getCurrentTable()
+    assert (table.model.df['点类型'] == 'center').sum() == 12
+    assert table.doe_metadata['design']['ccd_center_points'] == 12
+    error.assert_not_called()
+
+    before = list(app.sheets)
+    invalid = CreateDOE(app, ccd=True)
+    invalid.factor_count.set('5')
+    invalid.update_factor_rows()
+    invalid.ccd_type.set('CCC')
+    invalid.ccd_blocks.set('2')
+    invalid.options['中心点数'].delete(0, 'end')
+    invalid.options['中心点数'].insert(0, '5')
+    invalid.preview()
+    assert list(app.sheets) == before
+    message = error.call_args.args[1]
+    assert '需要 12 个中心点' in message and '当前输入为 5' in message
+    invalid.main.destroy()

@@ -17,17 +17,31 @@ from typing import Mapping
 import pandas as pd
 
 
-DOE_SCHEMA_VERSION = 2
-_READ_VERSIONS = frozenset({1, 2})
+DOE_SCHEMA_VERSION = 3
+_READ_VERSIONS = frozenset({1, 2, 3})
 WORKSHEET_SCHEMA_VERSION = 1
 _ID = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]{0,63}$")
 _RUN_ID = re.compile(r"^[A-Za-z0-9_.-]{1,128}$")
 _RELATION = re.compile(r"^[A-Za-z][A-Za-z0-9]*(?:=[A-Za-z][A-Za-z0-9]*)+$")
 _DESIGN_TYPES = frozenset({
     "unspecified", "two_level_full", "two_level_fractional", "central_composite",
-    "box_behnken",
+    "box_behnken", "plackett_burman", "definitive_screening",
 })
-_POINT_TYPES = frozenset({"factorial", "center", "axial", "edge"})
+_SCREENING_TYPES = frozenset({"plackett_burman", "definitive_screening"})
+_SCREENING_SOURCES = {
+    ("plackett_burman", f"pb{n}.v1", "publication", f"nist.pb{n}")
+    for n in (12, 20, 24, 28, 36)
+} | {
+    ("plackett_burman", f"pb{n}.v1", "mathematical_construction", f"hadamard.pb{n}")
+    for n in (32, 40, 44, 48)
+} | {
+    ("definitive_screening", f"dsd{n}.v1", "mathematical_construction", f"conference.dsd{n}")
+    for n in range(2, 49)
+} | {
+    ("definitive_screening", f"dsd{n}c1.v1", "mathematical_construction", f"jones.dsd{n}c1")
+    for n in range(1, 48)
+} | {("definitive_screening", "dsd4c2.v1", "mathematical_construction", "foldover.dsd4c2")}
+_POINT_TYPES = frozenset({"factorial", "center", "axial", "edge", "screening", "pseudo_center"})
 _DESIGN_KEYS = {
     "schema_version", "design_id", "factors", "response_names", "seed",
     "generators", "defining_relations", "aliases", "ccd_alpha",
@@ -35,6 +49,7 @@ _DESIGN_KEYS = {
     "block_count",
 }
 _DESIGN_KEYS_V1 = _DESIGN_KEYS - {"ccd_fraction", "block_count"}
+_DESIGN_KEYS_V3 = _DESIGN_KEYS | {"screening_matrix"}
 _MAP_KEYS = {
     "run_id", "standard_order", "run_order", "point_type", "replicate",
     "block", "factors", "measured_levels", "responses",
@@ -282,6 +297,7 @@ class DesignSpec:
     design_type: str = "unspecified"
     ccd_fraction: str | None = None
     block_count: int | None = None
+    screening_matrix: Mapping | None = None
 
     def __post_init__(self):
         _text(self.design_id, "design_id", identifier=True)
@@ -294,7 +310,7 @@ class DesignSpec:
         factors = tuple(self.factors) if isinstance(self.factors, (tuple, list)) else ()
         if not factors or not all(isinstance(item, FactorSpec) for item in factors):
             raise ValueError("设计必须包含 FactorSpec")
-        if self.design_type not in ("central_composite", "box_behnken"):
+        if self.design_type not in ("central_composite", "box_behnken", "plackett_burman", "definitive_screening"):
             if any(item.factor_type != "continuous" for item in factors):
                 raise NotImplementedError("分类或混合水平设计仅用于中心复合或 Box-Behnken")
         ids = [item.factor_id for item in factors]
@@ -341,9 +357,27 @@ class DesignSpec:
                 raise ValueError("box_behnken 只适用于 schema v2")
             if any(item.factor_type == "categorical" for item in factors):
                 raise ValueError("schema v1 不支持分类因子")
+        if self.design_type in _SCREENING_TYPES:
+            if self.schema_version < 3 or not isinstance(self.screening_matrix, Mapping):
+                raise ValueError("筛选设计需要 schema v3 和矩阵身份")
+            identity = dict(self.screening_matrix)
+            if set(identity) != {"construction_id", "source_kind", "source_id", "matrix_sha256"}:
+                raise ValueError("筛选矩阵身份字段无效")
+            _text(identity["construction_id"], "construction_id", identifier=True)
+            _text(identity["source_id"], "source_id", identifier=True)
+            if identity["source_kind"] not in ("mathematical_construction", "publication", "minitab_export"):
+                raise ValueError("筛选矩阵来源类型无效")
+            if (self.design_type, identity["construction_id"], identity["source_kind"],
+                    identity["source_id"]) not in _SCREENING_SOURCES:
+                raise ValueError("未知筛选矩阵构造或来源")
+            if not isinstance(identity["matrix_sha256"], str) or not re.fullmatch(r"[0-9a-f]{64}", identity["matrix_sha256"]):
+                raise ValueError("筛选矩阵摘要无效")
+            object.__setattr__(self, "screening_matrix", MappingProxyType(identity))
+        elif self.screening_matrix is not None:
+            raise ValueError("非筛选设计不得声明筛选矩阵身份")
 
     def to_dict(self):
-        return {
+        result = {
             "schema_version": self.schema_version, "design_id": self.design_id,
             "factors": [factor.to_dict() for factor in self.factors],
             "response_names": list(self.response_names), "seed": self.seed,
@@ -355,6 +389,10 @@ class DesignSpec:
             "design_type": self.design_type,
             "ccd_fraction": self.ccd_fraction, "block_count": self.block_count,
         }
+        if self.schema_version >= 3:
+            result["screening_matrix"] = (dict(self.screening_matrix)
+                                          if self.screening_matrix is not None else None)
+        return result
 
     @classmethod
     def from_dict(cls, data):
@@ -365,7 +403,7 @@ class DesignSpec:
         version = data.get("schema_version")
         if type(version) is not int or version not in _READ_VERSIONS:
             raise ValueError(f"未知 DOE schema_version: {version!r}")
-        keys = _DESIGN_KEYS if version == 2 else _DESIGN_KEYS_V1
+        keys = {1: _DESIGN_KEYS_V1, 2: _DESIGN_KEYS, 3: _DESIGN_KEYS_V3}[version]
         if set(data) != keys:
             raise ValueError("设计元数据字段无效")
         missing = object()
@@ -375,11 +413,11 @@ class DesignSpec:
                 "factors", "response_names", "generators",
                 "defining_relations", "aliases")):
             raise ValueError("设计列表字段结构无效")
-        return cls(
+        result = cls(
             design_id=data["design_id"],
             factors=tuple(FactorSpec.from_dict(item) for item in data["factors"]),
             response_names=tuple(data["response_names"]),
-            seed=data["seed"], schema_version=DOE_SCHEMA_VERSION,
+            seed=data["seed"], schema_version=version,
             generators=tuple(data["generators"]),
             defining_relations=tuple(data["defining_relations"]),
             aliases=tuple(data["aliases"]), ccd_alpha=data["ccd_alpha"],
@@ -388,7 +426,10 @@ class DesignSpec:
             design_type=data["design_type"],
             ccd_fraction=None if fraction is missing else fraction,
             block_count=None if blocks is missing else blocks,
+            screening_matrix=data.get("screening_matrix"),
         )
+        from dataclasses import replace
+        return replace(result, schema_version=DOE_SCHEMA_VERSION)
 
 
 @dataclass(frozen=True)
@@ -461,6 +502,8 @@ class DesignResult:
         factor_ids = {factor.factor_id for factor in self.spec.factors}
         response_names = set(self.spec.response_names)
         for run in runs:
+            if self.spec.design_type not in _SCREENING_TYPES and run.point_type in ("screening", "pseudo_center"):
+                raise ValueError("筛选点类型只适用于筛选设计")
             if set(run.settings) != factor_ids:
                 raise ValueError("每个运行的设定水平必须覆盖全部因子")
             if not set(run.measured_levels) <= factor_ids:
@@ -506,6 +549,113 @@ class DesignResult:
                     and self.spec.ccd_center_points != center_count and not extended):
                 raise ValueError("CCD 中心点数与运行记录不一致")
         object.__setattr__(self, "runs", runs)
+
+
+def _screening_level(factor, value):
+    if factor.factor_type == 'categorical':
+        if len(factor.levels) != 2 or value not in factor.levels:
+            raise ValueError('筛选分类因子必须恰有两个水平')
+        return -1 if value == factor.levels[0] else 1
+    if value == factor.low:
+        return -1
+    if value == factor.high:
+        return 1
+    from doe_ccd import _center_level
+    if value == _center_level(factor):
+        return 0
+    raise ValueError('筛选因子必须位于低、中或高水平')
+
+
+def screening_matrix_sha256(result):
+    """按标准序计算筛选设计身份，不包含响应和随机运行序。"""
+    factors = result.spec.factors
+    rows = []
+    for run in sorted(result.runs, key=lambda item: item.standard_order):
+        levels = []
+        for factor in factors:
+            value = run.settings[factor.factor_id]
+            levels.append(_screening_level(factor, value))
+        rows.append({"levels": levels, "point_type": run.point_type,
+                     "replicate": run.replicate, "block": run.block})
+    payload = {"design_type": result.spec.design_type,
+               "factors": [factor.factor_id for factor in factors], "runs": rows}
+    encoded = json.dumps(payload, ensure_ascii=False, allow_nan=False,
+                         sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _validate_screening_construction(result):
+    """逐标准序核对已固定构造，不能只相信可重新计算的摘要。"""
+    from doe_screening_matrices import MATRICES
+
+    spec = result.spec
+    key = spec.screening_matrix['construction_id'].removesuffix('.v1')
+    matrix = MATRICES[key]
+    factor_count = len(spec.factors)
+    if spec.design_type == 'plackett_burman':
+        if not 2 <= factor_count <= len(matrix[0]):
+            raise ValueError('PB 因子数与构造不匹配')
+    elif key.endswith(('c1', 'c2')):
+        categorical_count = 2 if key.endswith('c2') else 1
+        if (factor_count != len(matrix[0]) or
+                [f.factor_type for f in spec.factors] != ['continuous'] * (factor_count - categorical_count) + ['categorical'] * categorical_count):
+            raise ValueError('混合 DSD 的连续及分类因子与构造不匹配')
+    elif factor_count != len(matrix[0]) or any(f.factor_type != 'continuous' for f in spec.factors):
+        raise ValueError('DSD 因子数或类型与构造不匹配')
+    if (spec.generators or spec.defining_relations or spec.aliases
+            or any(value is not None for value in (spec.ccd_alpha, spec.ccd_center_points,
+                                                    spec.ccd_axial_points, spec.ccd_fraction))):
+        raise ValueError('筛选设计包含不支持的设计选项')
+    runs = sorted(result.runs, key=lambda run: run.standard_order)
+    size = len(matrix)
+    if spec.design_type == 'plackett_burman':
+        repetitions = {run.replicate for run in runs}
+        count = len(repetitions)
+        if repetitions != set(range(1, count + 1)) or len(runs) > 10000 or len(runs) % count:
+            raise ValueError('PB 重复或运行数与构造不匹配')
+        per_rep = len(runs) // count
+        if per_rep < size or (spec.block_count is not None and spec.block_count != count):
+            raise ValueError('PB 中心点或区组数与构造不匹配')
+        categorical = [f for f in spec.factors if f.factor_type == 'categorical']
+        combinations_count = 1 << len(categorical)
+        center_total = per_rep - size
+        if center_total and (center_total % combinations_count or len(categorical) == factor_count):
+            raise ValueError('PB 伪中心组合或中心点数与构造不匹配')
+        center_combinations = list(product((-1, 1), repeat=len(categorical))) if center_total else []
+        for index, run in enumerate(runs):
+            rep, position = divmod(index, per_rep)
+            center = position >= size
+            if center:
+                category_levels = iter(center_combinations[(position - size) % combinations_count])
+                expected = tuple(next(category_levels) if f.factor_type == 'categorical' else 0 for f in spec.factors)
+            else:
+                expected = matrix[position][:factor_count]
+            if (run.replicate != rep + 1 or run.block != (rep + 1 if spec.block_count is not None else None)
+                    or run.point_type != ('pseudo_center' if center and categorical else 'center' if center else 'factorial')):
+                raise ValueError('PB 重复、区组或点类型与构造不匹配')
+            for factor, value in zip(spec.factors, expected):
+                if _screening_level(factor, run.settings[factor.factor_id]) != value:
+                    raise ValueError('PB 设定与构造矩阵不匹配')
+        return
+    if len(runs) > 10000 or len(runs) % size:
+        raise ValueError('筛选设计运行数与构造不匹配')
+    repetitions = len(runs) // size
+    blocks = spec.block_count or 1
+    if blocks > repetitions or repetitions % blocks:
+        raise ValueError('DSD 区组必须均分完整重复')
+    for index, run in enumerate(runs):
+        base = matrix[index % size][:factor_count]
+        expected_type = ('factorial' if spec.design_type == 'plackett_burman' else
+                         'pseudo_center' if key.endswith(('c1', 'c2')) and index % size >= size - 2 else
+                         'center' if not key.endswith(('c1', 'c2')) and index % size == size - 1 else 'screening')
+        expected_block = (index // size) // (repetitions // blocks) + 1 if blocks > 1 else None
+        if run.replicate != index // size + 1 or run.block != expected_block or run.point_type != expected_type:
+            raise ValueError('筛选设计重复、区组或点类型与构造不匹配')
+        for factor, expected in zip(spec.factors, base):
+            value = run.settings[factor.factor_id]
+            actual = _screening_level(factor, value)
+            if actual != expected:
+                raise ValueError('筛选设计设定与构造矩阵不匹配')
 
 
 @dataclass(frozen=True)
@@ -750,6 +900,10 @@ def design_from_worksheet(frame, spec, column_map):
             point_type=point_type, settings=settings, replicate=replicate,
             block=block, measured_levels=measured, responses=responses))
     result = DesignResult(spec, tuple(runs))
+    if spec.design_type in _SCREENING_TYPES:
+        if screening_matrix_sha256(result) != spec.screening_matrix["matrix_sha256"]:
+            raise ValueError("筛选矩阵摘要与设计不一致")
+        _validate_screening_construction(result)
     if spec.design_type == "central_composite" and spec.ccd_alpha is not None:
         from doe_ccd import validate_ccd
         coded = validate_ccd(result)

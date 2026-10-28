@@ -35,6 +35,9 @@
 | Create Box-Behnken Design | 创建 Box-Behnken 设计 |
 | Response Surface Prediction | 响应面预测 |
 | Overlaid Contour Plot | 叠加等高线 |
+| Create Plackett–Burman Design | 创建 Plackett–Burman 设计 |
+| Create Definitive Screening Design | 创建筛选设计（DSD） |
+| Analyze Screening Design | 分析筛选设计 |
 
 ## 文件（File）
 

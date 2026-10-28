@@ -36,7 +36,7 @@ def test_high_dimension_ccd_project_lifecycle(
     snapshot = frame.copy(deep=True)
     metadata = copy.deepcopy(table.doe_metadata)
     assert f'{len(frame)} 次运行' in preview
-    assert metadata['schema_version'] == 2
+    assert metadata['schema_version'] == 3
     assert metadata['design']['ccd_fraction'] == fraction
     assert len(metadata['design']['factors']) == count
     assert metadata['column_map']['responses']['Y'] == '响应_Y'
@@ -208,3 +208,137 @@ def test_three_factor_plot_uses_fixed_factor_and_model(csv_app, monkeypatch):
     assert 'C=0.5' in table.pf.fig._suptitle.get_text()
     error.assert_not_called()
     dialog.main.destroy()
+
+
+def test_repeated_fractional_ccd_roundtrips_project(csv_app, tmp_path, monkeypatch):
+    app, error = csv_app
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    monkeypatch.setattr('worksheets.messagebox.askyesno', lambda *a, **k: True)
+    monkeypatch.setattr('worksheets.messagebox.askyesnocancel', lambda *a, **k: False)
+    create = CreateDOE(app, ccd=True)
+    create.factor_count.set('5')
+    create.update_factor_rows()
+    create.ccd_fraction.set('1/2 分数')
+    create.options['中心点数'].delete(0, 'end')
+    create.options['中心点数'].insert(0, '6')
+    create.options['重复数'].delete(0, 'end')
+    create.options['重复数'].insert(0, '2')
+    create.preview()
+    assert '58 次运行' in create.preview_text.get()
+    create.create()
+
+    table = app.getCurrentTable()
+    frame = table.model.df
+    coded = frame[[f'编码_{letter}' for letter in 'ABCDE']].to_numpy(float)
+    response = 10 + coded @ np.arange(1, 6) + (coded ** 2).sum(axis=1)
+    for index, value in enumerate(response):
+        table.model.setValueAt(str(value), index, frame.columns.get_loc('响应_Y'))
+    expected = frame.copy(deep=True)
+    metadata = copy.deepcopy(table.doe_metadata)
+    assert metadata['design']['ccd_center_points'] == 6
+    assert metadata['design']['ccd_axial_points'] == 20
+
+    target = tmp_path / 'ccd-half-replicated.dexpl'
+    assert app._save_project(target)
+    assert app.new_file()
+    assert app.load_file(target)
+    restored = app.getCurrentTable()
+    assert_frame_equal(restored.model.df, expected)
+    assert restored.doe_metadata == metadata
+    result = restore_design_result(restored.model.df, restored.doe_metadata)
+    from doe_ccd import validate_ccd
+    np.testing.assert_allclose(validate_ccd(result),
+                               restored.model.df[[f'编码_{letter}' for letter in 'ABCDE']].to_numpy(float))
+    dialog = AnalyzeDOE(app)
+    dialog.analyze()
+    np.testing.assert_allclose(dialog.result['fitted'], response, atol=1e-8)
+    dialog.main.destroy()
+    error.assert_not_called()
+
+
+def test_categorical_rsm_plot_uses_selected_level_and_continuous_axes(
+        csv_app, monkeypatch):
+    app, error = csv_app
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    monkeypatch.setattr('doe_dialog.messagebox.askyesno', lambda *a, **k: True)
+    create = CreateDOE(app, ccd=True)
+    create.factor_count.set('3')
+    create.update_factor_rows()
+    create.fields[0][1].insert(0, '10')
+    create.fields[0][2].insert(0, '20')
+    create.fields[1][1].insert(0, '100')
+    create.fields[1][2].insert(0, '200')
+    create.fields[2][4].insert(0, '甲;乙')
+    create.ccd_type.set('CCC')
+    create.ccd_blocks.set('2')
+    create.options['中心点数'].delete(0, 'end')
+    create.options['中心点数'].insert(0, '默认')
+    create.create()
+
+    table = app.getCurrentTable()
+    frame = table.model.df
+    a = frame['编码_A'].to_numpy(float)
+    b = frame['编码_B'].to_numpy(float)
+    category = frame['设定_C'].to_numpy()
+    block = frame['区组'].to_numpy(int)
+    high = (category == '乙').astype(float)
+    response = 10 + 2*a - 3*b + 4*b*b + high*(5 + 6*a - 2*b) + 7*(block == 2)
+    for index, value in enumerate(response):
+        table.model.setValueAt(str(value), index, frame.columns.get_loc('响应_Y'))
+
+    dialog = AnalyzeDOE(app)
+    dialog.analyze()
+    assert tuple(dialog.factor_x['values']) == ('A', 'B')
+    assert tuple(dialog.factor_y['values']) == ('A', 'B')
+    assert dialog.fixed['A'].winfo_class() == 'TEntry'
+    assert dialog.fixed['C'].winfo_class() == 'TCombobox'
+    assert str(dialog.fixed['C']['state']) == 'readonly'
+    assert tuple(dialog.fixed['C']['values']) == ('甲', '乙')
+
+    dialog.factor_x.set('C')
+    dialog.plot()
+    assert '\u8fde\u7eed\u56e0\u5b50' in str(error.call_args.args[1])
+    error.reset_mock()
+    dialog.factor_x.set('A')
+    dialog.factor_y.set('B')
+    dialog.fixed['C'].set('无效水平')
+    dialog.plot()
+    assert '分类因子 C' in error.call_args.args[1]
+    error.reset_mock()
+
+    model = dialog.result['term_model']
+    model_row = model.row
+    calls = []
+
+    def record_row(settings, reference_block=None):
+        calls.append((dict(settings), reference_block))
+        return model_row(settings, reference_block)
+
+    monkeypatch.setattr(model, 'row', record_row)
+    alpha = dialog.result['design'].spec.ccd_alpha
+    axis = np.linspace(-alpha, alpha, 50)
+    xx, yy = np.meshgrid(axis, axis)
+    predictions = {}
+    for level in ('甲', '乙'):
+        calls.clear()
+        dialog.fixed['C'].set(level)
+        dialog.plot()
+        assert len(calls) == 2500
+        assert all(settings['C'] == level for settings, _ in calls)
+        assert all(reference_block == 1 for _, reference_block in calls)
+        rows = np.vstack([model_row(settings, reference_block)
+                          for settings, reference_block in calls])
+        predictions[level] = rows @ dialog.result['coefficients']
+        high_level = float(level == '乙')
+        expected = (10 + 2*xx.ravel() - 3*yy.ravel() + 4*yy.ravel()**2
+                    + high_level*(5 + 6*xx.ravel() - 2*yy.ravel()))
+        np.testing.assert_allclose(predictions[level], expected, atol=1e-8)
+        title = table.pf.fig._suptitle.get_text()
+        assert f'分类水平 C={level}' in title and '参考区组=1' in title
+
+    difference = predictions['乙'] - predictions['甲']
+    np.testing.assert_allclose(difference, 5 + 6*xx.ravel() - 2*yy.ravel(), atol=1e-8)
+    assert np.ptp(difference) > 0
+
+    dialog.main.destroy()
+    error.assert_not_called()

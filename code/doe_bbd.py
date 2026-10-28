@@ -75,6 +75,13 @@ def _rows(spec, replicates):
     """标准序：每个重复、每个分类组合依次为边点与中心点。"""
     continuous, groups, centers, blocks = _structure(spec)
     k = len(continuous)
+    category_count = math.prod(
+        len(factor.levels) for factor in spec.factors
+        if factor.factor_type == 'categorical')
+    edge_count = sum(1 << len(group) for group in groups)
+    total = category_count * replicates * (edge_count + centers)
+    if total > _MAX_RUNS:
+        raise ValueError(f'运行总数不能超过 {_MAX_RUNS}')
     categories = category_combinations(spec.factors)
     pair_groups = len(groups) if len(groups[0]) == 2 else 0
     rows = []
@@ -127,8 +134,6 @@ def create_bbd(spec, replicates=1, measured=False):
     continuous, groups, centers, blocks = _structure(spec)
     rows = _rows(spec, int(replicates))
     total = len(rows)
-    if total > _MAX_RUNS:
-        raise ValueError(f'运行总数不能超过 {_MAX_RUNS}')
     columns = {
         'run_id': '运行ID', 'standard_order': '标准序', 'run_order': '运行序',
         'point_type': '点类型', 'replicate': '重复', 'block': '区组',

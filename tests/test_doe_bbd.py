@@ -333,3 +333,27 @@ def test_block_effect_is_estimated_when_blocks_are_used():
     without = analyze_rsm(frame, metadata, 'Y', use_blocks=False)
     assert with_blocks['p'] == without['p'] + 2
     assert with_blocks['sse'] < without['sse']
+
+
+def test_run_limit_allows_exactly_10000_runs():
+    frame, _ = create_bbd(spec(3, centers=38), replicates=200)
+    assert len(frame) == 10000
+
+
+def test_run_limit_precedes_bbd_category_expansion(monkeypatch):
+    monkeypatch.setattr(
+        'doe_bbd.category_combinations',
+        lambda *_: pytest.fail('categorical combinations expanded before run limit'))
+    with pytest.raises(ValueError, match='10000'):
+        create_bbd(spec(3), replicates=1_000_000)
+
+    continuous = tuple(FactorSpec(chr(65+i), chr(65+i), -1, 1)
+                       for i in range(3))
+    categorical = tuple(
+        FactorSpec(f'C{i}', f'C{i}', None, None, factor_type='categorical',
+                   levels=tuple(str(level) for level in range(10)))
+        for i in range(4))
+    design = DesignSpec('many-categories', continuous + categorical, ('Y',),
+                        seed=1, design_type='box_behnken')
+    with pytest.raises(ValueError, match='10000'):
+        create_bbd(design)
