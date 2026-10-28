@@ -1,0 +1,9 @@
+{
+  "source": "独立标准库精确分数与自写线性代数；不导入 MiniJMP 生产模块",
+  "files": {
+    "reference.json": {
+      "sha256": "8ae2c0712fdb423a0570336ebf96cca0dd8366e56c7dddf1be007ad36099c913",
+      "bytes": 16719
+    }
+  }
+}

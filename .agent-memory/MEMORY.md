@@ -18,6 +18,15 @@
 - ITERATE 四项阻断修复：`select()` 精确搜索改按 `comb(n,count) ≤ 200000` 预算（20 选 10 穷举、21 选 10 降级），返回 method/exact_budget/subsets/evaluations/stop_reason；`select_augment()` 同样按组合数判定，启发式只换新增位置；`manual` 准则改为严格按输入顺序（GUI 增「按输入顺序」）；增补矩阵与 distance 选点统一 `coded_value(factor,value,point_type)`，轴点可越界、标 factorial 仍拒绝；Distance 选点后按选中运行重建矩阵，秩亏拒绝并回填 selected_n/p/rank/estimable。参考 fixture 未改，SHA-256 `499fd66c…`。
 - 参考集新增 `distance_augment`（四角固定 + 中心/边中点，选点顺序 [0,1]、增补后最小平方间距 1），构建器与核验器各自手算；`reference.json` SHA-256 重建后为 `499fd66c8…`（manifest 同步）。ACC-056、ACC-058 仍标 partial，但原因只剩 Mixture 距离合同与 Mixture 增补；响应面 distance-based 选点与增补已在限定范围通过。文档：`work-package-e-closeout.md`、`optimal-reference-validation.md`、acceptance/roadmap/README/CHANGELOG_DEV/MENU_TRANSLATION/help。
 - 遗留：Minitab 22 对自定义/最优/增补的导出案例缺失；旧版 MiniJMP 读取 v5 工程的产品行为未验证；矩阵统计已按 CSV 更新为 32 implemented / 14 partial / 30 missing / 3 unknown / 1 excluded。
+## 工作包 F 混料设计（2026-10-28，隔离 worktree）
+
+- 状态 `WORK_PACKAGE_F_READY_FOR_REVIEW`；分支 `codex/f-mixture`（提交 `34946c5`，BASE `c3720d2`）已合入 `main`（E 的 `18070e4` 之上），冲突按 E+F 双方内容解决；未推送、未启动 G/H。E+F 联合回归（因用户要求未执行测试）和独立 Review 仍未完成。
+- 新增 `code/doe_mixture*.py` 九个模块：约束、专属合同、三类设计、Scheffé 模型/ANOVA、预测、优化、图形、GUI。菜单新增创建/分析/预测/优化/图形五项；帮助新增 `doe.mixture*` 并重建索引。
+- 混料语义存 `table.mixture_metadata`（schema 1），最近分析模型存 `table.mixture_model`（响应/阶次/模型项/输入摘要），DOE v4 仅新增 `design_type='mixture'`，不改 v4 字段集；`worksheets.saveMeta/loadMeta` 先验证后赋值。总量目前固定一个设计设定，MIX-005/ACC-036 为 partial。
+- 独立参考 `tests/fixtures/doe_mixture_reference/`（Fraction + 自写高斯消元），`reference.json` SHA-256 `8ae2c0712fdb423a0570336ebf96cca0dd8366e56c7dddf1be007ad36099c913`；覆盖格点/重心/5 顶点/ANOVA/优化网格/Trace/叠加 11 点。
+- 独立 Review ITERATE 五项已修复：默认 Mixture×Process 去掉过程主项 `P`（保留 `xi*P` 与秩检查）、模型 F/df 改用增量秩（校正/未校正平方和分流）、可估计性改判行空间、组分主项只报删除项条件平方和、双组分图形改为拒绝二维并提示 Trace。closeout 文档含“Review ITERATE 修正”段。
+- 验证快照（最终状态）：混料 12 文件 64 passed（24.01s）；DOE 非 GUI 427 passed（348.77s）；既有 DOE GUI 15/11/9/13/10 passed；菜单/帮助/G12/工作表/文件/工程 173（菜单单项 66）。测试组重叠，全量 pytest 未运行。
+- ACC-032/033/034/035/037/038/039/040/041/042/043/044 implemented（限定范围），ACC-036 partial；Minitab 标准序、XVERT/CONAEV 顺序、图形布局与预测区间未核实。详见 `docs/doe-minitab/work-package-f-closeout.md` 与 `work-package-f-integration-plan.md`。
 
 ## 工作包 D D0–D5（2026-10-28，本地收尾）
 
