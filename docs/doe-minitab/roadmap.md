@@ -69,7 +69,7 @@
 
 2026-10-28 C0 技术准备与实施边界见 [C0 规格](work-package-c0-spec.md)、[参考核验](screening-reference-validation.md) 和 [Schema 方案](screening-schema-plan.md)。C1 为 PB，C2 为 DSD 生成，C3 为连续响应与图形；二元响应仍归 H。C0 的参考准备不改变功能实现状态，也不代表工作包 B 已通过独立 Review。
 
-- **目标与 feature_id：** SCR-001/002/003/006/007；PB、DSD、连续响应、效应与混杂分析。SCR-004 二元响应归工作包 H；SCR-005 已确认官方功能，尚未实现，安排工作包 E。
+- **目标与 feature_id：** SCR-001/002/003/006/007；PB、DSD、连续响应、效应与混杂分析。SCR-004 二元响应归工作包 H；SCR-005 自定义筛选定义已由工作包 E 实现（ACC-067）。
 - **依赖：** A 和 DOE 公共合同；保留 DOE-2 正规 fraction 算法供其原用途，PB/DSD 采用实际矩阵秩及投影，不将正规别名等式直接用于非正规设计。
 - **复用 / 预计文件：** code/doe_fractional.py、code/doe_fractional_analysis.py、code/doe_analysis.py、code/doe_dialog.py、菜单、帮助、测试；PB/DSD 的点生成可分模块。
 - **Schema：** 需新增 screening design type 及相应点结构；检查 design_type/point_type enum 和混杂元数据；二元响应不能挤入 continuous responses 语义。
@@ -94,7 +94,9 @@
 
 ### E — 自定义及最优设计
 
-- **目标与 feature_id：** SCR-005、FAC-011/013、RSM-005、GEN-002–006/009/011；自定义筛选/因子/响应面设计、增补、修改、候选集选择、D/距离准则、诊断和 schema 兼容。SCR-005 需后续建立独立验收合同，本次不实现。
+- **阶段进展（2026-10-28）：** E0–E6 的限定实现、独立数学参考、真实 Tk GUI 与工程保存/恢复回归已完成。Schema v5 新增自定义 Factorial/RSM/Screening、显式模型项、最优选点与增补谱系；v1–v4 按原字段和原摘要校验后迁移。D-optimal 小候选集穷举、大候选集确定性贪婪+交换；Distance-based 仅响应面，Mixture 距离合同依赖 F 保持 partial。逐项范围见 [E 收尾记录](work-package-e-closeout.md) 与 [参考核验](optimal-reference-validation.md)；独立 Review 尚未执行，不表示 APPROVE。
+
+- **目标与 feature_id：** SCR-005、FAC-011/013、RSM-005、GEN-002–006/009/011；自定义筛选/因子/响应面设计、增补、修改、候选集选择、D/距离准则、诊断和 schema 兼容。SCR-005 的验收合同见 ACC-067。
 - **依赖：** A 与设计类型扩展策略；复用 B/C/D 已通过的模型矩阵和候选点验证，不自建平行响应优化接口。
 - **复用 / 预计文件：** code/doe_core.py、实际设计 analyzer、worksheet metadata、workbooks 与 GUI；最优设计准则应是独立核心实现，不复用 DOE-4 搜索目标。
 - **Schema：** arbitrary candidate rows、模型项、选中点、selection order、parent design 和 augmentation batch 需要清晰的可持久化结构；Level 1 schema 兼容方案须在开始 F/G 前通过。
@@ -104,6 +106,7 @@
 - **完成定义：** 每个准则明确数学目标、输入范围、并列解和失败状态；不以 solver succeeded 代替最优证明。
 - **进入 F/G 的 Level 1 前置门槛：** FAC-015 的 factorial ANOVA（D）、RSM-015 的响应面诊断（B）、GEN-009 的跨类诊断和 GEN-011 的 schema 兼容均通过；GEN-010 的已实现持久化只做基线确认，不重复开发。
 - **进入下一包：** 自定义输入与选中设计的 lineage 持久化兼容；上述 Level 1 门槛全部通过后，F/G 才开始开发。
+- **本地收尾状态：** `WORK_PACKAGE_E_READY_FOR_REVIEW`。ACC-056/058 因 Mixture 距离合同与 Mixture 增补保留 partial（响应面的 distance-based 选点与增补已实现）；本路线图不据此自动启动 F。
 
 ### F — 混料设计
 

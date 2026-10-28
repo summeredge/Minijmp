@@ -1,8 +1,18 @@
 # Minitab 官方来源与核查记录
 
-## 2026-10-28 自定义筛选设计补充核查
+## 2026-10-28 工作包 E 实施证据
 
-[Define Custom Screening Design 数据要求](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/screening/define-custom-screening-design/before-you-start/data-considerations/) 与 [Create Definitive Screening Design 概览](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/screening/create-definitive-screening-design/before-you-start/overview/) 确认可将工作表中已有因子及其他设计列定义为自定义筛选设计；前页说明 2–48 因子、文本因子两个水平。SCR-005 为官方已确认、MiniJMP missing，安排后续 E；本轮不实现。下方早期来源未确认结论属于历史。
+工作包 E 的本地实现与测试证据见 [工作包 E 收尾记录](work-package-e-closeout.md)，独立数学参考见 [最优设计参考核验](optimal-reference-validation.md)。要点：
+
+- 自定义定义（FAC-011/RSM-005/SCR-005）只描述工作表中已存在的运行，不重新生成标准设计；F-02 页面只证明“定义已存在的两水平因子设计”，代码不据此声称可恢复任意非正规矩阵的生成元。
+- 自定义 DSD 的构造性质按[DSD 模型信息及公式](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/screening/analyze-screening-design/methods-and-formulas/model-information/)核实：主效应与二因子交互正交、存在中心水平；混合设计主效应之间可以相关，代码如实报告而不拒绝，也没有把 PB 当作 DSD。
+- D-optimal 按 O-01/O-02 的家族范围实现（Factorial、Response Surface）；distance-based 按 O-03/O-04 只对响应面开放，Mixture 距离坐标依赖工作包 F，未开放 GUI。
+- O-02/O-04 只说明产品方法，不构成对专有求解器逐点一致的证据；本地求解器的方法、预算与“非全局最优”标注见收尾记录，未据此宣称产品等价。
+- 本阶段没有任何 Minitab 22 导出用于自定义、最优或增补设计，产品标准序与输出一致性均为未验证。
+
+## 2026-10-28 自定义筛选设计补充核查（历史）
+
+[Define Custom Screening Design 数据要求](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/screening/define-custom-screening-design/before-you-start/data-considerations/) 与 [Create Definitive Screening Design 概览](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/screening/create-definitive-screening-design/before-you-start/overview/) 确认可将工作表中已有因子及其他设计列定义为自定义筛选设计；前页说明 2–48 因子、文本因子两个水平。该记录写下时 SCR-005 为 missing 并排入工作包 E；E 已实现其限定范围（ACC-067），支持范围以上一节为准。
 
 ## 2026-10-28 工作包 C 实施证据
 

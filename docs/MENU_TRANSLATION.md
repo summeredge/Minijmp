@@ -41,6 +41,13 @@
 | Create Plackett–Burman Design | 创建 Plackett–Burman 设计 |
 | Create Definitive Screening Design | 创建筛选设计（DSD） |
 | Analyze Screening Design | 分析筛选设计 |
+| Define Custom Factorial Design | 定义自定义因子设计 |
+| Define Custom Response Surface Design | 定义自定义响应面设计 |
+| Define Custom Screening Design | 定义自定义筛选设计 |
+| Modify Design | 修改设计 |
+| Add Runs | 增加运行 |
+| Select Optimal Design | 选择最优设计 |
+| Evaluate Design | 评价设计 |
 
 ## 文件（File）
 

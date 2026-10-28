@@ -2,9 +2,9 @@
 
 > 2026-10-28 工作包 C 的五项结果及未验证条件见 [工作包 C 收尾记录](work-package-c-closeout.md)。有限构造的本地证据不代表整个官方功能范围或 Minitab 标准序通过。
 
-SCR-005 已由官方页面确认，MiniJMP 尚未实现；新追加 **MTB-DOE-ACC-067**，后续在工作包 E 为已有工作表因子列与设计列的定义、非法输入、分析和工程往返建立独立验收，不属于本轮实现。
+SCR-005 已由官方页面确认；A 阶段追加 **MTB-DOE-ACC-067**，在工作包 E 为已有工作表因子列与设计列的定义、非法输入、分析和工程往返建立独立验收（当时尚未实现）。
 
-ACC-067 待开发合同：用独立构造的工作表验证因子、水平及顺序等设计列的导入和筛选分析；无效或冲突列必须拒绝且不更改工作簿；真实 GUI 覆盖预览、取消、定义及分析；工程保存、重开、复制后保持映射。具体受支持选项和数学解释须在开发前另行核定。
+ACC-067 已在工作包 E 完成限定范围：独立构造 6 因子会议矩阵 foldover 加中心行与 4 连续加 1 文本分类矩阵；核对主效应与二因子交互正交、中心水平存在、主效应平方和；无效/冲突列、重复点、非三水平矩阵拒绝且不更改工作簿；真实 GUI 覆盖预览、取消、定义、分析；工程保存、重开、复制保持映射。混合 DSD 主效应之间可以相关，报告而不拒绝；PB 不能冒充 DSD。
 
 ### 工作包 D D0–D5 状态（2026-10-28）
 
@@ -173,6 +173,24 @@ ACC-067 待开发合同：用独立构造的工作表验证因子、水平及顺
 | MTB-DOE-ACC-064 | TAG-010 | 4-level Taguchi array；官方范围为 2–5 个因子，并选择明确列出的 array。 | 固定一个官方 4-level array，独立核对运行数、每列四水平频数和任意列对的 balance/orthogonality；非法列数和未列出的 array 拒绝。 |
 | MTB-DOE-ACC-065 | TAG-011 | 5-level Taguchi array；官方范围为 2–6 个因子，并选择明确列出的 array。 | 固定一个官方 5-level array（如目录中的 L25(5^6)），独立核对运行数、每列五水平频数和列对正交；超出因子数或未列出的 array 拒绝。 |
 | MTB-DOE-ACC-066 | FAC-019 | 区组/裂区设计声明 block、whole-plot/subplot 随机化单元及每层 seed/order。 | 用 2×2 因子、3 个区组的 12-run split-plot 独立重建随机化；固定 seed 检查每区组完整 whole plots 与 subplot 顺序，禁止 whole-plot 标签交叉置换，并核对持久化。 |
+
+## 工作包 E 本地验收证据（2026-10-28）
+
+独立参考位于 `tests/fixtures/doe_optimal_reference/`，`reference.json` 的 SHA-256 由 `manifest.json` 固定；核验器只使用标准库与精确有理数，不导入生产模块。
+
+| 编号 | 本地实现与证据 | 未支持配置 |
+|---|---|---|
+| ACC-014 | `code/doe_custom.py`、`doe_custom_dialog.py`、`doe_custom_analysis.py`；`tests/test_doe_custom_factorial.py`、`test_doe_custom_gui.py`、`test_doe_e_lifecycle.py`。文本水平、行顺序、运行映射、重复 run ID、非法顺序和列冲突均覆盖。 | 非正规矩阵的生成元/别名自动恢复；产品输出一致性 |
+| ACC-016 | `code/doe_augment.py::augment`；`tests/test_doe_augment.py`、`test_doe_optimal_augmentation.py`、`test_doe_e_lifecycle.py`。父设计、批次、唯一 run ID、响应保留与空响应覆盖。 | 全部标准设计族的增补；Minitab 对照 |
+| ACC-054 | `code/doe_modify.py`；`tests/test_doe_modify.py`。显示重排、按族重新随机化、Split-Plot 整区/子区顺序、按标准序重编号、增加完整重复、取消无副作用。 | 修改因子设定；折叠/增补设计上加重复 |
+| ACC-055 | `code/doe_optimal.py::select`；`tests/test_doe_optimal.py`。x∈{-1,0,1} 选 2 点穷举 det=4；并列、奇异、候选不足、全选及大候选启发式均覆盖。 | Mixture 候选合同；A/G/I 准则 |
+| ACC-056 | `code/doe_optimal.py::select_distance`；`tests/test_doe_distance_optimal.py`。RSM 起点离编码原点最远、随后最远点、稳定并列；Factorial 明确拒绝。 | Mixture 距离坐标与约束（partial） |
+| ACC-057 | `code/doe_optimal.py::evaluate`；`tests/test_doe_optimal_evaluation.py`。秩、条件数、logdet、受保护 det、最小间距；跨模型/运行数不作比较。 | A/G/V 统计量 |
+| ACC-058 | `code/doe_augment.py::select_augment`（D-optimal）与 `code/doe_augment.py::_distance_augment`（distance，RSM）；`tests/test_doe_optimal_augmentation.py`、`tests/test_doe_optimal_gui.py`、`tests/test_doe_e_lifecycle.py`。父设计运行固定为距离锚点，按最远点规则补点、不复制候选，增补前后秩与 logdet 报告，谱系保存 criterion。 | Mixture 增补（partial） |
+| ACC-061 | `code/doe_diagnostics.py::contract`；`tests/test_doe_diagnostics_contract.py`。统一字段语义，各设计保留独立误差层；假设标为未自动检验。 | 杠杆值、自动假设检验 |
+| ACC-062 | `code/doe_core.py` v5；`tests/test_doe_schema_e.py`、`test_doe_schema_v2.py`、`test_doe_schema_v3.py`、`test_doe_e_lifecycle.py`。v1–v4 按原字段/摘要校验后迁移；坏元数据不替换当前工作簿。 | 旧版 MiniJMP 读取 v5 |
+| ACC-063 | `code/doe_custom.py`、`doe_custom_analysis.py`；`tests/test_doe_custom_rsm.py`、`test_doe_optimal_evaluation.py`。按实际矩阵重建模型项与秩，拒绝超出范围与不可估计项。 | Scheffé/Mixture；产品输出一致性 |
+| ACC-067 | `code/doe_custom.py::screening_properties`；`tests/test_doe_custom_screening.py`。6 因子与 4+1 文本分类构造、重复点、非三水平、非法水平拒绝。 | 其他多分类组合与产品标准序 |
 
 ## 验收完成规则
 
