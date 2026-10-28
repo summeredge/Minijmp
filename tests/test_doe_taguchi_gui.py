@@ -301,6 +301,57 @@ def test_l18_gui_rejects_nonorthogonal_selected_columns(csv_app, monkeypatch):
     dialog.main.destroy()
 
 
+def test_l8_two_factor_subset_is_explained_and_valid_three_column_subset_works(
+        csv_app, monkeypatch):
+    app, error = csv_app
+    monkeypatch.setattr('doe_taguchi_dialog.messagebox.showerror', error)
+    names = list(app.sheets)
+    dialog = CreateTaguchi(app)
+    dialog.factor_count.set('2')
+    dialog.array.set('L18(2^1 3^7)')
+    dialog.update_rows()
+    assert '所选控制列会产生重复设定' in dialog.limit_label.cget('text')
+
+    dialog.array.set('L8(2^7)')
+    dialog.factor_count.set('3')
+    dialog.update_rows()
+    assert '不能区分全部 8 行' in dialog.limit_label.cget('text')
+    dialog.factor_count.set('2')
+    dialog.update_rows()
+    assert '四种 2×2 组合各重复 2 次' in dialog.limit_label.cget('text')
+    for index, column_number in enumerate(('1', '2')):
+        _, _, levels, column, role = dialog.rows[index]
+        levels.delete(0, 'end')
+        levels.insert(0, '低;高')
+        column.set(column_number)
+        role.set('控制')
+
+    assert dialog.preview() is False
+    message = error.call_args.args[1]
+    assert '四种 2×2 组合各重复 2 次' in message
+    assert '每行设定唯一' in message
+    assert dialog.limit_label.cget('text') == message
+    assert list(app.sheets) == names
+
+    dialog.factor_count.set('3')
+    dialog.update_rows()
+    _, _, levels, column, role = dialog.rows[2]
+    levels.delete(0, 'end')
+    levels.insert(0, '低;高')
+    column.set('4')
+    role.set('控制')
+    dialog.update_rows()
+    assert dialog.limit_label.cget('text') == ''
+    assert dialog.preview() is True
+    assert '运行 8 次；L8(2^7)' in dialog.preview_text.get('1.0', 'end')
+    assert dialog.create() is True
+
+    frame = app.getCurrentTable().model.df
+    assert len(frame) == 8
+    assert len(set(zip(frame['设定_A'], frame['设定_B'], frame['设定_C']))) == 8
+    assert error.call_count == 1
+
+
 def test_dynamic_design_requires_signal_and_roundtrips(csv_app, monkeypatch):
     app, error = csv_app
     monkeypatch.setattr('doe_taguchi_dialog.messagebox.showerror', error)
@@ -394,3 +445,31 @@ def test_noise_robustness_window_reports_control_levels(csv_app, monkeypatch):
     window.main.destroy()
     analysis.main.destroy()
     assert error.call_count == 0
+
+
+@pytest.mark.parametrize('label, expected', [
+    ('Smaller is better', -6.020599913279624),
+    ('Larger is better', 6.020599913279624),
+])
+def test_noise_window_displays_zero_sd_and_valid_sn(csv_app, monkeypatch, label, expected):
+    from doe_taguchi import create_taguchi
+    from test_doe_taguchi_noise import inner_outer_spec
+
+    app, error = csv_app
+    monkeypatch.setattr('doe_taguchi_analysis_dialog.messagebox.showerror', error)
+    frame, metadata = create_taguchi(inner_outer_spec())
+    frame['响应_Y'] = 2.0
+    app.addSheet('Taguchi', frame, {'doe': metadata})
+    analysis = AnalyzeTaguchi(app)
+    analysis.sn_kind.set(label)
+    analysis.noise()
+    window = analysis.noise_window
+    tab = window.tabs.nametowidget(window.tabs.tabs()[0])
+    values = next(child.table.values for child in tab.winfo_children()
+                  if hasattr(child, 'table'))
+    assert len(values) == 4
+    assert all(row[4] == 0 and row[5] == pytest.approx(expected, abs=1e-10)
+               for row in values)
+    assert error.call_count == 0
+    window.main.destroy()
+    analysis.main.destroy()

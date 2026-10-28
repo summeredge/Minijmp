@@ -341,6 +341,19 @@ def test_axial_run_can_store_future_out_of_range_target_without_generating_it():
         DesignResult(invalid_spec, (run,))
 
 
+def test_axial_rejected_for_other_families_and_unencodable_values():
+    factor = FactorSpec("A", "A", 0, 1)
+    run = RunRecord(run_id="r1", standard_order=1, run_order=1,
+                    point_type="axial", settings={"A": 2}, responses={"Y": None})
+    with pytest.raises(ValueError, match="不支持轴点"):
+        DesignResult(DesignSpec("d", (factor,), ("Y",),
+                                design_type="two_level_full"), (run,))
+    huge = replace(run, settings={"A": 10 ** 400})
+    spec = DesignSpec("d", (factor,), ("Y",), ccd_alpha=2, ccd_axial_points=1)
+    with pytest.raises(ValueError, match="轴点编码"):
+        DesignResult(spec, (huge,))
+
+
 def test_saturated_model_contract_forbids_residual_inference():
     with pytest.raises(ValueError, match="不得提供 t/p/F"):
         ModelResult(

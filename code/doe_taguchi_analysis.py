@@ -71,8 +71,6 @@ def noise_robustness(frame, metadata, response, kind="smaller"):
             raise ValueError("每个控制设定至少需要两个噪声条件")
         mean = float(array.mean())
         sd = float(array.std(ddof=1))
-        if sd == 0:
-            raise ValueError("噪声条件间 SD 为零，S/N 无定义")
         sn = signal_to_noise(array, kind)
         matrix_sn.append({"settings": dict(control), "signal": signal_level,
                           "n": array.size, "noise_count": array.size, "mean": mean,

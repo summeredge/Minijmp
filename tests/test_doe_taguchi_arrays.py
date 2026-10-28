@@ -146,6 +146,24 @@ def test_array_capacity_and_duplicate_columns(array_id, capacity):
         pair_counts(array, 1, capacity + 1)
 
 
+def test_l8_two_factor_projection_is_balanced_but_rejected_by_design_contract():
+    array = ARRAYS['L8(2^7)']
+    counts = {}
+    for row in array.matrix:
+        pair = (row[0], row[1])
+        counts[pair] = counts.get(pair, 0) + 1
+    assert counts == {(1, 1): 2, (1, 2): 2, (2, 1): 2, (2, 2): 2}
+
+    with pytest.raises(ValueError, match='所选列存在重复行'):
+        DesignSpec(
+            'TG', (factor('A', ('a1', 'a2')), factor('B', ('b1', 'b2'))),
+            ('Y',), seed=1, design_type='taguchi',
+            taguchi={'kind': 'static', 'array_id': array.array_id,
+                     'matrix_sha256': array.sha256, 'columns': {'A': 1, 'B': 2},
+                     'noise_array_id': None, 'noise_matrix_sha256': None,
+                     'noise_columns': {}, 'signal_factor': None})
+
+
 def test_static_design_generates_full_grid_and_roundtrips():
     spec = static_spec()
     frame, metadata = create_taguchi(spec, replicates=2)
@@ -206,7 +224,8 @@ def test_v4_payload_does_not_gain_taguchi_fields():
     payload["schema_version"] = 4
     for item in payload["factors"]:
         item["schema_version"] = 4
-    payload.pop("taguchi")
+    for key in ("taguchi", "model_terms", "optimal_lineage", "augmentation_lineage"):
+        payload.pop(key)
     assert DesignSpec.from_dict(payload).schema_version == 5
 
 

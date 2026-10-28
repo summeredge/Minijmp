@@ -91,7 +91,7 @@ def test_custom_factorial_rejects_unknown_levels_and_bad_point_types():
                       responses=("Y",), column_map=columns())
     frame = reference_frame()
     frame.loc[0, "点类型"] = "axial"
-    with pytest.raises(ValueError, match="因子点或中心点"):
+    with pytest.raises(ValueError, match="不支持轴点"):
         define_custom(frame, design_type="custom_factorial", factors=factors(),
                       responses=("Y",), column_map=columns())
 

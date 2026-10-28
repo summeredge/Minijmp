@@ -8,7 +8,7 @@ from test_csv_import import csv_app
 from test_doe_custom_gui import custom_source, fill_dialog
 
 
-def rsm_source(app):
+def rsm_source(app, *, blocked=False):
     frame = pd.DataFrame({
         "运行ID": [f"C{i}" for i in range(1, 7)],
         "标准序": list(range(1, 7)),
@@ -19,10 +19,12 @@ def rsm_source(app):
         "X2": [-1, -1, 1, 1, -1, 1],
         "Y": [None] * 6,
     })
+    if blocked:
+        frame["区组"] = [1, 2, 1, 2, 1, 2]
     return app.addSheet("候选", frame)
 
 
-def make_rsm(app):
+def make_rsm(app, *, blocked=False):
     dialog = DefineCustomDOE(app, "custom_rsm")
     for index, factor in enumerate(("X1", "X2")):
         row = dialog.factor_rows[index]
@@ -39,7 +41,7 @@ def make_rsm(app):
                        ("run_order", "运行序"), ("point_type", "点类型"),
                        ("replicate", "重复")):
         dialog.mapping[key].set(label)
-    dialog.mapping["block"].set("")
+    dialog.mapping["block"].set("区组" if blocked else "")
     dialog.response.set("Y")
     dialog.terms.delete(0, "end")
     dialog.terms.insert(0, "X1;X2;X1*X2")
@@ -84,6 +86,28 @@ def test_optimal_gui_preview_cancel_and_create(csv_app, monkeypatch):
     assert lineage["criterion"] == "d_optimal"
     assert len(lineage["selection_order"]) == 4
     assert error.call_count == 0
+
+
+def test_optimal_gui_shows_blocked_candidate_rejection(csv_app, monkeypatch):
+    app, error = csv_app
+    monkeypatch.setattr("doe_optimal_dialog.messagebox.showerror", error)
+    rsm_source(app, blocked=True)
+    make_rsm(app, blocked=True)
+    defined = app.getCurrentSheet()
+    sheet_names = list(app.sheets)
+
+    dialog = OptimalDesignDialog(app)
+    dialog.sheet.set(defined)
+    dialog.kind.set("自定义响应面")
+    dialog._kind_changed()
+    assert not dialog.preview_click()
+    reason = "带区组的候选工作表暂不支持最优设计"
+    assert reason in dialog.preview.get("1.0", "end")
+    assert not dialog.create()
+    assert error.call_count == 1
+    assert reason in error.call_args.args[1]
+    assert list(app.sheets) == sheet_names
+    dialog.main.destroy()
 
 
 def test_optimal_gui_rejects_factorial_distance_option(csv_app, monkeypatch):

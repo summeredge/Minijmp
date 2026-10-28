@@ -15,7 +15,7 @@
 - `tests/fixtures/doe_mixture_reference/verify.py`：独立复核点集、顶点、预测、ANOVA、叠加可行域与 SHA-256。
 - `tests/fixtures/doe_mixture_reference/manifest.json`：文件 SHA-256 与字节数。
 
-当前 `reference.json` SHA-256：`8ae2c0712fdb423a0570336ebf96cca0dd8366e56c7dddf1be007ad36099c913`。
+当前 `reference.json` 文件字节 SHA-256：`cfc482999750eafac2bd8bc89b469e628c405cce23e25c00c010f2695184b0de`（包含末尾换行）；此前记录的 `8ae2c0712fdb423a0570336ebf96cca0dd8366e56c7dddf1be007ad36099c913` 是去掉末尾换行的内容摘要。
 
 ## 覆盖矩阵
 

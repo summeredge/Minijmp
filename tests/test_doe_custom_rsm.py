@@ -1,13 +1,16 @@
 import json
+from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from doe_core import FactorSpec, restore_design_result
+from doe_core import FactorSpec, _fingerprint, restore_design_result
 from doe_custom import define_custom, design_matrix, validate_custom
 from doe_custom_analysis import analyze_custom_rsm
+from doe_rsm_model import TermModel
 
 
 REFERENCE = json.loads((Path(__file__).parent / "fixtures" / "doe_optimal_reference"
@@ -169,3 +172,33 @@ def test_custom_rsm_analysis_uses_declared_terms_not_full_quadratic():
     # 忽略区组时模型项数量减少，但数据本身不变。
     plain = analyze_custom_rsm(result, metadata, "Y", use_blocks=False)
     assert plain["p"] == 4 and plain["blocks"] == []
+
+
+def test_axial_categorical_level_is_checked_even_with_recomputed_digest():
+    frame = reference_frame().drop(columns="X3")
+    frame["C"] = ["低" if i % 2 else "高" for i in range(len(frame))]
+    mixed_factors = (FactorSpec("X1", "X1", -1, 1),
+                     FactorSpec("X2", "X2", -1, 1),
+                     FactorSpec("C", "C", None, None, factor_type="categorical",
+                                levels=("低", "高")))
+    mapping = columns()
+    mapping["factors"] = {name: name for name in ("X1", "X2", "C")}
+    kwargs = dict(design_type="custom_rsm", factors=mixed_factors,
+                  responses=("Y",), column_map=mapping,
+                  model_terms=["X1", "X2", "C"])
+    valid, metadata, _ = define_custom(frame, **kwargs)
+    design = restore_design_result(valid, metadata)
+    row = frame.index[frame["点类型"] == "axial"][0]
+    invalid = valid.copy()
+    invalid.loc[row, "C"] = "未知"
+    runs = list(design.runs)
+    runs[row] = replace(runs[row], settings={**runs[row].settings, "C": "未知"})
+    metadata["worksheet"]["input_fingerprint"] = _fingerprint(
+        metadata["design"], metadata["column_map"], SimpleNamespace(runs=runs))
+    with pytest.raises(ValueError, match="分类因子"):
+        define_custom(invalid, **kwargs)
+    with pytest.raises(ValueError, match="分类因子"):
+        restore_design_result(invalid, metadata)
+    with pytest.raises(ValueError, match="水平不在已声明范围"):
+        TermModel(mixed_factors, ["X1", "X2", "C"]).row(
+            {"X1": 2.0, "X2": 0.0, "C": "未知"})

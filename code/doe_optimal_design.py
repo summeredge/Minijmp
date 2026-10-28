@@ -28,7 +28,7 @@ def _candidate_spec(factors, responses, model_terms=()):
 
 def optimal_from_candidates(frame, *, design_type, factors, responses,
                             column_map, count, model_terms=(), criterion='d_optimal',
-                            seed=None, design_id=None):
+                            seed=None, design_id=None, block_count=None):
     """在候选工作表上按 D-optimal 或 distance 准则选点。
 
     返回 (选中工作表, 元数据, 摘要)；候选工作表本身不被修改。
@@ -41,6 +41,9 @@ def optimal_from_candidates(frame, *, design_type, factors, responses,
         raise ValueError('当前最优设计只支持自定义因子或响应面设计')
     if design_type == 'custom_rsm' and not model_terms:
         raise ValueError('响应面最优设计必须显式声明模型项')
+    if block_count is not None or column_map.get('block') is not None:
+        raise ValueError(
+            '带区组的候选工作表暂不支持最优设计：当前选点模型未纳入区组项，已拒绝创建')
     spec = DesignSpec(
         design_id or f'optimal-{design_type.split("_", 1)[1]}',
         _candidate_spec(factors, responses), tuple(responses), seed=seed,

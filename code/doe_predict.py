@@ -30,7 +30,13 @@ def predict_point(frame, metadata, response, settings, terms=None, blocks=True):
     settings 必须覆盖全部因子；分类因子使用其水平标签。区组取模型中
     的第一个区组（参考区组），并在结果中标明。
     """
-    analysis = analyze_rsm(frame, metadata, response, terms=terms, use_blocks=blocks)
+    design_metadata = metadata.get('design') if isinstance(metadata, dict) else None
+    if isinstance(design_metadata, dict) and design_metadata.get('design_type') == 'custom_rsm':
+        from doe_custom_analysis import analyze_custom_rsm
+        analysis = analyze_custom_rsm(frame, metadata, response, terms=terms,
+                                      use_blocks=blocks)
+    else:
+        analysis = analyze_rsm(frame, metadata, response, terms=terms, use_blocks=blocks)
     model = analysis['term_model']
     design = analysis['design']
     missing = [factor.factor_id for factor in design.spec.factors

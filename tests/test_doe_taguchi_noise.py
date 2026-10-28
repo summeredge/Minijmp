@@ -379,8 +379,33 @@ def test_noise_robustness_reports_factor_level_response_table():
     assert result["response_table"]["ranked"][0] == "A"
 
 
-def test_zero_noise_sd_is_reported_instead_of_null():
+@pytest.mark.parametrize('kind, expected', [
+    # [2, 2]：Smaller = -10 log10(4)，Larger = -10 log10(1/4)。
+    ('smaller', -6.020599913279624),
+    ('larger', 6.020599913279624),
+])
+def test_zero_noise_sd_allows_valid_smaller_and_larger_sn(kind, expected):
+    frame, metadata = create_taguchi(inner_outer_spec())
+    frame['响应_Y'] = 2.0
+    result = noise_robustness(frame, metadata, 'Y', kind)
+    assert len(result['rows']) == 4
+    for row in result['rows']:
+        assert row['noise_count'] == 2
+        assert row['sd'] == 0
+        assert row['sn'] == pytest.approx(expected, abs=1e-10)
+
+
+@pytest.mark.parametrize('kind', ['nominal', 'nominal_ii'])
+def test_zero_noise_sd_still_rejects_nominal_sn(kind):
     frame, metadata = create_taguchi(inner_outer_spec())
     frame["响应_Y"] = 5.0
-    with pytest.raises(ValueError, match="SD 为零"):
-        noise_robustness(frame, metadata, "Y", "smaller")
+    with pytest.raises(ValueError, match="方差为零"):
+        noise_robustness(frame, metadata, "Y", kind)
+
+
+@pytest.mark.parametrize('kind', ['smaller', 'larger'])
+def test_zero_responses_still_obey_sn_domain(kind):
+    frame, metadata = create_taguchi(inner_outer_spec())
+    frame['响应_Y'] = 0.0
+    with pytest.raises(ValueError):
+        noise_robustness(frame, metadata, 'Y', kind)

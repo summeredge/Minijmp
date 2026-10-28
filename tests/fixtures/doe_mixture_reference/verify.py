@@ -151,9 +151,9 @@ def main():
     check_anova(data['anova_reference'])
     check_overlay(data['overlay'])
     manifest = json.loads((HERE / 'manifest.json').read_text(encoding='utf-8'))
-    raw = (HERE / 'reference.json').read_text(encoding='utf-8')
-    payload = raw[:-1] if raw.endswith('\n') else raw
-    assert hashlib.sha256(payload.encode('utf-8')).hexdigest() == manifest['files']['reference.json']['sha256']
+    payload = (HERE / 'reference.json').read_bytes()
+    assert len(payload) == manifest['files']['reference.json']['bytes']
+    assert hashlib.sha256(payload).hexdigest() == manifest['files']['reference.json']['sha256']
     return True
 
 
