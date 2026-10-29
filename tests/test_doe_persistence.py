@@ -11,8 +11,11 @@ from doe_core import (
     DesignSpec,
     FactorSpec,
     restore_design_result,
+    validate_worksheet_metadata,
     worksheet_metadata,
 )
+from doe_splitplot import append_split_plot_blocks, create_split_plot, validate_split_plot_design
+from doe_splitplot_analysis import analyze_split_plot
 from test_csv_import import csv_app
 
 
@@ -170,6 +173,38 @@ def test_bad_doe_metadata_fails_project_load_without_replacing_live_sheets(
     error.assert_called_once()
 
 
+def test_corrupt_splitplot_project_does_not_replace_live_workbook(
+        workbook, tmp_path):
+    app, error = workbook
+    factors = (
+        FactorSpec("A", "A", -1, 1, randomization_role="hard_to_change"),
+        FactorSpec("B", "B", -1, 1, randomization_role="easy_to_change"),
+        FactorSpec("C", "C", -1, 1, randomization_role="easy_to_change"),
+    )
+    spec = DesignSpec(
+        "bad-splitplot-load", factors, ("Y",), seed=31, design_type="split_plot",
+        block_count=2, construction_version="v2", randomization_unit="whole_plot",
+        error_structure="split_plot")
+    frame, metadata = create_split_plot(spec)
+    columns = metadata["column_map"]
+    frame.loc[0, columns["whole_plot_id"]] = "WP99999H1"
+    target = tmp_path / "bad-splitplot.dexpl"
+    data = {
+        "健康工作表": {"table": pd.DataFrame({"x": [1]})},
+        "DOE Split-Plot": {"table": frame, "meta": {"doe": metadata}},
+        "meta": {"active": "健康工作表", "minijmp": 1},
+    }
+    with gzip.open(target, "wb") as stream:
+        pickle.dump(data, stream)
+
+    original_table = app.table
+    original_names = list(app.sheets)
+    assert not app.load_file(target)
+    assert app.table is original_table
+    assert list(app.sheets) == original_names
+    error.assert_called_once()
+
+
 def test_stale_doe_inputs_block_save_without_overwriting_existing_project(
         workbook, tmp_path, monkeypatch):
     app, error = workbook
@@ -201,3 +236,92 @@ def test_loaded_doe_metadata_is_a_safe_copy(workbook):
     duplicate = app.copySheet()
     assert duplicate.doe_metadata is not table.doe_metadata
     assert duplicate.doe_metadata == table.doe_metadata
+
+
+@pytest.mark.parametrize("version,hard,easy", [("v1", 1, 1), ("v2", 2, 2)])
+def test_splitplot_append_dexpl_copy_and_reanalysis_roundtrip(
+        workbook, tmp_path, version, hard, easy):
+    app, error = workbook
+    factors = tuple(FactorSpec(
+        chr(65 + index), chr(65 + index), -1, 1,
+        randomization_role=("hard_to_change" if index < hard else "easy_to_change"))
+        for index in range(hard + easy))
+    spec = DesignSpec(
+        f"persist-split-{version}", factors, ("Y",), seed=1,
+        design_type="split_plot", block_count=2, construction_version=version,
+        randomization_unit="whole_plot", error_structure="split_plot")
+    frame, metadata = create_split_plot(spec)
+    response = metadata["column_map"]["responses"]["Y"]
+    frame[response] = pd.array(range(1, len(frame) + 1), dtype="Float64")
+    appended, appended_metadata = append_split_plot_blocks(frame, metadata, 1)
+    validate_split_plot_design(appended, appended_metadata)
+    validate_worksheet_metadata(appended, appended_metadata)
+    table = app.addSheet("Split-Plot", appended, {"doe": appended_metadata})
+    app.nb.select(app.sheetframes["Split-Plot"])
+
+    copied = app.copySheet()
+    assert_frame_equal(copied.model.df, appended)
+    assert validate_split_plot_design(copied.model.df, copied.doe_metadata).spec.block_count == 3
+    target = tmp_path / f"splitplot-{version}.dexpl"
+    assert app._save_project(target)
+    assert app.load_file(target)
+    restored = app.sheets["Split-Plot"]
+    assert_frame_equal(restored.model.df, appended)
+    result = validate_split_plot_design(restored.model.df, restored.doe_metadata)
+    assert result.spec.construction_version == version
+    assert result.spec.block_count == 3
+    assert result.spec.augmentation_lineage["criterion"] == "manual"
+    batch_column = restored.doe_metadata["column_map"]["batch_id"]
+    new_rows = restored.model.df[
+        restored.model.df[batch_column] == "SPLITPLOT_APPEND_V1"].index
+    response_column = restored.doe_metadata["column_map"]["responses"]["Y"]
+    restored.model.df.loc[new_rows, response_column] = range(101, 101 + len(new_rows))
+    assert analyze_split_plot(restored.model.df, restored.doe_metadata, "Y")["n"] == len(appended)
+    assert error.call_count == 0
+
+
+def test_corrupt_splitplot_append_order_is_rejected_on_dexpl_load(
+        workbook, tmp_path):
+    app, error = workbook
+    factors = (
+        FactorSpec("A", "A", -1, 1, randomization_role="hard_to_change"),
+        FactorSpec("B", "B", -1, 1, randomization_role="easy_to_change"),
+    )
+    spec = DesignSpec(
+        "corrupt-split-append", factors, ("Y",), seed=1,
+        design_type="split_plot", block_count=2, construction_version="v1",
+        randomization_unit="whole_plot", error_structure="split_plot")
+    frame, metadata = create_split_plot(spec)
+    appended, appended_metadata = append_split_plot_blocks(frame, metadata, 1)
+    damaged = appended.copy(deep=True)
+    block_column = appended_metadata["column_map"]["block"]
+    whole_plot_column = appended_metadata["column_map"]["whole_plot_id"]
+    whole_plot_order_column = appended_metadata["column_map"]["whole_plot_order"]
+    first_block = damaged[block_column].iloc[0]
+    whole_plots = damaged.loc[damaged[block_column] == first_block,
+                              whole_plot_column].drop_duplicates().tolist()
+    first, second = whole_plots[:2]
+    first_mask = damaged[whole_plot_column] == first
+    second_mask = damaged[whole_plot_column] == second
+    first_order = damaged.loc[first_mask, whole_plot_order_column].iloc[0]
+    second_order = damaged.loc[second_mask, whole_plot_order_column].iloc[0]
+    damaged.loc[first_mask, whole_plot_order_column] = second_order
+    damaged.loc[second_mask, whole_plot_order_column] = first_order
+    augmented_spec = DesignSpec.from_dict(appended_metadata["design"])
+    damaged_metadata = worksheet_metadata(
+        damaged, augmented_spec, appended_metadata["column_map"])
+    target = tmp_path / "damaged-splitplot-append.dexpl"
+    data = {
+        "健康工作表": {"table": pd.DataFrame({"x": [1]})},
+        "DOE Split-Plot": {"table": damaged, "meta": {"doe": damaged_metadata}},
+        "meta": {"active": "健康工作表", "minijmp": 1},
+    }
+    with gzip.open(target, "wb") as stream:
+        pickle.dump(data, stream)
+
+    original_table = app.table
+    original_names = list(app.sheets)
+    assert not app.load_file(target)
+    assert app.table is original_table
+    assert list(app.sheets) == original_names
+    error.assert_called_once()

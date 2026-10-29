@@ -868,17 +868,25 @@ class AnalyzeDOE:
             labels = {'block': '区组', 'whole_plot_error': '整区误差',
                       'subplot_error': '子区误差', 'total': '总计'}
             self.show_table('裂区方差分析',
-                            ['来源', '平方和', '自由度', '均方', 'F', 'p', '误差层'], [
-                [labels.get(row['term'], row['term']), row['ss'], row['df'],
-                 row['ms'], row['f'], row['p'],
-                 labels.get(row['error_stratum'], row['error_stratum'])]
+                            ['来源', '系数', '效应', '平方和', '自由度', '均方',
+                             'F', 'p', '误差层', '误差df', '状态'], [
+                [labels.get(row['term'], row['term']), row['coefficient'],
+                 row['effect'], row['ss'], row['df'], row['ms'], row['f'], row['p'],
+                 labels.get(row['error_stratum'], row['error_stratum']),
+                 row.get('error_df'),
+                 '可用' if row.get('inference_available') else
+                 row.get('inference_reason') or '不检验']
                 for row in result['anova']])
             design = result['design']
             self.show_table('拟合与残差', ['运行ID', '区组', '整区ID', '子区ID',
-                                           '运行序', '响应', '拟合值', '残差'], [
+                                           '运行序', '响应', '固定效应拟合值',
+                                           '整区误差贡献', '子区误差贡献', '整体残差'], [
                 [run.run_id, run.block, run.whole_plot_id, run.subplot_id,
                  run.run_order, run.responses[result['response']],
-                 result['fitted'][index], result['residuals'][index]]
+                 result['fitted'][index],
+                 result['whole_plot_residual_contribution'][index],
+                 result['subplot_residual_contribution'][index],
+                 result['residuals'][index]]
                 for index, run in enumerate(design.runs)])
             self.result = result
             return
@@ -1491,34 +1499,46 @@ class AnalyzeDOE:
     def plot_split_plot(self, result):
         design = result['design']
         factors = design.spec.factors
-        hard = next(factor for factor in factors
-                    if factor.randomization_role == 'hard_to_change')
-        easy = next(factor for factor in factors
-                    if factor.randomization_role == 'easy_to_change')
+        factor_by_id = {factor.factor_id: factor for factor in factors}
+        x_factor = factor_by_id.get(self.factor_x.get())
+        y_factor = factor_by_id.get(self.factor_y.get())
+        if x_factor is None or y_factor is None or x_factor == y_factor:
+            raise ValueError('请选择两个不同因子查看交互作用。')
         runs = design.runs
         y = np.asarray([run.responses[result['response']] for run in runs], dtype=float)
-        coded_hard = np.asarray([hard.to_coded(run.settings[hard.factor_id]) for run in runs])
-        coded_easy = np.asarray([easy.to_coded(run.settings[easy.factor_id]) for run in runs])
+        coded_x = np.asarray([x_factor.to_coded(run.settings[x_factor.factor_id])
+                              for run in runs])
+        coded_y = np.asarray([y_factor.to_coded(run.settings[y_factor.factor_id])
+                              for run in runs])
         viewer = self.app.showPlotViewer(deferred=True, figsize=(10, 7))
         try:
             from chart_style import font_families
             font = font_manager.FontProperties(family=font_families('Microsoft YaHei'))
             axes = viewer.fig.subplots(2, 3)
-            hard_means = [float(y[coded_hard == level].mean()) for level in (-1, 1)]
-            easy_means = [float(y[coded_easy == level].mean()) for level in (-1, 1)]
-            axes[0, 0].plot([hard.low, hard.high], hard_means, marker='o')
-            axes[0, 0].set_title(f'{hard.name} 整区主效应')
-            axes[0, 0].set_xlabel('Hard-to-change 因子水平')
-            axes[0, 1].plot([easy.low, easy.high], easy_means, marker='o')
-            axes[0, 1].set_title(f'{easy.name} 子区主效应')
-            axes[0, 1].set_xlabel('Easy-to-change 因子水平')
-            for easy_level in (-1, 1):
-                means = [float(y[(coded_hard == hard_level)
-                                 & (coded_easy == easy_level)].mean())
-                         for hard_level in (-1, 1)]
-                axes[1, 0].plot([hard.low, hard.high], means, marker='o',
-                                label=f'{easy.name}={easy.low if easy_level == -1 else easy.high}')
-            axes[1, 0].set_title(f'{hard.name} × {easy.name} 交互作用')
+            by_plot = {}
+            for index, run in enumerate(runs):
+                by_plot.setdefault(run.whole_plot_id, index)
+            plot_indices = list(by_plot.values())
+            axes[0, 0].scatter(
+                np.arange(len(plot_indices)),
+                result['whole_plot_residual_contribution'][plot_indices])
+            axes[0, 0].axhline(0, color='black')
+            axes[0, 0].set_title('整区误差贡献')
+            axes[0, 0].set_xlabel('整区')
+            axes[0, 0].set_ylabel('残差贡献')
+            axes[0, 1].scatter(result['fitted'], result['subplot_residual_contribution'])
+            axes[0, 1].axhline(0, color='black')
+            axes[0, 1].set_title('子区误差贡献')
+            axes[0, 1].set_xlabel('固定效应拟合值')
+            axes[0, 1].set_ylabel('残差贡献')
+            for y_level in (-1, 1):
+                means = [float(y[(coded_x == x_level) & (coded_y == y_level)].mean())
+                         for x_level in (-1, 1)]
+                axes[1, 0].plot([x_factor.low, x_factor.high], means, marker='o',
+                                label=f'{y_factor.name}={y_factor.low if y_level == -1 else y_factor.high}')
+            axes[1, 0].set_title(f'{x_factor.name} × {y_factor.name} 交互作用')
+            axes[1, 0].set_xlabel(x_factor.name)
+            axes[1, 0].set_ylabel('平均响应')
             axes[1, 0].legend(prop=font)
             self.plot_factorial_residuals(
                 [axes[1, 1], axes[1, 2], axes[0, 2]], result)

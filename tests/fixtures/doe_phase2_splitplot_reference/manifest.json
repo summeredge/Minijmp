@@ -1,0 +1,17 @@
+{
+  "build_reference.py": {
+    "sha256": "0a8cfd5b2c52a5e91c253d4f1abeb8125d67d0551386bc9bd905ff3b15401ac5"
+  },
+  "doe_factorial_reference": {
+    "sha256": "0c3e379a6962efe224695ba79a21d101319d4298d1ed6962c9a8a9b6dfef37ba"
+  },
+  "reference.json": {
+    "production_imports": [],
+    "sha256": "8c4ccc639a44954582290a3e49cb85695b25a46f29a5fd0c575b8efb74e3f32f",
+    "source": "build_reference.py; exact rational contrasts and projections"
+  },
+  "scipy_version": "1.15.3",
+  "verify.py": {
+    "sha256": "f52ba565fbbda06530fb87c11de3d1dbfc9a520c3db57c9c04a78d3523e57a35"
+  }
+}

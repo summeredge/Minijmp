@@ -5,8 +5,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from doe_core import DesignSpec, FactorSpec, restore_design_result
+from doe_core import DesignSpec, FactorSpec, restore_design_result, worksheet_metadata
 from doe_factorial import create_factorial
+from doe_splitplot import create_split_plot, validate_split_plot_design
 from doe_modify import modify_summary, renumber, replicate, reorder, rerandomize
 
 
@@ -133,3 +134,167 @@ def test_replicate_rejects_bad_count_and_keeps_source_untouched():
     with pytest.raises(ValueError, match="10000"):
         replicate(frame, metadata, count=10000)
     pd.testing.assert_frame_equal(frame, original)
+
+
+def split_plot_source(hard=2, easy=1, blocks=2, version="v2", seed=19,
+                      response_dtype="Float64"):
+    factors = tuple(
+        FactorSpec(chr(ord("A") + index), chr(ord("A") + index), -1, 1,
+                   randomization_role=("hard_to_change" if index < hard
+                                       else "easy_to_change"))
+        for index in range(hard + easy))
+    spec = DesignSpec(
+        "modify-split", factors, ("Y",), seed=seed,
+        design_type="split_plot", block_count=blocks,
+        construction_version=version, randomization_unit="whole_plot",
+        error_structure="split_plot")
+    frame, metadata = create_split_plot(spec)
+    frame["响应_Y"] = pd.array(range(1, len(frame) + 1), dtype=response_dtype)
+    return frame, metadata
+
+
+def test_split_plot_rerandomize_preserves_points_and_rejects_renumber():
+    frame, metadata = split_plot_source()
+    original = frame.copy(deep=True)
+    original_design = restore_design_result(frame, metadata)
+    result, result_metadata = rerandomize(frame, metadata, 2024)
+    updated = validate_split_plot_design(result, result_metadata)
+    columns = metadata["column_map"]
+
+    assert updated.spec.seed == 2024
+    assert updated.spec.block_count == original_design.spec.block_count
+    assert result[columns["run_id"]].tolist() != frame[columns["run_id"]].tolist()
+    assert set(result[columns["whole_plot_id"]]) == set(frame[columns["whole_plot_id"]])
+    assert dict(zip(result[columns["run_id"]], result[columns["responses"]["Y"]])) == dict(
+        zip(frame[columns["run_id"]], frame[columns["responses"]["Y"]]))
+    summary = modify_summary(frame, metadata)
+    assert summary["can_replicate"] is True
+    assert summary["can_renumber"] is False
+    with pytest.raises(ValueError, match="运行序"):
+        renumber(frame, metadata)
+    pd.testing.assert_frame_equal(frame, original)
+
+
+@pytest.mark.parametrize("version,hard,easy", [("v1", 1, 1), ("v2", 2, 2)])
+def test_split_plot_replicate_preserves_history_and_adds_independent_block(
+        version, hard, easy):
+    frame, metadata = split_plot_source(
+        hard=hard, easy=easy, blocks=2, version=version, seed=1,
+        response_dtype="Int64")
+    original = frame.copy(deep=True)
+    old = restore_design_result(frame, metadata)
+    columns = metadata["column_map"]
+    result, result_metadata = replicate(frame, metadata, count=1)
+    design = validate_split_plot_design(result, result_metadata)
+
+    assert design.spec.construction_version == version
+    assert design.spec.block_count == 3
+    runs_per_block = 1 << len(old.spec.factors)
+    assert len(design.runs) == len(old.runs) + runs_per_block
+    assert result[columns["whole_plot_id"]].nunique() == 3 * (1 << hard)
+    assert result[columns["responses"]["Y"]].dtype == frame[columns["responses"]["Y"]].dtype
+    identity_columns = [
+        columns["standard_order"], columns["block"], columns["whole_plot_id"],
+        columns["subplot_id"], columns["run_order"],
+        columns["whole_plot_order"], columns["subplot_order"],
+        *columns["factors"].values(),
+    ]
+    run_id = columns["run_id"]
+    old_rows = frame.set_index(run_id)
+    current_rows = result.set_index(run_id)
+    old_ids = set(old_rows.index)
+    for column in identity_columns:
+        assert old_rows[column].to_dict() == current_rows.loc[list(old_ids), column].to_dict()
+    old_responses = dict(zip(frame[run_id], frame[columns["responses"]["Y"]]))
+    new_ids = set(result[columns["run_id"]]) - set(old_responses)
+    assert len(new_ids) == runs_per_block
+    assert set(current_rows.loc[list(new_ids), columns["block"]]) == {3}
+    appended_columns = result_metadata["column_map"]
+    batch_column = appended_columns["batch_id"]
+    assert set(result.loc[result[run_id].isin(old_ids), batch_column].dropna()) == set()
+    assert set(result.loc[result[run_id].isin(new_ids), batch_column]) == {"SPLITPLOT_APPEND_V1"}
+    current_responses = dict(zip(result[columns["run_id"]],
+                                 result[columns["responses"]["Y"]]))
+    assert all(current_responses[run_id] == response
+               for run_id, response in old_responses.items())
+    assert all(pd.isna(current_responses[run_id]) for run_id in new_ids)
+    assert set(result.loc[result[run_id].isin(new_ids), columns["run_order"]]) == set(
+        range(len(old.runs) + 1, len(design.runs) + 1))
+    assert design.spec.augmentation_lineage["criterion"] == "manual"
+    assert design.spec.augmentation_lineage["batch_id"] == "SPLITPLOT_APPEND_V1"
+    pd.testing.assert_frame_equal(frame, original)
+
+
+def test_split_plot_second_append_and_rerandomize_are_rejected_without_mutation():
+    frame, metadata = split_plot_source(hard=1, easy=1, blocks=2, version="v1", seed=1)
+    first, first_metadata = replicate(frame, metadata, count=1)
+    original = first.copy(deep=True)
+    summary = modify_summary(first, first_metadata)
+    assert summary["can_replicate"] is False
+    assert summary["can_rerandomize"] is False
+    with pytest.raises(ValueError, match="只支持一次区组增补"):
+        replicate(first, first_metadata, count=1)
+    with pytest.raises(ValueError, match="不支持重新随机化"):
+        rerandomize(first, first_metadata, 2)
+    pd.testing.assert_frame_equal(first, original)
+
+
+def test_split_plot_append_rejects_invalid_requests_and_damaged_source():
+    frame, metadata = split_plot_source(hard=1, easy=1, blocks=2, version="v1", seed=1)
+    original = frame.copy(deep=True)
+    for count, message in ((0, "正整数"), (True, "正整数"), (10000, "10000")):
+        with pytest.raises(ValueError, match=message):
+            replicate(frame, metadata, count=count)
+    with pytest.raises(ValueError, match="沿用原 seed"):
+        replicate(frame, metadata, count=1, seed=2)
+    damaged = frame.copy(deep=True)
+    damaged.loc[0, "运行序"] += 1
+    with pytest.raises(ValueError, match="run_order"):
+        replicate(damaged, metadata, count=1)
+    pd.testing.assert_frame_equal(frame, original)
+
+
+def test_split_plot_append_rejects_response_dtype_that_cannot_hold_blank_rows():
+    frame, metadata = split_plot_source(
+        hard=1, easy=1, blocks=2, version="v1", seed=1, response_dtype="int64")
+    original = frame.copy(deep=True)
+    with pytest.raises(ValueError, match="保留原类型"):
+        replicate(frame, metadata, count=1)
+    pd.testing.assert_frame_equal(frame, original)
+
+
+def test_split_plot_schema_v4_append_is_disabled_without_upgrading_schema():
+    factors = (
+        FactorSpec("A", "A", -1, 1, schema_version=4,
+                   randomization_role="hard_to_change"),
+        FactorSpec("B", "B", -1, 1, schema_version=4,
+                   randomization_role="easy_to_change"),
+    )
+    spec = DesignSpec(
+        "modify-split-v4", factors, ("Y",), seed=1, schema_version=4,
+        design_type="split_plot", block_count=2, construction_version="v1",
+        randomization_unit="whole_plot", error_structure="split_plot")
+    frame, metadata = create_split_plot(spec)
+    summary = modify_summary(frame, metadata)
+    assert summary["can_replicate"] is False
+    assert "Schema v4" in summary["unavailable_reason"]
+    with pytest.raises(ValueError, match="Schema v4"):
+        replicate(frame, metadata, count=1)
+
+
+def test_split_plot_reorder_rejects_seed_order_corruption():
+    frame, metadata = split_plot_source(hard=1, easy=1, blocks=2, version="v1", seed=1)
+    damaged = frame.copy(deep=True)
+    block = damaged["区组"].iloc[0]
+    whole_plots = damaged.loc[damaged["区组"] == block, "整区ID"].drop_duplicates()
+    first, second = whole_plots.tolist()[:2]
+    first_mask = damaged["整区ID"] == first
+    second_mask = damaged["整区ID"] == second
+    first_order = damaged.loc[first_mask, "整区序"].iloc[0]
+    second_order = damaged.loc[second_mask, "整区序"].iloc[0]
+    damaged.loc[first_mask, "整区序"] = second_order
+    damaged.loc[second_mask, "整区序"] = first_order
+    damaged_metadata = worksheet_metadata(
+        damaged, DesignSpec.from_dict(metadata["design"]), metadata["column_map"])
+    with pytest.raises(ValueError):
+        reorder(damaged, damaged_metadata, by="run")

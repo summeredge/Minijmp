@@ -196,7 +196,7 @@ class Minijmp(Worksheets, Minijmp_pre):
             '12分析筛选设计': {'cmd': lambda: AnalyzeDOE(self, screening=True)},
             '13创建一般全因子设计': {'cmd': lambda: CreateGeneralFactorial(self)},
             '14折叠两水平部分因子设计': {'cmd': lambda: FoldoverDOE(self)},
-            '15创建两水平裂区设计': {'cmd': lambda: CreateSplitPlot(self)},
+            '15创建多因子裂区设计': {'cmd': lambda: CreateSplitPlot(self)},
             '16sep': '',
             '17定义自定义因子设计': {
                 'cmd': lambda: DefineCustomDOE(self, 'custom_factorial')},

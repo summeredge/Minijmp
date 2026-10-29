@@ -7,7 +7,7 @@
 - P2-0 已逐项审计 18 个 partial、3 个 unknown、1 个 excluded；优先考虑官方公开帮助可确认、可用独立数学和 GUI/工程测试验收的缺口。原状态不因审计而自动提升。
 - **P2-1（P1）**：Mixture 最优设计选点与增补，重点 `GEN-004/MTB-DOE-ACC-056`、`GEN-006/MTB-DOE-ACC-058`；需区分 Mixture D-optimal 与 Distance-based、组分/过程/总量坐标、模型矩阵和父设计谱系。当前通用 distance 仅支持 RSM，混料响应 desirability 优化不代表最优实验设计。
 - **P2-2（P1）**：连续响应 RSM 的均值置信区间、单次预测区间（`RSM-009`，当前 partial）与 DOE 诊断（leverage、Cook、DFITS 等）。CCD/BBD/custom 连续 RSM 已支持；区组区间、二元概率区间和 RSM Binary Response Optimizer 不在此范围，不套连续响应 PI。
-- **P2-3（P2）**：多因子 Split-Plot、区组、受限随机化和对应分层推断，关联 `FAC-010/019/008/014/015`；先验证 whole-plot/subplot 实验单位及误差层，再考虑非平衡/REML。
+- **P2-3（P2，`READY_FOR_INDEPENDENT_REVIEW`）**：多因子 Split-Plot、区组、受限随机化和对应分层推断，关联 `FAC-010/019/008/014/015`；本地验收完成，独立 Review 尚未执行。证据见 [P2-3 收尾](phase2-p3-closeout.md)；非平衡与 REML 保持范围外。
 - **P2-4（P2）**：按官方确证配置逐项补 Screening stepwise、PB Foldover、Taguchi mixed array/交互稳健性、Mixture 多总量；不批量实施未知厂商选项。
 - **P2-5（P3）**：在取得版本明确的 Minitab 22 设计导出或对照后，审查标准序、输出数值与展示格式；数学等价不等于产品输出一致。
 - `GEN-012` 序贯实验策略和 `GEN-013` 异常值自动处理暂维持研究状态；`GEN-014` 其他选择准则维持 excluded，除非取得独立官方依据。

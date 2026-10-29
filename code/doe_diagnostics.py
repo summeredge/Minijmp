@@ -83,5 +83,27 @@ def contract(result, design_type):
     rows.append(_row('假设检验',
                      '未自动检验',
                      '残差图只辅助诊断，不证明独立、同方差或正态'))
+    if design_type == 'split_plot':
+        design = result['design']
+        spec = design.spec
+        hard = sum(factor.randomization_role == 'hard_to_change'
+                   for factor in spec.factors)
+        easy = len(spec.factors) - hard
+        runs = design.runs
+        whole_plots = {run.whole_plot_id for run in runs}
+        rows.extend((
+            _row('因子数', len(spec.factors), f'hard {hard}；easy {easy}'),
+            _row('完整重复区组数', len({run.block for run in runs})),
+            _row('整区数', len(whole_plots)),
+            _row('每整区子区数', 1 << easy),
+        ))
+        for key, label in (("whole_plot_error", "整区误差层"),
+                           ("subplot_error", "子区误差层")):
+            error = result['error_strata'][key]
+            summary = (f"df {error['df']}；SS {error['ss']:.6g}；"
+                       f"MSE {error['ms']:.6g}" if error['ms'] is not None else
+                       f"df {error['df']}；SS {error['ss']:.6g}；MSE 不可用")
+            rows.append(_row(label, summary,
+                             error['reason'] or '误差层可用'))
     return {'design_type': design_type, 'status': result.get('status', ''),
             'assumption': result.get('assumption', ''), 'rows': rows}

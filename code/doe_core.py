@@ -706,10 +706,19 @@ class DesignSpec:
                 roles = [factor.randomization_role for factor in factors]
                 if (self.randomization_unit != "whole_plot"
                         or self.error_structure != "split_plot"
-                        or roles.count("hard_to_change") != 1
                         or roles.count("easy_to_change") < 1
                         or any(factor.factor_type != "continuous" for factor in factors)):
-                    raise ValueError("Split-Plot 需一个 hard-to-change 和至少一个 easy-to-change 连续因子")
+                    raise ValueError("Split-Plot 需连续因子及 whole-plot 随机化与分层误差")
+                hard_count = roles.count("hard_to_change")
+                if self.construction_version == "v1":
+                    if len(factors) != 2 or hard_count != 1 or roles.count("easy_to_change") != 1:
+                        raise ValueError("Split-Plot v1 固定为一个 hard 和一个 easy 因子")
+                elif self.construction_version == "v2":
+                    if (self.schema_version < 5 or not 2 <= len(factors) <= 6
+                            or not 1 <= hard_count <= 3):
+                        raise ValueError("Split-Plot v2 需 schema v5、2–6 因子和 1–3 个 hard 因子")
+                else:
+                    raise ValueError("未知 Split-Plot 构造版本")
             elif (self.randomization_unit == "whole_plot" or self.error_structure == "split_plot"
                   or any(factor.randomization_role is not None for factor in factors)):
                 raise ValueError("只有 Split-Plot 才能声明裂区随机化角色或误差层")
@@ -1712,9 +1721,12 @@ def design_from_worksheet(frame, spec, column_map):
                 or any(run.batch_id not in (None, "BASE") for run in base)):
             raise ValueError("增补批次映射与运行记录不一致")
         from dataclasses import replace as _replace
-        parent = _replace(result, spec=_replace(
-            spec, design_id=lineage["parent_design_id"],
-            augmentation_lineage=None), runs=tuple(base))
+        parent_spec = {"design_id": lineage["parent_design_id"],
+                       "augmentation_lineage": None}
+        if spec.design_type == "split_plot":
+            parent_spec["block_count"] = len({run.block for run in base})
+        parent = _replace(result, spec=_replace(spec, **parent_spec),
+                          runs=tuple(base))
         if matrix_sha256(parent) != lineage["source_matrix_sha256"]:
             raise ValueError("增补前模型矩阵摘要与父设计不一致")
         if matrix_sha256(result) != lineage["current_matrix_sha256"]:
@@ -1871,6 +1883,9 @@ def restore_design_result(frame, metadata):
 def validate_worksheet_metadata(frame, metadata):
     """验证后返回脱离调用者对象的规范化元数据副本。"""
     result, column_map, labels, fingerprint = _restore(frame, metadata)
+    if result.spec.design_type == "split_plot":
+        from doe_splitplot import _validate_split_plot_result
+        _validate_split_plot_result(result)
     # 读取旧 v1 后升级为当前版本，摘要按升级后的设计重新计算。
     analysis = metadata.get("analysis")
     return _metadata_payload(
