@@ -1,5 +1,38 @@
 # MiniJMP 工作记忆
 
+## 工作包 H 最终收尾（2026-10-29）
+
+- 状态 `WORK_PACKAGE_H_APPROVED_SCOPED`：H0–H6 限定范围完成，用户提供上一轮 ChatGPT 独立 Review 结论 APPROVE（限定范围）。ACC-004/019/020/031/059/060 均在限定范围 implemented；Schema v5 不变。
+- 本轮 H 专项 59 passed，独立参考 verifier 通过；负向 δ 功效窗口和 v5 工程往返各 1 passed，Help/Menu/G12 共 94 passed。矩阵 80 项为 58 implemented、18 partial、3 unknown、1 excluded；完整命令、历史结果和限制见 `docs/doe-minitab/work-package-h-closeout.md`。
+- 未覆盖二元 RSM 优化器、分离修正、Variability MLE/复杂不等权/Split-Plot，功效限支持的两水平主效应 1 df F；不声明 Minitab 22 全功能或输出一致。下一步仅为建立 Minitab DOE 功能对标二期规划，二期尚未开始开发。
+
+## 工作包 H H0–H6 本地集成（2026-10-29）
+
+- 当时状态 `WORK_PACKAGE_H_READY_FOR_INDEPENDENT_REVIEW`（已被上方最终收尾取代）；H 代码与文档当时保留在未提交工作区，不 push/发布。此前 E/F/G Review 修正的 32 个代码/测试/产品文档文件按本轮授权提交为 `b8d64e0 Close out EFG integration fixes`；`.agent-memory` 未纳入提交。
+- DOE Schema v5 足够：事件/试验与重复测量使用已在 `response_names`/`column_map.responses` 声明的响应列；元数据生成后新增列会失效。即时分析不增字段、不覆盖原响应；v1–v5 迁移合同不变。
+- H 独立参考 `tests/fixtures/doe_h_reference/` 覆盖六项 ACC 的 STD/EDGE；生成器和 verifier 不导入生产模块。reference SHA-256 `f5f4ee2246b03b3c6ee1140bd3de9f67f4911a94416bc87520969e2f2baf5c78`。
+- H 实现 grouped-binomial Logistic、两种 Factorial Variability 实验单位、以及两水平/PB/两水平 GFF 的非中心 F 功效。RSM-016 按明确 H4 范围（分析、预测、概率图）完成；官方 post-fit binary Response Optimizer 属于另一个未实现工作流，已在矩阵/方法合同中列出，不宣称功能具备。
+- 验证：H 数学/核心 59 passed；本轮 Power+独立 H 参考 30 passed，负向 δ 真实 Tk 1 passed，Help Center 13 passed；真实 Tk 生命周期共 7 个单进程用例通过；跨族纯统计/Schema 328 passed；E/F/G 联合工程 1 passed；菜单/G12 既有记录分别 15 passed。全量 pytest 未运行，Windows Tk 原生检查按进程分开执行。
+- 80 项矩阵：58 implemented、18 partial、3 unknown、1 excluded。未提升既有 partial/unknown/excluded；TAG-009、GEN-006、MIX-006 的旧证据字段错链已修正。Minitab 页面未声明版本，产品输出 parity 尚未做独立逐项对照。
+- 首轮与 ITERATE 修复后的 Local MCP Connector 请求均因网页身份未匹配而 `pending_identity_expired`，两次 Review Execution 均未启动。修复 ACC-059/060 有符号 δ 输入后，状态为 `WORK_PACKAGE_H_READY_FOR_INDEPENDENT_REVIEW`；不自动重投，需匹配 ChatGPT Web 身份凭据。当时尚无最终 APPROVE，后续结论见上方最终收尾；不 push/发布，不启动 A–H 以外工作包。
+
+## Taguchi 零方差 S/N Review 修复（2026-10-29）
+
+- 状态 `READY_FOR_INDEPENDENT_REVIEW`；在已有 E/F/G 未提交工作区上定向修复 `noise_robustness()`，仅移除无条件 SD=0 拒绝，S/N 的公式与数据域仍由 `signal_to_noise()` 校验；Nominal 零方差仍拒绝，噪声因子和观测数校验未改。
+- 独立反例 `[2, 2]`：Smaller = −10 log10(4) = −6.020599913279624 dB，Larger = −10 log10(1/4) = +6.020599913279624 dB，SD = 0；旧实现两种均错误拒绝。噪声及静态 S/N 两测试文件 50 passed，真实 Tk 噪声窗口 3 passed；未重复全量测试。验收矩阵、更新日志已按新合同修正。
+- 保留先前未提交改动；未提交、推送或启动 H。待独立差异 Review，过程见 `.agent-memory/logs/2026-10-29.md`。
+
+
+## E+F+G 合并后 Full Review ITERATE（2026-10-29）
+
+- 状态 `EFG_INTEGRATION_READY_FOR_REVIEW`；本地 main HEAD `7392ac9cef74ea84c9dfb1d44485d36137ed6631`，开始时工作区干净，所有本次修改未提交；独立 Review 尚未执行，未推送或启动 H。完整报告见 `docs/doe-minitab/efg-integration-review.md`。
+- P1 轴点：`DesignResult` 校验所有分类设定、限制轴点设计族并检查有限编码；`TermModel.row` 拒绝未知分类水平。混合自定义 RSM 反例在旧实现未报错，新实现包括重算摘要后的恢复路径均拒绝。
+- P1 区组选点：GUI 传递来源 `block_count`；最优选点拒绝声明或映射区组的候选，避免输出无区组设计；两连续因子、二区组独立矩阵秩 4，仅一区组秩 3。
+- Taguchi L8 两列投影数学上平衡但每组合重复两次；当前合同不支持重复设定的控制列投影，保留全部标准行与摘要，GUI 选择时提示。自定义 RSM 预测复用既有模型与参考区组，补充独立解析与真实 Tk 测试；更新帮助和搜索索引。
+- 完整单进程 pytest 约 26% 在 Tk `Menu.add` 发生 `0x80000003`，无总汇总。替代的 174 组文件/PB 分进程清单覆盖最终收集的 5073 个不同节点，无遗漏、重复或跳过；首轮 G12 文件排序及帮助主题数共 2 失败，修正后相关组通过；预测变更后直接相关组已复测。不能称为单次全量通过。PB 六组 200 参数均通过；分组详细命令、警告和首轮失败见报告。
+- 同一工程 E 自定义 RSM 增补、F 混料、G 静态/动态 Taguchi 保存/重开/复制/再分析/预测/绘图和坏元数据隔离 1 passed、3 warnings；菜单 66 passed，帮助 13 passed，G12 15 passed。F 参考数值不变，清单已改为实际文件字节摘要 `cfc482999750eafac2bd8bc89b469e628c405cce23e25c00c010f2695184b0de`；E/F/G verifier 均通过。
+- feature matrix 修正 5 行 CSV 引号错位，80 行、ACC-001–067 唯一；18 个 partial 及范围见报告。必要过程见 `.agent-memory/logs/2026-10-29.md`。
+
 ## 工作包 E E0–E6（2026-10-28，本地收尾）
 
 - 状态 `WORK_PACKAGE_E_READY_FOR_REVIEW`（限定范围）；BASE/HEAD `c3720d2737f44ad130d8b61cd07ae31073073c2d`，分支 `main`，开始时工作区干净；E 全部修改未提交，未启动 F/G/H。独立 Review 尚未执行。
