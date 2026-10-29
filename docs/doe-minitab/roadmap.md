@@ -1,6 +1,6 @@
 # DOE 对标后续路线图
 
-> 2026-10-28 状态更新：工作包 C 的有限 PB/DSD 范围见 [收尾记录](work-package-c-closeout.md)，验收仍为 partial。工作包 D 的限定范围 D0–D5 已完成，可提交独立 Review；部分 feature 仍为 partial，且尚无独立 Review 结论。工作包 G 的 G0–G6 限定范围已完成，schema v5 增加 Taguchi 身份，详见 [工作包 G 收尾记录](work-package-g-closeout.md)；H 仍未启动。下方标注为历史的 schema 审计记录 D 开始前状态。
+> 2026-10-28 历史状态（H 当前状态见下方）：工作包 C 的有限 PB/DSD 范围见 [收尾记录](work-package-c-closeout.md)，验收仍为 partial。工作包 D 的限定范围 D0–D5 已完成，可提交独立 Review；部分 feature 仍为 partial，且尚无独立 Review 结论。工作包 G 的 G0–G6 限定范围已完成，schema v5 增加 Taguchi 身份，详见 [工作包 G 收尾记录](work-package-g-closeout.md)；H 仍未启动。下方标注为历史的 schema 审计记录 D 开始前状态。
 
 ## 管理规则
 
@@ -144,6 +144,8 @@
 - **GUI / 持久化：** 每种设计覆盖 create/cancel/analyze/plot/edit/source loss/save/reopen/copy；跨工作表绑定、旧工程加载和坏输入保护。
 - **独立案例：** ACC-004、019–020、031、059–060；选择相应数学方法，不要求不适用项目通过无关检验。
 - **完成定义：** 所有范围内工作包有 ACC 结果；矩阵状态为 implemented 或已明确 excluded；不存在未说明的 unknown/partial；Level 1/2 按 README 规则通过。
+- **本地阶段结果（2026-10-29）：** H0–H6 的限定实现、独立 STD/EDGE、真实 Tk、Schema v5 `.dexpl` 往返、G12 清单及跨设计族回归完成；本地记录见 [H 收尾记录](work-package-h-closeout.md)。80 项矩阵当前为 58 implemented、18 partial、3 unknown、1 excluded；已有 partial/unknown/excluded 保留具体理由。H4 明确范围为二元 RSM 拟合/预测/概率图；官方后续 Response Optimizer 不在 H4 验收范围。
+- **收尾状态：** `WORK_PACKAGE_H_APPROVED_SCOPED`；H0–H6 限定范围完成，上一轮 ChatGPT 独立 Review 为 APPROVE（限定范围），验证来源与未覆盖边界见 H 收尾记录。DOE Schema v5 不变；下一步建立 Minitab DOE 功能对标二期规划，二期尚未开始开发。
 - **进入后续：** 只有完成上述门槛后，才可按已更新矩阵提出新的扩展范围；不自动扩大 A–H 以外的对标任务。
 
 ## 依赖图

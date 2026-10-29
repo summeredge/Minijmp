@@ -56,6 +56,11 @@
 | Create Taguchi Design (Static) | 创建 Taguchi 设计（静态） |
 | Create Taguchi Design (Dynamic) | 创建 Taguchi 设计（动态） |
 | Analyze Taguchi Design | 分析 Taguchi 设计 |
+| Analyze Factorial Binary Response | 因子设计二元响应分析 |
+| Analyze Screening Binary Response | 筛选设计二元响应分析 |
+| Analyze Response Surface Binary Response | 响应面二元响应分析 |
+| Analyze Factorial Variability | 因子设计变异性分析 |
+
 
 ## 文件（File）
 
@@ -177,6 +182,7 @@
 | Paired t-test | 配对 t 检验 |
 | Two Proportions Test | 双比率检验 |
 | Multi-Sample SD Test | 多样本标准差检验 |
+| Power and Sample Size for DOE | 试验设计功效与样本量 |
 | One-Way ANOVA | 单因子方差分析 |
 | Two-Way ANOVA | 双因子方差分析 |
 | Contingency table & Chi2 | 列联表与卡方检验 |

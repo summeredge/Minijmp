@@ -176,6 +176,9 @@ class Minijmp(Worksheets, Minijmp_pre):
                                         MixturePlots, OptimizeMixture, PredictMixture)
         from doe_taguchi_dialog import CreateTaguchi
         from doe_taguchi_analysis_dialog import AnalyzeTaguchi
+        from doe_binary_dialog import AnalyzeBinaryDOE
+        from doe_variability_dialog import AnalyzeVariabilityDOE
+        from doe_power_dialog import AnalyzeDOEPower
         self.doe_menu = self.createPulldown(self.menu, {
             '01创建两水平全因子设计': {'cmd': lambda: CreateDOE(self)},
             '02创建两水平部分因子设计': {
@@ -216,6 +219,14 @@ class Minijmp(Worksheets, Minijmp_pre):
             '33创建 Taguchi 设计（动态）': {
                 'cmd': lambda: CreateTaguchi(self, dynamic=True)},
             '34分析 Taguchi 设计': {'cmd': lambda: AnalyzeTaguchi(self)},
+            '35因子设计二元响应分析': {
+                'cmd': lambda: AnalyzeBinaryDOE(self, 'factorial')},
+            '36筛选设计二元响应分析': {
+                'cmd': lambda: AnalyzeBinaryDOE(self, 'screening')},
+            '37响应面二元响应分析': {
+                'cmd': lambda: AnalyzeBinaryDOE(self, 'rsm')},
+            '38因子设计变异性分析': {
+                'cmd': lambda: AnalyzeVariabilityDOE(self)},
         })
         self.menu.add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
 
@@ -248,6 +259,7 @@ class Minijmp(Worksheets, Minijmp_pre):
             '34单因子方差分析': {'cmd': self.anova_1way},
             #  '33Mean Comparison t': {'cmd': self.JMP_t_test},
             '35双因子方差分析': {'cmd': self.anova_2way},
+            '36试验设计功效与样本量': {'cmd': lambda: AnalyzeDOEPower(self)},
             '42列联表与卡方检验': {'cmd': self.chi2table},
             '43比率卡方检验': {'cmd': self.chi2prop},
             '06sep': '', '24sep': '', '33sep': '', '40sep': ''}

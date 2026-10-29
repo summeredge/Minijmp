@@ -207,8 +207,8 @@ ACC-067 已在工作包 E 完成限定范围：独立构造 6 因子会议矩阵
 | MTB-DOE-ACC-056 | GEN-004 | Distance-based 只适用于 Response Surface 和 Mixture；Factorial 设计仅提供 D-optimality，不得显示或接受 distance-based 选项。 | 独立按官方规则模拟：RSM 候选起点取离 coded origin 最远点，Mixture 起点取最接近 pure component 的点，随后逐步加入距离已选集合最远的点；以小候选集穷举/手算验证，且检查不重复点。Factorial 请求应明确拒绝或不提供该准则。 |
 | MTB-DOE-ACC-057 | GEN-005 | 用相同模型/候选集评估最优性。 | 独立计算目标值；检查不同模型、候选集或运行数不可直接比较。 |
 | MTB-DOE-ACC-058 | GEN-006 | 增补时声明父设计、候选点、准则和新批次；Factorial 用 D-optimality，RSM/Mixture 可按已选 D 或 distance-based 准则增补。 | 独立计算增补前后目标变化和矩阵秩；检查准则/设计家族不匹配、无新增独立点、父设计映射过期及增补可重现性。 |
-| MTB-DOE-ACC-059 | GEN-007 | 两水平 DOE 功效输入 alpha、噪声、效应/目标功效和重复数。 | 用独立非中心 F 分布计算功效；逐一改变整数重复数验证目标交叉点和报告值。 |
-| MTB-DOE-ACC-060 | GEN-008 | PB 与 general full factorial 的功效算法分别声明适用输入。 | 根据各自官方公式由独立 SciPy 非中心 F 计算核对；错误设计/缺少方差/不可解重复数明确拒绝。 |
+| MTB-DOE-ACC-059 | GEN-007 | 两水平 DOE 功效输入 alpha、噪声、带符号效应差 δ=mean(high)-mean(low)、目标功效和重复数。 | 用独立非中心 F 分布计算功效；逐一改变整数重复数验证目标交叉点和报告值。当前 1 df 非方向性检验，正负等幅 δ 结果应相同，零值拒绝。 |
+| MTB-DOE-ACC-060 | GEN-008 | PB 与 general full factorial 的功效算法分别声明适用输入。 | 根据各自官方公式由独立 SciPy 非中心 F 计算核对；错误设计/缺少方差/不可解重复数明确拒绝；带符号 δ 的方向不改变 1 df F 功效。 |
 | MTB-DOE-ACC-061 | GEN-009 | 当前各分析器分别列出 rank、残差、纯误差、失拟、曲率和假设诊断。 | 对每项输出指定独立矩阵或残差 oracle；假设未自动检验时标为未验证；不能把图形当作统计检验结论。 |
 | MTB-DOE-ACC-062 | GEN-011 | 新设计持久化前先明确 schema 版本、枚举、点类型、约束和旧文件读取策略。 | 旧 DOE schema v1 fixture 必须原样读回；未知版本/字段拒绝时原工作簿保持不变；新旧设计保存/重开/复制/重算一致。 |
 | MTB-DOE-ACC-063 | RSM-005 | 从已有工作表定义自定义响应面设计；设计列、连续/分类因子、响应、列映射和设计模型显式声明。 | 从独立输入矩阵重建模型项和 rank；核对数据行顺序、缺列、重排行、超出设计范围的水平及无法估计的自定义项。 |
@@ -233,6 +233,23 @@ ACC-067 已在工作包 E 完成限定范围：独立构造 6 因子会议矩阵
 | ACC-062 | `code/doe_core.py` v5；`tests/test_doe_schema_e.py`、`test_doe_schema_v2.py`、`test_doe_schema_v3.py`、`test_doe_e_lifecycle.py`。v1–v4 按原字段/摘要校验后迁移；坏元数据不替换当前工作簿。 | 旧版 MiniJMP 读取 v5 |
 | ACC-063 | `code/doe_custom.py`、`doe_custom_analysis.py`；`tests/test_doe_custom_rsm.py`、`test_doe_optimal_evaluation.py`。按实际矩阵重建模型项与秩，拒绝超出范围与不可估计项。 | Scheffé/Mixture；产品输出一致性 |
 | ACC-067 | `code/doe_custom.py::screening_properties`；`tests/test_doe_custom_screening.py`。6 因子与 4+1 文本分类构造、重复点、非三水平、非法水平拒绝。 | 其他多分类组合与产品标准序 |
+
+## 工作包 H 限定范围验收证据（2026-10-29）
+
+状态 `WORK_PACKAGE_H_APPROVED_SCOPED`：H0–H6 完成，上一轮独立 Review 为 APPROVE（限定范围）；具体 Review 来源、最终本轮测试和历史验证区分见 [H 收尾记录](work-package-h-closeout.md)。DOE Schema v5 不变，二期尚未开始开发。
+
+独立参考位于 `tests/fixtures/doe_h_reference/`；manifest SHA-256 为 `f5f4ee2246b03b3c6ee1140bd3de9f67f4911a94416bc87520969e2f2baf5c78`。参考生成器与核验器只依赖 NumPy/SciPy/标准库，不导入生产分析代码；每项 H ACC 都映射 STD 与 EDGE。Schema v5 不变，事件/试验/重复测量列须在创建设计时预先声明。
+
+| ACC / feature | 本地状态 | 数学与实现证据 | 验收边界 |
+|---|---|---|---|
+| MTB-DOE-ACC-004 / SCR-004 | implemented | `doe_binary_analysis.py`；`test_doe_binary_analysis.py` 独立 grouped-binomial likelihood、Wald/LR、概率和 DSD 选项；显著负模型 LR 故障回归；`test_doe_h_lifecycle.py` 真 Tk DSD 平方模型。 | DSD 实际矩阵；分离、全事件/全非事件、秩亏、不收敛或不稳定似然比较不伪造推断。 |
+| MTB-DOE-ACC-019 / FAC-017 | implemented | 全因子、正规分数、PB、数值标签 GFF 的独立案例；真实 Tk 对照分数别名组、PB 主效应及 GFF。 | PB 仅主效应；分数效应按别名组解释；未验证高阶/裂区结构不开放。 |
+| MTB-DOE-ACC-020 / FAC-018 | implemented | `test_doe_variability.py` 核对 Mean、样本 SD、N、ln(SD) 及推断；真实 Tk 验证同次多列、独立运行多行和主效应图。 | 等组样本数且无缺失才做 ln(SD) 推断；Split-Plot、MLE 和未经验证变换不支持。 |
+| MTB-DOE-ACC-031 / RSM-016 | implemented（H4 范围） | 独立 BBD 二项参考、实际 RSM `TermModel`、自定义 RSM Schema v5 核对；真实 Tk 绘制 BBD 概率图并验证来源切换失效。 | 二元 Response Optimizer 属于官方拟合后工作流，但未列入 H4 概率图验收，MiniJMP 未实现；矩阵已明确此限制。 |
+| MTB-DOE-ACC-059 / GEN-007 | implemented | 两水平全因子/正规分数独立非中心 F 与最小整数重复数参考；真实 Tk 验证负向 δ 的固定重复和目标功效输入。 | 当前为单个两水平主效应、全设计等次数重复；无中心、区组和裂区。非方向性 1 df F，±δ 功效对称，δ=0 拒绝。 |
+| MTB-DOE-ACC-060 / GEN-008 | implemented | PB、两水平 GFF 独立非中心 F 参考；真实 Tk 验证 PB、GFF，并按完整重复组而非相同设定去重构建基础矩阵。 | GFF 仅所有因子两水平；PB/分数解释受别名和未拟合交互假设约束。效应方向不改变当前 1 df F 功效。 |
+
+H 数学与 Tk 生命周期专项共 66 项通过（59 项独立/核心测试 + 7 个单进程真实 Tk 场景）。本轮功效与 H 独立参考测试 30 passed；真实 Tk 负向 δ 功效场景 1 passed；帮助中心 13 passed。跨设计族纯统计与 Schema 回归 328 项通过；另执行 E/F/G 工程集成、已有连续响应优化、RSM 绘图、旧工程往返/坏元数据隔离、帮助索引和菜单映射检查。全量 pytest 未执行；实际节点与结果记录在 [H 收尾记录](work-package-h-closeout.md)。
 
 ## 验收完成规则
 

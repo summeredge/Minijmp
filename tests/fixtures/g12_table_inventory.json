@@ -44,6 +44,8 @@
     "doe_analysis.py",
     "doe_augment.py",
     "doe_bbd.py",
+    "doe_binary_analysis.py",
+    "doe_binary_dialog.py",
     "doe_ccd.py",
     "doe_core.py",
     "doe_custom.py",
@@ -78,6 +80,8 @@
     "doe_overlay.py",
     "doe_overlay_dialog.py",
     "doe_pb.py",
+    "doe_power.py",
+    "doe_power_dialog.py",
     "doe_predict.py",
     "doe_predict_dialog.py",
     "doe_rsm.py",
@@ -93,6 +97,8 @@
     "doe_taguchi_arrays.py",
     "doe_taguchi_dialog.py",
     "doe_taguchi_sn.py",
+    "doe_variability.py",
+    "doe_variability_dialog.py",
     "fit_dialog.py",
     "freeze.py",
     "generalized_regression.py",
@@ -168,12 +174,21 @@
     "MiniJMP.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "Residual.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "advanced_regression.py": "纯计算回归统一入口；保留 OLS/WLS/二元 Logistic/非线性，新增计数/多类别/PLS 的显式路由，返回原精度 DataFrame，无格式化表格生产位置。",
+    "advanced_spc.py": "P1-2 高级SPC纯计算：EWMA、CUSUM、Nelson及公共T²复用，返回原精度结果，不构造报告。",
+    "advanced_spc_dialog.py": "P1-2 来源绑定后台GUI、历史基线、规则选择、结构化报告与导出。",
+    "advanced_spc_plots.py": "P1-2 四类控制图，仅消费后端统计量、限及异常，当前行关联而历史轴不误定位。",
+    "advanced_time_series_dialog.py": "P1-1 GUI、后台取消、来源快照、结构化报告和导出。",
     "anova_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "attribute_agreement.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。",
     "basic_dialogs.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "basic_plot_dialog.py": "第一阶段独立绘图参数对话框，负责数据选择、验证和图形展示；不产生独立统计报告表格，无统计表格构造或表格输出事件，无需纳入 producers。",
     "binomial.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "blakerCI.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "bonett.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "capability.py": "P0 独立正态/非正态能力、MLE/参数自举、Box-Cox/Johnson SU 正逆变换与原序子组；只产生数值DataFrame，由capability_dialog.stat_table统一展示，不新增StatTable生产位置。",
+    "capability_compare.py": "改善前后能力对比：阶段划分复用improvement_chart.split_phases，单阶段能力复用capability.analyze_capability；只产生数值DataFrame，由capability_dialog.stat_table统一展示，不新增StatTable生产位置。",
+    "capability_dialog.py": "P0 完整能力窗口；stat_table 将核心结果与控制图诊断 DataFrame 转为 StatTable，report 复用同一表；来源快照与后台取消沿用 SheetApp/线程 Future。",
+    "capability_plots.py": "P0 六图、变换前后图与逐点控制限诊断；不构造统计展示表，不改旧 SPC 算法。",
     "chart_style.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "chi2_dialog.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "chi_sq.py": "存在已逐函数分类的表格生产位置；见 producers。",
@@ -188,24 +203,19 @@
     "dialog.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "dist_fit.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "dist_plot_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
-    "doe_core.py": "DOE-0 版本化纯数据合同与工作表映射；不构造统计报告表或执行表格输出。",
+    "doe_analysis.py": "全因子模型纯计算，不构造统计报告表或执行表格输出。",
     "doe_augment.py": "通用增补的候选选择、批次与矩阵摘要计算；不构造统计报告表。",
+    "doe_bbd.py": "Box-Behnken 设计与校验纯计算，不构造统计报告表。",
+    "doe_binary_analysis.py": "二元 Logistic 模型、拟合与预测纯计算，不构造统计报告表。",
+    "doe_binary_dialog.py": "二元分析窗口的结果表由 producers 分类。",
+    "doe_ccd.py": "中心复合设计生成及校验，不构造统计报告表。",
+    "doe_core.py": "DOE-0 版本化纯数据合同与工作表映射；不构造统计报告表或执行表格输出。",
     "doe_custom.py": "自定义设计识别、模型矩阵与 DSD 构造性质计算；不构造统计报告表。",
     "doe_custom_analysis.py": "自定义因子/响应面/筛选纯计算；报告表由 AnalyzeDOE.publish 构造。",
     "doe_custom_dialog.py": "自定义设计定义窗口；预览使用 Tk Text，不构造统计报告表。",
     "doe_diagnostics.py": "跨设计诊断字段合同；只返回行数据，不构造统计报告表。",
-    "doe_modify.py": "设计显示顺序与合法重新随机化；不构造统计报告表。",
-    "doe_optimal.py": "D-optimal 与 distance 选点及评价的纯计算；不构造统计报告表。",
-    "doe_optimal_design.py": "从候选工作表生成选中设计及谱系；不构造统计报告表。",
-    "doe_optimal_dialog.py": "最优设计、评价、修改与增补窗口；预览使用 Tk Text，不构造统计报告表。",
-    "doe_pb.py": "PB 设计工作表生成和校验，不构造统计报告表或执行表格输出。",
-    "doe_dsd.py": "DSD 设计工作表生成和校验，不构造统计报告表或执行表格输出。",
-    "doe_screening_analysis.py": "筛选设计连续响应与混杂计算，不构造统计报告表或执行表格输出。",
-    "doe_screening_matrices.py": "筛选设计参考矩阵常量，不构造统计报告表或执行表格输出。",
-    "doe_analysis.py": "全因子模型纯计算，不构造统计报告表或执行表格输出。",
-    "doe_ccd.py": "中心复合设计生成及校验，不构造统计报告表。",
-    "doe_rsm.py": "响应面模型纯计算，不构造统计报告表。",
     "doe_dialog.py": "DOE 分析结果表展示及来源表输出，见 producers。",
+    "doe_dsd.py": "DSD 设计工作表生成和校验，不构造统计报告表或执行表格输出。",
     "doe_factorial.py": "两水平全因子运行表生成；不构造统计报告表或执行表格输出。",
     "doe_factorial_anova.py": "纯误差与完整区组误差平方和分解，不构造统计报告表。",
     "doe_foldover.py": "正规部分因子 Foldover 点矩阵、别名和谱系计算，不构造统计报告表。",
@@ -214,19 +224,40 @@
     "doe_fractional_analysis.py": "正规部分因子模型纯计算，不构造统计报告表。",
     "doe_general_factorial.py": "分类一般全因子运行表生成及验证，不构造统计报告表。",
     "doe_general_factorial_analysis.py": "分类对比、ANOVA 与均值纯计算；报告表由 AnalyzeDOE.publish 构造。",
+    "doe_mixture.py": "混料专属数据合同与 v4 工作表适配，不构造统计报告表。",
+    "doe_mixture_analysis.py": "Scheffé 最小二乘与 ANOVA 纯计算，不构造统计报告表。",
+    "doe_mixture_constraints.py": "混料比例约束与单位换算纯计算，不构造统计报告表。",
+    "doe_mixture_designs.py": "三类混料设计生成与结构校验，不构造统计报告表。",
+    "doe_mixture_dialog.py": "混料创建、分析、预测、优化与图形界面；结果表见 producers。",
+    "doe_mixture_model.py": "Scheffé 模型项与模型矩阵，不构造统计报告表。",
+    "doe_mixture_optimize.py": "混料受约束优化纯计算，不构造统计报告表。",
+    "doe_mixture_plots.py": "Trace、等高线、曲面与叠加可行域采样纯计算，不构造统计报告表。",
+    "doe_mixture_predict.py": "混料点预测与约束核验纯计算，不构造统计报告表。",
+    "doe_modify.py": "设计显示顺序与合法重新随机化；不构造统计报告表。",
+    "doe_optimal.py": "D-optimal 与 distance 选点及评价的纯计算；不构造统计报告表。",
+    "doe_optimal_design.py": "从候选工作表生成选中设计及谱系；不构造统计报告表。",
+    "doe_optimal_dialog.py": "最优设计、评价、修改与增补窗口；预览使用 Tk Text，不构造统计报告表。",
+    "doe_optimize.py": "完整 CCD 二次模型的纯计算优化，不构造统计报告表。",
+    "doe_optimize_dialog.py": "DOE-4 优化界面及候选结果表，StatTable 位置见 producers。",
+    "doe_overlay.py": "多响应叠加等高线网格与可行交集纯计算，不构造统计报告表。",
+    "doe_overlay_dialog.py": "叠加等高线界面；图形绘制，不构造统计报告表。",
+    "doe_pb.py": "PB 设计工作表生成和校验，不构造统计报告表或执行表格输出。",
+    "doe_power.py": "功效与样本量纯计算，不构造统计报告表。",
+    "doe_power_dialog.py": "功效结果以窗口摘要显示，不构造统计报告表。",
+    "doe_predict.py": "响应面点预测纯计算与快照摘要，不构造统计报告表。",
+    "doe_predict_dialog.py": "响应面预测界面及点预测结果表，StatTable 位置见 producers。",
+    "doe_rsm.py": "响应面模型纯计算，不构造统计报告表。",
+    "doe_rsm_model.py": "响应面模型项矩阵与分类/区组编码，不构造统计报告表。",
+    "doe_screening_analysis.py": "筛选设计连续响应与混杂计算，不构造统计报告表或执行表格输出。",
+    "doe_screening_matrices.py": "筛选设计参考矩阵常量，不构造统计报告表或执行表格输出。",
     "doe_splitplot.py": "两水平 Split-Plot 整区/子区运行表生成及结构验证，不构造统计报告表。",
     "doe_splitplot_analysis.py": "平衡裂区 ANOVA 和误差层推断纯计算；报告表由 AnalyzeDOE.publish 构造。",
     "doe_splitplot_dialog.py": "两水平 Split-Plot 创建窗口，不构造统计报告表。",
-    "doe_optimize.py": "完整 CCD 二次模型的纯计算优化，不构造统计报告表。",
-    "doe_optimize_dialog.py": "DOE-4 优化界面及候选结果表，StatTable 位置见 producers。",
-    "doe_bbd.py": "Box-Behnken 设计与校验纯计算，不构造统计报告表。",
-    "doe_rsm_model.py": "响应面模型项矩阵与分类/区组编码，不构造统计报告表。",
-    "doe_predict.py": "响应面点预测纯计算与快照摘要，不构造统计报告表。",
-    "doe_predict_dialog.py": "响应面预测界面及点预测结果表，StatTable 位置见 producers。",
-    "doe_overlay.py": "多响应叠加等高线网格与可行交集纯计算，不构造统计报告表。",
-    "doe_overlay_dialog.py": "叠加等高线界面；图形绘制，不构造统计报告表。",
+    "doe_variability.py": "变异性预处理与 ln(SD) 模型纯计算，不构造统计报告表。",
+    "doe_variability_dialog.py": "变异性窗口的结果表由 producers 分类。",
     "fit_dialog.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "freeze.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "generalized_regression.py": "Poisson、名义多分类和有序回归纯计算；复用固定设计编码并返回原精度 DataFrame，报告统一由 RegressionDialog 构造，无独立格式化表格生产位置。",
     "grr_plot.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "help_link.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "icon_resource.py": "既有内嵌 Tk PhotoImage 图标资源，无统计计算、报告表格构造或输出位置；补齐历史文件清单遗漏。",
@@ -260,9 +291,13 @@
     "pi_import.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "pi_reader.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "plots.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "pls_regression.py": "PLS1/PLS2 NIPALS 纯计算；折内独立预处理、CV 和长表预测，返回原精度 DataFrame；报告统一由 RegressionDialog 构造，无独立格式化表格生产位置。",
     "poisson.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "proportion_test.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "qc_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
+    "quality_tools.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。",
+    "quality_tools_dialog.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。",
+    "quality_tools_plots.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。",
     "regression_dialog.py": "P0-1 回归 GUI；结果 DataFrame 在 show_table 和 report 转为 StatTable，前者含新数据预测，后者只输出训练结果。来源快照与工作表归属由 SheetApp 维持；见 producers。",
     "regression_plots.py": "P0-1 回归图形，仅消费 result.tables 和预测数据，不重新拟合、不构造统计报告表；观测散点保留训练源行号，预测曲线不拾取为训练样本。",
     "sample_test_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
@@ -281,132 +316,16 @@
     "t_test.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "ti.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "time_series.py": "G13 原始时间序列校验与 Matplotlib 绘图，无统计表构造、聚合或报告输出。",
+    "time_series_analysis.py": "P1-1 纯计算：显式采样、相关、分解、平稳性及 ARIMA/SARIMA，返回原精度结果。",
+    "time_series_analysis_plots.py": "P1-1 结果图及来源行关联，不拟合、不填补数据。",
     "time_series_dialog.py": "G13 变量选择和坐标轴配置界面；复用 Dialogs.error 展示错误，不新增统计表生产位置。",
     "two_way_anova.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "txt_output.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "utilities.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "worksheet_formulas.py": "列公式的受限表达式求值、依赖排序与计算器对话框；无统计表构造或报告输出。",
-    "worksheets.py": "工作表生命周期及工程/导入管理；无独立统计表构造或报告输出。",
-    "advanced_time_series_dialog.py": "P1-1 GUI、后台取消、来源快照、结构化报告和导出。",
-    "time_series_analysis.py": "P1-1 纯计算：显式采样、相关、分解、平稳性及 ARIMA/SARIMA，返回原精度结果。",
-    "time_series_analysis_plots.py": "P1-1 结果图及来源行关联，不拟合、不填补数据。",
-    "advanced_spc.py": "P1-2 高级SPC纯计算：EWMA、CUSUM、Nelson及公共T²复用，返回原精度结果，不构造报告。",
-    "advanced_spc_dialog.py": "P1-2 来源绑定后台GUI、历史基线、规则选择、结构化报告与导出。",
-    "advanced_spc_plots.py": "P1-2 四类控制图，仅消费后端统计量、限及异常，当前行关联而历史轴不误定位。",
-    "generalized_regression.py": "Poisson、名义多分类和有序回归纯计算；复用固定设计编码并返回原精度 DataFrame，报告统一由 RegressionDialog 构造，无独立格式化表格生产位置。",
-    "pls_regression.py": "PLS1/PLS2 NIPALS 纯计算；折内独立预处理、CV 和长表预测，返回原精度 DataFrame；报告统一由 RegressionDialog 构造，无独立格式化表格生产位置。",
-    "capability_dialog.py": "P0 完整能力窗口；stat_table 将核心结果与控制图诊断 DataFrame 转为 StatTable，report 复用同一表；来源快照与后台取消沿用 SheetApp/线程 Future。",
-    "capability_plots.py": "P0 六图、变换前后图与逐点控制限诊断；不构造统计展示表，不改旧 SPC 算法。",
-    "capability.py": "P0 独立正态/非正态能力、MLE/参数自举、Box-Cox/Johnson SU 正逆变换与原序子组；只产生数值DataFrame，由capability_dialog.stat_table统一展示，不新增StatTable生产位置。",
-    "capability_compare.py": "改善前后能力对比：阶段划分复用improvement_chart.split_phases，单阶段能力复用capability.analyze_capability；只产生数值DataFrame，由capability_dialog.stat_table统一展示，不新增StatTable生产位置。",
-    "attribute_agreement.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。",
-    "quality_tools.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。",
-    "quality_tools_dialog.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。",
-    "quality_tools_plots.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。",
-    "doe_mixture.py": "混料专属数据合同与 v4 工作表适配，不构造统计报告表。",
-    "doe_mixture_analysis.py": "Scheffé 最小二乘与 ANOVA 纯计算，不构造统计报告表。",
-    "doe_mixture_constraints.py": "混料比例约束与单位换算纯计算，不构造统计报告表。",
-    "doe_mixture_designs.py": "三类混料设计生成与结构校验，不构造统计报告表。",
-    "doe_mixture_dialog.py": "混料创建、分析、预测、优化与图形界面；结果表见 producers。",
-    "doe_mixture_model.py": "Scheffé 模型项与模型矩阵，不构造统计报告表。",
-    "doe_mixture_optimize.py": "混料受约束优化纯计算，不构造统计报告表。",
-    "doe_mixture_plots.py": "Trace、等高线、曲面与叠加可行域采样纯计算，不构造统计报告表。",
-    "doe_mixture_predict.py": "混料点预测与约束核验纯计算，不构造统计报告表。"
+    "worksheets.py": "工作表生命周期及工程/导入管理；无独立统计表构造或报告输出。"
   },
   "producers": {
-    "doe_dialog.py::AnalyzeDOE.show_table": {
-      "sites": [
-        "construct:StatTable#1",
-        "emit:structured:print#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 15,
-      "titles": [
-        "系数与效应",
-        "系数与别名组效应",
-        "别名与代表项",
-        "因子编码",
-        "系数",
-        "模型",
-        "方差分析",
-        "项方差分析",
-        "纯误差与失拟",
-        "失拟与曲率",
-        "拟合与残差",
-        "分类因子 ANOVA",
-        "边际均值",
-        "组合均值",
-        "裂区方差分析"
-      ],
-      "entry_points": [
-        "AnalyzeDOE.publish"
-      ],
-      "status": "已迁移 StatTable",
-      "tests": [
-        "tests/test_doe_gui.py::test_doe_create_analyze_save_load_and_source_binding",
-        "tests/test_doe_fractional_gui.py::test_fractional_roundtrip_analysis_and_plot_are_alias_aware",
-        "tests/test_doe_rsm_gui.py::test_ccd_roundtrip_and_plot",
-        "tests/test_doe_general_factorial_gui.py::test_create_preview_cancel_analysis_plot_save_reopen_copy",
-        "tests/test_doe_splitplot_gui.py::test_splitplot_menu_preview_analysis_save_reopen_copy_and_plot",
-        "tests/test_doe_factorial_anova.py::test_two_level_anova_effects_and_terms_match_independent_effect_contract",
-        "tests/test_doe_factorial_anova.py::test_block_factorial_term_tests_use_block_adjusted_error_not_pooled_cells"
-      ],
-      "exception_reason": ""
-    },
-    "doe_optimize_dialog.py::OptimizeRSM.optimize": {
-      "sites": [
-        "construct:StatTable#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 1,
-      "titles": [
-        "搜索候选"
-      ],
-      "entry_points": [
-        "OptimizeRSM.optimize"
-      ],
-      "status": "在优化窗口显示并支持导出",
-      "tests": [
-        "tests/test_doe_optimize_gui.py::test_ccd_optimize_reopens_and_recomputes"
-      ],
-      "exception_reason": ""
-    },
-    "doe_optimize_dialog.py::OptimizeRSM._show_best": {
-      "sites": [
-        "construct:StatTable#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 1,
-      "titles": [
-        "优化建议与响应预测"
-      ],
-      "entry_points": [
-        "OptimizeRSM.optimize"
-      ],
-      "status": "在优化窗口显示并支持导出",
-      "tests": [
-        "tests/test_doe_optimize_gui.py::test_ccd_optimize_reopens_and_recomputes"
-      ],
-      "exception_reason": ""
-    },
-    "doe_predict_dialog.py::PredictRSM.predict": {
-      "sites": [
-        "construct:StatTable#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 1,
-      "titles": [
-        "点预测"
-      ],
-      "entry_points": [
-        "PredictRSM.predict"
-      ],
-      "status": "在预测窗口显示并支持导出",
-      "tests": [
-        "tests/test_doe_predict_gui.py::test_prediction_dialog_matches_single_point_analysis"
-      ],
-      "exception_reason": ""
-    },
     "GRR.py::_grr_tables": {
       "sites": [
         "construct:gen_table#1",
@@ -504,6 +423,153 @@
       "status": "已迁移 StatTable",
       "tests": [
         "tests/test_g11_quality_tables.py::test_all_report_producers_keep_txt_results_and_export_real_files"
+      ],
+      "exception_reason": ""
+    },
+    "advanced_spc_dialog.py::AdvancedSPCDialog.report": {
+      "sites": [
+        "emit:structured:print#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "compatibility",
+      "logical_tables": 0,
+      "titles": [
+        "模型摘要",
+        "基线参数",
+        "基线与当前对比",
+        "控制限",
+        "控制图设置",
+        "基线协方差",
+        "当前监控观测",
+        "历史基线观测",
+        "异常记录"
+      ],
+      "entry_points": [
+        "Minijmp.advanced_spc → AdvancedSPCDialog.report"
+      ],
+      "status": "高级SPC独立计算与GUI专项，实际结果见阶段文档",
+      "tests": [
+        "tests/test_advanced_spc_dialog.py::test_four_kinds_history_report_plot_and_source"
+      ],
+      "exception_reason": "转发show_table展示的同一结果表至来源报告，保留构造位置而不重复统计逻辑表。"
+    },
+    "advanced_spc_dialog.py::AdvancedSPCDialog.show_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 9,
+      "titles": [
+        "模型摘要",
+        "基线参数",
+        "基线与当前对比",
+        "控制限",
+        "控制图设置",
+        "基线协方差",
+        "当前监控观测",
+        "历史基线观测",
+        "异常记录"
+      ],
+      "entry_points": [
+        "Minijmp.advanced_spc → AdvancedSPCDialog.show_table"
+      ],
+      "status": "高级SPC独立计算与GUI专项，实际结果见阶段文档",
+      "tests": [
+        "tests/test_advanced_spc_dialog.py::test_four_kinds_history_report_plot_and_source"
+      ],
+      "exception_reason": ""
+    },
+    "advanced_time_series_dialog.py::TimeSeriesAnalysisDialog.report": {
+      "sites": [
+        "emit:structured:print#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "compatibility",
+      "logical_tables": 0,
+      "titles": [
+        "分析数据",
+        "各项执行状态",
+        "自相关",
+        "偏自相关",
+        "交叉相关",
+        "趋势分析",
+        "趋势参数",
+        "季节分解",
+        "平稳性检验",
+        "模型摘要",
+        "模型参数",
+        "残差诊断",
+        "模型残差",
+        "残差自相关",
+        "预测"
+      ],
+      "entry_points": [
+        "Minijmp.time_series_analysis → TimeSeriesAnalysisDialog.report"
+      ],
+      "status": "专项验证结果见阶段记录",
+      "tests": [
+        "tests/test_time_series_analysis_dialog.py::test_analyze_forecast_export_and_source_binding"
+      ],
+      "exception_reason": "转发 show_table 已分类的同一结果表，不重复计逻辑表。"
+    },
+    "advanced_time_series_dialog.py::TimeSeriesAnalysisDialog.show_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 15,
+      "titles": [
+        "分析数据",
+        "各项执行状态",
+        "自相关",
+        "偏自相关",
+        "交叉相关",
+        "趋势分析",
+        "趋势参数",
+        "季节分解",
+        "平稳性检验",
+        "模型摘要",
+        "模型参数",
+        "残差诊断",
+        "模型残差",
+        "残差自相关",
+        "预测"
+      ],
+      "entry_points": [
+        "Minijmp.time_series_analysis → TimeSeriesAnalysisDialog.show_table"
+      ],
+      "status": "专项验证结果见阶段记录",
+      "tests": [
+        "tests/test_time_series_analysis_dialog.py::test_analyze_forecast_export_and_source_binding"
+      ],
+      "exception_reason": ""
+    },
+    "capability_dialog.py::CapabilityDialog.stat_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 12,
+      "titles": [
+        "摘要",
+        "能力指数",
+        "PPM",
+        "拟合诊断",
+        "变换参数",
+        "来源观测",
+        "拟合参数",
+        "标准差区间",
+        "等价Z",
+        "原尺度分位数",
+        "原始正态性诊断",
+        "控制图诊断"
+      ],
+      "entry_points": [
+        "Minijmp.capability_analysis -> CapabilityDialog.publish/report"
+      ],
+      "status": "P0 过程能力专项与真实Tk导出验证，结果见 docs/capability-validation.md",
+      "tests": [
+        "tests/test_capability_dialog.py::test_real_sheet_fit_plot_export_and_report"
       ],
       "exception_reason": ""
     },
@@ -689,50 +755,6 @@
         "U"
       ]
     },
-    "improvement_chart.py::_print_frame": {
-      "sites": [
-        "emit:structured:print_port#1",
-        "construct:StatTable#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 1,
-      "titles": [
-        "{调用方提供的统计结果表}"
-      ],
-      "entry_points": [
-        "Minijmp.cChartIMR → stage_compare.run → ImprovementChartDialog.report → print_report"
-      ],
-      "status": "改善前后控制图统一报告，复用 StatTable",
-      "tests": [
-        "tests/test_improvement_chart.py::test_print_report_sections_and_causality_caveat"
-      ],
-      "exception_reason": ""
-    },
-    "improvement_dialog.py::ImprovementChartDialog.show_table": {
-      "sites": [
-        "construct:StatTable#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 8,
-      "titles": [
-        "数据摘要",
-        "控制限",
-        "逐子组控制限（仅子组大小不等时）",
-        "阶段指标对比",
-        "变化率与波动比",
-        "异常点明细",
-        "统计检验",
-        "分析结论"
-      ],
-      "entry_points": [
-        "Minijmp.cChartIMR → stage_compare.run → ImprovementChartDialog.show_table"
-      ],
-      "status": "阶段对比结果窗口的表格，来源快照不随活动工作表切换",
-      "tests": [
-        "tests/test_improvement_chart.py::test_dialog_reuses_source_sheet_and_plot_viewer"
-      ],
-      "exception_reason": ""
-    },
     "cpk.py::cpk": {
       "sites": [
         "construct:gen_table#1",
@@ -914,6 +936,236 @@
       ],
       "exception_reason": ""
     },
+    "doe_binary_dialog.py::BinaryAnalysisDialog._add_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 4,
+      "titles": [
+        "模型",
+        "系数",
+        "项检验",
+        "运行概率"
+      ],
+      "entry_points": [
+        "AnalyzeBinaryDOE"
+      ],
+      "status": "DOE 二元响应结果通过 StatTable/TableBlock 展示。",
+      "tests": [
+        "tests/test_doe_h_lifecycle.py::test_h_binary_variability_and_power_windows_use_real_tk",
+        "tests/test_doe_h_lifecycle.py::test_h_dexpl_copy_and_reanalysis_preserve_v5_run_lineage"
+      ],
+      "exception_reason": ""
+    },
+    "doe_dialog.py::AnalyzeDOE.show_table": {
+      "sites": [
+        "construct:StatTable#1",
+        "emit:structured:print#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 15,
+      "titles": [
+        "系数与效应",
+        "系数与别名组效应",
+        "别名与代表项",
+        "因子编码",
+        "系数",
+        "模型",
+        "方差分析",
+        "项方差分析",
+        "纯误差与失拟",
+        "失拟与曲率",
+        "拟合与残差",
+        "分类因子 ANOVA",
+        "边际均值",
+        "组合均值",
+        "裂区方差分析"
+      ],
+      "entry_points": [
+        "AnalyzeDOE.publish"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_doe_gui.py::test_doe_create_analyze_save_load_and_source_binding",
+        "tests/test_doe_fractional_gui.py::test_fractional_roundtrip_analysis_and_plot_are_alias_aware",
+        "tests/test_doe_rsm_gui.py::test_ccd_roundtrip_and_plot",
+        "tests/test_doe_general_factorial_gui.py::test_create_preview_cancel_analysis_plot_save_reopen_copy",
+        "tests/test_doe_splitplot_gui.py::test_splitplot_menu_preview_analysis_save_reopen_copy_and_plot",
+        "tests/test_doe_factorial_anova.py::test_two_level_anova_effects_and_terms_match_independent_effect_contract",
+        "tests/test_doe_factorial_anova.py::test_block_factorial_term_tests_use_block_adjusted_error_not_pooled_cells"
+      ],
+      "exception_reason": ""
+    },
+    "doe_mixture_dialog.py::_ResultWindow.show_table": {
+      "sites": [
+        "construct:StatTable#1",
+        "emit:structured:print#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 11,
+      "titles": [
+        "系数",
+        "模型",
+        "项平方和",
+        "纯误差与失拟",
+        "拟合与残差",
+        "可估计性",
+        "预测",
+        "实际条件",
+        "优化结果",
+        "最优组分",
+        "响应预测"
+      ],
+      "entry_points": [
+        "AnalyzeMixtureDesign.publish",
+        "PredictMixture.predict",
+        "OptimizeMixture.optimize"
+      ],
+      "status": "混料结果窗口显示并支持导出",
+      "tests": [
+        "tests/test_doe_mixture_gui.py::test_mixture_gui_full_lifecycle"
+      ],
+      "exception_reason": ""
+    },
+    "doe_optimize_dialog.py::OptimizeRSM._show_best": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "优化建议与响应预测"
+      ],
+      "entry_points": [
+        "OptimizeRSM.optimize"
+      ],
+      "status": "在优化窗口显示并支持导出",
+      "tests": [
+        "tests/test_doe_optimize_gui.py::test_ccd_optimize_reopens_and_recomputes"
+      ],
+      "exception_reason": ""
+    },
+    "doe_optimize_dialog.py::OptimizeRSM.optimize": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "搜索候选"
+      ],
+      "entry_points": [
+        "OptimizeRSM.optimize"
+      ],
+      "status": "在优化窗口显示并支持导出",
+      "tests": [
+        "tests/test_doe_optimize_gui.py::test_ccd_optimize_reopens_and_recomputes"
+      ],
+      "exception_reason": ""
+    },
+    "doe_predict_dialog.py::PredictRSM.predict": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "点预测"
+      ],
+      "entry_points": [
+        "PredictRSM.predict"
+      ],
+      "status": "在预测窗口显示并支持导出",
+      "tests": [
+        "tests/test_doe_predict_gui.py::test_prediction_dialog_matches_single_point_analysis"
+      ],
+      "exception_reason": ""
+    },
+    "doe_taguchi_analysis_dialog.py::AnalyzeTaguchi.show_table": {
+      "sites": [
+        "construct:StatTable#1",
+        "emit:structured:print#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 6,
+      "titles": [
+        "组合统计",
+        "S/N响应表",
+        "S/N Delta",
+        "动态拟合",
+        "斜率响应表",
+        "动态 S/N响应表"
+      ],
+      "entry_points": [
+        "AnalyzeTaguchi.publish"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_doe_taguchi_gui.py::test_taguchi_static_menu_preview_analysis_best_save_reopen_copy"
+      ],
+      "exception_reason": ""
+    },
+    "doe_taguchi_analysis_dialog.py::BestTaguchi._tab": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "推荐水平",
+        "预测与确认",
+        "目标最优组合"
+      ],
+      "entry_points": [
+        "AnalyzeTaguchi.best"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_doe_taguchi_gui.py::test_taguchi_static_menu_preview_analysis_best_save_reopen_copy"
+      ],
+      "exception_reason": ""
+    },
+    "doe_taguchi_analysis_dialog.py::NoiseTaguchi._tab": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "控制设定",
+        "因子水平 S/N",
+        "Delta/Rank"
+      ],
+      "entry_points": [
+        "AnalyzeTaguchi.noise"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_doe_taguchi_gui.py::test_noise_robustness_window_reports_control_levels"
+      ],
+      "exception_reason": ""
+    },
+    "doe_variability_dialog.py::VariabilityDialog._add_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "摘要",
+        "拟合",
+        "主效应检验"
+      ],
+      "entry_points": [
+        "AnalyzeVariabilityDOE"
+      ],
+      "status": "Factorial 变异性结果通过 StatTable/TableBlock 展示。",
+      "tests": [
+        "tests/test_doe_h_lifecycle.py::test_h_binary_variability_and_power_windows_use_real_tk"
+      ],
+      "exception_reason": ""
+    },
     "fit_dialog.py::print_multi_col_tables": {
       "sites": [
         "construct:gen_table#1",
@@ -936,6 +1188,50 @@
       "status": "已迁移 StatTable",
       "tests": [
         "tests/test_g10_tables.py::test_text_values_and_real_exports"
+      ],
+      "exception_reason": ""
+    },
+    "improvement_chart.py::_print_frame": {
+      "sites": [
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "{调用方提供的统计结果表}"
+      ],
+      "entry_points": [
+        "Minijmp.cChartIMR → stage_compare.run → ImprovementChartDialog.report → print_report"
+      ],
+      "status": "改善前后控制图统一报告，复用 StatTable",
+      "tests": [
+        "tests/test_improvement_chart.py::test_print_report_sections_and_causality_caveat"
+      ],
+      "exception_reason": ""
+    },
+    "improvement_dialog.py::ImprovementChartDialog.show_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 8,
+      "titles": [
+        "数据摘要",
+        "控制限",
+        "逐子组控制限（仅子组大小不等时）",
+        "阶段指标对比",
+        "变化率与波动比",
+        "异常点明细",
+        "统计检验",
+        "分析结论"
+      ],
+      "entry_points": [
+        "Minijmp.cChartIMR → stage_compare.run → ImprovementChartDialog.show_table"
+      ],
+      "status": "阶段对比结果窗口的表格，来源快照不随活动工作表切换",
+      "tests": [
+        "tests/test_improvement_chart.py::test_dialog_reuses_source_sheet_and_plot_viewer"
       ],
       "exception_reason": ""
     },
@@ -1217,6 +1513,65 @@
       ],
       "exception_reason": ""
     },
+    "pca_dialog.py::PCADialog.report": {
+      "sites": [
+        "emit:structured:print#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "compatibility",
+      "logical_tables": 0,
+      "titles": [
+        "特征值与贡献率",
+        "载荷",
+        "控制限及方法",
+        "预处理参数",
+        "交叉验证辅助",
+        "得分",
+        "统计监控",
+        "模型残差",
+        "重构值",
+        "样本贡献",
+        "A/B 变量统计",
+        "选区样本"
+      ],
+      "entry_points": [
+        "PCADialog.report（输出当前非空结果表及模型说明）"
+      ],
+      "status": "已核对实际生产位置；GUI建模、投影、导出与来源绑定专项已由主端验证",
+      "tests": [
+        "tests/test_pca_dialog.py::test_fit_project_export_and_source_binding"
+      ],
+      "exception_reason": "将show_table已分类的同一self.tables结果发送到既有文本报告窗口；包含当前训练或投影结果及交互表，不作为第二套逻辑表重复计数。两处StatTable构造位置仍分别保留。"
+    },
+    "pca_dialog.py::PCADialog.show_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 12,
+      "titles": [
+        "特征值与贡献率",
+        "载荷",
+        "控制限及方法",
+        "预处理参数",
+        "交叉验证辅助",
+        "得分",
+        "统计监控",
+        "模型残差",
+        "重构值",
+        "样本贡献",
+        "A/B 变量统计",
+        "选区样本"
+      ],
+      "entry_points": [
+        "Minijmp.pca_analysis → PCADialog.publish / show_contribution / compare / select / clear_groups → show_table"
+      ],
+      "status": "已核对实际生产位置；GUI建模、投影、导出与来源绑定专项已由主端验证",
+      "tests": [
+        "tests/test_pca_dialog.py::test_fit_project_export_and_source_binding"
+      ],
+      "exception_reason": ""
+    },
     "proportion_test.py::prop_2sample": {
       "sites": [
         "construct:gen_table#1",
@@ -1264,6 +1619,117 @@
       "status": "已迁移 StatTable",
       "tests": [
         "tests/test_g9_tables.py::test_fixed_txt_and_every_table_reaches_viewer"
+      ],
+      "exception_reason": ""
+    },
+    "quality_tools_dialog.py::QualityToolsDialog.stat_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "entry_points": [
+        "质量菜单五项工具"
+      ],
+      "titles": [
+        "帕累托频数",
+        "运行图数据",
+        "随机性检验",
+        "来源观测",
+        "原因结构",
+        "组合统计",
+        "设计",
+        "完全一致率",
+        "Kappa",
+        "各类别Kappa",
+        "正确评价比例",
+        "分类不一致",
+        "Kendall"
+      ],
+      "status": "结构化原精度结果",
+      "exception_reason": "",
+      "logical_tables": 13,
+      "tests": [
+        "tests/test_quality_tools_dialog.py::test_attribute_gui",
+        "tests/test_quality_tools_dialog.py::test_pareto_gui"
+      ]
+    },
+    "regression_dialog.py::RegressionDialog.report": {
+      "sites": [
+        "emit:structured:print#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "compatibility",
+      "logical_tables": 0,
+      "titles": [
+        "模型摘要",
+        "系数",
+        "方差分析",
+        "残差诊断",
+        "共线性诊断",
+        "观测诊断",
+        "模型比较",
+        "分类评估",
+        "ROC",
+        "有序模型阈值",
+        "响应类别编码",
+        "分类矩阵",
+        "类别概率",
+        "X 得分",
+        "Y 得分",
+        "X 载荷",
+        "Y 载荷",
+        "解释方差",
+        "变量重要性（VIP）",
+        "交叉验证",
+        "交叉验证预测"
+      ],
+      "entry_points": [
+        "RegressionDialog.report（输出完整报告；训练结果）"
+      ],
+      "status": "已完成P0-1独立计算、GUI与实际导出专项验证",
+      "tests": [
+        "tests/test_regression_dialog.py::test_fit_predict_export_and_source_binding",
+        "tests/test_regression_dialog.py::test_extended_models_real_sheet_workflow"
+      ],
+      "exception_reason": "将show_table已分类的同一result.tables训练结果发送到既有文本报告窗口；不作为第二套逻辑表重复计数。两处StatTable构造位置仍分别保留。"
+    },
+    "regression_dialog.py::RegressionDialog.show_table": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 22,
+      "titles": [
+        "模型摘要",
+        "系数",
+        "方差分析",
+        "残差诊断",
+        "共线性诊断",
+        "观测诊断",
+        "模型比较",
+        "分类评估",
+        "ROC",
+        "新数据预测",
+        "有序模型阈值",
+        "响应类别编码",
+        "分类矩阵",
+        "类别概率",
+        "X 得分",
+        "Y 得分",
+        "X 载荷",
+        "Y 载荷",
+        "解释方差",
+        "变量重要性（VIP）",
+        "交叉验证",
+        "交叉验证预测"
+      ],
+      "entry_points": [
+        "Minijmp.advanced_regression → RegressionDialog.publish / predict → show_table"
+      ],
+      "status": "四类回归扩展：独立数值与真实工作表 GUI、导出验证已执行；详细证据见 docs/REGRESSION_EXTENSIONS.md。",
+      "tests": [
+        "tests/test_regression_dialog.py::test_fit_predict_export_and_source_binding",
+        "tests/test_regression_dialog.py::test_extended_models_real_sheet_workflow"
       ],
       "exception_reason": ""
     },
@@ -1533,418 +1999,6 @@
       "status": "已迁移 StatTable",
       "tests": [
         "tests/test_g10_tables.py::test_text_values_and_real_exports"
-      ],
-      "exception_reason": ""
-    },
-    "pca_dialog.py::PCADialog.show_table": {
-      "sites": [
-        "construct:StatTable#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 12,
-      "titles": [
-        "特征值与贡献率",
-        "载荷",
-        "控制限及方法",
-        "预处理参数",
-        "交叉验证辅助",
-        "得分",
-        "统计监控",
-        "模型残差",
-        "重构值",
-        "样本贡献",
-        "A/B 变量统计",
-        "选区样本"
-      ],
-      "entry_points": [
-        "Minijmp.pca_analysis → PCADialog.publish / show_contribution / compare / select / clear_groups → show_table"
-      ],
-      "status": "已核对实际生产位置；GUI建模、投影、导出与来源绑定专项已由主端验证",
-      "tests": [
-        "tests/test_pca_dialog.py::test_fit_project_export_and_source_binding"
-      ],
-      "exception_reason": ""
-    },
-    "pca_dialog.py::PCADialog.report": {
-      "sites": [
-        "emit:structured:print#1",
-        "construct:StatTable#1"
-      ],
-      "classification": "compatibility",
-      "logical_tables": 0,
-      "titles": [
-        "特征值与贡献率",
-        "载荷",
-        "控制限及方法",
-        "预处理参数",
-        "交叉验证辅助",
-        "得分",
-        "统计监控",
-        "模型残差",
-        "重构值",
-        "样本贡献",
-        "A/B 变量统计",
-        "选区样本"
-      ],
-      "entry_points": [
-        "PCADialog.report（输出当前非空结果表及模型说明）"
-      ],
-      "status": "已核对实际生产位置；GUI建模、投影、导出与来源绑定专项已由主端验证",
-      "tests": [
-        "tests/test_pca_dialog.py::test_fit_project_export_and_source_binding"
-      ],
-      "exception_reason": "将show_table已分类的同一self.tables结果发送到既有文本报告窗口；包含当前训练或投影结果及交互表，不作为第二套逻辑表重复计数。两处StatTable构造位置仍分别保留。"
-    },
-    "regression_dialog.py::RegressionDialog.show_table": {
-      "sites": [
-        "construct:StatTable#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 22,
-      "titles": [
-        "模型摘要",
-        "系数",
-        "方差分析",
-        "残差诊断",
-        "共线性诊断",
-        "观测诊断",
-        "模型比较",
-        "分类评估",
-        "ROC",
-        "新数据预测",
-        "有序模型阈值",
-        "响应类别编码",
-        "分类矩阵",
-        "类别概率",
-        "X 得分",
-        "Y 得分",
-        "X 载荷",
-        "Y 载荷",
-        "解释方差",
-        "变量重要性（VIP）",
-        "交叉验证",
-        "交叉验证预测"
-      ],
-      "entry_points": [
-        "Minijmp.advanced_regression → RegressionDialog.publish / predict → show_table"
-      ],
-      "status": "四类回归扩展：独立数值与真实工作表 GUI、导出验证已执行；详细证据见 docs/REGRESSION_EXTENSIONS.md。",
-      "tests": [
-        "tests/test_regression_dialog.py::test_fit_predict_export_and_source_binding",
-        "tests/test_regression_dialog.py::test_extended_models_real_sheet_workflow"
-      ],
-      "exception_reason": ""
-    },
-    "regression_dialog.py::RegressionDialog.report": {
-      "sites": [
-        "emit:structured:print#1",
-        "construct:StatTable#1"
-      ],
-      "classification": "compatibility",
-      "logical_tables": 0,
-      "titles": [
-        "模型摘要",
-        "系数",
-        "方差分析",
-        "残差诊断",
-        "共线性诊断",
-        "观测诊断",
-        "模型比较",
-        "分类评估",
-        "ROC",
-        "有序模型阈值",
-        "响应类别编码",
-        "分类矩阵",
-        "类别概率",
-        "X 得分",
-        "Y 得分",
-        "X 载荷",
-        "Y 载荷",
-        "解释方差",
-        "变量重要性（VIP）",
-        "交叉验证",
-        "交叉验证预测"
-      ],
-      "entry_points": [
-        "RegressionDialog.report（输出完整报告；训练结果）"
-      ],
-      "status": "已完成P0-1独立计算、GUI与实际导出专项验证",
-      "tests": [
-        "tests/test_regression_dialog.py::test_fit_predict_export_and_source_binding",
-        "tests/test_regression_dialog.py::test_extended_models_real_sheet_workflow"
-      ],
-      "exception_reason": "将show_table已分类的同一result.tables训练结果发送到既有文本报告窗口；不作为第二套逻辑表重复计数。两处StatTable构造位置仍分别保留。"
-    },
-    "advanced_time_series_dialog.py::TimeSeriesAnalysisDialog.show_table": {
-      "sites": [
-        "construct:StatTable#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 15,
-      "titles": [
-        "分析数据",
-        "各项执行状态",
-        "自相关",
-        "偏自相关",
-        "交叉相关",
-        "趋势分析",
-        "趋势参数",
-        "季节分解",
-        "平稳性检验",
-        "模型摘要",
-        "模型参数",
-        "残差诊断",
-        "模型残差",
-        "残差自相关",
-        "预测"
-      ],
-      "entry_points": [
-        "Minijmp.time_series_analysis → TimeSeriesAnalysisDialog.show_table"
-      ],
-      "status": "专项验证结果见阶段记录",
-      "tests": [
-        "tests/test_time_series_analysis_dialog.py::test_analyze_forecast_export_and_source_binding"
-      ],
-      "exception_reason": ""
-    },
-    "advanced_time_series_dialog.py::TimeSeriesAnalysisDialog.report": {
-      "sites": [
-        "emit:structured:print#1",
-        "construct:StatTable#1"
-      ],
-      "classification": "compatibility",
-      "logical_tables": 0,
-      "titles": [
-        "分析数据",
-        "各项执行状态",
-        "自相关",
-        "偏自相关",
-        "交叉相关",
-        "趋势分析",
-        "趋势参数",
-        "季节分解",
-        "平稳性检验",
-        "模型摘要",
-        "模型参数",
-        "残差诊断",
-        "模型残差",
-        "残差自相关",
-        "预测"
-      ],
-      "entry_points": [
-        "Minijmp.time_series_analysis → TimeSeriesAnalysisDialog.report"
-      ],
-      "status": "专项验证结果见阶段记录",
-      "tests": [
-        "tests/test_time_series_analysis_dialog.py::test_analyze_forecast_export_and_source_binding"
-      ],
-      "exception_reason": "转发 show_table 已分类的同一结果表，不重复计逻辑表。"
-    },
-    "advanced_spc_dialog.py::AdvancedSPCDialog.show_table": {
-      "sites": [
-        "construct:StatTable#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 9,
-      "titles": [
-        "模型摘要",
-        "基线参数",
-        "基线与当前对比",
-        "控制限",
-        "控制图设置",
-        "基线协方差",
-        "当前监控观测",
-        "历史基线观测",
-        "异常记录"
-      ],
-      "entry_points": [
-        "Minijmp.advanced_spc → AdvancedSPCDialog.show_table"
-      ],
-      "status": "高级SPC独立计算与GUI专项，实际结果见阶段文档",
-      "tests": [
-        "tests/test_advanced_spc_dialog.py::test_four_kinds_history_report_plot_and_source"
-      ],
-      "exception_reason": ""
-    },
-    "advanced_spc_dialog.py::AdvancedSPCDialog.report": {
-      "sites": [
-        "emit:structured:print#1",
-        "construct:StatTable#1"
-      ],
-      "classification": "compatibility",
-      "logical_tables": 0,
-      "titles": [
-        "模型摘要",
-        "基线参数",
-        "基线与当前对比",
-        "控制限",
-        "控制图设置",
-        "基线协方差",
-        "当前监控观测",
-        "历史基线观测",
-        "异常记录"
-      ],
-      "entry_points": [
-        "Minijmp.advanced_spc → AdvancedSPCDialog.report"
-      ],
-      "status": "高级SPC独立计算与GUI专项，实际结果见阶段文档",
-      "tests": [
-        "tests/test_advanced_spc_dialog.py::test_four_kinds_history_report_plot_and_source"
-      ],
-      "exception_reason": "转发show_table展示的同一结果表至来源报告，保留构造位置而不重复统计逻辑表。"
-    },
-    "capability_dialog.py::CapabilityDialog.stat_table": {
-      "sites": [
-        "construct:StatTable#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 12,
-      "titles": [
-        "摘要",
-        "能力指数",
-        "PPM",
-        "拟合诊断",
-        "变换参数",
-        "来源观测",
-        "拟合参数",
-        "标准差区间",
-        "等价Z",
-        "原尺度分位数",
-        "原始正态性诊断",
-        "控制图诊断"
-      ],
-      "entry_points": [
-        "Minijmp.capability_analysis -> CapabilityDialog.publish/report"
-      ],
-      "status": "P0 过程能力专项与真实Tk导出验证，结果见 docs/capability-validation.md",
-      "tests": [
-        "tests/test_capability_dialog.py::test_real_sheet_fit_plot_export_and_report"
-      ],
-      "exception_reason": ""
-    },
-    "quality_tools_dialog.py::QualityToolsDialog.stat_table": {
-      "sites": [
-        "construct:StatTable#1"
-      ],
-      "classification": "statistical",
-      "entry_points": [
-        "质量菜单五项工具"
-      ],
-      "titles": [
-        "帕累托频数",
-        "运行图数据",
-        "随机性检验",
-        "来源观测",
-        "原因结构",
-        "组合统计",
-        "设计",
-        "完全一致率",
-        "Kappa",
-        "各类别Kappa",
-        "正确评价比例",
-        "分类不一致",
-        "Kendall"
-      ],
-      "status": "结构化原精度结果",
-      "exception_reason": "",
-      "logical_tables": 13,
-      "tests": [
-        "tests/test_quality_tools_dialog.py::test_attribute_gui",
-        "tests/test_quality_tools_dialog.py::test_pareto_gui"
-      ]
-    },
-    "doe_mixture_dialog.py::_ResultWindow.show_table": {
-      "sites": [
-        "construct:StatTable#1",
-        "emit:structured:print#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 11,
-      "titles": [
-        "系数",
-        "模型",
-        "项平方和",
-        "纯误差与失拟",
-        "拟合与残差",
-        "可估计性",
-        "预测",
-        "实际条件",
-        "优化结果",
-        "最优组分",
-        "响应预测"
-      ],
-      "entry_points": [
-        "AnalyzeMixtureDesign.publish",
-        "PredictMixture.predict",
-        "OptimizeMixture.optimize"
-      ],
-      "status": "混料结果窗口显示并支持导出",
-      "tests": [
-        "tests/test_doe_mixture_gui.py::test_mixture_gui_full_lifecycle"
-      ],
-      "exception_reason": ""
-    },
-    "doe_taguchi_analysis_dialog.py::AnalyzeTaguchi.show_table": {
-      "sites": [
-        "construct:StatTable#1",
-        "emit:structured:print#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 6,
-      "titles": [
-        "组合统计",
-        "S/N响应表",
-        "S/N Delta",
-        "动态拟合",
-        "斜率响应表",
-        "动态 S/N响应表"
-      ],
-      "entry_points": [
-        "AnalyzeTaguchi.publish"
-      ],
-      "status": "已迁移 StatTable",
-      "tests": [
-        "tests/test_doe_taguchi_gui.py::test_taguchi_static_menu_preview_analysis_best_save_reopen_copy"
-      ],
-      "exception_reason": ""
-    },
-    "doe_taguchi_analysis_dialog.py::BestTaguchi._tab": {
-      "sites": [
-        "construct:StatTable#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 3,
-      "titles": [
-        "推荐水平",
-        "预测与确认",
-        "目标最优组合"
-      ],
-      "entry_points": [
-        "AnalyzeTaguchi.best"
-      ],
-      "status": "已迁移 StatTable",
-      "tests": [
-        "tests/test_doe_taguchi_gui.py::test_taguchi_static_menu_preview_analysis_best_save_reopen_copy"
-      ],
-      "exception_reason": ""
-    },
-    "doe_taguchi_analysis_dialog.py::NoiseTaguchi._tab": {
-      "sites": [
-        "construct:StatTable#1"
-      ],
-      "classification": "statistical",
-      "logical_tables": 3,
-      "titles": [
-        "控制设定",
-        "因子水平 S/N",
-        "Delta/Rank"
-      ],
-      "entry_points": [
-        "AnalyzeTaguchi.noise"
-      ],
-      "status": "已迁移 StatTable",
-      "tests": [
-        "tests/test_doe_taguchi_gui.py::test_noise_robustness_window_reports_control_levels"
       ],
       "exception_reason": ""
     }
@@ -3228,17 +3282,17 @@
     }
   ],
   "summary": {
-    "python_files": 154,
-    "files_with_production_sites": 36,
-    "producer_scopes": 66,
-    "constructor_calls": 136,
+    "python_files": 160,
+    "files_with_production_sites": 38,
+    "producer_scopes": 68,
+    "constructor_calls": 138,
     "constructors": {
       "gen_table": 55,
-      "StatTable": 77,
+      "StatTable": 79,
       "PrettyTable": 4
     },
-    "statistical_source_positions": 72,
-    "logical_statistical_tables": 215,
+    "statistical_source_positions": 74,
+    "logical_statistical_tables": 222,
     "table_text_conversions": {
       "to_string": 2,
       "pred_table": 1,
