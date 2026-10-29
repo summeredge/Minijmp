@@ -31,9 +31,18 @@ P2 内有强制子关口：先实现 Mixture D-optimal 与 Distance-based 选点
 - 本地功能矩阵保持 80 项：58 implemented、19 partial、2 unknown、1 excluded。DOE Schema v5、Mixture Schema 1 不变。没有 Minitab 22 产品输出，不声明 `VERSION22_PARITY`。
 - 当时的 P1 Goal 已完成并停止；后续包未自动启动。
 
-## 后续独立 Goal：P2-2B 二元响应概率与优化（2026-10-29）
+## P2-2B 历史记录：二元响应概率与优化（2026-10-29）
 
-P2-2B 由独立 Goal 处理，不改变本路线图重建时的 P1 验收历史。P0–P5 的二元概率/区间、预测窗口、优化数学核心/界面、`.dexpl` 工程与跨模块集成均有本地定向证据；`P2B-ACC-01–06` 均为 `LOCAL_PASS`。没有运行全量 pytest。两个单元的 Local MCP Connector 只读 Review 尚待执行；完成 Review 前不提交，并且不启动 P2-3、P2-4 或 P2-5。
+P2-2B 不改变本路线图重建时的 P1 验收历史。P0–P5 的二元概率/区间、预测窗口、优化数学核心/界面、`.dexpl` 工程与跨模块集成均有本地定向证据；`P2B-ACC-01–06` 均为 `LOCAL_PASS`。当时没有运行全量 pytest，两个单元的 Local MCP Connector 只读 Review 尚未执行；后续按用户明确指示提交并推送，不代表独立 APPROVE。P2-3 随后作为独立 Goal 启动。
+
+## 后续独立 Goal：P2-3 多因子平衡 Split-Plot（2026-10-29）
+
+- **状态：`READY_FOR_INDEPENDENT_REVIEW`。** `P3-ACC-01–06` 本地验收通过；两个 Review 单元已备妥交接，正式独立 Review 尚未执行，也没有 APPROVE 结论。
+- 支持 2–6 个连续两水平因子、1–3 个整区因子、至少 1 个子区因子、至少 2 个完整重复区组及 10,000 次运行预算。v1 两因子身份与 seed 运行序保持兼容；v2 使用现有 Schema v5 字段。
+- 独立参考 verifier 与封存 D 工作包基准分开核验；分析包含全部 factorial 项，按实际模型秩、完整平衡正交投影和整区/子区误差分别推断。大响应平移、单位缩放、极大处理效应、两个零误差层均有回归覆盖。
+- 验证：核心、持久化、Schema、Factorial/General Factorial、诊断与最优设计回归 222 passed；Split-Plot 真实 Tk 10 passed、共享最优设计 Tk 6 passed；Help/Menu/G12 94 passed。Tk 绘图有 2 条既有 `tight_layout` 警告；全量 pytest 未运行。详细命令、fixture SHA 和限制见 [P2-3 收尾](phase2-p3-closeout.md)。
+- 功能矩阵仍 80 项（58 implemented、19 partial、2 unknown、1 excluded）；Split-Plot 相关行仍为 `partial`，未据局部实现升级厂商 parity。DOE Schema v5 不变。
+- 官方帮助确认难改因子在整区内保持不变，并分别随机化整区与子区；该公开页面未标 Minitab 22 版本，也不证明本包的固定区组推断与产品输出等价。非平衡、REML、多水平及 Split-Plot 区间/优化不在范围内。
 
 ## 实施顺序
 
@@ -45,4 +54,4 @@ P2-2B 由独立 Goal 处理，不改变本路线图重建时的 P1 验收历史�
 
 ## 停止边界
 
-任何验收关口未通过时记录阻断和证据，不越级开始后续阶段。完成本路线图不自动启动 P2-2B、P2-3、P2-4、P2-5，不提交、不推送、不打 tag、不发布、不打包 EXE。两个验收单元都可交独立 Review 且本地测试无阻断时停止，保留工作区。
+后续工作包须由独立 Goal 启动。当前 P2-3 在本地验收后停止于 `READY_FOR_INDEPENDENT_REVIEW`，等待用户指定的只读独立 Review；P2-4/P2-5 未启动。本次不提交、不推送、不打 tag、不发布、不打包 EXE，并保留未提交工作区。

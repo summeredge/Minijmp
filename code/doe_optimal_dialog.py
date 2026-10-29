@@ -243,19 +243,35 @@ class ModifyDesignDialog:
         ttk.Label(body, textvariable=self.status).pack(side='bottom', anchor='w')
         extra = ttk.Frame(body)
         extra.pack(side='bottom', fill='x')
-        ttk.Label(extra, text='重复数').pack(side='left')
+        split_plot = self.summary['design_type'] == 'split_plot'
+        ttk.Label(extra, text='新增完整区组数' if split_plot else '重复数').pack(side='left')
         self.rep_count = ttk.Entry(extra, width=4)
         self.rep_count.insert(0, '1')
         self.rep_count.pack(side='left', padx=4)
-        ttk.Button(extra, text='增加完整重复', command=self.replicate).pack(side='left')
+        self.replicate_button = ttk.Button(
+            extra, text='增加完整区组' if split_plot else '增加完整重复',
+            command=self.replicate)
+        self.replicate_button.pack(side='left')
+        if not self.summary['can_replicate']:
+            self.replicate_button.configure(state='disabled')
+            if self.summary.get('unavailable_reason'):
+                self.status.set(self.summary['unavailable_reason'])
         buttons = ttk.Frame(body)
         buttons.pack(side='bottom', fill='x', pady=8)
         self.preview.pack(fill='both', expand=True, pady=(6, 0))
         ttk.Button(buttons, text='预览对照', command=self.preview_click).pack(side='left')
-        ttk.Button(buttons, text='重新随机化', command=self.rerandomize).pack(side='left')
+        self.rerandomize_button = ttk.Button(
+            buttons, text='重新随机化', command=self.rerandomize)
+        self.rerandomize_button.pack(side='left')
+        if not self.summary['can_rerandomize']:
+            self.rerandomize_button.configure(state='disabled')
         ttk.Button(buttons, text='仅重排显示', command=self.reorder_only).pack(side='left', padx=6)
-        ttk.Button(buttons, text='按标准序重编号', command=self.renumber).pack(side='left')
-        ttk.Button(buttons, text='取消', command=self.main.destroy).pack(side='left')
+        self.renumber_button = ttk.Button(buttons, text='按标准序重编号', command=self.renumber)
+        self.renumber_button.pack(side='left')
+        if not self.summary['can_renumber']:
+            self.renumber_button.configure(state='disabled')
+        self.cancel_button = ttk.Button(buttons, text='取消', command=self.main.destroy)
+        self.cancel_button.pack(side='left')
 
     def _source_data(self):
         if self.app.getCurrentTable() is not self.source:
@@ -339,7 +355,9 @@ class ModifyDesignDialog:
         except (ValueError, TypeError, OverflowError, KeyError) as error:
             messagebox.showerror('修改设计', str(error), parent=self.main)
             return False
-        self.app.addSheet(f'{self.app.getCurrentSheet()} 完整重复', result,
+        label = ('增加完整区组' if self.summary['design_type'] == 'split_plot'
+                 else '完整重复')
+        self.app.addSheet(f'{self.app.getCurrentSheet()} {label}', result,
                           {'doe': result_metadata})
         self.main.destroy()
         return True

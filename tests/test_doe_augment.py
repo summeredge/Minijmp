@@ -7,6 +7,7 @@ import pytest
 
 from doe_augment import augment, select_augment
 from doe_core import DesignSpec, FactorSpec, restore_design_result, worksheet_metadata
+from doe_splitplot import create_split_plot
 from doe_custom import define_custom
 
 
@@ -74,6 +75,20 @@ def test_augment_preserves_parent_responses_and_lineage():
     assert summary["augmented_rank"] == 3
     assert summary["parent_design_id"] == "aug-parent"
     assert sorted(result["标准序"]) == list(range(1, len(result) + 1))
+
+
+def test_generic_candidate_augmentation_rejects_splitplot():
+    factors = (
+        FactorSpec("A", "A", -1, 1, randomization_role="hard_to_change"),
+        FactorSpec("B", "B", -1, 1, randomization_role="easy_to_change"),
+    )
+    spec = DesignSpec(
+        "split-no-generic-augment", factors, ("Y",), seed=1,
+        design_type="split_plot", block_count=2, construction_version="v1",
+        randomization_unit="whole_plot", error_structure="split_plot")
+    frame, metadata = create_split_plot(spec)
+    with pytest.raises(ValueError, match="增加完整区组"):
+        augment(frame, metadata, [{"A": -1, "B": -1}], 1)
 
 
 def test_augment_rejects_run_id_conflict_and_missing_batch_columns():

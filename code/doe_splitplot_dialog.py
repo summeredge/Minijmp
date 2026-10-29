@@ -1,4 +1,4 @@
-"""两水平因子 Split-Plot 创建界面。"""
+"""两水平平衡 Split-Plot 创建界面。"""
 import tkinter as tk
 from tkinter import messagebox, ttk
 
@@ -8,6 +8,9 @@ from doe_splitplot import create_split_plot
 from help_link import open_help
 
 
+_MAX_FACTORS = 6
+_ROLE_LABELS = {"hard_to_change": "整区因子", "easy_to_change": "子区因子"}
+_ROLE_BY_LABEL = {label: role for role, label in _ROLE_LABELS.items()}
 _PREVIEW_ROWS = 100
 
 
@@ -15,123 +18,234 @@ class CreateSplitPlot:
     def __init__(self, app):
         self.app = app
         self.main = tk.Toplevel(app.main)
-        self.main.title('创建两水平 Split-Plot 裂区设计')
-        self.main.bind('<F1>', lambda event: open_help('doe.split_plot', parent=self.main))
+        self.main.title("创建 Split-Plot 裂区设计")
+        self.main.bind("<F1>", lambda event: open_help("doe.split_plot", parent=self.main))
+        self.main.bind("<Destroy>", self._destroyed, add="+")
+        self._preview_after = None
         body = ttk.Frame(self.main, padding=10)
-        body.pack(fill='both', expand=True)
-        for column, label in enumerate(('因子', '名称', '低水平', '高水平')):
-            ttk.Label(body, text=label).grid(row=0, column=column, padx=3)
-        self.fields = []
-        for index, factor_id in enumerate(('A', 'B'), 1):
-            ttk.Label(body, text=factor_id).grid(row=index, column=0)
-            entries = []
-            for column, value in enumerate((factor_id, '0', '1'), 1):
-                entry = ttk.Entry(body, width=16)
-                entry.insert(0, value)
-                entry.grid(row=index, column=column, padx=3, pady=3)
-                entries.append(entry)
-            self.fields.append(entries)
+        body.pack(fill="both", expand=True)
 
-        row = 3
-        ttk.Label(body, text='Hard-to-change 因子').grid(row=row, column=0, sticky='w')
-        self.hard_factor = ttk.Combobox(body, values=('A', 'B'), state='readonly', width=8)
-        self.hard_factor.set('A')
-        self.hard_factor.grid(row=row, column=1, sticky='w')
-        row += 1
-        self.blocks = self._entry(body, row, '区组数', '3')
-        self.seed = self._entry(body, row + 1, '随机 seed', '1')
-        self.responses = self._entry(body, row + 2, '响应名称', 'Y')
-        preview_row = row + 3
-        ttk.Label(body, text='运行预览').grid(row=preview_row, column=0, sticky='nw')
+        settings = ttk.Frame(body)
+        settings.grid(row=0, column=0, sticky="ew")
+        ttk.Label(settings, text="因子数").pack(side="left")
+        self.factor_count_var = tk.StringVar(value="2")
+        self.factor_count = ttk.Combobox(
+            settings, textvariable=self.factor_count_var,
+            values=tuple(str(value) for value in range(2, _MAX_FACTORS + 1)),
+            state="readonly", width=4)
+        self.factor_count.pack(side="left", padx=(4, 12))
+        self.blocks, self.blocks_var = self._entry(settings, "完整重复区组", "3")
+        self.seed, self.seed_var = self._entry(settings, "随机 seed", "1")
+        self.responses, self.responses_var = self._entry(settings, "响应名称", "Y")
+
+        self.factor_frame = ttk.Frame(body)
+        self.factor_frame.grid(row=1, column=0, sticky="nsew", pady=(8, 4))
+        for column, label in enumerate(("因子", "名称", "低水平", "高水平", "角色")):
+            ttk.Label(self.factor_frame, text=label).grid(row=0, column=column, padx=3)
+        self.factor_values = []
+        for index in range(_MAX_FACTORS):
+            letter = chr(ord("A") + index)
+            self.factor_values.append({
+                "name": tk.StringVar(value=letter),
+                "low": tk.StringVar(value="0"),
+                "high": tk.StringVar(value="1"),
+                "role": tk.StringVar(value=_ROLE_LABELS[
+                    "hard_to_change" if index == 0 else "easy_to_change"]),
+            })
+        self.factor_rows = []
+        self._render_factor_rows()
+
+        self.summary = ttk.Label(body, text="")
+        self.summary.grid(row=2, column=0, sticky="w", pady=(2, 4))
         preview_frame = ttk.Frame(body)
-        preview_frame.grid(row=preview_row, column=1, columnspan=3, sticky='nsew')
-        self.preview_text = tk.Text(preview_frame, width=72, height=9, wrap='none',
-                                    state='disabled')
-        scrollbar = ttk.Scrollbar(preview_frame, orient='vertical',
+        preview_frame.grid(row=3, column=0, sticky="nsew")
+        self.preview_text = tk.Text(preview_frame, width=88, height=9, wrap="none",
+                                    state="disabled")
+        scrollbar = ttk.Scrollbar(preview_frame, orient="vertical",
                                   command=self.preview_text.yview)
-        horizontal = ttk.Scrollbar(preview_frame, orient='horizontal',
+        horizontal = ttk.Scrollbar(preview_frame, orient="horizontal",
                                    command=self.preview_text.xview)
         self.preview_text.configure(yscrollcommand=scrollbar.set,
                                     xscrollcommand=horizontal.set)
-        horizontal.pack(side='bottom', fill='x')
-        self.preview_text.pack(side='left', fill='both', expand=True)
-        scrollbar.pack(side='right', fill='y')
+        horizontal.pack(side="bottom", fill="x")
+        self.preview_text.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
         self.preview_horizontal = horizontal
+
         buttons = ttk.Frame(body)
-        buttons.grid(row=preview_row + 1, column=1, columnspan=3, sticky='e', pady=(8, 0))
-        self.preview_button = ttk.Button(buttons, text='预览', command=self.preview)
-        self.preview_button.pack(side='left')
-        self.create_button = ttk.Button(buttons, text='创建', command=self.create)
-        self.create_button.pack(side='left', padx=4)
-        self.cancel_button = ttk.Button(buttons, text='取消', command=self.main.destroy)
-        self.cancel_button.pack(side='left')
-        body.columnconfigure(3, weight=1)
-        body.rowconfigure(preview_row, weight=1)
+        buttons.grid(row=4, column=0, sticky="e", pady=(8, 0))
+        self.preview_button = ttk.Button(buttons, text="预览", command=self.preview)
+        self.preview_button.pack(side="left")
+        self.create_button = ttk.Button(buttons, text="创建", command=self.create)
+        self.create_button.pack(side="left", padx=4)
+        self.cancel_button = ttk.Button(buttons, text="取消", command=self.close)
+        self.cancel_button.pack(side="left")
+        body.columnconfigure(0, weight=1)
+        body.rowconfigure(3, weight=1)
+
+        self.factor_count_var.trace_add("write", self._factor_count_changed)
+        for variable in (self.blocks_var, self.seed_var, self.responses_var):
+            variable.trace_add("write", self._schedule_preview)
+        for fields in self.factor_values:
+            for variable in fields.values():
+                variable.trace_add("write", self._schedule_preview)
         self.preview()
 
     @staticmethod
-    def _entry(parent, row, label, default):
-        ttk.Label(parent, text=label).grid(row=row, column=0, sticky='w', pady=2)
-        entry = ttk.Entry(parent, width=18)
-        entry.insert(0, default)
-        entry.grid(row=row, column=1, sticky='w', pady=2)
-        return entry
+    def _entry(parent, label, default):
+        ttk.Label(parent, text=label).pack(side="left", padx=(4, 2))
+        value = tk.StringVar(value=default)
+        entry = ttk.Entry(parent, textvariable=value, width=8)
+        entry.pack(side="left", padx=(0, 8))
+        return entry, value
+
+    def _render_factor_rows(self):
+        for row in self.factor_rows:
+            row.destroy()
+        self.factor_rows = []
+        try:
+            count = int(self.factor_count_var.get())
+        except ValueError:
+            self._show("")
+            self.summary.configure(text="")
+            return
+        if not 2 <= count <= _MAX_FACTORS:
+            self._show("")
+            self.summary.configure(text="")
+            return
+        for index, fields in enumerate(self.factor_values[:count], 1):
+            row = ttk.Frame(self.factor_frame)
+            row.grid(row=index, column=0, columnspan=5, sticky="ew")
+            ttk.Label(row, text=chr(ord("A") + index - 1), width=7).grid(row=0, column=0)
+            for column, key in enumerate(("name", "low", "high"), 1):
+                ttk.Entry(row, textvariable=fields[key], width=16).grid(
+                    row=0, column=column, padx=3, pady=2)
+            ttk.Combobox(
+                row, textvariable=fields["role"], values=tuple(_ROLE_LABELS.values()),
+                state="readonly", width=12).grid(row=0, column=4, padx=3)
+            self.factor_rows.append(row)
+
+    def _factor_count_changed(self, *_):
+        self._render_factor_rows()
+        self._schedule_preview()
+
+    def _schedule_preview(self, *_):
+        if not self.main.winfo_exists():
+            return
+        self._cancel_preview()
+        try:
+            self._preview_after = self.main.after(120, self._refresh_preview)
+        except tk.TclError:
+            self._preview_after = None
+
+    def _cancel_preview(self):
+        if self._preview_after is not None:
+            try:
+                self.main.after_cancel(self._preview_after)
+            except tk.TclError:
+                pass
+            self._preview_after = None
+
+    def _destroyed(self, event):
+        if event.widget is self.main:
+            self._cancel_preview()
+
+    def _refresh_preview(self):
+        self._preview_after = None
+        try:
+            frame, metadata = self.build()
+        except (ValueError, TypeError, OverflowError):
+            self._show("")
+            self.summary.configure(text="")
+            return
+        self._display_preview(frame, metadata)
 
     def build(self):
+        try:
+            count = int(self.factor_count_var.get())
+        except ValueError as error:
+            raise ValueError("因子数必须是 2–6") from error
+        if not 2 <= count <= _MAX_FACTORS:
+            raise ValueError("因子数必须是 2–6")
         factors = []
-        hard_id = self.hard_factor.get()
-        for factor_id, entries in zip(('A', 'B'), self.fields):
-            name = entries[0].get().strip()
+        for index, fields in enumerate(self.factor_values[:count]):
+            factor_id = chr(ord("A") + index)
+            role = _ROLE_BY_LABEL.get(fields["role"].get(), fields["role"].get())
+            name = fields["name"].get().strip()
             if not name:
-                raise ValueError('因子名称不能为空')
+                raise ValueError("因子名称不能为空")
             factors.append(FactorSpec(
-                factor_id, name, ccd_number(entries[1].get()),
-                ccd_number(entries[2].get()),
-                randomization_role='hard_to_change' if factor_id == hard_id
-                else 'easy_to_change'))
-        responses = tuple(value.strip() for value in self.responses.get().split(','))
+                factor_id, name, ccd_number(fields["low"].get()),
+                ccd_number(fields["high"].get()), randomization_role=role))
+        hard_count = sum(factor.randomization_role == "hard_to_change" for factor in factors)
+        easy_count = len(factors) - hard_count
+        construction = "v1" if count == 2 and hard_count == 1 else "v2"
+        responses = tuple(value.strip() for value in self.responses_var.get().split(","))
         spec = DesignSpec(
-            'DOE', tuple(factors), responses, seed=int(self.seed.get()),
-            design_type='split_plot', block_count=int(self.blocks.get()),
-            randomization_unit='whole_plot', error_structure='split_plot')
+            "DOE", tuple(factors), responses, seed=int(self.seed_var.get()),
+            design_type="split_plot", block_count=int(self.blocks_var.get()),
+            construction_version=construction, randomization_unit="whole_plot",
+            error_structure="split_plot")
+        if not hard_count or not easy_count:
+            raise ValueError("至少需要一个整区因子和一个子区因子")
         return create_split_plot(spec)
 
+    def _display_preview(self, frame, metadata):
+        columns = metadata["column_map"]
+        factors = list(columns["factors"].values())
+        views = [columns["run_id"], columns["standard_order"], columns["run_order"],
+                 columns["block"], columns["whole_plot_id"], columns["subplot_id"],
+                 *factors, columns["whole_plot_order"], columns["subplot_order"]]
+        spec = metadata["design"]
+        hard = sum(item["randomization_role"] == "hard_to_change"
+                   for item in spec["factors"])
+        easy = len(spec["factors"]) - hard
+        hard_count, easy_count = 1 << hard, 1 << easy
+        blocks = spec["block_count"]
+        whole_plots = blocks * hard_count
+        df_wp = (blocks - 1) * (hard_count - 1)
+        df_sp = hard_count * (blocks - 1) * (easy_count - 1)
+        self.summary.configure(text=(
+            f"运行 {len(frame)} 次；区组 {blocks}；整区 {whole_plots}；"
+            f"每整区子区 {easy_count}；整区误差 df {df_wp}；"
+            f"子区误差 df {df_sp}；因子 {len(spec['factors'])}（hard {hard}，easy {easy}）"))
+        lines = [self.summary.cget("text"), "\t".join(views)]
+        shown = frame[views].head(_PREVIEW_ROWS)
+        lines.extend("\t".join(map(str, row))
+                     for row in shown.itertuples(index=False, name=None))
+        if len(frame) > _PREVIEW_ROWS:
+            lines.append(f"仅显示前 {_PREVIEW_ROWS} 行，共 {len(frame)} 行")
+        self._show("\n".join(lines))
+
     def _show(self, text):
-        self.preview_text.configure(state='normal')
-        self.preview_text.delete('1.0', 'end')
-        self.preview_text.insert('1.0', text)
-        self.preview_text.configure(state='disabled')
+        self.preview_text.configure(state="normal")
+        self.preview_text.delete("1.0", "end")
+        self.preview_text.insert("1.0", text)
+        self.preview_text.configure(state="disabled")
 
     def preview(self):
+        self._cancel_preview()
         try:
             frame, metadata = self.build()
         except (ValueError, TypeError, OverflowError) as error:
-            self._show('')
-            messagebox.showerror('Split-Plot', str(error), parent=self.main)
+            self._show("")
+            self.summary.configure(text="")
+            messagebox.showerror("Split-Plot", str(error), parent=self.main)
             return False
-        columns = metadata['column_map']
-        views = [columns['run_id'], columns['standard_order'], columns['run_order'],
-                 columns['block'], columns['whole_plot_id'],
-                 columns['factors']['A'], columns['factors']['B'],
-                 columns['whole_plot_order'], columns['subplot_order']]
-        total = len(frame)
-        lines = [f"运行 {total} 次；区组 {frame[columns['block']].nunique()}；"
-                 f"整区 {frame[columns['whole_plot_id']].nunique()}",
-                 '\t'.join(views)]
-        shown = frame[views].head(_PREVIEW_ROWS)
-        lines.extend('\t'.join(map(str, row))
-                     for row in shown.itertuples(index=False, name=None))
-        if total > _PREVIEW_ROWS:
-            lines.append(f"仅显示前 {_PREVIEW_ROWS} 行，共 {total} 行")
-        self._show('\n'.join(lines))
+        self._display_preview(frame, metadata)
         return True
 
     def create(self):
+        self._cancel_preview()
         try:
             frame, metadata = self.build()
-            self.app.addSheet('DOE Split-Plot', frame, {'doe': metadata})
+            self.app.addSheet("DOE Split-Plot", frame, {"doe": metadata})
         except (ValueError, TypeError, OverflowError) as error:
-            messagebox.showerror('Split-Plot', str(error), parent=self.main)
+            messagebox.showerror("Split-Plot", str(error), parent=self.main)
             return False
-        self.main.destroy()
+        self.close()
         return True
+
+    def close(self):
+        self._cancel_preview()
+        self.main.destroy()

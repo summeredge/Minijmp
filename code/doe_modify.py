@@ -27,7 +27,11 @@ def reorder(frame, metadata, *, by='standard'):
     """仅改变工作表行显示顺序；运行 ID、设定、响应与顺序字段保持不变。"""
     if by not in ('standard', 'run'):
         raise ValueError('显示顺序必须是 standard 或 run')
-    design = restore_design_result(frame, metadata)
+    if metadata.get('design', {}).get('design_type') == 'split_plot':
+        from doe_splitplot import validate_split_plot_design
+        design = validate_split_plot_design(frame, metadata)
+    else:
+        design = restore_design_result(frame, metadata)
     column = metadata['column_map']['standard_order' if by == 'standard' else 'run_order']
     result = frame.sort_values(column, kind='stable').reset_index(drop=True)
     return result, worksheet_metadata(result, design.spec, metadata['column_map'])
@@ -94,13 +98,20 @@ def _order_ids(run_ids, seed, family, spec, blocks):
 
 def rerandomize(frame, metadata, seed):
     """用新 seed 重新随机化运行序；返回新工作表与元数据。"""
-    design = restore_design_result(frame, metadata)
+    if metadata.get('design', {}).get('design_type') == 'split_plot':
+        from doe_splitplot import validate_split_plot_design
+        design = validate_split_plot_design(frame, metadata)
+    else:
+        design = restore_design_result(frame, metadata)
     spec = design.spec
     if isinstance(seed, bool) or not isinstance(seed, int):
         raise ValueError('seed 必须是整数')
     family = _supported(spec)
     if family is None:
         raise ValueError('该设计类型不支持重新随机化')
+    if family == 'split_plot':
+        if design.spec.augmentation_lineage is not None:
+            raise ValueError('已增补的 Split-Plot 为保留历史顺序，不支持重新随机化')
     runs = design.runs
     run_ids = [run.run_id for run in runs]
     if len(set(map(str, run_ids))) != len(run_ids):
@@ -138,13 +149,30 @@ def rerandomize(frame, metadata, seed):
 
 def modify_summary(frame, metadata):
     """修改前后可观察信息：运行数、顺序与是否可重新随机化。"""
-    design = restore_design_result(frame, metadata)
+    if metadata.get('design', {}).get('design_type') == 'split_plot':
+        from doe_splitplot import validate_split_plot_design
+        design = validate_split_plot_design(frame, metadata)
+    else:
+        design = restore_design_result(frame, metadata)
     family = _supported(design.spec)
+    split_augmented = (design.spec.design_type == 'split_plot'
+                       and design.spec.augmentation_lineage is not None)
+    append_unsupported = (design.spec.design_type == 'split_plot'
+                          and metadata.get('design', {}).get(
+                              'schema_version', design.spec.schema_version) < 5)
+    reason = (
+        'Split-Plot 只支持一次区组增补；重新随机化会改写历史顺序。'
+        if split_augmented else
+        '该 Schema v4 Split-Plot 缺少可验证增补谱系，不能安全增加区组。'
+        if append_unsupported else None)
     return {'design_type': design.spec.design_type, 'runs': len(design.runs),
             'seed': design.spec.seed, 'family': family,
-            'can_rerandomize': family is not None,
-            'can_reorder': True, 'can_renumber': True,
-            'can_replicate': spec_allows_replicate(design.spec)}
+            'can_rerandomize': family is not None and not split_augmented,
+            'can_reorder': True,
+            'can_renumber': design.spec.design_type != 'split_plot',
+            'can_replicate': (spec_allows_replicate(design.spec)
+                              and not append_unsupported),
+            'unavailable_reason': reason}
 
 
 def spec_allows_replicate(spec):
@@ -155,6 +183,8 @@ def spec_allows_replicate(spec):
 def renumber(frame, metadata):
     """按标准序重写运行序 1..n：保留设定、响应、重复与批次，不改设计身份。"""
     design = restore_design_result(frame, metadata)
+    if design.spec.design_type == 'split_plot':
+        raise ValueError('Split-Plot 运行序必须与 seed 随机化一致；请用“重新随机化”更换顺序')
     columns = metadata['column_map']
     by_standard = {run.run_id: run.standard_order for run in design.runs}
     result = frame.copy(deep=True)
@@ -173,6 +203,9 @@ def renumber(frame, metadata):
 
 def replicate(frame, metadata, *, count=2, seed=None):
     """追加完整重复：复制全部设计点一次，新重复编号、新运行 ID、响应留空。"""
+    if metadata.get('design', {}).get('design_type') == 'split_plot':
+        from doe_splitplot import append_split_plot_blocks
+        return append_split_plot_blocks(frame, metadata, count, seed=seed)
     design = restore_design_result(frame, metadata)
     spec = design.spec
     if not spec_allows_replicate(spec):
