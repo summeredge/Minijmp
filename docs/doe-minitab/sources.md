@@ -94,6 +94,14 @@
 | T-06 | [Catalogue of Taguchi designs](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/taguchi-designs/catalogue-of-taguchi-designs/) | 逐点抄录 L4(2³)、L8(2⁷)、L9(3⁴)、L16(4⁵)、L18(2¹3⁷)、L25(5⁶) 的标准行序矩阵；页面声明"每对列中所有因子组合出现次数相同"。实际 L18 表头列为 1–7、9（无 8），且第 8 列与第 3–7 列的组合频数为 1/2/3 而非各 2 次；其余五个数组平衡且两两正交。MiniJMP 记录该构造事实，不宣称 L18 完全两两正交。 | TAG-003/004/005/010/011 |
 | T-07 | [Select the options for Analyze Taguchi Design (Static)](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/taguchi/analyze-taguchi-design/perform-the-analysis/select-the-options-static-design/) | 静态可选四类 S/N、adjusted nominal-is-best 与 ln(s) 输出变换；页面把 default nominal 描述为基于均值与标准差。 | TAG-006/007 |
 | T-08 | [Select the options for Analyze Taguchi Design (Dynamic)](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/taguchi/analyze-taguchi-design/perform-the-analysis/select-the-options-dynamic-design/) | 动态可固定参考点（响应参考值 + 信号参考值）、按平均响应设参考点，或自由截距；另有 adjusted 公式与 ln(s)。 | TAG-002 |
+
+### DOE Phase 2 RSM 区间与诊断（2026-10-29 访问）
+
+| source_id | 官方/方法页面 | 用途及限制 | 相关 feature_id |
+|---|---|---|---|
+| R-07 | [Fits and residuals for Analyze Response Surface Design](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/response-surface/analyze-response-surface-design/methods-and-formulas/fits-and-residuals/) | 说明响应面拟合值的 SE Fit、均值置信区间和预测区间；页面未标产品版本。用于核实功能及报告术语，不作为独立数值 oracle。 | RSM-009 |
+| R-08 | [Diagnostic measures for Analyze Response Surface Design](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/response-surface/analyze-response-surface-design/methods-and-formulas/diagnostic-measures/) | 说明 leverage、Cook's Distance、DFITS 等逐点影响诊断；页面未标产品版本。 | RSM-015 |
+| N-01 | [NIST Regression Diagnostics](https://www.itl.nist.gov/div898/software/dataplot/refman1/auxillar/regrdiag.htm)；[NIST Studentized deleted residuals](https://www.nist.gov/system/files/documents/2017/05/09/sec2-1.pdf) | OLS 杠杆、标准化/删除学生化残差、Cook's D 与 DFFITS 公式说明；实际结果由独立小矩阵 fixture 复算，不从生产函数生成参考值。 | RSM-015/GEN-009 |
 | T-05 | [Methods and formulas for Analyze Taguchi Design](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/taguchi/analyze-taguchi-design/methods-and-formulas/methods-and-formulas/)；[What is the signal-to-noise ratio in a Taguchi design?](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/taguchi-designs/what-is-the-signal-to-noise-ratio/)；[Select the options for Analyze Taguchi Design (Static)](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/taguchi/analyze-taguchi-design/perform-the-analysis/select-the-options-static-design/) | 静态四类为 smaller-is-better、larger-is-better、nominal-is-best (I)、nominal-is-best (II)。详细 formula 页面把 adjusted formula 放在 (I) 小节：S/N = 10 log10((mean² − s²/n)/s²)；(I) 基式为 10 log10(mean²/s²)，(II) 为 −10 log10(s²)。Methods 页概述句的 (II) 括号标注与其详细小节/其他官方页不一致，保留此来源冲突。 | TAG-006 |
 | O-03 | [Design details for Select Optimal Design](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/factorial/select-optimal-design/interpret-the-results/design-details/) | 明确 Factorial 仅提供 D-optimality；Response Surface 和 Mixture 可以使用 distance-based。Mixture 距离设计需纳入全部 components，process variables 可选。 | GEN-003/004/005/006 |
 | O-04 | [Methods and formulas for Select Optimal Design](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/factorial/select-optimal-design/methods-and-formulas/methods-and-formulas/) | Distance-based 初点：RSM 取距编码原点最远的候选点，Mixture 取距 pure component 最近的候选点；之后逐步加入距已选点集最远的点。该规则不使用 exchange method，且不复制选点。 | GEN-004/006 |
@@ -165,4 +173,15 @@ Minitab RSM overview 确认优化因子设置的工作流，但核查过的官�
 工作包 F 使用 `feature-matrix.csv` 已记录的 Minitab mixture 方法、创建、分析与叠加等高线页面确认产品菜单和限定输入范围；这些页面没有提供可复现的 Minitab 标准序或逐点导出，因此不作为数值 oracle，也不声称与 XVERT/CONAEV 的输出顺序一致。
 
 独立参考位于 `tests/fixtures/doe_mixture_reference/`，使用标准库 `Fraction`、自写高斯消元和确定性网格，不导入生产模块。覆盖三组分 2/3 阶格点、7 点重心、约束多面体 5 个顶点、不可行/退化区域、线性/二次 Scheffé、过程/总量语义、纯误差/失拟 ANOVA、优化网格界、Trace/三元网格与双响应叠加可行域。参考 JSON 与核验脚本的 SHA-256 见该目录 manifest；生产实现按参考逐值比较。
+
+# 2026-10-29：Mixture 最优设计官方来源复核
+
+本次复核时页面仍未标明 Minitab 版本；它们确认功能及方法语义，不构成 Minitab 22 产品输出对照。
+
+| source_id | 官方页面 | 复核结论 | feature_id |
+|---|---|---|---|
+| O-05 | [Select Optimal Design：Mixture 选点、增补或改进](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/factorial/select-optimal-design/perform-the-analysis/select-optimal-runs-augment-or-improve-a-mixtures-design/) | Mixture Select Optimal Design 同时提供 D-optimal 与 Distance-based；增补窗口允许保留或替换部分父运行。本地首版只实现保留全部父运行。 | GEN-003/004/006 |
+| O-06 | [Methods and formulas for Select Optimal Design](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/factorial/select-optimal-design/methods-and-formulas/methods-and-formulas/) | Distance-based 包含全部混料组分；过程/总量列可选择排除；首点选距纯组分最近的候选，后续逐步选距已选集合最远的候选且不重复。D-optimal 的所选模型项影响信息矩阵，官方方法允许有放回候选重复。 | GEN-003/004/006 |
+
+P2-1 新增生产参考与限制见 [Phase 2 验收](phase2-acceptance.md)；独立数值参考位于 `tests/fixtures/doe_phase2_optimal_reference/`，不以官方文档作为数值 oracle。
 

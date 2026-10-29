@@ -69,7 +69,17 @@ def contract(result, design_type):
                      len(aliases) if aliases is not None else None,
                      '别名组数' if aliases is not None
                      else '该设计族不使用正规分数别名假设'))
-    rows.append(_row('杠杆值', None, '当前分析器不输出逐点杠杆'))
+    point_diagnostics = result.get('diagnostics')
+    if point_diagnostics is None:
+        rows.append(_row('杠杆值', None, '当前分析器不输出逐点杠杆'))
+    else:
+        available = sum(row['leverage'] is not None for row in point_diagnostics)
+        influence = sum(row['cooks_distance'] is not None
+                        or row['dfits'] is not None for row in point_diagnostics)
+        rows.append(_row('杠杆值', f'{available}/{len(point_diagnostics)}',
+                         '按本次拟合实际模型矩阵的投影对角线计算'))
+        rows.append(_row('逐点影响量', f'{influence}/{len(point_diagnostics)}',
+                         "标准化/删除残差、Cook's D 与 DFITS；不可用行在逐点表中说明原因"))
     rows.append(_row('假设检验',
                      '未自动检验',
                      '残差图只辅助诊断，不证明独立、同方差或正态'))

@@ -1,0 +1,844 @@
+{
+  "method": {
+    "d_optimal": "maximize det(X'X) using the specified Scheffe row; full rank required",
+    "distance": "first nearest pure component; then maximize minimum squared Euclidean distance",
+    "tie": "candidate input order; exact duplicate settings retain first occurrence",
+    "process_coordinate": "(value-low)/(high-low), a unitless [0,1] coordinate",
+    "pseudocomponent": "x'=(x-lower)/(1-sum(lower)); inverse before physical-distance calculation"
+  },
+  "distance_simplex": {
+    "points": [
+      [
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "1",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "1"
+      ],
+      [
+        "1/2",
+        "1/2",
+        "0"
+      ],
+      [
+        "1/2",
+        "0",
+        "1/2"
+      ],
+      [
+        "0",
+        "1/2",
+        "1/2"
+      ],
+      [
+        "1/3",
+        "1/3",
+        "1/3"
+      ]
+    ],
+    "component_count": 3,
+    "requested": 5,
+    "selected_order": [
+      0,
+      1,
+      2,
+      6,
+      3
+    ],
+    "step_squared_distance": [
+      "0",
+      "2",
+      "2",
+      "2/3",
+      "1/6"
+    ]
+  },
+  "quadratic_scheffe": {
+    "terms": [
+      "A",
+      "B",
+      "C",
+      "A*B",
+      "A*C",
+      "B*C"
+    ],
+    "points": [
+      [
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "1",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "1"
+      ],
+      [
+        "1/2",
+        "1/2",
+        "0"
+      ],
+      [
+        "1/2",
+        "0",
+        "1/2"
+      ],
+      [
+        "0",
+        "1/2",
+        "1/2"
+      ],
+      [
+        "1/3",
+        "1/3",
+        "1/3"
+      ]
+    ],
+    "matrix": [
+      [
+        "1",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "1",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "1",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "1/2",
+        "1/2",
+        "0",
+        "1/4",
+        "0",
+        "0"
+      ],
+      [
+        "1/2",
+        "0",
+        "1/2",
+        "0",
+        "1/4",
+        "0"
+      ],
+      [
+        "0",
+        "1/2",
+        "1/2",
+        "0",
+        "0",
+        "1/4"
+      ],
+      [
+        "1/3",
+        "1/3",
+        "1/3",
+        "1/9",
+        "1/9",
+        "1/9"
+      ]
+    ],
+    "requested": 6,
+    "det_xtx": "1/4096",
+    "optimal_subsets": [
+      [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    ],
+    "logdet": -8.317766166719343
+  },
+  "constrained_selection": {
+    "bounds": [
+      [
+        "1/10",
+        "3/5"
+      ],
+      [
+        "1/10",
+        "7/10"
+      ],
+      [
+        "0",
+        "7/10"
+      ]
+    ],
+    "linear_constraints": [
+      [
+        [
+          "1",
+          "2",
+          "0"
+        ],
+        "11/10"
+      ]
+    ],
+    "points": [
+      [
+        "1/5",
+        "1/5",
+        "3/5"
+      ],
+      [
+        "1/2",
+        "1/5",
+        "3/10"
+      ],
+      [
+        "1/5",
+        "2/5",
+        "2/5"
+      ],
+      [
+        "3/5",
+        "1/5",
+        "1/5"
+      ],
+      [
+        "1/5",
+        "1/2",
+        "3/10"
+      ],
+      [
+        "1/20",
+        "1/5",
+        "3/4"
+      ]
+    ],
+    "feasible_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "rejected_indices": [
+      4,
+      5
+    ],
+    "linear_scheffe_terms": [
+      "A",
+      "B",
+      "C"
+    ],
+    "selected_feasible_indices": [
+      [
+        0,
+        2,
+        3
+      ]
+    ],
+    "det_xtx": "4/625"
+  },
+  "process_scheffe": {
+    "terms": [
+      "A",
+      "B",
+      "C",
+      "A*P",
+      "B*P",
+      "C*P"
+    ],
+    "settings": [
+      {
+        "components": [
+          "1",
+          "0",
+          "0"
+        ],
+        "process": "0",
+        "coded_process": "-1"
+      },
+      {
+        "components": [
+          "1",
+          "0",
+          "0"
+        ],
+        "process": "10",
+        "coded_process": "1"
+      },
+      {
+        "components": [
+          "0",
+          "1",
+          "0"
+        ],
+        "process": "0",
+        "coded_process": "-1"
+      },
+      {
+        "components": [
+          "0",
+          "1",
+          "0"
+        ],
+        "process": "10",
+        "coded_process": "1"
+      },
+      {
+        "components": [
+          "0",
+          "0",
+          "1"
+        ],
+        "process": "0",
+        "coded_process": "-1"
+      },
+      {
+        "components": [
+          "0",
+          "0",
+          "1"
+        ],
+        "process": "10",
+        "coded_process": "1"
+      }
+    ],
+    "matrix": [
+      [
+        "1",
+        "0",
+        "0",
+        "-1",
+        "0",
+        "0"
+      ],
+      [
+        "1",
+        "0",
+        "0",
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "1",
+        "0",
+        "0",
+        "-1",
+        "0"
+      ],
+      [
+        "0",
+        "1",
+        "0",
+        "0",
+        "1",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "1",
+        "0",
+        "0",
+        "-1"
+      ],
+      [
+        "0",
+        "0",
+        "1",
+        "0",
+        "0",
+        "1"
+      ]
+    ],
+    "rank": 6,
+    "det_xtx": "64"
+  },
+  "repetition": {
+    "terms": [
+      "A",
+      "B",
+      "C"
+    ],
+    "candidate_points": [
+      [
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "1",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "1"
+      ]
+    ],
+    "without_replacement": {
+      "requested": 3,
+      "det_xtx": "1",
+      "optimal_subsets": [
+        [
+          0,
+          1,
+          2
+        ]
+      ],
+      "multiplicity": [
+        1,
+        1,
+        1
+      ]
+    },
+    "with_replacement": {
+      "requested": 4,
+      "combination_count": 15,
+      "det_xtx": "2",
+      "optimal_subsets": [
+        [
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          2,
+          2
+        ]
+      ],
+      "chosen_multiplicity": [
+        2,
+        1,
+        1
+      ],
+      "global_optimum_proven": true
+    },
+    "duplicate_candidates": {
+      "input": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "unique_first_indices": [
+        0,
+        1,
+        2
+      ],
+      "collapsed_indices": [
+        3
+      ],
+      "det_xtx_after_collapse": "2",
+      "optimal_subsets_after_collapse": [
+        [
+          0,
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          2,
+          2
+        ]
+      ]
+    },
+    "distance_duplicate_candidates": {
+      "input": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "0"
+        ]
+      ],
+      "unique_first_indices": [
+        0,
+        1,
+        2
+      ],
+      "collapsed_indices": [
+        3
+      ],
+      "selected_order_on_unique": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  "rank_deficiency": {
+    "terms": [
+      "A",
+      "B",
+      "C",
+      "A*B",
+      "A*C",
+      "B*C"
+    ],
+    "points": [
+      [
+        "1",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "1",
+        "0"
+      ],
+      [
+        "1/2",
+        "1/2",
+        "0"
+      ],
+      [
+        "1/3",
+        "2/3",
+        "0"
+      ]
+    ],
+    "matrix": [
+      [
+        "1",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "0",
+        "1",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      [
+        "1/2",
+        "1/2",
+        "0",
+        "1/4",
+        "0",
+        "0"
+      ],
+      [
+        "1/3",
+        "2/3",
+        "0",
+        "2/9",
+        "0",
+        "0"
+      ]
+    ],
+    "rank": 3,
+    "parameter_count": 6,
+    "det_xtx": "0"
+  },
+  "augmentation": {
+    "terms": [
+      "A",
+      "B",
+      "C"
+    ],
+    "parent_points": [
+      [
+        "1",
+        "0",
+        "0"
+      ]
+    ],
+    "candidate_points": [
+      [
+        "0",
+        "1",
+        "0"
+      ],
+      [
+        "0",
+        "0",
+        "1"
+      ]
+    ],
+    "d_optimal_without_replacement": {
+      "requested": 2,
+      "selected_indices": [
+        [
+          0,
+          1
+        ]
+      ],
+      "det_xtx_after": "1",
+      "initial_rank": 1,
+      "augmented_rank": 3
+    },
+    "d_optimal_with_replacement": {
+      "requested": 3,
+      "combination_count": 4,
+      "selected_indices": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          1
+        ]
+      ],
+      "det_xtx_after": "2",
+      "chosen_multiplicity": [
+        2,
+        1
+      ],
+      "initial_rank": 1,
+      "augmented_rank": 3
+    },
+    "distance": {
+      "all_points": [
+        [
+          "1",
+          "0",
+          "0"
+        ],
+        [
+          "0",
+          "1",
+          "0"
+        ],
+        [
+          "0",
+          "0",
+          "1"
+        ],
+        [
+          "1/2",
+          "1/2",
+          "0"
+        ],
+        [
+          "1/2",
+          "0",
+          "1/2"
+        ],
+        [
+          "0",
+          "1/2",
+          "1/2"
+        ],
+        [
+          "1/3",
+          "1/3",
+          "1/3"
+        ]
+      ],
+      "parent_indices": [
+        0
+      ],
+      "requested": 2,
+      "selected_order": [
+        1,
+        2
+      ],
+      "step_squared_distance": [
+        "2",
+        "2"
+      ],
+      "minimum_squared_distance": "2"
+    }
+  },
+  "pseudocomponent_roundtrip": {
+    "lower": [
+      "1/5",
+      "1/10",
+      "0"
+    ],
+    "actual": [
+      "2/5",
+      "3/10",
+      "3/10"
+    ],
+    "pseudo": [
+      "2/7",
+      "2/7",
+      "3/7"
+    ],
+    "restored": [
+      "2/5",
+      "3/10",
+      "3/10"
+    ]
+  },
+  "distance_process_coordinates": [
+    {
+      "components": [
+        "1",
+        "0",
+        "0"
+      ],
+      "process": "0",
+      "normalized_process": "0",
+      "coordinates": [
+        "1",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "components": [
+        "0",
+        "1",
+        "0"
+      ],
+      "process": "4",
+      "normalized_process": "1/2",
+      "coordinates": [
+        "0",
+        "1",
+        "0",
+        "1/2"
+      ]
+    },
+    {
+      "components": [
+        "0",
+        "0",
+        "1"
+      ],
+      "process": "8",
+      "normalized_process": "1",
+      "coordinates": [
+        "0",
+        "0",
+        "1",
+        "1"
+      ]
+    }
+  ],
+  "search_budget": {
+    "exact_subset_budget": 200000,
+    "exact_candidate_limit": 40,
+    "cases": [
+      {
+        "candidate_count": 7,
+        "run_count": 6,
+        "allow_repeats": false,
+        "subsets": 7,
+        "method": "exact_enumeration",
+        "global_optimum_proven": true
+      },
+      {
+        "candidate_count": 3,
+        "run_count": 4,
+        "allow_repeats": true,
+        "subsets": 15,
+        "method": "exact_enumeration",
+        "global_optimum_proven": true
+      },
+      {
+        "candidate_count": 30,
+        "run_count": 15,
+        "allow_repeats": false,
+        "subsets": 155117520,
+        "method": "greedy_exchange",
+        "global_optimum_proven": false
+      }
+    ]
+  },
+  "boundary_cases": {
+    "no_repeat_count_exceeds_unique": {
+      "unique_points": 3,
+      "requested": 4,
+      "expected_error": "candidate shortage"
+    },
+    "distance_exhausted": {
+      "unique_points": 3,
+      "requested": 4,
+      "expected_error": "candidate shortage"
+    },
+    "rank_deficient": {
+      "rank": 3,
+      "parameters": 6,
+      "expected_error": "no full-rank subset"
+    },
+    "infeasible_candidate_indices": [
+      4,
+      5
+    ]
+  }
+}

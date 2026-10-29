@@ -853,6 +853,15 @@ class AnalyzeDOE:
         for tab in self.tabs.tabs():
             self.tabs.nametowidget(tab).destroy()
         self.show_diagnostics(result)
+        if self.rsm and result.get('diagnostics') is not None:
+            self.show_table(
+                '逐点影响诊断',
+                ['运行ID', '运行序', '杠杆', '标准化残差', '删除残差',
+                 '删除学生化残差', "Cook's D", 'DFITS', '状态'],
+                [[row['run_id'], row['run_order'], row['leverage'],
+                  row['standardized_residual'], row['deleted_residual'],
+                  row['studentized_residual'], row['cooks_distance'], row['dfits'],
+                  row['note'] or '可用'] for row in result['diagnostics']])
         self.status.set(f"响应 {result['response']}，{result['n']} 行分析快照；数据修改后需重新分析；" +
                         result['status'] + '；' + result['assumption'])
         if self.splitplot:

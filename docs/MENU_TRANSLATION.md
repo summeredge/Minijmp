@@ -52,6 +52,7 @@
 | Analyze Mixture Design | 分析混料设计 |
 | Mixture Prediction | 混料预测 |
 | Optimize Mixture Response | 优化混料响应 |
+| Select Optimal Mixture Design | 混料最优设计 |
 | Mixture Plots | 混料图形 |
 | Create Taguchi Design (Static) | 创建 Taguchi 设计（静态） |
 | Create Taguchi Design (Dynamic) | 创建 Taguchi 设计（动态） |

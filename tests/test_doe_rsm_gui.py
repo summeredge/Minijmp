@@ -341,4 +341,35 @@ def test_categorical_rsm_plot_uses_selected_level_and_continuous_axes(
     assert np.ptp(difference) > 0
 
     dialog.main.destroy()
+
+
+def test_custom_rsm_diagnostics_publish_by_run_and_refresh_after_response_edit(
+        csv_app, monkeypatch):
+    from test_doe_predict import _custom_interval_design
+
+    app, error = csv_app
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    frame, metadata = _custom_interval_design()
+    table = app.addSheet('自定义响应面诊断', frame, {'doe': metadata})
+    dialog = AnalyzeDOE(app)
+    dialog.analyze()
+    assert dialog.result is not None
+    tab_names = [dialog.tabs.tab(tab, 'text') for tab in dialog.tabs.tabs()]
+    assert '逐点影响诊断' in tab_names
+    tab = dialog.tabs.nametowidget(dialog.tabs.tabs()[tab_names.index('逐点影响诊断')])
+    block = next(child for child in tab.winfo_children()
+                 if getattr(child, 'table', None) is not None)
+    assert block.table.headers[:3] == ['运行ID', '运行序', '杠杆']
+    assert len(block.table.values) == len(frame)
+    old_cook = dialog.result['diagnostics'][0]['cooks_distance']
+
+    table.model.df.loc[0, 'Y'] += 10
+    dialog.plot()
+    assert error.call_count == 1
+    assert '重新分析' in error.call_args.args[1]
+    error.reset_mock()
+    dialog.analyze()
+    assert error.call_count == 0
+    assert dialog.result['diagnostics'][0]['cooks_distance'] != pytest.approx(old_cook)
+    dialog.main.destroy()
     error.assert_not_called()

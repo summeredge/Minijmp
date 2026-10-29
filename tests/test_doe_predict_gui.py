@@ -7,6 +7,7 @@ import pytest
 from doe_dialog import CreateDOE
 from doe_predict_dialog import PredictRSM
 from test_csv_import import csv_app
+from test_doe_predict import _custom_interval_design
 
 
 def _fill_response(table, values):
@@ -36,7 +37,7 @@ def test_prediction_dialog_matches_single_point_analysis(csv_app, monkeypatch):
     dialog.predict()
     assert error.call_count == 0, error.call_args
     values = dialog.block.table.values
-    prediction = values[-4][1]
+    prediction = next(row[1] for row in values if row[0] == '预测响应')
     assert prediction == pytest.approx(12.0, abs=1e-9)
     assert '快照' in dialog.status.get()
     dialog.main.destroy()
@@ -115,6 +116,56 @@ def test_prediction_roundtrips_through_a_saved_project(csv_app, tmp_path, monkey
     dialog.entries['C'].insert(0, '1')
     dialog.predict()
     assert error.call_count == 0, error.call_args
-    assert dialog.block.table.values[-4][1] == pytest.approx(14.0, abs=1e-9)
+    assert next(row[1] for row in dialog.block.table.values
+                if row[0] == '预测响应') == pytest.approx(14.0, abs=1e-9)
+    dialog.main.destroy()
+
+
+def test_prediction_gui_intervals_and_response_snapshot_refresh(csv_app, monkeypatch):
+    app, error = csv_app
+    monkeypatch.setattr('doe_predict_dialog.messagebox.showerror', error)
+    frame, metadata = _custom_interval_design()
+    original_response = frame['Y'].copy(deep=True)
+    app.addSheet('自定义区间设计', frame, {'doe': metadata})
+    dialog = PredictRSM(app)
+    dialog.confidence.set('90%')
+    dialog.interval_side.set('单侧下限')
+    dialog.predict()
+    assert error.call_count == 0, error.call_args
+    values = dialog.block.table.values
+    lower_ci = next(row[1] for row in values if row[0] == '拟合均值 CI 下限')
+    lower_pi = next(row[1] for row in values if row[0] == '单次观测 PI 下限')
+    old_snapshot = next(row[1] for row in values if row[0] == '快照')
+    se_fit = next(row[1] for row in values if row[0] == 'SE Fit')
+    assert float(se_fit) > 0
+    assert float(lower_pi) < float(lower_ci)
+    assert 'df=3' in next(row[1] for row in values if row[0] == '区间状态')
+
+    previous_block = dialog.block
+    app.getCurrentTable().model.df['Y'] *= 2
+    dialog.predict()
+    values = dialog.block.table.values
+    new_snapshot = next(row[1] for row in values if row[0] == '快照')
+    new_lower_ci = next(row[1] for row in values if row[0] == '拟合均值 CI 下限')
+    assert new_snapshot != old_snapshot
+    assert float(new_lower_ci) == pytest.approx(2*float(lower_ci), rel=1e-9)
+    assert not previous_block.winfo_exists()
+    assert error.call_count == 0, error.call_args
+
+    failed_block = dialog.block
+    app.getCurrentTable().model.df['Y'] = [None] * len(frame)
+    dialog.predict()
+    assert dialog.block is None
+    assert not failed_block.winfo_exists()
+    assert '预测失败' in dialog.status.get()
+
+    app.getCurrentTable().model.df['Y'] = original_response
+    dialog.predict()
+    source_block = dialog.block
+    app.addSheet('其他工作表', frame.copy(deep=True), {})
+    dialog.predict()
+    assert dialog.block is None
+    assert not source_block.winfo_exists()
+    assert '来源工作表已切换' in dialog.status.get()
     dialog.main.destroy()
 

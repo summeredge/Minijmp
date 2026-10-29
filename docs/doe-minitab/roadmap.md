@@ -1,5 +1,40 @@
 # DOE 对标后续路线图
 
+## DOE Phase 2 / P2-0 审计结论（2026-10-29，现行）
+
+- A–H 已完成限定范围验收；H 本地收尾状态 `WORK_PACKAGE_H_APPROVED_SCOPED`，基线提交 `ed85429ed23c52a6b2a238ad86fc1517ace93ff6`。DOE Schema v5 不变。
+- 以现有 `feature-matrix.csv` 的 **80** 项为审计基数：**58 implemented / 18 partial / 3 unknown / 1 excluded**。这些状态是 MiniJMP 既有功能矩阵的覆盖情况，**不是 Minitab 全产品实现百分比**。
+- P2-0 已逐项审计 18 个 partial、3 个 unknown、1 个 excluded；优先考虑官方公开帮助可确认、可用独立数学和 GUI/工程测试验收的缺口。原状态不因审计而自动提升。
+- **P2-1（P1）**：Mixture 最优设计选点与增补，重点 `GEN-004/MTB-DOE-ACC-056`、`GEN-006/MTB-DOE-ACC-058`；需区分 Mixture D-optimal 与 Distance-based、组分/过程/总量坐标、模型矩阵和父设计谱系。当前通用 distance 仅支持 RSM，混料响应 desirability 优化不代表最优实验设计。
+- **P2-2（P1）**：连续响应 RSM 的均值置信区间、单次预测区间（`RSM-009`，当前 partial）与 DOE 诊断（leverage、Cook、DFITS 等）。CCD/BBD/custom 连续 RSM 已支持；区组区间、二元概率区间和 RSM Binary Response Optimizer 不在此范围，不套连续响应 PI。
+- **P2-3（P2）**：多因子 Split-Plot、区组、受限随机化和对应分层推断，关联 `FAC-010/019/008/014/015`；先验证 whole-plot/subplot 实验单位及误差层，再考虑非平衡/REML。
+- **P2-4（P2）**：按官方确证配置逐项补 Screening stepwise、PB Foldover、Taguchi mixed array/交互稳健性、Mixture 多总量；不批量实施未知厂商选项。
+- **P2-5（P3）**：在取得版本明确的 Minitab 22 设计导出或对照后，审查标准序、输出数值与展示格式；数学等价不等于产品输出一致。
+- `GEN-012` 序贯实验策略和 `GEN-013` 异常值自动处理暂维持研究状态；`GEN-014` 其他选择准则维持 excluded，除非取得独立官方依据。
+- 公开 Minitab 帮助不一定标明版本；本轮核对只构成**当前官方功能存在性证据**，不构成 Minitab 22 特定配置的实测 parity。
+- P2-0 只完成差距审计、工作包规划与验收合同，**未启动 P2-1 实现、未运行新的 DOE 数值试验，也未改动功能矩阵状态**。完整规划稿文件名为 `phase2-gap-analysis.md`、`phase2-roadmap.md`、`phase2-acceptance.md`；本节先在本地既有路线图中固化摘要。
+
+### P2-0 官方关键依据
+
+- [Mixture 最优选点与增补](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/factorial/select-optimal-design/perform-the-analysis/select-optimal-runs-augment-or-improve-a-mixtures-design/)
+- [D-optimal 与 Distance-based 方法](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/factorial/select-optimal-design/methods-and-formulas/methods-and-formulas/)
+- [后拟合 Predict 区间与置信度选项](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/using-fitted-models/how-to/predict/perform-the-analysis/specify-the-confidence-and-prediction-intervals/)
+- [Split-Plot 设计及重复选项](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/factorial/create-factorial-design/create-2-level-split-plot/create-the-design/specify-the-design/)
+- [DSD Stepwise](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/screening/analyze-screening-design/perform-the-analysis/perform-stepwise-regression/)
+
+### P2-1 实施文档重建（2026-10-29）
+
+- P2-1 开始检查时，本地不存在 `phase2-gap-analysis.md`、`phase2-roadmap.md`、`phase2-acceptance.md`。依照本轮目标，现依据本节 P2-0 摘要、现有验收/矩阵、E/F/H 收尾材料和官方帮助重建；不声称读过或复原缺失原稿。
+- 重建稿：[差距分析](phase2-gap-analysis.md)、[路线图](phase2-roadmap.md)、[验收合同](phase2-acceptance.md)。详细的 Mixture 模型/距离坐标及 RSM 区间、诊断计算合同见后续 `phase2-p1-method-contract.md`。
+
+### P2-1 本地进度（2026-10-29）
+
+- `P2-ACC-01/02/03/04` 的 Mixture 选点、固定父设计增补、GUI 和工程生命周期在本地通过；状态 `MIXTURE_OPTIMAL_READY_FOR_REVIEW`。具体测试分组及未覆盖范围见 [Phase 2 验收](phase2-acceptance.md)。
+- D-optimal 使用 Mixture Scheffé 模型矩阵；Distance-based 显示组分边界与线性约束，并按实际组分比例及显式选择、归一化的过程/总量变量选点。增补保留全部父运行与响应，新增响应留空，复用 DOE v5 / Mixture Schema 1。
+- P2 两单元均已达到本地验收：Mixture `P2-ACC-01/02/03/04` 与连续 RSM `P2-ACC-05/06/07` 通过，状态 `READY_FOR_INDEPENDENT_REVIEW`。矩阵当前 80 项：58 implemented、19 partial、2 unknown、1 excluded。`GEN-004/ACC-056`、`GEN-006/ACC-058` 仍为 partial：Mixture replace/improve 与版本明确的产品输出对照不在本次实现范围。最终独立 Review 已交给 ChatGPT Web 对话“MiniJMP开发实现2”，verdict 待回传。
+
+---
+
 > 2026-10-28 历史状态（H 当前状态见下方）：工作包 C 的有限 PB/DSD 范围见 [收尾记录](work-package-c-closeout.md)，验收仍为 partial。工作包 D 的限定范围 D0–D5 已完成，可提交独立 Review；部分 feature 仍为 partial，且尚无独立 Review 结论。工作包 G 的 G0–G6 限定范围已完成，schema v5 增加 Taguchi 身份，详见 [工作包 G 收尾记录](work-package-g-closeout.md)；H 仍未启动。下方标注为历史的 schema 审计记录 D 开始前状态。
 
 ## 管理规则

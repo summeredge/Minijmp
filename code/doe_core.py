@@ -762,8 +762,9 @@ class DesignSpec:
                 if lineage is not None and lineage["parent_design_id"] == self.design_id:
                     raise ValueError(f"{name} 父设计不能与当前设计相同")
             if optimal is not None and self.design_type not in (
-                    "custom_factorial", "custom_rsm", "general_full_factorial"):
-                raise ValueError("最优设计谱系只适用于自定义/一般全因子设计")
+                    "custom_factorial", "custom_rsm", "general_full_factorial",
+                    "mixture"):
+                raise ValueError("最优设计谱系只适用于自定义/一般全因子/混料设计")
             object.__setattr__(self, "optimal_lineage", optimal)
             object.__setattr__(self, "augmentation_lineage", augmentation)
         if self.design_type == "taguchi":

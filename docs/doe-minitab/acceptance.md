@@ -226,9 +226,9 @@ ACC-067 已在工作包 E 完成限定范围：独立构造 6 因子会议矩阵
 | ACC-016 | `code/doe_augment.py::augment`；`tests/test_doe_augment.py`、`test_doe_optimal_augmentation.py`、`test_doe_e_lifecycle.py`。父设计、批次、唯一 run ID、响应保留与空响应覆盖。 | 全部标准设计族的增补；Minitab 对照 |
 | ACC-054 | `code/doe_modify.py`；`tests/test_doe_modify.py`。显示重排、按族重新随机化、Split-Plot 整区/子区顺序、按标准序重编号、增加完整重复、取消无副作用。 | 修改因子设定；折叠/增补设计上加重复 |
 | ACC-055 | `code/doe_optimal.py::select`；`tests/test_doe_optimal.py`。x∈{-1,0,1} 选 2 点穷举 det=4；并列、奇异、候选不足、全选及大候选启发式均覆盖。 | Mixture 候选合同；A/G/I 准则 |
-| ACC-056 | `code/doe_optimal.py::select_distance`；`tests/test_doe_distance_optimal.py`。RSM 起点离编码原点最远、随后最远点、稳定并列；Factorial 明确拒绝。 | Mixture 距离坐标与约束（partial） |
+| ACC-056 | `code/doe_optimal.py::select_distance`、`code/doe_optimal_design.py::select_mixture_optimal`、`code/doe_mixture_dialog.py::MixtureOptimalDesignDialog`；`tests/test_doe_distance_optimal.py`、`tests/test_doe_mixture_optimal.py`、`tests/test_doe_mixture_gui.py`、Phase 2 独立参考 verifier。覆盖 RSM 编码空间与 Mixture 组分比例、可选归一化过程/总量列、纯组分最近起点、最远点、稳定并列、重复点拒绝和 Factorial 拒绝。 | Minitab 版本特定输出一致性（partial） |
 | ACC-057 | `code/doe_optimal.py::evaluate`；`tests/test_doe_optimal_evaluation.py`。秩、条件数、logdet、受保护 det、最小间距；跨模型/运行数不作比较。 | A/G/V 统计量 |
-| ACC-058 | `code/doe_augment.py::select_augment`（D-optimal）与 `code/doe_augment.py::_distance_augment`（distance，RSM）；`tests/test_doe_optimal_augmentation.py`、`tests/test_doe_optimal_gui.py`、`tests/test_doe_e_lifecycle.py`。父设计运行固定为距离锚点，按最远点规则补点、不复制候选，增补前后秩与 logdet 报告，谱系保存 criterion。 | Mixture 增补（partial） |
+| ACC-058 | `code/doe_augment.py::select_augment`（一般 DOE）、`code/doe_augment.py::augment_mixture`、`code/doe_mixture_dialog.py::MixtureOptimalDesignDialog`；`tests/test_doe_optimal_augmentation.py`、`tests/test_doe_mixture_optimal.py`、`tests/test_doe_mixture_gui.py`、Phase 2 独立参考 verifier。Mixture D-optimal/Distance-based 保留固定父设计与响应，新 run ID/批次谱系唯一，新响应为空并报告增补前后秩和 logdet。 | 删除或替换父运行的 Minitab improve 工作流及版本特定输出一致性（partial） |
 | ACC-061 | `code/doe_diagnostics.py::contract`；`tests/test_doe_diagnostics_contract.py`。统一字段语义，各设计保留独立误差层；假设标为未自动检验。 | 杠杆值、自动假设检验 |
 | ACC-062 | `code/doe_core.py` v5；`tests/test_doe_schema_e.py`、`test_doe_schema_v2.py`、`test_doe_schema_v3.py`、`test_doe_e_lifecycle.py`。v1–v4 按原字段/摘要校验后迁移；坏元数据不替换当前工作簿。 | 旧版 MiniJMP 读取 v5 |
 | ACC-063 | `code/doe_custom.py`、`doe_custom_analysis.py`；`tests/test_doe_custom_rsm.py`、`test_doe_optimal_evaluation.py`。按实际矩阵重建模型项与秩，拒绝超出范围与不可估计项。 | Scheffé/Mixture；产品输出一致性 |
@@ -236,7 +236,7 @@ ACC-067 已在工作包 E 完成限定范围：独立构造 6 因子会议矩阵
 
 ## 工作包 H 限定范围验收证据（2026-10-29）
 
-状态 `WORK_PACKAGE_H_APPROVED_SCOPED`：H0–H6 完成，上一轮独立 Review 为 APPROVE（限定范围）；具体 Review 来源、最终本轮测试和历史验证区分见 [H 收尾记录](work-package-h-closeout.md)。DOE Schema v5 不变，二期尚未开始开发。
+状态 `WORK_PACKAGE_H_APPROVED_SCOPED`：H0–H6 完成，上一轮独立 Review 为 APPROVE（限定范围）；具体 Review 来源、最终本轮测试和历史验证区分见 [H 收尾记录](work-package-h-closeout.md)。该 H 收尾时二期尚未开始开发；当前二期进展见下方 P2-1 记录。
 
 独立参考位于 `tests/fixtures/doe_h_reference/`；manifest SHA-256 为 `f5f4ee2246b03b3c6ee1140bd3de9f67f4911a94416bc87520969e2f2baf5c78`。参考生成器与核验器只依赖 NumPy/SciPy/标准库，不导入生产分析代码；每项 H ACC 都映射 STD 与 EDGE。Schema v5 不变，事件/试验/重复测量列须在创建设计时预先声明。
 
@@ -257,4 +257,10 @@ H 数学与 Tk 生命周期专项共 66 项通过（59 项独立/核心测试 + 
 - 验收前发现官方功能范围不同，先更新功能矩阵、sources 和路线图，再调整本规范；不能用代码更改反向扩大产品目标。
 - 统计差异必须可追溯到公式、参数化或设计约束；界面差异不能用来掩盖模型、推断或适用性差异。
 - 未完成所有纳入 Level 1 的验收编号，不得声明核心对标完成。Level 2 同理；允许的显式排除见 README。
+
+## DOE Phase 2 P2-1 本地验收（2026-10-29）
+
+`MIXTURE_OPTIMAL_READY_FOR_REVIEW`：P2-ACC-01/02/03/04 本地通过。独立参考 13 项、核心回归 98 passed、Mixture Tk 流程 8 passed、Mixture 持久化 4 passed、schema v2/v3 33 passed、坏 DOE 元数据隔离 6 passed、普通最优 GUI 6 passed、帮助中心 13 passed、菜单 66 passed。各组可能重叠，完整边界和命令见[二期验收合同](phase2-acceptance.md)。最终独立 Review 等单元 B 就绪后再进行。
+
+DOE Phase 2 P1 单元 B（`P2-ACC-05/06/07`）本地通过：独立区间/诊断参考、CCD/BBD/custom RSM 核心与 GUI、工程保存/重开/复制和响应修改后重分析均通过；详细命令、状态和不支持边界见[二期验收合同](phase2-acceptance.md)。最终独立 Review 待两单元一并提交。
 

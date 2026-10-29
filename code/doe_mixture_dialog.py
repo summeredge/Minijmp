@@ -4,6 +4,7 @@ from __future__ import annotations
 import math
 import re
 import tkinter as tk
+from copy import deepcopy
 from tkinter import messagebox, ttk
 
 import numpy as np
@@ -20,7 +21,9 @@ from doe_mixture_optimize import optimize_mixture
 from doe_mixture_plots import (grid_triangulation, overlay_grid, simplex_grid,
                                ternary_xy, trace_series)
 from doe_mixture_predict import predict_mixture
+from doe_augment import augment_mixture
 from help_link import open_help
+from doe_optimal_design import evaluate_mixture_design, select_mixture_optimal
 from sheet_context import SheetApp
 from stat_table import StatTable, TableBlock
 
@@ -812,3 +815,325 @@ class MixturePlots(_ResultWindow):
             axis.text(x, y, label, fontproperties=font, ha='center', va='center')
         corners = [ternary_xy(point) for point in ([1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 0, 0])]
         axis.plot([item[0] for item in corners], [item[1] for item in corners], color='black')
+
+
+class MixtureOptimalDesignDialog:
+    """混料选点、固定父设计增补和评价；预览不会修改来源工作表。"""
+
+    def __init__(self, app):
+        self.app = app
+        self.sheet_names = tuple(
+            name for name, table in app.sheets.items()
+            if getattr(table, 'mixture_metadata', None))
+        if not self.sheet_names:
+            messagebox.showerror('混料最优设计', '请先创建混料候选工作表。',
+                                 parent=app.main)
+            return
+        self.main = tk.Toplevel(app.main)
+        self.main.title('混料最优设计')
+        self.main.transient(app.main)
+        self.main.bind('<F1>', lambda event: open_help(
+            'doe.mixture.optimal', parent=self.main))
+        self.main.minsize(700, 480)
+        self.last_config = None
+        self.last_sources = None
+
+        body = ttk.Frame(self.main, padding=10)
+        body.pack(fill='both', expand=True)
+        controls = ttk.Frame(body)
+        controls.pack(fill='x')
+        ttk.Label(controls, text='操作').grid(row=0, column=0, sticky='w')
+        self.operation = ttk.Combobox(
+            controls, values=('选点', '增补', '评价'), state='readonly', width=8)
+        self.operation.set('选点')
+        self.operation.grid(row=0, column=1, padx=4, sticky='w')
+        ttk.Label(controls, text='候选工作表').grid(
+            row=0, column=2, padx=(8, 0), sticky='w')
+        self.candidate = ttk.Combobox(
+            controls, values=self.sheet_names, state='readonly', width=22)
+        current = app.getCurrentSheet()
+        self.candidate.set(current if current in self.sheet_names else self.sheet_names[0])
+        self.candidate.grid(row=0, column=3, padx=4, sticky='w')
+
+        self.parent_row = ttk.Frame(controls)
+        ttk.Label(self.parent_row, text='父设计').pack(side='left')
+        self.parent_sheet = ttk.Combobox(
+            self.parent_row, values=self.sheet_names, state='readonly', width=22)
+        self.parent_sheet.set(self.candidate.get())
+        self.parent_sheet.pack(side='left', padx=4)
+        self.parent_row.grid(row=1, column=2, columnspan=2, sticky='w', pady=3)
+
+        ttk.Label(controls, text='准则').grid(row=1, column=0, sticky='w', pady=3)
+        self.criterion = ttk.Combobox(
+            controls, values=('D-optimal', 'Distance-based'),
+            state='readonly', width=14)
+        self.criterion.set('D-optimal')
+        self.criterion.grid(row=1, column=1, padx=4, sticky='w')
+        self.count_label = ttk.Label(controls, text='选点数')
+        self.count_label.grid(row=2, column=0, sticky='w', pady=3)
+        self.count = ttk.Entry(controls, width=8)
+        self.count.insert(0, '6')
+        self.count.grid(row=2, column=1, padx=4, sticky='w')
+        ttk.Label(controls, text='阶次').grid(row=2, column=2, sticky='w')
+        self.degree = ttk.Combobox(
+            controls, values=(1, 2, 3), state='readonly', width=5)
+        self.degree.set('2')
+        self.degree.grid(row=2, column=3, padx=4, sticky='w')
+
+        ttk.Label(controls, text='模型项（; 分隔）').grid(
+            row=3, column=0, sticky='w', pady=3)
+        self.terms = ttk.Entry(controls, width=78)
+        self.terms.grid(row=3, column=1, columnspan=3, padx=4, sticky='ew')
+
+        options = ttk.Frame(controls)
+        options.grid(row=4, column=0, columnspan=4, sticky='ew', pady=3)
+        self.allow_repeats = tk.BooleanVar(value=False)
+        self.repeat_box = ttk.Checkbutton(
+            options, text='允许重复设定', variable=self.allow_repeats)
+        self.repeat_box.pack(side='left')
+        ttk.Label(options, text='批次 ID').pack(side='left', padx=(14, 3))
+        self.batch_id = ttk.Entry(options, width=10)
+        self.batch_id.insert(0, 'AUG1')
+        self.batch_id.pack(side='left')
+        ttk.Label(options, text='距离变量（组分始终全选）').pack(
+            side='left', padx=(14, 3))
+
+        self.variable_list = tk.Listbox(
+            controls, selectmode='multiple', exportselection=False,
+            height=3, width=28)
+        self.variable_list.grid(row=5, column=1, columnspan=3,
+                                padx=4, sticky='w')
+        self.distance_variable_ids = ()
+        self.design_summary = tk.StringVar()
+        ttk.Label(controls, textvariable=self.design_summary, wraplength=850,
+                  justify='left').grid(row=6, column=0, columnspan=4,
+                                       sticky='w', pady=(2, 4))
+
+        bottom = ttk.Frame(body)
+        bottom.pack(side='bottom', fill='x')
+        self.status = tk.StringVar(value='')
+        ttk.Label(bottom, textvariable=self.status).pack(side='left', fill='x', expand=True)
+        actions = ttk.Frame(bottom)
+        actions.pack(side='right')
+        ttk.Button(actions, text='预览', command=self.preview).pack(side='left')
+        self.execute_button = ttk.Button(actions, text='创建', command=self.create)
+        self.execute_button.pack(side='left', padx=5)
+        ttk.Button(actions, text='关闭', command=self.main.destroy).pack(side='left')
+        self.preview_text = tk.Text(body, height=12, wrap='word', state='disabled')
+        self.preview_text.pack(fill='both', expand=True, pady=(8, 0))
+
+        self.operation.bind('<<ComboboxSelected>>', self._operation_changed)
+        self.criterion.bind('<<ComboboxSelected>>', self._criterion_changed)
+        self.candidate.bind('<<ComboboxSelected>>', self._candidate_changed)
+        self.degree.bind('<<ComboboxSelected>>', self._default_terms)
+        self._candidate_changed()
+        self._operation_changed()
+        self._criterion_changed()
+        self.main.geometry('900x580')
+
+    def _table(self, name):
+        table = self.app.sheets.get(name)
+        if table is None or not getattr(table, 'mixture_metadata', None):
+            raise ValueError('请选择带有效 Mixture 元数据的工作表')
+        self.app._finish_edit()
+        frame = table.model.df.copy(deep=True)
+        return (table, frame, deepcopy(table.mixture_metadata),
+                deepcopy(getattr(table, 'doe_metadata', None)))
+
+    def _candidate_changed(self, _event=None):
+        self._distance_variables()
+        self._default_terms()
+        try:
+            table = self.app.sheets.get(self.candidate.get())
+            metadata = getattr(table, 'mixture_metadata', None)
+            spec = MixtureSpec.from_dict(metadata['spec'])
+            components = '；'.join(
+                f'{item.name} ({item.component_id}) [{item.lower:g}, {item.upper:g}]'
+                for item in spec.components)
+            constraints = '；'.join(
+                ' + '.join(f'{value:g}·{key}' for key, value in rule.coefficients.items())
+                + f' ≤ {rule.bound:g}'
+                for rule in spec.linear_constraints) or '无额外线性约束'
+            self.design_summary.set(
+                f'组分（比例和=1）：{components}；线性约束：{constraints}')
+        except (ValueError, KeyError, TypeError, AttributeError):
+            self.design_summary.set('')
+
+    def _distance_variables(self):
+        self.variable_list.delete(0, 'end')
+        try:
+            table = self.app.sheets.get(self.candidate.get())
+            metadata = getattr(table, 'mixture_metadata', None)
+            spec = MixtureSpec.from_dict(metadata['spec'])
+            self.distance_variable_ids = spec.variable_ids
+        except (ValueError, KeyError, TypeError, AttributeError):
+            self.distance_variable_ids = ()
+        for name in self.distance_variable_ids:
+            self.variable_list.insert('end', name)
+        self.variable_list.configure(
+            height=max(1, min(3, len(self.distance_variable_ids))))
+
+    def _default_terms(self, _event=None):
+        try:
+            table = self.app.sheets.get(self.candidate.get())
+            metadata = getattr(table, 'mixture_metadata', None)
+            spec = MixtureSpec.from_dict(metadata['spec'])
+            from doe_mixture_model import MixtureTermModel
+            model = MixtureTermModel(spec, degree=int(self.degree.get()))
+        except (ValueError, KeyError, TypeError, AttributeError):
+            return
+        self.terms.delete(0, 'end')
+        self.terms.insert(0, ';'.join(model.terms))
+
+    def _operation_changed(self, _event=None):
+        operation = self.operation.get()
+        if operation == '增补':
+            self.parent_row.grid()
+            self.count_label.configure(text='新增数')
+            self.batch_id.configure(state='normal')
+            self.execute_button.configure(state='normal')
+        elif operation == '评价':
+            self.parent_row.grid_remove()
+            self.count_label.configure(text='运行数')
+            self.batch_id.configure(state='disabled')
+            self.execute_button.configure(state='disabled')
+        else:
+            self.parent_row.grid_remove()
+            self.count_label.configure(text='选点数')
+            self.batch_id.configure(state='disabled')
+            self.execute_button.configure(state='normal')
+
+    def _criterion_changed(self, _event=None):
+        distance = self.criterion.get() == 'Distance-based'
+        self.repeat_box.configure(state='disabled' if distance else 'normal')
+        if distance:
+            self.allow_repeats.set(False)
+            self.variable_list.configure(state='normal')
+        else:
+            self.variable_list.configure(state='disabled')
+
+    def _config(self):
+        return (self.operation.get(), self.candidate.get(), self.parent_sheet.get(),
+                self.criterion.get(), self.count.get(), self.degree.get(),
+                self.terms.get(), self.allow_repeats.get(), self.batch_id.get(),
+                self._selected_distance_variables())
+
+    def _selected_distance_variables(self):
+        if self.criterion.get() != 'Distance-based':
+            return ()
+        return tuple(self.distance_variable_ids[index]
+                     for index in self.variable_list.curselection())
+
+    def _capture_sources(self):
+        names = [self.candidate.get()]
+        if self.operation.get() == '增补':
+            names.append(self.parent_sheet.get())
+        snapshots = {}
+        for name in dict.fromkeys(names):
+            table, frame, mixture, doe = self._table(name)
+            if not isinstance(doe, dict):
+                raise ValueError('Mixture 工作表缺少 DOE 元数据')
+            snapshots[name] = (table, frame, mixture, doe)
+        return snapshots
+
+    def _sources_unchanged(self):
+        if not self.last_sources:
+            return False
+        for name, (table, frame, mixture, doe) in self.last_sources.items():
+            if (self.app.sheets.get(name) is not table
+                    or not table.model.df.equals(frame)
+                    or getattr(table, 'mixture_metadata', None) != mixture
+                    or getattr(table, 'doe_metadata', None) != doe):
+                return False
+        return True
+
+    def _calculate(self, snapshots):
+        operation = self.operation.get()
+        _, candidate_frame, candidate_mixture, candidate_doe = \
+            snapshots[self.candidate.get()]
+        criterion = 'd_optimal' if self.criterion.get() == 'D-optimal' else 'distance'
+        degree = int(self.degree.get())
+        terms = tuple(item.strip() for item in self.terms.get().split(';')
+                      if item.strip()) or None
+        variables = self._selected_distance_variables()
+        if operation == '评价':
+            summary = evaluate_mixture_design(
+                candidate_frame, candidate_mixture, candidate_doe,
+                criterion=criterion, degree=degree, terms=terms,
+                distance_variables=variables)
+            return None, None, None, None, summary
+        try:
+            count = int(self.count.get())
+        except ValueError as error:
+            raise ValueError('运行数必须是整数') from error
+        if operation == '选点':
+            return select_mixture_optimal(
+                candidate_frame, candidate_mixture, candidate_doe, count,
+                criterion=criterion, degree=degree, terms=terms,
+                allow_repeats=self.allow_repeats.get(),
+                distance_variables=variables)
+        _, parent_frame, parent_mixture, parent_doe = snapshots[self.parent_sheet.get()]
+        return augment_mixture(
+            parent_frame, parent_mixture, parent_doe,
+            candidate_frame, candidate_mixture, candidate_doe, count,
+            criterion=criterion, degree=degree, terms=terms,
+            allow_repeats=self.allow_repeats.get(),
+            distance_variables=variables, batch_id=self.batch_id.get())
+
+    def _render(self, result):
+        summary = result[4]
+        lines = [f'{key}: {summary[key]}' for key in (
+            'criterion', 'method', 'n', 'candidate_count', 'selected_n',
+            'initial_n', 'added_n', 'rank', 'p', 'selected_rank',
+            'condition', 'logdet', 'min_squared_distance', 'evaluations',
+            'subsets', 'exact_budget', 'global_optimum_proven',
+            'allow_repeats', 'distance_variables', 'stop_reason',
+            'multiplicities') if key in summary]
+        if result[0] is not None:
+            frame, doe = result[0], result[1]
+            if self.operation.get() == '增补':
+                frame = frame.tail(summary['added_n'])
+            columns = doe['column_map']
+            labels = [columns['run_id']]
+            if columns.get('source_run_id'):
+                labels.append(columns['source_run_id'])
+            labels.extend(columns['factors'].values())
+            lines.extend(('', '运行预览：'))
+            for _, row in frame[labels].head(12).iterrows():
+                lines.append(' | '.join(str(row[name]) for name in labels))
+            if len(frame) > 12:
+                lines.append(f'共 {len(frame)} 行')
+        self.preview_text.configure(state='normal')
+        self.preview_text.delete('1.0', 'end')
+        self.preview_text.insert('1.0', '\n'.join(lines))
+        self.preview_text.configure(state='disabled')
+
+    def preview(self):
+        try:
+            snapshots = self._capture_sources()
+            result = self._calculate(snapshots)
+            self.last_config = self._config()
+            self.last_sources = snapshots
+            self._render(result)
+            self.status.set('预览完成，来源工作表未修改。')
+        except (ValueError, TypeError, OverflowError, KeyError) as error:
+            self.last_config = None
+            self.last_sources = None
+            messagebox.showerror('混料最优设计', str(error), parent=self.main)
+
+    def create(self):
+        if self.operation.get() == '评价':
+            return
+        if (self.last_config != self._config() or not self._sources_unchanged()):
+            messagebox.showerror('混料最优设计',
+                                 '预览参数或来源数据已变化，请重新预览。',
+                                 parent=self.main)
+            return
+        try:
+            frame, doe, mixture, model, _ = self._calculate(self.last_sources)
+            metadata = {'doe': doe, 'mixture': mixture, 'mixture_model': model}
+            name = '混料增补设计' if self.operation.get() == '增补' else '混料最优设计'
+            self.app.addSheet(name, frame, metadata)
+            self.main.destroy()
+        except (ValueError, TypeError, OverflowError, KeyError) as error:
+            messagebox.showerror('混料最优设计', str(error), parent=self.main)

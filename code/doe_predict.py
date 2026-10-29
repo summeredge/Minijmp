@@ -4,6 +4,7 @@ import json
 import math
 
 import numpy as np
+from scipy import stats
 
 from doe_rsm import analyze_rsm
 
@@ -24,7 +25,87 @@ def snapshot_id(frame, metadata):
     return digest.hexdigest()[:16]
 
 
-def predict_point(frame, metadata, response, settings, terms=None, blocks=True):
+def _prediction_intervals(analysis, row, confidence, side):
+    if (isinstance(confidence, bool) or not isinstance(confidence, (int, float))
+            or not math.isfinite(confidence) or not 0 < confidence < 1):
+        raise ValueError('置信水平必须是 0 与 1 之间的比例')
+    if side not in ('two_sided', 'lower', 'upper'):
+        raise ValueError('区间方向必须是 two_sided、lower 或 upper')
+    result = {'status': '不可用', 'reason': '', 'confidence': float(confidence),
+              'side': side, 'df': analysis['df'], 'se_fit': None,
+              'ci_low': None, 'ci_high': None, 'pi_low': None, 'pi_high': None,
+              'assumption': '连续响应线性模型；误差独立、同方差且正态。'}
+    run_blocks = [run.block for run in analysis['design'].runs]
+    block_levels = {block for block in run_blocks if block is not None}
+    if (len(block_levels) > 1
+            or (block_levels and any(block is None for block in run_blocks))):
+        result['reason'] = '设计含区组；本版本未验证区组预测行和方差合同。'
+        return result
+    df = analysis['df']
+    mse = analysis['residual_mse']
+    if df <= 0:
+        result['reason'] = '残差自由度不为正，无法估计误差方差。'
+        return result
+    if mse is None or not math.isfinite(mse) or analysis['sse'] <= analysis['mse_floor']:
+        result['reason'] = '残差方差为零或数值上不可辨。'
+        return result
+    matrix = analysis['matrix']
+    try:
+        solution = np.linalg.lstsq(matrix.T, np.asarray(row, dtype=float), rcond=None)[0]
+        h0 = float(solution @ solution)
+    except (ValueError, np.linalg.LinAlgError, OverflowError) as error:
+        result['reason'] = f'无法稳定计算预测方差：{error}'
+        return result
+    if not math.isfinite(h0) or h0 < 0:
+        result['reason'] = '预测方差因子不是有限非负数。'
+        return result
+    se_fit = math.sqrt(mse * h0)
+    se_prediction = math.sqrt(mse * (1.0 + h0))
+    probability = (1 + confidence) / 2 if side == 'two_sided' else confidence
+    critical = float(stats.t.ppf(probability, df))
+    if not math.isfinite(critical):
+        result['reason'] = '无法取得指定置信水平的 t 临界值。'
+        return result
+    prediction = float(row @ np.asarray(analysis['coefficients'], dtype=float))
+    ci_margin, pi_margin = critical * se_fit, critical * se_prediction
+    bounds = (prediction - ci_margin, prediction + ci_margin,
+              prediction - pi_margin, prediction + pi_margin)
+    if not all(math.isfinite(value) for value in bounds):
+        result['reason'] = '预测区间超出有限数值范围。'
+        return result
+    result.update(status='可用', reason='', se_fit=se_fit, h0=h0,
+                  critical_value=critical)
+    if side == 'two_sided':
+        result.update(ci_low=prediction - ci_margin, ci_high=prediction + ci_margin,
+                      pi_low=prediction - pi_margin, pi_high=prediction + pi_margin)
+    elif side == 'lower':
+        result.update(ci_low=prediction - ci_margin, pi_low=prediction - pi_margin)
+    else:
+        result.update(ci_high=prediction + ci_margin, pi_high=prediction + pi_margin)
+    return result
+
+
+def _outside_observed_ranges(design, settings):
+    categorical = [factor for factor in design.spec.factors
+                   if factor.factor_type == 'categorical']
+    reference = [run for run in design.runs
+                 if all(run.settings[factor.factor_id] == settings[factor.factor_id]
+                        for factor in categorical)]
+    if not reference:
+        return True
+    for factor in design.spec.factors:
+        if factor.factor_type != 'continuous':
+            continue
+        values = [float(run.settings[factor.factor_id]) for run in reference]
+        value = float(settings[factor.factor_id])
+        tolerance = np.finfo(float).eps * max(1.0, *(abs(item) for item in values)) * 10
+        if value < min(values) - tolerance or value > max(values) + tolerance:
+            return True
+    return False
+
+
+def predict_point(frame, metadata, response, settings, terms=None, blocks=True,
+                  confidence=None, side='two_sided'):
     """给定实际因子设置，返回预测值与编码值。
 
     settings 必须覆盖全部因子；分类因子使用其水平标签。区组取模型中
@@ -61,11 +142,19 @@ def predict_point(frame, metadata, response, settings, terms=None, blocks=True):
     prediction = float(row @ np.asarray(analysis['coefficients'], dtype=float))
     if not math.isfinite(prediction):
         raise ValueError('预测值超出有限范围')
-    return {
+    extrapolation = _outside_observed_ranges(design, settings)
+    result = {
         'response': response, 'prediction': prediction, 'settings': dict(settings),
         'coded': coded, 'block': block, 'terms': analysis['terms'],
         'model': model, 'design': design,
         'snapshot_id': snapshot_id(frame, metadata),
         'condition': analysis['condition'], 'inference': analysis['inference'],
+        'extrapolation': extrapolation,
+        'extrapolation_note': ('超出至少一个连续因子的单因子观测范围'
+                               if extrapolation else
+                               '单因子观测范围内；未判定联合设计区域'),
         'note': '点预测来自当前拟合模型，不等于确认试验结果。',
     }
+    if confidence is not None:
+        result['intervals'] = _prediction_intervals(analysis, row, confidence, side)
+    return result

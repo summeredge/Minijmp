@@ -63,6 +63,65 @@ def analyze_rsm(frame, metadata, response, terms=None, use_blocks=True):
     return fit_rsm(design, response, coded, terms=terms, use_blocks=use_blocks)
 
 
+def _rsm_diagnostics(design, residuals, u, sse, df, mse_floor):
+    n, p = u.shape
+    leverage = np.clip(np.sum(u*u, axis=1), 0.0, 1.0)
+    mse = sse / df if df > 0 else None
+    leverage_floor = np.finfo(float).eps * max(n, p) * 10
+    rows = []
+    for index, (run, residual, h) in enumerate(zip(
+            design.runs, residuals, leverage)):
+        remainder = 1.0 - h
+        deleted_residual = (float(residual / remainder)
+                            if remainder > leverage_floor else None)
+        standardized = cook = studentized = dfits = None
+        reasons = []
+        if df <= 0:
+            reasons.append('残差自由度不为正')
+        elif sse <= mse_floor:
+            reasons.append('残差均方为零或数值上不可辨')
+        elif remainder <= leverage_floor:
+            reasons.append('杠杆接近 1，残差缩放不可用')
+        else:
+            standardized_value = residual / np.sqrt(mse * remainder)
+            if np.isfinite(standardized_value):
+                standardized = float(standardized_value)
+                cook_value = standardized**2 * h / (p * remainder)
+                if np.isfinite(cook_value):
+                    cook = float(cook_value)
+                else:
+                    reasons.append("Cook's D 超出有限数值范围")
+            else:
+                reasons.append('标准化残差超出有限数值范围')
+            if df <= 1:
+                reasons.append('删除一个观测后残差自由度不为正')
+            else:
+                deleted_sse = sse - residual**2 / remainder
+                if deleted_sse <= mse_floor:
+                    reasons.append('删除后残差均方为零或数值上不可辨')
+                else:
+                    deleted_mse = deleted_sse / (df - 1)
+                    studentized_value = residual / np.sqrt(deleted_mse * remainder)
+                    if np.isfinite(studentized_value):
+                        studentized = float(studentized_value)
+                        dfits_value = studentized * np.sqrt(h / remainder)
+                        if np.isfinite(dfits_value):
+                            dfits = float(dfits_value)
+                        else:
+                            reasons.append('DFITS 超出有限数值范围')
+                    else:
+                        reasons.append('删除学生化残差超出有限数值范围')
+        rows.append({
+            'run_id': run.run_id, 'run_order': run.run_order,
+            'standard_order': run.standard_order, 'residual': float(residual),
+            'leverage': float(h), 'standardized_residual': standardized,
+            'deleted_residual': deleted_residual,
+            'studentized_residual': studentized, 'cooks_distance': cook,
+            'dfits': dfits, 'note': '；'.join(reasons),
+        })
+    return rows
+
+
 def fit_rsm(design, response, coded, terms=None, use_blocks=True):
     """按显式连续因子编码矩阵拟合响应面模型；CCD/BBD 与自定义设计共用。"""
     spec, runs = design.spec, design.runs
@@ -114,7 +173,11 @@ def fit_rsm(design, response, coded, terms=None, use_blocks=True):
     residuals = y - fitted
     sse = float(residuals @ residuals)
     sst = float(np.sum((y - y.mean())**2))
-    if not np.isfinite(beta).all() or not np.isfinite([sse, sst]).all():
+    epsilon = np.finfo(float).eps
+    response_norm = float(np.linalg.norm(y))
+    mse_floor = max(epsilon * max(n, p) * sst,
+                    (epsilon * max(n, p) * response_norm)**2)
+    if not np.isfinite(beta).all() or not np.isfinite([sse, sst, mse_floor]).all():
         raise ValueError('响应超出可分析数值范围')
     ssr = max(0., sst-sse)
     df = n-p
@@ -183,9 +246,14 @@ def fit_rsm(design, response, coded, terms=None, use_blocks=True):
 
     return {'design': design, 'response': response, 'names': model.names,
             'terms': model.terms, 'term_model': model, 'blocks': blocks,
-            'coefficients': beta, 'effects': [None]*p, 'coded': coded, 'fitted': fitted,
+            'coefficients': beta, 'effects': [None]*p, 'coded': coded,
+            'matrix': x, 'fitted': fitted,
             'residuals': residuals, 'n': n, 'p': p, 'rank': p, 'condition': condition,
-            'df': df, 'sse': sse, 'sst': sst, 'ssr': ssr, 'pure_error_df': pure_df,
+            'df': df, 'sse': sse, 'sst': sst, 'ssr': ssr,
+            'residual_mse': sse / df if df > 0 else None,
+            'mse_floor': mse_floor,
+            'diagnostics': _rsm_diagnostics(design, residuals, u, sse, df, mse_floor),
+            'pure_error_df': pure_df,
             'pure_error_sse': pure_sse, 'lack_of_fit_df': lof_df, 'lack_of_fit_sse': lof_sse,
             'lack_of_fit': lof, 'curvature': curvature, 'anova': anova,
             'r2': 1-sse/sst if sst > 0 else None,

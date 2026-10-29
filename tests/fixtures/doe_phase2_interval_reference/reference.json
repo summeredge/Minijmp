@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "terms": [
+    "Intercept",
+    "A",
+    "B",
+    "A^2",
+    "B^2",
+    "A*B"
+  ],
+  "n": 9,
+  "p": 6,
+  "df": 3,
+  "pure_error_df": 0,
+  "points": [
+    [
+      -1.0,
+      -1.0
+    ],
+    [
+      -1.0,
+      0.0
+    ],
+    [
+      -1.0,
+      1.0
+    ],
+    [
+      0.0,
+      -1.0
+    ],
+    [
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0
+    ],
+    [
+      1.0,
+      -1.0
+    ],
+    [
+      1.0,
+      0.0
+    ],
+    [
+      1.0,
+      1.0
+    ]
+  ],
+  "responses": [
+    16.666666666666668,
+    11.0,
+    13.333333333333334,
+    15.666666666666666,
+    10.0,
+    12.333333333333334,
+    18.666666666666668,
+    15.0,
+    19.333333333333332
+  ],
+  "coefficients": [
+    10.0,
+    2.0,
+    -1.0,
+    3.0,
+    4.0,
+    1.0
+  ],
+  "sse": 1.3333333333333333,
+  "mse": 0.4444444444444444,
+  "prediction_point": [
+    0.5,
+    0.25
+  ],
+  "prediction": 11.875,
+  "h0": 0.4364149305555556,
+  "se_fit": 0.4404113887696646,
+  "se_prediction": 0.799003526777241,
+  "intervals": {
+    "0.90": {
+      "two_sided": {
+        "critical_value": 2.3533634348018264,
+        "ci": [
+          10.83855194139918,
+          12.91144805860082
+        ],
+        "pi": [
+          9.99465431580474,
+          13.75534568419526
+        ]
+      },
+      "lower": {
+        "critical_value": 1.6377443536962095,
+        "ci": [
+          11.153718734738975,
+          null
+        ],
+        "pi": [
+          10.566436485437215,
+          null
+        ]
+      },
+      "upper": {
+        "critical_value": 1.6377443536962095,
+        "ci": [
+          null,
+          12.596281265261025
+        ],
+        "pi": [
+          null,
+          13.183563514562785
+        ]
+      }
+    },
+    "0.95": {
+      "two_sided": {
+        "critical_value": 3.182446305284263,
+        "ci": [
+          10.47341440300487,
+          13.27658559699513
+        ],
+        "pi": [
+          9.332214178298674,
+          14.417785821701326
+        ]
+      },
+      "lower": {
+        "critical_value": 2.3533634348018264,
+        "ci": [
+          10.83855194139918,
+          null
+        ],
+        "pi": [
+          9.99465431580474,
+          null
+        ]
+      },
+      "upper": {
+        "critical_value": 2.3533634348018264,
+        "ci": [
+          null,
+          12.91144805860082
+        ],
+        "pi": [
+          null,
+          13.75534568419526
+        ]
+      }
+    },
+    "0.99": {
+      "two_sided": {
+        "critical_value": 5.840909309733352,
+        "ci": [
+          9.302597019222672,
+          14.447402980777328
+        ],
+        "pi": [
+          7.208092861937032,
+          16.541907138062967
+        ]
+      },
+      "lower": {
+        "critical_value": 4.540702858471383,
+        "ci": [
+          9.875222748110232,
+          null
+        ],
+        "pi": [
+          8.246962402033866,
+          null
+        ]
+      },
+      "upper": {
+        "critical_value": 4.540702858471383,
+        "ci": [
+          null,
+          13.874777251889768
+        ],
+        "pi": [
+          null,
+          15.503037597966134
+        ]
+      }
+    }
+  },
+  "diagnostics": [
+    {
+      "run_id": "R00001",
+      "run_order": 1,
+      "standard_order": 1,
+      "A": -1.0,
+      "B": -1.0,
+      "response": 16.666666666666668,
+      "residual": -0.3333333333333333,
+      "leverage": 0.8055555555555556,
+      "standardized_residual": -1.1338934190276817,
+      "deleted_residual": -1.7142857142857142,
+      "studentized_residual": -1.224744871391589,
+      "cooks_distance": 0.8877551020408163,
+      "dfits": -2.49284690951645,
+      "note": ""
+    },
+    {
+      "run_id": "R00002",
+      "run_order": 2,
+      "standard_order": 2,
+      "A": -1.0,
+      "B": 0.0,
+      "response": 11.0,
+      "residual": 0.0,
+      "leverage": 0.5555555555555556,
+      "standardized_residual": 0.0,
+      "deleted_residual": 0.0,
+      "studentized_residual": 0.0,
+      "cooks_distance": 0.0,
+      "dfits": 0.0,
+      "note": ""
+    },
+    {
+      "run_id": "R00003",
+      "run_order": 3,
+      "standard_order": 3,
+      "A": -1.0,
+      "B": 1.0,
+      "response": 13.333333333333334,
+      "residual": 0.3333333333333333,
+      "leverage": 0.8055555555555556,
+      "standardized_residual": 1.1338934190276817,
+      "deleted_residual": 1.7142857142857142,
+      "studentized_residual": 1.224744871391589,
+      "cooks_distance": 0.8877551020408163,
+      "dfits": 2.49284690951645,
+      "note": ""
+    },
+    {
+      "run_id": "R00004",
+      "run_order": 4,
+      "standard_order": 4,
+      "A": 0.0,
+      "B": -1.0,
+      "response": 15.666666666666666,
+      "residual": 0.6666666666666666,
+      "leverage": 0.5555555555555556,
+      "standardized_residual": 1.5,
+      "deleted_residual": 1.5,
+      "studentized_residual": 2.449489742783178,
+      "cooks_distance": 0.46875,
+      "dfits": 2.7386127875258306,
+      "note": ""
+    },
+    {
+      "run_id": "R00005",
+      "run_order": 5,
+      "standard_order": 5,
+      "A": 0.0,
+      "B": 0.0,
+      "response": 10.0,
+      "residual": 0.0,
+      "leverage": 0.5555555555555556,
+      "standardized_residual": 0.0,
+      "deleted_residual": 0.0,
+      "studentized_residual": 0.0,
+      "cooks_distance": 0.0,
+      "dfits": 0.0,
+      "note": ""
+    },
+    {
+      "run_id": "R00006",
+      "run_order": 6,
+      "standard_order": 6,
+      "A": 0.0,
+      "B": 1.0,
+      "response": 12.333333333333334,
+      "residual": -0.6666666666666666,
+      "leverage": 0.5555555555555556,
+      "standardized_residual": -1.5,
+      "deleted_residual": -1.5,
+      "studentized_residual": -2.449489742783178,
+      "cooks_distance": 0.46875,
+      "dfits": -2.7386127875258306,
+      "note": ""
+    },
+    {
+      "run_id": "R00007",
+      "run_order": 7,
+      "standard_order": 7,
+      "A": 1.0,
+      "B": -1.0,
+      "response": 18.666666666666668,
+      "residual": -0.3333333333333333,
+      "leverage": 0.8055555555555556,
+      "standardized_residual": -1.1338934190276817,
+      "deleted_residual": -1.7142857142857142,
+      "studentized_residual": -1.224744871391589,
+      "cooks_distance": 0.8877551020408163,
+      "dfits": -2.49284690951645,
+      "note": ""
+    },
+    {
+      "run_id": "R00008",
+      "run_order": 8,
+      "standard_order": 8,
+      "A": 1.0,
+      "B": 0.0,
+      "response": 15.0,
+      "residual": 0.0,
+      "leverage": 0.5555555555555556,
+      "standardized_residual": 0.0,
+      "deleted_residual": 0.0,
+      "studentized_residual": 0.0,
+      "cooks_distance": 0.0,
+      "dfits": 0.0,
+      "note": ""
+    },
+    {
+      "run_id": "R00009",
+      "run_order": 9,
+      "standard_order": 9,
+      "A": 1.0,
+      "B": 1.0,
+      "response": 19.333333333333332,
+      "residual": 0.3333333333333333,
+      "leverage": 0.8055555555555556,
+      "standardized_residual": 1.1338934190276817,
+      "deleted_residual": 1.7142857142857142,
+      "studentized_residual": 1.224744871391589,
+      "cooks_distance": 0.8877551020408163,
+      "dfits": 2.49284690951645,
+      "note": ""
+    }
+  ]
+}
