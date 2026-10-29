@@ -153,6 +153,19 @@ Minitab RSM overview 确认优化因子设置的工作流，但核查过的官�
 | S-01 | [statsmodels GLM](https://www.statsmodels.org/stable/generated/statsmodels.genmod.generalized_linear_model.GLM.html) | Binomial family 接受两列 `(success, failure)` grouped response，适用于 event/trial 计数；这是计算库 API 依据，不是产品正确性 oracle。 | SCR-004/FAC-017/RSM-016 |
 | S-02 | [SciPy noncentral F distribution](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ncf.html) | `ncf.sf` 为非中心 F 上尾概率；与中心 F 临界值共同实现功效定义。 | GEN-007/008 |
 
+## DOE Phase 2 P2-2B 二元预测与优化（2026-10-29）
+
+| source_id | 官方/方法页面 | 核实结论及证据边界 | 相关 feature_id / 验收 |
+|---|---|---|---|
+| B-09 | [Event predictions methods and formulas for Analyze Binary Response for Response Surface Design](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/response-surface/analyze-binary-response/methods-and-formulas/event-predictions/) | 预测值通过逆链接函数从线性预测量得到；Logit 拟合/预测置信限使用 Wald 近似。页面列出链接函数、拟合标准误及区间公式图，未标产品版本。 | RSM-016 / P2B-ACC-01/02 |
+| B-10 | [Overview for Analyze Binary Response for Response Surface Design](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/response-surface/analyze-binary-response/before-you-start/overview/)；[Overview for Response Optimizer](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/using-fitted-models/how-to/response-optimizer/before-you-start/overview/) | 二元 RSM 使用事件数/试验数两列；分析后存储模型可用于预测、绘图及优化。Response Optimizer 支持单/多响应目标工作流。页面未说明求解算法、停止条件或全局最优保证。 | RSM-016 / P2B-ACC-03–06 |
+| B-11 | [Setting a target value and lower and upper bounds in response optimization](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/using-fitted-models/supporting-topics/response-optimization/setting-a-target-and-lower-and-upper-bounds/) | 二项/多项响应的 lower、target、upper 在 [0,1]；页面分别说明 maximize/minimize/target 的边界作用及部分 desirability 示例。页面有一处 max upper/lower 文句不一致，以 specify boundaries 页面确认 Maximize 输入 lower 的明确说明为准。 | RSM-016 / P2B-ACC-03 |
+| B-12 | [Specify the boundaries, weight, and importance for Response Optimizer](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/using-fitted-models/how-to/response-optimizer/perform-the-analysis/specify-boundaries-weight-and-importance/) | Maximize/Target 输入 lower，Minimize/Target 输入 upper；二元响应默认边界取观测比例的最小/最大值；weight 和 importance 均限定 0.1–10，但语义不同。MiniJMP 首版为单响应，不引入 importance。 | RSM-016 / P2B-ACC-03 |
+| B-13 | [Determining the weight in response optimization](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/using-fitted-models/supporting-topics/response-optimization/determining-the-weight/) | weight 改变 lower/upper 与 target 之间 desirability 曲线的形状；1 为中性，>1 更强调接近 target，<1 减弱该强调。页面未给完整分段代数式；本地以合同中的显式公式和独立 oracle 验证。 | RSM-016 / P2B-ACC-03 |
+| B-14 | [Specify the options for Response Optimizer](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/using-fitted-models/how-to/response-optimizer/perform-the-analysis/specify-the-analysis-options/) | 连续与类别变量可固定或限制区域；连续 starting value 须落在观测范围并满足约束。页面不定义 DOE 因子的编码或 MiniJMP 搜索域，也不支持据此声称具体求解算法。 | RSM-016 / P2B-ACC-04/05 |
+
+以上为官方工作流和方法语义核实；网页未标 Minitab 产品版本，无 Minitab 22 实际输出用于逐点比较。独立数值正确性由 `tests/fixtures/doe_phase2_binary_reference/` 提供，不由官方页面替代。
+
 网页核查日期为 2026-10-29；Minitab 来源未标明版本。数学正确性独立 fixture 为 `tests/fixtures/doe_h_reference/`，验证不调用生产分析模块。准确支持范围和不适用边界见[工作包 H 方法合同](work-package-h-method-contract.md)。
 
 # 2026-10-28：Box–Behnken 范围复核

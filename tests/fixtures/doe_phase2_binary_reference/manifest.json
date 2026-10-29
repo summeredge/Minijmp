@@ -1,0 +1,10 @@
+{
+  "source": "build_reference.py; hand-specified Wald/optimizer cases and statsmodels Star98 GLM",
+  "production_imports": [],
+  "files": {
+    "reference.json": {
+      "bytes": 58312,
+      "sha256": "9f421b5f7ba175af1a54c2cf98ce5714707b72220da21c9a84e0ba6893e41fda"
+    }
+  }
+}

@@ -33,9 +33,9 @@
 - 官方 Predict 将 SE Fit、均值 CI 与单个未来响应 PI 分开，并提供置信水平和双侧/单侧边界选项。[Predict 方法与公式](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/using-fitted-models/how-to/predict/methods-and-formulas/methods-and-formulas/)；[区间选项](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/using-fitted-models/how-to/predict/perform-the-analysis/specify-the-confidence-and-prediction-intervals/)
 - 官方响应面 DOE 诊断帮助列出 leverage、Cook's distance 与 DFITS。[RSM 诊断方法](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/response-surface/analyze-response-surface-design/methods-and-formulas/diagnostic-measures/)
 
-## 明确排除
+## 原 P2-1/P1 范围边界
 
-Binary Response Optimizer、二元概率区间、未经验证的 Mixture CI/PI、Split-Plot 分层推断、PB Foldover、Taguchi 扩展、Minitab 22 标准序及产品输出 parity 均不在本轮实现范围。
+原 P2-1/P1 范围排除了 Binary Response Optimizer 与二元概率区间；二者现由独立 Goal `DOE Phase 2 P2-2B` 实施，验收状态见 [P2-2B 验收记录](phase2-p2b-acceptance.md)。未经验证的 Mixture CI/PI、Split-Plot 分层推断、PB Foldover、Taguchi 扩展、Minitab 22 标准序及产品输出 parity 仍不在本 P1/P2-1 范围。
 
 ## P2-1 执行状态（2026-10-29）
 
