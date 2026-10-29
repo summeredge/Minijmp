@@ -51,6 +51,22 @@ class PredictRSM:
         self.use_blocks = tk.BooleanVar(value=True)
         ttk.Checkbutton(bar, text='纳入区组', variable=self.use_blocks).pack(
             side='left', padx=6)
+        self.show_intervals = tk.BooleanVar(value=True)
+        interval_bar = ttk.Frame(self.main, padding=(8, 0))
+        interval_bar.pack(fill='x')
+        ttk.Checkbutton(interval_bar, text='CI/PI', variable=self.show_intervals).pack(
+            side='left')
+        ttk.Label(interval_bar, text='置信度').pack(side='left', padx=(10, 3))
+        self.confidence = ttk.Combobox(
+            interval_bar, values=('90%', '95%', '99%'), state='readonly', width=6)
+        self.confidence.set('95%')
+        self.confidence.pack(side='left')
+        ttk.Label(interval_bar, text='方向').pack(side='left', padx=(10, 3))
+        self.interval_side = ttk.Combobox(
+            interval_bar, values=('双侧', '单侧下限', '单侧上限'),
+            state='readonly', width=10)
+        self.interval_side.set('双侧')
+        self.interval_side.pack(side='left')
 
         form = ttk.LabelFrame(self.main, text='因子设置', padding=8)
         form.pack(fill='x', padx=8, pady=4)
@@ -91,6 +107,9 @@ class PredictRSM:
         return settings
 
     def predict(self):
+        if self.block is not None:
+            self.block.destroy()
+            self.block = None
         try:
             self.owner._finish_edit()
             if self.owner.getCurrentTable() is not self.source:
@@ -101,19 +120,47 @@ class PredictRSM:
                 raise ValueError('DOE 设计已更改，请关闭并重新打开预测窗口。')
             settings = self._read()
             from doe_predict import predict_point
+            confidence = (float(self.confidence.get().rstrip('%')) / 100
+                          if self.show_intervals.get() else None)
+            side = {'双侧': 'two_sided', '单侧下限': 'lower',
+                    '单侧上限': 'upper'}[self.interval_side.get()]
             result = predict_point(frame, metadata, self.response.get(), settings,
-                                   blocks=self.use_blocks.get())
+                                   blocks=self.use_blocks.get(), confidence=confidence,
+                                   side=side)
         except (KeyError, TypeError, ValueError, RuntimeError, OverflowError) as exc:
             self.status.set('预测失败：' + str(exc))
             return
-        if self.block is not None:
-            self.block.destroy()
         headers = ('项目', '值')
         values = [[f'{factor.factor_id} {factor.name}',
                    result['settings'][factor.factor_id]] for factor in self.factors]
         values.append(['预测响应', result['prediction']])
+        intervals = result.get('intervals')
+        if intervals is not None:
+            fmt = lambda value: '—' if value is None else f'{value:.10g}'
+            ci_label = '拟合均值 CI' if intervals['side'] != 'lower' else '拟合均值 CI 下限'
+            if intervals['side'] == 'upper':
+                ci_label = '拟合均值 CI 上限'
+            pi_label = '单次观测 PI' if intervals['side'] != 'lower' else '单次观测 PI 下限'
+            if intervals['side'] == 'upper':
+                pi_label = '单次观测 PI 上限'
+            ci = (f"[{fmt(intervals['ci_low'])}, {fmt(intervals['ci_high'])}]"
+                  if intervals['side'] == 'two_sided' else
+                  fmt(intervals['ci_low'] if intervals['side'] == 'lower'
+                      else intervals['ci_high']))
+            pi = (f"[{fmt(intervals['pi_low'])}, {fmt(intervals['pi_high'])}]"
+                  if intervals['side'] == 'two_sided' else
+                  fmt(intervals['pi_low'] if intervals['side'] == 'lower'
+                      else intervals['pi_high']))
+            values.extend([
+                ['SE Fit', fmt(intervals['se_fit'])],
+                [ci_label, ci], [pi_label, pi],
+                ['区间状态', intervals['reason'] or
+                 f"可用；df={intervals['df']}，置信度={intervals['confidence']:.0%}；"
+                 + intervals['assumption']],
+            ])
         values.append(['模型项', '、'.join(result['terms'])])
         values.append(['快照', result['snapshot_id']])
+        values.append(['外推状态', result['extrapolation_note']])
         values.append(['说明', result['note']])
         self.block = TableBlock(self.result_frame, StatTable(
             title='点预测', headers=headers, values=values), paginate=True)

@@ -1,4 +1,5 @@
 import json
+from fractions import Fraction
 from itertools import combinations
 from math import comb
 from pathlib import Path
@@ -69,6 +70,9 @@ def test_select_rejects_candidate_set_without_full_rank_subset():
 
 REFERENCE = json.loads((Path(__file__).parent / "fixtures" / "doe_optimal_reference"
                         / "reference.json").read_text(encoding="utf-8"))
+PHASE2_REFERENCE = json.loads((Path(__file__).parent / "fixtures"
+                               / "doe_phase2_optimal_reference" / "reference.json")
+                              .read_text(encoding="utf-8"))
 
 
 def test_d_optimal_minimum_oracle_endpoints_have_det_four():
@@ -163,11 +167,48 @@ def test_distance_based_matches_hand_computed_order_and_never_repeats():
     assert result["min_squared_distance"] == 4
 
 
-def test_distance_based_rejects_factorial_and_mixture_families():
+def test_distance_based_rejects_factorial_family():
     with pytest.raises(ValueError, match="只支持响应面"):
         select_distance([[1, 1], [-1, 1]], 2, kind="factorial")
-    with pytest.raises(ValueError, match="只支持响应面"):
-        select_distance([[1, 1], [-1, 1]], 2, kind="mixture")
+
+
+def test_mixture_distance_matches_independent_simplex_reference():
+    case = PHASE2_REFERENCE["distance_simplex"]
+    points = [[float(Fraction(value)) for value in row] for row in case["points"]]
+    result = select_distance(points, case["requested"], kind="mixture",
+                             component_count=case["component_count"])
+    assert list(result["selection_order"]) == case["selected_order"]
+    assert len(set(result["selection_order"])) == case["requested"]
+    assert np.allclose(result["step_squared_distances"],
+                       [float(Fraction(value))
+                        for value in case["step_squared_distance"]])
+
+
+def test_d_optimal_with_replacement_matches_independent_scheffe_reference():
+    case = PHASE2_REFERENCE["repetition"]
+    points = [[float(Fraction(value)) for value in row]
+              for row in case["candidate_points"]]
+    without = select(points, 3)
+    with_repeat = select(points, 4, allow_repeats=True)
+    expected = case["with_replacement"]
+    assert list(without["selection_order"]) == [0, 1, 2]
+    assert list(with_repeat["selection_order"]) == expected["optimal_subsets"][0]
+    assert list(with_repeat["multiplicities"]) == [(0, 2), (1, 1), (2, 1)]
+    assert np.isclose(np.exp(with_repeat["logdet"]),
+                      float(expected["det_xtx"]), rtol=1e-12)
+    assert with_repeat["global_optimum_proven"] is True
+    with pytest.raises(ValueError, match="候选点不足|不能超过候选行数"):
+        select(points, 4)
+
+
+def test_d_optimal_replacement_budget_never_claims_global_optimum_when_heuristic():
+    result = select([[1, x] for x in range(4)], 3,
+                    allow_repeats=True, exact_limit=2)
+    assert result["method"] == "greedy_exchange"
+    assert result["global_optimum_proven"] is False
+    assert result["subsets"] == comb(4 + 3 - 1, 3)
+    assert result["evaluations"] > 0
+    assert len(result["selection_order"]) == 3
 
 
 def test_evaluate_reports_condition_rank_and_guards_det_overflow():

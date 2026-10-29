@@ -279,6 +279,14 @@ def test_efg_designs_share_project_roundtrip_copy_analysis_and_metadata_isolatio
     doe_analysis = AnalyzeDOE(app)
     doe_analysis.analyze()
     assert doe_analysis.result is not None
+    diagnostic_tabs = [tab for tab in doe_analysis.tabs.tabs()
+                       if doe_analysis.tabs.tab(tab, 'text') == '逐点影响诊断']
+    assert len(diagnostic_tabs) == 1
+    diagnostic_frame = doe_analysis.tabs.nametowidget(diagnostic_tabs[0])
+    diagnostic_table = next(child.table for child in diagnostic_frame.winfo_children()
+                            if getattr(child, 'table', None) is not None)
+    assert [row[0] for row in diagnostic_table.values] == \
+        expected_frames[e_name]['运行ID'].tolist()
     doe_analysis.factor_x.set("X1")
     doe_analysis.factor_y.set("X2")
     doe_analysis.plot()

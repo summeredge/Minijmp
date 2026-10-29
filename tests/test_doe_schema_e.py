@@ -83,6 +83,24 @@ def test_v5_model_terms_only_for_custom_designs():
                    model_terms=("A",))
 
 
+def test_mixture_optimal_lineage_reuses_existing_v5_fields():
+    lineage = {"parent_design_id": "mixture-candidates", "criterion": "d_optimal",
+               "candidate_sha256": "a" * 64,
+               "selection_order": ("M00001", "M00002"), "batch_id": "OPT1"}
+    spec = DesignSpec(
+        "mixture-optimal", (FactorSpec("A", "A", 0, 1),
+                             FactorSpec("B", "B", 0, 1),
+                             FactorSpec("C", "C", 0, 1)), ("Y",),
+        design_type="mixture", schema_version=5, optimal_lineage=lineage)
+    payload = spec.to_dict()
+    assert payload["schema_version"] == 5
+    assert payload["optimal_lineage"]["criterion"] == "d_optimal"
+    assert "mixture_optimal" not in payload
+    restored = DesignSpec.from_dict(payload)
+    assert restored.design_type == "mixture"
+    assert restored.optimal_lineage["selection_order"] == ("M00001", "M00002")
+
+
 def test_optimal_and_augmentation_lineage_are_mutually_exclusive():
     lineage = {"parent_design_id": "parent", "criterion": "d_optimal",
                "candidate_sha256": "0" * 64, "selection_order": ("R1",),

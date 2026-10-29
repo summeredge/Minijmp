@@ -77,9 +77,18 @@ def test_distance_does_not_repeat_points_and_uses_coded_origin():
     assert case["points"][summary["selection_order"][0]] != [0, 0]
 
 
-def test_distance_rejects_mixture_without_constraint_contract():
-    with pytest.raises(ValueError, match="只支持响应面"):
+def test_mixture_distance_requires_component_count():
+    with pytest.raises(ValueError, match="组分列数"):
         select_distance([[1, 0], [0, 1]], 2, kind="mixture")
+
+
+def test_mixture_distance_never_repeats_selected_coordinates():
+    points = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 0, 0]]
+    summary = select_distance(points, 3, kind="mixture", component_count=3)
+    assert len(set(summary["selection_order"])) == 3
+    assert summary["selection_order"] == (0, 1, 2)
+    with pytest.raises(ValueError, match="候选点不足"):
+        select_distance(points, 4, kind="mixture", component_count=3)
 
 
 def quadratic_grid_frame():

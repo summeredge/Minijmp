@@ -1,13 +1,56 @@
 """RSM 统计诊断：独立投影平方和、纯误差/失拟/曲率与不可用状态。"""
+import json
+from pathlib import Path
+
 import numpy as np
+import pandas as pd
 import pytest
 from scipy import stats
 
+from doe_core import FactorSpec
+from doe_custom import define_custom
+from doe_custom_analysis import analyze_custom_rsm
 from doe_bbd import create_bbd
 from doe_ccd import create_ccd
 from doe_core import DesignSpec, FactorSpec
 from doe_rsm import analyze_rsm
 from doe_rsm_model import TermModel
+
+
+INTERVAL_REFERENCE = json.loads((Path(__file__).parent / "fixtures"
+                                 / "doe_phase2_interval_reference" / "reference.json")
+                                .read_text(encoding="utf-8"))
+
+
+def custom_reference_design(points=None, responses=None):
+    if points is None:
+        points = INTERVAL_REFERENCE['points']
+    if responses is None:
+        responses = {'Y': INTERVAL_REFERENCE['responses']}
+    frame = pd.DataFrame({
+        '运行ID': [f"R{index:05d}" for index in range(1, len(points)+1)],
+        '标准序': list(range(1, len(points)+1)),
+        '运行序': list(range(1, len(points)+1)),
+        '点类型': ['center' if tuple(point) == (0.0, 0.0) else 'edge'
+                   for point in points],
+        '重复': [1] * len(points),
+        'A': [point[0] for point in points],
+        'B': [point[1] for point in points],
+    })
+    for name, values in responses.items():
+        frame[name] = values
+    names = tuple(responses)
+    frame, metadata, _ = define_custom(
+        frame, design_type='custom_rsm',
+        factors=(FactorSpec('A', 'A', -1, 1), FactorSpec('B', 'B', -1, 1)),
+        responses=names, model_terms=('A', 'B', 'A²', 'B²', 'A*B'),
+        column_map={
+            'run_id': '运行ID', 'standard_order': '标准序', 'run_order': '运行序',
+            'point_type': '点类型', 'replicate': '重复',
+            'factors': {'A': 'A', 'B': 'B'},
+            'responses': {name: name for name in names},
+        })
+    return frame, metadata
 
 
 def ccd(replicates=2, centers=3):
@@ -137,4 +180,82 @@ def test_residuals_are_zero_for_an_exact_quadratic_model():
     assert result['lack_of_fit'] is None
     assert result['inference'] is None
     assert result['r2'] == pytest.approx(1, abs=1e-12)
+
+
+def test_custom_rsm_diagnostics_match_independent_reference_in_run_order():
+    frame, metadata = custom_reference_design()
+    result = analyze_custom_rsm(frame, metadata, 'Y')
+    assert result['n'] == INTERVAL_REFERENCE['n']
+    assert result['p'] == INTERVAL_REFERENCE['p']
+    assert result['df'] == INTERVAL_REFERENCE['df']
+    assert result['pure_error_df'] == 0
+    assert result['inference'] is None
+    assert len(result['diagnostics']) == len(INTERVAL_REFERENCE['diagnostics'])
+    fields = ('leverage', 'standardized_residual', 'deleted_residual',
+              'studentized_residual', 'cooks_distance', 'dfits')
+    for actual, expected in zip(result['diagnostics'],
+                                INTERVAL_REFERENCE['diagnostics']):
+        assert actual['run_id'] == expected['run_id']
+        assert actual['run_order'] == expected['run_order']
+        for field in fields:
+            value = expected[field]
+            if value is None:
+                assert actual[field] is None
+            else:
+                assert actual[field] == pytest.approx(value, rel=2e-12, abs=2e-12)
+
+
+def test_intervals_and_influence_survive_large_response_offset():
+    from doe_predict import predict_point
+
+    frame, metadata = custom_reference_design()
+    settings = {'A': 0.5, 'B': 0.25}
+    baseline = predict_point(frame, metadata, 'Y', settings, confidence=.95)
+    shifted_frame = frame.copy(deep=True)
+    shifted_frame['Y'] += 1e8
+    shifted = predict_point(shifted_frame, metadata, 'Y', settings, confidence=.95)
+
+    assert baseline['intervals']['status'] == shifted['intervals']['status'] == '可用'
+    assert shifted['prediction'] == pytest.approx(baseline['prediction'] + 1e8, abs=2e-7)
+    assert shifted['intervals']['se_fit'] == pytest.approx(
+        baseline['intervals']['se_fit'], rel=1e-5)
+    for lower, upper in (('ci_low', 'ci_high'), ('pi_low', 'pi_high')):
+        assert shifted['intervals'][upper] - shifted['intervals'][lower] == pytest.approx(
+            baseline['intervals'][upper] - baseline['intervals'][lower], rel=1e-5)
+
+    base_diagnostics = analyze_custom_rsm(frame, metadata, 'Y')['diagnostics']
+    shifted_diagnostics = analyze_custom_rsm(
+        shifted_frame, metadata, 'Y')['diagnostics']
+    assert all(row['cooks_distance'] is not None for row in shifted_diagnostics)
+    np.testing.assert_allclose(
+        [row['cooks_distance'] for row in shifted_diagnostics],
+        [row['cooks_distance'] for row in base_diagnostics], rtol=1e-5, atol=1e-8)
+
+
+def test_rsm_influence_metrics_are_unavailable_when_saturated_or_zero_mse():
+    points = INTERVAL_REFERENCE['points']
+    responses = INTERVAL_REFERENCE['responses']
+    saturated_indices = (0, 1, 2, 3, 4, 6)
+    saturated, metadata = custom_reference_design(
+        [points[i] for i in saturated_indices],
+        {'Y': [responses[i] for i in saturated_indices]})
+    result = analyze_custom_rsm(saturated, metadata, 'Y')
+    assert result['df'] == 0
+    for row in result['diagnostics']:
+        assert row['leverage'] == pytest.approx(1.0, abs=1e-12)
+        assert row['standardized_residual'] is None
+        assert row['studentized_residual'] is None
+        assert row['cooks_distance'] is None
+        assert row['dfits'] is None
+        assert '自由度' in row['note'] or '杠杆' in row['note']
+
+    exact_y = [10 + 2*a - b + 3*a*a + 4*b*b + a*b for a, b in points]
+    exact, metadata = custom_reference_design(points, {'Y': exact_y})
+    result = analyze_custom_rsm(exact, metadata, 'Y')
+    assert result['df'] > 0
+    assert all(np.isfinite(row['leverage']) for row in result['diagnostics'])
+    assert all(row['standardized_residual'] is None
+               and row['studentized_residual'] is None
+               and row['cooks_distance'] is None and row['dfits'] is None
+               for row in result['diagnostics'])
 

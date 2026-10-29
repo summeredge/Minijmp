@@ -357,6 +357,11 @@ class AugmentDesignDialog:
             return
         self.source = table
         design = restore_design_result(app._full_frame(table), metadata)
+        if design.spec.design_type == 'mixture':
+            messagebox.showerror(
+                '增加运行', 'Mixture 请使用“混料最优设计”窗口，避免按普通 DOE 矩阵增补。',
+                parent=app.main)
+            return
         self.main = tk.Toplevel(app.main)
         self.main.title('增加运行')
         body = ttk.Frame(self.main, padding=10)

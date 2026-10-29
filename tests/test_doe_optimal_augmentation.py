@@ -1,4 +1,5 @@
 import json
+from fractions import Fraction
 from pathlib import Path
 
 import numpy as np
@@ -64,6 +65,32 @@ def test_optimal_augmentation_improves_rank_and_keeps_fixed_runs():
     assert lineage["batch_id"] == "AUG2"
     assert len(lineage["run_map"]) == 2
     assert np.linalg.matrix_rank(before) == summary["initial_rank"]
+
+
+def test_d_optimal_mixture_augmentation_reference_keeps_parent_and_reports_repeats():
+    case = json.loads((Path(__file__).parent / "fixtures"
+                       / "doe_phase2_optimal_reference" / "reference.json")
+                      .read_text(encoding="utf-8"))["augmentation"]
+    parent = np.asarray([[1.0, 0.0, 0.0]])
+    candidates = np.asarray([[0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
+
+    without = select_augment(parent, candidates, 2)
+    with_repeat = select_augment(parent, candidates, 3, allow_repeats=True)
+    expected = case["d_optimal_without_replacement"]
+    expected_repeat = case["d_optimal_with_replacement"]
+    assert list(without["selection_order"]) == expected["selected_indices"][0]
+    assert without["initial_rank"] == expected["initial_rank"] == 1
+    assert without["augmented_rank"] == expected["augmented_rank"] == 3
+    assert np.isclose(np.exp(without["logdet"]),
+                      float(Fraction(expected["det_xtx_after"])))
+    assert list(with_repeat["selection_order"]) == expected_repeat["selected_indices"][0]
+    assert with_repeat["multiplicities"] == ((0, 2), (1, 1))
+    assert with_repeat["initial_rank"] == expected_repeat["initial_rank"]
+    assert with_repeat["augmented_rank"] == expected_repeat["augmented_rank"]
+    assert np.isclose(np.exp(with_repeat["logdet"]),
+                      float(Fraction(expected_repeat["det_xtx_after"])))
+    with pytest.raises(ValueError, match="候选行数|候选点不足"):
+        select_augment(parent, candidates, 3)
 
 
 def test_augmentation_never_removes_executed_runs():

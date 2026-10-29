@@ -1,0 +1,10 @@
+{
+  "source": "independent exact Fraction arithmetic and hand-built Scheffe matrices",
+  "production_imports": [],
+  "files": {
+    "reference.json": {
+      "bytes": 13085,
+      "sha256": "29bd937eae7415579c9992afe780b9546708653d604cfe939afffcdcf749a4ed"
+    }
+  }
+}

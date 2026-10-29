@@ -6,7 +6,8 @@ import pytest
 from pandas.testing import assert_frame_equal
 
 from doe_mixture_dialog import (AnalyzeMixtureDesign, CreateMixtureDesign,
-                                MixturePlots, OptimizeMixture, PredictMixture)
+                                MixtureOptimalDesignDialog, MixturePlots,
+                                OptimizeMixture, PredictMixture)
 from test_csv_import import csv_app
 
 
@@ -110,7 +111,134 @@ def test_mixture_menu_entries_exist(csv_app):
     labels = [menu.entrycget(index, 'label') for index in range(menu.index('end') + 1)
               if menu.type(index) == 'command']
     assert any('混料设计' in label for label in labels)
+    assert any('混料最优设计' in label for label in labels)
     assert any('混料图形' in label for label in labels)
+
+
+def test_mixture_optimal_gui_selection_augmentation_and_persistence(
+        csv_app, tmp_path, monkeypatch, request):
+    app, error = csv_app
+    request.addfinalizer(app.main.withdraw)
+    app.main.deiconify()
+    app.main.update()
+    monkeypatch.setattr('doe_mixture_dialog.messagebox.showerror', error)
+    monkeypatch.setattr('worksheets.messagebox.askyesno', lambda *a, **k: True)
+    monkeypatch.setattr('worksheets.messagebox.askyesnocancel', lambda *a, **k: False)
+
+    create = CreateMixtureDesign(app)
+    create.create()
+    candidate_name = app.getCurrentSheet()
+    candidate = app.getCurrentTable()
+    columns = candidate.doe_metadata['column_map']
+    response = next(iter(columns['responses'].values()))
+    factors = columns['factors']
+    candidate.model.df[response] = (
+        candidate.model.df[factors['A']]
+        + 2 * candidate.model.df[factors['B']]
+        + 3 * candidate.model.df[factors['C']])
+
+    before = list(app.sheets)
+    cancelled = MixtureOptimalDesignDialog(app)
+    assert '组分（比例和=1）' in cancelled.design_summary.get()
+    cancelled.degree.set('1')
+    cancelled._default_terms()
+    cancelled.count.delete(0, 'end')
+    cancelled.count.insert(0, '3')
+    cancelled.preview()
+    assert list(app.sheets) == before
+    assert cancelled.status.get()
+    cancelled.main.destroy()
+
+    dialog = MixtureOptimalDesignDialog(app)
+    dialog.degree.set('1')
+    dialog._default_terms()
+    dialog.count.delete(0, 'end')
+    dialog.count.insert(0, '3')
+    dialog.preview()
+    dialog.count.delete(0, 'end')
+    dialog.count.insert(0, '2')
+    dialog.create()
+    assert list(app.sheets) == before
+    dialog.count.delete(0, 'end')
+    dialog.count.insert(0, '3')
+    dialog.preview()
+    candidate.model.df.loc[0, response] += 1
+    dialog.create()
+    assert list(app.sheets) == before
+    dialog.preview()
+    dialog.main.geometry('700x480')
+    dialog.main.deiconify()
+    dialog.main.update()
+    assert dialog.execute_button.winfo_viewable()
+    assert (dialog.execute_button.winfo_rooty() + dialog.execute_button.winfo_height()
+            <= dialog.main.winfo_rooty() + dialog.main.winfo_height())
+    dialog.create()
+    selected_name = app.getCurrentSheet()
+    selected = app.getCurrentTable()
+    selected_frame = selected.model.df
+    selected_columns = selected.doe_metadata['column_map']
+    selected_response = next(iter(selected_columns['responses'].values()))
+    assert selected_frame[selected_columns['run_id']].is_unique
+    assert selected_frame[selected_response].isna().all()
+    assert selected.mixture_model['degree'] == 1
+
+    selected.model.df[selected_response] = [10.0, 20.0, 30.0]
+    augment = MixtureOptimalDesignDialog(app)
+    augment.operation.set('增补')
+    augment._operation_changed()
+    augment.candidate.set(candidate_name)
+    augment._candidate_changed()
+    augment.parent_sheet.set(selected_name)
+    augment.criterion.set('Distance-based')
+    augment._criterion_changed()
+    augment.degree.set('1')
+    augment._default_terms()
+    augment.count.delete(0, 'end')
+    augment.count.insert(0, '1')
+    augment.batch_id.delete(0, 'end')
+    augment.batch_id.insert(0, 'GUI-AUG')
+    augment.preview()
+    augment.create()
+    augmented_name = app.getCurrentSheet()
+    augmented = app.getCurrentTable()
+    augmented_frame = augmented.model.df.copy(deep=True)
+    augmented_columns = augmented.doe_metadata['column_map']
+    augmented_response = next(iter(augmented_columns['responses'].values()))
+    assert len(augmented_frame) == 4
+    assert augmented_frame[augmented_response].iloc[:3].tolist() == [10.0, 20.0, 30.0]
+    assert pd.isna(augmented_frame[augmented_response].iloc[3])
+    assert augmented_frame[augmented_columns['run_id']].is_unique
+    assert augmented.doe_metadata['design']['augmentation_lineage']['batch_id'] == 'GUI-AUG'
+    augmented.model.df.loc[3, augmented_response] = 15.0
+    augmented_frame = augmented.model.df.copy(deep=True)
+
+    evaluation = MixtureOptimalDesignDialog(app)
+    evaluation.operation.set('评价')
+    evaluation._operation_changed()
+    evaluation.degree.set('1')
+    evaluation._default_terms()
+    count_before_evaluation = len(app.sheets)
+    evaluation.preview()
+    assert 'logdet' in evaluation.preview_text.get('1.0', 'end')
+    assert len(app.sheets) == count_before_evaluation
+    evaluation.main.destroy()
+
+    path = tmp_path / 'mixture-optimal.dexpl'
+    assert app._save_project(path)
+    assert app.new_file()
+    assert app.load_file(path)
+    restored = app.getCurrentTable()
+    assert_frame_equal(restored.model.df, augmented_frame)
+    assert restored.doe_metadata == augmented.doe_metadata
+    assert restored.mixture_metadata == augmented.mixture_metadata
+    copied = app.copySheet()
+    assert copied.doe_metadata == restored.doe_metadata
+    assert copied.doe_metadata is not restored.doe_metadata
+    analysis = AnalyzeMixtureDesign(app)
+    analysis.analyze()
+    assert analysis.result is not None
+    analysis.main.destroy()
+    assert error.call_count == 2
 
 
 def test_mixture_gui_high_dimensional_slice(csv_app, monkeypatch):

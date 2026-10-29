@@ -173,7 +173,8 @@ class Minijmp(Worksheets, Minijmp_pre):
         from doe_optimal_dialog import (AugmentDesignDialog, EvaluateDesignDialog,
                                         ModifyDesignDialog, OptimalDesignDialog)
         from doe_mixture_dialog import (AnalyzeMixtureDesign, CreateMixtureDesign,
-                                        MixturePlots, OptimizeMixture, PredictMixture)
+                                        MixtureOptimalDesignDialog, MixturePlots,
+                                        OptimizeMixture, PredictMixture)
         from doe_taguchi_dialog import CreateTaguchi
         from doe_taguchi_analysis_dialog import AnalyzeTaguchi
         from doe_binary_dialog import AnalyzeBinaryDOE
@@ -213,19 +214,20 @@ class Minijmp(Worksheets, Minijmp_pre):
             '27分析混料设计': {'cmd': lambda: AnalyzeMixtureDesign(self)},
             '28混料预测': {'cmd': lambda: PredictMixture(self)},
             '29优化混料响应': {'cmd': lambda: OptimizeMixture(self)},
-            '30混料图形': {'cmd': lambda: MixturePlots(self)},
-            '31sep': '',
-            '32创建 Taguchi 设计（静态）': {'cmd': lambda: CreateTaguchi(self)},
-            '33创建 Taguchi 设计（动态）': {
+            '30混料最优设计': {'cmd': lambda: MixtureOptimalDesignDialog(self)},
+            '31混料图形': {'cmd': lambda: MixturePlots(self)},
+            '32sep': '',
+            '33创建 Taguchi 设计（静态）': {'cmd': lambda: CreateTaguchi(self)},
+            '34创建 Taguchi 设计（动态）': {
                 'cmd': lambda: CreateTaguchi(self, dynamic=True)},
-            '34分析 Taguchi 设计': {'cmd': lambda: AnalyzeTaguchi(self)},
-            '35因子设计二元响应分析': {
+            '35分析 Taguchi 设计': {'cmd': lambda: AnalyzeTaguchi(self)},
+            '36因子设计二元响应分析': {
                 'cmd': lambda: AnalyzeBinaryDOE(self, 'factorial')},
-            '36筛选设计二元响应分析': {
+            '37筛选设计二元响应分析': {
                 'cmd': lambda: AnalyzeBinaryDOE(self, 'screening')},
-            '37响应面二元响应分析': {
+            '38响应面二元响应分析': {
                 'cmd': lambda: AnalyzeBinaryDOE(self, 'rsm')},
-            '38因子设计变异性分析': {
+            '39因子设计变异性分析': {
                 'cmd': lambda: AnalyzeVariabilityDOE(self)},
         })
         self.menu.add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])

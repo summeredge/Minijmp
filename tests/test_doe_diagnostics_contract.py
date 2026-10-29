@@ -69,3 +69,15 @@ def test_custom_diagnostics_include_matrix_rank_and_condition():
     assert values["矩阵秩"]["value"] == analysis["rank"] == 4
     assert values["条件数"]["value"] is not None
     assert values["模型可估计性"]["value"] == "满列秩"
+
+
+def test_rsm_contract_reports_actual_point_diagnostic_coverage():
+    from test_doe_rsm_diagnostics import custom_reference_design
+    from doe_custom_analysis import analyze_custom_rsm
+
+    frame, metadata = custom_reference_design()
+    result = analyze_custom_rsm(frame, metadata, 'Y')
+    rows = {row['item']: row for row in contract(result, 'custom_rsm')['rows']}
+    assert rows['杠杆值']['value'] == '9/9'
+    assert rows['逐点影响量']['value'].endswith('/9')
+    assert '实际模型矩阵' in rows['杠杆值']['note']
