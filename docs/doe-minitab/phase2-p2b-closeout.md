@@ -35,6 +35,15 @@
 - `& '.venv\Scripts\python.exe' -m pytest tests/test_doe_binary_analysis.py tests/test_doe_binary_probability.py tests/test_doe_binary_optimize.py tests/test_doe_h_reference.py -q --tb=short`：**97 passed**。`& '.venv\Scripts\python.exe' -m py_compile code/doe_binary_dialog.py tests/test_doe_h_lifecycle.py` 通过；`git diff --check` exit 0（Git 仅提示若干已有文件的 CRLF→LF 转换）。
 - P2B-ACC-01–06 本地结论保持 `LOCAL_PASS`；两个验收单元仍为 `READY_FOR_INDEPENDENT_REVIEW`，未改成 APPROVE。此前身份超时的 LRM Review Goal 未自动重提；用户随后明确要求提交并推送，独立 Review 仍待完成。
 
+## P2B-REV-02 Desirability 零梯度平台修复（2026-10-29）
+
+- 根因：正式 desirability 在不可接受区域为 0，概率尺度梯度也是 0；仅以该梯度启动 L-BFGS-B 时，零平台上的默认起点会立即被判为收敛。
+- 独立反例位于 `tests/test_doe_binary_optimize.py`：Case A `eta=20x`、目标概率 0.95，旧实现停在 `A=0`（`p=0.5`），正确根为 `A=logit(0.95)/20=0.147221948958...`；Case B `eta=5-100(x-0.27)^2` 的默认起点 desirability 均为 0，而内部存在最大化有效区；Case C `eta=-5+100(x-0.27)^2` 同样验证最小化方向。三项新增用例在旧实现下均失败，修复后通过。
+- 修复只改变搜索过程：Desirability=0 的起点先用单调 Logit 辅助目标离开平台（Maximize 优化 `-eta`，Minimize 优化 `eta`，Target 优化 `sqrt((eta-logit(T))^2+1)-1`）；辅助目标不参与结果排名，候选与最终 desirability 始终由原分段公式计算。若候选进入 0 到 1 之间的正 desirability 区域，再从该点运行原正式评分阶段；两阶段共享每起点 100 次函数评价上限。取消仍在每次评价前检查，分类水平仍完整枚举，连续域全局最优仍不作证明。
+- `solver_converged` 按该起点实际执行的全部阶段收敛状态汇总；`target_reached` 仍按最终候选概率判定。预算耗尽时保留已评估的正式评分最佳候选，并在 `termination_counts` 与 `termination_reason` 中写明对应阶段和预算原因。
+- 使用项目 `.venv`：`tests/test_doe_binary_optimize.py` **33 passed**；二元概率/分析/H 参考 **71 passed**；连续 RSM 与 Mixture optimizer **57 passed，9 条既有 SciPy SLSQP 边界裁剪警告**。真实 Tk optimizer 预览/结果、取消/关闭及普通 BBD optimizer 三个节点按单节点独立进程执行，**3 × 1 passed**。`py_compile` 与最终 `git diff --check` 通过；未运行全量 pytest。
+- Schema v5 不变；未改 GUI 生命周期、普通连续优化器或 Mixture 生产代码。P2B-ACC-01–06 仍 `LOCAL_PASS`，两个验收单元保持 `READY_FOR_INDEPENDENT_REVIEW`，没有独立 APPROVE。本次不提交/推送。
+
 ## 功能矩阵、Schema 与 Git
 
 - `feature-matrix.csv` 对照 HEAD 前后均为 80 行，feature ID、顺序及状态计数不变：58 `implemented`、19 `partial`、2 `unknown`、1 `excluded`。

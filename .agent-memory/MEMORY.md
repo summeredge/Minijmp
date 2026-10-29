@@ -1,5 +1,19 @@
 # MiniJMP 工作记忆
 
+## DOE Phase 2 P2-2B（2026-10-29，进行中）
+
+- P0 基线/合同检查完成：工作区开始时干净，`main` HEAD `5c37c286ee86fff4d5b82ed3ddad0d06880ae347`，P2-P1 提交 `e702079fbe840ced0a0039e0b3a917c74b114d52` 是当前历史祖先；项目 `.venv` 为 Python 3.11.9。此 Goal 未提交、推送或修改 DOE Schema。
+- 官方 Minitab 在线帮助已核验二元事件预测使用 Wald 近似、响应目标区间须在 `[0,1]`、desirability weight 为 `[0.1,10]`，并记录连续/类别因子的约束和起始值语义。网页未标版本，也未给算法全局最优保证；不声明 Minitab 22 输出一致。
+- 当前可复用 `doe_binary_analysis.py` 的 grouped-binomial Logit 和 `_rsm_matrix()`/`TermModel`；拟合结果有矩阵和系数但未保留 `fitted.cov_params()`。RSM binary GUI 当前只有分析和概率图，来源快照机制可复用。目标文件所称 `doe_optimization.py` 不存在，实际优化器为 `doe_optimize.py` / `doe_optimize_dialog.py`。
+- P1 数学核心通过：`fit_grouped_binomial()` 保存 GLM 协方差；`predict_binary_probability()` 用原 `TermModel` 行计算 Logit/Delta SE/Wald CI，并拒绝失效协方差、越界因子及饱和区间。独立 fixture SHA-256 `9f421b5f7ba175af1a54c2cf98ce5714707b72220da21c9a84e0ba6893e41fda`，verifier 931 项通过；P1 核心/二元旧分析 70 passed，H 参考 1 passed，H RSM Tk 和来源响应失效各 1 passed。没有运行全量 pytest。
+- P2 预测 GUI 已接入 `BinaryAnalysisDialog`：成功 RSM 拟合后显示概率预测入口；窗口复用父窗当前模型和快照、真实实际因子/类别水平，显示 Logit/概率 SE 和事件概率 Wald CI，不显示连续 PI。父窗是唯一数据/元数据/工作表轮询者；输入变化即清旧结果，关闭不写回响应。5 条真实 Tk 用例通过，`P2B-ACC-05` 已在 P4 后升级为 `LOCAL_PASS`。
+- P3 `optimize_binary_rsm()` 实现 Maximize/Minimize/Target 概率及 desirability、weight、实际单位收紧/固定、起点与完整类别穷举。连续搜索使用解析梯度多起点有界 L-BFGS-B；Target 平方概率误差达 `1e-8`；评价预算耗尽仍保留最佳候选，`success` 表示所有起点收敛，`candidate_found` 单独表示存在候选。独立解析/约束/取消测试 26 passed。
+- P4 新增同文件 `BinaryOptimizerDialog`：约束预览、实际单位上下界/起点、数值保型类别多选、后台优化、可中断取消；父窗快照变化时关闭并取消任务。无单独来源轮询、生产模块或 Schema；StatTable 结果含目标/搜索/全局证明状态。10 条真实 Tk 用例涵盖结果回算、不写回、类别、取消/父子窗关闭、数据/元数据/响应/工作表变更、源表删除及 `.dexpl` 重开复制后一致重分析。
+- P5 文档/帮助/索引/RSM-016 scope 同步完成；feature matrix 仍 80 行且 ID/status 与 H4 历史稳定，DOE Schema v5。定向核心跨模块 206 passed/9 警告；持久化/schema/file io/help/menu/G12 回归通过，见 `docs/doe-minitab/phase2-p2b-acceptance.md`。全量 pytest 未运行。Connector 只读 Review Goal `0ac8812c-0ca1-4c3e-be01-3812efcb8021` 因缺浏览器身份证据以 `pending_identity_expired` 结束，没有启动 Review；未自动重提。用户随后明确要求在 Review 尚待执行时提交推送，commit `b6cd31fbc78083317d2618a34fefbbd6e79b30f6` 已推至 `origin/main`；不得将本地通过记作独立 APPROVE。两个 `.agent-memory` 文件按项目规则保留为本地修改。
+- `no-stop-gpt` 防御审查移除重复 source timer；核对解析优化器中的范围、候选预算、状态语义，并删去重复防御检查。G12 首轮发现概率/优化两个 StatTable producer 未登记，补清单后 15 passed。恢复入口是本验收文档及当日日志 P2-2B 条目。
+- P2B-REV-01 修复 `BinaryAnalysisDialog._inputs_changed()` 漏禁用 optimizer 按钮：现同步禁用概率/优化入口，成功重分析才恢复；不改子窗 close/cancel/线程清理。扩展真实 Tk 覆盖事件列/试验列、来源数据/元数据/工作表失效与恢复、运行中优化取消及 DSD/Factorial。`.venv` 下 24 个串行独立 Tk 节点通过，二元分析/概率/优化/H 参考合并 97 passed，`py_compile` 和 `git diff --check` 通过。ACC-01–06 仍 LOCAL_PASS，A/B 仍 READY_FOR_INDEPENDENT_REVIEW；没有重提旧 LRM Review Goal。commit `b6cd31fbc78083317d2618a34fefbbd6e79b30f6` 已推送；本记忆文件与当日日志未纳入提交。
+- P2B-REV-02 修复二元 Response Optimizer 的 Desirability 零平台零梯度：只在正式 desirability 为 0 的起点增加 Logit 概率辅助阶段，Max/Min 按 eta 单调优化，Target 对齐 logit(T)；正式候选和结果仍按原 desirability 公式评价，两阶段共享每起点预算。新独立 A/B/C 分别覆盖 Target 内部根、Max/Min 内部有效区，旧实现三个用例都失败、新实现通过。`.venv` 实测 optimize 33 passed，binary probability/analysis/H reference 71 passed，continuous RSM/Mixture 57 passed/9 既有 SLSQP warnings，3 个隔离 Tk 节点通过；py_compile/diff-check 通过。A/B 仍 READY_FOR_INDEPENDENT_REVIEW；未提交/推送，Schema v5 和 GUI 不变。复杂度审查保留两阶段状态，因为需共用预算、将辅助搜索后的候选交回原评分，并保留分阶段终止证据。
+
 ## DOE Phase 2 P1 核心对标（2026-10-29，限定范围 Review APPROVE）
 
 - 当前阶段 P5 完成：Mixture 单元 A 与 RSM 区间/诊断单元 B 本地验收通过。ChatGPT/Local MCP Connector 首轮 Review 对 A-01 重复点间距与 B-01 预测失败后旧 CI/PI 残留给出 ITERATE；两项修复及定向核心/Tk 回归通过。复审经 Connector 读取当前工作树后分别给出 `MIXTURE_OPTIMAL: APPROVE`、`DOE_RSM_INTERVAL_DIAGNOSTICS: APPROVE`；无新增阻断。方法合同顶部状态已按非阻断文档发现更新。本地收尾提交 `e702079fbe840ced0a0039e0b3a917c74b114d52` 已创建；记忆文件按规则保留在工作区，不纳入提交；不启动后续包。
