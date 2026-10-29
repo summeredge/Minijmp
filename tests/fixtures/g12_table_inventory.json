@@ -958,6 +958,44 @@
       ],
       "exception_reason": ""
     },
+    "doe_binary_dialog.py::BinaryOptimizerDialog._show_rows": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "当前优化条件",
+        "二元响应优化结果"
+      ],
+      "entry_points": [
+        "BinaryAnalysisDialog.optimize_response"
+      ],
+      "status": "二元响应优化条件预览与模型候选通过 StatTable/TableBlock 展示。",
+      "tests": [
+        "tests/test_doe_h_lifecycle.py::test_h_binary_optimizer_previews_and_runs_without_writing_responses",
+        "tests/test_doe_h_lifecycle.py::test_h_binary_optimizer_reanalyzes_after_dexpl_reopen_and_copy"
+      ],
+      "exception_reason": ""
+    },
+    "doe_binary_dialog.py::BinaryProbabilityDialog._show_result": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "事件概率估计"
+      ],
+      "entry_points": [
+        "BinaryAnalysisDialog.predict_probability"
+      ],
+      "status": "二元事件概率与 Wald 区间通过 StatTable/TableBlock 展示。",
+      "tests": [
+        "tests/test_doe_h_lifecycle.py::test_h_binary_probability_window_uses_fit_and_clears_stale_result"
+      ],
+      "exception_reason": ""
+    },
     "doe_dialog.py::AnalyzeDOE.show_table": {
       "sites": [
         "construct:StatTable#1",
@@ -3284,15 +3322,15 @@
   "summary": {
     "python_files": 160,
     "files_with_production_sites": 38,
-    "producer_scopes": 68,
-    "constructor_calls": 138,
+    "producer_scopes": 70,
+    "constructor_calls": 140,
     "constructors": {
       "gen_table": 55,
-      "StatTable": 79,
+      "StatTable": 81,
       "PrettyTable": 4
     },
-    "statistical_source_positions": 74,
-    "logical_statistical_tables": 222,
+    "statistical_source_positions": 76,
+    "logical_statistical_tables": 225,
     "table_text_conversions": {
       "to_string": 2,
       "pred_table": 1,

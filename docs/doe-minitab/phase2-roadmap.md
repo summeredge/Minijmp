@@ -29,7 +29,11 @@ P2 内有强制子关口：先实现 Mixture D-optimal 与 Distance-based 选点
 - A-01 已修复：Mixture 设计评价对所有运行配对计算最小平方距离，重复设定报告 0，并同时报告唯一点数和重复点数。B-01 已修复：Predict 重算开始时清除旧结果；真实 Tk 回归覆盖响应失效及来源工作表切换。
 - 修复后的定向回归：Mixture 核心 22 passed、Mixture Tk 8 passed（6 条 `tight_layout` 警告）、Predict Tk 7 passed。此前独立参考及其他本地验收结果见 [P1 收尾记录](phase2-p1-closeout.md)；本次收尾未重跑 pytest，全量 pytest 未运行。
 - 本地功能矩阵保持 80 项：58 implemented、19 partial、2 unknown、1 excluded。DOE Schema v5、Mixture Schema 1 不变。没有 Minitab 22 产品输出，不声明 `VERSION22_PARITY`。
-- Goal 已完成并停止；不自动启动 P2-2B、P2-3、P2-4 或 P2-5。
+- 当时的 P1 Goal 已完成并停止；后续包未自动启动。
+
+## 后续独立 Goal：P2-2B 二元响应概率与优化（2026-10-29）
+
+P2-2B 由独立 Goal 处理，不改变本路线图重建时的 P1 验收历史。P0–P5 的二元概率/区间、预测窗口、优化数学核心/界面、`.dexpl` 工程与跨模块集成均有本地定向证据；`P2B-ACC-01–06` 均为 `LOCAL_PASS`。没有运行全量 pytest。两个单元的 Local MCP Connector 只读 Review 尚待执行；完成 Review 前不提交，并且不启动 P2-3、P2-4 或 P2-5。
 
 ## 实施顺序
 
@@ -37,7 +41,7 @@ P2 内有强制子关口：先实现 Mixture D-optimal 与 Distance-based 选点
 2. 先独立构造 Mixture 选点参考，再接入 `MixtureTermModel` 和既有搜索器。距离空间需固定组分坐标、伪组分处理、过程/总量归一化、并列顺序与重复语义；未经合同支持的坐标组合明确拒绝。
 3. 先完成 Mixture 创建选点，再完成以全部父运行作为固定锚点的增补；父响应保留、新响应为空、run ID 唯一，取消/失败无副作用。
 4. Mixture 独立关口通过后，复用现有 Predict 模型与实际分析矩阵实现连续 RSM 区间，再接入诊断输出。
-5. 最后复核菜单/帮助/搜索索引、功能矩阵、`.dexpl` 保存重开复制、响应变更失效和 E/F/G/H 回归。
+5. 最后复核菜单/帮助/搜索索引、功能矩阵、`.dexpl` 保存重开复制、响应变更失效和 E/F/G/H 回归。P2-2B 的独立验收与当前状态见 [P2-2B 验收记录](phase2-p2b-acceptance.md)。
 
 ## 停止边界
 

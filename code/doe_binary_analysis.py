@@ -1,5 +1,6 @@
 """Grouped-binomial analysis for verified DOE design families."""
 from itertools import combinations, product
+import math
 from numbers import Integral, Real
 import warnings
 
@@ -385,6 +386,7 @@ def fit_grouped_binomial(x, column_names, term_columns, events, trials, run_ids=
     if model_lr < -model_lr_tolerance:
         raise ValueError("全模型与截距模型的似然比较数值不稳定；模型检验不可用。")
     model_lr = max(0.0, model_lr)
+    covariance = np.asarray(fitted.cov_params(), dtype=float)
     model_df = rank - 1
     model_p = float(stats.chi2.sf(model_lr, model_df)) if model_df > 0 else None
     residual_df = int(len(events) - rank)
@@ -447,6 +449,7 @@ def fit_grouped_binomial(x, column_names, term_columns, events, trials, run_ids=
         "inference_status": "可用" if model_df > 0 else "无预测项；仅拟合截距",
         "fit_status": "Logistic 收敛",
         "coefficients_array": np.asarray(fitted.params, dtype=float),
+        "covariance_array": covariance,
         "matrix": x,
         "column_names": list(column_names),
         "term_columns": term_columns,
@@ -488,7 +491,135 @@ def analyze_binary_doe(frame, metadata, events_column, trials_column, family,
             + ("正规部分因子的项按完整别名组解释。" if design.spec.design_type == "two_level_fractional" else "")
             + ("PB 主效应可能与未拟合交互混杂。" if design.spec.design_type == "plackett_burman" else "")),
     })
+    if family == "rsm":
+        from doe_predict import snapshot_id
+        result["model_snapshot"] = snapshot_id(frame, metadata)
     return result
+
+
+def predict_binary_probability(result, settings, confidence=0.95,
+                               side="two_sided"):
+    """Predict an RSM event probability and its logit-scale Wald interval."""
+    if not isinstance(result, dict) or result.get("family") != "rsm":
+        raise ValueError("概率区间只支持已拟合的二元 RSM 模型")
+    if isinstance(confidence, bool) or not isinstance(confidence, Real):
+        raise ValueError("置信水平必须是 0 与 1 之间的比例")
+    try:
+        confidence = float(confidence)
+    except (OverflowError, TypeError, ValueError) as error:
+        raise ValueError("置信水平必须是 0 与 1 之间的比例") from error
+    if not math.isfinite(confidence) or not 0 < confidence < 1:
+        raise ValueError("置信水平必须是 0 与 1 之间的比例")
+    if side not in ("two_sided", "lower", "upper"):
+        raise ValueError("区间方向必须是 two_sided、lower 或 upper")
+
+    design, detail = result.get("design"), result.get("detail")
+    model = detail.get("term_model") if isinstance(detail, dict) else None
+    if design is None or model is None or not result.get("model_snapshot"):
+        raise ValueError("二元 RSM 模型缺少设计项或来源快照")
+    run_blocks = [run.block for run in design.runs]
+    block_levels = {block for block in run_blocks if block is not None}
+    if len(block_levels) > 1 or (block_levels and any(block is None for block in run_blocks)):
+        raise ValueError("当前二元概率区间不支持多个区组")
+    if not isinstance(settings, dict):
+        raise ValueError("因子设置必须是映射")
+    factors = design.spec.factors
+    factor_ids = {factor.factor_id for factor in factors}
+    if set(settings) != factor_ids:
+        missing = factor_ids - set(settings)
+        unknown = set(settings) - factor_ids
+        if missing:
+            raise ValueError("缺少因子设置：" + "、".join(sorted(missing)))
+        raise ValueError("存在未知因子：" + "、".join(sorted(unknown)))
+
+    actual = {}
+    for factor in factors:
+        value = settings[factor.factor_id]
+        if factor.factor_type == "categorical":
+            if value not in factor.levels:
+                raise ValueError(f"因子 {factor.factor_id} 的水平不在已声明范围内")
+            actual[factor.factor_id] = value
+            continue
+        if isinstance(value, bool) or not isinstance(value, Real):
+            raise ValueError(f"因子 {factor.factor_id} 必须是有限数值")
+        value = float(value)
+        if not math.isfinite(value):
+            raise ValueError(f"因子 {factor.factor_id} 必须是有限数值")
+        if not factor.low <= value <= factor.high:
+            raise ValueError(f"因子 {factor.factor_id} 超出 DOE 声明范围")
+        actual[factor.factor_id] = value
+
+    try:
+        coded = model.coded(actual)
+        x0 = np.asarray(model.row(coded), dtype=float)
+        matrix = np.asarray(result["matrix"], dtype=float)
+        coefficients = np.asarray(result["coefficients_array"], dtype=float)
+        covariance = np.asarray(result["covariance_array"], dtype=float)
+    except (KeyError, TypeError, ValueError, OverflowError) as error:
+        raise ValueError(f"无法建立与拟合模型一致的预测行：{error}") from error
+    names = result.get("column_names")
+    if (names != model.names or matrix.ndim != 2 or matrix.shape[1] != len(names)
+            or coefficients.shape != (len(names),) or x0.shape != (len(names),)
+            or covariance.shape != (len(names), len(names))):
+        raise ValueError("拟合矩阵、模型项、系数和协方差维度不一致")
+    if (not np.isfinite(matrix).all() or not np.isfinite(coefficients).all()
+            or not np.isfinite(covariance).all() or not np.isfinite(x0).all()):
+        raise ValueError("拟合矩阵、系数或协方差包含非有限值")
+    try:
+        expected_matrix = model.matrix(detail["settings_rows"], detail["block_rows"])
+        if not np.array_equal(matrix, expected_matrix):
+            raise ValueError("TermModel 与 Logistic 拟合矩阵不一致")
+        scale = max(1.0, float(np.linalg.norm(covariance, ord=np.inf)))
+        if not math.isfinite(scale):
+            raise ValueError("系数协方差矩阵范数非有限")
+        tolerance = 64 * np.finfo(float).eps * scale * max(1, len(names))
+        if np.max(np.abs(covariance - covariance.T)) > tolerance:
+            raise ValueError("系数协方差矩阵不对称")
+        symmetric_covariance = (covariance + covariance.T) / 2
+        if np.linalg.eigvalsh(symmetric_covariance)[0] < -tolerance:
+            raise ValueError("系数协方差矩阵不是半正定矩阵")
+        with np.errstate(over="ignore", invalid="ignore"):
+            eta_hat = float(x0 @ coefficients)
+            variance_eta = float(x0 @ covariance @ x0)
+    except (KeyError, TypeError, ValueError, np.linalg.LinAlgError,
+            OverflowError, FloatingPointError) as error:
+        raise ValueError(f"无法计算二元预测方差：{error}") from error
+    if not math.isfinite(eta_hat) or not math.isfinite(variance_eta):
+        raise ValueError("Logit 预测值或方差非有限")
+    variance_tolerance = (64 * np.finfo(float).eps
+                          * max(1.0, float(x0 @ x0) * scale))
+    if variance_eta < -variance_tolerance:
+        raise ValueError("Logit 预测方差为负")
+    variance_eta = max(0.0, variance_eta)
+    se_eta = math.sqrt(variance_eta)
+    probability = float(expit(eta_hat))
+    se_probability = probability * (1 - probability) * se_eta
+    result_row = {
+        "settings": actual, "coded": coded,
+        "eta_hat": eta_hat, "se_eta": se_eta,
+        "p_hat": probability, "se_p": se_probability,
+        "ci_low": None, "ci_high": None,
+        "confidence": float(confidence), "side": side,
+        "method": "渐近 Wald 近似（Logit 尺度，正态 z）",
+        "interval_status": "可用",
+        "assumption": "事件概率估计区间；Binomial dispersion 固定为 1。"
+                     "这不是未来单次 0/1 结果的预测区间。",
+        "model_snapshot": result["model_snapshot"],
+    }
+    if probability in (0.0, 1.0):
+        result_row["interval_status"] = "不可用：预测概率数值饱和至 0 或 1。"
+        return result_row
+
+    tail_probability = ((1 + confidence) / 2 if side == "two_sided"
+                        else confidence)
+    critical = float(stats.norm.ppf(tail_probability))
+    if not math.isfinite(critical):
+        raise ValueError("无法取得指定置信水平的正态 z 临界值")
+    if side in ("two_sided", "lower"):
+        result_row["ci_low"] = float(expit(eta_hat - critical * se_eta))
+    if side in ("two_sided", "upper"):
+        result_row["ci_high"] = float(expit(eta_hat + critical * se_eta))
+    return result_row
 
 
 def response_surface_probability_grid(result, factor_x, factor_y, points=31):
