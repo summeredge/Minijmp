@@ -15,6 +15,8 @@
 2026-10-28 工作包 F：完成混料专属合同、Simplex Lattice/Centroid/Extreme Vertices、Scheffé 模型与 ANOVA、预测、单/多响应优化、Trace/等高线/曲面/叠加等高线、混料 GUI 与工作表演示；混料语义以独立 `meta['mixture']`（schema 1）保存，DOE 部分使用 schema v5 的 `design_type='mixture'`。MIX-005 保留 partial（总量固定）。证据见 [工作包 F 收尾记录](work-package-f-closeout.md) 和 [混料参考核验](mixture-reference-validation.md)。
 2026-10-28 工作包 G（Taguchi）：G0–G6 限定范围完成，DOE Schema 升至 v5 并保留 v1–v4 读取迁移。已实现 L4/L8/L9/L16/L18/L25 官方矩阵、静态四类 S/N 与 adjusted nominal (I)、动态 signal-response 回归与动态 S/N、噪声条件描述性稳健性、最佳设置与确认建议，以及真实 Tk 保存/重开/复制/再分析。L18 官方表自身有 5 对不平衡列，已按构造事实记录，ACC-049 保持 partial；详见 [工作包 G 收尾记录](work-package-g-closeout.md) 与 [Taguchi 参考核验](taguchi-reference-validation.md)。
 
+2026-10-29 工作包 H：二元响应、Factorial 变异性与两水平 DOE 功效的限定范围实现、独立数学参考、真实 Tk 和 v1–v5 工程回归已完成；矩阵 80 项状态为 58 implemented、18 partial、3 unknown、1 excluded。H4 仅覆盖二元 RSM 分析/概率图，官方 post-fit Response Optimizer 已明确列为未实现项。完整记录见 [工作包 H 收尾记录](work-package-h-closeout.md)；当前 `WORK_PACKAGE_H_APPROVED_SCOPED`，上一轮独立 Review 为 APPROVE（限定范围）；DOE Schema v5 不变。后续方向是 Minitab DOE 功能对标二期规划，二期尚未开始开发。
+
 ## 范围与基线
 
 当前 DOE-3 支持 2–10 连续因子范围内受支持的 CCD 全因子/分数、分类及区组，以及 3–7、9–10 连续因子 BBD；8 因子 BBD 未支持。DOE-4 对校验完整的 CCD/BBD 支持单、多响应优化及分类切片、参考区组；搜索不保证全局最优。具体配置限制以 B 收尾和帮助为准。

@@ -1,0 +1,7 @@
+{
+  "reference.json": {
+    "sha256": "f5f4ee2246b03b3c6ee1140bd3de9f67f4911a94416bc87520969e2f2baf5c78",
+    "source": "build_reference.py; NumPy/SciPy plus hand-specified designs",
+    "production_imports": []
+  }
+}

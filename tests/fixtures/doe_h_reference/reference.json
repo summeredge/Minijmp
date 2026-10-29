@@ -1,0 +1,1792 @@
+{
+  "schema_version": 1,
+  "provenance": "Hand-specified matrices and independent likelihood, information-matrix, sample-SD, OLS, and noncentral-F calculations; no MiniJMP imports.",
+  "binary": {
+    "dsd": {
+      "case": "2-factor DSD points; main effects and X1^2",
+      "design_points": [
+        [
+          -1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "columns": [
+        [
+          1,
+          -1,
+          0,
+          1
+        ],
+        [
+          1,
+          1,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          -1,
+          0
+        ],
+        [
+          1,
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          0
+        ]
+      ],
+      "term_names": [
+        "Intercept",
+        "X1",
+        "X2",
+        "X1^2"
+      ],
+      "events": [
+        4,
+        4,
+        3,
+        3,
+        3
+      ],
+      "trials": [
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "expected": {
+        "coefficients": [
+          0.0,
+          0.0,
+          0.0,
+          0.6931471805599453
+        ],
+        "standard_errors": [
+          0.4714045207910317,
+          0.6123724356957945,
+          0.5773502691896257,
+          0.7728015412913086
+        ],
+        "wald_z": [
+          0.0,
+          0.0,
+          0.0,
+          0.8969277926150803
+        ],
+        "wald_p": [
+          1.0,
+          1.0,
+          1.0,
+          0.3697574486315425
+        ],
+        "predicted_probability": [
+          0.6666666666666666,
+          0.6666666666666666,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "model_df": 3,
+        "residual_df": 1,
+        "log_likelihood_without_binomial_constant": -20.11481926961677,
+        "null_probability": 0.5666666666666667,
+        "model_lr_chi_square": 0.8242673685844792,
+        "model_lr_p": 0.8436542252483871
+      }
+    },
+    "factorial": {
+      "case": "2^2 factorial; main effects and interaction",
+      "design_points": [
+        [
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "columns": [
+        [
+          1,
+          -1,
+          -1,
+          1
+        ],
+        [
+          1,
+          1,
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1,
+          1,
+          -1
+        ],
+        [
+          1,
+          1,
+          1,
+          1
+        ]
+      ],
+      "term_names": [
+        "Intercept",
+        "A",
+        "B",
+        "A*B"
+      ],
+      "events": [
+        2,
+        5,
+        5,
+        8
+      ],
+      "trials": [
+        10,
+        10,
+        10,
+        10
+      ],
+      "expected": {
+        "coefficients": [
+          0.0,
+          0.6931471805599453,
+          0.6931471805599453,
+          0.0
+        ],
+        "standard_errors": [
+          0.3579455265819088,
+          0.3579455265819088,
+          0.35794552658190887,
+          0.35794552658190887
+        ],
+        "wald_z": [
+          0.0,
+          1.9364599613213274,
+          1.9364599613213271,
+          0.0
+        ],
+        "wald_p": [
+          1.0,
+          0.05281139177500802,
+          0.05281139177500806,
+          1.0
+        ],
+        "predicted_probability": [
+          0.2,
+          0.5,
+          0.5,
+          0.8
+        ],
+        "model_df": 3,
+        "residual_df": 0,
+        "log_likelihood_without_binomial_constant": -23.87099208196266,
+        "null_probability": 0.5,
+        "model_lr_chi_square": 7.709790280870301,
+        "model_lr_p": 0.052406125973294373
+      }
+    },
+    "fractional_factorial": {
+      "case": "2^(3-1) regular fraction; main effects reported as alias groups",
+      "design_points": [
+        [
+          -1,
+          -1,
+          1
+        ],
+        [
+          1,
+          -1,
+          -1
+        ],
+        [
+          -1,
+          1,
+          -1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      "columns": [
+        [
+          1,
+          -1,
+          -1,
+          1
+        ],
+        [
+          1,
+          1,
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1,
+          1,
+          -1
+        ],
+        [
+          1,
+          1,
+          1,
+          1
+        ]
+      ],
+      "term_names": [
+        "Intercept",
+        "A/BC",
+        "B/AC",
+        "C/AB"
+      ],
+      "events": [
+        3,
+        3,
+        3,
+        8
+      ],
+      "trials": [
+        9,
+        9,
+        9,
+        9
+      ],
+      "expected": {
+        "coefficients": [
+          0.0,
+          0.6931471805599453,
+          0.6931471805599453,
+          0.6931471805599453
+        ],
+        "standard_errors": [
+          0.4050462936504912,
+          0.4050462936504912,
+          0.4050462936504912,
+          0.4050462936504912
+        ],
+        "wald_z": [
+          0.0,
+          1.711278911634857,
+          1.711278911634857,
+          1.711278911634857
+        ],
+        "wald_p": [
+          1.0,
+          0.08702963740021519,
+          0.08702963740021519,
+          0.08702963740021519
+        ],
+        "predicted_probability": [
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333,
+          0.8888888888888888
+        ],
+        "model_df": 3,
+        "residual_df": 0,
+        "log_likelihood_without_binomial_constant": -20.325371406547234,
+        "null_probability": 0.4722222222222222,
+        "model_lr_chi_square": 9.144685849509365,
+        "model_lr_p": 0.027427794580740135
+      }
+    },
+    "plackett_burman": {
+      "case": "12-run PB projection; main effects only",
+      "design_points": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          -1,
+          -1,
+          1
+        ],
+        [
+          1,
+          -1,
+          -1
+        ],
+        [
+          -1,
+          1,
+          -1
+        ],
+        [
+          1,
+          -1,
+          1
+        ],
+        [
+          1,
+          1,
+          -1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          -1,
+          1,
+          1
+        ],
+        [
+          -1,
+          -1,
+          1
+        ],
+        [
+          -1,
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1,
+          -1
+        ],
+        [
+          -1,
+          1,
+          -1
+        ]
+      ],
+      "columns": [
+        [
+          1,
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          -1,
+          -1,
+          1
+        ],
+        [
+          1,
+          1,
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1,
+          1,
+          -1
+        ],
+        [
+          1,
+          1,
+          -1,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          -1
+        ],
+        [
+          1,
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          -1,
+          1,
+          1
+        ],
+        [
+          1,
+          -1,
+          -1,
+          1
+        ],
+        [
+          1,
+          -1,
+          -1,
+          -1
+        ],
+        [
+          1,
+          1,
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1,
+          1,
+          -1
+        ]
+      ],
+      "term_names": [
+        "Intercept",
+        "A",
+        "B",
+        "C"
+      ],
+      "events": [
+        4,
+        2,
+        4,
+        2,
+        4,
+        4,
+        4,
+        2,
+        2,
+        2,
+        4,
+        2
+      ],
+      "trials": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "expected": {
+        "coefficients": [
+          0.0,
+          0.6931471805599453,
+          0.0,
+          0.0
+        ],
+        "standard_errors": [
+          0.24999999999999997,
+          0.24999999999999997,
+          0.24999999999999997,
+          0.24999999999999997
+        ],
+        "wald_z": [
+          0.0,
+          2.7725887222397816,
+          0.0,
+          0.0
+        ],
+        "wald_p": [
+          1.0,
+          0.005561235724619038,
+          1.0,
+          1.0
+        ],
+        "predicted_probability": [
+          0.6666666666666666,
+          0.3333333333333333,
+          0.6666666666666666,
+          0.3333333333333333,
+          0.6666666666666666,
+          0.6666666666666666,
+          0.6666666666666666,
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333,
+          0.6666666666666666,
+          0.3333333333333333
+        ],
+        "model_df": 3,
+        "residual_df": 8,
+        "log_likelihood_without_binomial_constant": -45.82902011722652,
+        "null_probability": 0.5,
+        "model_lr_chi_square": 8.155153766179055,
+        "model_lr_p": 0.04291164875963775
+      }
+    },
+    "general_full_factorial": {
+      "case": "3x2 general full factorial; numeric A labels treated as categories",
+      "design_points": [
+        [
+          10,
+          -1
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          20,
+          -1
+        ],
+        [
+          20,
+          1
+        ],
+        [
+          40,
+          -1
+        ],
+        [
+          40,
+          1
+        ]
+      ],
+      "columns": [
+        [
+          1,
+          -1,
+          -1,
+          -1,
+          1,
+          1
+        ],
+        [
+          1,
+          -1,
+          -1,
+          1,
+          -1,
+          -1
+        ],
+        [
+          1,
+          1,
+          0,
+          -1,
+          -1,
+          0
+        ],
+        [
+          1,
+          1,
+          0,
+          1,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          1,
+          -1,
+          0,
+          -1
+        ],
+        [
+          1,
+          0,
+          1,
+          1,
+          0,
+          1
+        ]
+      ],
+      "term_names": [
+        "Intercept",
+        "A[20]",
+        "A[40]",
+        "B[high]",
+        "A[20]*B",
+        "A[40]*B"
+      ],
+      "events": [
+        10,
+        20,
+        15,
+        24,
+        6,
+        15
+      ],
+      "trials": [
+        30,
+        30,
+        30,
+        30,
+        30,
+        30
+      ],
+      "expected": {
+        "coefficients": [
+          0.0,
+          0.6931471805599453,
+          -0.6931471805599453,
+          0.6931471805599453,
+          0.0,
+          0.0
+        ],
+        "standard_errors": [
+          0.16527194200715017,
+          0.23619279632757018,
+          0.23619279632757015,
+          0.16527194200715017,
+          0.23619279632757018,
+          0.23619279632757015
+        ],
+        "wald_z": [
+          0.0,
+          2.9346668964392797,
+          -2.93466689643928,
+          4.193979765361247,
+          0.0,
+          0.0
+        ],
+        "wald_p": [
+          1.0,
+          0.00333905929920431,
+          0.0033390592992043043,
+          2.7410244366870943e-05,
+          1.0,
+          1.0
+        ],
+        "predicted_probability": [
+          0.3333333333333333,
+          0.6666666666666666,
+          0.5,
+          0.8,
+          0.2,
+          0.5
+        ],
+        "model_df": 5,
+        "residual_df": 0,
+        "log_likelihood_without_binomial_constant": -109.80382634357674,
+        "null_probability": 0.5,
+        "model_lr_chi_square": 29.92533231442681,
+        "model_lr_p": 1.5256158292557445e-05
+      }
+    },
+    "rsm": {
+      "case": "3-factor Box-Behnken with two center runs; full quadratic",
+      "design_points": [
+        [
+          -1,
+          -1,
+          0
+        ],
+        [
+          -1,
+          1,
+          0
+        ],
+        [
+          1,
+          -1,
+          0
+        ],
+        [
+          1,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          -1
+        ],
+        [
+          -1,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          -1
+        ],
+        [
+          1,
+          0,
+          1
+        ],
+        [
+          0,
+          -1,
+          -1
+        ],
+        [
+          0,
+          -1,
+          1
+        ],
+        [
+          0,
+          1,
+          -1
+        ],
+        [
+          0,
+          1,
+          1
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "columns": [
+        [
+          1,
+          -1,
+          -1,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          -1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          -1,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          -1,
+          0,
+          1,
+          1,
+          0,
+          -1,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          -1,
+          0,
+          -1,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          -1,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0
+        ],
+        [
+          1,
+          1,
+          0,
+          -1,
+          1,
+          0,
+          1,
+          0,
+          -1,
+          0
+        ],
+        [
+          1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          -1,
+          -1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          -1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          -1
+        ],
+        [
+          1,
+          0,
+          1,
+          -1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          -1
+        ],
+        [
+          1,
+          0,
+          1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "term_names": [
+        "Intercept",
+        "X1",
+        "X2",
+        "X3",
+        "X1^2",
+        "X2^2",
+        "X3^2",
+        "X1*X2",
+        "X1*X3",
+        "X2*X3"
+      ],
+      "events": [
+        30,
+        30,
+        60,
+        60,
+        60,
+        30,
+        60,
+        80,
+        30,
+        30,
+        30,
+        30,
+        45,
+        45
+      ],
+      "trials": [
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90,
+        90
+      ],
+      "expected": {
+        "coefficients": [
+          0.0,
+          0.6931471805599453,
+          0.0,
+          0.0,
+          0.6931471805599453,
+          -0.6931471805599453,
+          0.0,
+          0.0,
+          0.6931471805599453,
+          0.0
+        ],
+        "standard_errors": [
+          0.14907119849998596,
+          0.08363042280801657,
+          0.07905694150420947,
+          0.08363042280801657,
+          0.1251982554774753,
+          0.12519825547747526,
+          0.12519825547747526,
+          0.11180339887498947,
+          0.1244033378820298,
+          0.11180339887498947
+        ],
+        "wald_z": [
+          0.0,
+          8.288218058530516,
+          0.0,
+          0.0,
+          5.536396477063141,
+          -5.536396477063142,
+          0.0,
+          0.0,
+          5.571773172334399,
+          0.0
+        ],
+        "wald_p": [
+          1.0,
+          1.1495768173589027e-16,
+          1.0,
+          1.0,
+          3.0875819682603374e-08,
+          3.0875819682603255e-08,
+          1.0,
+          1.0,
+          2.521595924383953e-08,
+          1.0
+        ],
+        "predicted_probability": [
+          0.3333333333333333,
+          0.3333333333333333,
+          0.6666666666666666,
+          0.6666666666666666,
+          0.6666666666666666,
+          0.3333333333333333,
+          0.6666666666666666,
+          0.8888888888888888,
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333,
+          0.5,
+          0.5
+        ],
+        "model_df": 9,
+        "residual_df": 4,
+        "log_likelihood_without_binomial_constant": -786.3104077385278,
+        "null_probability": 0.49206349206349204,
+        "model_lr_chi_square": 173.79260588437478,
+        "model_lr_p": 9.998081921785647e-33
+      }
+    }
+  },
+  "binary_edges": {
+    "invalid_counts": [
+      [
+        -1,
+        10
+      ],
+      [
+        11,
+        10
+      ],
+      [
+        1.5,
+        10
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        2.5
+      ]
+    ],
+    "all_failures": [
+      [
+        0,
+        10
+      ],
+      [
+        0,
+        10
+      ]
+    ],
+    "all_successes": [
+      [
+        10,
+        10
+      ],
+      [
+        10,
+        10
+      ]
+    ],
+    "complete_separation": {
+      "x": [
+        -1,
+        1,
+        0,
+        0,
+        0
+      ],
+      "events": [
+        0,
+        6,
+        0,
+        0,
+        0
+      ],
+      "trials": [
+        6,
+        6,
+        6,
+        6,
+        6
+      ]
+    },
+    "rank_deficient_dsd_interaction": {
+      "points": [
+        [
+          -1,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "interaction_column": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "variability": {
+    "design_points": [
+      [
+        -1,
+        -1
+      ],
+      [
+        1,
+        -1
+      ],
+      [
+        -1,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "repeats_across_columns": [
+      {
+        "run_id": "R01",
+        "point": [
+          -1,
+          -1
+        ],
+        "measurements": [
+          0,
+          -1,
+          1
+        ]
+      },
+      {
+        "run_id": "R02",
+        "point": [
+          1,
+          -1
+        ],
+        "measurements": [
+          0,
+          -2,
+          2
+        ]
+      },
+      {
+        "run_id": "R03",
+        "point": [
+          -1,
+          1
+        ],
+        "measurements": [
+          0,
+          -4,
+          4
+        ]
+      },
+      {
+        "run_id": "R04",
+        "point": [
+          1,
+          1
+        ],
+        "measurements": [
+          0,
+          -16,
+          16
+        ]
+      }
+    ],
+    "replicates_down_rows": [
+      {
+        "run_id": "R01-1",
+        "point": [
+          -1,
+          -1
+        ],
+        "block": 1,
+        "measurement": 0
+      },
+      {
+        "run_id": "R01-2",
+        "point": [
+          -1,
+          -1
+        ],
+        "block": 1,
+        "measurement": -1
+      },
+      {
+        "run_id": "R01-3",
+        "point": [
+          -1,
+          -1
+        ],
+        "block": 1,
+        "measurement": 1
+      },
+      {
+        "run_id": "R02-1",
+        "point": [
+          1,
+          -1
+        ],
+        "block": 1,
+        "measurement": 0
+      },
+      {
+        "run_id": "R02-2",
+        "point": [
+          1,
+          -1
+        ],
+        "block": 1,
+        "measurement": -2
+      },
+      {
+        "run_id": "R02-3",
+        "point": [
+          1,
+          -1
+        ],
+        "block": 1,
+        "measurement": 2
+      },
+      {
+        "run_id": "R03-1",
+        "point": [
+          -1,
+          1
+        ],
+        "block": 1,
+        "measurement": 0
+      },
+      {
+        "run_id": "R03-2",
+        "point": [
+          -1,
+          1
+        ],
+        "block": 1,
+        "measurement": -4
+      },
+      {
+        "run_id": "R03-3",
+        "point": [
+          -1,
+          1
+        ],
+        "block": 1,
+        "measurement": 4
+      },
+      {
+        "run_id": "R04-1",
+        "point": [
+          1,
+          1
+        ],
+        "block": 1,
+        "measurement": 0
+      },
+      {
+        "run_id": "R04-2",
+        "point": [
+          1,
+          1
+        ],
+        "block": 1,
+        "measurement": -16
+      },
+      {
+        "run_id": "R04-3",
+        "point": [
+          1,
+          1
+        ],
+        "block": 1,
+        "measurement": 16
+      }
+    ],
+    "raw_repeated_values_by_setting": [
+      [
+        0,
+        -1,
+        1
+      ],
+      [
+        0,
+        -2,
+        2
+      ],
+      [
+        0,
+        -4,
+        4
+      ],
+      [
+        0,
+        -16,
+        16
+      ]
+    ],
+    "expected": {
+      "mean": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "sample_sd": [
+        1.0,
+        2.0,
+        4.0,
+        16.0
+      ],
+      "n": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "log_sd": [
+        0.0,
+        0.6931471805599453,
+        1.3862943611198906,
+        2.772588722239781
+      ],
+      "coefficients": [
+        1.2130075659799042,
+        0.5198603854199588,
+        0.8664339756999317
+      ],
+      "effect_high_minus_low": [
+        1.0397207708399177,
+        1.7328679513998635
+      ],
+      "fitted_log_sd": [
+        -0.17328679513998635,
+        0.8664339756999313,
+        1.5595811562598771,
+        2.599301927099795
+      ],
+      "sse": 0.12011325347955035,
+      "df_error": 1,
+      "mse": 0.12011325347955035,
+      "terms": {
+        "X1": {
+          "coefficient": 0.5198603854199588,
+          "effect_high_minus_low": 1.0397207708399177,
+          "standard_error": 0.17328679513998632,
+          "f": 8.999999999999995,
+          "df_numerator": 1,
+          "df_error": 1,
+          "p": 0.20483276469913356,
+          "adjusted_ss": 1.081019281315953
+        },
+        "X2": {
+          "coefficient": 0.8664339756999317,
+          "effect_high_minus_low": 1.7328679513998635,
+          "standard_error": 0.17328679513998632,
+          "f": 25.000000000000007,
+          "df_numerator": 1,
+          "df_error": 1,
+          "p": 0.12566591637800237,
+          "adjusted_ss": 3.0028313369887583
+        }
+      }
+    },
+    "edges": {
+      "zero_variance": [
+        4,
+        4,
+        4
+      ],
+      "one_observation": [
+        4
+      ],
+      "missing_value": [
+        2,
+        null,
+        4
+      ],
+      "unequal_group_sizes": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ]
+    }
+  },
+  "power": {
+    "two_level": {
+      "case": "2^2 full factorial",
+      "design_points": [
+        [
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "factor_names": [
+        "A",
+        "B"
+      ],
+      "tested_factor": "A",
+      "effect_high_minus_low": 2,
+      "sigma": 1,
+      "alpha": 0.05,
+      "fixed_replicates": {
+        "replicates": 2,
+        "total_runs": 8,
+        "df_model": 2,
+        "df_error": 5,
+        "df_test": 1,
+        "noncentrality": 8.0,
+        "critical_f": 6.607890973703367,
+        "power": 0.6228026743430115
+      },
+      "target_power": 0.8,
+      "minimum_replicates": {
+        "replicates": 3,
+        "total_runs": 12,
+        "df_model": 2,
+        "df_error": 9,
+        "df_test": 1,
+        "noncentrality": 12.0,
+        "critical_f": 5.117355029199227,
+        "power": 0.868154866138049
+      },
+      "previous_replicates_power": 0.6228026743430115,
+      "run_limit": 10000
+    },
+    "regular_fractional": {
+      "case": "2^(3-1) regular fraction",
+      "design_points": [
+        [
+          -1,
+          -1,
+          1
+        ],
+        [
+          1,
+          -1,
+          -1
+        ],
+        [
+          -1,
+          1,
+          -1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      "factor_names": [
+        "A",
+        "B",
+        "C"
+      ],
+      "tested_factor": "A",
+      "effect_high_minus_low": 2,
+      "sigma": 1,
+      "alpha": 0.05,
+      "fixed_replicates": {
+        "replicates": 2,
+        "total_runs": 8,
+        "df_model": 3,
+        "df_error": 4,
+        "df_test": 1,
+        "noncentrality": 8.0,
+        "critical_f": 7.708647422176786,
+        "power": 0.5716094577007151
+      },
+      "target_power": 0.8,
+      "minimum_replicates": {
+        "replicates": 3,
+        "total_runs": 12,
+        "df_model": 3,
+        "df_error": 8,
+        "df_test": 1,
+        "noncentrality": 12.0,
+        "critical_f": 5.317655071578712,
+        "power": 0.8572901105252035
+      },
+      "previous_replicates_power": 0.5716094577007151,
+      "run_limit": 10000
+    },
+    "pb": {
+      "case": "12-run PB projection with 3 factors",
+      "design_points": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          -1,
+          -1,
+          1
+        ],
+        [
+          1,
+          -1,
+          -1
+        ],
+        [
+          -1,
+          1,
+          -1
+        ],
+        [
+          1,
+          -1,
+          1
+        ],
+        [
+          1,
+          1,
+          -1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          -1,
+          1,
+          1
+        ],
+        [
+          -1,
+          -1,
+          1
+        ],
+        [
+          -1,
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1,
+          -1
+        ],
+        [
+          -1,
+          1,
+          -1
+        ]
+      ],
+      "factor_names": [
+        "A",
+        "B",
+        "C"
+      ],
+      "tested_factor": "A",
+      "effect_high_minus_low": 2,
+      "sigma": 1,
+      "alpha": 0.05,
+      "fixed_replicates": {
+        "replicates": 2,
+        "total_runs": 24,
+        "df_model": 3,
+        "df_error": 20,
+        "df_test": 1,
+        "noncentrality": 24.0,
+        "critical_f": 4.351243503329288,
+        "power": 0.9964555577322337
+      },
+      "target_power": 0.8,
+      "minimum_replicates": {
+        "replicates": 1,
+        "total_runs": 12,
+        "df_model": 3,
+        "df_error": 8,
+        "df_test": 1,
+        "noncentrality": 12.0,
+        "critical_f": 5.317655071578712,
+        "power": 0.8572901105252035
+      },
+      "previous_replicates_power": null,
+      "run_limit": 10000
+    },
+    "general_full_factorial": {
+      "case": "2-level GFF with numeric labels",
+      "design_points": [
+        [
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "factor_names": [
+        "A",
+        "B"
+      ],
+      "tested_factor": "A",
+      "effect_high_minus_low": 2,
+      "sigma": 1,
+      "alpha": 0.05,
+      "fixed_replicates": {
+        "replicates": 2,
+        "total_runs": 8,
+        "df_model": 2,
+        "df_error": 5,
+        "df_test": 1,
+        "noncentrality": 8.0,
+        "critical_f": 6.607890973703367,
+        "power": 0.6228026743430115
+      },
+      "target_power": 0.8,
+      "minimum_replicates": {
+        "replicates": 3,
+        "total_runs": 12,
+        "df_model": 2,
+        "df_error": 9,
+        "df_test": 1,
+        "noncentrality": 12.0,
+        "critical_f": 5.117355029199227,
+        "power": 0.868154866138049
+      },
+      "previous_replicates_power": 0.6228026743430115,
+      "run_limit": 10000
+    }
+  },
+  "power_edges": {
+    "zero_error_df": {
+      "design": "12-run PB with 11 factors",
+      "replicates": 1,
+      "df_error": 0
+    },
+    "nonestimable": {
+      "columns": [
+        [
+          1,
+          -1,
+          -1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          -1,
+          -1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      "duplicate_factors": [
+        "A",
+        "B"
+      ]
+    },
+    "run_limit_unattainable": {
+      "points": 1024,
+      "limit": 10000,
+      "effect": 0.1,
+      "sigma": 100,
+      "alpha": 0.05,
+      "target_power": 0.99
+    }
+  },
+  "acceptance_cases": {
+    "MTB-DOE-ACC-004": {
+      "STD": "binary.dsd",
+      "EDGE": "binary_edges"
+    },
+    "MTB-DOE-ACC-019": {
+      "STD": [
+        "binary.factorial",
+        "binary.fractional_factorial",
+        "binary.plackett_burman",
+        "binary.general_full_factorial"
+      ],
+      "EDGE": "binary_edges"
+    },
+    "MTB-DOE-ACC-020": {
+      "STD": "variability",
+      "EDGE": "variability.edges"
+    },
+    "MTB-DOE-ACC-031": {
+      "STD": "binary.rsm",
+      "EDGE": "binary_edges"
+    },
+    "MTB-DOE-ACC-059": {
+      "STD": [
+        "power.two_level",
+        "power.regular_fractional"
+      ],
+      "EDGE": "power_edges"
+    },
+    "MTB-DOE-ACC-060": {
+      "STD": "power.pb+general_full_factorial",
+      "EDGE": "power_edges"
+    }
+  }
+}
