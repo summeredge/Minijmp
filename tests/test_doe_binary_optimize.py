@@ -1,4 +1,5 @@
 import json
+import math
 from pathlib import Path
 from threading import Event
 from types import SimpleNamespace
@@ -19,6 +20,48 @@ from test_doe_custom_rsm import reference_frame as custom_rsm_frame
 REFERENCE = json.loads((Path(__file__).parent / "fixtures"
                         / "doe_phase2_binary_reference" / "reference.json").read_text(
                             encoding="utf-8"))["optimizer"]
+
+
+def _binary_with_eta(analysis, intercept, linear, quadratic):
+    changed = dict(analysis)
+    coefficients = np.zeros_like(analysis["coefficients_array"], dtype=float)
+    for name, value in (("截距", intercept), ("A", linear), ("A²", quadratic)):
+        coefficients[analysis["column_names"].index(name)] = value
+    changed["coefficients_array"] = coefficients
+    return changed
+
+
+def _reference_expit(eta):
+    if eta >= 0:
+        return 1 / (1 + math.exp(-eta))
+    exp_eta = math.exp(eta)
+    return exp_eta / (1 + exp_eta)
+
+
+def _reference_desirability(goal, probability, lower, target, upper, weight):
+    if goal == "maximize":
+        if probability <= lower:
+            return 0.0
+        if probability >= target:
+            return 1.0
+        return ((probability - lower) / (target - lower)) ** weight
+    if goal == "minimize":
+        if probability <= target:
+            return 1.0
+        if probability >= upper:
+            return 0.0
+        return ((upper - probability) / (upper - target)) ** weight
+    if probability <= lower or probability >= upper:
+        return 0.0
+    if probability <= target:
+        return ((probability - lower) / (target - lower)) ** weight
+    return ((upper - probability) / (upper - target)) ** weight
+
+
+def _assert_probability_matches_model_row(analysis, result):
+    model = analysis["detail"]["term_model"]
+    eta = model.row(model.coded(result["settings"])) @ analysis["coefficients_array"]
+    assert result["probability"] == pytest.approx(_reference_expit(float(eta)), abs=1e-14)
 
 
 @pytest.fixture(scope="module")
@@ -168,6 +211,162 @@ def test_binary_desirability_search_uses_probability_gradient(
         assert abs(result["probability"] - target) <= 1e-8
     assert result["desirability"] == pytest.approx(1.0, abs=1e-10)
     assert result["solver_converged"] is True
+
+
+def test_binary_target_desirability_escapes_zero_platform(binary_quadratic):
+    _, base = binary_quadratic
+    analysis = _binary_with_eta(base, 0.0, 20.0, 0.0)
+    lower, target, upper, weight = 0.90, 0.95, 0.99, 1.5
+    for coded_a in (-1.0, 0.0, 1.0):
+        probability = _reference_expit(20 * coded_a)
+        assert _reference_desirability(
+            "target", probability, lower, target, upper, weight) == 0.0
+
+    args = dict(goal="target", criterion="desirability", lower=lower,
+                target=target, upper=upper, weight=weight)
+    result = optimize_binary_rsm(analysis, **args)
+    repeated = optimize_binary_rsm(analysis, **args)
+    expected_x = math.log(target / (1 - target)) / 20
+    expected_probability = _reference_expit(20 * expected_x)
+    assert result["settings"]["A"] == pytest.approx(expected_x, abs=1e-6)
+    assert result["probability"] == pytest.approx(expected_probability, abs=1e-8)
+    assert result["desirability"] == pytest.approx(
+        _reference_desirability("target", expected_probability,
+                                lower, target, upper, weight), abs=1e-8)
+    assert result["desirability"] == pytest.approx(1.0, abs=1e-8)
+    assert result["target_reached"] is True
+    assert result["global_optimum_proven"] is False
+    assert result["settings"] == repeated["settings"]
+    _assert_probability_matches_model_row(analysis, result)
+
+
+def test_binary_maximize_desirability_escapes_zero_platform(binary_quadratic):
+    _, base = binary_quadratic
+    analysis = _binary_with_eta(base, -2.29, 54.0, -100.0)
+    lower, target = 0.90, 0.95
+    for coded_a in (-1.0, 0.0, 1.0):
+        probability = _reference_expit(5 - 100 * (coded_a - 0.27) ** 2)
+        assert probability < lower
+        assert _reference_desirability(
+            "maximize", probability, lower, target, None, 1.0) == 0.0
+
+    result = optimize_binary_rsm(
+        analysis, goal="maximize", criterion="desirability",
+        lower=lower, target=target)
+    target_eta = math.log(target / (1 - target))
+    radius = math.sqrt((5 - target_eta) / 100)
+    assert 0.27 - radius - 1e-6 <= result["settings"]["A"] <= 0.27 + radius + 1e-6
+    assert result["probability"] >= target - 1e-8
+    assert result["desirability"] == pytest.approx(1.0, abs=1e-8)
+    assert result["target_reached"] is True
+    assert result["global_optimum_proven"] is False
+    _assert_probability_matches_model_row(analysis, result)
+
+
+def test_binary_minimize_desirability_escapes_zero_platform(binary_quadratic):
+    _, base = binary_quadratic
+    analysis = _binary_with_eta(base, 2.29, -54.0, 100.0)
+    target, upper = 0.05, 0.10
+    for coded_a in (-1.0, 0.0, 1.0):
+        probability = _reference_expit(-5 + 100 * (coded_a - 0.27) ** 2)
+        assert probability > upper
+        assert _reference_desirability(
+            "minimize", probability, None, target, upper, 1.0) == 0.0
+
+    result = optimize_binary_rsm(
+        analysis, goal="minimize", criterion="desirability",
+        target=target, upper=upper)
+    target_eta = math.log(target / (1 - target))
+    radius = math.sqrt((5 + target_eta) / 100)
+    assert 0.27 - radius - 1e-6 <= result["settings"]["A"] <= 0.27 + radius + 1e-6
+    assert result["probability"] <= target + 1e-8
+    assert result["desirability"] == pytest.approx(1.0, abs=1e-8)
+    assert result["target_reached"] is True
+    assert result["global_optimum_proven"] is False
+    _assert_probability_matches_model_row(analysis, result)
+
+
+def test_binary_zero_platform_auxiliary_search_preserves_weight_and_status(
+        binary_quadratic):
+    _, base = binary_quadratic
+    peak = math.log(0.93 / (1 - 0.93))
+    analysis = _binary_with_eta(base, peak - 100 * 0.27 ** 2, 54.0, -100.0)
+    lower, target = 0.90, 0.95
+    for weight in (0.5, 2.0):
+        result = optimize_binary_rsm(
+            analysis, goal="maximize", criterion="desirability",
+            lower=lower, target=target, weight=weight)
+        assert result["settings"]["A"] == pytest.approx(0.27, abs=1e-5)
+        assert result["probability"] == pytest.approx(0.93, abs=1e-8)
+        assert result["desirability"] == pytest.approx(0.6 ** weight, abs=1e-8)
+        assert result["solver_converged"] is True
+        assert result["target_reached"] is False
+        _assert_probability_matches_model_row(analysis, result)
+
+
+def test_binary_desirability_zero_platform_reports_budget_exhaustion(
+        binary_quadratic, monkeypatch):
+    import doe_optimize
+
+    _, base = binary_quadratic
+    analysis = _binary_with_eta(base, 0.0, 20.0, 0.0)
+    monkeypatch.setattr(doe_optimize, "_BINARY_EVALUATIONS_PER_START", 1)
+
+    def exhaust_budget(objective, initial, **_kwargs):
+        objective(np.asarray(initial, dtype=float))
+        objective(np.asarray(initial, dtype=float))
+
+    monkeypatch.setattr(doe_optimize, "minimize", exhaust_budget)
+    result = optimize_binary_rsm(
+        analysis, goal="target", criterion="desirability",
+        lower=0.90, target=0.95, upper=0.99)
+    assert result["candidate_found"] is True
+    assert result["desirability"] == 0.0
+    assert result["target_reached"] is False
+    assert result["solver_converged"] is False
+    assert result["success"] is False
+    assert any("起点评价达到 1 次上限" in reason
+               for reason in result["termination_counts"])
+    assert "起点评价达到 1 次上限" in result["termination_reason"]
+    _assert_probability_matches_model_row(analysis, result)
+
+
+def test_binary_desirability_zero_platform_honors_cancellation(
+        binary_quadratic, monkeypatch):
+    import doe_optimize
+
+    _, base = binary_quadratic
+    analysis = _binary_with_eta(base, 0.0, 20.0, 0.0)
+    cancel = Event()
+
+    def cancel_in_auxiliary(objective, initial, **_kwargs):
+        cancel.set()
+        objective(np.asarray(initial, dtype=float))
+
+    monkeypatch.setattr(doe_optimize, "minimize", cancel_in_auxiliary)
+    with pytest.raises(InterruptedError, match="已取消"):
+        optimize_binary_rsm(
+            analysis, goal="target", criterion="desirability",
+            lower=0.90, target=0.95, upper=0.99, cancel=cancel)
+
+
+def test_binary_desirability_zero_platform_reports_unreachable_target(binary_quadratic):
+    _, base = binary_quadratic
+    analysis = _binary_with_eta(base, 0.2, 1.0, -1.0)
+    maximum_probability = _reference_expit(0.45)
+    assert maximum_probability < 0.80
+
+    result = optimize_binary_rsm(
+        analysis, goal="maximize", criterion="desirability",
+        lower=0.80, target=0.90)
+    assert result["settings"]["A"] == pytest.approx(0.0)
+    assert result["probability"] == pytest.approx(_reference_expit(0.2), abs=1e-8)
+    assert result["desirability"] == 0.0
+    assert result["target_reached"] is False
+    assert "不证明目标在域内不可达" in result["target_status"]
+    assert result["solver_converged"] is True
+    assert result["global_optimum_proven"] is False
+    _assert_probability_matches_model_row(analysis, result)
 
 
 def test_binary_optimizer_uses_physical_bounds_and_rejects_invalid_start(binary_quadratic):

@@ -681,6 +681,8 @@ def optimize_binary_rsm(analysis, *, goal, criterion, lower=None, target=None,
     weight = _finite(weight, "weight")
     if not 0.1 <= weight <= 10:
         raise ValueError("weight 必须在 0.1 到 10 之间")
+    target_eta = (math.log(target) - math.log1p(-target)
+                  if goal == "target" and criterion == "desirability" else None)
 
     factors = design.spec.factors
     continuous = [factor for factor in factors if factor.factor_type == "continuous"]
@@ -844,7 +846,7 @@ def optimize_binary_rsm(analysis, *, goal, criterion, lower=None, target=None,
             "settings": actual_settings, "coded_settings": coded_settings,
             "target_reached": bool(reached),
             "target_difference": float(probability - target),
-        }, probability_gradient, desirability_slope
+        }, probability_gradient, desirability_slope, eta, eta_gradient
 
     center_distance = lambda candidate: sum(
         (candidate["coded_settings"][factor.factor_id] - coded_center[index]) ** 2
@@ -880,7 +882,9 @@ def optimize_binary_rsm(analysis, *, goal, criterion, lower=None, target=None,
         nonlocal evaluations
         evaluations += 1
         evaluated = evaluate(point, selected_categories)
-        update_best(None if evaluated is None else evaluated[0])
+        candidate = None if evaluated is None else evaluated[0]
+        update_best(candidate)
+        return candidate
 
     solver_successes = solver_starts = iterations = 0
     termination_counts = {}
@@ -892,61 +896,105 @@ def optimize_binary_rsm(analysis, *, goal, criterion, lower=None, target=None,
         selected_categories = dict(zip((factor.factor_id for factor in categorical), selected))
         for initial in unique_starts:
             check_cancelled()
-            consider(initial, selected_categories)
+            initial_candidate = consider(initial, selected_categories)
             if not free:
                 continue
             solver_starts += 1
             evaluations_this_start = 0
+            zero_platform_search = (
+                criterion == "desirability" and initial_candidate is not None
+                and initial_candidate["desirability"] == 0
+            )
+            phase_initial = initial.copy()
+            phase_messages = []
+            start_converged = True
+            while True:
+                remaining = _BINARY_EVALUATIONS_PER_START - evaluations_this_start
+                if remaining <= 0:
+                    start_converged = False
+                    phase_messages.append(
+                        "正式 desirability 搜索未启动：起点评价预算已耗尽")
+                    break
+                phase_name = ("零平台辅助搜索" if zero_platform_search else
+                              "正式 desirability 搜索" if criterion == "desirability" else
+                              "概率目标搜索")
 
-            def objective(free_point):
-                nonlocal evaluations_this_start, evaluations
+                def objective(free_point):
+                    nonlocal evaluations_this_start, evaluations
+                    check_cancelled()
+                    if evaluations_this_start >= _BINARY_EVALUATIONS_PER_START:
+                        raise EvaluationLimit
+                    evaluations_this_start += 1
+                    evaluations += 1
+                    point = phase_initial.copy()
+                    point[free] = free_point
+                    evaluated = evaluate(point, selected_categories)
+                    (candidate, probability_gradient, desirability_slope,
+                     eta, eta_gradient) = (
+                        (None, None, None, None, None) if evaluated is None else evaluated)
+                    update_best(candidate)
+                    if candidate is None:
+                        return 1e100, np.zeros(len(free))
+                    if zero_platform_search:
+                        if goal == "maximize":
+                            score, gradient = -eta, -eta_gradient
+                        elif goal == "minimize":
+                            score, gradient = eta, eta_gradient
+                        else:
+                            error = eta - target_eta
+                            distance = math.hypot(error, 1.0)
+                            score = distance - 1.0
+                            gradient = (error / distance) * eta_gradient
+                    elif criterion == "probability":
+                        gradient = (-(probability_gradient) if goal == "maximize" else
+                                    probability_gradient if goal == "minimize" else
+                                    2 * (candidate["probability"] - target)
+                                    * probability_gradient)
+                        score = candidate["score"]
+                    else:
+                        score = candidate["score"]
+                        gradient = -desirability_slope * probability_gradient
+                    return float(score), gradient[free]
+
+                solver_point = None
+                try:
+                    solver = minimize(
+                        objective, phase_initial[free], method="L-BFGS-B",
+                        bounds=[coded_bounds[continuous[index].factor_id] for index in free],
+                        jac=True,
+                        options={"maxiter": remaining, "maxfun": remaining,
+                                 "ftol": 1e-15, "gtol": 1e-10},
+                    )
+                    message = str(solver.message)
+                    iterations += int(solver.nit)
+                    solver_point = np.asarray(solver.x, dtype=float)
+                    if not solver.success:
+                        start_converged = False
+                except EvaluationLimit:
+                    message = f"起点评价达到 {_BINARY_EVALUATIONS_PER_START} 次上限"
+                    start_converged = False
+                except (FloatingPointError, ValueError, OverflowError) as error:
+                    message = f"优化器数值错误：{error}"
+                    start_converged = False
+                phase_messages.append(f"{phase_name}：{message}")
                 check_cancelled()
-                if evaluations_this_start >= _BINARY_EVALUATIONS_PER_START:
-                    raise EvaluationLimit
-                evaluations_this_start += 1
-                evaluations += 1
-                point = initial.copy()
-                point[free] = free_point
-                evaluated = evaluate(point, selected_categories)
-                candidate, probability_gradient, desirability_slope = (
-                    (None, None, None) if evaluated is None else evaluated)
-                update_best(candidate)
-                if candidate is None:
-                    return 1e100, np.zeros(len(free))
-                if criterion == "probability":
-                    gradient = (-(probability_gradient) if goal == "maximize" else
-                                probability_gradient if goal == "minimize" else
-                                2 * (candidate["probability"] - target)
-                                * probability_gradient)
-                else:
-                    gradient = -desirability_slope * probability_gradient
-                return candidate["score"], gradient[free]
+                if solver_point is None:
+                    break
 
-            solver_point = None
-            try:
-                solver = minimize(
-                    objective, initial[free], method="L-BFGS-B",
-                    bounds=[coded_bounds[continuous[index].factor_id] for index in free],
-                    jac=True,
-                    options={"maxiter": _BINARY_EVALUATIONS_PER_START,
-                             "maxfun": _BINARY_EVALUATIONS_PER_START,
-                             "ftol": 1e-15, "gtol": 1e-10},
-                )
-                message = str(solver.message)
-                iterations += int(solver.nit)
-                solver_point = np.asarray(solver.x, dtype=float)
-                if solver.success:
-                    solver_successes += 1
-            except EvaluationLimit:
-                message = f"起点评价达到 {_BINARY_EVALUATIONS_PER_START} 次上限"
-            except (FloatingPointError, ValueError, OverflowError) as error:
-                message = f"优化器数值错误：{error}"
-            termination_counts[message] = termination_counts.get(message, 0) + 1
-            check_cancelled()
-            if solver_point is not None:
-                point = initial.copy()
+                point = phase_initial.copy()
                 point[free] = solver_point
-                consider(point, selected_categories)
+                candidate = consider(point, selected_categories)
+                if (not zero_platform_search or candidate is None
+                        or candidate["desirability"] <= 0
+                        or candidate["desirability"] >= 1):
+                    break
+                phase_initial = point
+                zero_platform_search = False
+
+            if start_converged:
+                solver_successes += 1
+            message = "；".join(phase_messages)
+            termination_counts[message] = termination_counts.get(message, 0) + 1
 
     if best is None:
         raise ValueError("搜索域内没有产生有限且可行的二元概率候选")
@@ -955,7 +1003,9 @@ def optimize_binary_rsm(analysis, *, goal, criterion, lower=None, target=None,
     termination_reason = (
         "全部类别组合已穷举" if not free else
         "所有多起点局部搜索均收敛" if all_converged else
-        "返回可行候选；至少一个局部起点未收敛或达到评价上限"
+        "返回可行候选；" + "；".join(
+            f"{reason}（{count} 个起点）"
+            for reason, count in termination_counts.items())
     )
     reached_status = ("目标已达到" if best["target_reached"] else
                       "当前搜索未达到目标；多起点局部搜索不证明目标在域内不可达")
@@ -970,7 +1020,10 @@ def optimize_binary_rsm(analysis, *, goal, criterion, lower=None, target=None,
         "status": "exact_enumeration" if global_optimum_proven else
                   "solver_converged" if all_converged else "candidate_with_unconverged_starts",
         "method": "分类组合穷举" if not free else
-                  "确定性多起点 L-BFGS-B；类别组合完整枚举；不证明连续域全局最优",
+                  ("确定性多起点 L-BFGS-B；零平台用概率/Logit 目标辅助搜索，"
+                   "结果按精确 desirability 评分；类别组合完整枚举；"
+                   "不证明连续域全局最优" if criterion == "desirability" else
+                   "确定性多起点 L-BFGS-B；类别组合完整枚举；不证明连续域全局最优"),
         "solver_starts": solver_starts,
         "solver_successes": solver_successes,
         "solver_converged": all_converged,

@@ -7,7 +7,7 @@
 |---|---|---|---|
 | P2B-ACC-01 | RSM 预测 Logit/概率、TermModel 行与拟合矩阵一致、GLM 系数协方差 | `LOCAL_PASS` | `predict_binary_probability()` 使用原 `fitted.cov_params()`；独立三因子手算 beta/V/x0；303 行 Star98 grouped GLM；verifier SHA-256 `9f421b5f7ba175af1a54c2cf98ce5714707b72220da21c9a84e0ba6893e41fda`；概率预测真实 Tk 路径通过。 |
 | P2B-ACC-02 | 90/95/99 双侧与单侧 Wald CI、Delta SE、边界与错误协方差 | `LOCAL_PASS` | 独立手算 oracle 覆盖正/负 Logit、概率近 0/0.5/1、非对称区间、Logit 反变换与饱和；负方差容差/实质负方差分别验证；核心测试 70 passed，真实 Tk 下限显示与设置失效通过。 |
-| P2B-ACC-03 | Maximize/Minimize/Target、概率与 desirability 语义、weight | `LOCAL_PASS` | `tests/test_doe_binary_optimize.py` 的解析 `eta=0.2+A-A²` 独立 oracle 覆盖极值/双目标根、三类 desirability 与 weight；Target 平方概率误差与 `1e-8` 达标判定。 |
+| P2B-ACC-03 | Maximize/Minimize/Target、概率与 desirability 语义、weight | `LOCAL_PASS` | 独立解析 oracle 覆盖极值/双目标根、三类 desirability 与 weight；P2B-REV-02 新增 `eta=20x`、内部最大化和最小化零平台反例，期望值由 Python `math` 独立计算；Target 概率误差仍按 `1e-8` 判定。 |
 | P2B-ACC-04 | 因子/类别约束、起点、搜索预算、不可达目标和全局最优声明 | `LOCAL_PASS` | 连续物理范围/固定值、非法起点、类别组合穷举/预算上限、矩阵一致性、区组拒绝、预算耗尽保留最佳点、未收敛状态、确定性并列和搜索中取消用例。每起点上限 100 次评价；多起点 L-BFGS-B 不声明连续域全局最优。 |
 | P2B-ACC-05 | 点预测与 optimizer GUI、响应切换、快照失效、取消/关闭 | `LOCAL_PASS` | 真实 Tk 独立进程：概率窗口 5 条；优化窗口 10 条，覆盖预览/真实候选回算、不写回、数字类别水平、取消、子/父窗关闭、数据/元数据/响应列/工作表/源表删除时的清理，以及 `.dexpl` 重开复制后重新优化。P2B-REV-01 另验证两个入口随输入/来源失效同步禁用、合法重分析后恢复。H 原有 RSM 概率图与响应变化清理各 1 条通过。 |
 | P2B-ACC-06 | `.dexpl` 保存重开复制、旧工作流/Schema/帮助集成 | `LOCAL_PASS` | 真实 Tk `.dexpl` 保存/重开/复制后重新分析与优化，预测概率、设置和快照一致；DOE Schema v5 未变。v1–v5 相关 schema/持久化、坏元数据加载隔离、帮助索引、RSM 连续 CI/PI、普通响应/混料优化及 G12 清单回归通过。 |
@@ -18,7 +18,7 @@
 
 - `tests/fixtures/doe_phase2_binary_reference/verify.py`：**931 项通过**；含独立 Newton scoring、手算 Wald、解析 optimizer 参考；GLM 303 行。
 - `python -m pytest tests/test_doe_binary_probability.py tests/test_doe_binary_analysis.py -q --tb=short`：**70 passed**。
-- `python -m pytest tests/test_doe_binary_optimize.py -q --tb=short`：**26 passed**；连续极值、目标根和分类固定设置分别与独立解析 oracle 比较。
+- `python -m pytest tests/test_doe_binary_optimize.py -q --tb=short`：P2B-REV-02 当前运行 **33 passed**；连续极值、目标根、分类固定设置及零平台辅助搜索均有独立解析 oracle。
 - 本地核心交叉回归：`tests/test_doe_binary_analysis.py tests/test_doe_binary_probability.py tests/test_doe_binary_optimize.py tests/test_doe_h_reference.py tests/test_doe_predict.py tests/test_doe_rsm.py tests/test_doe_rsm_categorical.py tests/test_doe_rsm_diagnostics.py tests/test_doe_optimize.py tests/test_doe_mixture_optimize.py`：**206 passed, 9 warnings**（SciPy SLSQP 边界裁剪警告来自 Mixture 最优化）。
 - `.dexpl`/Schema/文件保护：`tests/test_doe_persistence.py` **10 passed**；`tests/test_doe_schema_v2.py tests/test_doe_schema_e.py tests/test_doe_factorial_schema.py` **29 passed**；`tests/test_doe_schema_v3.py` **19 passed**；`tests/test_file_io.py` **45 passed**；`tests/test_doe_taguchi_persistence.py` **20 passed**。
 - Help/矩阵：`tests/test_help_center.py` **13 passed**；`test_translation_inventory_matches_live_menus` **1 passed**；`test_help_operation_paths_match_live_menu_labels` **14 passed**；`tests/test_g12_inventory.py` **15 passed**。G12 首轮指出二元概率/优化 `StatTable` 位置缺失，登记两处后复测通过。
@@ -39,3 +39,11 @@
 - 新增/扩展的真实 Tk 用例：`test_h_binary_rsm_buttons_follow_response_selection[events|trials]`；`test_h_binary_probability_window_invalidates_on_source_change[data|metadata|sheet]`。它们验证禁用、恢复来源并成功重分析；另对 optimizer 来源变化取消、DSD/Factorial 无优化按钮路径补充断言。
 - 实际执行：上述 Tk 回归及 19 个直接相关既有 H/P2B Tk 节点按单节点独立进程串行运行，**24/24 passed**；`& '.venv\Scripts\python.exe' -m pytest tests/test_doe_binary_analysis.py tests/test_doe_binary_probability.py tests/test_doe_binary_optimize.py tests/test_doe_h_reference.py -q --tb=short` **97 passed**；`.venv` 下 `py_compile` 通过，`git diff --check` exit 0（仅 CRLF→LF 转换提示）。没有运行全量 pytest。
 - 验收状态不变：P2B-ACC-01–06 为 `LOCAL_PASS`；`BINARY_PROBABILITY_INTERVAL` 与 `BINARY_RESPONSE_OPTIMIZER` 均保持 `READY_FOR_INDEPENDENT_REVIEW`，没有独立 APPROVE。未重提此前身份超时的 LRM Review Goal。
+
+## P2B-REV-02 Desirability 零梯度平台（2026-10-29）
+
+- 旧实现反例：Target `eta=20x` 返回中心 `A=0` 而解析目标根为 `logit(0.95)/20≈0.147221949`；Maximize `eta=5-100(x-0.27)^2` 与 Minimize `eta=-5+100(x-0.27)^2` 的默认起点全部为零 desirability，旧实现停在平台。修复后 3 项均找到内部有效区域。
+- 搜索辅助目标与结果评分分离：Maximize `-eta`、Minimize `eta`、Target 平滑 logit 误差；返回 desirability 继续按原公式重算。辅助与正式阶段共享 100 次/起点评价上限；最终状态分别记录 solver convergence 和 target reached，预算不足保留实际候选及终止信息。
+- 权重、预算耗尽、取消、重复运行确定性、目标不可达和最终模型行复算均有回归。新 expected values 只用 Python `math`/独立公式生成。
+- 当前实测：`& '.venv\Scripts\python.exe' -m pytest tests/test_doe_binary_optimize.py -q --tb=short` **33 passed**；`tests/test_doe_binary_probability.py tests/test_doe_binary_analysis.py tests/test_doe_h_reference.py` 合并 **71 passed**；连续 RSM/Mixture `tests/test_doe_optimize.py tests/test_doe_mixture_optimize.py` 合并 **57 passed, 9 warnings**；二元 optimizer 预览/取消与普通 BBD optimizer 三个隔离 Tk 节点 **3 passed**；`py_compile`、`git diff --check` 通过。没有运行全量 pytest。
+- P2B-ACC-01–06 仍本地通过；A/B 保持 `READY_FOR_INDEPENDENT_REVIEW`。没有重写或 amend 已推送提交；当前差异留待 Connector 只读 Review。
