@@ -1,49 +1,32 @@
 # MiniJMP 工作记忆
 
-## DOE Phase 2 P2-2B（2026-10-29，进行中）
+## DOE Phase 2 P2-3（2026-10-29，当前）
 
-- P0 基线/合同检查完成：工作区开始时干净，`main` HEAD `5c37c286ee86fff4d5b82ed3ddad0d06880ae347`，P2-P1 提交 `e702079fbe840ced0a0039e0b3a917c74b114d52` 是当前历史祖先；项目 `.venv` 为 Python 3.11.9。此 Goal 未提交、推送或修改 DOE Schema。
-- 官方 Minitab 在线帮助已核验二元事件预测使用 Wald 近似、响应目标区间须在 `[0,1]`、desirability weight 为 `[0.1,10]`，并记录连续/类别因子的约束和起始值语义。网页未标版本，也未给算法全局最优保证；不声明 Minitab 22 输出一致。
-- 当前可复用 `doe_binary_analysis.py` 的 grouped-binomial Logit 和 `_rsm_matrix()`/`TermModel`；拟合结果有矩阵和系数但未保留 `fitted.cov_params()`。RSM binary GUI 当前只有分析和概率图，来源快照机制可复用。目标文件所称 `doe_optimization.py` 不存在，实际优化器为 `doe_optimize.py` / `doe_optimize_dialog.py`。
-- P1 数学核心通过：`fit_grouped_binomial()` 保存 GLM 协方差；`predict_binary_probability()` 用原 `TermModel` 行计算 Logit/Delta SE/Wald CI，并拒绝失效协方差、越界因子及饱和区间。独立 fixture SHA-256 `9f421b5f7ba175af1a54c2cf98ce5714707b72220da21c9a84e0ba6893e41fda`，verifier 931 项通过；P1 核心/二元旧分析 70 passed，H 参考 1 passed，H RSM Tk 和来源响应失效各 1 passed。没有运行全量 pytest。
-- P2 预测 GUI 已接入 `BinaryAnalysisDialog`：成功 RSM 拟合后显示概率预测入口；窗口复用父窗当前模型和快照、真实实际因子/类别水平，显示 Logit/概率 SE 和事件概率 Wald CI，不显示连续 PI。父窗是唯一数据/元数据/工作表轮询者；输入变化即清旧结果，关闭不写回响应。5 条真实 Tk 用例通过，`P2B-ACC-05` 已在 P4 后升级为 `LOCAL_PASS`。
-- P3 `optimize_binary_rsm()` 实现 Maximize/Minimize/Target 概率及 desirability、weight、实际单位收紧/固定、起点与完整类别穷举。连续搜索使用解析梯度多起点有界 L-BFGS-B；Target 平方概率误差达 `1e-8`；评价预算耗尽仍保留最佳候选，`success` 表示所有起点收敛，`candidate_found` 单独表示存在候选。独立解析/约束/取消测试 26 passed。
-- P4 新增同文件 `BinaryOptimizerDialog`：约束预览、实际单位上下界/起点、数值保型类别多选、后台优化、可中断取消；父窗快照变化时关闭并取消任务。无单独来源轮询、生产模块或 Schema；StatTable 结果含目标/搜索/全局证明状态。10 条真实 Tk 用例涵盖结果回算、不写回、类别、取消/父子窗关闭、数据/元数据/响应/工作表变更、源表删除及 `.dexpl` 重开复制后一致重分析。
-- P5 文档/帮助/索引/RSM-016 scope 同步完成；feature matrix 仍 80 行且 ID/status 与 H4 历史稳定，DOE Schema v5。定向核心跨模块 206 passed/9 警告；持久化/schema/file io/help/menu/G12 回归通过，见 `docs/doe-minitab/phase2-p2b-acceptance.md`。全量 pytest 未运行。Connector 只读 Review Goal `0ac8812c-0ca1-4c3e-be01-3812efcb8021` 因缺浏览器身份证据以 `pending_identity_expired` 结束，没有启动 Review；未自动重提。用户随后明确要求在 Review 尚待执行时提交推送，commit `b6cd31fbc78083317d2618a34fefbbd6e79b30f6` 已推至 `origin/main`；不得将本地通过记作独立 APPROVE。两个 `.agent-memory` 文件按项目规则保留为本地修改。
-- `no-stop-gpt` 防御审查移除重复 source timer；核对解析优化器中的范围、候选预算、状态语义，并删去重复防御检查。G12 首轮发现概率/优化两个 StatTable producer 未登记，补清单后 15 passed。恢复入口是本验收文档及当日日志 P2-2B 条目。
-- P2B-REV-01 修复 `BinaryAnalysisDialog._inputs_changed()` 漏禁用 optimizer 按钮：现同步禁用概率/优化入口，成功重分析才恢复；不改子窗 close/cancel/线程清理。扩展真实 Tk 覆盖事件列/试验列、来源数据/元数据/工作表失效与恢复、运行中优化取消及 DSD/Factorial。`.venv` 下 24 个串行独立 Tk 节点通过，二元分析/概率/优化/H 参考合并 97 passed，`py_compile` 和 `git diff --check` 通过。ACC-01–06 仍 LOCAL_PASS，A/B 仍 READY_FOR_INDEPENDENT_REVIEW；没有重提旧 LRM Review Goal。commit `b6cd31fbc78083317d2618a34fefbbd6e79b30f6` 已推送；本记忆文件与当日日志未纳入提交。
-- P2B-REV-02 修复二元 Response Optimizer 的 Desirability 零平台零梯度：只在正式 desirability 为 0 的起点增加 Logit 概率辅助阶段，Max/Min 按 eta 单调优化，Target 对齐 logit(T)；正式候选和结果仍按原 desirability 公式评价，两阶段共享每起点预算。新独立 A/B/C 分别覆盖 Target 内部根、Max/Min 内部有效区，旧实现三个用例都失败、新实现通过。`.venv` 实测 optimize 33 passed，binary probability/analysis/H reference 71 passed，continuous RSM/Mixture 57 passed/9 既有 SLSQP warnings，3 个隔离 Tk 节点通过；py_compile/diff-check 通过。A/B 仍 READY_FOR_INDEPENDENT_REVIEW；未提交/推送，Schema v5 和 GUI 不变。复杂度审查保留两阶段状态，因为需共用预算、将辅助搜索后的候选交回原评分，并保留分阶段终止证据。
+- 状态 APPROVE_SCOPED：Local MCP Connector 对设计/随机化及分层推断两个单元均限定范围批准；P3-ACC-01～06 本地通过，P3-REV-01 修复通过。最终本地 commit a5496adc6d3e7b09657290922074e5ad8024437c；Schema v5 不变，未 push，P2-4/P2-5 未启动。
+- 范围为完整平衡 2–6 个连续两水平因子、1–3 个 hard、至少 1 个 easy、完整区组、最多 10,000 runs；v1 seed 运行身份冻结，新多因子用 construction v2。
+- 独立参考 SHA-256 8c4ccc639a44954582290a3e49cb85695b25a46f29a5fd0c575b8efb74e3f32f，fixture 与最终分析静态复核均 CLEAR。平衡正交矩阵以稳定直接投影求系数；六因子 `1e15*A` 保留误差 SS 128/1920，另覆盖零方差、单位缩放及 `+1e14` 偏移。
+- `.venv` Python 3.11.9：核心/跨模块 222 passed；Split-Plot Tk 10 passed/2 tight_layout warnings；共享最优 GUI 6 passed；Help/Menu/G12 94 passed。全量 pytest 未运行。
+- P3-REV-01 追加顺序修复在最终快照验证：DOE/Schema/持久化/通用增补 164 passed；真实 Tk Split-Plot 与修改设计 GUI 16 passed、2 条 tight_layout warnings；py_compile 与 diff check 通过。旧 v1/v2 前缀按 seed 重建，使用 v5 现有 lineage；每个设计仅允许一次追加批次。
+- 矩阵保持 80 项（58 implemented、19 partial、2 unknown、1 excluded），Split-Plot 相关行仍 partial。Minitab 22 parity 未验证；全量 pytest 未运行。工程 commit 后工作树只留 MEMORY.md 和当日日志本地修改。
+- 交接与方法证据：docs/doe-minitab/phase2-p3-closeout.md、phase2-p3-acceptance.md；过程见 logs/2026-10-29.md。
 
+## DOE Phase 2 P2-2B 历史（2026-10-29）
+
+- P2B-ACC-01–06 本地通过，DOE Schema v5；网页身份未就绪时正式 Review 未执行。用户随后明确授权提交推送，commit b6cd31fbc78083317d2618a34fefbbd6e79b30f6 已推送，不代表独立 APPROVE。
+- 概率/优化实现、测试和范围详情见 docs/doe-minitab/phase2-p2b-acceptance.md 与当日日志。
 ## DOE Phase 2 P1 核心对标（2026-10-29，限定范围 Review APPROVE）
 
-- 当前阶段 P5 完成：Mixture 单元 A 与 RSM 区间/诊断单元 B 本地验收通过。ChatGPT/Local MCP Connector 首轮 Review 对 A-01 重复点间距与 B-01 预测失败后旧 CI/PI 残留给出 ITERATE；两项修复及定向核心/Tk 回归通过。复审经 Connector 读取当前工作树后分别给出 `MIXTURE_OPTIMAL: APPROVE`、`DOE_RSM_INTERVAL_DIAGNOSTICS: APPROVE`；无新增阻断。方法合同顶部状态已按非阻断文档发现更新。本地收尾提交 `e702079fbe840ced0a0039e0b3a917c74b114d52` 已创建；记忆文件按规则保留在工作区，不纳入提交；不启动后续包。
-- 基线复核：`main` 含 H 基线 `ed85429ed23c52a6b2a238ad86fc1517ace93ff6`；DOE v5、Mixture Schema 1；开始时仅已有 `docs/doe-minitab/roadmap.md` P2-0 内容未提交，完整 Phase 2 gap/roadmap/acceptance 原稿缺失。
-- 根据 P2-0 摘要、现有 E/F/H 收尾、目标文件和 Minitab 官方帮助重建 `phase2-gap-analysis.md`、`phase2-roadmap.md`、`phase2-acceptance.md`；缺失原稿未被伪称读取。P1 方法合同见 `docs/doe-minitab/phase2-p1-method-contract.md`。
-- 已冻结 Mixture 合同：D-opt 用实际比例与 `MixtureTermModel` Scheffé 项；Distance 全含组分，可选过程/总量并归一到 [0,1]；纯组分最近点起始，后续确定性最远点；父设计固定，D-opt 有放回语义显式化。
-- `.venv` 已核实 Python 3.11.9、NumPy 2.4.6、SciPy 1.15.3、statsmodels 0.15.0、Tk 8.6。P2-0 原始规划稿在本地开始时确实缺失；对应 reconstruction 标记已保留。
-- 独立 Mixture fixture `tests/fixtures/doe_phase2_optimal_reference/` SHA-256 `29bd937eae7415579c9992afe780b9546708653d604cfe939afffcdcf749a4ed`，verifier 13 项通过。最新 P2 核心组 98 passed；Mixture Tk 8、Mixture persistence 4、schema v2/v3 33、bad DOE metadata 6 passed/4 deselected、optimal GUI 6、Help 13、Menu 66 均通过，详细分组在 `logs/2026-10-29.md`。
-- 独立静态 P2 审查曾发现增补将大整数响应强制转 Float64 并把已有空 batch 改成 BASE；已移除强制浮点转换与父批次填充值，新增 `9007199254740993`/空批次反例并通过核心回归。原样保留父数据是后续验收不变合同。
-- RSM fixture `tests/fixtures/doe_phase2_interval_reference/` SHA-256 `d87d1720c24000fec7ebbf42cb2e1f58f8c52d2be8fadfcee7600f3bc4121a72`；独立 verifier 覆盖 9 个置信度/方向组合及 9 行影响诊断。RSM 模型回归 27、区间/诊断 37、Predict Tk 7、Analyze Tk 12、E/F/G 保存重开复制集成 1、Help 13、Menu 66 均通过。全量 pytest 未运行；Matplotlib `tight_layout` 只有 3+3 条警告。
-- 独立代码审查发现误差方差阈值按未中心化响应平方和缩放，基线加 1e8 会误禁用有效 CI/PI 与 Cook's D；现阈值改为依赖响应变化和舍入尺度，平移不变性回归及全部受影响测试通过。独立复核确认平移后影响值 9/9 可用、精确拟合仍不可用，无剩余发现。
-- 首轮 Review 修复验证：混料最小平方距离对重复运行报告 0，`test_doe_mixture_optimal.py` + `test_doe_optimal_evaluation.py` 22 passed，Mixture Tk 8 passed；预测重算一开始清除旧表，响应失败及来源切换 Tk 回归，Predict Tk 7 passed；`git diff --check` 通过。独立复审 A/B 均 APPROVE。
-- 当前界限：仅连续 CCD/BBD/custom RSM；多区组区间、Logistic、Mixture、Split-Plot 与优化器候选区间不支持；官方方法页未标版本且本地无 Minitab 22 输出，不声明版本 parity。最终复审后停止。
-
+- Mixture 最优设计与连续 RSM 区间/诊断限定范围本地通过，Local Connector 分别给出 APPROVE；DOE Schema v5 不变。
+- Mixture、RSM 的独立参考、修复记录及精确验证见 docs/doe-minitab/phase2-p1-closeout.md 和当日日志；全量 pytest 未运行。
+- Minitab 页面未标产品版本；不宣称 Minitab 22 parity。
 ## 工作包 H 最终收尾（2026-10-29）
 
-- 状态 `WORK_PACKAGE_H_APPROVED_SCOPED`：H0–H6 限定范围完成，用户提供上一轮 ChatGPT 独立 Review 结论 APPROVE（限定范围）。ACC-004/019/020/031/059/060 均在限定范围 implemented；Schema v5 不变。
-- 本轮 H 专项 59 passed，独立参考 verifier 通过；负向 δ 功效窗口和 v5 工程往返各 1 passed，Help/Menu/G12 共 94 passed。矩阵 80 项为 58 implemented、18 partial、3 unknown、1 excluded；完整命令、历史结果和限制见 `docs/doe-minitab/work-package-h-closeout.md`。
-- 未覆盖二元 RSM 优化器、分离修正、Variability MLE/复杂不等权/Split-Plot，功效限支持的两水平主效应 1 df F；不声明 Minitab 22 全功能或输出一致。下一步仅为建立 Minitab DOE 功能对标二期规划，二期尚未开始开发。
+- WORK_PACKAGE_H_APPROVED_SCOPED；ACC-004/019/020/031/059/060 限定范围验收，DOE Schema v5；matrix 80 项为 58/18/3/1。
+- 功效仅覆盖合同中的两水平主效应 1 df F；完整证据与限制见 docs/doe-minitab/work-package-h-closeout.md。
+## 工作包 H H0–H6 本地集成（历史状态，2026-10-29）
 
-## 工作包 H H0–H6 本地集成（2026-10-29）
-
-- 当时状态 `WORK_PACKAGE_H_READY_FOR_INDEPENDENT_REVIEW`（已被上方最终收尾取代）；H 代码与文档当时保留在未提交工作区，不 push/发布。此前 E/F/G Review 修正的 32 个代码/测试/产品文档文件按本轮授权提交为 `b8d64e0 Close out EFG integration fixes`；`.agent-memory` 未纳入提交。
-- DOE Schema v5 足够：事件/试验与重复测量使用已在 `response_names`/`column_map.responses` 声明的响应列；元数据生成后新增列会失效。即时分析不增字段、不覆盖原响应；v1–v5 迁移合同不变。
-- H 独立参考 `tests/fixtures/doe_h_reference/` 覆盖六项 ACC 的 STD/EDGE；生成器和 verifier 不导入生产模块。reference SHA-256 `f5f4ee2246b03b3c6ee1140bd3de9f67f4911a94416bc87520969e2f2baf5c78`。
-- H 实现 grouped-binomial Logistic、两种 Factorial Variability 实验单位、以及两水平/PB/两水平 GFF 的非中心 F 功效。RSM-016 按明确 H4 范围（分析、预测、概率图）完成；官方 post-fit binary Response Optimizer 属于另一个未实现工作流，已在矩阵/方法合同中列出，不宣称功能具备。
-- 验证：H 数学/核心 59 passed；本轮 Power+独立 H 参考 30 passed，负向 δ 真实 Tk 1 passed，Help Center 13 passed；真实 Tk 生命周期共 7 个单进程用例通过；跨族纯统计/Schema 328 passed；E/F/G 联合工程 1 passed；菜单/G12 既有记录分别 15 passed。全量 pytest 未运行，Windows Tk 原生检查按进程分开执行。
-- 80 项矩阵：58 implemented、18 partial、3 unknown、1 excluded。未提升既有 partial/unknown/excluded；TAG-009、GEN-006、MIX-006 的旧证据字段错链已修正。Minitab 页面未声明版本，产品输出 parity 尚未做独立逐项对照。
-- 首轮与 ITERATE 修复后的 Local MCP Connector 请求均因网页身份未匹配而 `pending_identity_expired`，两次 Review Execution 均未启动。修复 ACC-059/060 有符号 δ 输入后，状态为 `WORK_PACKAGE_H_READY_FOR_INDEPENDENT_REVIEW`；不自动重投，需匹配 ChatGPT Web 身份凭据。当时尚无最终 APPROVE，后续结论见上方最终收尾；不 push/发布，不启动 A–H 以外工作包。
-
+- 本地 H0–H6 实现及 Schema v5 边界见 docs/doe-minitab/work-package-h-closeout.md；后来完成限定范围验收，结论见上节。
+- H 参考和历史 Review 身份问题记录于 .agent-memory/logs/2026-10-29.md。
 ## Taguchi 零方差 S/N Review 修复（2026-10-29）
 
 - 状态 `READY_FOR_INDEPENDENT_REVIEW`；在已有 E/F/G 未提交工作区上定向修复 `noise_robustness()`，仅移除无条件 SD=0 拒绝，S/N 的公式与数据域仍由 `signal_to_noise()` 校验；Nominal 零方差仍拒绝，噪声因子和观测数校验未改。
@@ -51,65 +34,25 @@
 - 保留先前未提交改动；未提交、推送或启动 H。待独立差异 Review，过程见 `.agent-memory/logs/2026-10-29.md`。
 
 
-## E+F+G 合并后 Full Review ITERATE（2026-10-29）
+## E+F+G 合并后 Full Review ITERATE（历史，2026-10-29）
 
-- 状态 `EFG_INTEGRATION_READY_FOR_REVIEW`；本地 main HEAD `7392ac9cef74ea84c9dfb1d44485d36137ed6631`，开始时工作区干净，所有本次修改未提交；独立 Review 尚未执行，未推送或启动 H。完整报告见 `docs/doe-minitab/efg-integration-review.md`。
-- P1 轴点：`DesignResult` 校验所有分类设定、限制轴点设计族并检查有限编码；`TermModel.row` 拒绝未知分类水平。混合自定义 RSM 反例在旧实现未报错，新实现包括重算摘要后的恢复路径均拒绝。
-- P1 区组选点：GUI 传递来源 `block_count`；最优选点拒绝声明或映射区组的候选，避免输出无区组设计；两连续因子、二区组独立矩阵秩 4，仅一区组秩 3。
-- Taguchi L8 两列投影数学上平衡但每组合重复两次；当前合同不支持重复设定的控制列投影，保留全部标准行与摘要，GUI 选择时提示。自定义 RSM 预测复用既有模型与参考区组，补充独立解析与真实 Tk 测试；更新帮助和搜索索引。
-- 完整单进程 pytest 约 26% 在 Tk `Menu.add` 发生 `0x80000003`，无总汇总。替代的 174 组文件/PB 分进程清单覆盖最终收集的 5073 个不同节点，无遗漏、重复或跳过；首轮 G12 文件排序及帮助主题数共 2 失败，修正后相关组通过；预测变更后直接相关组已复测。不能称为单次全量通过。PB 六组 200 参数均通过；分组详细命令、警告和首轮失败见报告。
-- 同一工程 E 自定义 RSM 增补、F 混料、G 静态/动态 Taguchi 保存/重开/复制/再分析/预测/绘图和坏元数据隔离 1 passed、3 warnings；菜单 66 passed，帮助 13 passed，G12 15 passed。F 参考数值不变，清单已改为实际文件字节摘要 `cfc482999750eafac2bd8bc89b469e628c405cce23e25c00c010f2695184b0de`；E/F/G verifier 均通过。
-- feature matrix 修正 5 行 CSV 引号错位，80 行、ACC-001–067 唯一；18 个 partial 及范围见报告。必要过程见 `.agent-memory/logs/2026-10-29.md`。
-
+- 当时 5 项 Review 发现已修复；Taguchi L8 投影限制及 E/F/G 集成边界见 docs/doe-minitab/efg-integration-review.md 和 logs/2026-10-29.md。
+- 该阶段独立 Review 未启动；后续工作包状态见各自 closeout，不把本地测试表述为 APPROVE。
 ## 工作包 E E0–E6（2026-10-28，本地收尾）
 
-- 状态 `WORK_PACKAGE_E_READY_FOR_REVIEW`（限定范围）；BASE/HEAD `c3720d2737f44ad130d8b61cd07ae31073073c2d`，分支 `main`，开始时工作区干净；E 全部修改未提交，未启动 F/G/H。独立 Review 尚未执行。
-- 新增 `code/doe_custom.py`（定义/校验/矩阵摘要/DSD 结构）、`doe_custom_analysis.py`、`doe_custom_dialog.py`、`doe_modify.py`、`doe_augment.py`、`doe_optimal.py`（select/exact_select/select_distance/evaluate）、`doe_optimal_design.py`、`doe_optimal_dialog.py`、`doe_diagnostics.py`；`doe_rsm.py` 拆出 `fit_rsm` 供自定义 RSM 复用。
-- DOE Schema v5：新增 `model_terms`、`optimal_lineage`、`augmentation_lineage` 与自定义 Factorial/RSM/Screening 类型；v1–v4 按原字段与原输入摘要校验后迁移，坏元数据不替换当前工作簿。`doe_splitplot` 版本检查改为 `>= 4`。
-- D-optimal 用 `logdet(XᵀX)`；候选 ≤40 穷举并标记 `global_optimum_proven`，更大候选集为确定性贪婪+交换且不宣称全局最优。Distance-based 仅响应面编码空间，Factorial 拒绝；增补同样支持：父设计运行作为固定锚点（`select_distance(initial=…)` / `doe_augment._distance_augment`），GUI 仅在响应面父设计开放。Mixture 距离合同依赖 F，GUI 未开放。
-- 独立参考 `tests/fixtures/doe_optimal_reference/`（含 `verify.py`、`reference.json`、`manifest.json`），不导入生产模块；D-optimal 最低案例 x∈{-1,0,1}、截距+x、选 2 点，最优 -1/+1，det=4。自定义 DSD 参考为 6 因子会议矩阵 foldover+中心行与 4 连续+1 文本分类。
-- 旧功能回归修复（同轮）：`doe_dialog.AnalyzeDOE` 曾把 `plot_custom_screening` 及各族发布分支并入 `show_diagnostics`，导致 PB/DSD/一般全因子/RSM/两水平设计分析后 `self.result` 不赋值；现拆为 `publish`→`show_diagnostics`（仅诊断页）→`publish_tables`（各族原分支），`plot_custom_screening` 独立其后。`doe_diagnostics` 的模型 F/p 改为按 `inference` 是否含 `f` 判定，一般全因子/裂区不再 `KeyError`。相关既有测试期望同步：诊断合同页首项、schema v5。
-- 绘图路径修复：自定义 RSM 项平方和的行键为 `source`、自定义 Factorial 为 `term`，统一用 `row.get('source', row.get('term'))`；`analyze_custom_factorial` 补齐 `coded` 与 `effects`（2×系数），修复交互图与发布表崩溃。新增三条真实 Tk 绘图回归（Factorial 6 子图、RSM 4 子图、Screening 6 子图）。
-- 自定义 RSM 模型项回退缺陷：`analyze_custom_rsm` 在 `terms=None` 时把 None 传给 `fit_rsm`，后者按完整二次模型建模，导致只声明部分项的合法自定义设计（主效应+交互）被判秩亏。现默认取 `DesignSpec.model_terms`；带区组的自定义设计在分析矩阵中加入区组项（`区组2` 列），独立核对系数 X1=1、X2=2、区组2=3。
-- `docs/doe-minitab/sources.md` 补写 E 实施证据（自定义定义只描述既有运行、DSD 构造按官方页、D/distance 家族范围、无 Minitab 22 导出），并把 A 阶段“SCR-005 missing”条目标注为历史。矩阵的代码/测试证据路径与 acceptance 验收号映射经脚本核对：0 条失效路径、0 个未映射编号。
-- 增补边界补测（`test_doe_augment.py` 6→9 项）：父设计行内容改变、行顺序调换、run_id 改写、父来源空表均按摘要/映射失效拒绝；`_MAX_RUNS=10000` 超限在写入前拒绝且来源表不变；父设计已满秩 3/3 时增补如实报告 `rank_improved=False`。
-- ACC-054 补齐修改类型：`doe_modify.renumber`（按标准序重写运行序，保留设定/响应/重复）、`doe_modify.replicate`（完整重复：新重复编号与新运行 ID、新响应留空、上限 10000、折叠/增补设计拒绝、拼接后恢复响应列 dtype）；`doe_custom._validate_factorial` 改为按 `(重复编号, 因子点)` 查重，允许独立重复。GUI 修改窗口新增“按标准序重编号”“增加完整重复”与重复数输入。
-- GUI（目标 8.1/8.2）：修改设计窗口新增“预览对照”（前 6 行 `run_id@运行序`、按 run_id 统计运行序变化、明示设定/响应不变，预览不写工作簿）；修改/增补/最优三个窗口的按钮条改为 `side='bottom'` 先占位，420×260 与 360×200 下按钮全部可见。
-- 验证快照（2026-10-28 ITERATE 修复后，各组重叠不可相加；全量 pytest 未运行）：指定八文件 63、E 非 GUI+GUI+工程与 Schema 22 文件 204（30 warnings）、B/C/D 冻结参考+分析优化+help/menu/G12+工作表 19 文件 489（8:38）、help/menu/G12 94。筛选 GUI 排除 PB 参数组 118（200 deselected），PB 200 案例按运行数拆进程 20/28/32/36/40/44 全通过（整文件单进程在 PB 参数案例触发 Tk 原生 `0x80000003`，不计通过）。帮助索引 98 主题。
-- ITERATE 四项阻断修复：`select()` 精确搜索改按 `comb(n,count) ≤ 200000` 预算（20 选 10 穷举、21 选 10 降级），返回 method/exact_budget/subsets/evaluations/stop_reason；`select_augment()` 同样按组合数判定，启发式只换新增位置；`manual` 准则改为严格按输入顺序（GUI 增「按输入顺序」）；增补矩阵与 distance 选点统一 `coded_value(factor,value,point_type)`，轴点可越界、标 factorial 仍拒绝；Distance 选点后按选中运行重建矩阵，秩亏拒绝并回填 selected_n/p/rank/estimable。参考 fixture 未改，SHA-256 `499fd66c…`。
-- 参考集新增 `distance_augment`（四角固定 + 中心/边中点，选点顺序 [0,1]、增补后最小平方间距 1），构建器与核验器各自手算；`reference.json` SHA-256 重建后为 `499fd66c8…`（manifest 同步）。ACC-056、ACC-058 仍标 partial，但原因只剩 Mixture 距离合同与 Mixture 增补；响应面 distance-based 选点与增补已在限定范围通过。文档：`work-package-e-closeout.md`、`optimal-reference-validation.md`、acceptance/roadmap/README/CHANGELOG_DEV/MENU_TRANSLATION/help。
-- 遗留：Minitab 22 对自定义/最优/增补的导出案例缺失；旧版 MiniJMP 读取 v5 工程的产品行为未验证；矩阵统计已按 CSV 更新为 32 implemented / 14 partial / 30 missing / 3 unknown / 1 excluded。
+- 自定义 DOE、最优设计、增补与 Schema v5 限定范围实现；旧 Schema 迁移及工程隔离证据见 docs/doe-minitab/work-package-e-closeout.md。
+- 后续 P2-3 复用 doe_modify.py 与 doe_diagnostics.py；历史 E 细节见 logs/2026-10-28.md。
 ## 工作包 F 混料设计（2026-10-28，隔离 worktree）
 
-- 状态 `WORK_PACKAGE_F_READY_FOR_REVIEW`；分支 `codex/f-mixture`（提交 `34946c5`，BASE `c3720d2`）已合入 `main`（E 的 `18070e4` 之上），冲突按 E+F 双方内容解决；未推送、未启动 G/H。E+F 联合回归（因用户要求未执行测试）和独立 Review 仍未完成。
-- 新增 `code/doe_mixture*.py` 九个模块：约束、专属合同、三类设计、Scheffé 模型/ANOVA、预测、优化、图形、GUI。菜单新增创建/分析/预测/优化/图形五项；帮助新增 `doe.mixture*` 并重建索引。
-- 混料语义存 `table.mixture_metadata`（schema 1），最近分析模型存 `table.mixture_model`（响应/阶次/模型项/输入摘要），DOE v4 仅新增 `design_type='mixture'`，不改 v4 字段集；`worksheets.saveMeta/loadMeta` 先验证后赋值。总量目前固定一个设计设定，MIX-005/ACC-036 为 partial。
-- 独立参考 `tests/fixtures/doe_mixture_reference/`（Fraction + 自写高斯消元），`reference.json` SHA-256 `8ae2c0712fdb423a0570336ebf96cca0dd8366e56c7dddf1be007ad36099c913`；覆盖格点/重心/5 顶点/ANOVA/优化网格/Trace/叠加 11 点。
-- 独立 Review ITERATE 五项已修复：默认 Mixture×Process 去掉过程主项 `P`（保留 `xi*P` 与秩检查）、模型 F/df 改用增量秩（校正/未校正平方和分流）、可估计性改判行空间、组分主项只报删除项条件平方和、双组分图形改为拒绝二维并提示 Trace。closeout 文档含“Review ITERATE 修正”段。
-- 验证快照（最终状态）：混料 12 文件 64 passed（24.01s）；DOE 非 GUI 427 passed（348.77s）；既有 DOE GUI 15/11/9/13/10 passed；菜单/帮助/G12/工作表/文件/工程 173（菜单单项 66）。测试组重叠，全量 pytest 未运行。
-- ACC-032/033/034/035/037/038/039/040/041/042/043/044 implemented（限定范围），ACC-036 partial；Minitab 标准序、XVERT/CONAEV 顺序、图形布局与预测区间未核实。详见 `docs/doe-minitab/work-package-f-closeout.md` 与 `work-package-f-integration-plan.md`。
-
+- Mixture 设计、建模、约束、图形和工程范围见 docs/doe-minitab/work-package-f-closeout.md；partial 状态和数值证据见该报告与 logs/2026-10-28.md。
 ## 工作包 D D0–D5（2026-10-28，本地收尾）
 
-- 独立 Review 遗留两项已修复：General Full Factorial 创建与恢复统一限制 2–10 因子（1/11 拒绝，10 因子仍受 10,000 行上限）；Split-Plot 预览显示运行/区组/整区数，仅插入前 100 行并提示总数，增加水平滚动，实际创建保持完整。专项八文件 42 passed、D 非 GUI 182、B/C 非 GUI 358、Factorial Tk 22、菜单帮助/G12 94 passed；测试组重叠，全量 pytest 未运行。ACC 状态未变，工作区仍未提交。
-- 状态 `WORK_PACKAGE_D_READY_FOR_REVIEW`；BASE/HEAD `e7a46737612cf5b56cd7d02911c4d13ec4753087`，分支 `main`，开始时工作区干净。D0–D5 限定范围已完成；独立网页端 LRM Review 尚未执行，未提交/推送，不启动 E/F/G/H。
-- D0 独立参考位于 `tests/fixtures/doe_factorial_reference/`，`reference.json` SHA-256 `0c3e379a6962efe224695ba79a21d101319d4298d1ed6962c9a8a9b6dfef37ba`；包含一般全因子、正负定义关系、Foldover 完整别名/精确秩、完整区组和 3-block 2×2 Split-Plot SS/df/F/p。核验器不导入生产模块。
-- DOE Schema 当前 v4；v1/v2/v3 按旧字段与原输入摘要校验后迁移。D1 一般全因子范围为 2–10 分类因子、文本/数值标签、完整笛卡尔积和完整重复区组；分析密集矩阵上限 10,000,000 个单元。旧版 MiniJMP 不保证读取 v4 工程。
-- D2 正规分数支持 signed generators、中心点和每个完整重复一区组；Foldover 只支持未分区组正规分数的全因子或单因子单批次，保留响应并存 parent/run map/batch 和原始/当前矩阵 SHA-256。PB、Split-Plot、重复折叠和 Minitab 输出/标准序未覆盖；FAC-012 维持 partial。
-- D3 区组仅按完整重复分配，适用于两水平全因子、正规部分因子和 General Full Factorial；中心点须平均分配。Split-Plot 限两个连续两水平因子、一个 hard-to-change 与一个 easy-to-change、至少两个平衡区组；A 用整区误差，B/AB 用子区误差。自定义区组分割、更大/不平衡裂区和 REML 未覆盖，FAC-008/010/019 为 partial。
-- D3 验证快照：数学/Schema/区组/Split-Plot 专项 140 passed；Foldover+独立参考 13 passed；普通 DOE GUI 5 passed（2 warnings）、Fractional GUI 15 passed（1 warning）、Split-Plot GUI 2 passed（1 warning）、Foldover GUI 2 passed、menu 66 passed、help/G12 28 passed；帮助索引成功重建。测试组有重叠，未运行全量 pytest。
-- D4 统一三类 factorial 分析器的 pure-error/区组误差分解；无独立纯误差时不输出 LOF F/p。中心曲率使用独立纯误差；分层 ANOVA 与真实水平诊断图有独立参考验证。ACC-007/011/013/015/017/018/066 及未核实产品范围维持 partial。
-- 验证快照：factorial 分析/误差分解 45 passed；D 非 GUI 设计/Schema/分析组 176 passed；B/C 非 GUI 回归 358 passed（310.15 秒）。GUI 分组、帮助、菜单、工作表和文件测试明细见 `docs/doe-minitab/work-package-d-closeout.md`；各组重叠，不相加，全量 pytest 未运行。
-- D5 的创建、预览、响应填写、分析、图形、保存/重开/复制/再分析和旧 Schema 回归已覆盖。帮助索引重建成功；Help/G12 28 passed、menu 66 passed；独立 factorial verifier 通过。
-- 筛选 Tk 大文件本轮未完整执行：约 22% 时停止长进程；D4 影响的 PB 绘图和代表性 DSD 工程用例分组复跑通过，但该整文件未在最终快照重跑。独立网页端 LRM Review 尚未执行，未提交/推送。
-
+- 一般全因子、区组、正规分数、Foldover 与当时 2×2 Split-Plot 基线证据见 docs/doe-minitab/work-package-d-closeout.md。
+- 当时裂区仅两因子、A 用整区误差、B/AB 用子区误差；现由上方 P2-3 扩展。旧 Schema v4/Review 历史仅供追溯。
+- D/PB/Tk 分组验证和未跑全量 pytest 的记录见 logs/2026-10-28.md。
 ## 工作包 B/C 收尾（2026-10-28，细节见当日日志归档）
 
-- 状态：B+C 联合收尾 `BC_READY_FOR_INDEPENDENT_REVIEW`；C 最终 `WORK_PACKAGE_C_PARTIAL`（ACC-001/002/003/005/006 partial）。B 的核心/对标/旧工程 274、DOE-1/2 52、C 核心/schema 156、B Tk 69、C Tk 118（200 deselected）、帮助/菜单/G12/工程基础 163 passed 均为该轮快照。
-- C 已实现 PB 全部官方基础运行数、文本因子/伪中心/重复区组，DSD 2–48 连续、混合 1 分类与 4+2 分类、均分区组，Lenth PSE/标准化效应图/零空间/对比；PB 200 案例按运行数拆进程 20/28/32/36/40/44 全通过（单进程触发 Tk 原生 0x80000003）。
-- B 五份 Minitab 22 导出：点集与区组重编号后一致，标准序分别差 60/116/123/120/163 行；ACC-022B 仅限这五种设置。C0 的 NIST PB 与 conference-matrix DSD 参考与 SHA-256 有效。
-- 上述过程的完整数字、命令与 C0 构造细节见 `.agent-memory/logs/2026-10-28.md` 的“归档”两节。
-
+- B/C 限定范围、Minitab 22 导出差异、PB/DSD 参考与 Tk 中断边界见 logs/2026-10-28.md；本地测试不等同产品 parity 或独立 APPROVE。
 ## 当前状态（2026-10-27）
 
 DOE-3 已实现 CCD 和二次响应面：支持 2–5 因子 CCF/旋转 CCC、越界预览确认、编码与设定矩阵校验、纯误差/失拟/曲率和图形，工程可保存、重开、复制。DOE-1 含中心点时禁用模型 t/F 推断的前置修复已完成。CCD 允许十进制/指数文本按最近 binary64 保存；纯整数文本保持精确整数，无法无损转 binary64 的端点拒绝；中心和 CCC 轴点采用有界舍入，轴点必须仍在 low/high 外且反算编码误差不超过 1e-8。DOE schema v1 与 DOE-0/1/2 语义未变。DOE-4 已实现：完整 CCD 上单响应最大化/最小化/逼近目标，多响应期望函数权重优化；默认编码 bounds 为 [-1,1]，可收紧或固定。GUI 每次从当前表快照重拟合，候选含编码/实际水平、预测、期望、可行与 solver 状态；确定性多起点 L-BFGS-B 不保证全局最优，零期望/数值下溢/评价上限会明示。优化不写回响应、设定或 `.dexpl` schema v1。当前验收按范围合计 456 passed、14 warnings、0 failed、0 skipped；全量 pytest 未运行，DOE-3 之前的全量历史曾两次于 Tk `Menu.add` 原生 `0x80000003` 中断且无 summary。见 `docs/doe-development.md`、`docs/doe3-closeout-report.md` 与 `logs/2026-10-27.md`。
