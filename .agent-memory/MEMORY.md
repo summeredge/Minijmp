@@ -1,5 +1,19 @@
 # MiniJMP 工作记忆
 
+## DOE Phase 2 P1 核心对标（2026-10-29，限定范围 Review APPROVE）
+
+- 当前阶段 P5 完成：Mixture 单元 A 与 RSM 区间/诊断单元 B 本地验收通过。ChatGPT/Local MCP Connector 首轮 Review 对 A-01 重复点间距与 B-01 预测失败后旧 CI/PI 残留给出 ITERATE；两项修复及定向核心/Tk 回归通过。复审经 Connector 读取当前工作树后分别给出 `MIXTURE_OPTIMAL: APPROVE`、`DOE_RSM_INTERVAL_DIAGNOSTICS: APPROVE`；无新增阻断。方法合同顶部状态已按非阻断文档发现更新。本地收尾提交 `e702079fbe840ced0a0039e0b3a917c74b114d52` 已创建；记忆文件按规则保留在工作区，不纳入提交；不启动后续包。
+- 基线复核：`main` 含 H 基线 `ed85429ed23c52a6b2a238ad86fc1517ace93ff6`；DOE v5、Mixture Schema 1；开始时仅已有 `docs/doe-minitab/roadmap.md` P2-0 内容未提交，完整 Phase 2 gap/roadmap/acceptance 原稿缺失。
+- 根据 P2-0 摘要、现有 E/F/H 收尾、目标文件和 Minitab 官方帮助重建 `phase2-gap-analysis.md`、`phase2-roadmap.md`、`phase2-acceptance.md`；缺失原稿未被伪称读取。P1 方法合同见 `docs/doe-minitab/phase2-p1-method-contract.md`。
+- 已冻结 Mixture 合同：D-opt 用实际比例与 `MixtureTermModel` Scheffé 项；Distance 全含组分，可选过程/总量并归一到 [0,1]；纯组分最近点起始，后续确定性最远点；父设计固定，D-opt 有放回语义显式化。
+- `.venv` 已核实 Python 3.11.9、NumPy 2.4.6、SciPy 1.15.3、statsmodels 0.15.0、Tk 8.6。P2-0 原始规划稿在本地开始时确实缺失；对应 reconstruction 标记已保留。
+- 独立 Mixture fixture `tests/fixtures/doe_phase2_optimal_reference/` SHA-256 `29bd937eae7415579c9992afe780b9546708653d604cfe939afffcdcf749a4ed`，verifier 13 项通过。最新 P2 核心组 98 passed；Mixture Tk 8、Mixture persistence 4、schema v2/v3 33、bad DOE metadata 6 passed/4 deselected、optimal GUI 6、Help 13、Menu 66 均通过，详细分组在 `logs/2026-10-29.md`。
+- 独立静态 P2 审查曾发现增补将大整数响应强制转 Float64 并把已有空 batch 改成 BASE；已移除强制浮点转换与父批次填充值，新增 `9007199254740993`/空批次反例并通过核心回归。原样保留父数据是后续验收不变合同。
+- RSM fixture `tests/fixtures/doe_phase2_interval_reference/` SHA-256 `d87d1720c24000fec7ebbf42cb2e1f58f8c52d2be8fadfcee7600f3bc4121a72`；独立 verifier 覆盖 9 个置信度/方向组合及 9 行影响诊断。RSM 模型回归 27、区间/诊断 37、Predict Tk 7、Analyze Tk 12、E/F/G 保存重开复制集成 1、Help 13、Menu 66 均通过。全量 pytest 未运行；Matplotlib `tight_layout` 只有 3+3 条警告。
+- 独立代码审查发现误差方差阈值按未中心化响应平方和缩放，基线加 1e8 会误禁用有效 CI/PI 与 Cook's D；现阈值改为依赖响应变化和舍入尺度，平移不变性回归及全部受影响测试通过。独立复核确认平移后影响值 9/9 可用、精确拟合仍不可用，无剩余发现。
+- 首轮 Review 修复验证：混料最小平方距离对重复运行报告 0，`test_doe_mixture_optimal.py` + `test_doe_optimal_evaluation.py` 22 passed，Mixture Tk 8 passed；预测重算一开始清除旧表，响应失败及来源切换 Tk 回归，Predict Tk 7 passed；`git diff --check` 通过。独立复审 A/B 均 APPROVE。
+- 当前界限：仅连续 CCD/BBD/custom RSM；多区组区间、Logistic、Mixture、Split-Plot 与优化器候选区间不支持；官方方法页未标版本且本地无 Minitab 22 输出，不声明版本 parity。最终复审后停止。
+
 ## 工作包 H 最终收尾（2026-10-29）
 
 - 状态 `WORK_PACKAGE_H_APPROVED_SCOPED`：H0–H6 限定范围完成，用户提供上一轮 ChatGPT 独立 Review 结论 APPROVE（限定范围）。ACC-004/019/020/031/059/060 均在限定范围 implemented；Schema v5 不变。
