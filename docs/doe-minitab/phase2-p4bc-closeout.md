@@ -2,12 +2,12 @@
 
 日期：2026-10-30
 
-状态：ACC-01～08 本地验收完成，Taguchi 与 Mixture 两个单元均为 `READY_FOR_INDEPENDENT_REVIEW`。没有将本地通过改写为独立 `APPROVE`。未提交、推送、打标签或启动 P2-5。
+原 P4BC 独立验收状态：ACC-01～08 本地验收完成，Taguchi 与 Mixture 两个单元均为 `READY_FOR_INDEPENDENT_REVIEW`。以下独立工作树细节属于历史记录；本地 main 合并后的联合验收见文末，不将本地通过改写为独立 `APPROVE`。
 
-## 工作树边界
+## 原 P4BC 工作树记录（历史）
 
-- P2-4B/P2-4C 在 `C:\Users\shaoy\.codex\worktrees\16af\Minijmp` 的 detached HEAD `a9210a21083c3789a99c3033c40b2c884b9d0208` 完成。该 worktree 的源代码、帮助、测试与验收文档保持未提交。
-- P2-4A 保留在 `C:\Users\shaoy\Documents\Minijmp` 的原有未提交状态；本任务没有修改、撤销或整理其文件。另在该目录使用项目 `.venv` 运行 109 项定向回归并通过。
+- P2-4B/P2-4C 最初在 `C:\Users\shaoy\.codex\worktrees\16af\Minijmp` 的 detached HEAD `a9210a21083c3789a99c3033c40b2c884b9d0208` 完成；该独立快照随后合入 main，提交为 `0dcc4acb90d7601962a150182699ddf515adc0a3`。
+- 当时 P2-4A 留在 `C:\Users\shaoy\Documents\Minijmp` 的未提交工作区；以下 109 项是该次 P4BC 收尾时的独立验证，不是合并后联合回归。
 - Python：`C:\Users\shaoy\Documents\Minijmp\.venv\Scripts\python.exe`，Python 3.11.9。
 
 ## 已完成范围
@@ -41,7 +41,7 @@
 P4BC reference verified: 3 arrays; 48 noise runs; 4 controls/6 noise conditions/24 condition groups; 90 mixture runs; 72x15 model; 4 D-opt candidates; 11 invalid boundaries
 ```
 
-冻结 `reference.json` SHA-256：`f23cad153fd383bfef6be5b0bdb88d37009e338b89e19a3e92935464ba68ebd7`。README 中的生成记录已同步此值；manifest 由生成器重建并由 verifier 校验。夹具也包含 D-optimal Replace 的独立枚举结果，但生产 Replace/Improve 因下述安全边界未实现。
+冻结 `reference.json` SHA-256：`f23cad153fd383bfef6be5b0bdb88d37009e338b89e19a3e92935464ba68ebd7`。README 中的生成记录已同步此值；manifest 由生成器重建并由 verifier 校验。夹具也包含 D-optimal Replace 的独立枚举结果；生产 Replace/Improve 已按下节合同实现并通过 P4BC-ACC-06，本段原有“尚未实现”说法已更正。
 
 独立 Replace oracle 的生产路径复核通过：`LOCK-A`/`LOCK-B` 的响应 11/22 保持不变；`PARENT-003` 被 `CAND-C` 取代。rank 均为 3，logdet 从 -4.605170185988 升至 0，4 个候选子集全部评估；结果与固定参考一致。该全局最优结论只限该离散候选域。
 
@@ -59,7 +59,7 @@ P4BC reference verified: 3 arrays; 48 noise runs; 4 controls/6 noise conditions/
 
 Mixture metadata Schema 1 字段和 `MixtureSpec.schema_version=1` 保持不变；Schema 2 只给 Replace/Improve 使用。DOE Schema v5 不变。旧读取器会因未知顶层版本明确拒绝 Schema 2。普通 append/选点入口拒绝 Schema 2，当前不支持连续嵌套多次 Improve。SHA-256 用于数据一致性，不是防恶意篡改的数字签名。详细字段合同见[方法合同第 5 节](phase2-p4bc-method-contract.md)。
 
-## 实际验证
+## 原 P4BC 独立工作树验证（历史快照）
 
 所有命令均使用项目 `.venv` Python，Tk 测试按单进程串行运行。
 
@@ -71,7 +71,7 @@ Mixture metadata Schema 1 字段和 `MixtureSpec.schema_version=1` 保持不变�
 
 既有结果：169 passed，2 warnings。Taguchi 相关源文件本轮未改。
 
-2. 当前隔离 worktree，Mixture 全套（包含 Improve、Schema 2、持久化和真实 Tk GUI）：
+2. 原隔离 worktree，Mixture 全套（包含 Improve、Schema 2、持久化和真实 Tk GUI）：
 
 ```powershell
 & $python -m pytest tests\test_doe_mixture_constraints.py tests\test_doe_mixture_lattice.py tests\test_doe_mixture_centroid.py tests\test_doe_mixture_vertices.py tests\test_doe_mixture_model.py tests\test_doe_mixture_anova.py tests\test_doe_mixture_predict.py tests\test_doe_mixture_optimize.py tests\test_doe_mixture_optimal.py tests\test_doe_mixture_plots.py tests\test_doe_mixture_gui.py tests\test_doe_mixture_persistence.py tests\test_doe_mixture_references.py tests\test_doe_mixture_improve.py tests\test_doe_phase2_p4bc_mixture.py -q
@@ -79,7 +79,7 @@ Mixture metadata Schema 1 字段和 `MixtureSpec.schema_version=1` 保持不变�
 
 结果：102 passed，16 warnings。
 
-3. 当前隔离 worktree，DOE 持久化、Split-Plot、Binary、表格、Help/Menu/G12 和共享回归：
+3. 原隔离 worktree，DOE 持久化、Split-Plot、Binary、表格、Help/Menu/G12 和共享回归：
 
 ```powershell
 & $python -m pytest tests\test_doe_persistence.py tests\test_doe_efg_workbook_integration.py tests\test_doe_splitplot.py tests\test_doe_splitplot_analysis.py tests\test_doe_phase2_splitplot_references.py tests\test_doe_binary_analysis.py tests\test_doe_binary_probability.py tests\test_doe_binary_optimize.py tests\test_doe_modify.py tests\test_doe_pb.py tests\test_doe_schema_v2.py tests\test_doe_schema_v3.py tests\test_doe_schema_e.py tests\test_doe_factorial_schema.py tests\test_worksheets.py tests\test_file_io.py tests\test_sheet_context.py tests\test_help_center.py tests\test_menu_localization.py tests\test_g12_inventory.py -q
@@ -106,15 +106,23 @@ git diff --check
 
 Fixture `reference.json` SHA-256：`f23cad153fd383bfef6be5b0bdb88d37009e338b89e19a3e92935464ba68ebd7`。全量 pytest 未运行。`tight_layout` 和 SLSQP 越界裁剪警告来自绘图/优化器路径；相关测试通过。未验证 Minitab 22 输出逐项等价。Improve 仅证明保存候选子集内的精确最优，不声称连续可行域全局最优。
 
-## Review 与结论
+## Review 与当时交接状态
 
 | Review 单元 | 本地状态 |
 |---|---|
 | `TAGUCHI_EXTENDED_ROBUST_DESIGN` | `READY_FOR_INDEPENDENT_REVIEW` |
 | `MIXTURE_PROCESS_AMOUNT_IMPROVEMENT` | `READY_FOR_INDEPENDENT_REVIEW` |
 
-没有把本地测试通过改写成独立 Review `APPROVE`。下一步交由 ChatGPT Web 通过 Local MCP Connector 独立 Review；保留当前未提交工作树。
+没有把本地测试通过改写成独立 Review `APPROVE`。当时计划通过 Local MCP Connector 进行独立 Review；本次 main 集成收尾不包含该正式 Review。
 
 ## 复杂度复核
 
 按实际 diff 复核：Improve 复用现有 D-optimal `select_augment()` 和当前 Mixture 对话框；新模块仅承载严格快照编码、谱系恢复与精确搜索合同。保存/加载/复制各验证一次，避免在同一边界重复重跑谱系；没有新增依赖、DOE Schema 字段或旁路列。完整快照、矩阵 SHA、受保护行比较及恢复时重算均有明确的持久化/审计消费者，未发现可删而不损失合同的检查。
+
+## main 集成记录（2026-10-30）
+
+- P4BC 快照已合入本地 `main`，提交 `0dcc4acb90d7601962a150182699ddf515adc0a3`，父提交 `a9210a21083c3789a99c3033c40b2c884b9d0208`；该提交包含 P4BC 暂存内容。
+- 在该 main 基线上，P4A 与 P4BC 联合验收已完成：P4A 96、P4BC 113、共享 Schema/持久化和 DOE v1–v5 用例 118、Split-Plot/Binary 146 passed。真实 Tk 串行结果为 P4A 12、正规 Foldover 2、Taguchi 14、Mixture 10、Split-Plot 10 passed；11 条图形布局警告。
+- 三套独立 DSD/PB/P4BC verifier 通过，fixture SHA 与 manifest 相符。`doe: null` 损坏元数据现在被拒绝，坏工程不会替换活工作簿。
+- P4A 状态仍为 DSD `APPROVE_SCOPED`、PB `READY_FOR_INDEPENDENT_REVIEW`；P4BC 的 Taguchi 与 Mixture 均为 `READY_FOR_INDEPENDENT_REVIEW`。未运行全量 pytest 或整套 `test_doe_screening_gui.py`；Minitab 22 数值一致性及连续 Mixture 全局最优仍未验证。
+- 本 Goal 的本地集成提交不推送、不打标签、不发布或启动 P2-5；正式独立 Review 状态未改变。

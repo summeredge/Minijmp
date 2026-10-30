@@ -277,6 +277,8 @@ def augment(frame, metadata, candidates, count, *, terms=None, seed=None,
         raise ValueError('混料设计必须使用混料最优设计增补，不能使用普通 DOE 矩阵')
     if spec.design_type == 'split_plot':
         raise ValueError('Split-Plot 请使用“修改设计”中的“增加完整区组”')
+    if spec.foldover_lineage is not None:
+        raise ValueError('折叠设计已含批次谱系；请新建设计，不要通过增补改写历史运行')
     if criterion not in ('d_optimal', 'manual', 'distance'):
         raise ValueError('增补准则无效')
     if criterion == 'distance' and spec.design_type != 'custom_rsm':

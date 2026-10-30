@@ -37,7 +37,7 @@ P2-2B 不改变本路线图重建时的 P1 验收历史。P0–P5 的二元概�
 
 ## 后续独立 Goal：P2-3 多因子平衡 Split-Plot（2026-10-29）
 
-- **状态：`READY_FOR_INDEPENDENT_REVIEW`。** `P3-ACC-01–06` 本地验收通过；两个 Review 单元已备妥交接，正式独立 Review 尚未执行，也没有 APPROVE 结论。
+- **状态：`APPROVE_SCOPED`。** `P3-ACC-01–06` 本地验收通过；Local MCP Connector 对两个单元给出限定范围批准，P3-REV-01 修复通过。
 - 支持 2–6 个连续两水平因子、1–3 个整区因子、至少 1 个子区因子、至少 2 个完整重复区组及 10,000 次运行预算。v1 两因子身份与 seed 运行序保持兼容；v2 使用现有 Schema v5 字段。
 - 独立参考 verifier 与封存 D 工作包基准分开核验；分析包含全部 factorial 项，按实际模型秩、完整平衡正交投影和整区/子区误差分别推断。大响应平移、单位缩放、极大处理效应、两个零误差层均有回归覆盖。
 - 验证：核心、持久化、Schema、Factorial/General Factorial、诊断与最优设计回归 222 passed；Split-Plot 真实 Tk 10 passed、共享最优设计 Tk 6 passed；Help/Menu/G12 94 passed。Tk 绘图有 2 条既有 `tight_layout` 警告；全量 pytest 未运行。详细命令、fixture SHA 和限制见 [P2-3 收尾](phase2-p3-closeout.md)。
@@ -52,6 +52,20 @@ P2-2B 不改变本路线图重建时的 P1 验收历史。P0–P5 的二元概�
 4. Mixture 独立关口通过后，复用现有 Predict 模型与实际分析矩阵实现连续 RSM 区间，再接入诊断输出。
 5. 最后复核菜单/帮助/搜索索引、功能矩阵、`.dexpl` 保存重开复制、响应变更失效和 E/F/G/H 回归。P2-2B 的独立验收与当前状态见 [P2-2B 验收记录](phase2-p2b-acceptance.md)。
 
-## 停止边界
+## P2-4A 开发验收（历史：P4BC 合入前，2026-10-30）
 
-后续工作包须由独立 Goal 启动。当前 P2-3 在本地验收后停止于 `READY_FOR_INDEPENDENT_REVIEW`，等待用户指定的只读独立 Review；P2-4/P2-5 未启动。本次不提交、不推送、不打 tag、不发布、不打包 EXE，并保留未提交工作区。
+- **状态：** `P4A-ACC-01–06` 本地通过；`DSD_STEPWISE_SELECTION` 为 `APPROVE_SCOPED`，`PB_FOLDOVER_ESTIMABILITY` 为 `READY_FOR_INDEPENDENT_REVIEW`。
+- DSD 新增基于部分 F 检验的 Stepwise（先移除后进入、强层级、先验候选项、8 类停止原因、64 候选项上限）；PB 新增全因子与单因子 Foldover，按实际编码矩阵报告秩、完全/部分混杂与可估计性，不生成正规 defining relation。
+- `screening_matrix.matrix_sha256` 语义固定为原始 BASE 批次身份，折叠矩阵由 `foldover_lineage` 前后摘要校验；已折叠 PB 禁止再次折叠、重新随机化、重编号和通用增补。
+- 独立参考 `tests/fixtures/doe_phase2_p4a_reference/`：DSD SHA-256 `ad4713ff3861f5aaffeeba9b17c1ba3979c9b4bb9b0305b1201fa7d6f094164a`，PB `9ee6b929929a70994c89e8e3d998bcb6def610da9524116dad9c1d4c078fe0ab`。
+- 当时的单包定向验证详见 [P2-4A 收尾](phase2-p4a-closeout.md)；这些结果发生于 P4BC 合入前，不作为当前联合快照证据。SCR-003 与 FAC-012 仍为 `partial`。
+
+## P2-4A/P2-4BC main 联合验收（2026-10-30）
+
+- 基线 `main` HEAD `0dcc4acb90d7601962a150182699ddf515adc0a3` 已包含 P4BC；P4A 与 P4BC 在该 main 工作树的同一源码快照联合验证。详细命令见 [P4A 收尾](phase2-p4a-closeout.md) 与 [P4BC 收尾](phase2-p4bc-closeout.md)。
+- 通过数：P2-4A 96、P2-4BC 113、共享 Schema/持久化及 DOE v1–v5 118、Split-Plot/Binary 146；串行真实 Tk：P4A 12、正规 Foldover 2、Taguchi 14、Mixture 10、Split-Plot 10。图形布局警告共 11 条。
+- DSD/PB/P4BC 独立参考 verifier 通过，fixture SHA 未变；DOE Schema v5、Mixture Schema 1/2 恢复路径和旧 DOE Schema 兼容均通过定向测试。功能矩阵仍 80 项，SCR-003 与 FAC-012 保持 `partial`。
+- 全量 pytest 未运行；未运行整套 `test_doe_screening_gui.py`，其历史解释器级中断仍待处理。没有验证 Minitab 22 数值一致性，也没有证明连续 Mixture 可行域全局最优。
+- P4A 的 `DSD_STEPWISE_SELECTION` 保持 `APPROVE_SCOPED`，`PB_FOLDOVER_ESTIMABILITY`、Taguchi 与 Mixture 两个 P4BC Review 单元仍为 `READY_FOR_INDEPENDENT_REVIEW`。
+
+P2-4A 与 P2-4BC 的本地集成收尾已完成并在 `main` 本地提交；没有推送或启动 P2-5。P4A 的 PB Foldover 与 P4BC 的 Taguchi、Mixture 独立 Review 状态保持 `READY_FOR_INDEPENDENT_REVIEW`，本地测试不代替该 Review。本次未发布或打包 EXE。

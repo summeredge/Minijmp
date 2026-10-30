@@ -5,7 +5,8 @@ import random
 
 import pandas as pd
 
-from doe_core import (DesignResult, DesignSpec, RunRecord, _validate_screening_construction, category_combinations,
+from doe_core import (DesignResult, DesignSpec, RunRecord, _validate_pb_foldover,
+                      _validate_screening_construction, category_combinations,
                       randomized_run_order, screening_matrix_sha256, worksheet_metadata)
 from doe_screening_matrices import MATRICES
 
@@ -14,8 +15,10 @@ def validate_pb(result):
     if not isinstance(result, DesignResult) or result.spec.design_type != 'plackett_burman':
         raise ValueError('需要 PB 设计')
     _validate_screening_construction(result)
-    if screening_matrix_sha256(result) != result.spec.screening_matrix['matrix_sha256']:
+    if (screening_matrix_sha256(result, base_only=result.spec.foldover_lineage is not None)
+            != result.spec.screening_matrix['matrix_sha256']):
         raise ValueError('PB 矩阵摘要不匹配')
+    _validate_pb_foldover(result)
 
 
 def create_pb(spec, run_count, replicates=1, measured=False, center_points=0, block_replicates=False):
