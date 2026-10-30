@@ -178,6 +178,50 @@ def test_multifactor_splitplot_create_analyze_plot_and_project_roundtrip(
     again.main.destroy()
 
 
+def test_eight_factor_categorical_splitplot_ui_and_project_roundtrip(
+        csv_app, tmp_path, monkeypatch):
+    app, error = csv_app
+    monkeypatch.setattr("doe_splitplot_dialog.messagebox.showerror", error)
+    monkeypatch.setattr("worksheets.messagebox.askyesnocancel", lambda *a, **k: False)
+    monkeypatch.setattr("worksheets.messagebox.askyesno", lambda *a, **k: True)
+    dialog = CreateSplitPlot(app)
+    assert "8" in dialog.factor_count.cget("values")
+    dialog.factor_count_var.set("8")
+    dialog.factor_values[0]["factor_type"].set("分类")
+    dialog.factor_values[0]["low"].set("slow")
+    dialog.factor_values[0]["high"].set("fast")
+    dialog.factor_values[7]["factor_type"].set("分类")
+    dialog.factor_values[7]["low"].set("manual")
+    dialog.factor_values[7]["high"].set("automatic")
+    dialog.blocks_var.set("2")
+    assert dialog.preview() is True
+    assert "运行 512 次；区组 2；整区 4；每整区子区 128" in dialog.summary.cget("text")
+    assert dialog.create() is True
+
+    table = app.getCurrentTable()
+    metadata = table.doe_metadata
+    assert metadata["schema_version"] == metadata["design"]["schema_version"] == 5
+    assert metadata["design"]["construction_version"] == "v3"
+    result = validate_split_plot_design(table.model.df, metadata)
+    assert len(result.spec.factors) == 8
+    assert result.spec.factors[0].levels == ("slow", "fast")
+    assert result.spec.factors[7].levels == ("manual", "automatic")
+
+    path = tmp_path / "splitplot-v3.dexpl"
+    assert app._save_project(path)
+    assert app.load_file(path)
+    name = next(sheet_name for sheet_name, item in app.sheets.items()
+                if item.doe_metadata
+                and item.doe_metadata["design"].get("construction_version") == "v3")
+    app.nb.select(app.sheetframes[name])
+    reopened = app.getCurrentTable()
+    assert validate_split_plot_design(reopened.model.df, reopened.doe_metadata).spec == result.spec
+    copied = app.copySheet()
+    assert copied.doe_metadata == reopened.doe_metadata
+    assert_frame_equal(copied.model.df, reopened.model.df)
+    assert error.call_count == 0
+
+
 def test_splitplot_plot_rejects_result_after_response_changes(csv_app, monkeypatch):
     app, error = csv_app
     monkeypatch.setattr("doe_dialog.messagebox.showerror", error)

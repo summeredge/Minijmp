@@ -53,9 +53,15 @@ class FoldoverDOE:
         self.source.bind('<<ComboboxSelected>>', self._source_changed)
 
         ttk.Label(body, text='折叠因子').grid(row=1, column=0, sticky='w', padx=(0, 6), pady=4)
-        self.folded = ttk.Combobox(body, state='readonly', width=28)
-        self.folded.grid(row=1, column=1, sticky='ew', pady=4)
-        self.folded.bind('<<ComboboxSelected>>', self._selection_changed)
+        selection = ttk.Frame(body)
+        selection.grid(row=1, column=1, sticky='ew', pady=4)
+        self.folded = tk.Listbox(selection, selectmode='extended',
+                                 exportselection=False, height=6, width=28)
+        scrollbar = ttk.Scrollbar(selection, orient='vertical', command=self.folded.yview)
+        self.folded.configure(yscrollcommand=scrollbar.set)
+        self.folded.pack(side='left', fill='x', expand=True)
+        scrollbar.pack(side='right', fill='y')
+        self.folded.bind('<<ListboxSelect>>', self._selection_changed)
 
         self.limits = tk.StringVar(value='')
         ttk.Label(body, textvariable=self.limits, wraplength=420,
@@ -90,10 +96,29 @@ class FoldoverDOE:
     def _update_factors(self):
         design = self.sources[self.source.get()].doe_metadata['design']
         factor_ids = [factor['factor_id'] for factor in design['factors']]
-        choices = ('全部', *factor_ids)
-        previous = self.folded.get()
-        self.folded.configure(values=choices)
-        self.folded.set(previous if previous in choices else '全部')
+        previous = (tuple(self.folded.get(index) for index in self.folded.curselection())
+                    if self.folded.size() else ())
+        self.folded.delete(0, 'end')
+        for choice in ('全部', *factor_ids):
+            self.folded.insert('end', choice)
+        if not previous or '全部' in previous:
+            self.folded.selection_set(0)
+        else:
+            positions = [index + 1 for index, factor_id in enumerate(factor_ids)
+                         if factor_id in previous]
+            if positions:
+                for index in positions:
+                    self.folded.selection_set(index)
+            else:
+                self.folded.selection_set(0)
+
+    def _selected_factors(self):
+        selected = tuple(self.folded.get(index) for index in self.folded.curselection())
+        if not selected:
+            raise ValueError('请选择折叠因子')
+        if '全部' in selected:
+            return None
+        return selected
 
     def help_topic(self):
         table = self.sources.get(self.source.get())
@@ -117,6 +142,9 @@ class FoldoverDOE:
             self.limits.set('来源设计：正规两水平部分因子。')
 
     def _selection_changed(self, event=None):
+        selected = self.folded.curselection()
+        if selected and selected[0] == 0 and len(selected) > 1:
+            self.folded.selection_clear(1, 'end')
         self._update_limits()
         self.preview()
 
@@ -139,6 +167,21 @@ class FoldoverDOE:
         self.preview_text.insert('1.0', text)
         self.preview_text.configure(state='disabled')
 
+    @staticmethod
+    def _fold_change(frame, metadata, folded_frame, folded_metadata):
+        lineage = folded_metadata['design']['foldover_lineage']
+        source_id, added_id = lineage['run_map'][0]
+        columns = metadata['column_map']
+        run_column = columns['run_id']
+        source = frame.loc[frame[run_column] == source_id].iloc[0]
+        added = folded_frame.loc[folded_frame[run_column] == added_id].iloc[0]
+        changes = [f'{factor_id}: {source[column]} → {added[column]}'
+                   for factor_id, column in columns['factors'].items()
+                   if factor_id in lineage['folded_factors']]
+        folded = '、'.join(lineage['folded_factors'])
+        return (f'折叠 {folded}；示例 {source_id}→{added_id}：' + '；'.join(changes)
+                + '；未选因子不变；原始响应保留，新运行响应为空。')
+
     def preview(self):
         table = self.sources.get(self.source.get())
         if table is not None and table.doe_metadata['design']['design_type'] == 'plackett_burman':
@@ -147,7 +190,7 @@ class FoldoverDOE:
             _, frame, metadata = self._source_data()
             before = foldover_summary(frame, metadata)
             folded_frame, folded_metadata = create_foldover(
-                frame, metadata, None if self.folded.get() == '全部' else self.folded.get())
+                frame, metadata, self._selected_factors())
             after = foldover_summary(folded_frame, folded_metadata)
         except (ValueError, TypeError, OverflowError, KeyError) as error:
             self._show_preview('预览不可用。')
@@ -162,6 +205,7 @@ class FoldoverDOE:
             changes = ['别名组无变化。']
         self._show_preview(
             f'运行数：{len(frame)} → {len(folded_frame)}（新增 {len(folded_frame) - len(frame)}）\n'
+            f'{self._fold_change(frame, metadata, folded_frame, folded_metadata)}\n'
             f'分辨度：{self._resolution(before["resolution"])} → '
             f'{self._resolution(after["resolution"])}\n'
             f'全模型秩：{before["model_rank"]} → {after["model_rank"]}\n'
@@ -173,14 +217,15 @@ class FoldoverDOE:
         try:
             name, frame, metadata = self._source_data()
             folded_frame, folded_metadata, summary = create_pb_foldover(
-                frame, metadata, None if self.folded.get() == '全部' else self.folded.get())
+                frame, metadata, self._selected_factors())
         except (ValueError, TypeError, OverflowError, KeyError) as error:
             self._show_preview('预览不可用。')
             messagebox.showerror('Foldover', str(error), parent=self.main)
             return False
         before, after = summary['before'], summary['after']
-        folded = '全部因子' if summary['folded_factors'] and len(
-            summary['folded_factors']) > 1 else summary['folded_factors'][0]
+        factor_count = len(folded_metadata['design']['factors'])
+        folded = ('全部因子' if len(summary['folded_factors']) == factor_count
+                  else '、'.join(summary['folded_factors']))
         effect = ('折叠未减少混杂，只增加重复点。'
                   if not summary['confounding_reduced'] else
                   '折叠按实际矩阵减少了混杂。')
@@ -188,6 +233,7 @@ class FoldoverDOE:
             f'来源：Plackett–Burman {before["runs"]} 次运行；折叠：{folded}\n'
             f'运行数：{before["runs"]} → {summary["total_runs"]}'
             f'（新增 {summary["added_runs"]}，批次 {summary["batch_id"]}）\n'
+            f'{self._fold_change(frame, metadata, folded_frame, folded_metadata)}\n'
             f'主效应模型秩：{before["main_rank"]} → {after["main_rank"]}\n'
             f'主效应+二阶交互秩：{before["joint_rank"]} → {after["joint_rank"]}'
             f'（参数 {before["joint_parameter_count"]}）\n'
@@ -207,7 +253,7 @@ class FoldoverDOE:
         try:
             name, frame, metadata = self._source_data()
             folded_frame, folded_metadata = create_foldover(
-                frame, metadata, None if self.folded.get() == '全部' else self.folded.get())
+                frame, metadata, self._selected_factors())
             self.app.addSheet(f'{name} Foldover', folded_frame, {'doe': folded_metadata})
         except (ValueError, TypeError, OverflowError, KeyError) as error:
             messagebox.showerror('Foldover', str(error), parent=self.main)
@@ -219,7 +265,7 @@ class FoldoverDOE:
         try:
             name, frame, metadata = self._source_data()
             folded_frame, folded_metadata, _ = create_pb_foldover(
-                frame, metadata, None if self.folded.get() == '全部' else self.folded.get())
+                frame, metadata, self._selected_factors())
             self.app.addSheet(f'{name} Foldover', folded_frame, {'doe': folded_metadata})
         except (ValueError, TypeError, OverflowError, KeyError) as error:
             messagebox.showerror('Foldover', str(error), parent=self.main)

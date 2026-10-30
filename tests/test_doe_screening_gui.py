@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 from doe_dialog import AnalyzeDOE, CreateDOE
+from stat_table import TableBlock
 from test_csv_import import csv_app
 
 
@@ -289,6 +290,108 @@ def test_dsd_two_categories_gui_lifecycle(csv_app, tmp_path, monkeypatch):
     assert again.result is not None
     again.main.destroy()
     analysis.main.destroy()
+    error.assert_not_called()
+
+
+def test_dsd_multi_categorical_centers_alias_and_ic_gui(csv_app, tmp_path, monkeypatch):
+    app, _ = csv_app
+    error = Mock()
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    monkeypatch.setattr('worksheets.messagebox.askyesno', lambda *a, **k: True)
+    create = CreateDOE(app, dsd=True)
+    create.factor_count.set('8')
+    create.update_factor_rows()
+    create.fields[6][4].insert(0, '关;开')
+    create.fields[7][4].insert(0, '低;高')
+    create.options['中心点数'].delete(0, 'end')
+    create.options['中心点数'].insert(0, '4')
+    create.preview()
+    assert '22 次运行' in create.preview_text.get()
+    assert '每重复增加 4 个伪中心点' in create.preview_text.get()
+    create.create()
+    table = app.getCurrentTable()
+    design = table.doe_metadata['design']
+    frame = table.model.df
+    assert design['center_point_count'] == 4
+    assert frame['点类型'].value_counts()['pseudo_center'] == 6
+    added = frame[(frame['点类型'] == 'pseudo_center') & (frame['标准序'] > 18)]
+    assert len(added) == 4
+    assert set(zip(added['设定_F7'], added['设定_F8'])) == {
+        ('关', '低'), ('关', '高'), ('开', '低'), ('开', '高')}
+    for index, row in frame.iterrows():
+        response = (5 + 2 * (2 * float(row['设定_F1']) - 1)
+                    - 1.5 * (2 * float(row['设定_F6']) - 1)
+                    + (1 if row['设定_F7'] == '开' else -1)
+                    + .25 * (index % 3 - 1))
+        frame.at[index, '响应_Y'] = response
+
+    dialog = AnalyzeDOE(app, screening=True)
+    dialog.analyze()
+    assert dialog.result is not None and dialog.selection is None
+    titles = [dialog.tabs.tab(tab, 'text') for tab in dialog.tabs.tabs()]
+    assert {'别名矩阵', '混杂关系', '别名热图'} <= set(titles)
+    alias_tab = next(tab for tab in dialog.tabs.tabs()
+                     if dialog.tabs.tab(tab, 'text') == '别名矩阵')
+    block = next(child for child in dialog.tabs.nametowidget(alias_tab).winfo_children()
+                 if isinstance(child, TableBlock))
+    export_labels = [block.menu.entrycget(index, 'label')
+                     for index in range(block.menu.index('end') + 1)]
+    assert {'导出 Excel', '导出 PNG', '复制到 Excel'} <= set(export_labels)
+
+    dialog.use_stepwise.set(True)
+    dialog.selection_method.set('Forward IC')
+    dialog._selection_method_changed(event=object())
+    dialog.criterion.set('AICc')
+    for entry in (dialog.alpha_enter, dialog.alpha_remove):
+        entry.configure(state='normal')
+        entry.insert(0, '未使用')
+        entry.configure(state='disabled')
+    dialog.screening_initial.insert(0, 'F1')
+    dialog.screening_candidates.insert(0, 'F1;F2;F7;F8')
+    dialog.analyze()
+    assert dialog.selection['method'] == 'information_criteria'
+    assert dialog.selection['criterion_path']
+    titles = [dialog.tabs.tab(tab, 'text') for tab in dialog.tabs.tabs()]
+    assert {'信息准则路径', '候选项判据', '选模汇总'} <= set(titles)
+
+    dialog.selection_method.set('Backward')
+    dialog._selection_method_changed(event=object())
+    dialog.screening_initial.insert(0, 'F1')
+    dialog.alpha_remove.delete(0, 'end')
+    dialog.alpha_remove.insert(0, '0.15')
+    dialog.analyze()
+    assert dialog.selection['method'] == 'backward'
+
+    path = tmp_path / 'dsd-multicategory-centers.dexpl'
+    assert app._save_project(path) and app.load_file(path)
+    restored = app.getCurrentTable()
+    assert restored.doe_metadata['design']['center_point_count'] == 4
+    again = AnalyzeDOE(app, screening=True)
+    again.analyze()
+    assert again.result is not None and '别名热图' in [
+        again.tabs.tab(tab, 'text') for tab in again.tabs.tabs()]
+    again.main.destroy()
+    dialog.main.destroy()
+    error.assert_not_called()
+
+
+def test_backward_gui_explains_saturated_default_candidate_model(csv_app, monkeypatch):
+    app, _ = csv_app
+    error = Mock()
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    create = CreateDOE(app, dsd=True)
+    create.create()
+    table = app.getCurrentTable()
+    table.model.df['响应_Y'] = np.arange(len(table.model.df), dtype=float) ** 2
+
+    dialog = AnalyzeDOE(app, screening=True)
+    dialog.use_stepwise.set(True)
+    dialog.selection_method.set('Backward')
+    dialog._selection_method_changed()
+    dialog.analyze()
+    assert dialog.selection['stop_reason'] == 'initial_model_saturated'
+    assert '缩小候选项集合' in dialog.stepwise_status.get()
+    dialog.main.destroy()
     error.assert_not_called()
 
 

@@ -331,6 +331,61 @@ def test_l18_gui_rejects_nonorthogonal_selected_columns(csv_app, monkeypatch):
     dialog.main.destroy()
 
 
+def test_l36_gui_selects_partial_columns_previews_and_creates(csv_app, monkeypatch):
+    app, error = csv_app
+    monkeypatch.setattr('doe_taguchi_dialog.messagebox.showerror', error)
+    dialog = CreateTaguchi(app)
+    assert len(dialog.rows) == 23
+    assert 'L36(2^11 3^12)' in dialog.array.cget('values')
+    dialog.array.set('L36(2^11 3^12)')
+    dialog.factor_count.set('23')
+    dialog.update_rows()
+    dialog.main.update_idletasks()
+    dialog.factor_canvas.yview_moveto(1)
+    dialog.main.update_idletasks()
+    assert dialog.factor_canvas.yview()[0] > 0
+    dialog.factor_canvas.yview_moveto(0)
+    dialog.factor_count.set('4')
+    dialog.update_rows()
+
+    for index, (column_number, levels) in enumerate((
+            ('1', 'off;on'), ('2', 'cold;hot'),
+            ('12', 'low;mid;high'), ('18', 'small;medium;large'))):
+        dialog.rows[index][2].delete(0, 'end')
+        dialog.rows[index][2].insert(0, levels)
+        dialog.rows[index][3].set(column_number)
+        dialog.rows[index][4].set('控制')
+
+    assert dialog.preview() is True, error.call_args_list
+    preview = dialog.preview_text.get('1.0', 'end')
+    assert '运行 36 次；L36(2^11 3^12)' in preview
+    assert '设定_A' in preview and '设定_D' in preview
+    assert dialog.create() is True, error.call_args_list
+
+    table = app.getCurrentTable()
+    taguchi = table.doe_metadata['design']['taguchi']
+    assert taguchi['array_id'] == 'L36(2^11 3^12)'
+    assert taguchi['columns'] == {'A': 1, 'B': 2, 'C': 12, 'D': 18}
+    assert len(table.model.df) == 36
+    assert set(table.model.df['设定_A']) == {'off', 'on'}
+    assert set(table.model.df['设定_C']) == {'low', 'mid', 'high'}
+    response_column = table.model.df.columns.get_loc('响应_Y')
+    for index, row in table.model.df.iterrows():
+        value = (10 + (1 if row['设定_A'] == 'on' else 0)
+                 + (2 if row['设定_B'] == 'hot' else 0)
+                 + (3 * ('low', 'mid', 'high').index(row['设定_C']))
+                 + ('small', 'medium', 'large').index(row['设定_D']))
+        table.model.setValueAt(str(value), index, response_column)
+    analysis = AnalyzeTaguchi(app)
+    analysis.analyze()
+    assert analysis.result is not None, error.call_args_list
+    assert analysis.result['n_observations'] == 36
+    assert {row['factor_id'] for row in analysis.result['response_table']['factors']} == {
+        'A', 'B', 'C', 'D'}
+    assert error.call_count == 0
+    analysis.main.destroy()
+
+
 def test_mixed_l8_gui_maps_numeric_and_text_levels_by_column_capacity(csv_app):
     app, _ = csv_app
     dialog = CreateTaguchi(app)

@@ -5,6 +5,7 @@ from itertools import combinations
 import numpy as np
 from scipy import stats
 
+from doe_core import _two_level_code
 from doe_splitplot import validate_split_plot_design
 
 
@@ -34,9 +35,10 @@ def analyze_split_plot(frame, metadata, response):
     hard_count = 1 << len(hard_ids)
     easy_count = 1 << (len(factors) - len(hard_ids))
     block_index = {block: index for index, block in enumerate(blocks)}
+    expected_rank = len(blocks) + (1 << len(factors)) - 1
     factor_by_id = {factor.factor_id: factor for factor in factors}
     coded = np.asarray([
-        [int(factor_by_id[factor_id].to_coded(run.settings[factor_id]))
+        [_two_level_code(factor_by_id[factor_id], run.settings[factor_id])
          for factor_id in factor_ids]
         for run in runs
     ], dtype=float)
@@ -50,7 +52,6 @@ def analyze_split_plot(frame, metadata, response):
     block_matrix = np.eye(len(blocks))[np.asarray([block_index[run.block] for run in runs])]
     model_matrix = np.column_stack((block_matrix, term_matrix))
     model_rank = int(np.linalg.matrix_rank(model_matrix))
-    expected_rank = len(blocks) + (1 << len(factors)) - 1
     if model_rank != expected_rank:
         raise ValueError(f"裂区模型矩阵秩亏：rank={model_rank}，期望 {expected_rank}；F/p 不可用")
     n = len(runs)
@@ -105,8 +106,8 @@ def analyze_split_plot(frame, metadata, response):
     plot_blocks = [runs[whole_plots[plot_id][0]].block for plot_id in plot_ids]
     plot_block_matrix = np.eye(len(blocks))[[block_index[block] for block in plot_blocks]]
     plot_coded = np.asarray([
-        [int(factor_by_id[factor_id].to_coded(
-            runs[whole_plots[plot_id][0]].settings[factor_id]))
+        [_two_level_code(factor_by_id[factor_id],
+                         runs[whole_plots[plot_id][0]].settings[factor_id])
          for factor_id in factor_ids]
         for plot_id in plot_ids
     ], dtype=float)

@@ -7,7 +7,7 @@ import numpy as np
 from scipy import stats
 
 from doe_general_factorial import validate_general_factorial
-from doe_factorial_anova import partition_factorial_error
+from doe_factorial_anova import _type_iii_fit, partition_factorial_error
 
 
 # shortcut: dense matrices are capped at 10 million cells; use cell-mean projections if larger models are needed.
@@ -39,8 +39,10 @@ def _fit(x, y):
     return beta, fitted, residual, float(residual @ residual), int(rank)
 
 
-def analyze_general_factorial(frame, metadata, response, order=2):
+def analyze_general_factorial(frame, metadata, response, order=2, ss_type="I"):
     """用 sum-to-zero 对比拟合阶次模型；数值标签始终是离散水平。"""
+    if ss_type not in ("I", "III"):
+        raise ValueError("平方和类型必须是 'I' 或 'III'")
     design = validate_general_factorial(frame, metadata)
     spec, runs = design.spec, design.runs
     if response not in spec.response_names:
@@ -57,8 +59,13 @@ def analyze_general_factorial(frame, metadata, response, order=2):
     if len(runs) * parameter_count > _MAX_MODEL_MATRIX_CELLS:
         raise ValueError("所选模型矩阵超过 1000 万个单元，请降低模型阶次或水平数")
     values = [run.responses[response] for run in runs]
-    if any(value is None for value in values):
+    if any(value is None for value in values) and ss_type == "I":
         raise ValueError("响应存在缺失值，请填写全部运行的响应")
+    observed_runs = (tuple(run for run in runs if run.responses[response] is not None)
+                     if ss_type == "III" else runs)
+    if not observed_runs:
+        raise ValueError("Type III 至少需要一个非缺失响应")
+    values = [run.responses[response] for run in observed_runs]
     try:
         y = np.asarray(values, dtype=float)
     except (TypeError, ValueError, OverflowError) as error:
@@ -68,13 +75,13 @@ def analyze_general_factorial(frame, metadata, response, order=2):
             for value, float_value in zip(values, y)):
         raise ValueError("响应必须是有限且可精确表示的数值")
 
-    factor_values = [[run.settings[factor.factor_id] for run in runs]
+    factor_values = [[run.settings[factor.factor_id] for run in observed_runs]
                      for factor in spec.factors]
     bases = [_contrast_basis(column, factor.levels)
              for factor, column in zip(spec.factors, factor_values)]
     blocks = list(dict.fromkeys(run.block for run in runs if run.block is not None))
-    block_basis = (_contrast_basis([run.block for run in runs], blocks)
-                   if blocks else np.empty((len(runs), 0)))
+    block_basis = (_contrast_basis([run.block for run in observed_runs], blocks)
+                   if blocks else np.empty((len(observed_runs), 0)))
     term_matrices = {}
     for term in selected_terms:
         columns = []
@@ -83,20 +90,26 @@ def analyze_general_factorial(frame, metadata, response, order=2):
                 bases[index][:, column]
                 for index, column in zip(term, contrast_indices)]), axis=1))
         term_matrices[term] = np.column_stack(columns)
-    groups = [("截距", np.ones((len(runs), 1)))]
+    groups = [("截距", np.ones((len(observed_runs), 1)))]
     if blocks:
         groups.append(("区组", block_basis))
     groups.extend(("*".join(spec.factors[index].factor_id for index in term), matrix)
                   for term, matrix in term_matrices.items())
     x = np.column_stack([matrix for _, matrix in groups])
-    beta, fitted, residuals, sse, rank = _fit(x, y)
+    type_iii = _type_iii_fit(y, groups) if ss_type == "III" else None
+    if type_iii:
+        beta = np.asarray(type_iii["coefficients"], dtype=object)
+        fitted, residuals = type_iii["fitted"], type_iii["residuals"]
+        sse, rank = type_iii["sse"], type_iii["rank"]
+    else:
+        beta, fitted, residuals, sse, rank = _fit(x, y)
     n, p = x.shape
     df = n - rank
     sst = float(np.sum((y - y.mean()) ** 2))
     ssr = max(0.0, sst - sse)
     cell_values = defaultdict(list)
     cell_keys = []
-    for run, value in zip(runs, y):
+    for run, value in zip(observed_runs, y):
         cell = tuple(run.settings[factor.factor_id] for factor in spec.factors)
         typed_cell = tuple(("text" if isinstance(level, str) else "numeric", level)
                            for level in cell)
@@ -104,52 +117,71 @@ def analyze_general_factorial(frame, metadata, response, order=2):
         cell_values[typed_cell].append(float(value))
     cell_count = int(np.prod([len(factor.levels) for factor in spec.factors]))
     has_blocks = block_basis.shape[1] > 0
-    error = partition_factorial_error(
-        y, cell_keys, [run.block for run in runs] if has_blocks else None)
-    pure_sse, pure_df = error['pure_error_ss'], error['pure_error_df']
-    block_error_ss, block_error_df = error['block_error_ss'], error['block_error_df']
+    complete_responses = len(observed_runs) == len(runs)
+    pure_sse = pure_df = block_error_ss = block_error_df = None
     model_treatment_df = sum(matrix.shape[1] for matrix in term_matrices.values())
-    lof_df = cell_count - 1 - model_treatment_df
-    lof_sse = max(0.0, sse - pure_sse - block_error_ss)
+    lof_df = lof_sse = None
+    if complete_responses:
+        error = partition_factorial_error(
+            y, cell_keys, [run.block for run in observed_runs] if has_blocks else None)
+        pure_sse, pure_df = error['pure_error_ss'], error['pure_error_df']
+        block_error_ss, block_error_df = error['block_error_ss'], error['block_error_df']
+        lof_df = cell_count - 1 - model_treatment_df
+        lof_sse = max(0.0, sse - pure_sse - block_error_ss)
     df = n - rank
     ss_tolerance = np.finfo(float).eps * max(n, p) * max(float(y @ y), 1.0)
-    if df != pure_df + block_error_df + lof_df:
+    if complete_responses and df != pure_df + block_error_df + lof_df:
         raise ValueError("残差自由度无法分解为纯误差、区组误差和失拟")
-    pure_mse = pure_sse / pure_df if pure_df > 0 else None
-    pure_error_available = pure_df > 0 and pure_sse > ss_tolerance
-    error_available = (df > 0 and lof_df == 0 and sse > ss_tolerance
-                       if has_blocks else
-                       df > 0 and pure_error_available and sse > ss_tolerance)
+    pure_mse = pure_sse / pure_df if pure_df is not None and pure_df > 0 else None
+    pure_error_available = (pure_df > 0 and pure_sse > ss_tolerance
+                            if complete_responses else False)
+    if type_iii:
+        error_available = type_iii["mse"] is not None
+    elif has_blocks:
+        error_available = df > 0 and lof_df == 0 and sse > ss_tolerance
+    else:
+        error_available = df > 0 and pure_error_available and sse > ss_tolerance
 
     anova = []
-    mse = sse / df if error_available else None
-    cursor = 1
-    if blocks:
-        block_end = cursor + block_basis.shape[1]
-        block_beta = beta[cursor:block_end]
-        cursor = block_end
-        block_ss = max(0.0, float(block_beta @ (block_basis.T @ block_basis) @ block_beta))
-        block_df = block_basis.shape[1]
-        anova.append({"term": "区组", "ss": block_ss, "df": block_df,
-                      "ms": block_ss / block_df if block_df else None,
-                      "f": block_ss / block_df / mse if mse and block_df else None,
-                      "p": float(stats.f.sf(block_ss / block_df / mse, block_df, df))
-                      if mse and block_df else None})
-    for term, matrix in term_matrices.items():
-        term_columns = slice(cursor, cursor + matrix.shape[1])
-        term_beta = beta[term_columns]
-        cursor = term_columns.stop
-        term_ss = max(0.0, float(term_beta @ (matrix.T @ matrix) @ term_beta))
-        term_df = matrix.shape[1]
-        term_f = term_ss / term_df / mse if mse and term_df else None
-        anova.append({"term": "*".join(spec.factors[index].factor_id for index in term),
-                      "ss": term_ss, "df": term_df,
-                      "ms": term_ss / term_df,
-                      "f": term_f,
-                      "p": float(stats.f.sf(term_f, term_df, df))
-                      if term_f is not None else None})
-    anova.append({"term": "误差", "ss": sse, "df": df, "ms": mse, "f": None, "p": None})
-    anova.append({"term": "总计", "ss": sst, "df": n - 1, "ms": None, "f": None, "p": None})
+    mse = type_iii["mse"] if type_iii else (sse / df if error_available else None)
+    if type_iii:
+        anova.extend(row for row in type_iii["tests"] if row["term"] != "截距")
+        anova.extend([
+            {"term": "误差", "ss": sse, "df": df, "ms": mse, "f": None, "p": None,
+             "estimable": df > 0,
+             "status": "误差自由度和 MSE 可用" if mse is not None else
+                       "残差自由度或 MSE 不可用"},
+            {"term": "总计", "ss": sst, "df": n - 1, "ms": None,
+             "f": None, "p": None, "estimable": True, "status": "总计"},
+        ])
+    else:
+        cursor = 1
+        if blocks:
+            block_end = cursor + block_basis.shape[1]
+            block_beta = beta[cursor:block_end]
+            cursor = block_end
+            block_ss = max(0.0, float(block_beta @ (block_basis.T @ block_basis) @ block_beta))
+            block_df = block_basis.shape[1]
+            anova.append({"term": "区组", "ss": block_ss, "df": block_df,
+                          "ms": block_ss / block_df if block_df else None,
+                          "f": block_ss / block_df / mse if mse and block_df else None,
+                          "p": float(stats.f.sf(block_ss / block_df / mse, block_df, df))
+                          if mse and block_df else None})
+        for term, matrix in term_matrices.items():
+            term_columns = slice(cursor, cursor + matrix.shape[1])
+            term_beta = beta[term_columns]
+            cursor = term_columns.stop
+            term_ss = max(0.0, float(term_beta @ (matrix.T @ matrix) @ term_beta))
+            term_df = matrix.shape[1]
+            term_f = term_ss / term_df / mse if mse and term_df else None
+            anova.append({"term": "*".join(spec.factors[index].factor_id for index in term),
+                          "ss": term_ss, "df": term_df,
+                          "ms": term_ss / term_df,
+                          "f": term_f,
+                          "p": float(stats.f.sf(term_f, term_df, df))
+                          if term_f is not None else None})
+        anova.append({"term": "误差", "ss": sse, "df": df, "ms": mse, "f": None, "p": None})
+        anova.append({"term": "总计", "ss": sst, "df": n - 1, "ms": None, "f": None, "p": None})
 
     lack_of_fit = None
     if not has_blocks and pure_error_available and lof_df > 0:
@@ -162,10 +194,11 @@ def analyze_general_factorial(frame, metadata, response, order=2):
     marginal_means = []
     for factor in spec.factors:
         for level in factor.levels:
-            group = [value for run, value in zip(runs, y)
+            group = [value for run, value in zip(observed_runs, y)
                      if _same_level(run.settings[factor.factor_id], level)]
             marginal_means.append({"factor_id": factor.factor_id,
-                                   "level": level, "mean": float(np.mean(group)),
+                                   "level": level,
+                                   "mean": float(np.mean(group)) if group else None,
                                    "n": len(group)})
     means_by_cell = {cell: float(np.mean(observations))
                      for cell, observations in cell_values.items()}
@@ -173,11 +206,16 @@ def analyze_general_factorial(frame, metadata, response, order=2):
     for values in product(*(factor.levels for factor in spec.factors)):
         key = tuple(("text" if isinstance(level, str) else "numeric", level)
                     for level in values)
+        observations = cell_values.get(key, [])
         cell_means.append({"levels": dict(zip((f.factor_id for f in spec.factors), values)),
-                           "mean": means_by_cell[key],
-                           "n": len(cell_values[key])})
+                           "mean": means_by_cell.get(key),
+                           "n": len(observations)})
 
-    if not error_available:
+    if type_iii:
+        status = ("Type III 固定效应；sum-to-zero 对比、按完整模型与删项模型的秩差判断可估计性；"
+                  + ("残差 df 和 MSE 可用于检验" if mse is not None else
+                     "残差 df 或 MSE 不可用"))
+    elif not error_available:
         status = ("区组模型未包含全部处理自由度，或区组调整残差误差不可用；统计显著性不可用"
                   if has_blocks else
                   "没有可用的独立纯误差自由度或残差方差，统计显著性不可用")
@@ -186,6 +224,7 @@ def analyze_general_factorial(frame, metadata, response, order=2):
                   if has_blocks else "可推断；模型项平方和为平衡设计的偏平方和")
     return {
         "design": design, "response": response, "order": order,
+        "ss_type": ss_type, "observed_runs": observed_runs,
         "names": ["截距"] + [name for name, _ in groups[1:]],
         "coefficients": beta, "fitted": fitted, "residuals": residuals,
         "n": n, "p": p, "rank": rank, "df": df,
@@ -196,10 +235,16 @@ def analyze_general_factorial(frame, metadata, response, order=2):
         "lack_of_fit_df": lof_df, "lack_of_fit_sse": lof_sse,
         "lack_of_fit": lack_of_fit, "anova": anova,
         "marginal_means": marginal_means, "cell_means": cell_means,
-        "ss_method": "平衡分类对比的偏平方和（等价 Type III）",
-        "inference": {"mse": mse} if error_available and mse is not None else None,
+        "ss_method": ("Type III 偏平方和：sum-to-zero 对比，完整模型与删项模型的秩差"
+                      if type_iii else "平衡分类对比的偏平方和（等价 Type III）"),
+        "inference": (type_iii["inference"] if type_iii and mse is not None else
+                      {"mse": mse} if error_available and mse is not None else None),
         "status": status,
-        "assumption": ("数值水平按分类标签编码；纯误差按相同设置及相同区组分组。"
+        "assumption": (("一般因子使用 sum-to-zero 对比：基准水平列为 -1，当前水平列为 +1，"
+                        "其他水平为 0；交互项为相应对比列乘积。"
+                        "Type III 显著性使用完整固定效应模型残差。")
+                       if type_iii else
+                       ("数值水平按分类标签编码；纯误差按相同设置及相同区组分组。"
                        "完整区组模型以区组×处理残差作误差项，并假设无处理×区组交互；"
-                       "显著性还假设实验误差独立、方差同质且近似正态。"),
+                       "显著性还假设实验误差独立、方差同质且近似正态。")),
     }

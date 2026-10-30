@@ -18,6 +18,8 @@ import pandas as pd
 
 
 DOE_SCHEMA_VERSION = 5
+_MAX_SPLIT_PLOT_RUNS = 10000
+_MAX_SPLIT_PLOT_MODEL_RANK = 512
 _READ_VERSIONS = frozenset({1, 2, 3, 4, 5})
 WORKSHEET_SCHEMA_VERSION = 1
 _ID = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]{0,63}$")
@@ -44,7 +46,11 @@ _SCREENING_SOURCES = {
 } | {
     ("definitive_screening", f"dsd{n}c1.v1", "mathematical_construction", f"jones.dsd{n}c1")
     for n in range(1, 48)
-} | {("definitive_screening", "dsd4c2.v1", "mathematical_construction", "foldover.dsd4c2")}
+} | {("definitive_screening", "dsd4c2.v1", "mathematical_construction", "foldover.dsd4c2")} | {
+    ("definitive_screening", f"dsd{m}c{c}.v1", "mathematical_construction",
+     f"jones.dsd{m}c{c}")
+    for m in range(4, 13) for c in range(2, 5) if (m, c) != (4, 2)
+}
 _POINT_TYPES = frozenset({"factorial", "center", "axial", "edge", "screening",
                           "pseudo_center", "taguchi"})
 _DESIGN_KEYS = {
@@ -64,6 +70,7 @@ _DESIGN_KEYS_V5_E = _DESIGN_KEYS_V4 | {
 }
 _DESIGN_KEYS_V5_TAGUCHI = _DESIGN_KEYS_V4 | {"taguchi"}
 _DESIGN_KEYS_V5 = _DESIGN_KEYS_V5_E | {"taguchi"}
+_DESIGN_KEYS_V5_BLOCKS = _DESIGN_KEYS_V5_E | {"confounded_block_generators"}
 _TAGUCHI_KEYS = {"kind", "array_id", "matrix_sha256", "columns",
                  "noise_array_id", "noise_matrix_sha256", "noise_columns",
                  "signal_factor"}
@@ -305,6 +312,112 @@ def _freeze_augmentation_lineage(value):
                                               "source_matrix_sha256"),
         "current_matrix_sha256": _sha256_text(value["current_matrix_sha256"],
                                                "current_matrix_sha256"),
+    })
+
+
+def _freeze_improvement_lineage(value):
+    if value is None:
+        return None
+    keys = {
+        "parent_design_id", "candidate_design_id", "criterion", "model_terms",
+        "locked_run_ids", "replaceable_run_ids", "candidate_run_ids", "run_map",
+        "parent_matrix_sha256", "candidate_matrix_sha256", "current_matrix_sha256",
+        "parameter_count", "parent_rank", "current_rank", "parent_logdet",
+        "current_logdet", "seed", "evaluation_budget", "evaluations",
+        "stop_reason", "tie_rule",
+    }
+    if not isinstance(value, Mapping) or set(value) != keys:
+        raise ValueError("改善设计谱系字段无效")
+    if value["criterion"] != "d_optimal":
+        raise ValueError("固定运行数改善只支持 d_optimal")
+    model_terms = _string_tuple(value["model_terms"], "improvement.model_terms")
+    locked = tuple(_run_id(item, "locked_run_ids") for item in value["locked_run_ids"])
+    replaceable = tuple(_run_id(item, "replaceable_run_ids")
+                        for item in value["replaceable_run_ids"])
+    candidate_ids = tuple(_run_id(item, "candidate_run_ids")
+                          for item in value["candidate_run_ids"])
+    if (len(set(map(_run_id_key, locked))) != len(locked)
+            or len(set(map(_run_id_key, replaceable))) != len(replaceable)
+            or len(set(map(_run_id_key, candidate_ids))) != len(candidate_ids)
+            or set(map(_run_id_key, locked)) & set(map(_run_id_key, replaceable))
+            or (not locked and not replaceable) or not candidate_ids):
+        raise ValueError("改善谱系的 Locked/Replaceable 运行 ID 无效")
+    raw_map = value["run_map"]
+    if not isinstance(raw_map, (tuple, list)):
+        raise ValueError("改善谱系 run_map 必须是列表")
+    run_map, candidates, outputs, replaced = [], set(), set(), set()
+    for entry in raw_map:
+        if not isinstance(entry, (tuple, list)) or len(entry) != 3:
+            raise ValueError("改善谱系映射须为候选/新运行/被替换运行三元组")
+        candidate, output, parent = (
+            _run_id(entry[0], "candidate_run_id"),
+            _run_id(entry[1], "improved_run_id"),
+            _run_id(entry[2], "replaced_parent_run_id"))
+        candidate_key, output_key, parent_key = map(
+            _run_id_key, (candidate, output, parent))
+        if (candidate_key in candidates or output_key in outputs
+                or parent_key in replaced):
+            raise ValueError("改善谱系映射中的运行 ID 不得重复")
+        candidates.add(candidate_key)
+        outputs.add(output_key)
+        replaced.add(parent_key)
+        run_map.append((candidate, output, parent))
+    locked_keys = set(map(_run_id_key, locked))
+    replaceable_keys = set(map(_run_id_key, replaceable))
+    candidate_keys = set(map(_run_id_key, candidate_ids))
+    if (not replaced <= replaceable_keys or outputs & (locked_keys | replaceable_keys)
+            or locked_keys & replaced
+            or not candidates <= candidate_keys):
+        raise ValueError("改善谱系映射与父运行分组不一致")
+    parameter_count = _positive_int(value["parameter_count"], "parameter_count")
+    parent_rank = _positive_int(value["parent_rank"], "parent_rank")
+    current_rank = _positive_int(value["current_rank"], "current_rank")
+    if parent_rank != parameter_count or current_rank != parameter_count:
+        raise ValueError("改善谱系的前后模型必须满列秩")
+    parent_logdet = _number(value["parent_logdet"], "parent_logdet")
+    current_logdet = _number(value["current_logdet"], "current_logdet")
+    if run_map and current_logdet <= parent_logdet + 1e-12:
+        raise ValueError("实际替换必须严格改善 D-optimal logdet")
+    if not run_map and not math.isclose(
+            current_logdet, parent_logdet, rel_tol=1e-12, abs_tol=1e-12):
+        raise ValueError("没有运行替换时前后 logdet 必须相同")
+    seed = value["seed"]
+    if isinstance(seed, bool) or not isinstance(seed, Integral):
+        raise ValueError("improvement.seed 必须是整数")
+    stop_reason = value["stop_reason"]
+    if stop_reason not in ("no_improving_exchange", "evaluation_budget",
+                           "sweep_limit", "no_replaceable_runs"):
+        raise ValueError("改善谱系停止原因无效")
+    evaluation_budget = _positive_int(value["evaluation_budget"], "evaluation_budget")
+    evaluations = _positive_int(value["evaluations"], "evaluations", minimum=0)
+    if (evaluation_budget > 200_000 or evaluations > evaluation_budget
+            or (stop_reason == "evaluation_budget" and evaluations != evaluation_budget)
+            or (stop_reason == "no_replaceable_runs") != (not replaceable)):
+        raise ValueError("改善谱系的预算、评价次数或停止原因不一致")
+    parent_hash = _sha256_text(value["parent_matrix_sha256"], "parent_matrix_sha256")
+    candidate_hash = _sha256_text(
+        value["candidate_matrix_sha256"], "candidate_matrix_sha256")
+    current_hash = _sha256_text(value["current_matrix_sha256"], "current_matrix_sha256")
+    if not run_map and parent_hash != current_hash:
+        raise ValueError("没有运行替换时父设计与当前矩阵摘要必须相同")
+    return MappingProxyType({
+        "parent_design_id": _text(value["parent_design_id"], "parent_design_id",
+                                   identifier=True),
+        "candidate_design_id": _text(value["candidate_design_id"],
+                                      "candidate_design_id", identifier=True),
+        "criterion": "d_optimal", "model_terms": model_terms,
+        "locked_run_ids": locked, "replaceable_run_ids": replaceable,
+        "candidate_run_ids": candidate_ids,
+        "run_map": tuple(run_map),
+        "parent_matrix_sha256": parent_hash,
+        "candidate_matrix_sha256": candidate_hash,
+        "current_matrix_sha256": current_hash,
+        "parameter_count": parameter_count, "parent_rank": parent_rank,
+        "current_rank": current_rank, "parent_logdet": parent_logdet,
+        "current_logdet": current_logdet, "seed": int(seed),
+        "evaluation_budget": evaluation_budget, "evaluations": evaluations,
+        "stop_reason": stop_reason,
+        "tie_rule": _text(value["tie_rule"], "improvement.tie_rule"),
     })
 
 
@@ -594,6 +707,7 @@ class DesignSpec:
     design_type: str = "unspecified"
     ccd_fraction: str | None = None
     block_count: int | None = None
+    confounded_block_generators: tuple[tuple[str, ...], ...] = ()
     screening_matrix: Mapping | None = None
     construction_version: str = "v1"
     randomization_unit: str = "run"
@@ -604,6 +718,7 @@ class DesignSpec:
     optimal_lineage: Mapping | None = None
     augmentation_lineage: Mapping | None = None
     taguchi: Mapping | None = None
+    improvement_lineage: Mapping | None = None
 
     def __post_init__(self):
         _text(self.design_id, "design_id", identifier=True)
@@ -617,13 +732,17 @@ class DesignSpec:
         categorical_types = ("central_composite", "box_behnken", "plackett_burman",
                              "definitive_screening", "general_full_factorial",
                              "custom_factorial", "custom_rsm", "custom_screening",
-                             "taguchi")
+                             "taguchi", "split_plot")
         if self.design_type not in categorical_types:
             if any(item.factor_type != "continuous" for item in factors):
                 raise NotImplementedError("分类或混合水平设计仅用于中心复合或 Box-Behnken")
         if self.design_type == "general_full_factorial" and any(
                 item.factor_type != "categorical" for item in factors):
             raise ValueError("General Full Factorial 的所有因子必须是分类因子")
+        if self.design_type == "definitive_screening" and any(
+                item.factor_type == "categorical" and len(item.levels) != 2
+                for item in factors):
+            raise ValueError("DSD 仅支持二水平分类因子")
         if self.design_type in _CUSTOM_TYPES and self.schema_version < 5:
             raise ValueError("自定义设计需要 schema v5")
         if self.design_type == "custom_factorial" and any(
@@ -671,11 +790,33 @@ class DesignSpec:
         if self.block_count is not None:
             object.__setattr__(self, "block_count",
                                _positive_int(self.block_count, "block_count", minimum=1))
+        raw_block_generators = self.confounded_block_generators
+        if not isinstance(raw_block_generators, (tuple, list)):
+            raise ValueError("confounded_block_generators 必须是因子组列表")
+        block_generators = []
+        for generator in raw_block_generators:
+            if (not isinstance(generator, (tuple, list)) or len(generator) < 2
+                    or any(not isinstance(name, str) for name in generator)):
+                raise ValueError("每个混杂区组生成元必须包含至少两个因子标识")
+            selected = set(generator)
+            if len(selected) != len(generator) or not selected <= set(ids):
+                raise ValueError("混杂区组生成元含重复或未知因子")
+            block_generators.append(tuple(name for name in ids if name in selected))
+        if len(set(block_generators)) != len(block_generators):
+            raise ValueError("混杂区组生成元不得重复")
+        object.__setattr__(self, "confounded_block_generators", tuple(block_generators))
         if self.center_point_count is not None:
-            if self.schema_version < 4 or self.design_type != "two_level_fractional":
-                raise ValueError("center_point_count 只适用于 schema v4 正规部分因子设计")
-            object.__setattr__(self, "center_point_count",
-                               _positive_int(self.center_point_count, "center_point_count", minimum=0))
+            if (self.schema_version < 4 or self.design_type not in
+                    ("two_level_fractional", "definitive_screening")):
+                raise ValueError("center_point_count 只适用于正规部分因子或 DSD")
+            center_count = _positive_int(self.center_point_count, "center_point_count", minimum=0)
+            if self.design_type == "definitive_screening":
+                if self.schema_version < 5:
+                    raise ValueError("DSD 额外中心点需要 schema v5")
+                categorical_count = sum(factor.factor_type == "categorical" for factor in factors)
+                if categorical_count and center_count % (1 << categorical_count):
+                    raise ValueError("含分类因子的 DSD 中心点数必须是全部分类组合数的倍数")
+            object.__setattr__(self, "center_point_count", center_count)
         if self.schema_version < 2:
             if self.block_count is not None:
                 raise ValueError("block_count 只适用于 schema v2")
@@ -686,6 +827,7 @@ class DesignSpec:
         if self.schema_version < 4:
             if (self.construction_version != "v1" or self.randomization_unit != "run"
                     or self.error_structure != "fixed" or self.foldover_lineage is not None
+                    or self.confounded_block_generators
                     or self.center_point_count is not None
                     or self.model_terms or self.optimal_lineage is not None
                     or self.augmentation_lineage is not None
@@ -698,7 +840,8 @@ class DesignSpec:
             if not re.fullmatch(r"v[1-9][0-9]*", construction):
                 raise ValueError("construction_version 必须使用 vN 格式")
             object.__setattr__(self, "construction_version", construction)
-            if self.randomization_unit not in ("run", "block", "whole_plot"):
+            if self.randomization_unit not in (
+                    "run", "block", "confounded_block", "whole_plot"):
                 raise ValueError("randomization_unit 无效")
             if self.error_structure not in ("fixed", "split_plot"):
                 raise ValueError("error_structure 无效")
@@ -706,22 +849,61 @@ class DesignSpec:
                 roles = [factor.randomization_role for factor in factors]
                 if (self.randomization_unit != "whole_plot"
                         or self.error_structure != "split_plot"
+                        or any(role not in ("hard_to_change", "easy_to_change")
+                               for role in roles)
                         or roles.count("easy_to_change") < 1
-                        or any(factor.factor_type != "continuous" for factor in factors)):
-                    raise ValueError("Split-Plot 需连续因子及 whole-plot 随机化与分层误差")
+                        or self.block_count is None or self.block_count < 2
+                        or self.seed is None):
+                    raise ValueError("Split-Plot 需完整因子角色、至少两个区组、seed 及分层随机化")
                 hard_count = roles.count("hard_to_change")
                 if self.construction_version == "v1":
-                    if len(factors) != 2 or hard_count != 1 or roles.count("easy_to_change") != 1:
-                        raise ValueError("Split-Plot v1 固定为一个 hard 和一个 easy 因子")
+                    if (len(factors) != 2 or hard_count != 1
+                            or roles.count("easy_to_change") != 1
+                            or any(factor.factor_type != "continuous" for factor in factors)):
+                        raise ValueError("Split-Plot v1 固定为两个连续因子，一个 hard 和一个 easy")
                 elif self.construction_version == "v2":
                     if (self.schema_version < 5 or not 2 <= len(factors) <= 6
-                            or not 1 <= hard_count <= 3):
+                            or not 1 <= hard_count <= 3
+                            or any(factor.factor_type != "continuous" for factor in factors)):
                         raise ValueError("Split-Plot v2 需 schema v5、2–6 因子和 1–3 个 hard 因子")
+                elif self.construction_version == "v3":
+                    rank = self.block_count + (1 << len(factors)) - 1
+                    if (self.schema_version < 5 or not 2 <= len(factors) <= 8
+                            or not 1 <= hard_count <= 3
+                            or any(factor.factor_type == "categorical"
+                                   and len(factor.levels) != 2 for factor in factors)
+                            or self.block_count * (1 << len(factors)) > _MAX_SPLIT_PLOT_RUNS
+                            or rank > _MAX_SPLIT_PLOT_MODEL_RANK):
+                        raise ValueError(
+                            "Split-Plot v3 需 schema v5、2–8 个二水平因子、1–3 个 hard 因子，"
+                            "且运行数不超过 10000、模型秩不超过 512")
                 else:
                     raise ValueError("未知 Split-Plot 构造版本")
             elif (self.randomization_unit == "whole_plot" or self.error_structure == "split_plot"
                   or any(factor.randomization_role is not None for factor in factors)):
                 raise ValueError("只有 Split-Plot 才能声明裂区随机化角色或误差层")
+            if self.confounded_block_generators:
+                generator_count = len(self.confounded_block_generators)
+                if (self.schema_version < 5 or self.design_type != "two_level_full"
+                        or self.construction_version != "v2"
+                        or self.randomization_unit != "confounded_block"
+                        or self.error_structure != "fixed"
+                        or self.block_count != 1 << generator_count
+                        or not 2 <= len(factors) <= 6
+                        or any(factor.factor_type != "continuous" for factor in factors)):
+                    raise ValueError(
+                        "混杂区组只支持 schema v5、2–6 个连续两水平因子及完整 2^b 区组")
+                positions = {factor_id: index for index, factor_id in enumerate(ids)}
+                vectors = [sum(1 << positions[name] for name in generator)
+                           for generator in self.confounded_block_generators]
+                effects = {0}
+                for vector in vectors:
+                    effects |= {effect ^ vector for effect in tuple(effects)}
+                if (len(effects) != 1 << generator_count
+                        or any(effect.bit_count() == 1 for effect in effects - {0})):
+                    raise ValueError("混杂区组生成元必须独立且不能混杂主效应")
+            elif self.randomization_unit == "confounded_block":
+                raise ValueError("confounded_block 需要混杂区组生成元")
             lineage = _freeze_foldover_lineage(self.foldover_lineage)
             if lineage is not None and self.design_type not in (
                     "two_level_fractional", "plackett_burman"):
@@ -737,8 +919,7 @@ class DesignSpec:
                     raise ValueError("PB Foldover 必须保留原始 PB 构造身份")
             if lineage is not None and (
                     lineage["parent_design_id"] == self.design_id
-                    or not set(lineage["folded_factors"]) <= set(ids)
-                    or len(lineage["folded_factors"]) not in (1, len(ids))):
+                    or not set(lineage["folded_factors"]) <= set(ids)):
                 raise ValueError("Foldover 因子或父设计身份无效")
             object.__setattr__(self, "foldover_lineage", lineage)
         if self.design_type == "split_plot" and self.schema_version < 4:
@@ -763,8 +944,9 @@ class DesignSpec:
             raise ValueError("非筛选设计不得声明筛选矩阵身份")
         if self.schema_version < 5:
             if (self.model_terms or self.optimal_lineage is not None
-                    or self.augmentation_lineage is not None):
-                raise ValueError("模型项与最优/增补谱系只适用于 schema v5")
+                    or self.augmentation_lineage is not None
+                    or self.improvement_lineage is not None):
+                raise ValueError("模型项与最优/增补/改善谱系只适用于 schema v5")
         else:
             terms = _string_tuple(self.model_terms, "model_terms")
             object.__setattr__(self, "model_terms", terms)
@@ -773,17 +955,24 @@ class DesignSpec:
                 raise ValueError("model_terms 只适用于自定义设计")
             optimal = _freeze_optimal_lineage(self.optimal_lineage)
             augmentation = _freeze_augmentation_lineage(self.augmentation_lineage)
-            if optimal is not None and augmentation is not None:
-                raise ValueError("最优选点谱系与增补谱系不能同时存在")
-            for name, lineage in (("optimal", optimal), ("augmentation", augmentation)):
+            improvement = _freeze_improvement_lineage(self.improvement_lineage)
+            lineages = (("optimal", optimal), ("augmentation", augmentation),
+                        ("improvement", improvement))
+            if sum(lineage is not None for _, lineage in lineages) > 1:
+                raise ValueError("最优选点、增补与改善谱系不能同时存在")
+            for name, lineage in lineages:
                 if lineage is not None and lineage["parent_design_id"] == self.design_id:
                     raise ValueError(f"{name} 父设计不能与当前设计相同")
             if optimal is not None and self.design_type not in (
                     "custom_factorial", "custom_rsm", "general_full_factorial",
                     "mixture"):
                 raise ValueError("最优设计谱系只适用于自定义/一般全因子/混料设计")
+            if improvement is not None and self.design_type not in (
+                    "custom_factorial", "custom_rsm"):
+                raise ValueError("固定运行数改善谱系只适用于自定义因子或响应面设计")
             object.__setattr__(self, "optimal_lineage", optimal)
             object.__setattr__(self, "augmentation_lineage", augmentation)
+            object.__setattr__(self, "improvement_lineage", improvement)
         if self.design_type == "taguchi":
             if self.schema_version < 5:
                 raise ValueError("Taguchi 设计需要 schema v5")
@@ -858,6 +1047,21 @@ class DesignSpec:
                     "noise_columns": dict(self.taguchi["noise_columns"]),
                 }),
             })
+            if self.confounded_block_generators:
+                result["confounded_block_generators"] = [
+                    list(generator) for generator in self.confounded_block_generators]
+            if self.improvement_lineage is not None:
+                result["improvement_lineage"] = {
+                    **dict(self.improvement_lineage),
+                    "model_terms": list(self.improvement_lineage["model_terms"]),
+                    "locked_run_ids": list(self.improvement_lineage["locked_run_ids"]),
+                    "replaceable_run_ids": list(
+                        self.improvement_lineage["replaceable_run_ids"]),
+                    "candidate_run_ids": list(
+                        self.improvement_lineage["candidate_run_ids"]),
+                    "run_map": [list(entry) for entry in
+                                self.improvement_lineage["run_map"]],
+                }
         return result
 
     @classmethod
@@ -872,7 +1076,10 @@ class DesignSpec:
         keys = {1: _DESIGN_KEYS_V1, 2: _DESIGN_KEYS, 3: _DESIGN_KEYS_V3,
                 4: _DESIGN_KEYS_V4}.get(version)
         valid_v5_keys = (_DESIGN_KEYS_V5, _DESIGN_KEYS_V5_E,
-                         _DESIGN_KEYS_V5_TAGUCHI)
+                         _DESIGN_KEYS_V5_TAGUCHI, _DESIGN_KEYS_V5_BLOCKS,
+                         _DESIGN_KEYS_V5_BLOCKS | {"taguchi"})
+        valid_v5_keys += tuple(keys | {"improvement_lineage"}
+                               for keys in valid_v5_keys)
         if (version == 5 and set(data) not in valid_v5_keys
                 or version != 5 and set(data) != keys):
             raise ValueError("设计元数据字段无效")
@@ -883,6 +1090,10 @@ class DesignSpec:
                 "factors", "response_names", "generators",
                 "defining_relations", "aliases")):
             raise ValueError("设计列表字段结构无效")
+        block_generators = data.get("confounded_block_generators", [])
+        if (not isinstance(block_generators, list)
+                or any(not isinstance(generator, list) for generator in block_generators)):
+            raise ValueError("混杂区组生成元字段结构无效")
         if any(not isinstance(item, dict) or item.get("schema_version") != version
                for item in data["factors"]):
             raise ValueError("因子与设计 schema_version 不一致")
@@ -899,6 +1110,8 @@ class DesignSpec:
             design_type=data["design_type"],
             ccd_fraction=None if fraction is missing else fraction,
             block_count=None if blocks is missing else blocks,
+            confounded_block_generators=tuple(
+                tuple(generator) for generator in block_generators),
             screening_matrix=data.get("screening_matrix"),
             construction_version=data.get("construction_version", "v1"),
             randomization_unit=data.get("randomization_unit", "run"),
@@ -909,6 +1122,7 @@ class DesignSpec:
             optimal_lineage=data.get("optimal_lineage"),
             augmentation_lineage=data.get("augmentation_lineage"),
             taguchi=data.get("taguchi"),
+            improvement_lineage=data.get("improvement_lineage"),
         )
         from dataclasses import replace
         return replace(result,
@@ -1083,8 +1297,8 @@ class DesignResult:
                 expected_subplots = set(product((-1, 1), repeat=len(easy)))
                 observed_subplots, local_orders = set(), set()
                 for run in group:
-                    coded = tuple(next(f for f in easy if f.factor_id == factor_id).to_coded(
-                        run.settings[factor_id]) for factor_id in [f.factor_id for f in easy])
+                    coded = tuple(_two_level_code(factor, run.settings[factor.factor_id])
+                                  for factor in easy)
                     if coded in observed_subplots:
                         raise ValueError("whole plot 内 subplot 因子组合不得重复")
                     observed_subplots.add(coded)
@@ -1102,8 +1316,8 @@ class DesignResult:
             expected_hard = set(product((-1, 1), repeat=len(hard)))
             for block in block_orders:
                 observed_hard = {
-                    tuple(f.to_coded(whole_plots[whole_plot_id][0].settings[f.factor_id])
-                          for f in hard)
+                    tuple(_two_level_code(factor, whole_plots[whole_plot_id][0].settings[
+                        factor.factor_id]) for factor in hard)
                     for whole_plot_id in block_orders[block].values()
                 }
                 if observed_hard != expected_hard:
@@ -1267,6 +1481,21 @@ def _screening_level(factor, value):
     raise ValueError('筛选因子必须位于低、中或高水平')
 
 
+def _two_level_code(factor, value):
+    if factor.factor_type == "categorical":
+        if len(factor.levels) != 2:
+            raise ValueError("二水平对比仅支持恰有两个分类水平")
+        if value == factor.levels[0]:
+            return -1
+        if value == factor.levels[1]:
+            return 1
+        raise ValueError("分类因子设定不属于已声明的两个水平")
+    coded = factor.to_coded(value)
+    if coded not in (-1, 1):
+        raise ValueError("二水平因子设定必须是 low 或 high")
+    return int(coded)
+
+
 def screening_matrix_sha256(result, *, base_only=False):
     """按标准序计算筛选设计身份，不包含响应和随机运行序。
 
@@ -1297,18 +1526,31 @@ def _validate_screening_construction(result):
 
     spec = result.spec
     key = spec.screening_matrix['construction_id'].removesuffix('.v1')
-    matrix = MATRICES[key]
     factor_count = len(spec.factors)
     if spec.design_type == 'plackett_burman':
+        matrix = MATRICES[key]
         if not 2 <= factor_count <= len(matrix[0]):
             raise ValueError('PB 因子数与构造不匹配')
-    elif key.endswith(('c1', 'c2')):
-        categorical_count = 2 if key.endswith('c2') else 1
-        if (factor_count != len(matrix[0]) or
-                [f.factor_type for f in spec.factors] != ['continuous'] * (factor_count - categorical_count) + ['categorical'] * categorical_count):
-            raise ValueError('混合 DSD 的连续及分类因子与构造不匹配')
-    elif factor_count != len(matrix[0]) or any(f.factor_type != 'continuous' for f in spec.factors):
-        raise ValueError('DSD 因子数或类型与构造不匹配')
+    else:
+        from doe_dsd import _dsd_matrix_for_key
+        try:
+            matrix = _dsd_matrix_for_key(key)
+        except KeyError as error:
+            raise ValueError('未知 DSD 矩阵构造') from error
+        categorical_count = sum(f.factor_type == 'categorical' for f in spec.factors)
+        continuous_count = factor_count - categorical_count
+        expected_key = (f'dsd{continuous_count}c{categorical_count}' if categorical_count
+                        else f'dsd{factor_count}')
+        supported_range = (
+            categorical_count == 0 and 2 <= continuous_count <= 48
+            or categorical_count == 1 and 1 <= continuous_count <= 47
+            or (continuous_count, categorical_count) == (4, 2)
+            or (2 <= categorical_count <= 4 and 4 <= continuous_count <= 12
+                and (continuous_count, categorical_count) != (4, 2)))
+        if (key != expected_key or not supported_range
+                or any(f.factor_type == 'categorical' and len(f.levels) != 2
+                       for f in spec.factors)):
+            raise ValueError('DSD 因子数或类型与构造不匹配')
     if (spec.generators or spec.defining_relations or spec.aliases
             or any(value is not None for value in (spec.ccd_alpha, spec.ccd_center_points,
                                                     spec.ccd_axial_points, spec.ccd_fraction))):
@@ -1349,24 +1591,42 @@ def _validate_screening_construction(result):
                 if _screening_level(factor, run.settings[factor.factor_id]) != value:
                     raise ValueError('PB 设定与构造矩阵不匹配')
         return
-    if len(runs) > 10000 or len(runs) % size:
+    center_count = spec.center_point_count or 0
+    runs_per_replicate = size + center_count
+    if len(runs) > 10000 or len(runs) % runs_per_replicate:
         raise ValueError('筛选设计运行数与构造不匹配')
-    repetitions = len(runs) // size
+    repetitions = len(runs) // runs_per_replicate
     blocks = spec.block_count or 1
     if blocks > repetitions or repetitions % blocks:
         raise ValueError('DSD 区组必须均分完整重复')
+    categorical = [factor for factor in spec.factors
+                   if factor.factor_type == 'categorical']
+    center_combinations = list(product((-1, 1), repeat=len(categorical))) or [()]
     for index, run in enumerate(runs):
-        base = matrix[index % size][:factor_count]
-        expected_type = ('factorial' if spec.design_type == 'plackett_burman' else
-                         'pseudo_center' if key.endswith(('c1', 'c2')) and index % size >= size - 2 else
-                         'center' if not key.endswith(('c1', 'c2')) and index % size == size - 1 else 'screening')
-        expected_block = (index // size) // (repetitions // blocks) + 1 if blocks > 1 else None
-        if run.replicate != index // size + 1 or run.block != expected_block or run.point_type != expected_type:
+        replicate, position = divmod(index, runs_per_replicate)
+        additional_center = position >= size
+        if additional_center:
+            chosen_levels = center_combinations[
+                (position - size) % len(center_combinations)]
+            level_by_id = {factor.factor_id: level
+                           for factor, level in zip(categorical, chosen_levels)}
+            expected = tuple(level_by_id[factor.factor_id]
+                             if factor.factor_type == 'categorical' else 0
+                             for factor in spec.factors)
+            expected_type = 'pseudo_center' if categorical else 'center'
+        else:
+            expected = matrix[position][:factor_count]
+            expected_type = ('pseudo_center' if categorical and position >= size - 2 else
+                             'center' if not categorical and position == size - 1 else
+                             'screening')
+        expected_block = (replicate // (repetitions // blocks)) + 1 if blocks > 1 else None
+        if (run.replicate != replicate + 1 or run.block != expected_block
+                or run.point_type != expected_type):
             raise ValueError('筛选设计重复、区组或点类型与构造不匹配')
-        for factor, expected in zip(spec.factors, base):
+        for factor, expected_level in zip(spec.factors, expected):
             value = run.settings[factor.factor_id]
             actual = _screening_level(factor, value)
-            if actual != expected:
+            if actual != expected_level:
                 raise ValueError('筛选设计设定与构造矩阵不匹配')
 
 
@@ -1387,8 +1647,7 @@ def _validate_pb_foldover(result):
     folded = lineage['folded_factors']
     if (lineage['batch_id'] != 'FOLD1' or spec.seed is None
             or spec.block_count is not None
-            or (folded != factor_ids and
-                (len(folded) != 1 or folded[0] not in factor_ids))
+            or not folded or not set(folded) <= set(factor_ids)
             or len(base) != len(matrix) or len(added) != len(matrix)
             or len(base) + len(added) != len(result.runs)):
         raise ValueError('PB Foldover 批次或运行身份不匹配')
@@ -1821,6 +2080,33 @@ def design_from_worksheet(frame, spec, column_map):
             raise ValueError("增补前模型矩阵摘要与父设计不一致")
         if matrix_sha256(result) != lineage["current_matrix_sha256"]:
             raise ValueError("增补后模型矩阵摘要与设计不一致")
+    if spec.improvement_lineage is not None:
+        from doe_custom import design_matrix, matrix_sha256
+        from doe_optimal import evaluate
+        lineage = spec.improvement_lineage
+        locked = set(map(_run_id_key, lineage["locked_run_ids"]))
+        replaceable = set(map(_run_id_key, lineage["replaceable_run_ids"]))
+        candidates = set(map(_run_id_key, lineage["candidate_run_ids"]))
+        run_map = lineage["run_map"]
+        replaced = {_run_id_key(entry[2]) for entry in run_map}
+        selected_candidates = {_run_id_key(entry[0]) for entry in run_map}
+        improved = {_run_id_key(entry[1]) for entry in run_map}
+        actual = {_run_id_key(run.run_id) for run in result.runs}
+        expected = locked | (replaceable - replaced) | improved
+        if (len(locked) + len(replaceable) != len(result.runs)
+                or actual != expected or not selected_candidates <= candidates):
+            raise ValueError("固定运行数改善映射与当前运行不一致")
+        if matrix_sha256(result) != lineage["current_matrix_sha256"]:
+            raise ValueError("改善后模型矩阵摘要与设计不一致")
+        matrix, model = design_matrix(result, terms=lineage["model_terms"])
+        current = evaluate(matrix.tolist())
+        if (model.terms != lineage["model_terms"]
+                or current["rank"] != lineage["current_rank"]
+                or current["p"] != lineage["parameter_count"]
+                or not math.isclose(
+                    current["logdet"], lineage["current_logdet"],
+                    rel_tol=1e-12, abs_tol=1e-12)):
+            raise ValueError("改善谱系记录的秩或 logdet 与当前设计不一致")
     return result
 
 

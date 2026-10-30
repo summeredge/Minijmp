@@ -217,6 +217,35 @@ def test_single_factor_foldover_only_flips_that_column():
     assert summary['confounding_reduced'] is True
 
 
+def test_multi_factor_foldover_flips_only_selected_columns_and_recomputes_rank():
+    frame, metadata = create_pb(pb_spec(12), 12)
+    response(frame)
+    source = frame.copy(deep=True)
+    folded, folded_metadata, summary = create_pb_foldover(
+        frame, metadata, ('F1', 'F3'))
+    pd.testing.assert_frame_equal(frame, source)
+    columns = folded_metadata['column_map']
+    base = folded[folded[columns['batch_id']] == 'BASE'].set_index(columns['run_id'])
+    added = folded[folded[columns['batch_id']] == 'FOLD1'].set_index(
+        columns['source_run_id'])
+    for run_id, original in base.iterrows():
+        row = added.loc[run_id]
+        assert row[columns['factors']['F1']] == -original[columns['factors']['F1']]
+        assert row[columns['factors']['F2']] == original[columns['factors']['F2']]
+        assert row[columns['factors']['F3']] == -original[columns['factors']['F3']]
+        assert pd.isna(row[columns['responses']['Y']])
+    assert summary['folded_factors'] == ('F1', 'F3')
+    assert folded_metadata['design']['foldover_lineage']['folded_factors'] == [
+        'F1', 'F3']
+    coded = folded[list(columns['factors'].values())].to_numpy(dtype=float)
+    matrix = np.column_stack([
+        np.ones(len(coded)), coded,
+        *[coded[:, left] * coded[:, right]
+          for left in range(coded.shape[1])
+          for right in range(left + 1, coded.shape[1])]])
+    assert summary['after']['joint_rank'] == np.linalg.matrix_rank(matrix)
+
+
 def test_estimable_and_unestimable_interaction_changes_are_reported():
     """界面预览使用的可估计/不可估计计数必须与集合大小和秩一致。"""
     frame, metadata = create_pb(pb_spec(12), 12)

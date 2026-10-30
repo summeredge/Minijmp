@@ -97,6 +97,18 @@ class AnalyzeTaguchi:
         self.best_sn_threshold = ttk.Entry(best_bar, width=10)
         self.best_sn_threshold.pack(side='left')
         self.best_sn_threshold.configure(state='disabled')
+        self.model_terms = None
+        if not self.dynamic:
+            model_bar = ttk.Frame(self.main, padding=(8, 0))
+            model_bar.pack(fill='x')
+            ttk.Button(model_bar, text='模型项', command=self.edit_model_terms).pack(side='left')
+            self.model_terms_label = tk.StringVar(value='默认主效应')
+            ttk.Label(model_bar, textvariable=self.model_terms_label).pack(side='left', padx=6)
+            ttk.Label(model_bar, text='均值 CI').pack(side='left', padx=(12, 2))
+            self.confidence = ttk.Combobox(
+                model_bar, values=('90%', '95%', '99%'), state='readonly', width=6)
+            self.confidence.set('95%')
+            self.confidence.pack(side='left')
         self.status = tk.StringVar(value='')
         ttk.Label(self.main, textvariable=self.status, wraplength=940,
                   anchor='w').pack(fill='x', padx=8)
@@ -108,6 +120,9 @@ class AnalyzeTaguchi:
     def _best_mode_selected(self, event=None):
         self.best_sn_threshold.configure(
             state='normal' if self.best_metric.get() == '先稳健后目标' else 'disabled')
+
+    def edit_model_terms(self):
+        self.model_terms_dialog = TaguchiTermsDialog(self)
 
     def _restore_options(self):
         """恢复上次随工程保存的分析选项；缺失时保留界面默认值。"""
@@ -222,6 +237,7 @@ class AnalyzeTaguchi:
         try:
             from doe_taguchi_analysis import noise_robustness
             self.owner._finish_edit()
+            self.app._check_table()
             frame = self.owner._full_frame(self.source).copy(deep=True)
             kind = ('smaller' if self.dynamic
                     else _STATIC_LABELS[self.sn_kind.get()])
@@ -238,6 +254,7 @@ class AnalyzeTaguchi:
                 raise ValueError('请先分析。')
             from doe_taguchi_analysis import best_settings
             self.owner._finish_edit()
+            self.app._check_table()
             frame = self.owner._full_frame(self.source).copy(deep=True)
             choice = self.best_metric.get()
             selection_mode = None
@@ -255,7 +272,9 @@ class AnalyzeTaguchi:
                 threshold = None
             result = best_settings(frame, self.source.doe_metadata, self.response.get(),
                                    metric, target, selection_mode=selection_mode,
-                                   sn_threshold=threshold)
+                                   sn_threshold=threshold, model_terms=self.model_terms,
+                                   confidence=(float(self.confidence.get().rstrip('%')) / 100
+                                               if not self.dynamic else 0.95))
         except (ValueError, TypeError, RuntimeError, OverflowError) as error:
             messagebox.showerror('Taguchi', str(error), parent=self.main)
             return
@@ -329,6 +348,57 @@ class AnalyzeTaguchi:
         axis.legend()
 
 
+class TaguchiTermsDialog:
+    """选择分类 OLS 模型中的主效应和可选双因子交互。"""
+
+    def __init__(self, owner):
+        self.owner = owner
+        self.main = tk.Toplevel(owner.main)
+        self.main.title('Taguchi 模型项')
+        self.main.transient(owner.main)
+        body = ttk.Frame(self.main, padding=8)
+        body.pack(fill='both', expand=True)
+        controls = [factor.factor_id for factor in owner.design.spec.factors
+                    if factor.factor_id in owner.design.spec.taguchi['columns']]
+        self.terms = [(factor_id,) for factor_id in controls]
+        self.terms.extend((first, second) for index, first in enumerate(controls)
+                          for second in controls[index + 1:])
+        self.listbox = tk.Listbox(body, selectmode='extended', exportselection=False,
+                                  height=16, width=34)
+        scrollbar = ttk.Scrollbar(body, orient='vertical', command=self.listbox.yview)
+        self.listbox.configure(yscrollcommand=scrollbar.set)
+        self.listbox.pack(side='left', fill='both', expand=True)
+        scrollbar.pack(side='right', fill='y')
+        for term in self.terms:
+            self.listbox.insert('end', ' × '.join(term))
+        if owner.model_terms is None:
+            for index in range(len(controls)):
+                self.listbox.selection_set(index)
+        else:
+            selected = set(owner.model_terms)
+            for index, term in enumerate(self.terms):
+                if term in selected:
+                    self.listbox.selection_set(index)
+        buttons = ttk.Frame(self.main, padding=(8, 0, 8, 8))
+        buttons.pack(fill='x')
+        ttk.Button(buttons, text='默认主效应', command=self.default).pack(side='left')
+        ttk.Button(buttons, text='应用', command=self.apply).pack(side='right')
+        ttk.Button(buttons, text='取消', command=self.main.destroy).pack(side='right', padx=6)
+
+    def default(self):
+        self.owner.model_terms = None
+        self.owner.model_terms_label.set('默认主效应')
+        self.main.destroy()
+
+    def apply(self):
+        self.owner.model_terms = tuple(
+            self.terms[index] for index in self.listbox.curselection())
+        self.owner.model_terms_label.set(
+            '仅截距' if not self.owner.model_terms else
+            f'已选 {len(self.owner.model_terms)} 项')
+        self.main.destroy()
+
+
 class BestTaguchi:
     """最佳水平与确认实验建议；确认数据不写回原始设计。"""
 
@@ -355,12 +425,19 @@ class BestTaguchi:
         self.confirm_tolerance.pack(side='left')
         self.confirm_button = ttk.Button(confirm, text='计算差值', command=self.confirm)
         self.confirm_button.pack(side='left', padx=6)
+        self.predict_button = ttk.Button(
+            confirm, text='指定设置预测', command=self.predict_specific)
+        self.predict_button.pack(side='left', padx=4)
+        self.confirm_sheet_button = ttk.Button(
+            confirm, text='创建确认实验工作表', command=self.create_confirmation_sheet)
+        self.confirm_sheet_button.pack(side='left', padx=4)
         ttk.Label(body, text=result['assumption'], wraplength=780).pack(anchor='w')
         ttk.Button(body, text='关闭', command=self.main.destroy).pack(anchor='e')
         if result['best'] is None:
             self.confirm_value.configure(state='disabled')
             self.confirm_tolerance.configure(state='disabled')
             self.confirm_button.configure(state='disabled')
+            self.confirm_sheet_button.configure(state='disabled')
 
     def _tab(self, title, headers, values):
         tab = ttk.Frame(self.tabs)
@@ -388,6 +465,13 @@ class BestTaguchi:
             ['目标值', result['target']],
             ['最低 S/N', result['sn_threshold']],
             ['预测 Mean', result['predicted_mean']],
+            ['均值 CI', (f"{result['mean_ci']['ci_low']:.6g}–"
+                       f"{result['mean_ci']['ci_high']:.6g}"
+                       if result['mean_ci']['status'] == '可用' else
+                       result['mean_ci'].get('reason', '不可用'))],
+            ['模型秩/参数', (f"{result['model']['rank']}/{result['model']['parameter_count']}"
+                            if result.get('model') else '不可用')],
+            ['残差自由度', result['model']['df'] if result.get('model') else None],
             ['预测 S/N', result['predicted_sn']],
             ['预测 SD', (result['predicted_sd'] if result['predicted_sd'] is not None
                          else '不可用')],
@@ -445,16 +529,97 @@ class BestTaguchi:
                 raise ValueError('判定容差不能为负')
             from doe_taguchi_analysis import best_settings
             self.owner.owner._finish_edit()
+            self.owner.app._check_table()
             frame = self.owner.owner._full_frame(self.owner.source).copy(deep=True)
             self.result = best_settings(
                 frame, self.owner.source.doe_metadata, self.owner.response.get(),
                 self.result['metric'], self.result['target'], observed, tolerance,
                 selection_mode=self.result['selection_mode'],
-                sn_threshold=self.result['sn_threshold'])
+                sn_threshold=self.result['sn_threshold'],
+                model_terms=self.result.get('model_terms'),
+                confidence=self.result.get('confidence', 0.95))
         except (ValueError, TypeError, RuntimeError, OverflowError) as error:
             messagebox.showerror('Taguchi', str(error), parent=self.main)
             return False
         self._tabs()
+        return True
+
+    def predict_specific(self):
+        if not self.result.get('model'):
+            messagebox.showerror('Taguchi', '当前模型没有可用的均值预测。', parent=self.main)
+            return
+        self.point_prediction = TaguchiPointPrediction(self)
+
+    def create_confirmation_sheet(self):
+        try:
+            self.owner.owner._finish_edit()
+            app = self.owner.owner
+            source_name = next((name for name, table in app.sheets.items()
+                                if table is self.owner.source), None)
+            if source_name is None:
+                raise ValueError('来源工作表已关闭，无法创建确认实验工作表')
+            frame = app._full_frame(self.owner.source).copy(deep=True)
+            from doe_taguchi_analysis import create_confirmation_frame
+            plan = create_confirmation_frame(
+                frame, self.owner.source.doe_metadata, self.result, source_name)
+            app.addSheet(f'{source_name} 确认实验', plan, None)
+        except (ValueError, TypeError, RuntimeError, OverflowError) as error:
+            messagebox.showerror('Taguchi', str(error), parent=self.main)
+
+
+class TaguchiPointPrediction:
+    """按选定模型预测用户指定的控制水平组合。"""
+
+    def __init__(self, owner):
+        self.owner = owner
+        self.main = tk.Toplevel(owner.main)
+        self.main.title('Taguchi 指定设置预测')
+        self.main.transient(owner.main)
+        body = ttk.Frame(self.main, padding=8)
+        body.pack(fill='both', expand=True)
+        spec = owner.owner.design.spec
+        best = owner.result['best'] or {}
+        self.controls = [factor for factor in spec.factors
+                         if factor.factor_id in spec.taguchi['columns']]
+        self.levels = {}
+        for index, factor in enumerate(self.controls):
+            ttk.Label(body, text=factor.factor_id).grid(row=index, column=0, sticky='w', pady=2)
+            value = ttk.Combobox(body, values=factor.levels, state='readonly', width=20)
+            value.set(best.get(factor.factor_id, factor.levels[0]))
+            value.grid(row=index, column=1, sticky='ew', pady=2)
+            self.levels[factor.factor_id] = value
+        self.output = tk.StringVar(value='')
+        row = len(self.controls)
+        ttk.Button(body, text='预测', command=self.predict).grid(row=row, column=1, sticky='e', pady=6)
+        ttk.Label(body, textvariable=self.output, wraplength=520).grid(
+            row=row + 1, column=0, columnspan=2, sticky='w')
+        body.columnconfigure(1, weight=1)
+
+    def predict(self):
+        try:
+            app = self.owner.owner.owner
+            app._finish_edit()
+            self.owner.owner.app._check_table()
+            frame = app._full_frame(self.owner.owner.source).copy(deep=True)
+            metadata = self.owner.owner.source.doe_metadata
+            from doe_predict import snapshot_id
+            expected = self.owner.result.get('source_snapshot_id')
+            if expected and snapshot_id(frame, metadata) != expected:
+                raise ValueError('来源试验数据已更改；请重新分析并生成最佳设置')
+            from doe_taguchi_analysis import predict_taguchi_model
+            result = predict_taguchi_model(
+                frame, metadata,
+                self.owner.owner.response.get(),
+                {key: widget.get() for key, widget in self.levels.items()},
+                self.owner.result.get('model_terms'), self.owner.result['confidence'])
+        except (ValueError, TypeError, RuntimeError, OverflowError) as error:
+            messagebox.showerror('Taguchi', str(error), parent=self.main)
+            return False
+        interval = result['intervals']
+        ci = (f"{interval['confidence']:.0%} 均值 CI："
+              f"[{interval['ci_low']:.6g}, {interval['ci_high']:.6g}]"
+              if interval['status'] == '可用' else interval['reason'])
+        self.output.set(f"预测值 {result['prediction']:.8g}；{ci}")
         return True
 
 
@@ -462,6 +627,7 @@ class NoiseTaguchi:
     """噪声条件稳健性：控制设定间 Mean/SD/S/N 与因子水平响应表。"""
 
     def __init__(self, owner, result):
+        self.owner = owner
         self.result = result
         self.main = tk.Toplevel(owner.main)
         self.main.title('Taguchi 噪声稳健性')
@@ -469,6 +635,7 @@ class NoiseTaguchi:
         body = ttk.Frame(self.main, padding=8)
         body.pack(fill='both', expand=True)
         ttk.Label(body, text=result['status'], wraplength=780).pack(anchor='w')
+        ttk.Button(body, text='响应模型法', command=self.response_model).pack(anchor='w', pady=(4, 0))
         self.tabs = ttk.Notebook(body)
         self.tabs.pack(fill='both', expand=True, pady=6)
         self._tab('控制设定', ['控制运行', '控制设定', '信号', '噪声条件数',
@@ -502,3 +669,131 @@ class NoiseTaguchi:
         self.tabs.add(tab, text=title)
         TableBlock(tab, StatTable(title=title, headers=headers, values=values),
                    paginate=True).pack(fill='both', expand=True)
+
+    def response_model(self):
+        self.model_window = NoiseResponseModelTaguchi(self.owner)
+
+
+class NoiseResponseModelTaguchi:
+    """按所选控制×噪声交互拟合响应模型并搜索稳健设置。"""
+
+    def __init__(self, owner):
+        self.owner = owner
+        self.main = tk.Toplevel(owner.main)
+        self.main.title('Taguchi 噪声响应模型')
+        self.main.geometry('820x600')
+        body = ttk.Frame(self.main, padding=8)
+        body.pack(fill='both', expand=True)
+        controls = [factor.factor_id for factor in owner.design.spec.factors
+                    if factor.factor_id in owner.design.spec.taguchi['columns']]
+        noises = [factor.factor_id for factor in owner.design.spec.factors
+                  if factor.factor_id in owner.design.spec.taguchi['noise_columns']]
+        ttk.Label(body, text='控制×噪声项').pack(anchor='w')
+        choices = ttk.Frame(body)
+        choices.pack(fill='x')
+        self.interactions = [(control, noise) for control in controls for noise in noises]
+        self.listbox = tk.Listbox(choices, selectmode='extended', exportselection=False,
+                                  height=7, width=28)
+        scrollbar = ttk.Scrollbar(choices, orient='vertical', command=self.listbox.yview)
+        self.listbox.configure(yscrollcommand=scrollbar.set)
+        self.listbox.pack(side='left', fill='x', expand=True)
+        scrollbar.pack(side='left', fill='y')
+        for control, noise in self.interactions:
+            self.listbox.insert('end', f'{control} × {noise}')
+
+        options = ttk.Frame(body)
+        options.pack(fill='x', pady=4)
+        ttk.Label(options, text='均值约束').pack(side='left')
+        self.constraint_mode = ttk.Combobox(
+            options, values=('无', '目标均值±容差', '均值范围'), state='readonly', width=14)
+        self.constraint_mode.set('无')
+        self.constraint_mode.pack(side='left', padx=4)
+        self.constraint_mode.bind('<<ComboboxSelected>>', self._constraint_changed)
+        ttk.Label(options, text='目标').pack(side='left', padx=(8, 2))
+        self.target = ttk.Entry(options, width=9, state='disabled')
+        self.target.pack(side='left')
+        ttk.Label(options, text='容差 / 下限').pack(side='left', padx=(8, 2))
+        self.lower = ttk.Entry(options, width=9, state='disabled')
+        self.lower.pack(side='left')
+        ttk.Label(options, text='上限').pack(side='left', padx=(8, 2))
+        self.upper = ttk.Entry(options, width=9, state='disabled')
+        self.upper.pack(side='left')
+        self.fit_button = ttk.Button(options, text='拟合并搜索', command=self.fit)
+        self.fit_button.pack(side='left', padx=8)
+
+        self.status = tk.StringVar(value='')
+        ttk.Label(body, textvariable=self.status, wraplength=790).pack(anchor='w')
+        self.tabs = ttk.Notebook(body)
+        self.tabs.pack(fill='both', expand=True, pady=6)
+        ttk.Label(body, text='噪声水平组合等权；方差为模型预测均值在这些条件间的方差。',
+                  wraplength=790).pack(anchor='w')
+
+    def _constraint_changed(self, event=None):
+        mode = self.constraint_mode.get()
+        for entry, active in ((self.target, mode == '目标均值±容差'),
+                              (self.lower, mode != '无'),
+                              (self.upper, mode == '均值范围')):
+            entry.configure(state='normal' if active else 'disabled')
+
+    def _tab(self, title, headers, values):
+        tab = ttk.Frame(self.tabs)
+        self.tabs.add(tab, text=title)
+        TableBlock(tab, StatTable(title=title, headers=headers, values=values),
+                   paginate=True).pack(fill='both', expand=True)
+
+    def fit(self):
+        try:
+            app = self.owner.owner
+            app._finish_edit()
+            self.owner.app._check_table()
+            frame = app._full_frame(self.owner.source).copy(deep=True)
+            selected = [self.interactions[index] for index in self.listbox.curselection()]
+            mode = self.constraint_mode.get()
+            if mode == '目标均值±容差':
+                target_mean, tolerance = ccd_number(self.target.get()), ccd_number(self.lower.get())
+                mean_range = None
+            elif mode == '均值范围':
+                target_mean, tolerance = None, None
+                mean_range = (ccd_number(self.lower.get()), ccd_number(self.upper.get()))
+            else:
+                target_mean, tolerance, mean_range = None, None, None
+            from doe_taguchi_analysis import noise_response_model
+            result = noise_response_model(
+                frame, self.owner.source.doe_metadata, self.owner.response.get(), selected,
+                target_mean, tolerance, mean_range)
+        except (ValueError, TypeError, RuntimeError, OverflowError) as error:
+            self.status.set('模型分析失败：' + str(error))
+            messagebox.showerror('Taguchi', str(error), parent=self.main)
+            return False
+        self.result = result
+        for tab in self.tabs.tabs():
+            self.tabs.nametowidget(tab).destroy()
+        self.status.set(f"{result['status']}；秩 {result['rank']}/{result['parameter_count']}；"
+                        f"残差 df={result['residual_df']}；"
+                        f"{result['search'].get('optimality_scope', result['search']['stop_reason'])}")
+        self._tab('系数', ['模型项', '估计值', '标准误', 't', 'p', '95% CI'], [
+            [term, estimate,
+             next((row['se'] for row in result['inference'] or ()
+                   if row['term'] == term), None),
+             next((row['t'] for row in result['inference'] or ()
+                   if row['term'] == term), None),
+             next((row['p'] for row in result['inference'] or ()
+                   if row['term'] == term), None),
+             (None if not result['inference'] else
+              f"{next(row['ci_low'] for row in result['inference'] if row['term'] == term):.6g}–"
+              f"{next(row['ci_high'] for row in result['inference'] if row['term'] == term):.6g}")]
+            for term, estimate in (result['coefficients'] or {}).items()])
+        self._tab('交互可估性', ['交互项', '状态'], [
+            [row['interaction'], '可估' if row['estimable'] else '不可估/混杂']
+            for row in result['interaction_estimability']])
+        if result['residuals'] is not None:
+            self._tab('残差', ['运行 ID', '拟合值', '残差'], [
+                [row['run_id'], row['fitted'], row['residual']]
+                for row in result['residuals']])
+        self._tab('控制组合', ['最优', '控制设置', '预测 Mean', '预测 SD', '目标偏差', '已观测'], [
+            ['✓' if row['settings'] == result['best'] else '',
+             '；'.join(f'{key}={value}' for key, value in row['settings'].items()),
+             row['predicted_mean'], row['predicted_sd'], row['target_deviation'],
+             '是' if row['observed_control_setting'] else '否']
+            for row in result['candidates']])
+        return True

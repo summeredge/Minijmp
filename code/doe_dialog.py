@@ -199,7 +199,7 @@ class CreateDOE:
                                                ('中心点数', '默认' if bbd or ccd else '0'),
                                                ('随机 seed', '1'), ('响应名称', 'Y')),
                                              options_start):
-            ttk.Label(grid, text='每重复中心点数' if pb and key == '中心点数' else key).grid(row=row, column=0, sticky='w')
+            ttk.Label(grid, text='每重复中心点数' if (pb or dsd) and key == '中心点数' else key).grid(row=row, column=0, sticky='w')
             entry = ttk.Entry(grid, width=25)
             entry.insert(0, default)
             entry.grid(row=row, column=1, columnspan=2, sticky='ew', pady=2)
@@ -211,6 +211,13 @@ class CreateDOE:
                             variable=self.block_replicates).grid(
                                 row=preview_row, column=0, columnspan=3, sticky='w')
             preview_row += 1
+            if not fractional:
+                ttk.Label(grid, text='混杂生成元（如 ABC;ABD）').grid(
+                    row=preview_row, column=0, sticky='w')
+                self.confounded_block_generators = ttk.Entry(grid, width=25)
+                self.confounded_block_generators.grid(
+                    row=preview_row, column=1, columnspan=2, sticky='ew', pady=2)
+                preview_row += 1
         if fractional:
             ttk.Label(grid, text='生成元（D=AB;E=AC）').grid(
                 row=preview_row, column=0, sticky='w')
@@ -297,20 +304,42 @@ class CreateDOE:
         center_text = self.options['中心点数'].get().strip()
         if self.dsd:
             from doe_dsd import create_dsd
-            if int(center_text) != 0:
-                raise ValueError('DSD 的中心点由构造确定，额外中心点数请设为 0。')
-            mixed_two = [f.factor_type for f in factors] == ['continuous'] * 4 + ['categorical'] * 2
-            mixed = (2 <= len(factors) <= 48 and [f.factor_type for f in factors] ==
-                     ['continuous'] * (len(factors) - 1) + ['categorical'])
-            if not mixed and not mixed_two and (len(factors) not in range(2, 49) or
-                              any(f.factor_type != 'continuous' for f in factors)):
-                raise ValueError('支持 2–48 连续因子、1–47 连续加 1 分类，或 4 连续加 2 分类。')
-            key = 'dsd4c2' if mixed_two else f'dsd{len(factors)-1}c1' if mixed else f'dsd{len(factors)}'
+            center_points = int(center_text)
+            types = [factor.factor_type for factor in factors]
+            continuous_count = types.count('continuous')
+            categorical_count = types.count('categorical')
+            mixed_two = types == ['continuous'] * 4 + ['categorical'] * 2
+            mixed_one = (types == ['continuous'] * continuous_count + ['categorical']
+                         and 1 <= continuous_count <= 47)
+            mixed_multi = (types == ['continuous'] * continuous_count
+                           + ['categorical'] * categorical_count
+                           and 4 <= continuous_count <= 12
+                           and 2 <= categorical_count <= 4
+                           and (continuous_count, categorical_count) != (4, 2))
+            continuous_only = (2 <= len(factors) <= 48
+                               and all(kind == 'continuous' for kind in types))
+            if not (continuous_only or mixed_one or mixed_two or mixed_multi):
+                raise ValueError('支持 2–48 个连续因子、1–47 个连续因子加 1 个分类因子、'
+                                 '4–12 个连续因子加 2–4 个分类因子（4+2 保留原构造），'
+                                 '并要求连续因子排在分类因子前。')
+            if categorical_count and any(len(factor.levels) != 2
+                                          for factor in factors if factor.factor_type == 'categorical'):
+                raise ValueError('DSD 仅支持二水平分类因子。')
+            if center_points < 0:
+                raise ValueError('中心点数不能为负数。')
+            if categorical_count and center_points % (1 << categorical_count):
+                raise ValueError('含分类因子的 DSD，额外中心点数必须是全部分类组合数的倍数。')
+            key = ('dsd4c2' if mixed_two else
+                   f'dsd{continuous_count}c{categorical_count}' if categorical_count else
+                   f'dsd{len(factors)}')
             identity = {'construction_id': key + '.v1', 'source_kind': 'mathematical_construction',
-                        'source_id': ('foldover.' if mixed_two else 'jones.' if mixed else 'conference.') + key, 'matrix_sha256': '0' * 64}
+                        'source_id': ('foldover.' if mixed_two else
+                                      'jones.' if categorical_count else 'conference.') + key,
+                        'matrix_sha256': '0' * 64}
             spec = DesignSpec('DOE', tuple(factors), responses, seed=int(self.options['随机 seed'].get()),
                               design_type='definitive_screening', screening_matrix=identity)
-            return create_dsd(spec, replicates, blocks=int(self.dsd_blocks.get()))
+            return create_dsd(spec, replicates, blocks=int(self.dsd_blocks.get()),
+                              center_points=center_points)
         if self.pb:
             from doe_pb import create_pb
             n = int(self.pb_runs.get())
@@ -367,13 +396,38 @@ class CreateDOE:
             return create_ccd(spec, replicates, measured=self.measured.get())
         centers = int(center_text)
         blocked = (hasattr(self, 'block_replicates') and self.block_replicates.get())
+        block_generator_text = (
+            self.confounded_block_generators.get().strip()
+            if hasattr(self, 'confounded_block_generators') else '')
+        block_generators = ()
+        if block_generator_text:
+            factor_ids = [factor.factor_id for factor in factors]
+            parsed = []
+            for raw in block_generator_text.split(';'):
+                term = raw.strip().upper()
+                if (not term or any(name not in factor_ids for name in term)
+                        or len(set(term)) != len(term) or len(term) < 2):
+                    raise ValueError('混杂生成元必须是不同因子组成的高阶交互，例如 ABC')
+                parsed.append(tuple(name for name in factor_ids if name in term))
+            if len(set(parsed)) != len(parsed):
+                raise ValueError('混杂生成元不得重复')
+            block_generators = tuple(parsed)
+            if blocked:
+                raise ValueError('完整重复区组与混杂区组不能同时使用')
+            if replicates != 1 or centers:
+                raise ValueError('混杂区组仅支持单次试验且不能添加中心点')
         spec = DesignSpec('DOE', tuple(factors), responses,
                           seed=int(self.options['随机 seed'].get()),
                           generators=generators,
                           design_type='two_level_fractional' if self.fractional
                           else 'two_level_full',
-                          block_count=replicates if blocked else None,
-                          randomization_unit='block' if blocked else 'run')
+                          block_count=(1 << len(block_generators) if block_generators
+                                       else replicates if blocked else None),
+                          confounded_block_generators=block_generators,
+                          construction_version='v2' if block_generators else 'v1',
+                          randomization_unit=(
+                              'confounded_block' if block_generators else
+                              'block' if blocked else 'run'))
         if self.fractional:
             from doe_fractional import create_fractional
             return create_fractional(spec, replicates, centers)
@@ -385,13 +439,27 @@ class CreateDOE:
             summary = f'{len(frame)} 次运行；前 5 个运行 ID：' + ', '.join(
                 frame['运行ID'].head().tolist())
             if '区组' in frame:
-                summary += f'；{frame["区组"].nunique()} 个区组，每个完整重复为一区组'
+                design = DesignSpec.from_dict(meta['design'])
+                if design.confounded_block_generators:
+                    from doe_factorial import confounded_block_effects
+                    effects = [''.join(term) for term in confounded_block_effects(design)]
+                    block_size = len(frame) // frame['区组'].nunique()
+                    summary += (f'；{frame["区组"].nunique()} 个混杂区组，每区组 {block_size} 次；'
+                                + '与区组混杂：' + '、'.join(effects))
+                else:
+                    summary += f'；{frame["区组"].nunique()} 个区组，每个完整重复为一区组'
             if self.pb:
                 spec = DesignSpec.from_dict(meta['design'])
                 summary += '；因子水平：' + '；'.join(
                     f'{f.name} {" / ".join(f.levels) if f.factor_type == "categorical" else f"{f.low} / {f.high}"}' for f in spec.factors)
             if self.dsd:
                 spec = DesignSpec.from_dict(meta['design'])
+                center_count = spec.center_point_count or 0
+                if center_count:
+                    center_kind = ('伪中心点' if any(
+                        factor.factor_type == 'categorical' for factor in spec.factors)
+                                   else '中心点')
+                    summary += f'；每重复增加 {center_count} 个{center_kind}'
                 summary += '；因子水平：' + '；'.join(
                     f'{f.name} {" / ".join(f.levels) if f.factor_type == "categorical" else f"{f.low} / {f.high}"}'
                     for f in spec.factors)
@@ -675,21 +743,77 @@ class AnalyzeDOE:
         self.stepwise_status.set('选模参数已更改，请重新分析。')
         self.status.set('模型、响应或对比已更改；旧结果已失效，请重新分析。')
 
+    def _selection_method_changed(self, event=None):
+        method = self.selection_method.get()
+        self.alpha_enter.configure(
+            state='normal' if method in ('Stepwise F 检验', 'Forward') else 'disabled')
+        self.alpha_remove.configure(
+            state='normal' if method in ('Stepwise F 检验', 'Backward') else 'disabled')
+        self.criterion.configure(
+            state='readonly' if method == 'Forward IC' else 'disabled')
+        if hasattr(self, 'screening_initial'):
+            self.screening_initial.configure(
+                state='disabled' if method == 'Backward' else 'normal')
+        if event is not None:
+            self._invalidate_screening(event)
+
+    def _invalidate_factorial_anova(self, event=None):
+        if not getattr(self, 'type3_available', False):
+            return
+        self.result = None
+        for tab in self.tabs.tabs():
+            self.tabs.nametowidget(tab).destroy()
+        self.status.set('平方和类型已更改；请重新分析。')
+
+    @staticmethod
+    def _criterion_label(value):
+        return {'aicc': 'AICc', 'bic': 'BIC'}.get(str(value).lower(), str(value))
+
+    @staticmethod
+    def _selection_method_label(value):
+        return {'stepwise': 'Stepwise F 检验', 'forward': 'Forward',
+                'backward': 'Backward', 'information_criteria': 'Forward IC'
+                }.get(value, value)
+
+    @staticmethod
+    def _selection_stop_label(value):
+        return {
+            'no_eligible_entry': '无可进入项', 'selection_stable': '选择稳定',
+            'residual_df_limit': '残差自由度不足', 'rank_deficiency': '候选项秩亏或不可估',
+            'zero_error_variance': '残差方差为零', 'iteration_budget': '达到步骤上限',
+            'model_cycle_detected': '检测到模型循环',
+            'initial_model_saturated': 'Backward 初始模型饱和，请缩小候选项集合',
+            'initial_model_rank_deficient': 'Backward 初始模型含秩亏项，请缩小候选项集合',
+            'information_criterion_unavailable': '信息准则无定义',
+            'full_model': '已达到完整模型', 'no_eligible_removal': '无可移除项',
+        }.get(value, value)
+
+    @staticmethod
+    def _selection_status_label(value):
+        return {
+            'eligible': '可评估', 'forced': '强制保留',
+            'hierarchy_required': '强层级未满足',
+            'rank_deficient': '秩亏或不可估',
+            'residual_df_limit': '残差自由度不足',
+            'information_criterion_unavailable': '信息准则无定义',
+            'zero_error_variance': '残差方差为零',
+            'p_value_unavailable': 'p 值不可用',
+        }.get(value, value)
+
     @staticmethod
     def _selection_text(selection):
         terms = '、'.join(
             f'{term[0]}²' if len(term) == 2 and term[0] == term[1] else '*'.join(term)
             for term in selection['selected_terms'])
-        stops = {'no_eligible_entry': '无可进入项', 'selection_stable': '选择稳定',
-                 'residual_df_limit': '残差自由度不足',
-                 'rank_deficiency': '候选项秩亏或不可估计',
-                 'zero_error_variance': '残差方差为零',
-                 'iteration_budget': '达到步骤上限',
-                 'model_cycle_detected': '检测到模型循环'}
-        return (f"逐步选模：{selection['iterations']} 步；停止原因 "
-                f"{stops.get(selection['stop_reason'], selection['stop_reason'])}；"
+        label = AnalyzeDOE._selection_method_label(selection.get('method', 'stepwise'))
+        criterion = selection.get('criterion')
+        best = selection.get('best_criterion')
+        criterion_text = (f"；最小 {AnalyzeDOE._criterion_label(criterion)}={best:.6g}"
+                          if criterion and best is not None else '')
+        return (f"{label}：{selection['iterations']} 步；停止原因 "
+                f"{AnalyzeDOE._selection_stop_label(selection['stop_reason'])}；"
                 f"最终项 {terms or '仅截距'}；秩 {selection['final_rank']}，"
-                f"残差df {selection['final_residual_df']}。{selection['note']}")
+                f"残差df {selection['final_residual_df']}{criterion_text}。{selection['note']}")
 
     def __init__(self, app, screening=False):
         self.owner = app
@@ -716,6 +840,7 @@ class AnalyzeDOE:
         self.ccd = design_type == 'central_composite'
         self.bbd = design_type == 'box_behnken'
         self.general = design_type == 'general_full_factorial'
+        self.type3_available = self.general or design_type == 'two_level_full'
         self.splitplot = design_type == 'split_plot'
         self.custom = design_type.startswith('custom_')
         self.custom_factorial = design_type == 'custom_factorial'
@@ -742,6 +867,16 @@ class AnalyzeDOE:
         self.response = ttk.Combobox(controls, values=names, state='readonly', width=15)
         self.response.set(names[0])
         self.response.pack(side='left', padx=4)
+        if self.type3_available:
+            ttk.Label(controls, text='平方和类型').pack(side='left')
+            confounded_blocks = bool(metadata['design'].get('confounded_block_generators'))
+            self.ss_type = ttk.Combobox(
+                controls, values=(('Type III',) if confounded_blocks
+                                  else ('Type I', 'Type III')),
+                state='readonly', width=9)
+            self.ss_type.set('Type III' if confounded_blocks else 'Type I')
+            self.ss_type.pack(side='left', padx=4)
+            self.ss_type.bind('<<ComboboxSelected>>', self._invalidate_factorial_anova)
         ttk.Label(controls, text='模型阶次').pack(side='left')
         self.order = ttk.Combobox(controls, values=list(range(1, len(metadata['design']['factors'])+1)),
                                   state='readonly', width=4)
@@ -800,6 +935,14 @@ class AnalyzeDOE:
             ttk.Checkbutton(stepwise_bar, text='逐步选模',
                             variable=self.use_stepwise,
                             command=self._invalidate_screening).pack(side='left')
+            self.selection_method = ttk.Combobox(
+                stepwise_bar,
+                values=('Stepwise F 检验', 'Forward', 'Backward', 'Forward IC'),
+                state='readonly', width=18)
+            self.selection_method.set('Stepwise F 检验')
+            self.selection_method.pack(side='left', padx=4)
+            self.selection_method.bind('<<ComboboxSelected>>',
+                                       self._selection_method_changed)
             for label, default in (('进入α', '0.15'), ('移除α', '0.15')):
                 ttk.Label(stepwise_bar, text=label).pack(side='left', padx=(8, 2))
                 entry = ttk.Entry(stepwise_bar, width=6)
@@ -807,6 +950,12 @@ class AnalyzeDOE:
                 entry.bind('<KeyRelease>', self._invalidate_screening)
                 entry.pack(side='left')
                 setattr(self, 'alpha_enter' if label == '进入α' else 'alpha_remove', entry)
+            ttk.Label(stepwise_bar, text='信息准则').pack(side='left', padx=(8, 2))
+            self.criterion = ttk.Combobox(
+                stepwise_bar, values=('AICc', 'BIC'), state='readonly', width=6)
+            self.criterion.set('AICc')
+            self.criterion.pack(side='left')
+            self.criterion.bind('<<ComboboxSelected>>', self._invalidate_screening)
             ttk.Label(stepwise_bar, text='最大步骤').pack(side='left', padx=(8, 2))
             self.max_steps = ttk.Entry(stepwise_bar, width=5)
             self.max_steps.insert(0, '200')
@@ -823,6 +972,7 @@ class AnalyzeDOE:
                 entry.bind('<KeyRelease>', self._invalidate_screening)
                 entry.pack(side='left', padx=(2, 8))
                 setattr(self, attribute, entry)
+            self._selection_method_changed()
             self.stepwise_status = tk.StringVar(value='')
             ttk.Label(self.main, textvariable=self.stepwise_status, wraplength=860,
                       justify='left').pack(fill='x', padx=8)
@@ -910,12 +1060,22 @@ class AnalyzeDOE:
                 names = [f.factor_id for f in factors]
                 if self.use_stepwise.get():
                     from doe_stepwise import select_dsd_stepwise
+                    method = {
+                        'Stepwise F 检验': 'stepwise', 'Forward': 'forward',
+                        'Backward': 'backward', 'Forward IC': 'information_criteria',
+                    }[self.selection_method.get()]
                     selection = select_dsd_stepwise(
                         frame, self.source.doe_metadata, self.response.get(),
-                        alpha_enter=self._alpha_text(self.alpha_enter, '进入α'),
-                        alpha_remove=self._alpha_text(self.alpha_remove, '移除α'),
+                        alpha_enter=(self._alpha_text(self.alpha_enter, '进入α')
+                                     if method in ('stepwise', 'forward') else 0.15),
+                        alpha_remove=(self._alpha_text(self.alpha_remove, '移除α')
+                                      if method in ('stepwise', 'backward') else 0.15),
+                        method=method,
+                        criterion=(self.criterion.get().lower()
+                                   if method == 'information_criteria' else None),
                         candidates=self._terms_text(self.screening_candidates, '候选项'),
-                        initial=self._terms_text(self.screening_initial, '初始项'),
+                        initial=(self._terms_text(self.screening_initial, '初始项')
+                                 if method != 'backward' else None),
                         forced=self._terms_text(self.screening_forced, '强制保留项'),
                         max_steps=self.screening_max_steps())
                     self.selection = selection
@@ -960,7 +1120,8 @@ class AnalyzeDOE:
             elif self.general:
                 from doe_general_factorial_analysis import analyze_general_factorial
                 result = analyze_general_factorial(
-                    frame, self.source.doe_metadata, self.response.get(), int(self.order.get()))
+                    frame, self.source.doe_metadata, self.response.get(), int(self.order.get()),
+                    ss_type=self.ss_type.get().replace('Type ', ''))
             elif self.splitplot:
                 from doe_splitplot_analysis import analyze_split_plot
                 result = analyze_split_plot(frame, self.source.doe_metadata, self.response.get())
@@ -970,8 +1131,9 @@ class AnalyzeDOE:
                     frame, self.source.doe_metadata, self.response.get(),
                     int(self.order.get()))
             else:
+                options = {'ss_type': self.ss_type.get().replace('Type ', '')}
                 result = analyze_factorial(frame, self.source.doe_metadata,
-                                           self.response.get(), int(self.order.get()))
+                                           self.response.get(), int(self.order.get()), **options)
             self.publish(result)
             self.analysis_frame = frame
         except (ValueError, TypeError, RuntimeError, OverflowError) as exc:
@@ -984,6 +1146,15 @@ class AnalyzeDOE:
         for tab in self.tabs.tabs():
             self.tabs.nametowidget(tab).destroy()
         self.show_diagnostics(result)
+        design = result.get('design')
+        block_generators = (getattr(design, 'spec', None).confounded_block_generators
+                            if getattr(design, 'spec', None) is not None else ())
+        if block_generators:
+            from doe_factorial import confounded_block_effects
+            effects = confounded_block_effects(design.spec)
+            self.show_table('区组混杂效应', ['区组对比', '不可独立区分的效应'], [
+                [f'区组对比 {index + 1}', '*'.join(effect)]
+                for index, effect in enumerate(effects)])
         if self.rsm and result.get('diagnostics') is not None:
             self.show_table(
                 '逐点影响诊断',
@@ -1094,17 +1265,67 @@ class AnalyzeDOE:
                     for i, row in enumerate(result['nullspace'])])
             if self.dsd and getattr(self, 'selection', None):
                 selection = self.selection
-                self.show_table('选择历史', ['步骤', '动作', '项', 'F', 'p',
-                                             'SSE 前', 'SSE 后', '秩前', '秩后',
-                                             '误差df'], [
-                    [step['step'], '进入' if step['action'] == 'enter' else '移除',
-                     step['label'], step['f'], step['p'], step['sse_before'],
-                     step['sse_after'], step['rank_before'], step['rank_after'],
-                     step['error_df']] for step in selection['selection_steps']])
+                if selection.get('method') == 'information_criteria':
+                    criterion_label = self._criterion_label(selection['criterion'])
+                    self.show_table('选择历史', ['步骤', '动作', '项', 'p',
+                                                 f'{criterion_label} 前',
+                                                 f'{criterion_label} 后', '误差df'], [
+                        [step['step'], '进入', step['label'], step.get('p'),
+                         step.get('criterion_before'), step.get('criterion_after'),
+                         step['error_df']]
+                        for step in selection['selection_steps']])
+                    path = selection['criterion_path']
+                    if path:
+                        best_step = min(path, key=lambda item: item['value'])['step']
+                        self.show_table('信息准则路径', [
+                            '步骤', '模型项', '秩', '残差df', 'SSE', 'k',
+                            criterion_label, '最终选择'], [
+                            [item['step'], '、'.join(
+                                f'{term[0]}²' if len(term) == 2 and term[0] == term[1]
+                                else '*'.join(term) for term in item['terms']),
+                             item['rank'], item['error_df'], item['sse'], item['k'],
+                             item['value'], '是' if item['step'] == best_step else '']
+                            for item in path])
+                else:
+                    self.show_table('选择历史', ['步骤', '动作', '项', 'F', 'p',
+                                                 'SSE 前', 'SSE 后', '秩前', '秩后',
+                                                 '误差df'], [
+                        [step['step'], '进入' if step['action'] == 'enter' else '移除',
+                         step['label'], step['f'], step['p'], step['sse_before'],
+                         step['sse_after'], step['rank_before'], step['rank_after'],
+                         step['error_df']] for step in selection['selection_steps']])
+                candidate_rows = [
+                    [step['step'], '移除' if step['action'] == 'remove' else '进入',
+                     item['label'], item.get('f'), item.get('p_value'),
+                     item.get('criterion_value'),
+                     item.get('df_changed'), item.get('error_df'),
+                     self._selection_status_label(item.get('status', ''))]
+                    for step in selection['candidate_path']
+                    for item in step['candidates']]
+                if candidate_rows:
+                    criterion_column = ([self._criterion_label(selection['criterion'])]
+                                        if selection.get('method') == 'information_criteria'
+                                        else [])
+                    self.show_table('候选项判据',
+                                    ['步骤', '动作', '候选项', 'F', 'p']
+                                    + criterion_column + ['新增/移除df', '残差df', '状态'],
+                                    [row[:5] + ([row[5]] if criterion_column else [])
+                                     + row[6:] for row in candidate_rows])
                 self.show_table('选模汇总', ['项目', '值'], [
-                    ['方法', 'Stepwise'], ['进入α', selection['alpha_enter']],
-                    ['移除α', selection['alpha_remove']],
-                    ['停止原因', selection['stop_reason']],
+                    ['方法', self._selection_method_label(selection.get('method', 'stepwise'))],
+                    ['判据', selection.get('criterion_definition')],
+                    ['信息准则', self._criterion_label(selection.get('criterion'))
+                     if selection.get('method') == 'information_criteria' else None],
+                    ['最佳准则值', selection.get('best_criterion')],
+                    ['进入α', selection.get('alpha_enter')
+                     if selection.get('method') in ('stepwise', 'forward') else None],
+                    ['移除α', selection.get('alpha_remove')
+                     if selection.get('method') in ('stepwise', 'backward') else None],
+                    ['强制项', '、'.join('*'.join(term) for term in selection['forced_terms']) or '无'],
+                    ['最终模型', '、'.join(
+                        f'{term[0]}²' if len(term) == 2 and term[0] == term[1]
+                        else '*'.join(term) for term in selection['selected_terms']) or '仅截距'],
+                    ['停止原因', self._selection_stop_label(selection['stop_reason'])],
                     ['迭代步数', selection['iterations']],
                     ['最终秩', selection['final_rank']],
                     ['最终残差df', selection['final_residual_df']],
@@ -1122,6 +1343,9 @@ class AnalyzeDOE:
                     ['总计', result['sst'], result['n'] - 1, None, None, None]])
             self.show_table('混杂投影', ['线性项', '二阶项', '投影系数'],
                             [[p['main'], p['interaction'], p['projection']] for p in result['projections']])
+            if result.get('alias_matrix'):
+                self.show_alias_matrix(result['alias_matrix'],
+                                       result.get('alias_relations', ()))
             if self.dsd and result['nonlinear_projections']:
                 self.show_table('平方与交互投影', ['平方项', '交互项', '投影系数'], [[
                     p['square'], p['interaction'], p['projection']] for p in result['nonlinear_projections']])
@@ -1137,8 +1361,14 @@ class AnalyzeDOE:
                 result['n'], result['rank'], result['rank'] - 1, result['df'],
                 result['sse'], result['pure_error_df'], result['pure_error_sse'],
                 result['block_error_df'], result['block_error_sse']]])
-            self.show_table('分类因子 ANOVA', ['来源', '偏平方和', '自由度', '均方', 'F', 'p'], [
-                [row['term'], row['ss'], row['df'], row['ms'], row['f'], row['p']]
+            anova_headers = ['来源', '偏平方和', '自由度', '均方', 'F', 'p']
+            if result.get('ss_type') == 'III':
+                anova_headers.append('可估计性')
+            self.show_table('分类因子 ANOVA' +
+                            ('（Type III）' if result.get('ss_type') == 'III' else ''),
+                            anova_headers, [
+                [row['term'], row['ss'], row['df'], row['ms'], row['f'], row['p']] +
+                ([row.get('status', '可估计')] if result.get('ss_type') == 'III' else [])
                 for row in result['anova']])
             self.show_table('边际均值', ['因子', '水平', '均值', '运行数'], [
                 [item['factor_id'], item['level'], item['mean'], item['n']]
@@ -1154,9 +1384,10 @@ class AnalyzeDOE:
                  lof['f'] if lof else None, lof['p'] if lof else None],
             ]
             self.show_table('纯误差与失拟', ['来源', '平方和', '自由度', 'F', 'p'], diagnostics)
+            observed_runs = result.get('observed_runs', result['design'].runs)
             self.show_table('拟合与残差', ['运行ID', '响应', '拟合值', '残差'], [
                 [run.run_id, run.responses[result['response']], result['fitted'][i],
-                 result['residuals'][i]] for i, run in enumerate(result['design'].runs)])
+                 result['residuals'][i]] for i, run in enumerate(observed_runs)])
             self.result = result
             return
         if self.rsm:
@@ -1280,8 +1511,14 @@ class AnalyzeDOE:
                           inf['f'] if inf else None, inf['model_p'] if inf else None])
         self.show_table('模型', model_headers, [model_row])
         if not self.rsm:
-            self.show_table('项方差分析', ['来源', '平方和', '自由度', '均方', 'F', 'p'], [
-                [row['term'], row['ss'], row['df'], row['ms'], row['f'], row['p']]
+            anova_headers = ['来源', '平方和', '自由度', '均方', 'F', 'p']
+            if result.get('ss_type') == 'III':
+                anova_headers.append('可估计性')
+            self.show_table('项方差分析' +
+                            ('（Type III）' if result.get('ss_type') == 'III' else ''),
+                            anova_headers, [
+                [row['term'], row['ss'], row['df'], row['ms'], row['f'], row['p']] +
+                ([row.get('status', '可估计')] if result.get('ss_type') == 'III' else [])
                 for row in result['anova']])
         if inf:
             self.show_table('方差分析', ['来源', '平方和', '自由度', '均方', 'F', 'p'],
@@ -1308,10 +1545,11 @@ class AnalyzeDOE:
                           f"均值差 {curvature['difference']:.6g}；" +
                           ('已计算' if curvature['f'] is not None else '区组效应未调整或纯误差不可估计')])
         self.show_table('失拟与曲率', ['检验', '平方和', '自由度', 'F', 'p', '状态'], tests)
+        observed_runs = result.get('observed_runs', result['design'].runs)
         self.show_table('拟合与残差', ['来源行号', '运行ID', '运行序', '响应', '拟合值', '残差'],
                         [[i+1, run.run_id, run.run_order, run.responses[result['response']],
                           result['fitted'][i], result['residuals'][i]]
-                         for i, run in enumerate(result['design'].runs)])
+                         for i, run in enumerate(observed_runs)])
         self.result = result
 
     def plot_custom_screening(self, result):
@@ -1356,7 +1594,61 @@ class AnalyzeDOE:
         table = StatTable(title=title, headers=headers, values=values)
         block = TableBlock(tab, table, paginate=True)
         block.pack(fill='both', expand=True)
-        self.app.print(table)
+
+    def show_alias_matrix(self, alias, relations):
+        rows, columns, values = alias['rows'], alias['columns'], alias['values']
+        if not rows or not columns:
+            return
+        self.show_table('别名矩阵', ['模型项', *columns], [
+            [name, *['不可唯一估计' if value is None else value for value in row]]
+            for name, row in zip(rows, values)])
+        if relations:
+            self.show_table('混杂关系', ['模型项', '候选项', '系数', '状态'], [
+                [item.get('main', item.get('model_term')),
+                 item.get('interaction', item.get('effect')),
+                 item.get('coefficient', item.get('projection')),
+                 '可估计' if item.get('estimable', True) else '不可唯一估计']
+                for item in relations])
+
+        matrix = np.asarray([
+            [np.nan if value is None else float(value) for value in row]
+            for row in values], dtype=float)
+        finite = np.isfinite(matrix)
+        visible = np.any((np.abs(matrix) > 1e-12) | ~finite, axis=0)
+        indices = np.flatnonzero(visible)
+        if not len(indices):
+            return
+        limited = len(indices) > 64
+        if limited:
+            score = np.nanmax(np.where(finite, np.abs(matrix), 0.0), axis=0)
+            indices = np.sort(indices[np.argsort(score[indices])[-64:]])
+        shown = matrix[:, indices]
+        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+        from matplotlib.figure import Figure
+        from chart_style import style_axes
+
+        figure = Figure(figsize=(max(8, min(18, 4 + .22 * len(indices))),
+                                 max(4, min(12, 2 + .18 * len(rows)))))
+        axes = figure.add_subplot(111)
+        image = np.ma.masked_invalid(shown)
+        bound = max(float(np.nanmax(np.abs(shown))) if np.isfinite(shown).any() else 0, 1e-12)
+        from matplotlib import colormaps
+        cmap = colormaps['coolwarm'].with_extremes(bad='#d9d9d9')
+        heatmap = axes.imshow(image, aspect='auto', cmap=cmap, vmin=-bound, vmax=bound)
+        axes.set_xticks(range(len(indices)), [columns[index] for index in indices],
+                        rotation=90, fontsize=7)
+        axes.set_yticks(range(len(rows)), rows, fontsize=8)
+        axes.set_title('灰色表示混杂系数不可唯一估计' +
+                       ('；显示绝对值最大的 64 项' if limited else ''))
+        colorbar = figure.colorbar(heatmap, ax=axes, label='混杂系数')
+        style_axes(axes)
+        style_axes(colorbar.ax)
+        figure.tight_layout()
+        tab = ttk.Frame(self.tabs)
+        self.tabs.add(tab, text='别名热图')
+        canvas = FigureCanvasTkAgg(figure, master=tab)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill='both', expand=True)
 
     def plot(self):
         try:

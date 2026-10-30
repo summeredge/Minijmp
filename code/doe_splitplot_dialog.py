@@ -8,9 +8,12 @@ from doe_splitplot import create_split_plot
 from help_link import open_help
 
 
-_MAX_FACTORS = 6
+_MAX_FACTORS = 8
 _ROLE_LABELS = {"hard_to_change": "整区因子", "easy_to_change": "子区因子"}
 _ROLE_BY_LABEL = {label: role for role, label in _ROLE_LABELS.items()}
+_FACTOR_TYPE_LABELS = {"continuous": "连续", "categorical": "分类"}
+_FACTOR_TYPE_BY_LABEL = {label: factor_type
+                         for factor_type, label in _FACTOR_TYPE_LABELS.items()}
 _PREVIEW_ROWS = 100
 
 
@@ -40,13 +43,14 @@ class CreateSplitPlot:
 
         self.factor_frame = ttk.Frame(body)
         self.factor_frame.grid(row=1, column=0, sticky="nsew", pady=(8, 4))
-        for column, label in enumerate(("因子", "名称", "低水平", "高水平", "角色")):
+        for column, label in enumerate(("因子", "名称", "类型", "水平 1", "水平 2", "角色")):
             ttk.Label(self.factor_frame, text=label).grid(row=0, column=column, padx=3)
         self.factor_values = []
         for index in range(_MAX_FACTORS):
             letter = chr(ord("A") + index)
             self.factor_values.append({
                 "name": tk.StringVar(value=letter),
+                "factor_type": tk.StringVar(value=_FACTOR_TYPE_LABELS["continuous"]),
                 "low": tk.StringVar(value="0"),
                 "high": tk.StringVar(value="1"),
                 "role": tk.StringVar(value=_ROLE_LABELS[
@@ -115,14 +119,20 @@ class CreateSplitPlot:
             return
         for index, fields in enumerate(self.factor_values[:count], 1):
             row = ttk.Frame(self.factor_frame)
-            row.grid(row=index, column=0, columnspan=5, sticky="ew")
+            row.grid(row=index, column=0, columnspan=6, sticky="ew")
             ttk.Label(row, text=chr(ord("A") + index - 1), width=7).grid(row=0, column=0)
-            for column, key in enumerate(("name", "low", "high"), 1):
+            ttk.Entry(row, textvariable=fields["name"], width=16).grid(
+                row=0, column=1, padx=3, pady=2)
+            ttk.Combobox(
+                row, textvariable=fields["factor_type"],
+                values=tuple(_FACTOR_TYPE_LABELS.values()), state="readonly",
+                width=8).grid(row=0, column=2, padx=3)
+            for column, key in enumerate(("low", "high"), 3):
                 ttk.Entry(row, textvariable=fields[key], width=16).grid(
                     row=0, column=column, padx=3, pady=2)
             ttk.Combobox(
                 row, textvariable=fields["role"], values=tuple(_ROLE_LABELS.values()),
-                state="readonly", width=12).grid(row=0, column=4, padx=3)
+                state="readonly", width=12).grid(row=0, column=5, padx=3)
             self.factor_rows.append(row)
 
     def _factor_count_changed(self, *_):
@@ -164,9 +174,9 @@ class CreateSplitPlot:
         try:
             count = int(self.factor_count_var.get())
         except ValueError as error:
-            raise ValueError("因子数必须是 2–6") from error
+            raise ValueError("因子数必须是 2–8") from error
         if not 2 <= count <= _MAX_FACTORS:
-            raise ValueError("因子数必须是 2–6")
+            raise ValueError("因子数必须是 2–8")
         factors = []
         for index, fields in enumerate(self.factor_values[:count]):
             factor_id = chr(ord("A") + index)
@@ -174,12 +184,25 @@ class CreateSplitPlot:
             name = fields["name"].get().strip()
             if not name:
                 raise ValueError("因子名称不能为空")
-            factors.append(FactorSpec(
-                factor_id, name, ccd_number(fields["low"].get()),
-                ccd_number(fields["high"].get()), randomization_role=role))
+            factor_type = _FACTOR_TYPE_BY_LABEL.get(fields["factor_type"].get())
+            if factor_type == "continuous":
+                factors.append(FactorSpec(
+                    factor_id, name, ccd_number(fields["low"].get()),
+                    ccd_number(fields["high"].get()), randomization_role=role))
+            elif factor_type == "categorical":
+                levels = tuple(fields[key].get().strip() for key in ("low", "high"))
+                if not all(levels) or levels[0] == levels[1]:
+                    raise ValueError("分类因子需填写两个不同的非空水平")
+                factors.append(FactorSpec(
+                    factor_id, name, None, None, factor_type="categorical",
+                    levels=levels, level_type="text", randomization_role=role))
+            else:
+                raise ValueError("因子类型无效")
         hard_count = sum(factor.randomization_role == "hard_to_change" for factor in factors)
         easy_count = len(factors) - hard_count
-        construction = "v1" if count == 2 and hard_count == 1 else "v2"
+        categorical = any(factor.factor_type == "categorical" for factor in factors)
+        construction = ("v1" if count == 2 and hard_count == 1 and not categorical
+                        else "v2" if count <= 6 and not categorical else "v3")
         responses = tuple(value.strip() for value in self.responses_var.get().split(","))
         spec = DesignSpec(
             "DOE", tuple(factors), responses, seed=int(self.seed_var.get()),

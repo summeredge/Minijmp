@@ -3,6 +3,7 @@ from itertools import product
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
 import pytest
 
 from doe_core import DesignSpec, FactorSpec, restore_design_result, worksheet_metadata
@@ -86,6 +87,36 @@ def test_single_factor_foldover_completes_full_factorial_and_updates_aliases():
     assert folded_metadata["design"]["aliases"] == []
 
 
+def test_multi_factor_foldover_flips_only_selected_factors_and_records_lineage():
+    source, metadata = source_design()
+    before = source.copy(deep=True)
+    result, folded_metadata = create_foldover(source, metadata, ("A", "C"))
+    columns = folded_metadata["column_map"]
+    base = result[result[columns["batch_id"]] == "BASE"].set_index(columns["run_id"])
+    added = result[result[columns["batch_id"]] == "FOLD1"].set_index(
+        columns["source_run_id"])
+    for run_id, original in base.iterrows():
+        folded = added.loc[run_id]
+        for factor_id, column in columns["factors"].items():
+            expected = 10 - original[column] if factor_id in ("A", "C") else original[column]
+            assert folded[column] == expected
+        assert pd.isna(folded[columns["responses"]["Y"]])
+    pd.testing.assert_frame_equal(source, before)
+    lineage = folded_metadata["design"]["foldover_lineage"]
+    assert lineage["folded_factors"] == ["A", "C"]
+    assert folded_metadata["design"]["design_id"] != create_foldover(
+        source, metadata, "A")[1]["design"]["design_id"]
+    coded = np.column_stack([
+        2 * result[columns["factors"][factor_id]].to_numpy(dtype=float) / 10 - 1
+        for factor_id in ("A", "B", "C", "D")])
+    matrix = np.column_stack([
+        np.prod(coded[:, [index for index in range(4) if mask & (1 << index)]], axis=1)
+        if mask else np.ones(len(coded))
+        for mask in range(1 << 4)])
+    assert foldover_summary(result, folded_metadata)["model_rank"] == \
+        np.linalg.matrix_rank(matrix)
+
+
 def test_foldover_matches_independent_fraction_reference():
     source, metadata = source_design()
     all_factor, all_metadata = create_foldover(source, metadata)
@@ -142,7 +173,7 @@ def test_foldover_keeps_existing_user_columns_and_uses_unique_lineage_columns():
     assert folded_metadata["column_map"]["batch_id"] == "DOE 批次 (2)"
 
 
-@pytest.mark.parametrize("folded", [(), ("A", "B"), "Z", ["A", "A"]])
+@pytest.mark.parametrize("folded", [(), "Z", ["A", "A"], ["A", []]])
 def test_unsupported_foldover_factor_selections_fail_without_mutating_source(folded):
     source, metadata = source_design()
     before = source.copy(deep=True)

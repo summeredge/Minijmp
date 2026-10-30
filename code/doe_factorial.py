@@ -1,6 +1,7 @@
 """两水平全因子运行表生成；标准顺序中第一个因子变化最快。"""
 from numbers import Integral
 from itertools import product
+import math
 import random
 
 import pandas as pd
@@ -22,6 +23,20 @@ def _blocked_order(run_groups, seed):
     return tuple(result)
 
 
+def confounded_block_effects(spec):
+    """返回与区组混杂的生成元及其乘积效应。"""
+    positions = {factor.factor_id: index for index, factor in enumerate(spec.factors)}
+    generators = [sum(1 << positions[name] for name in item)
+                 for item in spec.confounded_block_generators]
+    effects = {0}
+    for generator in generators:
+        effects |= {effect ^ generator for effect in tuple(effects)}
+    return tuple(
+        tuple(factor.factor_id for index, factor in enumerate(spec.factors)
+              if mask & (1 << index))
+        for mask in sorted(effects - {0}, key=lambda value: (value.bit_count(), value)))
+
+
 def create_factorial(spec, replicates=1, center_points=0, measured=False):
     """返回运行表和 DOE-0 元数据；中心点放在全部因子点之后再统一随机化。"""
     if not isinstance(spec, DesignSpec) or spec.design_type != 'two_level_full':
@@ -40,10 +55,15 @@ def create_factorial(spec, replicates=1, center_points=0, measured=False):
             raise ValueError(f'{label}必须是不小于 {minimum} 的整数')
     if not isinstance(measured, bool):
         raise ValueError('实测列选项必须是布尔值')
+    confounded = bool(spec.confounded_block_generators)
     blocked = spec.block_count is not None
-    if ((blocked and (spec.block_count < 2 or spec.block_count != replicates
-                      or spec.randomization_unit != 'block'))
-            or (not blocked and spec.randomization_unit != 'run')):
+    if confounded:
+        if (replicates != 1 or center_points or spec.randomization_unit != 'confounded_block'
+                or spec.block_count != 1 << len(spec.confounded_block_generators)):
+            raise ValueError('混杂区组只支持单次完整因子试验且不加中心点')
+    elif ((blocked and (spec.block_count < 2 or spec.block_count != replicates
+                        or spec.randomization_unit != 'block'))
+          or (not blocked and spec.randomization_unit != 'run')):
         raise ValueError('区组设计只支持每个完整重复作为一个区组')
     if blocked and center_points % replicates:
         raise ValueError('区组中心点必须平均分配到每个完整重复')
@@ -58,7 +78,22 @@ def create_factorial(spec, replicates=1, center_points=0, measured=False):
                'measured_levels': {f.factor_id: f'实测_{f.factor_id}'
                                    for f in spec.factors} if measured else {},
                'responses': {name: f'响应_{name}' for name in spec.response_names}}
-    rows = []
+    rows, row_blocks = [], []
+    block_for_combination = {}
+    if confounded:
+        positions = {factor.factor_id: index for index, factor in enumerate(spec.factors)}
+        block_numbers = {
+            signature: index + 1
+            for index, signature in enumerate(
+                product((-1, 1), repeat=len(spec.confounded_block_generators)))
+        }
+        for combination in range(1 << len(spec.factors)):
+            coded = [1 if combination & (1 << index) else -1
+                     for index in range(len(spec.factors))]
+            signature = tuple(
+                math.prod(coded[positions[name]] for name in generator)
+                for generator in spec.confounded_block_generators)
+            block_for_combination[combination] = block_numbers[signature]
     centers = [f.from_coded(0) for f in spec.factors]
     if center_points:
         from doe_core import _number
@@ -68,15 +103,18 @@ def create_factorial(spec, replicates=1, center_points=0, measured=False):
         for combination in range(1 << len(spec.factors)):
             rows.append(('factorial', rep, [f.high if combination & (1 << i) else f.low
                                            for i, f in enumerate(spec.factors)]))
+            row_blocks.append(block_for_combination.get(combination, rep if blocked else None))
         if blocked:
             rows.extend(('center', rep, centers) for _ in range(centers_per_block))
+            row_blocks.extend([rep] * centers_per_block)
     if center_points and not blocked:
         rows.extend(('center', i + 1, centers) for i in range(center_points))
     ids = [f'R{i:05d}' for i in range(1, total + 1)]
     if blocked:
-        grouped_ids = {}
-        for run_id, (_, replicate, _) in zip(ids, rows):
-            grouped_ids.setdefault(replicate, []).append(run_id)
+        grouped_ids = ({block: [] for block in range(1, spec.block_count + 1)}
+                       if confounded else {})
+        for run_id, block in zip(ids, row_blocks):
+            grouped_ids.setdefault(block, []).append(run_id)
         shuffled = _blocked_order(grouped_ids, spec.seed)
     else:
         shuffled = randomized_run_order(ids, spec.seed)
@@ -88,7 +126,7 @@ def create_factorial(spec, replicates=1, center_points=0, measured=False):
         row = {'运行ID': run_id, '标准序': index + 1, '运行序': run_order,
                '点类型': point, '重复': rep}
         if blocked:
-            row['区组'] = f'B{rep}'
+            row['区组'] = f'B{row_blocks[index]}'
         row.update({columns['factors'][f.factor_id]: level
                     for f, level in zip(spec.factors, levels)})
         row.update({name: None for name in columns['measured_levels'].values()})
@@ -116,14 +154,24 @@ def validate_factorial_design(frame, metadata):
     replicates = sorted({run.replicate for run in factorial})
     if replicates != list(range(1, len(replicates) + 1)):
         raise ValueError('重复编号必须连续且从 1 开始')
+    confounded = bool(spec.confounded_block_generators)
     blocked = spec.block_count is not None
     by_replicate = {replicate: [run for run in runs if run.replicate == replicate]
                     for replicate in replicates}
-    if (blocked and (spec.block_count != len(replicates) or spec.block_count < 2
-                     or spec.randomization_unit != 'block'
-                     or any(run.block != f'B{run.replicate}' for run in runs))
-            or not blocked and (spec.randomization_unit != 'run'
-                                or any(run.block is not None for run in runs))):
+    if confounded:
+        if (not blocked or replicates != [1] or centers
+                or spec.block_count != 1 << len(spec.confounded_block_generators)
+                or spec.randomization_unit != 'confounded_block'
+                or len(runs) != 1 << len(spec.factors)
+                or {run.block for run in runs}
+                != {f'B{block}' for block in range(1, spec.block_count + 1)}):
+            raise ValueError('混杂区组必须是无中心点的单次完整因子试验')
+    elif blocked:
+        if (spec.block_count != len(replicates) or spec.block_count < 2
+                or spec.randomization_unit != 'block'
+                or any(run.block != f'B{run.replicate}' for run in runs)):
+            raise ValueError('区组必须各自包含一个完整重复')
+    elif (spec.randomization_unit != 'run' or any(run.block is not None for run in runs)):
         raise ValueError('区组必须各自包含一个完整重复')
 
     combinations = set(product((-1, 1), repeat=len(spec.factors)))
@@ -151,8 +199,33 @@ def validate_factorial_design(frame, metadata):
                                      (replicate - 1) * len(combinations) + combination + 1)
                 if run.standard_order != expected_standard:
                     raise ValueError('标准序与两水平组合不一致')
+                if confounded:
+                    positions = {factor.factor_id: index
+                                 for index, factor in enumerate(spec.factors)}
+                    codes = [int(factor.to_coded(run.settings[factor.factor_id]))
+                             for factor in spec.factors]
+                    signature = tuple(
+                        math.prod(codes[positions[name]] for name in generator)
+                        for generator in spec.confounded_block_generators)
+                    expected_blocks = {
+                        key: block for block, key in enumerate(
+                            product((-1, 1), repeat=len(spec.confounded_block_generators)), 1)
+                    }
+                    if run.block != f'B{expected_blocks[signature]}':
+                        raise ValueError('混杂区组与生成元不一致')
 
-    if blocked:
+    if confounded:
+        expected_size = len(combinations) // spec.block_count
+        if any(sum(run.block == f'B{block}' for run in runs) != expected_size
+               for block in range(1, spec.block_count + 1)):
+            raise ValueError('混杂区组运行数必须相等')
+        grouped_ids = {
+            f'B{block}': [run.run_id for run in sorted(
+                runs, key=lambda item: item.standard_order) if run.block == f'B{block}']
+            for block in range(1, spec.block_count + 1)
+        }
+        expected_order = _blocked_order(grouped_ids, spec.seed)
+    elif blocked:
         center_counts = [sum(run.point_type == 'center'
                              for run in by_replicate[replicate])
                          for replicate in replicates]

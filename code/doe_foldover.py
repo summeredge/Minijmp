@@ -30,10 +30,11 @@ def create_foldover(frame, metadata, folded_factors=None):
     elif isinstance(folded_factors, (tuple, list)):
         folded = tuple(folded_factors)
     else:
-        raise ValueError("折叠因子必须是全部或一个因子 ID")
-    if (folded not in (factor_ids,) and
-            (len(folded) != 1 or folded[0] not in factor_ids)):
-        raise ValueError("仅支持折叠全部因子或指定一个因子")
+        raise ValueError("折叠因子必须是全部或因子 ID 列表")
+    if (not folded or any(not isinstance(key, str) for key in folded)
+            or len(set(folded)) != len(folded)
+            or any(key not in factor_ids for key in folded)):
+        raise ValueError("折叠因子必须是非空且不重复的有效因子子集")
     folded = tuple(key for key in factor_ids if key in folded)
 
     base_runs = tuple(source.runs)
@@ -89,7 +90,8 @@ def create_foldover(frame, metadata, folded_factors=None):
     source_hash = foldover_matrix_fingerprint(source_factorial, spec.factors)
     current_hash = foldover_matrix_fingerprint(
         (*source_factorial, *addition_records), spec.factors)
-    tag = "all" if folded == factor_ids else folded[0]
+    tag = ("all" if folded == factor_ids else folded[0] if len(folded) == 1
+           else "M" + "-".join(str(factor_ids.index(key) + 1) for key in folded))
     folded_spec = replace(
         spec, design_id=f"fold-{spec.design_id[:45]}-{tag}",
         construction_version="v2", defining_relations=defining, aliases=aliases,

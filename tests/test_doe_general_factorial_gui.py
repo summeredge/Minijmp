@@ -1,5 +1,7 @@
 from unittest.mock import Mock
 
+import numpy as np
+
 from doe_dialog import AnalyzeDOE, CreateGeneralFactorial
 from test_csv_import import csv_app
 
@@ -91,6 +93,39 @@ def test_create_preview_cancel_analysis_plot_save_reopen_copy(csv_app, tmp_path,
     assert analysis_copy.result['n'] == 18
     assert error.call_count == 0
     analysis_copy.main.destroy()
+
+
+def test_general_factorial_type_iii_gui_missing_response_roundtrip(
+        csv_app, tmp_path, monkeypatch):
+    app, error = csv_app
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    monkeypatch.setattr('worksheets.messagebox.askyesno', lambda *a, **k: True)
+    create = CreateGeneralFactorial(app)
+    configure(create, replicates=2, blocks=False)
+    create.create()
+    table = app.getCurrentTable()
+    frame = table.model.df
+    frame['响应_Y'] = np.arange(len(frame), dtype=float) ** 2 + np.arange(len(frame))
+    frame.loc[0, '响应_Y'] = None
+
+    analysis = AnalyzeDOE(app)
+    assert analysis.general and analysis.ss_type.get() == 'Type I'
+    analysis.ss_type.set('Type III')
+    analysis.analyze()
+    assert analysis.result['ss_type'] == 'III'
+    assert len(analysis.result['observed_runs']) == len(frame) - 1
+    assert '分类因子 ANOVA（Type III）' in [
+        analysis.tabs.tab(tab, 'text') for tab in analysis.tabs.tabs()]
+
+    path = tmp_path / 'general-factorial-type-iii.dexpl'
+    assert app._save_project(path) and app.load_file(path)
+    again = AnalyzeDOE(app)
+    again.ss_type.set('Type III')
+    again.analyze()
+    assert again.result is not None and len(again.result['observed_runs']) == len(frame) - 1
+    again.main.destroy()
+    analysis.main.destroy()
+    error.assert_not_called()
 
 
 def test_invalid_numeric_labels_do_not_add_a_sheet(csv_app, monkeypatch):
