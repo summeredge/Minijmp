@@ -8,7 +8,8 @@ from scipy.optimize import minimize
 
 from doe_mixture_analysis import analyze_mixture
 from doe_mixture_constraints import (
-    MixtureConstraintError, TOLERANCE, check_point, normalize_proportions,
+    MixtureConstraintError, TOLERANCE, actual_amounts, check_point,
+    normalize_proportions,
 )
 from doe_mixture_model import predict_row
 
@@ -57,11 +58,13 @@ def _desirability(value, config):
 
 
 def optimize_mixture(frame, metadata, objectives, conditions=None, terms=None,
-                     degree=2, starts=None):
+                     degree=2, starts=None, *, doe_metadata=None):
     """在组分约束与固定工艺条件下优化；返回求解状态与真实残差。"""
     analyses = []
     for item in objectives:
-        analyses.append(analyze_mixture(frame, metadata, item['response'], terms, degree))
+        analyses.append(analyze_mixture(
+            frame, metadata, item['response'], terms, degree,
+            doe_metadata=doe_metadata))
     spec = analyses[0]['spec']
     if any(item['spec'].to_dict() != spec.to_dict() for item in analyses):
         raise MixtureConstraintError('多响应不属于同一混料设计')
@@ -177,6 +180,13 @@ def optimize_mixture(frame, metadata, objectives, conditions=None, terms=None,
         if not single:
             config['desirability'] = _desirability(value, config)
     aggregate = best['aggregate'] if not single else None
+    actual = None
+    if best['feasible'] and spec.amount_variables:
+        total = best['settings'][spec.amount_variables[0].variable_id]
+        if total > 0:
+            actual = dict(zip(
+                spec.component_ids,
+                actual_amounts([best['settings'][key] for key in spec.component_ids], total)))
     if single and best['predictions']:
         if configs[0]['goal'] == 'target':
             objective_value = abs(best['predictions'][0] - configs[0]['target'])
@@ -201,6 +211,7 @@ def optimize_mixture(frame, metadata, objectives, conditions=None, terms=None,
             item.component_id: float(value)
             for item, value in zip(spec.components, point)},
         'settings': best['settings'], 'predictions': best['predictions'],
+        'actual_amounts': actual,
         'objectives': configurations,
         'objective': (None if not best['feasible'] or objective_value is None
                       else float(objective_value)),

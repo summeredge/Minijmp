@@ -22,6 +22,7 @@ from doe_mixture_plots import (grid_triangulation, overlay_grid, simplex_grid,
                                ternary_xy, trace_series)
 from doe_mixture_predict import predict_mixture
 from doe_augment import augment_mixture
+from doe_mixture_improvement import improve_mixture_design
 from help_link import open_help
 from doe_optimal_design import evaluate_mixture_design, select_mixture_optimal
 from sheet_context import SheetApp
@@ -164,13 +165,17 @@ class CreateMixtureDesign:
         ttk.Checkbutton(grid, text='总量变量', variable=self.amount_enabled,
                         command=self.update_rows).grid(row=row, column=0, columnspan=2, sticky='w')
         self.amount = {}
-        for column, (key, label) in enumerate((('name', '名称'), ('low', '低水平'),
-                                               ('high', '高水平'), ('fixed', '设计设定'),
-                                               ('unit', '单位'))):
+        fields = (('name', '名称'), ('low', '低水平'), ('high', '高水平'),
+                  ('fixed', '默认设定'), ('level_1', '实际水平 1'),
+                  ('level_2', '实际水平 2'), ('level_3', '实际水平 3'), ('unit', '单位'))
+        for column, (key, label) in enumerate(fields):
             ttk.Label(grid, text=label).grid(row=row, column=column + 2)
             entry = ttk.Entry(grid, width=10)
             entry.grid(row=row + 1, column=column + 2, padx=3, pady=2)
-            self.amount[key] = entry
+            if key.startswith('level_'):
+                self.amount.setdefault('levels', []).append(entry)
+            else:
+                self.amount[key] = entry
         self.amount['low'].insert(0, '0')
         self.amount['high'].insert(0, '1')
         self.amount['fixed'].insert(0, '1')
@@ -204,7 +209,8 @@ class CreateMixtureDesign:
         for index, fields in enumerate(self.processes):
             for field in fields:
                 field.grid() if index < process_count else field.grid_remove()
-        for key, field in self.amount.items():
+        for field in (field for value in self.amount.values()
+                      for field in (value if isinstance(value, list) else [value])):
             field.configure(state='normal' if self.amount_enabled.get() else 'disabled')
 
     def build(self):
@@ -235,24 +241,35 @@ class CreateMixtureDesign:
             low = _number(self.amount['low'].get(), '总量低水平')
             high = _number(self.amount['high'].get(), '总量高水平')
             fixed = _number(self.amount['fixed'].get(), '总量设计设定')
+            level_text = [field.get().strip() for field in self.amount['levels']]
+            filled = [index for index, value in enumerate(level_text) if value]
+            if filled and filled != list(range(filled[-1] + 1)):
+                raise ValueError('实际总量水平请从水平 1 起连续填写')
+            amount_levels = (None if not filled else
+                             tuple(_number(level_text[index], '总量水平')
+                                   for index in filled))
             amount = [VariableSpec('T', name, low, high,
                                    self.amount['unit'].get().strip() or None, 'amount')]
             if not low <= fixed <= high:
                 raise ValueError('总量设计设定必须位于低水平与高水平之间')
             settings = (('T', fixed),)
+        else:
+            amount_levels = None
         constraints = _parse_constraints(self.constraints.get(),
                                          tuple(item.component_id for item in components))
         responses = tuple(item.strip() for item in self.options['响应名称'].get().split(','))
         spec = MixtureSpec('MIX', tuple(components), responses, design_type,
                            int(self.degree.get()) if design_type == 'simplex_lattice' else None,
                            tuple(process), tuple(amount), settings, constraints,
-                           int(self.options['随机 seed'].get()))
-        return spec, int(self.options['重复数'].get())
+                           int(self.options['随机 seed'].get()),
+                           construction_version='v2' if amount_levels is not None else 'v1')
+        return spec, int(self.options['重复数'].get()), amount_levels
 
     def preview(self):
         try:
-            spec, replicates = self.build()
-            frame, _ = create_mixture_design(spec, replicates)
+            spec, replicates, amount_levels = self.build()
+            frame, _ = create_mixture_design(spec, replicates,
+                                             amount_levels=amount_levels)
             counts = frame['点类型'].value_counts()
             self.preview_text.set(
                 f'{len(frame)} 次运行；点类型 ' +
@@ -279,8 +296,9 @@ class CreateMixtureDesign:
 
     def create(self):
         try:
-            spec, replicates = self.build()
-            frame, meta = create_mixture_design(spec, replicates)
+            spec, replicates, amount_levels = self.build()
+            frame, meta = create_mixture_design(spec, replicates,
+                                                amount_levels=amount_levels)
             self.app.addSheet('混料设计', frame, meta)
         except (ValueError, TypeError, OverflowError) as exc:
             messagebox.showerror('混料设计', str(exc), parent=self.main)
@@ -294,6 +312,15 @@ def _source(app):
     if not metadata:
         raise MixtureConstraintError('当前工作表不是混料设计。')
     return source, metadata
+
+
+def _saved_model(source, frame, metadata):
+    config = getattr(source, 'mixture_model', None)
+    if config is None:
+        return 2, None
+    _, degree, terms = restore_mixture_model(
+        frame, metadata, config, getattr(source, 'doe_metadata', None))
+    return degree, terms
 
 
 class _ResultWindow:
@@ -323,7 +350,7 @@ class _ResultWindow:
         self.owner._finish_edit()
         if self.owner.getCurrentTable() is not self.source:
             raise ValueError('来源工作表已切换，请切回后重试。')
-        return self.source.model.df.copy(deep=True)
+        return self.owner._full_frame(self.source).copy(deep=True)
 
 
 class AnalyzeMixtureDesign(_ResultWindow):
@@ -359,7 +386,8 @@ class AnalyzeMixtureDesign(_ResultWindow):
         if saved is not None:
             try:
                 response, degree, terms = restore_mixture_model(
-                    source.model.df, self.metadata, saved)
+                    self.owner._full_frame(source), self.metadata, saved,
+                    source.doe_metadata)
             except ValueError:
                 saved = None
             else:
@@ -373,12 +401,13 @@ class AnalyzeMixtureDesign(_ResultWindow):
             terms = tuple(item.strip() for item in self.terms.get().split(';')
                           if item.strip()) or None
             result = analyze_mixture(frame, self.metadata, self.response.get(),
-                                     terms, int(self.degree.get()))
+                                     terms, int(self.degree.get()),
+                                     doe_metadata=self.source.doe_metadata)
             self.publish(result)
             self.analysis_frame = frame
             self.source.mixture_model = mixture_model_config(
                 frame, self.metadata, self.response.get(), int(self.degree.get()),
-                result['terms'])
+                result['terms'], self.source.doe_metadata)
         except (ValueError, TypeError, OverflowError) as exc:
             self.status.set('分析失败：' + str(exc))
             messagebox.showerror('混料分析', str(exc), parent=self.main)
@@ -400,10 +429,11 @@ class AnalyzeMixtureDesign(_ResultWindow):
                          inf['ci_high'][index] if inf else None])
         self.show_table('系数（组分主项 p 不报告）',
                         ['项', '系数', 'SE', 't', 'p', 'CI低', 'CI高'], rows)
-        self.show_table('模型', ['n', '项数', '秩', '模型自由度', '残差自由度', 'SSE', 'SST', 'SSR',
+        self.show_table('模型', ['n', '项数', '秩', '条件数', '模型自由度', '残差自由度', 'SSE', 'SST', 'SSR',
                                 '纯误差自由度', '纯误差平方和', '失拟自由度',
                                 '失拟平方和', 'R²', '调整R²', 'F', '模型p'], [[
-            result['n'], result['p'], result['rank'], result['model_df'], result['df'],
+            result['n'], result['p'], result['rank'], result['condition_number'],
+            result['model_df'], result['df'],
             result['sse'],
             result['sst'], result['ssr'], result['pure_error_df'],
             result['pure_error_sse'], result['lack_of_fit_df'],
@@ -484,8 +514,10 @@ class PredictMixture(_ResultWindow):
             amount = {item['variable_id']:
                       _number(self.entries[item['variable_id']].get(), '总量')
                       for item in spec['amount_variables']}
+            degree, terms = _saved_model(self.source, frame, self.metadata)
             result = predict_mixture(frame, self.metadata, self.response.get(),
-                                     proportions, process, amount)
+                                     proportions, process, amount, terms, degree,
+                                     doe_metadata=self.source.doe_metadata)
             self.clear()
             self.status.set(result['note'] + '；' + result['status'])
             self.show_table('预测', ['响应', '预测值', '模型快照', '状态'], [[
@@ -493,6 +525,9 @@ class PredictMixture(_ResultWindow):
                 result['status']]])
             self.show_table('实际条件', ['项', '值'], [
                 [key, value] for key, value in result['settings'].items()])
+            if result['actual_amounts'] is not None:
+                self.show_table('实际组分用量', ['组分', '用量'], [
+                    [key, value] for key, value in result['actual_amounts'].items()])
             self.show_table('模型范围', ['组分', '下界', '上界'], [
                 [key, bounds[0], bounds[1]] for key, bounds in result['model_range'].items()])
         except (ValueError, TypeError, OverflowError) as exc:
@@ -511,7 +546,7 @@ class OptimizeMixture(_ResultWindow):
         controls = ttk.Frame(self.main)
         controls.pack(fill='x', padx=8, before=self.tabs)
         self.rows = []
-        frame = source.model.df
+        frame = app._full_frame(source)
         ttk.Label(controls, text='响应').grid(row=0, column=0, sticky='w')
         for column, label in enumerate(('目标', '下限', '上限', '目标值', '权重'), start=1):
             ttk.Label(controls, text=label).grid(row=0, column=column, padx=2)
@@ -574,7 +609,10 @@ class OptimizeMixture(_ResultWindow):
                 raise ValueError('至少选择一个响应目标')
             conditions = {key: _number(entry.get(), key)
                           for key, entry in self.conditions.items()}
-            result = optimize_mixture(frame, self.metadata, objectives, conditions)
+            degree, terms = _saved_model(self.source, frame, self.metadata)
+            result = optimize_mixture(frame, self.metadata, objectives, conditions,
+                                      terms=terms, degree=degree,
+                                      doe_metadata=self.source.doe_metadata)
             self.clear()
             self.status.set(result['status'])
             self.show_table('优化结果', ['状态', '可行', '目标函数', '约束残差', '起点数',
@@ -584,6 +622,13 @@ class OptimizeMixture(_ResultWindow):
                 result['starts'], result['aggregate_desirability'], result['message']]])
             self.show_table('最优组分', ['组分', '比例'], [
                 [key, value] for key, value in result['components'].items()])
+            if result['actual_amounts'] is not None:
+                self.show_table('实际组分用量', ['组分', '用量'], [
+                    [key, value] for key, value in result['actual_amounts'].items()])
+            if result['settings'] is not None:
+                self.show_table('固定条件', ['变量', '设定'], [
+                    [key, value] for key, value in result['settings'].items()
+                    if key not in result['components']])
             self.show_table('响应预测', ['响应', '目标', '目标值', '预测值', '期望值'], [
                 [item['response'], item['goal'], item.get('target'), item.get('prediction'),
                  item.get('desirability')] for item in result['objectives']])
@@ -665,7 +710,7 @@ class MixturePlots(_ResultWindow):
         self.limit_entries = {}
         if self.kind.get() != '叠加等高线':
             return
-        frame = self.source.model.df
+        frame = self.owner._full_frame(self.source)
         for item in self.metadata['spec']['response_names']:
             column = f'响应_{item}'
             values = pd.to_numeric(frame[column], errors='coerce').dropna()
@@ -696,6 +741,7 @@ class MixturePlots(_ResultWindow):
             spec = self.metadata['spec']
             conditions = self._conditions()
             reference = self._reference()
+            degree, terms = _saved_model(self.source, frame, self.metadata)
             kind = self.kind.get()
             if len(spec['components']) < 3 and kind != 'Trace':
                 raise MixtureConstraintError(
@@ -710,7 +756,9 @@ class MixturePlots(_ResultWindow):
                 from chart_style import font_families
                 font = font_manager.FontProperties(family=font_families('Microsoft YaHei'))
                 if kind == 'Trace':
-                    result = analyze_mixture(frame, self.metadata, self.response.get(), degree=2)
+                    result = analyze_mixture(frame, self.metadata, self.response.get(),
+                                             terms=terms, degree=degree,
+                                             doe_metadata=self.source.doe_metadata)
                     trace = trace_series(result['spec'], result['model'], result['coefficients'],
                                          reference, self.component.get(), steps=41,
                                          conditions=conditions)
@@ -723,7 +771,9 @@ class MixturePlots(_ResultWindow):
                     axis.set_title(f"Trace Plot：{trace['rule']}；跳过 {trace['skipped']} 个不可行点")
                     self._apply_font(axis, font)
                 elif kind == '叠加等高线':
-                    analyses = [analyze_mixture(frame, self.metadata, name, degree=2)
+                    analyses = [analyze_mixture(frame, self.metadata, name,
+                                                terms=terms, degree=degree,
+                                                doe_metadata=self.source.doe_metadata)
                                 for name in spec['response_names']]
                     limits = [(_number(first.get(), '下限'), _number(second.get(), '上限'))
                               for first, second in self.limit_entries.values()]
@@ -758,7 +808,9 @@ class MixturePlots(_ResultWindow):
                         axis.set_xlabel(f"{self.axis_first.get()} 比例", fontproperties=font)
                         axis.set_ylabel(f"{self.axis_second.get()} 比例", fontproperties=font)
                 else:
-                    result = analyze_mixture(frame, self.metadata, self.response.get(), degree=2)
+                    result = analyze_mixture(frame, self.metadata, self.response.get(),
+                                             terms=terms, degree=degree,
+                                             doe_metadata=self.source.doe_metadata)
                     grid = simplex_grid(result['spec'], result['model'], result['coefficients'],
                                         axes=axes,
                                         reference=reference, steps=31, conditions=conditions)
@@ -818,7 +870,7 @@ class MixturePlots(_ResultWindow):
 
 
 class MixtureOptimalDesignDialog:
-    """混料选点、固定父设计增补和评价；预览不会修改来源工作表。"""
+    """混料选点、增补、改善和评价；预览不会修改来源工作表。"""
 
     def __init__(self, app):
         self.app = app
@@ -834,7 +886,7 @@ class MixtureOptimalDesignDialog:
         self.main.transient(app.main)
         self.main.bind('<F1>', lambda event: open_help(
             'doe.mixture.optimal', parent=self.main))
-        self.main.minsize(700, 480)
+        self.main.minsize(780, 560)
         self.last_config = None
         self.last_sources = None
 
@@ -844,7 +896,7 @@ class MixtureOptimalDesignDialog:
         controls.pack(fill='x')
         ttk.Label(controls, text='操作').grid(row=0, column=0, sticky='w')
         self.operation = ttk.Combobox(
-            controls, values=('选点', '增补', '评价'), state='readonly', width=8)
+            controls, values=('选点', '增补', '改善', '评价'), state='readonly', width=8)
         self.operation.set('选点')
         self.operation.grid(row=0, column=1, padx=4, sticky='w')
         ttk.Label(controls, text='候选工作表').grid(
@@ -862,6 +914,7 @@ class MixtureOptimalDesignDialog:
         self.parent_sheet.set(self.candidate.get())
         self.parent_sheet.pack(side='left', padx=4)
         self.parent_row.grid(row=1, column=2, columnspan=2, sticky='w', pady=3)
+        self.parent_sheet.bind('<<ComboboxSelected>>', self._parent_changed)
 
         ttk.Label(controls, text='准则').grid(row=1, column=0, sticky='w', pady=3)
         self.criterion = ttk.Combobox(
@@ -909,6 +962,56 @@ class MixtureOptimalDesignDialog:
                   justify='left').grid(row=6, column=0, columnspan=4,
                                        sticky='w', pady=(2, 4))
 
+        self.improve_panel = ttk.LabelFrame(body, text='Improve', padding=6)
+        run_frame = ttk.LabelFrame(self.improve_panel, text='父运行')
+        run_frame.pack(side='left', fill='both', expand=True, padx=(0, 6))
+        self.run_tree = ttk.Treeview(
+            run_frame, columns=('run_id', 'state', 'response'),
+            show='headings', selectmode='extended', height=6)
+        for key, title, width in (('run_id', 'Run ID', 140),
+                                  ('state', '状态', 80),
+                                  ('response', '响应', 180)):
+            self.run_tree.heading(key, text=title)
+            self.run_tree.column(key, width=width, stretch=key == 'response')
+        self.run_tree.pack(fill='both', expand=True, padx=4, pady=4)
+        ttk.Button(run_frame, text='切换锁定/可替换',
+                   command=self._toggle_run_state).pack(anchor='w', padx=4, pady=(0, 4))
+
+        candidate_frame = ttk.LabelFrame(self.improve_panel, text='候选运行')
+        candidate_frame.pack(side='left', fill='both', expand=True)
+        candidate_body = ttk.Frame(candidate_frame)
+        candidate_body.pack(fill='both', expand=True, padx=4, pady=4)
+        self.candidate_runs = tk.Listbox(
+            candidate_body, selectmode='extended', exportselection=False, height=6)
+        candidate_scroll = ttk.Scrollbar(
+            candidate_body, orient='vertical', command=self.candidate_runs.yview)
+        self.candidate_runs.configure(yscrollcommand=candidate_scroll.set)
+        self.candidate_runs.pack(side='left', fill='both', expand=True)
+        candidate_scroll.pack(side='right', fill='y')
+        candidate_actions = ttk.Frame(candidate_frame)
+        candidate_actions.pack(fill='x', padx=4, pady=(0, 4))
+        ttk.Button(candidate_actions, text='全选',
+                   command=self._select_all_candidates).pack(side='left')
+        ttk.Button(candidate_actions, text='清空',
+                   command=lambda: self.candidate_runs.selection_clear(0, 'end')).pack(
+                       side='left', padx=4)
+        search = ttk.Frame(self.improve_panel)
+        search.pack(side='bottom', fill='x', pady=(6, 0))
+        ttk.Label(search, text='Seed').pack(side='left')
+        self.improve_seed = ttk.Entry(search, width=8)
+        self.improve_seed.insert(0, '0')
+        self.improve_seed.pack(side='left', padx=(3, 12))
+        ttk.Label(search, text='评价预算').pack(side='left')
+        self.improve_budget = ttk.Entry(search, width=10)
+        self.improve_budget.insert(0, '200000')
+        self.improve_budget.pack(side='left', padx=3)
+        self._parent_run_ids = {}
+        self._candidate_run_ids = []
+        self._protected_parent_ids = set()
+        self.improve_source_status = tk.StringVar(value='')
+        ttk.Label(self.improve_panel, textvariable=self.improve_source_status).pack(
+            side='bottom', anchor='w')
+
         bottom = ttk.Frame(body)
         bottom.pack(side='bottom', fill='x')
         self.status = tk.StringVar(value='')
@@ -929,14 +1032,14 @@ class MixtureOptimalDesignDialog:
         self._candidate_changed()
         self._operation_changed()
         self._criterion_changed()
-        self.main.geometry('900x580')
+        self.main.geometry('1000x680')
 
     def _table(self, name):
         table = self.app.sheets.get(name)
         if table is None or not getattr(table, 'mixture_metadata', None):
             raise ValueError('请选择带有效 Mixture 元数据的工作表')
         self.app._finish_edit()
-        frame = table.model.df.copy(deep=True)
+        frame = self.app._full_frame(table).copy(deep=True)
         return (table, frame, deepcopy(table.mixture_metadata),
                 deepcopy(getattr(table, 'doe_metadata', None)))
 
@@ -958,6 +1061,105 @@ class MixtureOptimalDesignDialog:
                 f'组分（比例和=1）：{components}；线性约束：{constraints}')
         except (ValueError, KeyError, TypeError, AttributeError):
             self.design_summary.set('')
+        if self.operation.get() == '改善':
+            self._refresh_improve_inputs()
+
+    @staticmethod
+    def _run_key(run_id):
+        if isinstance(run_id, (int, np.integer)) and not isinstance(run_id, bool):
+            return 'int', int(run_id)
+        return 'str', run_id
+
+    @staticmethod
+    def _run_is_protected(run):
+        return (any(value is not None for value in run.responses.values())
+                or any(value is not None for value in run.measured_levels.values()))
+
+    @staticmethod
+    def _run_label(run_id):
+        return f'{type(run_id).__name__}: {run_id!r}'
+
+    def _parent_changed(self, _event=None):
+        if self.operation.get() == '改善':
+            self._refresh_improve_inputs()
+
+    def _refresh_improve_inputs(self):
+        from doe_core import restore_design_result
+        from doe_mixture import restore_mixture
+
+        for item in self.run_tree.get_children():
+            self.run_tree.delete(item)
+        self._parent_run_ids.clear()
+        self._protected_parent_ids.clear()
+        self.candidate_runs.delete(0, 'end')
+        self._candidate_run_ids.clear()
+        try:
+            parent_table, parent_frame, parent_meta, parent_doe = self._table(
+                self.parent_sheet.get())
+            candidate_table, candidate_frame, candidate_meta, candidate_doe = self._table(
+                self.candidate.get())
+            if (not isinstance(parent_doe, dict) or not isinstance(candidate_doe, dict)
+                    or parent_meta.get('schema_version') != 1
+                    or candidate_meta.get('schema_version') != 1):
+                raise ValueError('Improve 需要普通 Mixture Schema 1 父设计与候选设计')
+            _, parent_rows = restore_mixture(parent_frame, parent_meta, parent_doe)
+            _, candidate_rows = restore_mixture(candidate_frame, candidate_meta,
+                                                candidate_doe)
+            parent_design = restore_design_result(parent_frame, parent_doe)
+            candidate_design = restore_design_result(candidate_frame, candidate_doe)
+            parent_runs = {self._run_key(run.run_id): run for run in parent_design.runs}
+            for index, row in enumerate(parent_rows):
+                run_id = row['run_id']
+                run = parent_runs[self._run_key(run_id)]
+                protected = self._run_is_protected(run)
+                iid = f'p{index}'
+                self._parent_run_ids[iid] = run_id
+                if protected:
+                    self._protected_parent_ids.add(iid)
+                responses = '; '.join(
+                    f'{name}={value}' for name, value in run.responses.items()
+                    if value is not None)
+                self.run_tree.insert(
+                    '', 'end', iid=iid,
+                    values=(self._run_label(run_id),
+                            '已保护' if protected else '锁定', responses))
+            candidate_runs = {
+                self._run_key(run.run_id): run for run in candidate_design.runs}
+            for row in candidate_rows:
+                run = candidate_runs[self._run_key(row['run_id'])]
+                if self._run_is_protected(run):
+                    continue
+                self._candidate_run_ids.append(row['run_id'])
+                self.candidate_runs.insert('end', self._run_label(row['run_id']))
+            if self._candidate_run_ids:
+                self.candidate_runs.selection_set(0, 'end')
+            self.improve_source_status.set('')
+        except (ValueError, TypeError, KeyError, AttributeError) as error:
+            self.improve_source_status.set(str(error))
+
+    def _toggle_run_state(self):
+        for iid in self.run_tree.selection():
+            if iid in self._protected_parent_ids:
+                continue
+            values = list(self.run_tree.item(iid, 'values'))
+            values[1] = '可替换' if values[1] == '锁定' else '锁定'
+            self.run_tree.item(iid, values=values)
+
+    def _select_all_candidates(self):
+        if self._candidate_run_ids:
+            self.candidate_runs.selection_set(0, 'end')
+
+    def _improve_partitions(self):
+        locked, replaceable = [], []
+        for iid, run_id in self._parent_run_ids.items():
+            state = self.run_tree.item(iid, 'values')[1]
+            if state == '可替换':
+                replaceable.append(run_id)
+            else:
+                locked.append(run_id)
+        candidate_ids = tuple(self._candidate_run_ids[index]
+                              for index in self.candidate_runs.curselection())
+        return tuple(locked), tuple(replaceable), candidate_ids
 
     def _distance_variables(self):
         self.variable_list.delete(0, 'end')
@@ -987,23 +1189,50 @@ class MixtureOptimalDesignDialog:
 
     def _operation_changed(self, _event=None):
         operation = self.operation.get()
-        if operation == '增补':
+        if operation in ('增补', '改善'):
             self.parent_row.grid()
-            self.count_label.configure(text='新增数')
-            self.batch_id.configure(state='normal')
+            self.count_label.configure(text='替换数' if operation == '改善' else '新增数')
+            self.count.configure(state='disabled' if operation == '改善' else 'normal')
+            self.batch_id.configure(state='disabled' if operation == '改善' else 'normal')
             self.execute_button.configure(state='normal')
+            if operation == '改善':
+                self.improve_panel.pack(fill='both', expand=True, pady=(4, 0),
+                                        before=self.preview_text)
+                self.criterion.set('D-optimal')
+                self.criterion.configure(state='disabled')
+                self.allow_repeats.set(False)
+                self.repeat_box.configure(state='disabled')
+                self.variable_list.configure(state='disabled')
+                self._refresh_improve_inputs()
+            else:
+                self.improve_panel.pack_forget()
+                self.criterion.configure(state='readonly')
+                self._criterion_changed()
         elif operation == '评价':
+            self.improve_panel.pack_forget()
             self.parent_row.grid_remove()
             self.count_label.configure(text='运行数')
+            self.count.configure(state='normal')
             self.batch_id.configure(state='disabled')
+            self.criterion.configure(state='readonly')
             self.execute_button.configure(state='disabled')
+            self._criterion_changed()
         else:
+            self.improve_panel.pack_forget()
             self.parent_row.grid_remove()
             self.count_label.configure(text='选点数')
+            self.count.configure(state='normal')
             self.batch_id.configure(state='disabled')
+            self.criterion.configure(state='readonly')
             self.execute_button.configure(state='normal')
+            self._criterion_changed()
 
     def _criterion_changed(self, _event=None):
+        if self.operation.get() == '改善':
+            self.criterion.set('D-optimal')
+            self.repeat_box.configure(state='disabled')
+            self.variable_list.configure(state='disabled')
+            return
         distance = self.criterion.get() == 'Distance-based'
         self.repeat_box.configure(state='disabled' if distance else 'normal')
         if distance:
@@ -1016,7 +1245,11 @@ class MixtureOptimalDesignDialog:
         return (self.operation.get(), self.candidate.get(), self.parent_sheet.get(),
                 self.criterion.get(), self.count.get(), self.degree.get(),
                 self.terms.get(), self.allow_repeats.get(), self.batch_id.get(),
-                self._selected_distance_variables())
+                self._selected_distance_variables(),
+                tuple((iid, tuple(self.run_tree.item(iid, 'values')))
+                      for iid in self.run_tree.get_children()),
+                tuple(self.candidate_runs.curselection()),
+                self.improve_seed.get(), self.improve_budget.get())
 
     def _selected_distance_variables(self):
         if self.criterion.get() != 'Distance-based':
@@ -1026,7 +1259,7 @@ class MixtureOptimalDesignDialog:
 
     def _capture_sources(self):
         names = [self.candidate.get()]
-        if self.operation.get() == '增补':
+        if self.operation.get() in ('增补', '改善'):
             names.append(self.parent_sheet.get())
         snapshots = {}
         for name in dict.fromkeys(names):
@@ -1041,7 +1274,7 @@ class MixtureOptimalDesignDialog:
             return False
         for name, (table, frame, mixture, doe) in self.last_sources.items():
             if (self.app.sheets.get(name) is not table
-                    or not table.model.df.equals(frame)
+                    or not self.app._full_frame(table).equals(frame)
                     or getattr(table, 'mixture_metadata', None) != mixture
                     or getattr(table, 'doe_metadata', None) != doe):
                 return False
@@ -1062,6 +1295,22 @@ class MixtureOptimalDesignDialog:
                 criterion=criterion, degree=degree, terms=terms,
                 distance_variables=variables)
             return None, None, None, None, summary
+        if operation == '改善':
+            if self.parent_sheet.get() == self.candidate.get():
+                raise ValueError('父设计与候选设计必须是不同工作表')
+            _, parent_frame, parent_mixture, parent_doe = snapshots[self.parent_sheet.get()]
+            locked_ids, replaceable_ids, candidate_ids = self._improve_partitions()
+            try:
+                seed = int(self.improve_seed.get())
+                budget = int(self.improve_budget.get())
+            except ValueError as error:
+                raise ValueError('Seed 和评价预算必须是整数') from error
+            return improve_mixture_design(
+                parent_frame, parent_mixture, parent_doe,
+                candidate_frame, candidate_mixture, candidate_doe,
+                locked_ids, replaceable_ids, candidate_ids,
+                degree=degree, terms=terms, seed=seed,
+                evaluation_budget=budget)
         try:
             count = int(self.count.get())
         except ValueError as error:
@@ -1082,13 +1331,24 @@ class MixtureOptimalDesignDialog:
 
     def _render(self, result):
         summary = result[4]
-        lines = [f'{key}: {summary[key]}' for key in (
+        if self.operation.get() == '改善':
+            lines = [f"父设计：rank {summary['parent_rank']}，logdet {summary['parent_logdet']}",
+                     f"改善后：rank {summary['current_rank']}，logdet {summary['current_logdet']}",
+                     f"候选 {summary['candidate_count']}；替换 {summary['replaced_n']}；"
+                     f"评价 {summary['evaluations']}/{summary['evaluation_budget']}",
+                     f"Seed {summary['seed']}；停止原因：{summary['stop_reason']}",
+                     f"候选域全局最优已穷举证明：{summary['global_optimum_proven']}",
+                     '新增运行响应为空。', '', '候选 → 新运行 → 被替换父运行：']
+            lines.extend(' → '.join(map(str, pair))
+                         for pair in summary['candidate_to_replaced_parent'])
+        else:
+            lines = [f'{key}: {summary[key]}' for key in (
             'criterion', 'method', 'n', 'candidate_count', 'selected_n',
             'initial_n', 'added_n', 'rank', 'p', 'selected_rank',
             'condition', 'logdet', 'min_squared_distance', 'evaluations',
             'subsets', 'exact_budget', 'global_optimum_proven',
-            'allow_repeats', 'distance_variables', 'stop_reason',
-            'multiplicities') if key in summary]
+                'allow_repeats', 'distance_variables', 'stop_reason',
+                'multiplicities') if key in summary]
         if result[0] is not None:
             frame, doe = result[0], result[1]
             if self.operation.get() == '增补':
@@ -1132,7 +1392,8 @@ class MixtureOptimalDesignDialog:
         try:
             frame, doe, mixture, model, _ = self._calculate(self.last_sources)
             metadata = {'doe': doe, 'mixture': mixture, 'mixture_model': model}
-            name = '混料增补设计' if self.operation.get() == '增补' else '混料最优设计'
+            name = {'增补': '混料增补设计', '改善': '混料改善设计'}.get(
+                self.operation.get(), '混料最优设计')
             self.app.addSheet(name, frame, metadata)
             self.main.destroy()
         except (ValueError, TypeError, OverflowError, KeyError) as error:

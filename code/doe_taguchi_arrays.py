@@ -54,6 +54,28 @@ _L25 = (
     (5, 2, 1, 5, 4, 3), (5, 3, 2, 1, 5, 4), (5, 4, 3, 2, 1, 5),
     (5, 5, 4, 3, 2, 1),
 )
+_L8_MIXED = (
+    (1, 1, 1, 1, 1), (1, 2, 2, 2, 2), (2, 1, 1, 2, 2), (2, 2, 2, 1, 1),
+    (3, 1, 2, 1, 2), (3, 2, 1, 2, 1), (4, 1, 2, 2, 1), (4, 2, 1, 1, 2),
+)
+_L16_MIXED = (
+    (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+    (1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2),
+    (1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2),
+    (1, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1),
+    (2, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2),
+    (2, 1, 1, 2, 2, 2, 2, 1, 1, 2, 2, 1, 1),
+    (2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1),
+    (2, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2),
+    (3, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2),
+    (3, 1, 2, 1, 2, 2, 1, 2, 1, 2, 1, 2, 1),
+    (3, 2, 1, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1),
+    (3, 2, 1, 2, 1, 2, 1, 2, 1, 1, 2, 1, 2),
+    (4, 1, 2, 2, 1, 1, 2, 2, 1, 1, 2, 2, 1),
+    (4, 1, 2, 2, 1, 2, 1, 1, 2, 2, 1, 1, 2),
+    (4, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 1, 2),
+    (4, 2, 1, 1, 2, 2, 1, 1, 2, 1, 2, 2, 1),
+)
 
 
 @dataclass(frozen=True)
@@ -64,12 +86,20 @@ class TaguchiArray:
     levels: tuple[int, ...]
     matrix: tuple[tuple[int, ...], ...]
     documented_unbalanced_pairs: tuple[tuple[int, int], ...] = ()
+    column_numbers: tuple[int, ...] | None = None
 
     def __post_init__(self):
         if not self.matrix or len(self.matrix) != self.run_count:
             raise ValueError("数组运行数无效")
         if any(len(row) != len(self.levels) for row in self.matrix):
             raise ValueError("数组列数与水平声明不一致")
+        numbers = (tuple(range(1, self.factor_capacity + 1)) if self.column_numbers is None
+                   else tuple(self.column_numbers))
+        if (len(numbers) != self.factor_capacity or any(type(value) is not int or value < 1
+                                                        for value in numbers)
+                or len(set(numbers)) != len(numbers)):
+            raise ValueError("官方列号映射无效")
+        object.__setattr__(self, "column_numbers", numbers)
         for column, count in enumerate(self.levels):
             values = {row[column] for row in self.matrix}
             if values != set(range(1, count + 1)):
@@ -92,9 +122,22 @@ class TaguchiArray:
         return hashlib.sha256(encoded).hexdigest()
 
     def columns_for(self, level_count):
-        """返回可容纳给定水平数的列号（1 起）。"""
+        """返回可容纳给定水平数的内部列位置（1 起）。"""
         return tuple(index + 1 for index, value in enumerate(self.levels)
                      if value == level_count)
+
+    def official_column(self, position):
+        """将内部列位置（1 起）映射到目录显示的官方列号。"""
+        if type(position) is not int or not 1 <= position <= self.factor_capacity:
+            raise ValueError("列位置超出数组范围")
+        return self.column_numbers[position - 1]
+
+    def column_position(self, official_number):
+        """将目录显示的官方列号映射为内部列位置（1 起）。"""
+        try:
+            return self.column_numbers.index(official_number) + 1
+        except ValueError:
+            raise ValueError(f"未知官方列号：{official_number}") from None
 
 
 ARRAYS = {array.array_id: array for array in (
@@ -103,8 +146,11 @@ ARRAYS = {array.array_id: array for array in (
     TaguchiArray("L9(3^4)", (3,) * 4, _L9),
     TaguchiArray("L16(4^5)", (4,) * 5, _L16),
     TaguchiArray("L18(2^1 3^7)", (2,) + (3,) * 7, _L18,
-                 documented_unbalanced_pairs=((3, 8), (4, 8), (5, 8), (6, 8), (7, 8))),
+                 documented_unbalanced_pairs=((3, 8), (4, 8), (5, 8), (6, 8), (7, 8)),
+                 column_numbers=(1, 2, 3, 4, 5, 6, 7, 9)),
     TaguchiArray("L25(5^6)", (5,) * 6, _L25),
+    TaguchiArray("L8(4^1 2^4)", (4, 2, 2, 2, 2), _L8_MIXED),
+    TaguchiArray("L16(4^1 2^12)", (4,) + (2,) * 12, _L16_MIXED),
 )}
 ARRAY_IDS = tuple(ARRAYS)
 
@@ -151,7 +197,9 @@ def validate_independent_columns(array, columns, role):
     unbalanced = [pair for pair in combinations(assigned, 2)
                   if not pair_is_balanced(array, *pair)]
     if unbalanced:
-        pairs = ", ".join(f"{first}/{second}" for first, second in unbalanced)
+        pairs = ", ".join(
+            f"{array.official_column(first)}/{array.official_column(second)}"
+            for first, second in unbalanced)
         raise ValueError(
             f"{array.array_id} 的{role}列组合 {pairs} 不满足两两正交，不能独立解释主效应")
 
@@ -174,4 +222,9 @@ def validate_array(array):
         raise ValueError(f"{array.array_id} 两两正交性与记录的构造事实不一致")
     return {"array_id": array.array_id, "run_count": array.run_count,
             "levels": list(array.levels), "balance": balance,
-            "unbalanced_pairs": unbalanced, "sha256": array.sha256}
+            "column_numbers": list(array.column_numbers),
+            "unbalanced_pairs": unbalanced,
+            "official_unbalanced_pairs": [
+                (array.official_column(first), array.official_column(second))
+                for first, second in unbalanced],
+            "sha256": array.sha256}

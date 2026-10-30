@@ -117,8 +117,8 @@ def _mixture_source(frame, mixture_metadata, doe_metadata):
     from doe_core import restore_design_result
     from doe_mixture import restore_mixture
 
-    mixture, rows = restore_mixture(frame, mixture_metadata)
     design = restore_design_result(frame, doe_metadata)
+    mixture, rows = restore_mixture(frame, mixture_metadata, doe_metadata)
     if (design.spec.design_type != 'mixture'
             or design.spec.design_id != mixture.design_id
             or tuple(factor.factor_id for factor in design.spec.factors)
@@ -186,6 +186,9 @@ def select_mixture_optimal(frame, mixture_metadata, doe_metadata, count, *,
         raise ValueError('运行总数不能超过 10000')
     if seed is not None and (isinstance(seed, bool) or not isinstance(seed, (int, np.integer))):
         raise ValueError('seed 必须是整数或 None')
+    if (not isinstance(mixture_metadata, dict)
+            or mixture_metadata.get('schema_version') != 1):
+        raise ValueError('改善谱系设计不能作为普通选点来源；请使用新的候选设计')
 
     source_spec, source_rows, source_design = _mixture_source(
         frame, mixture_metadata, doe_metadata)

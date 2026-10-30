@@ -41,6 +41,10 @@ class MixtureTermModel:
         # 完整 xi*P 已张成 P（Σxi=1）；再加入 P 会造成结构性完全共线。
         terms += [f'{component}*{variable}'
                   for variable in process_ids for component in self.component_ids]
+        if self.spec.construction_version == 'v2':
+            amount_ids = [item.variable_id for item in self.spec.amount_variables]
+            terms += [f'{component}*{variable}'
+                      for variable in amount_ids for component in self.component_ids]
         return terms
 
     def validate_terms(self, terms):

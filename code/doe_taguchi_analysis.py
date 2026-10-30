@@ -48,7 +48,7 @@ def analyze_dynamic(frame, metadata, response, reference=None, adjusted=False):
 
 
 def noise_robustness(frame, metadata, response, kind="smaller"):
-    """按噪声条件比较同一控制设定下的响应变化。"""
+    """按不同噪声设置汇总响应；重复仍是观测，不额外计作噪声条件。"""
     design = restore_design_result(frame, metadata)
     spec = design.spec
     grid = taguchi_grid(spec)
@@ -56,35 +56,79 @@ def noise_robustness(frame, metadata, response, kind="smaller"):
         raise ValueError("该设计没有噪声因子，不能作稳健性分析")
     signal = spec.taguchi["signal_factor"]
     groups = {}
-    for run in design.runs:
+    noise_factors = sorted(grid["noise_columns"])
+    for run in sorted(design.runs, key=lambda item: item.standard_order):
         value = run.responses[response]
         if value is None:
             raise ValueError("响应存在缺失值，请填写全部运行")
         control = tuple(sorted((factor_id, run.settings[factor_id])
                                for factor_id in grid["columns"]))
-        key = (control, None if signal is None else run.settings[signal])
-        groups.setdefault(key, []).append(float(value))
+        signal_level = None if signal is None else run.settings[signal]
+        noise = tuple((factor_id, run.settings[factor_id]) for factor_id in noise_factors)
+        groups.setdefault((control, signal_level), {}).setdefault(noise, []).append(run)
     rows, matrix_sn = [], []
-    for (control, signal_level), values in groups.items():
-        array = _finite(values)
-        if array.size < 2:
+    for (control, signal_level), conditions in groups.items():
+        if len(conditions) < 2:
             raise ValueError("每个控制设定至少需要两个噪声条件")
+        all_values, condition_means, condition_rows = [], [], []
+        control_run_ids = set()
+        for noise, runs in conditions.items():
+            runs = sorted(runs, key=lambda item: (item.replicate, item.standard_order))
+            noise_codes = [grid["factors"][factor_id].levels.index(value) + 1
+                           for factor_id, value in noise]
+            condition_id = "N" + "".join(str(value) for value in noise_codes)
+            values = _finite([run.responses[response] for run in runs])
+            replicates = [run.replicate for run in runs]
+            for run in runs:
+                expected_id = f"{condition_id}R{run.replicate}"
+                if run.noise_condition_id != expected_id:
+                    raise ValueError("噪声条件 ID 与因子水平或重复编号不一致")
+                control_run_ids.add(run.control_run_id)
+            mean_condition = float(values.mean())
+            condition_means.append(mean_condition)
+            all_values.extend(values.tolist())
+            condition_rows.append({
+                "condition_id": condition_id,
+                "noise_settings": dict(noise),
+                "replicates": replicates,
+                "standard_orders": [run.standard_order for run in runs],
+                "run_ids": [run.run_id for run in runs],
+                "n": int(values.size),
+                "mean": mean_condition,
+                "sd": (None if values.size < 2
+                       else float(values.std(ddof=1))),
+                "response_range": float(values.max() - values.min()),
+            })
+        if len(control_run_ids) != 1:
+            raise ValueError("同一控制组合的控制运行 ID 必须一致")
+        array = _finite(all_values)
         mean = float(array.mean())
-        sd = float(array.std(ddof=1))
+        sd = None if array.size < 2 else float(array.std(ddof=1))
+        condition_mean_range = max(condition_means) - min(condition_means)
         sn = signal_to_noise(array, kind)
+        condition_count = len(condition_rows)
+        observation_count = int(array.size)
         matrix_sn.append({"settings": dict(control), "signal": signal_level,
-                          "n": array.size, "noise_count": array.size, "mean": mean,
+                          "n": observation_count, "noise_count": observation_count,
+                          "condition_count": condition_count, "mean": mean,
                           "sd": sd, "sn": sn})
         rows.append({"settings": dict(control), "signal": signal_level,
-                     "noise_count": array.size, "mean": mean, "sd": sd,
-                     "sn": sn})
+                     "control_run_id": next(iter(control_run_ids)),
+                     "noise_count": observation_count,
+                     "condition_count": condition_count,
+                     "observation_count": observation_count,
+                     "n": observation_count, "mean": mean, "sd": sd, "sn": sn,
+                     "condition_mean_range": condition_mean_range,
+                     "noise_conditions": condition_rows})
     table = _response_table(spec, matrix_sn, "sn")
     return {"design": design, "response": response, "kind": kind, "rows": rows,
             "response_table": table,
-            "status": (f"按 {len(rows)} 个控制设定比较噪声条件间的均值、SD 与 S/N；"
-                       "每个控制设定至少需要两个噪声条件"),
-            "assumption": ("同一控制设定的不同噪声条件视为独立观测；"
-                           "噪声因子水平来自实验内可控设置。")}
+            "status": (f"按 {len(rows)} 个控制/信号条件汇总 "
+                       f"{sum(row['condition_count'] for row in rows)} 个不同噪声设置；"
+                       f"共 {sum(row['observation_count'] for row in rows)} 条观测"),
+            "assumption": ("不同噪声因子水平元组各计一个条件，重复号与运行 ID 保留为观测身份；"
+                           "Mean、SD、S/N 使用该控制组合的全部观测，条件极差比较各噪声设置的响应均值；"
+                           "控制水平响应表对已观测控制组合等权平均。")}
 
 
 _METRICS = {"sn": "S/N", "mean": "目标均值", "sd": "最小 SD", "slope": "目标斜率"}
@@ -164,19 +208,113 @@ def _target_settings(table, combinations, metric, target):
         "method": "exact enumeration of additive main-effect combinations",
         "candidate_count": candidate_count,
         "budget": _MAX_TARGET_COMBINATIONS,
+        "evaluation_count": candidate_count,
+        "stop_reason": "completed",
         "global_optimum": True,
+        "optimality_scope": "finite declared-level Cartesian product under the additive prediction model",
         "tie_rule": "factor and declared level order; first tied combination selected",
     }
 
 
+def _robust_settings(table, combinations, selection_mode, target, sn_threshold):
+    factors = table["factors"]
+    candidate_count = math.prod(len(row["levels"]) for row in factors)
+    if candidate_count > _MAX_TARGET_COMBINATIONS:
+        raise ValueError(
+            f"稳健设置搜索需要精确枚举 {candidate_count} 个组合，超过预算 "
+            f"{_MAX_TARGET_COMBINATIONS}；未执行搜索，无法声明预测最优设置")
+    candidates = []
+    for levels in product(*(row["levels"] for row in factors)):
+        settings = {factor["factor_id"]: level["level"]
+                    for factor, level in zip(factors, levels)}
+        predicted_sn = _additive_prediction(table, combinations, "sn", settings)
+        predicted_mean = _additive_prediction(table, combinations, "mean", settings)
+        if predicted_sn is None or predicted_mean is None:
+            raise ValueError("S/N 或均值在部分水平上不可计算")
+        predicted_sd = _additive_prediction(table, combinations, "sd", settings)
+        if predicted_sd is not None and predicted_sd < 0:
+            predicted_sd = None
+        candidates.append({
+            "settings": settings,
+            "predicted_sn": predicted_sn, "predicted_mean": predicted_mean,
+            "predicted_sd": predicted_sd,
+        })
+
+    if selection_mode == "sn_maximum":
+        eligible = candidates
+        optimum = max(item["predicted_sn"] for item in eligible)
+        distance = None
+        scale = max(1.0, abs(optimum))
+        tolerance = math.ulp(scale) * (2 * len(factors) + 2)
+        tied = [item for item in eligible
+                if abs(item["predicted_sn"] - optimum) <= tolerance]
+    else:
+        eligible = [item for item in candidates
+                    if item["predicted_sn"] >= sn_threshold]
+        if eligible:
+            distance = min(abs(item["predicted_mean"] - target) for item in eligible)
+            tied = [item for item in eligible
+                    if abs(abs(item["predicted_mean"] - target) - distance)
+                    <= math.ulp(max(1.0, abs(target), abs(item["predicted_mean"])))
+                    * (2 * len(factors) + 2)]
+            for item in tied:
+                item["distance"] = abs(item["predicted_mean"] - target)
+        else:
+            distance, tied = None, []
+
+    best = tied[0]["settings"] if tied else None
+    per_factor = {
+        factor["factor_id"]: {
+            "value": None,
+            "levels": [level["level"] for level in factor["levels"]
+                       if any(item["settings"][factor["factor_id"]] == level["level"]
+                              for item in tied)],
+            "tied": False,
+        }
+        for factor in factors
+    }
+    for item in per_factor.values():
+        item["tied"] = len(item["levels"]) > 1
+    unreachable = selection_mode == "robust_then_target" and not eligible
+    return best, per_factor, tied, {
+        "method": ("exact enumeration of additive main-effect combinations"),
+        "candidate_count": candidate_count,
+        "evaluation_count": candidate_count,
+        "eligible_count": len(eligible),
+        "budget": _MAX_TARGET_COMBINATIONS,
+        "stop_reason": "no_candidate_meets_sn_threshold" if unreachable else "completed",
+        "search_complete": True,
+        "global_optimum": not unreachable,
+        "status_code": "target_unreachable" if unreachable else "ok",
+        "optimality_scope": "finite declared-level Cartesian product under the additive prediction model",
+        "tie_rule": "factor and declared level order; first tied combination selected",
+        "selection_mode": selection_mode,
+        "sn_threshold": sn_threshold,
+        "target": target,
+        "minimum_target_distance": distance,
+    }
+
+
 def best_settings(frame, metadata, response, metric="sn", target=None,
-                  observed=None, tolerance=None):
+                  observed=None, tolerance=None, selection_mode=None,
+                  sn_threshold=None):
     """按指标体系选水平，给出加性主效应预测与确认实验建议。"""
     design = restore_design_result(frame, metadata)
     spec = design.spec
     dynamic = spec.taguchi["kind"] == "dynamic"
     if metric not in _METRICS:
         raise ValueError("优化指标必须是 sn、mean、sd 或 slope")
+    if selection_mode not in (None, "sn_maximum", "robust_then_target"):
+        raise ValueError("未知的最佳设置选择模式")
+    if selection_mode is not None and metric != "sn":
+        raise ValueError("新增稳健选择模式必须以 S/N 作为指标")
+    if selection_mode == "robust_then_target" and dynamic:
+        raise ValueError("先稳健后目标的均值目标模式仅适用于静态设计")
+    if selection_mode == "robust_then_target":
+        if target is None or sn_threshold is None:
+            raise ValueError("稳健后目标模式需要目标均值和最低 S/N")
+        target = float(_finite([target], "目标均值")[0])
+        sn_threshold = float(_finite([sn_threshold], "最低 S/N")[0])
     if metric == "slope" and not dynamic:
         raise ValueError("目标斜率只适用于动态设计")
     if metric in ("mean", "slope"):
@@ -201,7 +339,10 @@ def best_settings(frame, metadata, response, metric="sn", target=None,
         table, combinations = result["response_table"], result["combinations"]
     search = None
     tied_combinations = []
-    if metric in ("mean", "slope"):
+    if selection_mode is not None:
+        best, tied, tied_combinations, search = _robust_settings(
+            table, combinations, selection_mode, target, sn_threshold)
+    elif metric in ("mean", "slope"):
         best, tied, tied_combinations, search = _target_settings(
             table, combinations, metric, target)
     else:
@@ -215,11 +356,15 @@ def best_settings(frame, metadata, response, metric="sn", target=None,
                 "tied": len(levels) > 1,
             }
     observed_settings = [row["settings"] for row in combinations]
-    is_observed = any(all(settings[key] == best[key] for key in best)
-                      for settings in observed_settings)
-    predicted_sd = _additive_prediction(table, combinations, "sd", best)
+    is_observed = (None if best is None else
+                   any(all(settings[key] == best[key] for key in best)
+                       for settings in observed_settings))
+    predicted_sd = (None if best is None else
+                    _additive_prediction(table, combinations, "sd", best))
     predicted_sd_reason = None
-    if predicted_sd is None:
+    if best is None:
+        predicted_sd_reason = "没有组合满足最低 S/N，未生成推荐设置"
+    elif predicted_sd is None:
         if any(row.get("sd") is None for row in combinations):
             predicted_sd_reason = "样本不足，SD 无法估计"
         else:
@@ -228,19 +373,43 @@ def best_settings(frame, metadata, response, metric="sn", target=None,
         predicted_sd = None
         predicted_sd_reason = "加性主效应预测为负，不作为物理标准差显示"
     predicted = {
-        "mean": _additive_prediction(table, combinations, "mean", best),
-        "sn": _additive_prediction(table, combinations, "sn", best),
+        "mean": (None if best is None else
+                 _additive_prediction(table, combinations, "mean", best)),
+        "sn": (None if best is None else
+               _additive_prediction(table, combinations, "sn", best)),
         "sd": predicted_sd,
         "slope": (_additive_prediction(table, combinations, "slope", best)
-                  if dynamic else None),
+                  if dynamic and best is not None else None),
     }
     difference = (None if observed is None
+                  or predicted["mean"] is None
                   else float(observed) - predicted["mean"])
     meets = (None if observed is None or target is None or tolerance is None
              else abs(float(observed) - float(target)) <= float(tolerance))
+    if selection_mode == "sn_maximum":
+        status = (f"按加性预测 S/N 最大值筛选；精确枚举 {search['candidate_count']} 个组合，"
+                  f"{len(tied_combinations)} 个并列；最优仅指声明水平组合中的模型预测")
+    elif selection_mode == "robust_then_target" and best is None:
+        status = (f"没有组合达到最低 S/N {sn_threshold:g}；已精确枚举 "
+                  f"{search['candidate_count']} 个组合，未回退到其他目标")
+    elif selection_mode == "robust_then_target":
+        status = (f"先筛选预测 S/N ≥ {sn_threshold:g}，再选择预测均值距目标 "
+                  f"{target:g} 最近的组合；已精确枚举 {search['candidate_count']} 个组合，"
+                  f"{len(tied_combinations)} 个并列最优预测")
+    else:
+        status = (f"按{_METRICS[metric]}"
+                  + (f"（目标 {target:g}）" if target is not None else "")
+                  + "选水平并使用加性主效应预测；"
+                  + (f"精确枚举 {search['candidate_count']} 个控制水平组合，"
+                     f"{len(tied_combinations)} 个最优组合并列；"
+                     if search is not None else "")
+                  + ("该组合已在实验中观测" if is_observed
+                     else "该组合未在实验中观测，必须做确认试验"))
     return {
         "design": design, "response": response, "metric": metric,
         "target": target, "tolerance": tolerance, "best": best,
+        "selection_mode": selection_mode, "sn_threshold": sn_threshold,
+        "status_code": (search["status_code"] if selection_mode is not None else "ok"),
         "tied": tied, "table": table,
         "is_observed": is_observed, "predicted": predicted,
         "predicted_mean": predicted["mean"], "predicted_sn": predicted["sn"],
@@ -254,14 +423,7 @@ def best_settings(frame, metadata, response, metric="sn", target=None,
         "tied_combinations": tied_combinations,
         "search": search,
         "predicted_sd_reason": predicted_sd_reason,
-        "status": (f"按{_METRICS[metric]}"
-                   + (f"（目标 {target:g}）" if target is not None else "")
-                   + "选水平并使用加性主效应预测；"
-                   + (f"精确枚举 {search['candidate_count']} 个控制水平组合，"
-                      f"{len(tied_combinations)} 个最优组合并列；"
-                      if search is not None else "")
-                   + ("该组合已在实验中观测" if is_observed
-                      else "该组合未在实验中观测，必须做确认试验")),
+        "status": status,
         "assumption": ("预测依赖控制因子主效应可加、无显著交互混杂；"
                        "确认试验不修改原始正交表运行"),
     }

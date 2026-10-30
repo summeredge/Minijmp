@@ -45,12 +45,23 @@ def l18_spec(columns):
 
 
 def test_schema_version_is_five_and_arrays_match_reference_hashes():
+    import json
+    from pathlib import Path
+
     assert DOE_SCHEMA_VERSION == 5
-    assert {case["array_id"]: case["sha256"]
-            for case in __import__("json").loads(
-                (__import__("pathlib").Path(__file__).parent / "fixtures"
-                 / "doe_taguchi_reference" / "manifest.json").read_text(encoding="utf-8")
-            )["fixtures"]} == {key: value.sha256 for key, value in ARRAYS.items()}
+    fixtures = Path(__file__).parent / "fixtures"
+    legacy = json.loads((fixtures / "doe_taguchi_reference" / "manifest.json").read_text(
+        encoding="utf-8"))["fixtures"]
+    assert {case["array_id"]: case["sha256"] for case in legacy} == {
+        key: ARRAYS[key].sha256 for key in
+        ("L4(2^3)", "L8(2^7)", "L9(3^4)", "L16(4^5)",
+         "L18(2^1 3^7)", "L25(5^6)")}
+    p4bc = json.loads((fixtures / "doe_phase2_p4bc_reference" / "reference.json").read_text(
+        encoding="utf-8"))
+    assert {item["array_id"]: item["matrix_sha256"]
+            for item in p4bc["taguchi_arrays"]} == {
+        key: ARRAYS[key].sha256
+        for key in ("L8(4^1 2^4)", "L16(4^1 2^12)", "L18(2^1 3^7)")}
 
 
 @pytest.mark.parametrize("array_id", sorted(ARRAYS))
@@ -69,6 +80,9 @@ def test_l18_unbalanced_pairs_are_recorded_not_silently_claimed_orthogonal():
 
 def test_l18_balanced_control_columns_including_official_column_nine_remain_usable():
     array = ARRAYS["L18(2^1 3^7)"]
+    assert array.column_numbers == (1, 2, 3, 4, 5, 6, 7, 9)
+    assert array.official_column(8) == 9
+    assert array.column_position(9) == 8
     spec = DesignSpec(
         "TG", (factor("A", ("低", "高")),
                factor("B", ("b1", "b2", "b3")),
@@ -87,7 +101,7 @@ def test_l18_balanced_control_columns_including_official_column_nine_remain_usab
 
 
 def test_l18_nonorthogonal_control_pair_is_rejected_at_core_construction():
-    with pytest.raises(ValueError, match="3/8.*不满足两两正交"):
+    with pytest.raises(ValueError, match="3/9.*不满足两两正交"):
         l18_spec({"A": 1, "B": 2, "C": 3, "D": 8})
 
 
@@ -97,7 +111,7 @@ def test_l18_nonorthogonal_noise_pair_is_rejected_at_core_construction():
                factor("C", ("c1", "c2", "c3")),
                factor("D", ("d1", "d2", "d3")),
                factor("E", ("e1", "e2", "e3")))
-    with pytest.raises(ValueError, match="噪声列组合 3/8.*不满足两两正交"):
+    with pytest.raises(ValueError, match="噪声列组合 3/9.*不满足两两正交"):
         DesignSpec(
             "TG", factors, ("Y",), seed=5, design_type="taguchi",
             taguchi={"kind": "static", "array_id": array.array_id,
@@ -118,9 +132,9 @@ def test_l18_bad_pair_cannot_be_restored_or_analyzed_from_tampered_metadata():
     frame["响应_Y"] = [float(index % 5 + 1) for index in range(len(frame))]
     broken = deepcopy(metadata)
     broken["design"]["taguchi"]["columns"]["D"] = 8
-    with pytest.raises(ValueError, match="3/8.*不满足两两正交"):
+    with pytest.raises(ValueError, match="3/9.*不满足两两正交"):
         restore_design_result(frame, broken)
-    with pytest.raises(ValueError, match="3/8.*不满足两两正交"):
+    with pytest.raises(ValueError, match="3/9.*不满足两两正交"):
         analyze_static(frame, broken, "Y", "smaller")
 
 
@@ -134,7 +148,9 @@ def test_column_counts_are_balanced_for_every_level_count(levels):
 
 @pytest.mark.parametrize("array_id, capacity", [("L4(2^3)", 3), ("L8(2^7)", 7),
                                                 ("L9(3^4)", 4), ("L16(4^5)", 5),
-                                                ("L18(2^1 3^7)", 8), ("L25(5^6)", 6)])
+                                                ("L18(2^1 3^7)", 8), ("L25(5^6)", 6),
+                                                ("L8(4^1 2^4)", 5),
+                                                ("L16(4^1 2^12)", 13)])
 def test_array_capacity_and_duplicate_columns(array_id, capacity):
     array = ARRAYS[array_id]
     assert array.factor_capacity == capacity
@@ -144,6 +160,17 @@ def test_array_capacity_and_duplicate_columns(array_id, capacity):
         pair_counts(array, 1, 1)
     with pytest.raises(ValueError):
         pair_counts(array, 1, capacity + 1)
+
+
+def test_new_mixed_arrays_use_catalogue_columns_and_are_pairwise_balanced():
+    for array_id, expected_levels in (
+            ("L8(4^1 2^4)", (4, 2, 2, 2, 2)),
+            ("L16(4^1 2^12)", (4,) + (2,) * 12)):
+        array = ARRAYS[array_id]
+        assert array.levels == expected_levels
+        assert array.column_numbers == tuple(range(1, len(expected_levels) + 1))
+        assert len(array.matrix) == (8 if array_id.startswith("L8") else 16)
+        assert not validate_array(array)["unbalanced_pairs"]
 
 
 def test_l8_two_factor_projection_is_balanced_but_rejected_by_design_contract():

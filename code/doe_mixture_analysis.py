@@ -13,12 +13,12 @@ from doe_mixture_constraints import MixtureConstraintError, TOLERANCE
 from doe_mixture_model import MixtureTermModel, is_component_main
 
 
-def _spec_rows(frame, metadata, response):
+def _spec_rows(frame, metadata, response, doe_metadata=None):
     if isinstance(metadata, MixtureSpec):
         spec = metadata
         rows = mixture_rows(frame, spec)
     elif isinstance(metadata, dict) and 'spec' in metadata:
-        spec, rows = restore_mixture(frame, metadata)
+        spec, rows = restore_mixture(frame, metadata, doe_metadata)
     else:
         raise MixtureConstraintError('需要混料设计元数据或 MixtureSpec')
     column = f'响应_{response}'
@@ -41,9 +41,10 @@ def _group_key(item, frame, block_column):
     return key
 
 
-def analyze_mixture(frame, metadata, response, terms=None, degree=2):
+def analyze_mixture(frame, metadata, response, terms=None, degree=2,
+                    *, doe_metadata=None):
     """拟合当前响应；秩亏时给出最小范数解并禁用推断。"""
-    spec, rows, y = _spec_rows(frame, metadata, response)
+    spec, rows, y = _spec_rows(frame, metadata, response, doe_metadata)
     model = MixtureTermModel(spec, terms, degree)
     x = model.matrix([item['settings'] for item in rows])
     n, p = x.shape
@@ -51,6 +52,11 @@ def analyze_mixture(frame, metadata, response, terms=None, degree=2):
     tolerance = singular[0] * np.finfo(float).eps * max(n, p)
     valid = singular > tolerance
     rank = int(valid.sum())
+    condition_number = (float(singular[0] / singular[-1])
+                        if rank == p else math.inf)
+    if spec.construction_version == 'v2' and rank < p:
+        raise MixtureConstraintError(
+            f'混料联合 v2 模型不可估计（秩 {rank}/{p}，条件数 {condition_number}）')
     inverse = np.where(valid, 1 / np.where(valid, singular, 1), 0)
     beta = vt.T @ (inverse * (u.T @ y))
     fitted = x @ beta
@@ -155,7 +161,8 @@ def analyze_mixture(frame, metadata, response, terms=None, degree=2):
         'spec': spec, 'design': spec, 'response': response, 'model': model,
         'term_model': model, 'terms': model.terms, 'names': model.names,
         'coefficients': beta, 'fitted': fitted, 'residuals': residuals,
-        'n': n, 'p': p, 'rank': rank, 'df': df, 'sse': sse, 'sst': sst,
+        'n': n, 'p': p, 'rank': rank, 'condition_number': condition_number,
+        'df': df, 'sse': sse, 'sst': sst,
         'has_constant': bool(has_constant), 'total_df': total_df,
         'model_df': model_df, 'row_space': row_basis,
         'ssr': ssr, 'pure_error_df': pure_df, 'pure_error_sse': pure_sse,

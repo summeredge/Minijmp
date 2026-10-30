@@ -84,12 +84,19 @@ class AnalyzeTaguchi:
         ttk.Label(best_bar, text='优化依据').pack(side='left')
         self.best_metric = ttk.Combobox(
             best_bar, state='readonly', width=12,
-            values=('最大 S/N', '目标均值', '最小 SD') + (('目标斜率',) if self.dynamic else ()))
+            values=('最大 S/N',) + (('先稳健后目标',) if not self.dynamic else ())
+            + ('目标均值', '最小 SD')
+            + (('目标斜率',) if self.dynamic else ()))
         self.best_metric.set('最大 S/N')
         self.best_metric.pack(side='left', padx=4)
+        self.best_metric.bind('<<ComboboxSelected>>', self._best_mode_selected)
         ttk.Label(best_bar, text='目标值').pack(side='left', padx=(10, 2))
         self.best_target = ttk.Entry(best_bar, width=10)
         self.best_target.pack(side='left')
+        ttk.Label(best_bar, text='最低 S/N').pack(side='left', padx=(10, 2))
+        self.best_sn_threshold = ttk.Entry(best_bar, width=10)
+        self.best_sn_threshold.pack(side='left')
+        self.best_sn_threshold.configure(state='disabled')
         self.status = tk.StringVar(value='')
         ttk.Label(self.main, textvariable=self.status, wraplength=940,
                   anchor='w').pack(fill='x', padx=8)
@@ -97,6 +104,10 @@ class AnalyzeTaguchi:
         self.tabs.pack(fill='both', expand=True, padx=8, pady=8)
         self.result = None
         self._restore_options()
+
+    def _best_mode_selected(self, event=None):
+        self.best_sn_threshold.configure(
+            state='normal' if self.best_metric.get() == '先稳健后目标' else 'disabled')
 
     def _restore_options(self):
         """恢复上次随工程保存的分析选项；缺失时保留界面默认值。"""
@@ -229,12 +240,22 @@ class AnalyzeTaguchi:
             self.owner._finish_edit()
             frame = self.owner._full_frame(self.source).copy(deep=True)
             choice = self.best_metric.get()
-            metric = {'最大 S/N': 'sn', '目标均值': 'mean',
-                      '最小 SD': 'sd', '目标斜率': 'slope'}[choice]
-            target = (ccd_number(self.best_target.get())
-                      if self.best_target.get().strip() else None)
+            selection_mode = None
+            if choice == '最大 S/N':
+                metric, selection_mode, target, threshold = 'sn', 'sn_maximum', None, None
+            elif choice == '先稳健后目标':
+                metric, selection_mode = 'sn', 'robust_then_target'
+                target = ccd_number(self.best_target.get())
+                threshold = ccd_number(self.best_sn_threshold.get())
+            else:
+                metric = {'目标均值': 'mean', '最小 SD': 'sd',
+                          '目标斜率': 'slope'}[choice]
+                target = (ccd_number(self.best_target.get())
+                          if self.best_target.get().strip() else None)
+                threshold = None
             result = best_settings(frame, self.source.doe_metadata, self.response.get(),
-                                   metric, target)
+                                   metric, target, selection_mode=selection_mode,
+                                   sn_threshold=threshold)
         except (ValueError, TypeError, RuntimeError, OverflowError) as error:
             messagebox.showerror('Taguchi', str(error), parent=self.main)
             return
@@ -332,10 +353,14 @@ class BestTaguchi:
         ttk.Label(confirm, text='判定容差').pack(side='left', padx=(10, 2))
         self.confirm_tolerance = ttk.Entry(confirm, width=10)
         self.confirm_tolerance.pack(side='left')
-        ttk.Button(confirm, text='计算差值',
-                   command=self.confirm).pack(side='left', padx=6)
+        self.confirm_button = ttk.Button(confirm, text='计算差值', command=self.confirm)
+        self.confirm_button.pack(side='left', padx=6)
         ttk.Label(body, text=result['assumption'], wraplength=780).pack(anchor='w')
         ttk.Button(body, text='关闭', command=self.main.destroy).pack(anchor='e')
+        if result['best'] is None:
+            self.confirm_value.configure(state='disabled')
+            self.confirm_tolerance.configure(state='disabled')
+            self.confirm_button.configure(state='disabled')
 
     def _tab(self, title, headers, values):
         tab = ttk.Frame(self.tabs)
@@ -347,26 +372,30 @@ class BestTaguchi:
         for tab in self.tabs.tabs():
             self.tabs.nametowidget(tab).destroy()
         result = self.result
+        best = result['best']
         self._tab('推荐水平', ['因子', '推荐水平', '该水平 S/N', '该水平 Mean',
                               '并列水平'], [
-            [row['factor_id'], result['best'][row['factor_id']],
+            [row['factor_id'], best[row['factor_id']],
              next(level['sn'] for level in row['levels']
-                  if level['level'] == result['best'][row['factor_id']]),
+                  if level['level'] == best[row['factor_id']]),
              next(level['mean'] for level in row['levels']
-                  if level['level'] == result['best'][row['factor_id']]),
+                  if level['level'] == best[row['factor_id']]),
              '、'.join(str(value) for value in
                       result['tied'][row['factor_id']]['levels'])]
-            for row in result['table']['factors']])
+            for row in result['table']['factors'] if best is not None])
         prediction_rows = [
-            ['优化依据', result['metric']],
+            ['优化依据', result['selection_mode'] or result['metric']],
             ['目标值', result['target']],
+            ['最低 S/N', result['sn_threshold']],
             ['预测 Mean', result['predicted_mean']],
             ['预测 S/N', result['predicted_sn']],
             ['预测 SD', (result['predicted_sd'] if result['predicted_sd'] is not None
                          else '不可用')],
             ['预测斜率', result['predicted_slope']],
-            ['已观测组合', '是' if result['is_observed'] else '否'],
-            ['确认试验', '需要' if not result['is_observed'] else '可直接复核'],
+            ['已观测组合', {True: '是', False: '否', None: '无可用候选'}
+             [result['is_observed']]],
+            ['确认试验', ('无可用设置' if best is None else
+                          '需要' if not result['is_observed'] else '可直接复核')],
             ['确认实测响应', result['confirmation']['observed']],
             ['实测-预测差', result['confirmation']['difference']],
             ['满足目标', ({True: '是', False: '否', None: '未填写'}
@@ -377,19 +406,38 @@ class BestTaguchi:
             prediction_rows.extend([
                 ['搜索方法', result['search']['method']],
                 ['候选组合数', result['search']['candidate_count']],
+                ['实际评价数', result['search']['evaluation_count']],
+                ['停止原因', result['search']['stop_reason']],
                 ['并列最优组合数', len(result['tied_combinations'])],
             ])
         self._tab('预测与确认', ['项目', '值'], prediction_rows)
         if result['search']:
-            self._tab('目标最优组合', ['顺序', '控制设置', '预测值', '与目标差'], [
-                [index, '；'.join(f'{key}={value}' for key, value
-                                  in candidate['settings'].items()),
-                 candidate['predicted'], candidate['distance']]
-                for index, candidate in enumerate(result['tied_combinations'], 1)])
+            if result['selection_mode']:
+                columns = (['顺序', '控制设置', '预测 Mean', '预测 S/N', '预测 SD']
+                           + (['目标均值差'] if result['selection_mode'] ==
+                              'robust_then_target' else []))
+                values = []
+                for index, candidate in enumerate(result['tied_combinations'], 1):
+                    row = [index, '；'.join(f'{key}={value}' for key, value
+                                            in candidate['settings'].items()),
+                           candidate['predicted_mean'], candidate['predicted_sn'],
+                           candidate['predicted_sd']]
+                    if result['selection_mode'] == 'robust_then_target':
+                        row.append(candidate['distance'])
+                    values.append(row)
+                self._tab('候选最优组合', columns, values)
+            else:
+                self._tab('目标最优组合', ['顺序', '控制设置', '预测值', '与目标差'], [
+                    [index, '；'.join(f'{key}={value}' for key, value
+                                      in candidate['settings'].items()),
+                     candidate['predicted'], candidate['distance']]
+                    for index, candidate in enumerate(result['tied_combinations'], 1)])
 
     def confirm(self):
         """确认差值与目标判定只在本窗口计算，不写回原始正交表。"""
         try:
+            if self.result['best'] is None:
+                raise ValueError('没有满足稳健性阈值的候选设置，不能进行确认实验判定')
             observed = ccd_number(self.confirm_value.get())
             text = self.confirm_tolerance.get().strip()
             tolerance = ccd_number(text) if text else None
@@ -400,7 +448,9 @@ class BestTaguchi:
             frame = self.owner.owner._full_frame(self.owner.source).copy(deep=True)
             self.result = best_settings(
                 frame, self.owner.source.doe_metadata, self.owner.response.get(),
-                self.result['metric'], self.result['target'], observed, tolerance)
+                self.result['metric'], self.result['target'], observed, tolerance,
+                selection_mode=self.result['selection_mode'],
+                sn_threshold=self.result['sn_threshold'])
         except (ValueError, TypeError, RuntimeError, OverflowError) as error:
             messagebox.showerror('Taguchi', str(error), parent=self.main)
             return False
@@ -421,10 +471,22 @@ class NoiseTaguchi:
         ttk.Label(body, text=result['status'], wraplength=780).pack(anchor='w')
         self.tabs = ttk.Notebook(body)
         self.tabs.pack(fill='both', expand=True, pady=6)
-        self._tab('控制设定', ['控制设定', '信号', '噪声条件数', 'Mean', 'SD', 'S/N'], [
-            ['、'.join(f'{key}={value}' for key, value in row['settings'].items()),
-             row['signal'], row['noise_count'], row['mean'], row['sd'], row['sn']]
+        self._tab('控制设定', ['控制运行', '控制设定', '信号', '噪声条件数',
+                              '观测数', 'Mean', 'SD', '噪声均值极差', 'S/N'], [
+            [row['control_run_id'],
+             '、'.join(f'{key}={value}' for key, value in row['settings'].items()),
+             row['signal'], row['condition_count'], row['observation_count'],
+             row['mean'], row['sd'], row['condition_mean_range'], row['sn']]
             for row in result['rows']])
+        self._tab('噪声设置', ['控制运行', '噪声条件', '噪声设定', '重复', '标准序', '运行 ID',
+                               '观测数', 'Mean', 'SD', '重复内极差'], [
+            [row['control_run_id'], condition['condition_id'],
+             '、'.join(f'{key}={value}' for key, value in condition['noise_settings'].items()),
+             '、'.join(map(str, condition['replicates'])),
+             '、'.join(map(str, condition['standard_orders'])),
+             '、'.join(map(str, condition['run_ids'])), condition['n'],
+             condition['mean'], condition['sd'], condition['response_range']]
+            for row in result['rows'] for condition in row['noise_conditions']])
         table = result['response_table']
         self._tab('因子水平 S/N', ['因子', '水平', 'Mean', 'SD', 'S/N'], [
             [row['factor_id'], level['level'], level['mean'], level['sd'], level['sn']]
