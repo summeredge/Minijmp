@@ -10,12 +10,18 @@ from pandas.testing import assert_frame_equal
 from doe_core import (
     DesignSpec,
     FactorSpec,
+    _fingerprint,
+    foldover_matrix_fingerprint,
     restore_design_result,
     validate_worksheet_metadata,
     worksheet_metadata,
 )
 from doe_splitplot import append_split_plot_blocks, create_split_plot, validate_split_plot_design
 from doe_splitplot_analysis import analyze_split_plot
+from doe_modify import reorder
+from doe_pb import create_pb
+from doe_pb_foldover import create_pb_foldover
+from doe_screening_analysis import analyze_pb
 from test_csv_import import csv_app
 
 
@@ -133,7 +139,7 @@ def test_design_types_roundtrip_in_mixed_dexpl_without_generating_designs(
 @pytest.mark.parametrize(
     "problem",
     ["unknown_schema", "invalid_run_mapping", "duplicate_columns", "renamed_column",
-     "missing_design_type", "invalid_design_type"],
+     "missing_design_type", "invalid_design_type", "explicit_null"],
 )
 def test_bad_doe_metadata_fails_project_load_without_replacing_live_sheets(
         workbook, tmp_path, problem):
@@ -141,7 +147,9 @@ def test_bad_doe_metadata_fails_project_load_without_replacing_live_sheets(
     frame, spec, columns = _source()
     metadata = worksheet_metadata(frame, spec, columns)
     damaged_frame = frame.copy(deep=True)
-    if problem == "unknown_schema":
+    if problem == "explicit_null":
+        metadata = None
+    elif problem == "unknown_schema":
         metadata["schema_version"] = 99
     elif problem == "invalid_run_mapping":
         metadata["worksheet"]["run_rows"][0]["run_id"] = "missing-run"
@@ -154,12 +162,130 @@ def test_bad_doe_metadata_fails_project_load_without_replacing_live_sheets(
             "运行ID", "标准序", "运行序", "点类型", "重复", "批次ID",
             "1", "1", "A实测", "收率列",
         ]
-    else:
+    elif problem == "renamed_column":
         damaged_frame = damaged_frame.rename(columns={"1": "温度"})
     target = tmp_path / "invalid-doe.dexpl"
     data = {
         "健康工作表": {"table": pd.DataFrame({"x": [1]})},
         "DOE": {"table": damaged_frame, "meta": {"doe": metadata}},
+        "meta": {"active": "健康工作表", "minijmp": 1},
+    }
+    with gzip.open(target, "wb") as stream:
+        pickle.dump(data, stream)
+
+    original_table = app.table
+    original_names = list(app.sheets)
+    assert not app.load_file(target)
+    assert app.table is original_table
+    assert list(app.sheets) == original_names
+    error.assert_called_once()
+
+
+def _pb_foldover_pair():
+    """PB12 + 全因子折叠，用 11 因子以覆盖饱和主效应模型。"""
+    spec = DesignSpec(
+        "pb-foldover-load",
+        tuple(FactorSpec(f"F{i}", f"F{i}", -1, 1) for i in range(1, 12)),
+        ("Y",), seed=7, design_type="plackett_burman",
+        screening_matrix={"construction_id": "pb12.v1", "source_kind": "publication",
+                          "source_id": "nist.pb12", "matrix_sha256": "0" * 64})
+    frame, metadata = create_pb(spec, 12)
+    folded, folded_metadata, _ = create_pb_foldover(frame, metadata)
+    return frame, folded, folded_metadata
+
+
+def test_pb_foldover_dexpl_copy_reopen_and_reanalysis(workbook, tmp_path):
+    app, error = workbook
+    frame, metadata = create_pb(
+        DesignSpec(
+            "pb-foldover-roundtrip",
+            tuple(FactorSpec(f"F{i}", f"F{i}", -1, 1) for i in range(1, 12)),
+            ("Y",), seed=7, design_type="plackett_burman",
+            screening_matrix={"construction_id": "pb12.v1", "source_kind": "publication",
+                              "source_id": "nist.pb12", "matrix_sha256": "0" * 64}),
+        12,
+    )
+    frame["响应_Y"] = pd.array(
+        10 + 2 * frame["设定_F1"].to_numpy(dtype=float)
+        - 3 * frame["设定_F2"].to_numpy(dtype=float)
+        + 4 * frame["设定_F3"].to_numpy(dtype=float), dtype="Float64")
+    folded, folded_metadata, _ = create_pb_foldover(frame, metadata)
+    added = folded[folded[folded_metadata["column_map"]["batch_id"]] == "FOLD1"]
+    folded.loc[added.index, "响应_Y"] = pd.array(
+        10 + 2 * added["设定_F1"].to_numpy(dtype=float)
+        - 3 * added["设定_F2"].to_numpy(dtype=float)
+        + 4 * added["设定_F3"].to_numpy(dtype=float), dtype="Float64")
+    folded, folded_metadata = reorder(folded, folded_metadata, by="standard")
+
+    table = app.addSheet("DOE PB Foldover", folded, {"doe": folded_metadata})
+    app.nb.select(app.sheetframes["DOE PB Foldover"])
+    copied = app.copySheet()
+    assert copied.doe_metadata == table.doe_metadata
+    assert copied.doe_metadata is not table.doe_metadata
+    names = [name for name in app.sheets if name.startswith("DOE PB Foldover")]
+
+    target = tmp_path / "pb-foldover-roundtrip.dexpl"
+    assert app._save_project(target)
+    assert app.load_file(target)
+    for name in names:
+        restored = app.sheets[name]
+        result = restore_design_result(restored.model.df, restored.doe_metadata)
+        assert tuple(result.spec.foldover_lineage["run_map"]) == tuple(
+            tuple(pair) for pair in folded_metadata["design"]["foldover_lineage"]["run_map"])
+        analysis = analyze_pb(restored.model.df, restored.doe_metadata, "Y")
+        assert analysis["n"] == 24
+        assert analysis["coefficients"][:4] == pytest.approx([10, 2, -3, 4])
+    error.assert_not_called()
+
+
+@pytest.mark.parametrize("damage", ["flipped_sign", "wrong_source", "bad_digest",
+                                     "rebound_flipped_sign"])
+def test_corrupt_pb_foldover_project_does_not_replace_live_workbook(
+        workbook, tmp_path, damage):
+    app, error = workbook
+    _, folded, folded_metadata = _pb_foldover_pair()
+    columns = folded_metadata["column_map"]
+    added = folded.index[folded[columns["batch_id"]] == "FOLD1"]
+    damaged = folded.copy(deep=True)
+    damaged_metadata = pickle.loads(pickle.dumps(folded_metadata))
+    if damage in ("flipped_sign", "rebound_flipped_sign"):
+        source_id, added_id = folded_metadata["design"]["foldover_lineage"]["run_map"][0]
+        original = restore_design_result(folded, folded_metadata)
+        source = next(run for run in original.runs if run.run_id == source_id)
+        addition = next(run for run in original.runs if run.run_id == added_id)
+        damaged.loc[damaged[columns["run_id"]] == added_id, "设定_F1"] = \
+            source.settings["F1"]
+        if damage == "rebound_flipped_sign":
+            updated_runs = tuple(
+                replace(run, settings={**run.settings, "F1": source.settings["F1"]})
+                if run.run_id == added_id else run for run in original.runs)
+            rebound = replace(original, runs=updated_runs)
+            lineage = damaged_metadata["design"]["foldover_lineage"]
+            lineage["current_matrix_sha256"] = foldover_matrix_fingerprint(
+                rebound.runs, rebound.spec.factors)
+            rebound = replace(
+                rebound,
+                spec=DesignSpec.from_dict(damaged_metadata["design"]))
+            damaged_metadata["worksheet"]["input_fingerprint"] = _fingerprint(
+                damaged_metadata["design"], damaged_metadata["column_map"], rebound)
+            lineage = damaged_metadata["design"]["foldover_lineage"]
+            base_runs = [run for run in rebound.runs if run.batch_id == "BASE"]
+            assert foldover_matrix_fingerprint(
+                base_runs, rebound.spec.factors) == lineage["source_matrix_sha256"]
+            assert foldover_matrix_fingerprint(
+                rebound.runs, rebound.spec.factors) == lineage["current_matrix_sha256"]
+            assert damaged_metadata["worksheet"]["input_fingerprint"] == _fingerprint(
+                damaged_metadata["design"], damaged_metadata["column_map"], rebound)
+        assert addition.source_run_id == source_id
+    elif damage == "wrong_source":
+        damaged.loc[added[0], columns["source_run_id"]] = damaged.loc[
+            added[1], columns["source_run_id"]]
+    else:
+        damaged_metadata["design"]["foldover_lineage"]["current_matrix_sha256"] = "b" * 64
+    target = tmp_path / f"damaged-pb-foldover-{damage}.dexpl"
+    data = {
+        "健康工作表": {"table": pd.DataFrame({"x": [1]})},
+        "DOE PB Foldover": {"table": damaged, "meta": {"doe": damaged_metadata}},
         "meta": {"active": "健康工作表", "minijmp": 1},
     }
     with gzip.open(target, "wb") as stream:

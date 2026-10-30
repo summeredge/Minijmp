@@ -2,9 +2,15 @@
 
 日期：2026-10-30
 
-当前快照：隔离 worktree，detached HEAD `a9210a21083c3789a99c3033c40b2c884b9d0208`。主工作树中的 P2-4A 未提交修改保留且单独验证。
+P4BC 原始验收快照（历史）：隔离 worktree，detached HEAD `a9210a21083c3789a99c3033c40b2c884b9d0208`。其代码后来合入 main，提交为 `0dcc4acb90d7601962a150182699ddf515adc0a3`；P2-4A 最终集成状态见下节。
 
 总体状态：ACC-01～08 的本地验收完成；两个独立 Review 单元均为 `READY_FOR_INDEPENDENT_REVIEW`。此状态不等于 `APPROVE`。
+
+## 当前 main 联合验收（2026-10-30）
+
+联合验收时的 main 基线 `0dcc4acb90d7601962a150182699ddf515adc0a3` 与 P2-4A 工作区改动组成同一验收快照。P2-4A 96 passed、P2-4BC 113 passed、共享 Schema/持久化与 DOE v1–v5 用例 118 passed；Split-Plot/Binary 回归合并 146 passed。Taguchi、Mixture 与 Split-Plot 真实 Tk 分别 14、10、10 passed，按单文件串行执行；既有 `tight_layout` warnings 共 11 条。DSD/PB/P4BC 独立 reference verifier 均通过，fixture 哈希未变。
+
+Mixture Schema 1 普通/append-only 和 Schema 2 Improve 的恢复合同、Taguchi 工作表分析路径、PB Foldover 保存/复制/损坏拒绝均在同快照覆盖。全量 pytest 未运行；`test_doe_screening_gui.py` 整套未运行，历史解释器级中断仍是测试稳定性风险。Minitab 22 数值一致性、连续 Mixture 可行域全局最优均未证明。
 
 | 验收 | 状态 | 证据与限制 |
 |---|---|---|
@@ -24,11 +30,11 @@
 | `TAGUCHI_EXTENDED_ROBUST_DESIGN` | `READY_FOR_INDEPENDENT_REVIEW` | ACC-01/02/03 及 ACC-07/08 中的 Taguchi 范围通过；本地评审意见已修复并复验，不等于独立 Review 批准。 |
 | `MIXTURE_PROCESS_AMOUNT_IMPROVEMENT` | `READY_FOR_INDEPENDENT_REVIEW` | ACC-04～08 本地通过；Schema 2 字段/兼容矩阵、独立 fixture SHA 与真实测试结果见收尾报告。 |
 
-## 本轮验证
+## 原 P4BC 独立工作树验证（历史快照）
 
 - Taguchi 专项全套（含 `tests/test_doe_phase2_p4bc_taguchi.py`）：169 passed，2 条既有 `tight_layout` 警告。
 - Mixture 专项与 Improve/Schema 2（含真实 Tk、`.dexpl`、复制、测量值保护和 append 回归）：102 passed，16 条既有 SciPy clipping / Matplotlib layout 警告。
 - DOE 持久化、EFG 工作簿、Split-Plot、Binary、Modify/PB、表格、Help/Menu/G12 共享回归：405 passed，3 条既有 `tight_layout` 警告。
 - Taguchi 169 项和主工作树 P2-4A 109 项为本次批准前的既有证据；本轮未重跑 Taguchi，也未修改或测试写入主工作树。
 - 独立 Replace fixture 由生产实现外部固定；C05 生产路径结果与 fixture 对应。Fixture SHA 与独立 verifier 本轮结果见收尾报告。
-- 最终静态检查、fixture verifier 及准确命令见 [收尾报告](phase2-p4bc-closeout.md)。全量 pytest 未运行；未提交或推送。
+- 当时最终静态检查和 fixture verifier 结果见[收尾报告](phase2-p4bc-closeout.md)。全量 pytest 未运行；该独立工作树当时未提交或推送。

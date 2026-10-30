@@ -23,6 +23,14 @@ def _supported(spec):
     return None
 
 
+def _reject_folded_screening(spec, action):
+    """PB Foldover 的原始/新增批次运行身份不可被通用修改改写。"""
+    if spec.foldover_lineage is not None and spec.design_type == 'plackett_burman':
+        raise ValueError(
+            f'已折叠的 Plackett–Burman 设计不支持{action}；'
+            '原始批次与折叠批次的运行身份必须保留')
+
+
 def reorder(frame, metadata, *, by='standard'):
     """仅改变工作表行显示顺序；运行 ID、设定、响应与顺序字段保持不变。"""
     if by not in ('standard', 'run'):
@@ -109,6 +117,7 @@ def rerandomize(frame, metadata, seed):
     family = _supported(spec)
     if family is None:
         raise ValueError('该设计类型不支持重新随机化')
+    _reject_folded_screening(spec, '重新随机化')
     if family == 'split_plot':
         if design.spec.augmentation_lineage is not None:
             raise ValueError('已增补的 Split-Plot 为保留历史顺序，不支持重新随机化')
@@ -160,16 +169,23 @@ def modify_summary(frame, metadata):
     append_unsupported = (design.spec.design_type == 'split_plot'
                           and metadata.get('design', {}).get(
                               'schema_version', design.spec.schema_version) < 5)
+    pb_folded = (design.spec.design_type == 'plackett_burman'
+                 and design.spec.foldover_lineage is not None)
     reason = (
+        '已折叠的 Plackett–Burman 设计保留原始与折叠批次身份；重新随机化、'
+        '重编号与增补均已禁用。'
+        if pb_folded else
         'Split-Plot 只支持一次区组增补；重新随机化会改写历史顺序。'
         if split_augmented else
         '该 Schema v4 Split-Plot 缺少可验证增补谱系，不能安全增加区组。'
         if append_unsupported else None)
     return {'design_type': design.spec.design_type, 'runs': len(design.runs),
             'seed': design.spec.seed, 'family': family,
-            'can_rerandomize': family is not None and not split_augmented,
+            'can_rerandomize': (family is not None and not split_augmented
+                                and not pb_folded),
             'can_reorder': True,
-            'can_renumber': design.spec.design_type != 'split_plot',
+            'can_renumber': (design.spec.design_type != 'split_plot'
+                             and not pb_folded),
             'can_replicate': (spec_allows_replicate(design.spec)
                               and not append_unsupported),
             'unavailable_reason': reason}
@@ -183,6 +199,7 @@ def spec_allows_replicate(spec):
 def renumber(frame, metadata):
     """按标准序重写运行序 1..n：保留设定、响应、重复与批次，不改设计身份。"""
     design = restore_design_result(frame, metadata)
+    _reject_folded_screening(design.spec, '按标准序重编号')
     if design.spec.design_type == 'split_plot':
         raise ValueError('Split-Plot 运行序必须与 seed 随机化一致；请用“重新随机化”更换顺序')
     columns = metadata['column_map']

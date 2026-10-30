@@ -723,10 +723,18 @@ class DesignSpec:
                   or any(factor.randomization_role is not None for factor in factors)):
                 raise ValueError("只有 Split-Plot 才能声明裂区随机化角色或误差层")
             lineage = _freeze_foldover_lineage(self.foldover_lineage)
-            if lineage is not None and self.design_type != "two_level_fractional":
-                raise ValueError("当前 Foldover 谱系只支持正规两水平部分因子")
+            if lineage is not None and self.design_type not in (
+                    "two_level_fractional", "plackett_burman"):
+                raise ValueError("Foldover 谱系只支持正规两水平部分因子或 Plackett–Burman")
             if lineage is not None and any(factor.factor_type != "continuous" for factor in factors):
-                raise ValueError("正规部分因子 Foldover 不支持分类因子")
+                raise ValueError("Foldover 不支持分类因子")
+            if lineage is not None and self.design_type == "plackett_burman":
+                if self.block_count is not None:
+                    raise ValueError("PB Foldover 不支持分区组设计")
+                if self.construction_version != "v2":
+                    raise ValueError("PB Foldover 需要 construction v2")
+                if self.screening_matrix is None:
+                    raise ValueError("PB Foldover 必须保留原始 PB 构造身份")
             if lineage is not None and (
                     lineage["parent_design_id"] == self.design_id
                     or not set(lineage["folded_factors"]) <= set(ids)
@@ -1259,11 +1267,17 @@ def _screening_level(factor, value):
     raise ValueError('筛选因子必须位于低、中或高水平')
 
 
-def screening_matrix_sha256(result):
-    """按标准序计算筛选设计身份，不包含响应和随机运行序。"""
+def screening_matrix_sha256(result, *, base_only=False):
+    """按标准序计算筛选设计身份，不包含响应和随机运行序。
+
+    ``base_only`` 只取 BASE 批次：PB Foldover 的 ``screening_matrix`` 合同
+    仍描述原始固定构造，折叠新增行由 ``foldover_lineage`` 的两个摘要校验。
+    """
     factors = result.spec.factors
     rows = []
     for run in sorted(result.runs, key=lambda item: item.standard_order):
+        if base_only and run.batch_id not in (None, "BASE"):
+            continue
         levels = []
         for factor in factors:
             value = run.settings[factor.factor_id]
@@ -1301,6 +1315,11 @@ def _validate_screening_construction(result):
         raise ValueError('筛选设计包含不支持的设计选项')
     runs = sorted(result.runs, key=lambda run: run.standard_order)
     size = len(matrix)
+    if spec.design_type == 'plackett_burman' and spec.foldover_lineage is not None:
+        # 折叠加行不是新构造：只有 BASE 批次必须匹配原始 PB 固定矩阵。
+        runs = [run for run in runs if run.batch_id == 'BASE']
+        if not runs:
+            raise ValueError('PB Foldover 缺少原始 BASE 批次')
     if spec.design_type == 'plackett_burman':
         repetitions = {run.replicate for run in runs}
         count = len(repetitions)
@@ -1349,6 +1368,74 @@ def _validate_screening_construction(result):
             actual = _screening_level(factor, value)
             if actual != expected:
                 raise ValueError('筛选设计设定与构造矩阵不匹配')
+
+
+def _validate_pb_foldover(result):
+    """独立验证 PB Foldover 的逐运行变换和确定性运行顺序。"""
+    spec = result.spec
+    lineage = spec.foldover_lineage
+    if spec.design_type != 'plackett_burman' or lineage is None:
+        return
+    from doe_screening_matrices import MATRICES
+
+    matrix = MATRICES[spec.screening_matrix['construction_id'].removesuffix('.v1')]
+    base = sorted((run for run in result.runs if run.batch_id == 'BASE'),
+                  key=lambda run: run.standard_order)
+    added = sorted((run for run in result.runs if run.batch_id == 'FOLD1'),
+                   key=lambda run: run.standard_order)
+    factor_ids = tuple(factor.factor_id for factor in spec.factors)
+    folded = lineage['folded_factors']
+    if (lineage['batch_id'] != 'FOLD1' or spec.seed is None
+            or spec.block_count is not None
+            or (folded != factor_ids and
+                (len(folded) != 1 or folded[0] not in factor_ids))
+            or len(base) != len(matrix) or len(added) != len(matrix)
+            or len(base) + len(added) != len(result.runs)):
+        raise ValueError('PB Foldover 批次或运行身份不匹配')
+
+    expected_base_ids = tuple(f'R{index:05d}' for index in range(1, len(base) + 1))
+    expected_added_ids = tuple(f'F{index:05d}' for index in range(1, len(added) + 1))
+    if ([run.run_id for run in base] != list(expected_base_ids)
+            or [run.run_id for run in added] != list(expected_added_ids)
+            or [run.standard_order for run in base] != list(range(1, len(base) + 1))
+            or [run.standard_order for run in added]
+            != list(range(len(base) + 1, len(base) + len(added) + 1))
+            or any(run.point_type != 'factorial' or run.replicate != 1
+                   or run.block is not None for run in (*base, *added))
+            or any(run.source_run_id is not None for run in base)):
+        raise ValueError('PB Foldover 标准序、批次或运行身份不匹配')
+
+    expected_added_order = {
+        run_id: len(base) + order for order, run_id in enumerate(
+            randomized_run_order(expected_added_ids, spec.seed), 1)
+    }
+    all_orders = [run.run_order for run in result.runs]
+    base_orders = [run.run_order for run in base]
+    added_orders = [run.run_order for run in added]
+    count = len(base)
+    # Schema v5 has no parent-order snapshot; BASE history cannot be inferred from row display.
+    if (len(set(all_orders)) != len(all_orders)
+            or set(all_orders) != set(range(1, 2 * count + 1))
+            or set(base_orders) != set(range(1, count + 1))
+            or set(added_orders) != set(range(count + 1, 2 * count + 1))
+            or any(run.run_order != expected_added_order[run.run_id] for run in added)):
+        raise ValueError('PB Foldover 运行序与固定 seed 构造不匹配')
+
+    expected_map = tuple((source.run_id, addition.run_id)
+                         for source, addition in zip(base, added))
+    if lineage['run_map'] != expected_map:
+        raise ValueError('PB Foldover 来源顺序映射不匹配')
+    factor_map = {factor.factor_id: factor for factor in spec.factors}
+    for source, addition in zip(base, added):
+        if (addition.source_run_id != source.run_id
+                or source.batch_id != 'BASE' or addition.batch_id != 'FOLD1'):
+            raise ValueError('PB Foldover 来源运行或批次映射不匹配')
+        for factor_id, factor in factor_map.items():
+            source_level = _screening_level(factor, source.settings[factor_id])
+            added_level = _screening_level(factor, addition.settings[factor_id])
+            if (source_level not in (-1, 1) or added_level not in (-1, 1)
+                    or added_level != (-source_level if factor_id in folded else source_level)):
+                raise ValueError('PB Foldover 折叠变换与来源运行不匹配')
 
 
 @dataclass(frozen=True)
@@ -1651,7 +1738,9 @@ def design_from_worksheet(frame, spec, column_map):
                 "noise_condition_id", lambda v: _run_id(v, "noise_condition_id"))))
     result = DesignResult(spec, tuple(runs))
     if spec.design_type in _SCREENING_TYPES:
-        if screening_matrix_sha256(result) != spec.screening_matrix["matrix_sha256"]:
+        base_only = (spec.design_type == "plackett_burman"
+                     and spec.foldover_lineage is not None)
+        if screening_matrix_sha256(result, base_only=base_only) != spec.screening_matrix["matrix_sha256"]:
             raise ValueError("筛选矩阵摘要与设计不一致")
         _validate_screening_construction(result)
     if spec.foldover_lineage is not None:
@@ -1680,6 +1769,7 @@ def design_from_worksheet(frame, spec, column_map):
                     or addition.source_run_id != source_id
                     or addition.batch_id != lineage["batch_id"]):
                 raise ValueError("Foldover 谱系与运行批次映射不一致")
+        _validate_pb_foldover(result)
     if spec.design_type == "central_composite" and spec.ccd_alpha is not None:
         from doe_ccd import validate_ccd
         coded = validate_ccd(result)

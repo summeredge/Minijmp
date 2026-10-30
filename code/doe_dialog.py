@@ -623,6 +623,74 @@ class CreateGeneralFactorial:
 
 
 class AnalyzeDOE:
+    def _alpha_text(self, widget, label):
+        """把界面的 alpha 文本框解析为浮点；非法输入在分析前拒绝。"""
+        value = widget.get().strip()
+        try:
+            return float(value)
+        except (TypeError, ValueError) as error:
+            raise ValueError(f'{label} 必须是 0 与 1 之间的数值') from error
+
+    def screening_max_steps(self):
+        value = self.max_steps.get().strip()
+        try:
+            steps = int(value)
+        except (TypeError, ValueError) as error:
+            raise ValueError('最大步骤数必须是正整数') from error
+        if steps < 1:
+            raise ValueError('最大步骤数必须是正整数')
+        return steps
+
+    @staticmethod
+    def _terms_text(widget, label):
+        """解析 A;B;C^2;A*B 形式的模型项；空文本表示未指定。"""
+        text = widget.get().strip()
+        if not text:
+            return None
+        terms = []
+        for item in text.split(';'):
+            item = item.strip()
+            if not item:
+                continue
+            if item.endswith('^2'):
+                base = item[:-2].strip()
+                term = (base, base)
+            else:
+                term = tuple(part.strip() for part in item.split('*'))
+            if not all(term):
+                raise ValueError(f'{label} 含空模型项：{item}')
+            terms.append(term)
+        if not terms:
+            raise ValueError(f'{label} 不能只包含分隔符')
+        return terms
+
+    def _invalidate_screening(self, event=None):
+        """选择参数变化即丢弃旧结果，避免以旧选模结果继续绘图或导出。"""
+        if not getattr(self, 'dsd', False):
+            return
+        self.result = None
+        self.selection = None
+        for tab in self.tabs.tabs():
+            self.tabs.nametowidget(tab).destroy()
+        self.stepwise_status.set('选模参数已更改，请重新分析。')
+        self.status.set('模型、响应或对比已更改；旧结果已失效，请重新分析。')
+
+    @staticmethod
+    def _selection_text(selection):
+        terms = '、'.join(
+            f'{term[0]}²' if len(term) == 2 and term[0] == term[1] else '*'.join(term)
+            for term in selection['selected_terms'])
+        stops = {'no_eligible_entry': '无可进入项', 'selection_stable': '选择稳定',
+                 'residual_df_limit': '残差自由度不足',
+                 'rank_deficiency': '候选项秩亏或不可估计',
+                 'zero_error_variance': '残差方差为零',
+                 'iteration_budget': '达到步骤上限',
+                 'model_cycle_detected': '检测到模型循环'}
+        return (f"逐步选模：{selection['iterations']} 步；停止原因 "
+                f"{stops.get(selection['stop_reason'], selection['stop_reason'])}；"
+                f"最终项 {terms or '仅截距'}；秩 {selection['final_rank']}，"
+                f"残差df {selection['final_residual_df']}。{selection['note']}")
+
     def __init__(self, app, screening=False):
         self.owner = app
         self.source = app.getCurrentTable()
@@ -666,6 +734,7 @@ class AnalyzeDOE:
                       else 'doe.fractional' if self.fractional else 'doe.full_factorial')
         self.main.bind('<F1>', lambda event: open_help(help_topic, parent=self.main))
         self.result = None
+        self.selection = None
         controls = ttk.Frame(self.main, padding=8)
         controls.pack(fill='x')
         ttk.Label(controls, text='响应').pack(side='left')
@@ -720,14 +789,55 @@ class AnalyzeDOE:
                                                  state='readonly', width=14)
             self.screening_model.set('主效应')
             self.screening_model.pack(side='left', padx=4)
+            self.screening_model.bind('<<ComboboxSelected>>', self._invalidate_screening)
             ttk.Label(model_bar, text='模型项').pack(side='left')
             self.screening_terms = ttk.Entry(model_bar, width=36)
+            self.screening_terms.bind('<KeyRelease>', self._invalidate_screening)
             self.screening_terms.pack(side='left', padx=4)
+            stepwise_bar = ttk.Frame(self.main, padding=(8, 0))
+            stepwise_bar.pack(fill='x')
+            self.use_stepwise = tk.BooleanVar(value=False)
+            ttk.Checkbutton(stepwise_bar, text='逐步选模',
+                            variable=self.use_stepwise,
+                            command=self._invalidate_screening).pack(side='left')
+            for label, default in (('进入α', '0.15'), ('移除α', '0.15')):
+                ttk.Label(stepwise_bar, text=label).pack(side='left', padx=(8, 2))
+                entry = ttk.Entry(stepwise_bar, width=6)
+                entry.insert(0, default)
+                entry.bind('<KeyRelease>', self._invalidate_screening)
+                entry.pack(side='left')
+                setattr(self, 'alpha_enter' if label == '进入α' else 'alpha_remove', entry)
+            ttk.Label(stepwise_bar, text='最大步骤').pack(side='left', padx=(8, 2))
+            self.max_steps = ttk.Entry(stepwise_bar, width=5)
+            self.max_steps.insert(0, '200')
+            self.max_steps.bind('<KeyRelease>', self._invalidate_screening)
+            self.max_steps.pack(side='left')
+            # 候选项/初始项/强制项：留空即使用默认全候选；显式填写时以分号分隔。
+            terms_bar = ttk.Frame(self.main, padding=(8, 0))
+            terms_bar.pack(fill='x')
+            for label, attribute in (('候选项', 'screening_candidates'),
+                                     ('初始项', 'screening_initial'),
+                                     ('强制项', 'screening_forced')):
+                ttk.Label(terms_bar, text=label).pack(side='left')
+                entry = ttk.Entry(terms_bar, width=26)
+                entry.bind('<KeyRelease>', self._invalidate_screening)
+                entry.pack(side='left', padx=(2, 8))
+                setattr(self, attribute, entry)
+            self.stepwise_status = tk.StringVar(value='')
+            ttk.Label(self.main, textvariable=self.stepwise_status, wraplength=860,
+                      justify='left').pack(fill='x', padx=8)
+            self.stepwise_hint = tk.StringVar(
+                value='逐步选模最多 64 个候选项；留空表示全部主效应、连续平方项与二因子交互。')
+            ttk.Label(self.main, textvariable=self.stepwise_hint,
+                      wraplength=860, justify='left').pack(fill='x', padx=8)
             contrast_bar = ttk.Frame(self.main, padding=(8, 0))
             contrast_bar.pack(fill='x')
             ttk.Label(contrast_bar, text='对比').pack(side='left')
             self.screening_contrast = ttk.Entry(contrast_bar, width=48)
+            self.screening_contrast.bind('<KeyRelease>', self._invalidate_screening)
             self.screening_contrast.pack(side='left', padx=4)
+            # 响应列切换同样使旧快照失效，避免表格继续展示别的响应。
+            self.response.bind('<<ComboboxSelected>>', self._invalidate_screening)
         self.fixed = {}
         if self.rsm:
             fixed_bar = ttk.Frame(self.main, padding=(8, 0))
@@ -798,9 +908,28 @@ class AnalyzeDOE:
                 from doe_screening_analysis import analyze_dsd
                 factors = DesignSpec.from_dict(self.source.doe_metadata['design']).factors
                 names = [f.factor_id for f in factors]
+                if self.use_stepwise.get():
+                    from doe_stepwise import select_dsd_stepwise
+                    selection = select_dsd_stepwise(
+                        frame, self.source.doe_metadata, self.response.get(),
+                        alpha_enter=self._alpha_text(self.alpha_enter, '进入α'),
+                        alpha_remove=self._alpha_text(self.alpha_remove, '移除α'),
+                        candidates=self._terms_text(self.screening_candidates, '候选项'),
+                        initial=self._terms_text(self.screening_initial, '初始项'),
+                        forced=self._terms_text(self.screening_forced, '强制保留项'),
+                        max_steps=self.screening_max_steps())
+                    self.selection = selection
+                    self.stepwise_status.set(self._selection_text(selection))
+                    result = selection['analysis']
+                else:
+                    self.selection = None
+                    if hasattr(self, 'stepwise_status'):
+                        self.stepwise_status.set('')
                 choice = self.screening_model.get()
                 terms = [(name,) for name in names]
-                if choice == '主效应与平方':
+                if self.use_stepwise.get():
+                    pass
+                elif choice == '主效应与平方':
                     terms += [(f.factor_id, f.factor_id) for f in factors if f.factor_type == 'continuous']
                 elif choice == '自定义':
                     terms = []
@@ -810,7 +939,8 @@ class AnalyzeDOE:
                             terms.append((text[:-2], text[:-2]) if text.endswith('^2') else tuple(text.split('*')))
                 elif choice != '主效应':
                     raise ValueError('请选择有效模型')
-                result = analyze_dsd(frame, self.source.doe_metadata, self.response.get(), terms)
+                if not self.use_stepwise.get():
+                    result = analyze_dsd(frame, self.source.doe_metadata, self.response.get(), terms)
                 contrast_text = self.screening_contrast.get().strip()
                 if contrast_text:
                     from doe_screening_analysis import screening_contrast
@@ -846,6 +976,7 @@ class AnalyzeDOE:
             self.analysis_frame = frame
         except (ValueError, TypeError, RuntimeError, OverflowError) as exc:
             self.result = None
+            self.selection = None
             self.status.set('分析失败：' + str(exc))
             messagebox.showerror('试验设计', str(exc), parent=self.main)
 
@@ -961,6 +1092,24 @@ class AnalyzeDOE:
                     [i + 1, '；'.join(f'{name}={weight:.6g}' for name, weight in zip(result['names'], row)
                                     if abs(weight) > 1e-10)]
                     for i, row in enumerate(result['nullspace'])])
+            if self.dsd and getattr(self, 'selection', None):
+                selection = self.selection
+                self.show_table('选择历史', ['步骤', '动作', '项', 'F', 'p',
+                                             'SSE 前', 'SSE 后', '秩前', '秩后',
+                                             '误差df'], [
+                    [step['step'], '进入' if step['action'] == 'enter' else '移除',
+                     step['label'], step['f'], step['p'], step['sse_before'],
+                     step['sse_after'], step['rank_before'], step['rank_after'],
+                     step['error_df']] for step in selection['selection_steps']])
+                self.show_table('选模汇总', ['项目', '值'], [
+                    ['方法', 'Stepwise'], ['进入α', selection['alpha_enter']],
+                    ['移除α', selection['alpha_remove']],
+                    ['停止原因', selection['stop_reason']],
+                    ['迭代步数', selection['iterations']],
+                    ['最终秩', selection['final_rank']],
+                    ['最终残差df', selection['final_residual_df']],
+                    ['候选项数', len(selection['candidate_terms'])],
+                    ['推断边界', selection['note']]])
             if self.dsd and 'contrast' in result:
                 contrast = result['contrast']
                 self.show_table('指定对比', ['状态', '估计值', 'SE', 't', 'p'], [[

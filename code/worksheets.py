@@ -268,7 +268,7 @@ class Worksheets:
             return
         raw_doe = meta.get('doe')
         doe = (validate_worksheet_metadata(self._full_frame(table), raw_doe)
-               if raw_doe is not None else None)
+               if 'doe' in meta else None)
         mixture = None
         mixture_model = None
         if 'mixture' in meta:
