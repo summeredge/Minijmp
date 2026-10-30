@@ -1,8 +1,16 @@
 # MiniJMP 工作记忆
 
+## DOE Phase 2 P2-5 自动化验收（2026-10-30）
+
+- 状态：本地自动化综合验收完成，不代表 Minitab 22 全功能 parity；未改统计源码、测试、正式 P2-5 文档、feature-matrix.csv 或原始产品证据；未生成新 Minitab 输出、未提交/推送。
+- 测试：1201 DOE 测试 + 141 Tk DOE 工作流 + 66 菜单测试 = 1408 passed、69 warnings、0 failed；筛选 GUI 全套未运行，PB/DSD 两个隔离 node 通过。
+- 独立误差：statsmodels 2² OLS 最大绝对误差 1.42e-14；五类静态 S/N 误差 0；DSD 五条逐步路径/秩/df 精确一致；Mixture 72×15 系数误差 2.13e-14、SSE 8.06e-12；连续全局最优未验证。
+- 覆盖：80 项仍为 58 implemented、19 partial、2 unknown、1 excluded；已有 Minitab 输出覆盖 SCR-001/SCR-003/FAC-012/RSM-002，其余 76 项无对应产品输出。
+- 观察：GEN-004 feature-matrix 行字段错位；TAG-005 范围描述与混合阵列案例不一致；BBD 仅运行序差异；测试环境有 CJK glyph 警告。验收材料见 Out/p5_automated_validation/。
+
 ## DOE Phase 2 P2-4A/P2-4BC 最终本地集成（2026-10-30）
 
-- 状态：本地提交 `f77c746`（父提交 `0dcc4ac`），未推送、未打标签，P2-5 未启动。`DSD_STEPWISE_SELECTION=APPROVE_SCOPED`；PB Foldover、Taguchi、Mixture 保持 `READY_FOR_INDEPENDENT_REVIEW`；本地联合测试不等同独立批准。DOE Schema v5 未变。
+- 状态：本地提交 `f77c746`（父提交 `0dcc4ac`），未推送、未打标签，P2-5 当时未启动；当前状态见前节。`DSD_STEPWISE_SELECTION=APPROVE_SCOPED`；PB Foldover、Taguchi、Mixture 保持 `READY_FOR_INDEPENDENT_REVIEW`；本地联合测试不等同独立批准。DOE Schema v5 未变。
 - P4BC 提交 `0dcc4ac` 已确认在 main 历史，包含 Taguchi 与 Mixture Schema 2/Improve。Mixture Schema 1 普通/append-only 与 Schema 2 Improve 恢复路径均经同快照测试。
 - DSD：`code/doe_stepwise.py::select_dsd_stepwise`，先移除后进入、强层级、8 类停止原因、候选项上限 64、参数变化即失效。秩按列修正 Gram–Schmidt 判定（`_fit` 奇异值截断在饱和边界会误判），参考端同步。
 - PB：`code/doe_pb_foldover.py` 支持 12–48 全部运行数、全部/单因子一次折叠；`screening_matrix.matrix_sha256` 仍表示 BASE 身份。REV-01 逐对校验折叠语义；REV-02 令 `restore_design_result()`/`validate_pb()` 与工作表物理行序解耦，BASE/FOLD1 运行序集合分段验证，FOLD1 逐 ID 按 seed 重建，标准序映射与因子关系继续验证。Schema v5 没有 BASE 父运行序快照，无法独立认证摘要重绑后的逐 ID 历史顺序；只验证其为 `1..N` 排列，不以显示行序作为证据。正规 Fractional Foldover 路径不变；PB 混杂按实际矩阵投影，不使用 PB defining relation。

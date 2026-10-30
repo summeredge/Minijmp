@@ -1,0 +1,422 @@
+{
+  "title": "MiniJMP P2-5 首轮 Minitab 22 数据转换及独立对照",
+  "generated_date": "2026-10-30",
+  "minitab_version": {
+    "product_version": "Minitab® 22.6.0 (64-bit)",
+    "evidence_file": "Out/p5_office_round1/results/minitab22.6.0.txt",
+    "evidence_text": "Minitab®  22.6.0 (64-bit)",
+    "bytes": 116,
+    "sha256": "aa6abe3492b59fcf82a0f608e6c046e8b65d2590468abc8b11e73685d49a48eb"
+  },
+  "dsd_rtf_evidence": {
+    "path": "Out/p5_office_round1/results/DSD_S01_output.rtf",
+    "bytes": 104582,
+    "sha256": "0cfd4839c11b8c7cb278bd350411191385a9015dcc36d54486c30fbacba497bc"
+  },
+  "original_csv_files": [
+    {
+      "filename": "DSD_S01_input.csv",
+      "original_path": "Out/p5_office_round1/results/DSD_S01_input.csv",
+      "bytes": 544,
+      "sha256": "4ba344e4f71a7a564f5b6ad39bb7ce1e932dec0df33e66de2f2cfa56b4557124",
+      "encoding": "UTF-16 LE BOM",
+      "bom_hex": "FF FE",
+      "delimiter": "tab",
+      "delimiter_character": "\t",
+      "data_rows": 13,
+      "columns": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "Y"
+      ],
+      "normalized_path": "Out/p5_office_round1/normalized/DSD_S01_input.csv",
+      "normalized_bytes": 271,
+      "normalized_sha256": "b61c6505b911c9c9c1377098898c97ef69fc4f4cc32b27e5f1b1ef084fbdf143",
+      "normalized_encoding": "UTF-8 without BOM"
+    },
+    {
+      "filename": "PB12_original - 副本.csv",
+      "original_path": "Out/p5_office_round1/results/PB12_original - 副本.csv",
+      "bytes": 1052,
+      "sha256": "ed10f64c72812ef574450c33db7cfb5ea235d0dd33af107984173becef9d7c96",
+      "encoding": "UTF-16 LE BOM",
+      "bom_hex": "FF FE",
+      "delimiter": "comma",
+      "delimiter_character": ",",
+      "data_rows": 12,
+      "columns": [
+        "标准序",
+        "运行序",
+        "点类型",
+        "区组",
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9",
+        "F10",
+        "F11"
+      ],
+      "normalized_path": "Out/p5_office_round1/normalized/PB12_original - 副本.csv",
+      "normalized_bytes": 517,
+      "normalized_sha256": "2440edd89849062d77848395bb0f86d6f2e9e627312b323467c0b38d0fdb5a0a",
+      "normalized_encoding": "UTF-8 without BOM"
+    },
+    {
+      "filename": "PB12_folded.csv",
+      "original_path": "Out/p5_office_round1/results/PB12_folded.csv",
+      "bytes": 1976,
+      "sha256": "274fc4e5ba01807491ba915bb883b1014269b51994723b5e4005da0af1f52d69",
+      "encoding": "UTF-16 LE BOM",
+      "bom_hex": "FF FE",
+      "delimiter": "comma",
+      "delimiter_character": ",",
+      "data_rows": 24,
+      "columns": [
+        "标准序",
+        "运行序",
+        "点类型",
+        "区组",
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9",
+        "F10",
+        "F11"
+      ],
+      "normalized_path": "Out/p5_office_round1/normalized/PB12_folded.csv",
+      "normalized_bytes": 979,
+      "normalized_sha256": "12566c3cc7da10a03f7533e97cc5751c94340a0d6437961e58bae31ad181b0b4",
+      "normalized_encoding": "UTF-8 without BOM"
+    }
+  ],
+  "reference_fixtures": {
+    "dsd_reference_json": {
+      "path": "tests/fixtures/doe_phase2_p4a_reference/dsd_reference.json",
+      "sha256": "ad4713ff3861f5aaffeeba9b17c1ba3979c9b4bb9b0305b1201fa7d6f094164a",
+      "case": "DSD-S01-main-effects"
+    },
+    "dsd_factor_matrix": {
+      "path": "tests/fixtures/doe_screening_reference/dsd/dsd_06_cont_13.csv",
+      "sha256": "9a813f1efaeb80b068944a60f1a80674b440e25ec6993992eef82d33cff64dba",
+      "mapping": {
+        "F1": "X1",
+        "F2": "X2",
+        "F3": "X3",
+        "F4": "X4",
+        "F5": "X5",
+        "F6": "X6"
+      }
+    },
+    "pb_foldover_reference_json": {
+      "path": "tests/fixtures/doe_phase2_p4a_reference/pb_foldover_reference.json",
+      "sha256": "9ee6b929929a70994c89e8e3d998bcb6def610da9524116dad9c1d4c078fe0ab",
+      "case": {
+        "runs": 12,
+        "factors": 11,
+        "source_kind": "publication"
+      }
+    }
+  },
+  "encoding_delimiter_self_checks": [
+    {
+      "encoding": "UTF-16 LE BOM",
+      "delimiter": "tab"
+    },
+    {
+      "encoding": "UTF-16 BE BOM",
+      "delimiter": "semicolon"
+    },
+    {
+      "encoding": "UTF-8 BOM",
+      "delimiter": "comma"
+    },
+    {
+      "encoding": "GB18030 (no BOM)",
+      "delimiter": "pipe"
+    }
+  ],
+  "dsd_s01": {
+    "status": "PARTIAL",
+    "checks": {
+      "13_rows": true,
+      "six_factors_and_Y": true,
+      "factor_matrix_matches_by_row": true,
+      "13_Y_values_match": true
+    },
+    "rows": 13,
+    "factor_mapping": {
+      "F1": "X1",
+      "F2": "X2",
+      "F3": "X3",
+      "F4": "X4",
+      "F5": "X5",
+      "F6": "X6"
+    },
+    "rtf_statistics": {
+      "selection_order": [
+        "F1",
+        "F2"
+      ],
+      "coefficients_displayed": {
+        "intercept": "40.0000",
+        "F1": "5.0000",
+        "F2": "-3.0000"
+      },
+      "residual_sum_squares_displayed": "0.010",
+      "residual_df": 10,
+      "residual_standard_deviation_S_displayed": "0.0316228",
+      "full_precision_verified": false
+    },
+    "status_reason": "因子矩阵和响应逐行匹配；RTF 结果只有格式化显示精度，完整精度未验证。"
+  },
+  "pb12_original_point_set": {
+    "status": "PASS",
+    "checks": {
+      "12_rows_11_numeric_factors": true,
+      "standard_order_1_to_12": true,
+      "run_order_1_to_12": true,
+      "standard_run_order_same": true,
+      "standard_order_points_equal_reference": true,
+      "multiset_equal_reference": true
+    },
+    "rows": 12,
+    "factor_columns": [
+      "F1",
+      "F2",
+      "F3",
+      "F4",
+      "F5",
+      "F6",
+      "F7",
+      "F8",
+      "F9",
+      "F10",
+      "F11"
+    ],
+    "standard_order": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "run_order": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "points_unique": true,
+    "row_order_matches_reference_standard_order": true,
+    "multiset_matches_reference": true
+  },
+  "pb12_foldover_transformation": {
+    "status": "PASS",
+    "checks": {
+      "24_rows": true,
+      "all_levels_minus1_plus1": true,
+      "original_points_retained_as_multiset": true,
+      "12_added_points": true,
+      "new_points_are_all_factor_sign_reversals": true,
+      "multiset_equals_reference_full_foldover": true,
+      "standard_order_points_match_base_then_new": true,
+      "run_order_points_equal_standard_order_points": true,
+      "standard_order_1_to_24": true,
+      "run_order_1_to_24": true,
+      "standard_run_order_same": true
+    },
+    "rows": 24,
+    "factor_columns": [
+      "F1",
+      "F2",
+      "F3",
+      "F4",
+      "F5",
+      "F6",
+      "F7",
+      "F8",
+      "F9",
+      "F10",
+      "F11"
+    ],
+    "factor_levels": [
+      -1,
+      1
+    ],
+    "standard_order": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ],
+    "run_order": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
+    ],
+    "original_points_retained": 12,
+    "added_points": 12,
+    "points_unique": true,
+    "factor_mapping": {
+      "F1": "fixture coordinate 1",
+      "F2": "fixture coordinate 2",
+      "F3": "fixture coordinate 3",
+      "F4": "fixture coordinate 4",
+      "F5": "fixture coordinate 5",
+      "F6": "fixture coordinate 6",
+      "F7": "fixture coordinate 7",
+      "F8": "fixture coordinate 8",
+      "F9": "fixture coordinate 9",
+      "F10": "fixture coordinate 10",
+      "F11": "fixture coordinate 11"
+    },
+    "multiset_matches_reference_base_plus_new": true,
+    "reproducible_examples": [
+      {
+        "base_standard_order": 1,
+        "original_point": [
+          1,
+          -1,
+          1,
+          -1,
+          -1,
+          -1,
+          1,
+          1,
+          1,
+          -1,
+          1
+        ],
+        "added_standard_order": 13,
+        "added_point": [
+          -1,
+          1,
+          -1,
+          1,
+          1,
+          1,
+          -1,
+          -1,
+          -1,
+          1,
+          -1
+        ]
+      },
+      {
+        "base_standard_order": 12,
+        "original_point": [
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1,
+          -1
+        ],
+        "added_standard_order": 24,
+        "added_point": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    ]
+  },
+  "differences": {
+    "dsd_s01": [
+      "RTF 系数、SSE 和 S 为格式化显示值；产品内部完整精度无法由该输出确认。"
+    ],
+    "pb12_original_point_set": [],
+    "pb12_foldover_transformation": [],
+    "factor_mapping_or_sign_convention": [],
+    "run_order_standard_order_and_file_order": []
+  },
+  "integrity": {
+    "original_csv_hashes_unchanged": true,
+    "original_files_modified": false,
+    "reference_fixtures_modified": false,
+    "agent_memory_modified": false
+  }
+}
