@@ -1,6 +1,18 @@
 # MiniJMP 工作记忆
 
-## DOE Phase 2 P2-3（2026-10-29，当前）
+## DOE Phase 2 P2-4A/P2-4BC 最终本地集成（2026-10-30）
+
+- 状态：本地提交 `f77c746`（父提交 `0dcc4ac`），未推送、未打标签，P2-5 未启动。`DSD_STEPWISE_SELECTION=APPROVE_SCOPED`；PB Foldover、Taguchi、Mixture 保持 `READY_FOR_INDEPENDENT_REVIEW`；本地联合测试不等同独立批准。DOE Schema v5 未变。
+- P4BC 提交 `0dcc4ac` 已确认在 main 历史，包含 Taguchi 与 Mixture Schema 2/Improve。Mixture Schema 1 普通/append-only 与 Schema 2 Improve 恢复路径均经同快照测试。
+- DSD：`code/doe_stepwise.py::select_dsd_stepwise`，先移除后进入、强层级、8 类停止原因、候选项上限 64、参数变化即失效。秩按列修正 Gram–Schmidt 判定（`_fit` 奇异值截断在饱和边界会误判），参考端同步。
+- PB：`code/doe_pb_foldover.py` 支持 12–48 全部运行数、全部/单因子一次折叠；`screening_matrix.matrix_sha256` 仍表示 BASE 身份。REV-01 逐对校验折叠语义；REV-02 令 `restore_design_result()`/`validate_pb()` 与工作表物理行序解耦，BASE/FOLD1 运行序集合分段验证，FOLD1 逐 ID 按 seed 重建，标准序映射与因子关系继续验证。Schema v5 没有 BASE 父运行序快照，无法独立认证摘要重绑后的逐 ID 历史顺序；只验证其为 `1..N` 排列，不以显示行序作为证据。正规 Fractional Foldover 路径不变；PB 混杂按实际矩阵投影，不使用 PB defining relation。
+- 参考 SHA-256：DSD `ad4713ff3861f5aaffeeba9b17c1ba3979c9b4bb9b0305b1201fa7d6f094164a`；PB `9ee6b929929a70994c89e8e3d998bcb6def610da9524116dad9c1d4c078fe0ab`。
+- 最终同快照验证：P2-4A 96、P2-4BC 113、共享 Schema/持久化及 DOE v1–v5 118、Split-Plot/Binary 146 passed；真实 Tk 单文件串行 12/2/14/10/10 passed，Help/Menu/G12 13/66/15 passed。三套独立 DSD/PB/P4BC verifier 通过；fixture SHA 未变。`.venv` py_compile 与 `git diff --check` 通过，只有 feature-matrix/search-index 的既有 CRLF 提示。
+- 集成修复：显式 `doe: null` 不再被当成缺少 DOE 元数据；损坏工程安全拒绝且不替换活工作簿。功能矩阵保留 80 个 Feature ID（58 implemented、19 partial、2 unknown、1 excluded）。
+- 未运行全量 pytest 或整套 `test_doe_screening_gui.py`；其历史解释器级中断仍属稳定性风险。未验证 Minitab 22 数值一致性，连续 Mixture 可行域全局最优未证明。交接见 `docs/doe-minitab/phase2-p4a-closeout.md`、`phase2-p4bc-closeout.md`、`phase2-roadmap.md` 及 `logs/2026-10-30.md`。
+- 证据：`docs/doe-minitab/phase2-p4a-{method-contract,acceptance,closeout}.md`；功能矩阵仍 80 项（58 implemented、19 partial、2 unknown、1 excluded）。
+
+## DOE Phase 2 P2-3（2026-10-29，已完成，限定范围 APPROVE）
 
 - 状态 APPROVE_SCOPED：Local MCP Connector 对设计/随机化及分层推断两个单元均限定范围批准；P3-ACC-01～06 本地通过，P3-REV-01 修复通过。最终本地 commit a5496adc6d3e7b09657290922074e5ad8024437c；Schema v5 不变，未 push，P2-4/P2-5 未启动。
 - 范围为完整平衡 2–6 个连续两水平因子、1–3 个 hard、至少 1 个 easy、完整区组、最多 10,000 runs；v1 seed 运行身份冻结，新多因子用 construction v2。
