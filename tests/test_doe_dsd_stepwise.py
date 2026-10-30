@@ -81,6 +81,7 @@ def test_stepwise_trajectory_matches_independent_reference(identifier):
     result = select_dsd_stepwise(
         frame, metadata, 'Y', candidates=candidates,
         alpha_enter=case['alpha_enter'], alpha_remove=case['alpha_remove'])
+    assert result['method'] == 'stepwise'
     expected = case['selection_steps']
     assert len(result['selection_steps']) == len(expected)
     for want, got in zip(expected, result['selection_steps']):

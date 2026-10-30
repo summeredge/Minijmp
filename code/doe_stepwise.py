@@ -83,12 +83,39 @@ def _p_value(f, df1, df2):
     return float(stats.f.sf(f, df1, df2))
 
 
+def _information_criterion(sse, n, rank, criterion):
+    """Gaussian OLS AICc/BIC; k counts estimable mean coefficients."""
+    df = n - rank
+    k = rank
+    if (df < 1 or not np.isfinite(sse) or sse <= 0 or n < 2
+            or criterion == 'aicc' and n - k - 1 <= 0):
+        return None
+    log_likelihood = -0.5 * n * (np.log(2 * np.pi) + 1 + np.log(sse / n))
+    value = -2 * log_likelihood
+    if criterion == 'aicc':
+        value += 2 * k * n / (n - k - 1)
+    else:
+        value += k * np.log(n)
+    return float(value) if np.isfinite(value) else None
+
+
 def select_dsd_stepwise(frame, metadata, response, *, alpha_enter=DEFAULT_ALPHA,
                         alpha_remove=DEFAULT_ALPHA, candidates=None,
-                        initial=None, forced=None, max_steps=DEFAULT_MAX_STEPS):
-    """按部分 F 检验逐步选择 DSD 模型项。"""
+                        initial=None, forced=None, max_steps=DEFAULT_MAX_STEPS,
+                        method='stepwise', criterion=None):
+    """按部分 F 或前向信息准则选择 DSD 模型项。"""
     design = restore_design_result(frame, metadata)
     validate_dsd(design)
+    methods = ('stepwise', 'forward', 'backward', 'information_criteria')
+    if method not in methods:
+        raise ValueError('模型选择方法无效')
+    if method == 'information_criteria':
+        criterion = 'aicc' if criterion is None else criterion
+        if not isinstance(criterion, str) or criterion.lower() not in ('aicc', 'bic'):
+            raise ValueError('信息准则必须是 aicc 或 bic')
+        criterion = criterion.lower()
+    elif criterion is not None:
+        raise ValueError('信息准则仅适用于前向信息准则方法')
     alpha_enter = _alpha(alpha_enter, 'Alpha to enter')
     alpha_remove = _alpha(alpha_remove, 'Alpha to remove')
     if isinstance(max_steps, bool) or not isinstance(max_steps, Integral) or max_steps < 1:
@@ -116,9 +143,14 @@ def select_dsd_stepwise(frame, metadata, response, *, alpha_enter=DEFAULT_ALPHA,
     if outside:
         raise ValueError('初始项与强制保留项必须是候选项的子集：'
                          + '、'.join(_label(term) for term in outside))
-    terms = [term for term in order if term in set(initial) | set(forced)]
+    if method == 'backward':
+        if initial:
+            raise ValueError('Backward 方法从完整候选模型开始，不接受初始项')
+        terms = list(order)
+    else:
+        terms = [term for term in order if term in set(initial) | set(forced)]
     if not _hierarchical(terms):
-        raise ValueError('初始项与强制保留项不满足强层级结构')
+        raise ValueError('初始项、强制保留项或完整候选模型不满足强层级结构')
     position = {term: index for index, term in enumerate(order)}
     coded = np.asarray([[_screening_level(f, run.settings[f.factor_id]) for f in factors]
                         for run in design.runs], dtype=float)
@@ -132,42 +164,22 @@ def select_dsd_stepwise(frame, metadata, response, *, alpha_enter=DEFAULT_ALPHA,
             np.prod(coded[:, [names.index(name) for name in item]], axis=1)
             for item in selected]])
 
-    def _exact_rank(matrix):
-        """按修正 Gram–Schmidt 逐列计数可估计维度。
-
-        ``_fit`` 的奇异值截断会把近似相关的列当成独立，在饱和边界与精确
-        参考不一致；这里用同一列顺序做正交化，秩与残差自由度由此统一。
-        """
-        basis = []
-        tolerance = 1e-10
-        for index in range(matrix.shape[1]):
-            column = matrix[:, index].astype(float)
-            scale = float(np.max(np.abs(column)))
-            if scale == 0:
-                continue
-            for vector in basis:
-                column = column - (vector @ column) * vector
-            norm = float(np.linalg.norm(column))
-            if norm > tolerance * scale:
-                basis.append(column / norm)
-        return len(basis)
-
     def evaluate(selected):
-        matrix = _columns(selected)
-        beta, _, _, p, fitted, residuals, sse, sst, ssr, _, inference, status, details = (
+        _, rank, _, p, _, _, sse, _, _, _, _, _, _ = (
             _fit(coded, y, names, selected, block_columns, allow_rank_deficiency=True))
-        rank = _exact_rank(matrix)
-        return {'rank': rank, 'sse': float(sse), 'p': p, 'df': n - rank,
-                'beta': beta, 'fitted': fitted}
+        return {'rank': rank, 'sse': float(sse), 'p': p, 'df': n - rank}
 
     def dimension(term, selected):
         """候选项在“截距 + 已选项 + 区组”之上新增的实际维度。"""
         base = _columns(selected)
         column = np.prod(coded[:, [names.index(name) for name in term]], axis=1)
-        return (_exact_rank(np.column_stack([base, column])) -
-                _exact_rank(base))
+        return (np.linalg.matrix_rank(np.column_stack([base, column])) -
+                np.linalg.matrix_rank(base))
 
     steps, visited = [], set()
+    criterion_path, candidate_path = [], []
+    best_terms = None
+    best_criterion = None
     stop_reason = None
     for iteration in range(1, int(max_steps) + 1):
         state = frozenset(terms)
@@ -177,7 +189,9 @@ def select_dsd_stepwise(frame, metadata, response, *, alpha_enter=DEFAULT_ALPHA,
         visited.add(state)
         current = evaluate(terms)
         if current['df'] < 1:
-            stop_reason = 'residual_df_limit'
+            stop_reason = ('initial_model_saturated'
+                           if method == 'backward' and not steps else
+                           'residual_df_limit')
             break
         tolerance = (np.finfo(float).eps * max(n, current['p'])
                      * max(float(np.linalg.norm(y)), 1.0))
@@ -185,23 +199,53 @@ def select_dsd_stepwise(frame, metadata, response, *, alpha_enter=DEFAULT_ALPHA,
         if not np.isfinite(mse) or current['sse'] <= tolerance ** 2:
             stop_reason = 'zero_error_variance'
             break
+        if method == 'information_criteria' and not criterion_path:
+            value = _information_criterion(current['sse'], n, current['rank'], criterion)
+            if value is None:
+                stop_reason = 'information_criterion_unavailable'
+                break
+            best_terms, best_criterion = list(terms), value
+            criterion_path.append({'step': 0, 'terms': tuple(terms),
+                                   'rank': current['rank'], 'error_df': current['df'],
+                                   'sse': current['sse'], 'k': current['rank'],
+                                   'value': value})
+            if current['df'] <= 1:
+                stop_reason = 'residual_df_limit'
+                break
 
-        removals = []
-        for term in terms:
-            if term in forced_terms:
-                continue
-            reduced = [item for item in terms if item != term]
-            if not _hierarchical(reduced):
-                continue
-            trial = evaluate(reduced)
-            df_removed = current['rank'] - trial['rank']
-            if df_removed <= 0:
-                continue
-            f = ((trial['sse'] - current['sse']) / df_removed) / mse
-            removals.append({'term': term, 'f': float(f), 'df': df_removed,
-                             'sse': trial['sse'], 'rank': trial['rank'],
-                             'p_value': _p_value(f, df_removed, current['df'])})
-        if removals:
+        if method in ('stepwise', 'backward'):
+            removals, removal_evaluations, rank_blocked_removal = [], [], 0
+            for term in terms:
+                if term in forced_terms:
+                    removal_evaluations.append({'term': term, 'label': _label(term),
+                                                'p_value': None, 'status': 'forced'})
+                    continue
+                reduced = [item for item in terms if item != term]
+                if not _hierarchical(reduced):
+                    removal_evaluations.append({'term': term, 'label': _label(term),
+                                                'p_value': None, 'status': 'hierarchy_required'})
+                    continue
+                trial = evaluate(reduced)
+                df_removed = current['rank'] - trial['rank']
+                if df_removed <= 0:
+                    rank_blocked_removal += 1
+                    removal_evaluations.append({'term': term, 'label': _label(term),
+                                                'p_value': None, 'status': 'rank_deficient'})
+                    continue
+                f = ((trial['sse'] - current['sse']) / df_removed) / mse
+                p_value = _p_value(f, df_removed, current['df'])
+                removals.append({'term': term, 'f': float(f), 'df': df_removed,
+                                 'sse': trial['sse'], 'rank': trial['rank'],
+                                 'p_value': p_value})
+                removal_evaluations.append({'term': term, 'label': _label(term),
+                                            'f': float(f), 'p_value': p_value,
+                                            'criterion_value': None,
+                                            'error_df': current['df'],
+                                            'status': 'eligible' if p_value is not None else
+                                            'p_value_unavailable'})
+            candidate_path.append({'step': len(steps) + 1, 'action': 'remove',
+                                   'current_terms': tuple(terms),
+                                   'candidates': removal_evaluations})
             candidates_removal = [row for row in removals if row['p_value'] is not None]
             if candidates_removal:
                 removed = max(candidates_removal,
@@ -216,43 +260,105 @@ def select_dsd_stepwise(frame, metadata, response, *, alpha_enter=DEFAULT_ALPHA,
                         'rank_before': current['rank'], 'rank_after': removed['rank'],
                         'error_df': n - removed['rank'],
                         'terms': [item for item in terms if item != removed['term']],
+                        'criterion': 'p_value', 'criterion_before': None,
+                        'criterion_after': None,
+                        'candidate_evaluations': removal_evaluations,
                     })
                     terms = [item for item in terms if item != removed['term']]
                     continue
+                if method == 'backward':
+                    stop_reason = 'selection_stable'
+                    break
+            elif method == 'backward':
+                stop_reason = ('initial_model_rank_deficient'
+                               if rank_blocked_removal and not steps else
+                               'rank_deficiency' if rank_blocked_removal
+                               else 'no_eligible_removal')
+                break
 
         remaining = [term for term in order if term not in terms]
-        entries, rank_blocked, df_blocked = [], 0, 0
+        entries, entry_evaluations, rank_blocked, df_blocked = [], [], 0, 0
+        ic_blocked = zero_variance_blocked = 0
         for term in remaining:
+            evaluation = {'term': term, 'label': _label(term), 'f': None,
+                           'p_value': None, 'criterion_value': None,
+                           'status': 'eligible'}
             trial_terms = terms + [term]
             if not _hierarchical(trial_terms):
+                evaluation['status'] = 'hierarchy_required'
+                entry_evaluations.append(evaluation)
                 continue
             if not dimension(term, terms):
                 rank_blocked += 1
+                evaluation['status'] = 'rank_deficient'
+                entry_evaluations.append(evaluation)
                 continue
             trial = evaluate(trial_terms)
             df_added = trial['rank'] - current['rank']
             trial_df = n - trial['rank']
+            evaluation.update({'rank': trial['rank'], 'error_df': trial_df,
+                               'sse': trial['sse'], 'df_changed': df_added})
             if df_added <= 0:
                 rank_blocked += 1
+                evaluation['status'] = 'rank_deficient'
+                entry_evaluations.append(evaluation)
                 continue
             if trial_df < 1:
                 df_blocked += 1
+                evaluation['status'] = 'residual_df_limit'
+                entry_evaluations.append(evaluation)
+                continue
+            if (method == 'information_criteria' and criterion == 'aicc'
+                    and trial_df <= 1):
+                ic_blocked += 1
+                evaluation['status'] = 'information_criterion_unavailable'
+                entry_evaluations.append(evaluation)
                 continue
             trial_mse = trial['sse'] / trial_df
             if not np.isfinite(trial_mse) or trial_mse <= 0:
+                zero_variance_blocked += 1
+                evaluation['status'] = 'zero_error_variance'
+                entry_evaluations.append(evaluation)
                 continue
             f = ((current['sse'] - trial['sse']) / df_added) / trial_mse
+            if method == 'information_criteria' and trial['sse'] <= tolerance ** 2:
+                zero_variance_blocked += 1
+                evaluation['status'] = 'zero_error_variance'
+                entry_evaluations.append(evaluation)
+                continue
+            value = (_information_criterion(trial['sse'], n, trial['rank'], criterion)
+                     if method == 'information_criteria' else None)
+            if method == 'information_criteria' and value is None:
+                ic_blocked += 1
+                evaluation['status'] = 'information_criterion_unavailable'
+                entry_evaluations.append(evaluation)
+                continue
+            p_value = _p_value(f, df_added, trial_df)
+            evaluation.update({'f': float(f), 'p_value': p_value,
+                               'criterion_value': value, 'k': trial['rank'],
+                               'status': 'eligible' if p_value is not None else
+                               'p_value_unavailable'})
+            entry_evaluations.append(evaluation)
             entries.append({'term': term, 'f': float(f), 'df': df_added,
                             'sse': trial['sse'], 'rank': trial['rank'],
-                            'p_value': _p_value(f, df_added, trial_df)})
+                            'p_value': p_value,
+                            'criterion_value': value})
+        candidate_path.append({'step': len(steps) + 1, 'action': 'enter',
+                               'current_terms': tuple(terms),
+                               'candidates': entry_evaluations})
         candidates_entry = [row for row in entries if row['p_value'] is not None]
+        if method == 'information_criteria' and zero_variance_blocked:
+            stop_reason = 'zero_error_variance'
+            break
         if candidates_entry:
             entered = min(candidates_entry,
                           key=lambda row: (row['p_value'], position[row['term']]))
-            if entered['p_value'] < alpha_enter:
+            enters = (method == 'information_criteria' or
+                      entered['p_value'] < alpha_enter)
+            if enters:
                 # 保留进入顺序：步骤历史与最终项集合都按实际选入次序展示。
                 terms = terms + [entered['term']]
-                steps.append({
+                step = {
                     'step': len(steps) + 1, 'action': 'enter',
                     'term': entered['term'], 'label': _label(entered['term']),
                     'f': entered['f'], 'p': entered['p_value'],
@@ -261,14 +367,40 @@ def select_dsd_stepwise(frame, metadata, response, *, alpha_enter=DEFAULT_ALPHA,
                     'rank_before': current['rank'], 'rank_after': entered['rank'],
                     'error_df': n - entered['rank'],
                     'terms': list(terms),
-                })
+                    'criterion': criterion if method == 'information_criteria' else 'p_value',
+                    'criterion_before': (criterion_path[-1]['value']
+                                         if method == 'information_criteria' else None),
+                    'criterion_after': entered['criterion_value'],
+                    'candidate_evaluations': entry_evaluations,
+                }
+                steps.append(step)
+                if method == 'information_criteria':
+                    value = entered['criterion_value']
+                    step.update({'criterion_value': value,
+                                 'k': entered['rank']})
+                    criterion_path.append({'step': len(steps), 'terms': tuple(terms),
+                                           'rank': entered['rank'],
+                                           'error_df': n - entered['rank'],
+                                           'sse': entered['sse'],
+                                           'k': entered['rank'], 'value': value})
+                    if value < best_criterion:
+                        best_terms, best_criterion = list(terms), value
+                    if n - entered['rank'] <= 1:
+                        stop_reason = 'residual_df_limit'
+                        break
                 continue
         # 顺序：可进入项耗尽 → 不可估计项 → 残差自由度 → 无显著项。
         # 纯不可估计项即使已无可加入项也必须如实报告，不能伪装成稳定结束。
-        if not candidates_entry and rank_blocked:
+        if method == 'information_criteria' and ic_blocked and not candidates_entry:
+            stop_reason = 'information_criterion_unavailable'
+        elif not candidates_entry and rank_blocked:
             stop_reason = 'rank_deficiency'
         elif not candidates_entry and df_blocked:
             stop_reason = 'residual_df_limit'
+        elif method == 'information_criteria' and not remaining:
+            stop_reason = 'full_model'
+        elif method == 'forward' and candidates_entry:
+            stop_reason = 'selection_stable'
         elif not remaining:
             stop_reason = 'selection_stable'
         else:
@@ -277,16 +409,24 @@ def select_dsd_stepwise(frame, metadata, response, *, alpha_enter=DEFAULT_ALPHA,
     else:
         stop_reason = 'iteration_budget'
 
-    final = evaluate(terms)
-    analysis = analyze_dsd(frame, metadata, response, tuple(terms))
+    final_terms = best_terms if method == 'information_criteria' and best_terms is not None else terms
+    final = evaluate(final_terms)
+    analysis = analyze_dsd(frame, metadata, response, tuple(final_terms))
     if analysis['rank'] != final['rank'] or abs(analysis['sse'] - final['sse']) > 1e-9 * max(1.0, final['sse']):
         raise ValueError('选择结果与最终模型重分析不一致')
+    active_criterion = criterion if method == 'information_criteria' else 'p_value'
     return {
-        'method': 'stepwise', 'alpha_enter': alpha_enter,
+        'method': method, 'criterion': active_criterion,
+        'criterion_definition': (
+            '正态误差 OLS 最大似然；k = rank(X)，含截距、所选项及区组系数，不含残差尺度参数。'
+            if method == 'information_criteria' else '偏 F 检验 p 值'),
+        'alpha_enter': alpha_enter,
         'alpha_remove': alpha_remove,
         'initial_terms': tuple(initial), 'forced_terms': tuple(forced),
-        'candidate_terms': tuple(order), 'selected_terms': tuple(terms),
+        'candidate_terms': tuple(order), 'selected_terms': tuple(final_terms),
         'selection_steps': steps, 'stop_reason': stop_reason,
+        'candidate_path': candidate_path, 'criterion_path': criterion_path,
+        'best_criterion': best_criterion,
         'iterations': len(steps), 'final_rank': final['rank'],
         'final_residual_df': n - final['rank'],
         'selection_status': ('stable' if stop_reason in

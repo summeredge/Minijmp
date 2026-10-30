@@ -6,11 +6,12 @@ from itertools import product
 
 import pandas as pd
 
-from doe_core import (DesignSpec, design_from_worksheet, restore_design_result,
+from doe_core import (DesignSpec, _MAX_SPLIT_PLOT_RUNS,
+                      design_from_worksheet, restore_design_result,
                       worksheet_metadata)
 
 
-_MAX_RUNS = 10000
+_MAX_RUNS = _MAX_SPLIT_PLOT_RUNS
 _APPEND_BATCH_ID = "SPLITPLOT_APPEND_V1"
 
 
@@ -23,17 +24,22 @@ def _layout(spec):
                  if factor.randomization_role == "hard_to_change")
     easy = tuple(factor for factor in spec.factors
                  if factor.randomization_role == "easy_to_change")
-    if spec.construction_version not in ("v1", "v2"):
+    if spec.construction_version not in ("v1", "v2", "v3"):
         raise ValueError("未知 Split-Plot 构造版本")
     if spec.construction_version == "v1" and (
             len(spec.factors) != 2 or len(hard) != 1 or len(easy) != 1):
         raise ValueError("Split-Plot v1 固定为一个 hard 和一个 easy 因子")
     if spec.construction_version == "v2" and (
             spec.schema_version < 5 or not 2 <= len(spec.factors) <= 6
-            or not 1 <= len(hard) <= 3 or not easy):
+            or not 1 <= len(hard) <= 3 or not easy
+            or any(factor.factor_type != "continuous" for factor in spec.factors)):
         raise ValueError("Split-Plot v2 需 schema v5、2–6 因子、1–3 个 hard 和至少 1 个 easy")
-    if any(factor.factor_type != "continuous" for factor in spec.factors):
-        raise ValueError("Split-Plot 因子必须连续")
+    if spec.construction_version == "v3" and (
+            spec.schema_version < 5 or not 2 <= len(spec.factors) <= 8
+            or not 1 <= len(hard) <= 3 or not easy
+            or any(factor.factor_type == "categorical" and len(factor.levels) != 2
+                   for factor in spec.factors)):
+        raise ValueError("Split-Plot v3 需 schema v5、2–8 个二水平因子、1–3 个 hard 和至少 1 个 easy")
     if spec.block_count is None or spec.block_count < 2:
         raise ValueError("Split-Plot 至少需要两个区组")
     if spec.seed is None:
@@ -145,6 +151,12 @@ def _split_plot_columns(spec):
     return columns
 
 
+def _from_binary_code(factor, coded):
+    if factor.factor_type == "categorical":
+        return factor.levels[0 if coded == -1 else 1]
+    return factor.from_coded(coded)
+
+
 def _frame_from_layout(spec, actual, columns):
     rows = []
     for item in actual:
@@ -158,8 +170,8 @@ def _frame_from_layout(spec, actual, columns):
         if "batch_id" in columns:
             row[columns["batch_id"]] = item.get("batch_id")
         for factor in spec.factors:
-            row[columns["factors"][factor.factor_id]] = factor.from_coded(
-                item["coded"][factor.factor_id])
+            row[columns["factors"][factor.factor_id]] = _from_binary_code(
+                factor, item["coded"][factor.factor_id])
         row.update({name: None for name in columns["responses"].values()})
         rows.append(row)
 
@@ -198,6 +210,12 @@ def append_split_plot_blocks(frame, metadata, count, *, seed=None):
     if len(design.runs) + count * runs_per_block > _MAX_RUNS:
         raise ValueError(f"运行总数不能超过 {_MAX_RUNS}")
 
+    digest = hashlib.sha256((
+        f"{spec.design_id}\0{metadata['worksheet']['input_fingerprint']}\0{count}"
+    ).encode("utf-8")).hexdigest()[:20]
+    target_spec = replace(
+        spec, design_id=f"SPAPPEND-{digest}", block_count=spec.block_count + count)
+
     columns = dict(metadata["column_map"])
     if "batch_id" not in columns:
         batch_column = "DOE 批次"
@@ -229,11 +247,6 @@ def append_split_plot_blocks(frame, metadata, count, *, seed=None):
             raise ValueError(
                 f"响应列 {column} 无法在保留原类型时为新增运行留空") from error
 
-    digest = hashlib.sha256((
-        f"{spec.design_id}\0{metadata['worksheet']['input_fingerprint']}\0{count}"
-    ).encode("utf-8")).hexdigest()[:20]
-    target_spec = replace(
-        spec, design_id=f"SPAPPEND-{digest}", block_count=spec.block_count + count)
     from doe_custom import matrix_sha256
     parent_hash = matrix_sha256(design)
     current = design_from_worksheet(result, target_spec, columns)
@@ -259,8 +272,8 @@ def _validate_layout(spec, runs, actual, batch_id=None):
         raise ValueError("Split-Plot 标准序必须唯一")
     for expected in actual:
         run = by_standard[expected["standard_order"]]
-        settings = {factor.factor_id: factor.from_coded(
-            expected["coded"][factor.factor_id]) for factor in spec.factors}
+        settings = {factor.factor_id: _from_binary_code(
+            factor, expected["coded"][factor.factor_id]) for factor in spec.factors}
         identity = (
             run.run_id, run.standard_order, run.run_order, run.point_type,
             run.replicate, run.block, run.whole_plot_id, run.subplot_id,

@@ -12,6 +12,7 @@ from doe_mixture_constraints import (
     normalize_proportions,
 )
 from doe_mixture_model import predict_row
+from doe_mixture_predict import _mixture_prediction_intervals, _validate_confidence
 
 
 def _objective_config(item, spec):
@@ -58,8 +59,10 @@ def _desirability(value, config):
 
 
 def optimize_mixture(frame, metadata, objectives, conditions=None, terms=None,
-                     degree=2, starts=None, *, doe_metadata=None):
-    """在组分约束与固定工艺条件下优化；返回求解状态与真实残差。"""
+                     degree=2, starts=None, *, doe_metadata=None,
+                     confidence=0.95):
+    """在组分约束与固定工艺条件下优化，并返回最终点的模型区间。"""
+    confidence = _validate_confidence(confidence)
     analyses = []
     for item in objectives:
         analyses.append(analyze_mixture(
@@ -175,10 +178,16 @@ def optimize_mixture(frame, metadata, objectives, conditions=None, terms=None,
                                   for item in spec.components])
             residual = max(residual, float(weights @ point - constraint.bound))
     configurations = [dict(config) for config in configs]
-    for config, value in zip(configurations, best['predictions']):
-        config['prediction'] = value
-        if not single:
-            config['desirability'] = _desirability(value, config)
+    for index, config in enumerate(configurations):
+        if index < len(best['predictions']):
+            value = best['predictions'][index]
+            config['prediction'] = value
+            if not single:
+                config['desirability'] = _desirability(value, config)
+        row = (analyses[index]['model'].row(best['settings'])
+               if best['feasible'] else None)
+        config['intervals'] = _mixture_prediction_intervals(
+            analyses[index], row, confidence)
     aggregate = best['aggregate'] if not single else None
     actual = None
     if best['feasible'] and spec.amount_variables:
@@ -221,4 +230,5 @@ def optimize_mixture(frame, metadata, objectives, conditions=None, terms=None,
         'constraint_residual': float(residual), 'nit': best['nit'],
         'starts': len(feasible_starts), 'global_claim': False,
         'note': '目标函数来自当前拟合模型；约束残差按总和、上下界与线性不等式计算。',
+        'interval_note': '优化区间把最终点视为固定点；未校正优化选点后的不确定性。',
     }

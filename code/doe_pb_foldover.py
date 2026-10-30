@@ -105,11 +105,11 @@ def _check_source(design, folded):
     elif isinstance(folded, (tuple, list)):
         folded = tuple(folded)
     else:
-        raise ValueError('折叠因子必须是全部或一个因子 ID')
-    if folded != factor_ids and (len(folded) != 1 or folded[0] not in factor_ids):
-        raise ValueError('仅支持折叠全部因子或指定一个因子')
-    if len(set(folded)) != len(folded):
-        raise ValueError('折叠因子不得重复')
+        raise ValueError('折叠因子必须是全部或因子 ID 列表')
+    if (not folded or any(not isinstance(key, str) for key in folded)
+            or len(set(folded)) != len(folded)
+            or any(key not in factor_ids for key in folded)):
+        raise ValueError('折叠因子必须是非空且不重复的有效因子子集')
     return tuple(key for key in factor_ids if key in folded)
 
 
@@ -193,7 +193,8 @@ def create_pb_foldover(frame, metadata, folded_factors=None):
     source_hash = foldover_matrix_fingerprint(base_runs, spec.factors)
     current_hash = foldover_matrix_fingerprint((*base_runs, *addition_records),
                                                spec.factors)
-    tag = 'all' if folded == factor_ids else folded[0]
+    tag = ('all' if folded == factor_ids else folded[0] if len(folded) == 1
+           else 'M' + '-'.join(str(factor_ids.index(key) + 1) for key in folded))
     lineage = {'parent_design_id': spec.design_id, 'batch_id': BATCH_ID,
                'folded_factors': folded, 'run_map': tuple(run_map),
                'source_matrix_sha256': source_hash,

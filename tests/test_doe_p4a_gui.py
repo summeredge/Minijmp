@@ -11,6 +11,13 @@ from doe_foldover_dialog import FoldoverDOE
 from test_csv_import import csv_app
 
 
+def select_folded(dialog, *factor_ids):
+    choices = tuple(dialog.folded.get(0, 'end'))
+    dialog.folded.selection_clear(0, 'end')
+    for value in factor_ids or ('全部',):
+        dialog.folded.selection_set(choices.index(value))
+
+
 def create_dsd(app, factors='6'):
     dialog = CreateDOE(app, dsd=True)
     dialog.factor_count.set(factors)
@@ -290,7 +297,7 @@ def test_pb_foldover_single_factor_and_analysis_after_editing(csv_app, monkeypat
     source_name, table = create_pb(app)
     fill_pb(table)
     dialog = FoldoverDOE(app)
-    dialog.folded.set('F1')
+    select_folded(dialog, 'F1')
     dialog.preview_button.invoke()
     preview = dialog.preview_text.get('1.0', 'end')
     assert '折叠：F1' in preview
@@ -317,6 +324,47 @@ def test_pb_foldover_single_factor_and_analysis_after_editing(csv_app, monkeypat
     assert analysis.result['n'] == 24
     assert analysis.result['design'].spec.foldover_lineage['folded_factors'] == ('F1',)
     analysis.main.destroy()
+
+
+def test_pb_multi_factor_foldover_preview_and_creation(csv_app, monkeypatch):
+    app, error = csv_app
+    monkeypatch.setattr('doe_foldover_dialog.messagebox.showerror', error)
+    source_name, source = create_pb(app)
+    fill_pb(source)
+    before = source.model.df.copy(deep=True)
+    dialog = FoldoverDOE(app)
+    select_folded(dialog, 'F1', 'F3')
+    assert dialog.preview()
+    preview = dialog.preview_text.get('1.0', 'end')
+    assert '折叠：F1、F3' in preview
+    assert 'F1:' in preview and 'F3:' in preview and '未选因子不变' in preview
+    dialog.create_button.invoke()
+
+    folded = app.getCurrentTable()
+    columns = folded.doe_metadata['column_map']
+    assert folded.doe_metadata['design']['foldover_lineage']['folded_factors'] == [
+        'F1', 'F3']
+    base = folded.model.df[folded.model.df[columns['batch_id']] == 'BASE'].set_index(
+        columns['run_id'])
+    added = folded.model.df[folded.model.df[columns['batch_id']] == 'FOLD1'].set_index(
+        columns['source_run_id'])
+    for run_id, original in base.iterrows():
+        row = added.loc[run_id]
+        assert row[columns['factors']['F1']] == 1 - original[columns['factors']['F1']]
+        assert row[columns['factors']['F2']] == original[columns['factors']['F2']]
+        assert row[columns['factors']['F3']] == 1 - original[columns['factors']['F3']]
+        assert pd.isna(row[columns['responses']['Y']])
+    pd.testing.assert_frame_equal(source.model.df, before)
+    coded = folded.model.df[[columns['factors'][key] for key in ('F1', 'F2', 'F3')]
+                            ].to_numpy(dtype=float)
+    matrix = np.column_stack((np.ones(len(coded)), coded,
+                              coded[:, 0] * coded[:, 1],
+                              coded[:, 0] * coded[:, 2],
+                              coded[:, 1] * coded[:, 2]))
+    from doe_pb_foldover import pb_foldover_summary
+    assert pb_foldover_summary(folded.model.df, folded.doe_metadata)['after'][
+        'joint_rank'] == np.linalg.matrix_rank(matrix)
+    assert error.call_count == 0
 
 
 def test_pb_foldover_ignores_unsupported_sources(csv_app, monkeypatch):
@@ -369,7 +417,7 @@ def test_fractional_foldover_path_still_works(csv_app, monkeypatch):
         total = 20 + sum(2 * row[f'设定_{key}'] - 1 for key in 'ABCD')
         source.model.setValueAt(str(total), index, column)
     dialog = FoldoverDOE(app)
-    dialog.folded.set('A')
+    select_folded(dialog, 'A')
     dialog.preview_button.invoke()
     assert '分辨度' in dialog.preview_text.get('1.0', 'end')
     dialog.create_button.invoke()

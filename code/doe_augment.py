@@ -1,16 +1,20 @@
 """通用运行增补：保留父设计、原始响应与运行映射，新增批次独立。"""
 from dataclasses import replace
+from hashlib import sha256
 from itertools import combinations, combinations_with_replacement
+import json
 from math import comb
 from numbers import Integral
 
 import numpy as np
 import pandas as pd
 
-from doe_core import (RunRecord, restore_design_result, worksheet_metadata)
+from doe_core import (DesignResult, RunRecord, _run_id_key, restore_design_result,
+                      worksheet_metadata)
 from doe_rsm_model import TermModel
-from doe_optimal import select_distance
-from doe_custom import coded_value
+from doe_optimal import (improve_fixed_size as _improve_fixed_size,
+                         select_distance)
+from doe_custom import coded_value, matrix_sha256
 
 
 _MAX_RUNS = 10000
@@ -412,6 +416,209 @@ def augment(frame, metadata, candidates, count, *, terms=None, seed=None,
     chosen['parent_design_id'] = spec.design_id
     chosen['batch_id'] = batch_id
     return result, result_metadata, chosen
+
+
+def improve_fixed_size(frame, metadata, candidate_frame, candidate_metadata,
+                       locked_run_ids, replaceable_run_ids, candidate_run_ids, *,
+                       seed=0, evaluation_budget=200_000):
+    """在自定义因子/RSM 设计中以候选点交换改善 D-optimality，运行数不变。"""
+    parent = restore_design_result(frame, metadata)
+    candidates = restore_design_result(candidate_frame, candidate_metadata)
+    spec, candidate_spec = parent.spec, candidates.spec
+    if spec.design_type not in ('custom_factorial', 'custom_rsm'):
+        raise ValueError('固定运行数 Improve 只支持自定义因子或响应面设计')
+    if candidate_spec.design_type != spec.design_type:
+        raise ValueError('父设计与候选设计必须属于同一设计族')
+    if (spec.block_count is not None or candidate_spec.block_count is not None
+            or metadata['column_map'].get('block') is not None
+            or candidate_metadata['column_map'].get('block') is not None):
+        raise ValueError('带区组的自定义设计暂不支持固定运行数 Improve')
+    factors = lambda value: tuple(
+        (item.factor_id, item.factor_type, item.low, item.high, item.levels, item.unit)
+        for item in value.factors)
+    if (factors(spec) != factors(candidate_spec)
+            or spec.response_names != candidate_spec.response_names
+            or spec.model_terms != candidate_spec.model_terms):
+        raise ValueError('父设计与候选设计的因子、响应或模型项不一致')
+    if not isinstance(candidate_run_ids, (tuple, list)) or not candidate_run_ids:
+        raise ValueError('至少选择一个候选运行')
+    if (isinstance(seed, bool) or not isinstance(seed, Integral)
+            or isinstance(evaluation_budget, bool)
+            or not isinstance(evaluation_budget, Integral)
+            or not 1 <= evaluation_budget <= 200_000):
+        raise ValueError('Seed 必须是整数，评价预算须为 1–200000')
+
+    parent_runs = tuple(sorted(parent.runs, key=lambda run: run.standard_order))
+    candidate_runs = tuple(sorted(candidates.runs,
+                                  key=lambda run: run.standard_order))
+    parent_by_id = {_run_id_key(run.run_id): run for run in parent_runs}
+    candidate_by_id = {_run_id_key(run.run_id): run for run in candidate_runs}
+
+    def ordered_ids(values, known, label):
+        if not isinstance(values, (tuple, list)):
+            raise ValueError(f'{label} 必须是运行 ID 列表')
+        keys = tuple(_run_id_key(value) for value in values)
+        if len(set(keys)) != len(keys) or not set(keys) <= set(known):
+            raise ValueError(f'{label} 含重复或未知的运行 ID')
+        selected = set(keys)
+        return tuple(run.run_id for run in known.values()
+                     if _run_id_key(run.run_id) in selected)
+
+    locked = ordered_ids(locked_run_ids, parent_by_id, 'Locked')
+    replaceable = ordered_ids(replaceable_run_ids, parent_by_id, 'Replaceable')
+    locked_keys = set(map(_run_id_key, locked))
+    replaceable_keys = set(map(_run_id_key, replaceable))
+    if (locked_keys & replaceable_keys
+            or locked_keys | replaceable_keys != set(parent_by_id)):
+        raise ValueError('每个父运行必须且只能标记为 Locked 或 Replaceable')
+    selected_candidates = ordered_ids(candidate_run_ids, candidate_by_id, 'Candidate')
+    if not selected_candidates:
+        raise ValueError('至少选择一个候选运行')
+
+    def has_data(run):
+        return (any(value is not None for value in run.responses.values())
+                or any(value is not None for value in run.measured_levels.values()))
+
+    for run_id in replaceable:
+        if has_data(parent_by_id[_run_id_key(run_id)]):
+            raise ValueError(f'已执行运行不可替换：{run_id}')
+    selected_candidate_runs = tuple(
+        candidate_by_id[_run_id_key(run_id)] for run_id in selected_candidates)
+    for run in selected_candidate_runs:
+        if has_data(run):
+            raise ValueError(f'已执行的候选运行不可选择：{run.run_id}')
+
+    terms = _model_terms(spec, None)
+    model, initial = _rows(parent, [run.settings for run in parent_runs], terms,
+                           [run.point_type for run in parent_runs])
+    _, candidate_matrix = _rows(
+        candidates, [run.settings for run in selected_candidate_runs], terms,
+        [run.point_type for run in selected_candidate_runs])
+    positions = tuple(index for index, run in enumerate(parent_runs)
+                      if _run_id_key(run.run_id) in replaceable_keys)
+    search = _improve_fixed_size(
+        initial, candidate_matrix, positions, seed=int(seed),
+        evaluation_budget=int(evaluation_budget))
+    replacements = []
+    for parent_position, candidate_position in search['replacements']:
+        old = parent_runs[parent_position]
+        candidate = selected_candidate_runs[candidate_position]
+        replacements.append((old, candidate))
+
+    output = frame.copy(deep=True).reset_index(drop=True)
+    columns = metadata['column_map']
+    run_positions = {_run_id_key(run.run_id): index
+                     for index, run in enumerate(parent.runs)}
+    used_ids = set(parent_by_id) | set(candidate_by_id)
+    id_counter = 1
+    run_map = []
+    current_runs = list(parent.runs)
+    batch_id = 'IMPROVE1'
+    existing_batches = {run.batch_id for run in parent.runs if run.batch_id is not None}
+    suffix = 1
+    while batch_id in existing_batches:
+        suffix += 1
+        batch_id = f'IMPROVE{suffix}'
+
+    def factorial_point(run):
+        return tuple(
+            (-1 if run.settings[factor.factor_id] == factor.levels[0] else 1)
+            if factor.factor_type == 'categorical'
+            else int(factor.to_coded(run.settings[factor.factor_id]))
+            for factor in spec.factors)
+
+    if replacements:
+        mutable_columns = [columns['run_id'], columns['point_type'],
+                           *columns['factors'].values()]
+        for key in ('batch_id', 'source_run_id'):
+            if columns.get(key) is not None:
+                mutable_columns.append(columns[key])
+        for column in dict.fromkeys(mutable_columns):
+            output[column] = output[column].astype(object)
+
+    for old, candidate in replacements:
+        new_id = f'IMP{id_counter:05d}'
+        while _run_id_key(new_id) in used_ids:
+            id_counter += 1
+            new_id = f'IMP{id_counter:05d}'
+        id_counter += 1
+        used_ids.add(_run_id_key(new_id))
+        position = run_positions[_run_id_key(old.run_id)]
+        for factor_id, column in columns['factors'].items():
+            output.iat[position, output.columns.get_loc(column)] = \
+                candidate.settings[factor_id]
+        output.iat[position, output.columns.get_loc(columns['point_type'])] = \
+            candidate.point_type
+        output.iat[position, output.columns.get_loc(columns['run_id'])] = new_id
+        if columns.get('batch_id') is not None:
+            output.iat[position, output.columns.get_loc(columns['batch_id'])] = batch_id
+        if columns.get('source_run_id') is not None:
+            output.iat[position, output.columns.get_loc(columns['source_run_id'])] = \
+                candidate.run_id
+        for column in (*columns['measured_levels'].values(),
+                       *columns['responses'].values()):
+            output.iat[position, output.columns.get_loc(column)] = None
+
+        replicate = 1
+        if spec.design_type == 'custom_factorial' and candidate.point_type == 'factorial':
+            point = factorial_point(candidate)
+            existing = [run.replicate for run in current_runs
+                        if run.run_id != old.run_id and run.point_type == 'factorial'
+                        and factorial_point(run) == point]
+            replicate = max(existing, default=0) + 1
+        output.iat[position, output.columns.get_loc(columns['replicate'])] = replicate
+        new_run = replace(
+            old, run_id=new_id, point_type=candidate.point_type,
+            settings=dict(candidate.settings), replicate=replicate,
+            measured_levels={key: None for key in old.measured_levels},
+            responses={key: None for key in old.responses},
+            batch_id=batch_id, source_run_id=candidate.run_id)
+        current_runs[run_positions[_run_id_key(old.run_id)]] = new_run
+        run_map.append((candidate.run_id, new_id, old.run_id))
+
+    current_id = 'improve-' + sha256(json.dumps(
+        [spec.design_id, candidate_spec.design_id, int(seed), run_map],
+        ensure_ascii=False, separators=(',', ':')).encode('utf-8')).hexdigest()[:20]
+    current_spec = replace(
+        spec, design_id=current_id, optimal_lineage=None,
+        augmentation_lineage=None, improvement_lineage=None)
+    parent_hash = matrix_sha256(DesignResult(spec, parent_runs))
+    candidate_hash = matrix_sha256(candidates)
+    current_design = DesignResult(current_spec, tuple(current_runs))
+    current_hash = matrix_sha256(current_design)
+    lineage = {
+        'parent_design_id': spec.design_id,
+        'candidate_design_id': candidate_spec.design_id,
+        'criterion': 'd_optimal', 'model_terms': list(model.terms),
+        'locked_run_ids': list(locked), 'replaceable_run_ids': list(replaceable),
+        'candidate_run_ids': list(selected_candidates), 'run_map': [list(item)
+                                                                     for item in run_map],
+        'parent_matrix_sha256': parent_hash,
+        'candidate_matrix_sha256': candidate_hash,
+        'current_matrix_sha256': current_hash,
+        'parameter_count': search['p'], 'parent_rank': search['initial_rank'],
+        'current_rank': search['rank'],
+        'parent_logdet': search['parent_logdet'],
+        'current_logdet': search['current_logdet'],
+        'seed': int(seed), 'evaluation_budget': int(evaluation_budget),
+        'evaluations': search['evaluations'], 'stop_reason': search['stop_reason'],
+        'tie_rule': search['tie_rule'],
+    }
+    current_spec = replace(current_spec, improvement_lineage=lineage)
+    result_metadata = worksheet_metadata(output, current_spec, columns)
+    summary = {
+        **search, 'criterion': 'd_optimal', 'parent_design_id': spec.design_id,
+        'candidate_design_id': candidate_spec.design_id,
+        'parent_n': len(parent_runs), 'current_n': len(current_runs),
+        'parent_rank': search['initial_rank'], 'current_rank': search['rank'],
+        'locked_n': len(locked), 'replaceable_n': len(replaceable),
+        'replaced_n': len(run_map), 'candidate_run_ids': selected_candidates,
+        'candidate_to_replaced_parent': tuple(run_map),
+        'parent_matrix_sha256': parent_hash,
+        'candidate_matrix_sha256': candidate_hash,
+        'current_matrix_sha256': current_hash,
+    }
+    return output, result_metadata, summary
 
 
 def augment_mixture(parent_frame, parent_mixture, parent_doe,

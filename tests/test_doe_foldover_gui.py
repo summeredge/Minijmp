@@ -1,8 +1,16 @@
+import pandas as pd
 from pandas.testing import assert_frame_equal
 
 from doe_dialog import AnalyzeDOE, CreateDOE
 from doe_foldover_dialog import FoldoverDOE
 from test_csv_import import csv_app
+
+
+def select_folded(dialog, *factor_ids):
+    choices = tuple(dialog.folded.get(0, 'end'))
+    dialog.folded.selection_clear(0, 'end')
+    for value in factor_ids or ('全部',):
+        dialog.folded.selection_set(choices.index(value))
 
 
 def create_fractional_source(app):
@@ -64,9 +72,9 @@ def test_foldover_menu_preview_create_save_reopen_copy_and_analysis(
     menu_window.destroy()
     dialog = FoldoverDOE(app)
     assert tuple(dialog.source['values']) == (source_name,)
-    assert tuple(dialog.folded['values']) == ('全部', 'A', 'B', 'C', 'D')
+    assert tuple(dialog.folded.get(0, 'end')) == ('全部', 'A', 'B', 'C', 'D')
 
-    dialog.folded.set('全部')
+    select_folded(dialog)
     dialog.preview_button.invoke()
     preview = dialog.preview_text.get('1.0', 'end')
     assert '运行数：8 → 16（新增 8）' in preview
@@ -79,7 +87,7 @@ def test_foldover_menu_preview_create_save_reopen_copy_and_analysis(
     assert all_folded.doe_metadata['design']['defining_relations'] == ['I=ABCD']
 
     dialog = FoldoverDOE(app)
-    dialog.folded.set('A')
+    select_folded(dialog, 'A')
     dialog.preview_button.invoke()
     preview = dialog.preview_text.get('1.0', 'end')
     assert '分辨度：IV → 无非平凡定义关系' in preview
@@ -120,6 +128,57 @@ def test_foldover_menu_preview_create_save_reopen_copy_and_analysis(
     assert analysis.result is not None, error.call_args_list
     assert analysis.result['n'] == 16
     assert analysis.result['design'].spec.foldover_lineage['folded_factors'] == ('A',)
+    assert error.call_count == 0
+    analysis.main.destroy()
+
+
+def test_multi_factor_foldover_preview_create_and_reopen(csv_app, tmp_path, monkeypatch):
+    app, error = csv_app
+    monkeypatch.setattr('doe_foldover_dialog.messagebox.showerror', error)
+    monkeypatch.setattr('worksheets.messagebox.askyesnocancel', lambda *a, **k: False)
+    monkeypatch.setattr('worksheets.messagebox.askyesno', lambda *a, **k: True)
+    source_name = create_fractional_source(app)
+    source = app.sheets[source_name]
+    fill_response(source)
+    original = source.model.df.copy(deep=True)
+
+    dialog = FoldoverDOE(app)
+    select_folded(dialog, 'A', 'C')
+    assert dialog.preview()
+    preview = dialog.preview_text.get('1.0', 'end')
+    assert '折叠 A、C' in preview and 'A:' in preview and 'C:' in preview
+    assert '未选因子不变' in preview and '新运行响应为空' in preview
+    dialog.create_button.invoke()
+
+    folded_name = app.getCurrentSheet()
+    folded = app.getCurrentTable()
+    columns = folded.doe_metadata['column_map']
+    assert folded.doe_metadata['design']['foldover_lineage']['folded_factors'] == ['A', 'C']
+    assert len(folded.model.df) == 16
+    added = folded.model.df[columns['batch_id']] == 'FOLD1'
+    assert folded.model.df.loc[added, columns['responses']['Y']].isna().all()
+    pd.testing.assert_frame_equal(source.model.df, original)
+
+    for index in folded.model.df.index[added]:
+        row = folded.model.df.loc[index]
+        a, b, c, d = (2 * row[f'设定_{factor}'] - 1 for factor in 'ABCD')
+        folded.model.setValueAt(str(20 + 2*a + 3*b + 4*c + 5*d), index,
+                                folded.model.df.columns.get_loc(columns['responses']['Y']))
+    path = tmp_path / 'multi-factor-foldover.dexpl'
+    assert app._save_project(path)
+    assert app.load_file(path)
+    reopened = next(name for name, table in app.sheets.items()
+                    if table.doe_metadata and table.doe_metadata['design'].get(
+                        'foldover_lineage') is not None
+                    and table.doe_metadata['design']['foldover_lineage'][
+                        'folded_factors'] == ['A', 'C'])
+    app.nb.select(app.sheetframes[reopened])
+    copied = app.copySheet()
+    assert copied.doe_metadata == app.getCurrentTable().doe_metadata
+    analysis = AnalyzeDOE(app)
+    analysis.analyze()
+    assert analysis.result is not None, error.call_args_list
+    assert analysis.result['design'].spec.foldover_lineage['folded_factors'] == ('A', 'C')
     assert error.call_count == 0
     analysis.main.destroy()
 

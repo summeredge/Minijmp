@@ -17,14 +17,16 @@ def factor(factor_id, levels):
 
 def spec_for(array_id, count):
     array = ARRAYS[array_id]
+    positions = ((1, 2, 12, 18) if array_id == "L36(2^11 3^12)"
+                 else tuple(range(1, count + 1)))
     factors = [factor(chr(65 + index),
-                      tuple(f"l{index + 1}" for index in range(level)))
-               for index, level in enumerate(array.levels[:count])]
+                      tuple(f"l{index + 1}" for index in range(array.levels[column - 1])))
+               for index, column in enumerate(positions[:count])]
     return DesignSpec("TG", tuple(factors), ("Y",), seed=13, design_type="taguchi",
                       taguchi={"kind": "static", "array_id": array_id,
                                "matrix_sha256": array.sha256,
-                               "columns": {item.factor_id: index + 1
-                                           for index, item in enumerate(factors)},
+                               "columns": {item.factor_id: column
+                                           for item, column in zip(factors, positions)},
                                "noise_array_id": None, "noise_matrix_sha256": None,
                                "noise_columns": {}, "signal_factor": None})
 
@@ -32,6 +34,7 @@ def spec_for(array_id, count):
 @pytest.mark.parametrize("array_id,count,expected", [
     ("L8(2^7)", 4, 8), ("L9(3^4)", 4, 9), ("L18(2^1 3^7)", 7, 18),
     ("L16(4^5)", 5, 16), ("L25(5^6)", 6, 25),
+    ("L36(2^11 3^12)", 4, 36),
     ("L8(4^1 2^4)", 5, 8), ("L16(4^1 2^12)", 13, 16),
 ])
 def test_project_roundtrip_keeps_original_observations(array_id, count, expected):
@@ -159,6 +162,7 @@ def noise_spec():
     (lambda: spec_for("L18(2^1 3^7)", 7), "static", None),
     (lambda: spec_for("L16(4^5)", 5), "static", None),
     (lambda: spec_for("L25(5^6)", 6), "static", None),
+    (lambda: spec_for("L36(2^11 3^12)", 4), "static", None),
     (lambda: spec_for("L8(4^1 2^4)", 5), "static", None),
     (lambda: spec_for("L16(4^1 2^12)", 13), "static", None),
     (dynamic_spec, "dynamic", (1.0, 2.0, 3.0)),

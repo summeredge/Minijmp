@@ -1,5 +1,18 @@
 # MiniJMP 工作记忆
 
+## DOE Phase 2 P2-6B 验收（2026-10-30）
+
+- TAG-005 L36、TAG-009 分类交互/预测/确认表、TAG-008 二水平控制×噪声响应模型与稳健搜索、FAC-012 多因子 Foldover 已完成限定范围验收；DOE Schema v5 不变。
+- MIX-005 按现有 Mixture v2 范围为 `IMPLEMENTED_SCOPED`；GEN-006 已补为 `IMPLEMENTED_SCOPED`：自定义因子/RSM 固定运行数 D-optimal Improve，保留 Mixture Improve 且未重写全 Fedorov 算法。
+- P2-6B 原 DOE 合并回归 183 passed；GEN-006 定向非 GUI 回归 88 passed，新 Improve GUI 与 Select/Augment/Mixture GUI 节点各 1 passed；py_compile 与 diff check 通过。改善采用有界局部交换，不保证全局最优；未验证 Minitab 22 parity。
+- 验收与状态清单：`Out/p2_6_doe_function_completion/p2-6b-acceptance.md`、`p2-6b-feature-status.csv`；未提交/推送/发布。
+
+## DOE Phase 2 P2-6 核心功能（2026-10-30）
+
+- SCR-003、SCR-007、RSM-009、FAC-008、FAC-015、SCR-002、FAC-010 已在本地实现；DOE Schema v5 不变，未提交/推送/发布。详细范围和证据见 `Out/p2_6_doe_function_completion/report.md`。
+- `.venv` 非 GUI `test_doe_*.py`：1389 passed、12 warnings；后续 SCR-003 定向 8 passed、DSD Stepwise 18 passed。Screening GUI 320 个收集节点去重后均由分组/独立进程通过；历史整文件 Tk 中断的两项节点名未留存。
+- 独立 OLS 已覆盖 Backward 秩亏初始模型与可估计项删除，以及 BIC 恰留 1 个残差自由度；不需改生产实现。多分类 DSD 仍限 c=2–4、连续因子 4–12；裂区完整平衡且不做 REML；混料最优点区间不校正选点偏差。未验证 Minitab 22 parity。
+
 ## DOE Phase 2 P2-5 自动化验收（2026-10-30）
 
 - 状态：本地自动化综合验收完成，不代表 Minitab 22 全功能 parity；未改统计源码、测试、正式 P2-5 文档、feature-matrix.csv 或原始产品证据；未生成新 Minitab 输出、未提交/推送。

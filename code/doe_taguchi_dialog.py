@@ -48,8 +48,20 @@ class CreateTaguchi:
         self.limit_label = ttk.Label(self.main, foreground='firebrick', wraplength=940)
         self.limit_label.pack(fill='x', padx=8)
 
-        grid = ttk.Frame(self.main, padding=(8, 0))
-        grid.pack(fill='x')
+        factor_panel = ttk.Frame(self.main)
+        factor_panel.pack(fill='x')
+        self.factor_canvas = tk.Canvas(factor_panel, height=124, highlightthickness=0)
+        factor_scroll = ttk.Scrollbar(factor_panel, orient='vertical',
+                                      command=self.factor_canvas.yview)
+        self.factor_canvas.configure(yscrollcommand=factor_scroll.set)
+        factor_scroll.pack(side='right', fill='y')
+        self.factor_canvas.pack(side='left', fill='both', expand=True)
+        grid = ttk.Frame(self.factor_canvas, padding=(8, 0))
+        grid_window = self.factor_canvas.create_window((0, 0), window=grid, anchor='nw')
+        grid.bind('<Configure>', lambda event: self.factor_canvas.configure(
+            scrollregion=self.factor_canvas.bbox('all')))
+        self.factor_canvas.bind('<Configure>', lambda event: self.factor_canvas.itemconfigure(
+            grid_window, width=event.width))
         for column, title in enumerate(('因子', '名称', '标签类型', '水平（; 分隔）',
                                         '列', '角色')):
             ttk.Label(grid, text=title).grid(row=0, column=column, padx=4, sticky='w')
@@ -119,6 +131,7 @@ class CreateTaguchi:
         noise = ARRAYS[noise_id] if noise_id else None
         dynamic = self.kind.get() == 'dynamic'
         capacity = min(_MAX_FACTORS, int(self.factor_count.get()))
+        self.factor_canvas.configure(height=min(420, 31 * (capacity + 1)))
         used = {'控制': set(), '噪声': set()}
         for index, (_, _, _, column, role) in enumerate(self.rows):
             visible = index < capacity

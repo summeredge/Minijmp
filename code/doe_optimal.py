@@ -16,6 +16,7 @@ import numpy as np
 _MAX_EXACT_CANDIDATES = 40
 _MAX_EXACT_SUBSETS = 200_000
 _MAX_SWEEPS = 100
+_MAX_EXCHANGE_EVALUATIONS = 200_000
 _SINGULAR_TOLERANCE = 1e-10
 
 
@@ -108,31 +109,118 @@ def _greedy(matrix, count, start, tally=None):
     return chosen
 
 
-def _exchange(matrix, chosen, tally=None):
-    """确定性交换改进；只接受真实改善，避免浮点噪声循环。"""
+def _exchange(matrix, chosen, tally=None, *, exchange_positions=None,
+              candidate_indices=None, strategy='first', evaluation_budget=None,
+              return_stop_reason=False):
+    """确定性交换改进；默认路径保持 Select 的原有首个改善规则。"""
     chosen = list(chosen)
     current = _logdet(matrix[chosen])
     if current is None:
-        return chosen, current
+        result = (chosen, current, 'model_not_estimable')
+        return result if return_stop_reason else result[:2]
+    if strategy not in ('first', 'best'):
+        raise ValueError('交换策略无效')
+    positions = (tuple(range(len(chosen))) if exchange_positions is None
+                 else tuple(exchange_positions))
+    candidates = (tuple(range(len(matrix))) if candidate_indices is None
+                  else tuple(candidate_indices))
+    stop_reason = 'sweep_limit'
     for _ in range(_MAX_SWEEPS):
         improved = False
-        outside = [index for index in range(len(matrix)) if index not in chosen]
-        for position in range(len(chosen)):
-            for candidate in outside:
+        best_trial = None
+        budget_hit = False
+        for position in positions:
+            for candidate in candidates:
+                if candidate in chosen:
+                    continue
+                if (evaluation_budget is not None and tally is not None
+                        and tally[0] >= evaluation_budget):
+                    budget_hit = True
+                    break
                 trial = chosen.copy()
                 trial[position] = candidate
                 value = _logdet(matrix[trial])
                 if tally is not None:
                     tally[0] += 1
                 if value is not None and value > current + 1e-12:
-                    chosen, current = trial, value
-                    improved = True
-                    break
-            if improved:
+                    if strategy == 'first':
+                        chosen, current = trial, value
+                        improved = True
+                        break
+                    if best_trial is None or value > best_trial[2] + 1e-12:
+                        best_trial = (trial, position, value)
+            if improved or budget_hit:
                 break
-        if not improved:
+        if strategy == 'best' and best_trial is not None:
+            chosen, current = best_trial[0], best_trial[2]
+            improved = True
+        if budget_hit:
+            stop_reason = 'evaluation_budget'
             break
-    return chosen, current
+        if not improved:
+            stop_reason = 'no_improving_exchange'
+            break
+    result = (chosen, current, stop_reason)
+    return result if return_stop_reason else result[:2]
+
+
+def improve_fixed_size(parent_rows, candidate_rows, replaceable_positions, *,
+                       seed=0, evaluation_budget=_MAX_EXCHANGE_EVALUATIONS):
+    """对固定父矩阵做受限 D-optimal 点交换；不保证全局最优。"""
+    # shortcut: 仅做单点交换且最多 100 轮；需要全局证明时再升级完整搜索。
+    parent = _matrix(parent_rows, '父设计矩阵')
+    candidates = _matrix(candidate_rows, '候选矩阵')
+    if parent.shape[1] != candidates.shape[1]:
+        raise ValueError('父设计与候选矩阵的模型列数必须一致')
+    if isinstance(seed, bool) or not isinstance(seed, Integral):
+        raise ValueError('seed 必须是整数')
+    if (isinstance(evaluation_budget, bool)
+            or not isinstance(evaluation_budget, Integral)
+            or not 1 <= evaluation_budget <= _MAX_EXCHANGE_EVALUATIONS):
+        raise ValueError(
+            f'评价预算必须是 1–{_MAX_EXCHANGE_EVALUATIONS} 的整数')
+    if not isinstance(replaceable_positions, (tuple, list)):
+        raise ValueError('可替换位置必须是列表')
+    positions = tuple(replaceable_positions)
+    if (any(isinstance(item, bool) or not isinstance(item, Integral)
+            or not 0 <= item < len(parent) for item in positions)
+            or len(set(positions)) != len(positions)):
+        raise ValueError('可替换位置重复或超出父设计范围')
+    initial_rank = _rank(parent)
+    initial_value = _logdet(parent)
+    if initial_rank != parent.shape[1] or initial_value is None:
+        raise ValueError('父设计模型秩亏，无法比较 D-optimal logdet')
+
+    import random
+    candidate_order = list(range(len(candidates)))
+    random.Random(int(seed)).shuffle(candidate_order)
+    combined = np.vstack((parent, candidates))
+    chosen = list(range(len(parent)))
+    tally = [0]
+    if positions:
+        chosen, value, stop_reason = _exchange(
+            combined, chosen, tally, exchange_positions=positions,
+            candidate_indices=[len(parent) + index for index in candidate_order],
+            strategy='best', evaluation_budget=int(evaluation_budget),
+            return_stop_reason=True)
+    else:
+        value, stop_reason = initial_value, 'no_replaceable_runs'
+    replacements = tuple((position, index - len(parent))
+                         for position, index in enumerate(chosen)
+                         if index >= len(parent))
+    return {
+        'indices': tuple(chosen), 'replacements': replacements,
+        'n': len(parent), 'candidate_count': len(candidates),
+        'replaceable_count': len(positions), 'replaced_count': len(replacements),
+        'initial_rank': initial_rank, 'rank': _rank(combined[chosen]),
+        'p': parent.shape[1],
+        'parent_logdet': float(initial_value), 'current_logdet': float(value),
+        'method': 'restricted_point_exchange', 'seed': int(seed),
+        'evaluations': tally[0], 'evaluation_budget': int(evaluation_budget),
+        'stop_reason': stop_reason, 'global_optimum_proven': False,
+        'tie_rule': 'seeded candidate order, then parent standard order; '
+                    'strict improvement greater than 1e-12',
+    }
 
 
 def _search(matrix, count, seed):

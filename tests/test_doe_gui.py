@@ -174,3 +174,89 @@ def test_invalid_create_preserves_sheet_and_two_designs_are_independent(csv_app,
     assert first is not second and first.doe_metadata is not second.doe_metadata
     first.model.setValueAt('7', 0, first.model.df.columns.get_loc('响应_Y'))
     assert second.model.df['响应_Y'].isna().all()
+
+
+def test_confounded_block_preview_type_iii_and_reanalysis(csv_app, tmp_path, monkeypatch):
+    app, _ = csv_app
+    error = Mock()
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    monkeypatch.setattr('worksheets.messagebox.askyesno', lambda *a, **k: True)
+    create = CreateDOE(app)
+    third = create.fields[2]
+    third[0].insert(0, 'C')
+    third[1].insert(0, '0')
+    third[2].insert(0, '1')
+    create.confounded_block_generators.insert(0, 'ABC')
+    create.preview()
+    assert '2 个混杂区组' in create.preview_text.get()
+    assert 'ABC' in create.preview_text.get()
+    create.create()
+    table = app.getCurrentTable()
+    frame = table.model.df
+    a, b, c = (2 * frame[f'设定_{name}'].to_numpy(dtype=float) - 1
+               for name in 'ABC')
+    frame['响应_Y'] = 10 + 2*a - 3*b + c + 4*a*b - 2*a*c + 3*b*c + 5*a*b*c
+
+    dialog = AnalyzeDOE(app)
+    assert dialog.ss_type.get() == 'Type III'
+    assert tuple(dialog.ss_type['values']) == ('Type III',)
+    dialog.order.set('3')
+    dialog.analyze()
+    rows = {row['term']: row for row in dialog.result['anova']}
+    assert rows['A*B*C']['estimable'] is False
+    assert rows['区组']['estimable'] is False
+    titles = [dialog.tabs.tab(tab, 'text') for tab in dialog.tabs.tabs()]
+    assert {'区组混杂效应', '项方差分析（Type III）'} <= set(titles)
+
+    path = tmp_path / 'confounded-block.dexpl'
+    assert app._save_project(path) and app.load_file(path)
+    again = AnalyzeDOE(app)
+    again.order.set('3')
+    again.analyze()
+    assert again.result is not None
+    assert again.result['design'].spec.confounded_block_generators == (('A', 'B', 'C'),)
+    assert next(row for row in again.result['anova'] if row['term'] == 'A*B*C')[
+        'estimable'] is False
+    again.main.destroy()
+    dialog.main.destroy()
+    error.assert_not_called()
+
+
+def test_type_iii_gui_accepts_missing_response_and_reanalyzes(csv_app, tmp_path, monkeypatch):
+    app, _ = csv_app
+    error = Mock()
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    monkeypatch.setattr('worksheets.messagebox.askyesno', lambda *a, **k: True)
+    create = CreateDOE(app)
+    create.options['重复数'].delete(0, 'end')
+    create.options['重复数'].insert(0, '2')
+    create.create()
+    table = app.getCurrentTable()
+    frame = table.model.df
+    a, b = (2 * frame[f'设定_{name}'].to_numpy(dtype=float) - 1 for name in 'AB')
+    frame['响应_Y'] = 20 + 2*a - 3*b + 4*a*b
+    frame.loc[0, '响应_Y'] = None
+
+    dialog = AnalyzeDOE(app)
+    dialog.analyze()
+    assert dialog.result is None and error.call_count == 1
+    dialog.ss_type.set('Type III')
+    dialog.analyze()
+    assert dialog.result['ss_type'] == 'III'
+    assert len(dialog.result['observed_runs']) == len(frame) - 1
+    titles = [dialog.tabs.tab(tab, 'text') for tab in dialog.tabs.tabs()]
+    assert '项方差分析（Type III）' in titles
+    fit_tab = next(tab for tab in dialog.tabs.tabs()
+                   if dialog.tabs.tab(tab, 'text') == '拟合与残差')
+    fit_block = dialog.tabs.nametowidget(fit_tab).winfo_children()[0]
+    assert len(fit_block.table.display) == len(frame) - 1
+
+    path = tmp_path / 'type-iii-missing-response.dexpl'
+    assert app._save_project(path) and app.load_file(path)
+    again = AnalyzeDOE(app)
+    again.ss_type.set('Type III')
+    again.analyze()
+    assert again.result is not None and len(again.result['observed_runs']) == len(frame) - 1
+    again.main.destroy()
+    dialog.main.destroy()
+    assert error.call_count == 1

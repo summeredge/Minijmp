@@ -138,6 +138,7 @@ def test_mixture_v2_gui_lifecycle_uses_saved_model_and_actual_amounts(
     frame = source.model.df
     assert source.mixture_metadata['spec']['construction_version'] == 'v2'
     assert source.mixture_metadata['spec']['amount_settings'] == {'T': 150.0}
+    assert source.doe_metadata['schema_version'] == 5
 
     def row_key(row):
         proportions = tuple(round(float(row[f'设定_{key}']), 12)
@@ -182,6 +183,7 @@ def test_mixture_v2_gui_lifecycle_uses_saved_model_and_actual_amounts(
     frame = source.model.df.copy(deep=True)
 
     predictor = PredictMixture(app)
+    predictor.confidence.set('90%')
     for key, value in (('A', str(1 / 3)), ('B', str(1 / 3)), ('C', str(1 / 3)),
                        ('P1', '1'), ('P2', '2'), ('T', '175')):
         predictor.entries[key].delete(0, 'end')
@@ -194,13 +196,24 @@ def test_mixture_v2_gui_lifecycle_uses_saved_model_and_actual_amounts(
     prediction_table = next(child.table for child in prediction_tab.winfo_children()
                             if hasattr(child, 'table'))
     assert prediction_table.values[0][1] == pytest.approx(expected['prediction'])
-    actual_tab = predictor.tabs.nametowidget(predictor.tabs.tabs()[2])
-    actual_table = next(child.table for child in actual_tab.winfo_children()
+    interval_tab = next(tab for tab in predictor.tabs.tabs()
+                        if predictor.tabs.tab(tab, 'text') == '预测区间')
+    interval_table = next(child.table for child in
+                          predictor.tabs.nametowidget(interval_tab).winfo_children()
+                          if hasattr(child, 'table'))
+    assert interval_table.values[0][0] == '90% 均值 CI'
+    assert 'df=' in interval_table.values[2][1]
+    assert '可用' in interval_table.values[2][1]
+    actual_tab = next(tab for tab in predictor.tabs.tabs()
+                      if predictor.tabs.tab(tab, 'text') == '实际组分用量')
+    actual_table = next(child.table for child in
+                        predictor.tabs.nametowidget(actual_tab).winfo_children()
                         if hasattr(child, 'table'))
     assert sum(row[1] for row in actual_table.values) == pytest.approx(175)
     predictor.main.destroy()
 
     optimizer = OptimizeMixture(app)
+    optimizer.confidence.set('90%')
     for key, value in (('P1', '1'), ('P2', '2'), ('T', '175')):
         optimizer.conditions[key].delete(0, 'end')
         optimizer.conditions[key].insert(0, value)
@@ -213,6 +226,15 @@ def test_mixture_v2_gui_lifecycle_uses_saved_model_and_actual_amounts(
 
     monkeypatch.setattr(mixture_dialog, 'optimize_mixture', checked_optimize)
     optimizer.optimize()
+    result_tab = next(tab for tab in optimizer.tabs.tabs()
+                      if optimizer.tabs.tab(tab, 'text') == '响应预测')
+    result_table = next(child.table for child in
+                        optimizer.tabs.nametowidget(result_tab).winfo_children()
+                        if hasattr(child, 'table'))
+    assert '均值 CI' in result_table.headers
+    assert result_table.values[0][8] == '90%'
+    assert result_table.values[0][9] == '可用'
+    assert '未校正' in optimizer.status.get()
     assert calls[0][0] == tuple(saved_model['terms'])
     assert calls[0][1] == saved_model['degree']
     assert calls[0][2] == {'P1': 1, 'P2': 2, 'T': 175}

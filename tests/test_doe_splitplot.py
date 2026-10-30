@@ -1,7 +1,11 @@
+from itertools import product
+
 import pytest
 
-from doe_core import DesignSpec, FactorSpec
-from doe_splitplot import create_split_plot, validate_split_plot_design
+from doe_core import (DesignSpec, FactorSpec, restore_design_result,
+                      validate_worksheet_metadata, worksheet_metadata)
+from doe_splitplot import (append_split_plot_blocks, create_split_plot,
+                           validate_split_plot_design)
 
 
 def spec(blocks=3, seed=42, factors=None):
@@ -26,6 +30,25 @@ def v2_spec(hard=2, easy=2, blocks=3, seed=42, schema_version=5):
         schema_version=schema_version, block_count=blocks, construction_version="v2",
         randomization_unit="whole_plot", error_structure="split_plot",
     )
+
+
+def v3_spec(factor_count=8, hard=3, blocks=2, seed=42, categorical=(0, 3)):
+    factors = []
+    for index in range(factor_count):
+        factor_id = chr(ord("A") + index)
+        role = "hard_to_change" if index < hard else "easy_to_change"
+        if index in categorical:
+            factors.append(FactorSpec(
+                factor_id, factor_id, None, None, factor_type="categorical",
+                levels=(f"{factor_id}-low", f"{factor_id}-high"),
+                level_type="text", randomization_role=role))
+        else:
+            factors.append(FactorSpec(
+                factor_id, factor_id, -1, 1, randomization_role=role))
+    return DesignSpec(
+        "split-v3", tuple(factors), ("Y",), seed=seed, design_type="split_plot",
+        block_count=blocks, construction_version="v3", randomization_unit="whole_plot",
+        error_structure="split_plot")
 
 
 def test_standard_order_and_nested_seed_randomization():
@@ -63,6 +86,8 @@ def test_standard_order_and_nested_seed_randomization():
     different, _ = create_split_plot(spec(seed=91))
     assert frame["运行ID"].tolist() == repeated["运行ID"].tolist()
     assert frame["运行ID"].tolist() != different["运行ID"].tolist()
+    assert metadata["schema_version"] == metadata["design"]["schema_version"] == 5
+    assert metadata["design"]["construction_version"] == "v1"
     validate_split_plot_design(frame, metadata)
 
 
@@ -168,3 +193,104 @@ def test_v2_run_limit_is_rejected_before_factorial_expansion(monkeypatch):
 def test_v2_rejects_invalid_version_factor_seed_and_block_settings(build_design):
     with pytest.raises(ValueError):
         create_split_plot(build_design())
+
+
+@pytest.mark.parametrize("factor_count", [7, 8])
+def test_v3_mixed_binary_factors_keep_complete_randomized_blocks_and_schema_v5(
+        factor_count):
+    design = v3_spec(factor_count=factor_count)
+    frame, metadata = create_split_plot(design)
+    columns = metadata["column_map"]
+    expected_runs = 2 * (1 << factor_count)
+    assert len(frame) == expected_runs
+    assert metadata["schema_version"] == metadata["design"]["schema_version"] == 5
+    assert metadata["design"]["construction_version"] == "v3"
+    assert len(restore_design_result(frame, metadata).runs) == expected_runs
+    assert validate_worksheet_metadata(frame, metadata)["design"] == metadata["design"]
+    validate_split_plot_design(frame, metadata)
+
+    ordered = frame.sort_values(columns["standard_order"])
+    for block in range(1, 3):
+        block_rows = ordered[ordered[columns["block"]] == block]
+        codes = []
+        for _, row in block_rows.iterrows():
+            codes.append(tuple(
+                (-1 if row[columns["factors"][factor.factor_id]] == factor.levels[0]
+                 else 1) if factor.factor_type == "categorical"
+                else int(factor.to_coded(row[columns["factors"][factor.factor_id]]))
+                for factor in design.factors))
+        assert codes == list(product((-1, 1), repeat=factor_count))
+
+    actual = frame.sort_values(columns["run_order"])
+    assert actual[columns["run_order"]].tolist() == list(range(1, expected_runs + 1))
+    for _, block in actual.groupby(columns["block"], sort=False):
+        plots = list(block.groupby(columns["whole_plot_id"], sort=False))
+        assert len(plots) == 1 << 3
+        assert [plot[columns["whole_plot_order"]].iloc[0] for _, plot in plots] == list(
+            range(1, (1 << 3) + 1))
+        assert all(len(plot) == 1 << (factor_count - 3)
+                   and plot[columns["subplot_order"]].tolist()
+                   == list(range(1, len(plot) + 1))
+                   for _, plot in plots)
+
+    same, _ = create_split_plot(v3_spec(factor_count=factor_count))
+    other_seed, _ = create_split_plot(v3_spec(factor_count=factor_count, seed=93))
+    assert same.equals(frame)
+    assert frame[columns["run_id"]].tolist() != other_seed[columns["run_id"]].tolist()
+
+
+def test_v3_categorical_design_can_append_complete_blocks():
+    frame, metadata = create_split_plot(v3_spec(factor_count=4, hard=2))
+    appended, appended_metadata = append_split_plot_blocks(frame, metadata, 1)
+    result = validate_split_plot_design(appended, appended_metadata)
+    assert result.spec.construction_version == "v3"
+    assert result.spec.block_count == 3
+    assert len(result.runs) == 3 * (1 << 4)
+    assert result.spec.factors[0].levels == ("A-low", "A-high")
+
+
+@pytest.mark.parametrize(("blocks", "factor_count", "message"), [
+    (40, 8, "运行数"),
+    (510, 2, "模型秩"),
+])
+def test_v3_run_and_model_rank_limits_precede_layout(blocks, factor_count, message,
+                                                      monkeypatch):
+    monkeypatch.setattr("doe_splitplot.product",
+                        lambda *_: pytest.fail("layout allocated before budget rejection"))
+    hard = 1 if factor_count == 2 else 3
+    categorical = (0,) if factor_count == 2 else (0, 3)
+    with pytest.raises(ValueError, match=message):
+        create_split_plot(v3_spec(factor_count, hard, blocks, categorical=categorical))
+
+
+def test_v3_rejects_three_level_categorical_factor():
+    factors = (
+        FactorSpec("A", "A", None, None, factor_type="categorical",
+                   levels=("a", "b", "c"), level_type="text",
+                   randomization_role="hard_to_change"),
+        FactorSpec("B", "B", -1, 1, randomization_role="easy_to_change"),
+    )
+    with pytest.raises(ValueError, match="v3"):
+        DesignSpec("bad-v3", factors, ("Y",), seed=1, design_type="split_plot",
+                   block_count=2, construction_version="v3",
+                   randomization_unit="whole_plot", error_structure="split_plot")
+
+
+def test_v3_rejects_unbalanced_subplots_and_reml():
+    frame, metadata = create_split_plot(v3_spec(factor_count=4, hard=2))
+    columns = metadata["column_map"]
+    categorical_easy = columns["factors"]["D"]
+    continuous_easy = columns["factors"]["C"]
+    group = next(group for _, group in frame.groupby(columns["whole_plot_id"]))
+    pair = next((left, right) for left in group.index for right in group.index
+                if group.at[left, continuous_easy] == group.at[right, continuous_easy]
+                and group.at[left, categorical_easy] != group.at[right, categorical_easy])
+    frame.at[pair[1], categorical_easy] = frame.at[pair[0], categorical_easy]
+    spec = DesignSpec.from_dict(metadata["design"])
+    with pytest.raises(ValueError):
+        worksheet_metadata(frame, spec, columns)
+
+    with pytest.raises(ValueError, match="error_structure"):
+        DesignSpec("reml-split", spec.factors, ("Y",), seed=1,
+                   design_type="split_plot", block_count=2, construction_version="v3",
+                   randomization_unit="whole_plot", error_structure="REML")

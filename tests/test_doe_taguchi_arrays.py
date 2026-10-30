@@ -1,11 +1,53 @@
 """Taguchi 数组目录、设计网格与 Schema v5 合同。"""
 import copy
+from collections import Counter
+from itertools import product
 
 import pytest
 
 from doe_core import DOE_SCHEMA_VERSION, DesignSpec, FactorSpec, restore_design_result
 from doe_taguchi import create_taguchi
 from doe_taguchi_arrays import ARRAYS, column_counts, pair_counts, validate_array
+
+
+_OFFICIAL_L36 = tuple(tuple(map(int, row.split())) for row in """
+1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2
+1 1 1 1 1 1 1 1 1 1 1 3 3 3 3 3 3 3 3 3 3 3 3
+1 1 1 1 1 2 2 2 2 2 2 1 1 1 1 2 2 2 2 3 3 3 3
+1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3 3 3 1 1 1 1
+1 1 1 1 1 2 2 2 2 2 2 3 3 3 3 1 1 1 1 2 2 2 2
+1 1 2 2 2 1 1 1 2 2 2 1 1 2 3 1 2 3 3 1 2 2 3
+1 1 2 2 2 1 1 1 2 2 2 2 2 3 1 2 3 1 1 2 3 3 1
+1 1 2 2 2 1 1 1 2 2 2 3 3 1 2 3 1 2 2 3 1 1 2
+1 2 1 2 2 1 2 2 1 1 2 1 1 3 2 1 3 2 3 2 1 3 2
+1 2 1 2 2 1 2 2 1 1 2 2 2 1 3 2 1 3 1 3 2 1 3
+1 2 1 2 2 1 2 2 1 1 2 3 3 2 1 3 2 1 2 1 3 2 1
+1 2 2 1 2 2 1 2 1 2 1 1 2 3 1 3 2 1 3 3 2 1 2
+1 2 2 1 2 2 1 2 1 2 1 2 3 1 2 1 3 2 1 1 3 2 3
+1 2 2 1 2 2 1 2 1 2 1 3 1 2 3 2 1 3 2 2 1 3 1
+1 2 2 2 1 2 2 1 2 1 1 1 2 3 2 1 1 3 2 3 3 2 1
+1 2 2 2 1 2 2 1 2 1 1 2 3 1 3 2 2 1 3 1 1 3 2
+1 2 2 2 1 2 2 1 2 1 1 3 1 2 1 3 3 2 1 2 2 1 3
+2 1 2 2 1 1 2 2 1 2 1 1 2 1 3 3 3 1 2 2 1 2 3
+2 1 2 2 1 1 2 2 1 2 1 2 3 2 1 1 1 2 3 3 2 3 1
+2 1 2 2 1 1 2 2 1 2 1 3 1 3 2 2 2 3 1 1 3 1 2
+2 1 2 1 2 2 2 1 1 1 2 1 2 2 3 3 1 2 1 1 3 3 2
+2 1 2 1 2 2 2 1 1 1 2 2 3 3 1 1 2 3 2 2 1 1 3
+2 1 2 1 2 2 2 1 1 1 2 3 1 1 2 2 3 1 3 3 2 2 1
+2 1 1 2 2 2 1 2 2 1 1 1 3 2 1 2 3 3 1 3 1 2 2
+2 1 1 2 2 2 1 2 2 1 1 2 1 3 2 3 1 1 2 1 2 3 3
+2 1 1 2 2 2 1 2 2 1 1 3 2 1 3 1 2 2 3 2 3 1 1
+2 2 2 1 1 1 1 2 2 1 2 1 3 2 2 2 1 1 3 2 3 1 3
+2 2 2 1 1 1 1 2 2 1 2 2 1 3 3 3 2 2 1 3 1 2 1
+2 2 2 1 1 1 1 2 2 1 2 3 2 1 1 1 3 3 2 1 2 3 2
+2 2 1 2 1 2 1 1 1 2 2 1 3 3 3 2 3 2 2 1 2 1 1
+2 2 1 2 1 2 1 1 1 2 2 2 1 1 1 3 1 3 3 2 3 2 2
+2 2 1 2 1 2 1 1 1 2 2 3 2 2 2 1 2 1 1 3 1 3 3
+2 2 1 1 2 1 2 1 2 2 1 1 3 1 2 3 2 3 1 2 2 3 1
+2 2 1 1 2 1 2 1 2 2 1 2 1 2 3 1 3 1 2 3 3 1 2
+2 2 1 1 2 1 2 1 2 2 1 3 2 3 1 2 1 2 3 1 1 2 3
+""".strip().splitlines())
 
 
 def factor(factor_id, levels, numeric=False):
@@ -69,6 +111,65 @@ def test_every_catalogued_array_passes_balance_and_pair_audit(array_id):
     audit = validate_array(ARRAYS[array_id])
     assert audit["run_count"] == ARRAYS[array_id].run_count
     assert audit["unbalanced_pairs"] == list(ARRAYS[array_id].documented_unbalanced_pairs)
+
+
+def test_l36_matches_official_matrix_balance_pairs_and_model_rank():
+    import numpy as np
+
+    array = ARRAYS["L36(2^11 3^12)"]
+    assert len(_OFFICIAL_L36) == 36
+    assert all(len(row) == 23 for row in _OFFICIAL_L36)
+    assert array.matrix == _OFFICIAL_L36
+    assert array.levels == (2,) * 11 + (3,) * 12
+    assert array.column_numbers == tuple(range(1, 24))
+
+    for column, level_count in enumerate(array.levels):
+        expected = {level: 36 // level_count for level in range(1, level_count + 1)}
+        assert dict(Counter(row[column] for row in _OFFICIAL_L36)) == expected
+        assert column_counts(array)[column + 1] == expected
+    for first in range(23):
+        for second in range(first + 1, 23):
+            expected = {
+                (left, right): 36 // (array.levels[first] * array.levels[second])
+                for left, right in product(range(1, array.levels[first] + 1),
+                                           range(1, array.levels[second] + 1))}
+            reference = dict(Counter((row[first], row[second])
+                                     for row in _OFFICIAL_L36))
+            assert reference == expected
+            assert pair_counts(array, first + 1, second + 1) == expected
+
+    matrix = np.asarray(_OFFICIAL_L36, dtype=float)
+    assert np.linalg.matrix_rank(matrix) == 23
+    model_columns = [np.ones(len(_OFFICIAL_L36))]
+    for column, level_count in enumerate(array.levels):
+        model_columns.extend(np.asarray([row[column] == level for row in _OFFICIAL_L36],
+                                        dtype=float)
+                             for level in range(2, level_count + 1))
+    model = np.column_stack(model_columns)
+    assert model.shape == (36, 36)
+    assert np.linalg.matrix_rank(model) == 36
+
+
+def test_l36_partial_column_assignment_uses_selected_official_columns():
+    array = ARRAYS["L36(2^11 3^12)"]
+    factors = (factor("A", ("off", "on")), factor("B", ("cold", "hot")),
+               factor("C", ("low", "mid", "high")),
+               factor("D", ("small", "medium", "large")))
+    columns = {"A": 1, "B": 2, "C": 12, "D": 18}
+    spec = DesignSpec(
+        "TG", factors, ("Y",), seed=11, design_type="taguchi",
+        taguchi={"kind": "static", "array_id": array.array_id,
+                 "matrix_sha256": array.sha256, "columns": columns,
+                 "noise_array_id": None, "noise_matrix_sha256": None,
+                 "noise_columns": {}, "signal_factor": None})
+
+    frame, metadata = create_taguchi(spec)
+    assert len(frame) == 36
+    assert metadata["design"]["taguchi"]["columns"] == columns
+    assert set(frame["设定_A"]) == {"off", "on"}
+    assert set(frame["设定_B"]) == {"cold", "hot"}
+    assert set(frame["设定_C"]) == {"low", "mid", "high"}
+    assert set(frame["设定_D"]) == {"small", "medium", "large"}
 
 
 def test_l18_unbalanced_pairs_are_recorded_not_silently_claimed_orthogonal():
@@ -149,6 +250,7 @@ def test_column_counts_are_balanced_for_every_level_count(levels):
 @pytest.mark.parametrize("array_id, capacity", [("L4(2^3)", 3), ("L8(2^7)", 7),
                                                 ("L9(3^4)", 4), ("L16(4^5)", 5),
                                                 ("L18(2^1 3^7)", 8), ("L25(5^6)", 6),
+                                                ("L36(2^11 3^12)", 23),
                                                 ("L8(4^1 2^4)", 5),
                                                 ("L16(4^1 2^12)", 13)])
 def test_array_capacity_and_duplicate_columns(array_id, capacity):

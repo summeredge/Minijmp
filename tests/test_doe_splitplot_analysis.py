@@ -1,4 +1,6 @@
 import json
+from fractions import Fraction
+from itertools import combinations
 from pathlib import Path
 
 import numpy as np
@@ -121,6 +123,137 @@ def test_anova_matches_independent_balanced_split_plot_reference():
     assert np.isfinite(result["residuals"]).all()
     assert result["status"]
     assert result["assumption"]
+
+
+def test_categorical_contrasts_match_independent_stratified_projection():
+    factors = (
+        FactorSpec("A", "A", None, None, factor_type="categorical",
+                   levels=("slow", "fast"), level_type="text",
+                   randomization_role="hard_to_change"),
+        FactorSpec("B", "B", -1, 1, randomization_role="hard_to_change"),
+        FactorSpec("C", "C", None, None, factor_type="categorical",
+                   levels=("off", "on"), level_type="text",
+                   randomization_role="easy_to_change"),
+        FactorSpec("D", "D", -1, 1, randomization_role="easy_to_change"),
+    )
+    spec = DesignSpec(
+        "categorical-split", factors, ("Y",), seed=19, design_type="split_plot",
+        block_count=2, construction_version="v3", randomization_unit="whole_plot",
+        error_structure="split_plot")
+    frame, metadata = create_split_plot(spec)
+    columns = metadata["column_map"]
+
+    def manual_code(factor, value):
+        if factor.factor_type == "categorical":
+            return -1 if value == factor.levels[0] else 1
+        return -1 if value == factor.low else 1
+
+    responses = []
+    for _, row in frame.iterrows():
+        a, b, c, d = (manual_code(factor, row[columns["factors"][factor.factor_id]])
+                      for factor in factors)
+        block_sign = -1 if row[columns["block"]] == 1 else 1
+        responses.append(
+            100 + 5 * block_sign + 3 * a - 2 * b + 4 * c + 5 * d + 2 * a * b
+            - 3 * a * c + 2 * b * d + 4 * a * b * c * d
+            + 2 * block_sign * a * b
+            + block_sign * (1 + 2 * a + 3 * b + 4 * a * b) * (c + 2 * d + 3 * c * d))
+    response_column = columns["responses"]["Y"]
+    frame[response_column] = responses
+    result = analyze_split_plot(frame, metadata, "Y")
+
+    items = []
+    for _, row in frame.iterrows():
+        items.append({
+            "block": int(row[columns["block"]]),
+            "plot": row[columns["whole_plot_id"]],
+            "codes": tuple(manual_code(
+                factor, row[columns["factors"][factor.factor_id]]) for factor in factors),
+            "y": Fraction(int(row[response_column])),
+        })
+    factor_ids = tuple(factor.factor_id for factor in factors)
+    subsets = [subset for degree in range(1, len(factors) + 1)
+               for subset in combinations(range(len(factors)), degree)]
+    n = len(items)
+    block_means = {
+        block: sum((item["y"] for item in items if item["block"] == block), Fraction())
+        / sum(item["block"] == block for item in items)
+        for block in (1, 2)
+    }
+    grand = sum((item["y"] for item in items), Fraction()) / n
+    coefficients = {
+        subset: sum((item["y"] * _contrast_product(item["codes"], subset)
+                     for item in items), Fraction()) / n
+        for subset in subsets
+    }
+    term_ss = {subset: coefficients[subset] ** 2 * n for subset in subsets}
+    block_ss = sum((sum(item["block"] == block for item in items)
+                    * (block_means[block] - grand) ** 2 for block in (1, 2)), Fraction())
+    full_residuals = []
+    for item in items:
+        fitted = block_means[item["block"]] + sum((
+            coefficients[subset] * _contrast_product(item["codes"], subset)
+            for subset in subsets), Fraction())
+        full_residuals.append(item["y"] - fitted)
+
+    plots = {}
+    for index, item in enumerate(items):
+        plots.setdefault(item["plot"], []).append(index)
+    hard_indices = (0, 1)
+    hard_subsets = [subset for subset in subsets if set(subset) <= set(hard_indices)]
+    wp_residuals = [Fraction()] * n
+    wp_ss = Fraction()
+    for indices in plots.values():
+        plot_items = [items[index] for index in indices]
+        mean = sum((item["y"] for item in plot_items), Fraction()) / len(indices)
+        first = plot_items[0]
+        fitted = block_means[first["block"]] + sum((
+            coefficients[subset] * _contrast_product(first["codes"], subset)
+            for subset in hard_subsets), Fraction())
+        residual = mean - fitted
+        wp_ss += len(indices) * residual ** 2
+        for index in indices:
+            wp_residuals[index] = residual
+    subplot_residuals = [residual - wp for residual, wp in zip(full_residuals, wp_residuals)]
+    subplot_ss = sum((residual ** 2 for residual in subplot_residuals), Fraction())
+    wp_df, subplot_df = 3, 12
+
+    anova = {row["term"]: row for row in result["anova"]}
+    treatment_names = {":".join(factor_ids[index] for index in subset)
+                       for subset in subsets}
+    assert {name for name in anova if name not in {
+        "block", "whole_plot_error", "subplot_error", "total"}} == treatment_names
+    assert result["rank"] == 2 + (1 << len(factors)) - 1
+    assert anova["block"]["ss"] == pytest.approx(float(block_ss))
+    assert result["error_strata"]["whole_plot_error"]["ss"] == pytest.approx(float(wp_ss))
+    assert result["error_strata"]["whole_plot_error"]["df"] == wp_df
+    assert result["error_strata"]["subplot_error"]["ss"] == pytest.approx(float(subplot_ss))
+    assert result["error_strata"]["subplot_error"]["df"] == subplot_df
+    assert np.asarray(result["whole_plot_residual_contribution"]) == pytest.approx(
+        [float(value) for value in wp_residuals])
+    assert np.asarray(result["subplot_residual_contribution"]) == pytest.approx(
+        [float(value) for value in subplot_residuals])
+    assert result["sst"] == pytest.approx(float(
+        block_ss + sum(term_ss.values(), Fraction()) + wp_ss + subplot_ss))
+    for subset in subsets:
+        name = ":".join(factor_ids[index] for index in subset)
+        row = anova[name]
+        hard_only = set(subset) <= set(hard_indices)
+        error_ss, error_df = (wp_ss, wp_df) if hard_only else (subplot_ss, subplot_df)
+        assert row["coefficient"] == pytest.approx(float(coefficients[subset]))
+        assert row["ss"] == pytest.approx(float(term_ss[subset]))
+        assert row["df"] == 1
+        assert row["error_stratum"] == (
+            "whole_plot_error" if hard_only else "subplot_error")
+        assert row["error_df"] == error_df
+        assert row["f"] == pytest.approx(float(term_ss[subset] / (error_ss / error_df)))
+
+
+def _contrast_product(codes, subset):
+    value = 1
+    for index in subset:
+        value *= codes[index]
+    return value
 
 
 def test_analysis_rejects_missing_and_invalid_responses():
@@ -305,3 +438,139 @@ def test_structural_corruption_is_rejected_after_fingerprint_rebuild(corruption)
     with pytest.raises(ValueError):
         refreshed = worksheet_metadata(frame, spec, columns)
         validate_split_plot_design(frame, refreshed)
+
+
+def test_eight_factor_anova_matches_independent_stratified_projections():
+    factors = (
+        FactorSpec("A", "A", -1, 1, randomization_role="hard_to_change"),
+        FactorSpec("B", "B", -1, 1, randomization_role="hard_to_change"),
+        FactorSpec("C", "C", None, None, factor_type="categorical",
+                   levels=("off", "on"), level_type="text",
+                   randomization_role="easy_to_change"),
+        *(FactorSpec(name, name, -1, 1, randomization_role="easy_to_change")
+          for name in "DEFGH"),
+    )
+    spec = DesignSpec(
+        "split-eight-factor", factors, ("Y",), seed=31, design_type="split_plot",
+        block_count=2, construction_version="v3", randomization_unit="whole_plot",
+        error_structure="split_plot")
+    frame, metadata = create_split_plot(spec)
+    columns = metadata["column_map"]
+
+    coded_columns = []
+    for factor in factors:
+        actual = frame[columns["factors"][factor.factor_id]].to_numpy()
+        levels = ((factor.low, factor.high) if factor.factor_type == "continuous"
+                  else factor.levels)
+        assert set(actual) == set(levels)
+        coded_columns.append(np.where(actual == levels[0], -1.0, 1.0))
+    coded = np.column_stack(coded_columns)
+    blocks = frame[columns["block"]].to_numpy()
+    block_levels = np.unique(blocks)
+    assert len(block_levels) == 2
+    block_sign = np.where(blocks == block_levels[0], -1, 1)
+    a, b, c, d, e, f, g, h = coded.T
+    response = (
+        100 + 5 * block_sign + 3 * a - 2 * b + 4 * c + 5 * d + 2 * e - f + 3 * g - 4 * h
+        + 2 * a * b - 3 * c * d + 2 * b * e * f + 4 * c * e * g * h
+        + block_sign * (2 * a - b + 3 * a * b + c + 2 * d * e - f * g * h)
+    )
+    response_column = columns["responses"]["Y"]
+    frame[response_column] = response
+    y = frame[response_column].to_numpy(dtype=float)
+
+    factor_ids = tuple(factor.factor_id for factor in factors)
+    subsets = [subset for order in range(1, len(factors) + 1)
+               for subset in combinations(range(len(factors)), order)]
+    term_names = [":".join(factor_ids[index] for index in subset) for subset in subsets]
+    terms = np.column_stack([
+        np.prod(coded[:, subset], axis=1) for subset in subsets
+    ])
+    block_matrix = np.column_stack([blocks == block for block in block_levels]).astype(float)
+    fixed_design = np.column_stack((block_matrix, terms))
+    fixed_coefficients, _, fixed_rank, _ = np.linalg.lstsq(fixed_design, y, rcond=None)
+    term_coefficients = fixed_coefficients[len(block_levels):]
+    term_ss = term_coefficients ** 2 * len(y)
+    grand_mean = y.mean()
+    block_ss = sum(
+        np.count_nonzero(blocks == block) * (y[blocks == block].mean() - grand_mean) ** 2
+        for block in block_levels
+    )
+
+    run_plot_ids = frame[columns["whole_plot_id"]].to_numpy()
+    plot_rows = {}
+    for index, plot_id in enumerate(run_plot_ids):
+        plot_rows.setdefault(plot_id, []).append(index)
+    assert len(plot_rows) == 8
+    assert {len(indices) for indices in plot_rows.values()} == {64}
+    for factor in factors[:2]:
+        values = frame[columns["factors"][factor.factor_id]].to_numpy()
+        assert all(np.unique(values[indices]).size == 1 for indices in plot_rows.values())
+
+    plot_ids = tuple(plot_rows)
+    plot_means = np.asarray([y[plot_rows[plot_id]].mean() for plot_id in plot_ids])
+    plot_blocks = np.asarray([blocks[plot_rows[plot_id][0]] for plot_id in plot_ids])
+    plot_codes = np.asarray([coded[plot_rows[plot_id][0]] for plot_id in plot_ids])
+    plot_block_matrix = np.column_stack([plot_blocks == block for block in block_levels])
+    hard_subsets = [subset for subset in subsets if all(index < 2 for index in subset)]
+    hard_terms = np.column_stack([
+        np.prod(plot_codes[:, subset], axis=1) for subset in hard_subsets
+    ])
+    whole_plot_design = np.column_stack((plot_block_matrix, hard_terms))
+    whole_plot_coefficients, _, whole_plot_rank, _ = np.linalg.lstsq(
+        whole_plot_design, plot_means, rcond=None)
+    whole_plot_residuals = plot_means - whole_plot_design @ whole_plot_coefficients
+    plot_sizes = np.asarray([len(plot_rows[plot_id]) for plot_id in plot_ids])
+    ss_whole_plot = float(np.sum(plot_sizes * whole_plot_residuals ** 2))
+    df_whole_plot = len(plot_ids) - whole_plot_rank
+
+    plot_indicators = np.column_stack([run_plot_ids == plot_id for plot_id in plot_ids])
+    easy_term_indices = [index for index, subset in enumerate(subsets)
+                         if any(factor_index >= 2 for factor_index in subset)]
+    subplot_design = np.column_stack((plot_indicators, terms[:, easy_term_indices]))
+    subplot_coefficients, _, subplot_rank, _ = np.linalg.lstsq(
+        subplot_design, y, rcond=None)
+    subplot_residuals = y - subplot_design @ subplot_coefficients
+    ss_subplot = float(subplot_residuals @ subplot_residuals)
+    df_subplot = len(y) - subplot_rank
+    assert df_whole_plot == 3
+    assert df_subplot == 252
+
+    result = analyze_split_plot(frame, metadata, "Y")
+    anova = {row["term"]: row for row in result["anova"]}
+    assert set(anova) == set(term_names) | {
+        "block", "whole_plot_error", "subplot_error", "total"}
+    assert result["n"] == len(y) == 512
+    assert result["rank"] == result["p"] == fixed_rank == len(block_levels) + len(subsets)
+    assert result["df"] == df_whole_plot + df_subplot
+    assert anova["block"]["df"] == len(block_levels) - 1
+    assert anova["block"]["ss"] == pytest.approx(block_ss)
+    assert anova["total"]["df"] == len(y) - 1
+    assert result["sst"] == pytest.approx(np.sum((y - grand_mean) ** 2))
+    assert result["sse"] == pytest.approx(ss_whole_plot + ss_subplot)
+
+    strata = {
+        "whole_plot_error": (ss_whole_plot, df_whole_plot),
+        "subplot_error": (ss_subplot, df_subplot),
+    }
+    for name, (expected_ss, expected_df) in strata.items():
+        assert result["error_strata"][name]["ss"] == pytest.approx(expected_ss)
+        assert result["error_strata"][name]["df"] == expected_df
+        assert result["error_strata"][name]["ms"] == pytest.approx(expected_ss / expected_df)
+        assert anova[name]["ss"] == pytest.approx(expected_ss)
+        assert anova[name]["df"] == expected_df
+
+    assert block_ss + term_ss.sum() + ss_whole_plot + ss_subplot == pytest.approx(
+        result["sst"])
+    for index, (subset, name) in enumerate(zip(subsets, term_names)):
+        whole_plot_term = all(factor_index < 2 for factor_index in subset)
+        stratum = "whole_plot_error" if whole_plot_term else "subplot_error"
+        error_ss, error_df = strata[stratum]
+        row = anova[name]
+        assert row["coefficient"] == pytest.approx(term_coefficients[index], abs=1e-10)
+        assert row["effect"] == pytest.approx(2 * term_coefficients[index], abs=1e-10)
+        assert row["ss"] == pytest.approx(term_ss[index], abs=1e-9)
+        assert row["df"] == 1
+        assert row["error_stratum"] == stratum
+        assert row["error_df"] == error_df
+        assert row["f"] == pytest.approx(term_ss[index] / (error_ss / error_df), abs=1e-9)

@@ -1,0 +1,7 @@
+"FEATURE_ID","STATUS","VERIFIED_SCOPE","LIMITATIONS"
+"TAG-005","IMPLEMENTED","L36(2^11 3^12) fixed matrix, column assignment, GUI preview/create/analyze, persistence","Standard declared levels and column capacities"
+"TAG-009","IMPLEMENTED_SCOPED","Static categorical main effects and selected two-factor interactions, prediction, mean CI, exact target search, confirmation worksheet","No signal-factor interactions; ordinary CI does not adjust for selection; exact search budget 20000"
+"TAG-008","IMPLEMENTED_SCOPED","Static no-signal two-level control-by-noise OLS and exact robust search over declared control settings","Equal noise-condition weights; no multilevel/dynamic/custom probabilities; search budget 20000"
+"FAC-012","IMPLEMENTED","One-step multi-factor foldover for regular fractional and Plackett-Burman designs","No repeated chained foldover workflow"
+"MIX-005","IMPLEMENTED_SCOPED","Existing Mixture v2 crossed amount levels, Scheffe-by-amount model and lifecycle","Wider amount quadratic interactions and interaction plot not included; no changes this pass"
+"GEN-006","IMPLEMENTED_SCOPED","Custom factorial/RSM fixed-run-count D-optimal Improve with locked runs, candidate exchange, Schema v5 lineage and GUI save/reopen","Requires full-rank unblocked parent; seeded local single-point exchange with bounded evaluations, not globally optimal; Distance remains append-only"

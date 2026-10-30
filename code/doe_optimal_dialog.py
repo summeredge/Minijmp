@@ -1,9 +1,10 @@
 """最优设计选择、评价、修改、增补的 GUI 入口。"""
 import tkinter as tk
+from copy import deepcopy
 from tkinter import messagebox, ttk
 
-from doe_augment import augment
-from doe_core import DesignSpec, FactorSpec, restore_design_result
+from doe_augment import augment, improve_fixed_size
+from doe_core import DesignSpec, FactorSpec, _run_id_key as _run_key, restore_design_result
 from doe_custom import design_matrix, validate_custom
 from doe_modify import modify_summary, renumber, replicate, reorder, rerandomize
 from doe_optimal import evaluate, select, select_distance
@@ -25,6 +26,15 @@ class OptimalDesignDialog:
         self.main.bind('<F1>', lambda event: open_help('doe.custom', parent=self.main))
         body = ttk.Frame(self.main, padding=10)
         body.pack(fill='both', expand=True)
+        operation_bar = ttk.Frame(body)
+        operation_bar.pack(fill='x', pady=(0, 4))
+        ttk.Label(operation_bar, text='操作').pack(side='left')
+        self.operation = ttk.Combobox(
+            operation_bar, values=('Select', 'Augment', 'Improve'),
+            state='readonly', width=12)
+        self.operation.set('Select')
+        self.operation.pack(side='left', padx=4)
+        self.operation.bind('<<ComboboxSelected>>', self._operation_changed)
         bar = ttk.Frame(body)
         bar.pack(fill='x')
         ttk.Label(bar, text='候选工作表').pack(side='left')
@@ -72,6 +82,17 @@ class OptimalDesignDialog:
         ttk.Button(buttons, text='取消', command=self.main.destroy).pack(side='left')
         self._kind_changed()
         self.main.geometry('960x600')
+
+    def _operation_changed(self, _event=None):
+        if self.operation.get() == 'Select':
+            return None
+        dialog = (AugmentDesignDialog(self.app) if self.operation.get() == 'Augment'
+                  else ImproveDesignDialog(self.app))
+        if not hasattr(dialog, 'main'):
+            return None
+        self.operation_dialog = dialog
+        self.main.destroy()
+        return dialog
 
     def _kind_changed(self):
         if self.kind.get() == '自定义因子':
@@ -162,6 +183,260 @@ class OptimalDesignDialog:
             messagebox.showerror('选择最优设计', str(error), parent=self.main)
             return False
         self.app.addSheet(f'{self.sheet.get()} 最优', result, {'doe': metadata})
+        self.main.destroy()
+        return True
+
+
+class ImproveDesignDialog:
+    """在自定义因子或响应面父设计上做固定运行数 D-optimal 交换。"""
+
+    def __init__(self, app):
+        self.app = app
+        self.sheet_names = tuple(
+            name for name, table in app.sheets.items()
+            if isinstance(getattr(table, 'doe_metadata', None), dict)
+            and getattr(table, 'doe_metadata', {}).get('design', {}).get(
+                'design_type') in ('custom_factorial', 'custom_rsm'))
+        if len(self.sheet_names) < 2:
+            messagebox.showerror(
+                'Improve', '需要至少两个自定义因子或响应面工作表：一个父设计和一个候选设计。',
+                parent=app.main)
+            return
+        self.main = tk.Toplevel(app.main)
+        self.main.title('Improve D-optimal 设计')
+        self.main.transient(app.main)
+        self.main.minsize(760, 520)
+        body = ttk.Frame(self.main, padding=10)
+        body.pack(fill='both', expand=True)
+
+        sources = ttk.Frame(body)
+        sources.pack(fill='x')
+        ttk.Label(sources, text='父设计').pack(side='left')
+        self.parent_sheet = ttk.Combobox(
+            sources, values=self.sheet_names, state='readonly', width=24)
+        current = app.getCurrentSheet()
+        parent_default = current if current in self.sheet_names else self.sheet_names[0]
+        self.parent_sheet.set(parent_default)
+        self.parent_sheet.pack(side='left', padx=4)
+        ttk.Label(sources, text='候选设计').pack(side='left', padx=(12, 0))
+        self.candidate_sheet = ttk.Combobox(
+            sources, values=self.sheet_names, state='readonly', width=24)
+        candidate_default = next(
+            (name for name in self.sheet_names if name != parent_default), '')
+        self.candidate_sheet.set(candidate_default)
+        self.candidate_sheet.pack(side='left', padx=4)
+        self.parent_sheet.bind('<<ComboboxSelected>>', self._parent_changed)
+        self.candidate_sheet.bind('<<ComboboxSelected>>', self._candidate_changed)
+
+        lists = ttk.Frame(body)
+        lists.pack(fill='both', expand=True, pady=6)
+        parent_box = ttk.LabelFrame(lists, text='父运行')
+        parent_box.pack(side='left', fill='both', expand=True, padx=(0, 6))
+        self.run_tree = ttk.Treeview(
+            parent_box, columns=('run_id', 'state', 'response'), show='headings',
+            selectmode='extended', height=8)
+        for key, title, width in (('run_id', 'Run ID', 120),
+                                  ('state', '状态', 85),
+                                  ('response', '响应', 150)):
+            self.run_tree.heading(key, text=title)
+            self.run_tree.column(key, width=width, stretch=key == 'response')
+        self.run_tree.pack(fill='both', expand=True, padx=4, pady=4)
+        ttk.Button(parent_box, text='切换锁定/可替换',
+                   command=self._toggle_runs).pack(anchor='w', padx=4, pady=(0, 4))
+
+        candidate_box = ttk.LabelFrame(lists, text='未执行候选运行')
+        candidate_box.pack(side='left', fill='both', expand=True)
+        candidate_list = ttk.Frame(candidate_box)
+        candidate_list.pack(fill='both', expand=True, padx=4, pady=4)
+        self.candidate_runs = tk.Listbox(
+            candidate_list, selectmode='extended', exportselection=False, height=8)
+        candidate_scroll = ttk.Scrollbar(
+            candidate_list, orient='vertical', command=self.candidate_runs.yview)
+        self.candidate_runs.configure(yscrollcommand=candidate_scroll.set)
+        self.candidate_runs.pack(side='left', fill='both', expand=True)
+        candidate_scroll.pack(side='right', fill='y')
+
+        search = ttk.Frame(body)
+        search.pack(side='bottom', fill='x', pady=(4, 0))
+        ttk.Label(search, text='Seed').pack(side='left')
+        self.seed = ttk.Entry(search, width=8)
+        self.seed.insert(0, '0')
+        self.seed.pack(side='left', padx=(4, 14))
+        ttk.Label(search, text='评价预算').pack(side='left')
+        self.budget = ttk.Entry(search, width=10)
+        self.budget.insert(0, '200000')
+        self.budget.pack(side='left', padx=4)
+
+        self.status = tk.StringVar(value='')
+        ttk.Label(body, textvariable=self.status).pack(side='bottom', anchor='w')
+        actions = ttk.Frame(body)
+        actions.pack(side='bottom', fill='x', pady=5)
+        ttk.Button(actions, text='预览', command=self.preview).pack(side='left')
+        ttk.Button(actions, text='创建新工作表', command=self.create).pack(
+            side='left', padx=6)
+        ttk.Button(actions, text='取消', command=self.main.destroy).pack(side='left')
+        self.preview_text = tk.Text(body, height=10, wrap='word', state='disabled')
+        self.preview_text.pack(fill='both', expand=True, pady=(4, 0))
+
+        self._parent_states = {}
+        self._protected_parent_ids = set()
+        self._parent_run_ids = {}
+        self._candidate_run_ids = []
+        self._loaded_parent = None
+        self._parent_changed()
+        self._candidate_changed()
+        self.main.geometry('940x620')
+
+    def _snapshot(self, sheet_name):
+        table = self.app.sheets.get(sheet_name)
+        if table is None:
+            raise ValueError('父设计或候选工作表已关闭')
+        self.app._finish_edit()
+        frame = self.app._full_frame(table).copy(deep=True)
+        metadata = deepcopy(getattr(table, 'doe_metadata', None))
+        if not isinstance(metadata, dict):
+            raise ValueError('所选工作表不是有效 DOE 设计')
+        design = restore_design_result(frame, metadata)
+        return table, frame, metadata, design
+
+    @staticmethod
+    def _has_experiment_data(run):
+        return (any(value is not None for value in run.responses.values())
+                or any(value is not None for value in run.measured_levels.values()))
+
+    def _parent_changed(self, _event=None):
+        self.run_tree.delete(*self.run_tree.get_children())
+        self._parent_run_ids.clear()
+        self._protected_parent_ids.clear()
+        name = self.parent_sheet.get()
+        if name != self._loaded_parent:
+            self._parent_states = {}
+            self._loaded_parent = name
+        try:
+            _, _, _, design = self._snapshot(name)
+            for index, run in enumerate(sorted(
+                    design.runs, key=lambda item: item.standard_order)):
+                key = _run_key(run.run_id)
+                protected = self._has_experiment_data(run)
+                if protected:
+                    self._protected_parent_ids.add(key)
+                locked = protected or self._parent_states.get(key, False)
+                self._parent_states[key] = locked
+                iid = str(index)
+                self._parent_run_ids[iid] = run.run_id
+                response = '; '.join(
+                    f'{name}={value}' for name, value in run.responses.items()
+                    if value is not None) or '空'
+                self.run_tree.insert(
+                    '', 'end', iid=iid,
+                    values=(run.run_id, '锁定' if locked else '可替换', response))
+            self.status.set('已执行运行自动锁定；其他运行可切换为锁定。')
+        except (ValueError, TypeError, KeyError) as error:
+            self.status.set(str(error))
+
+    def _candidate_changed(self, _event=None):
+        self.candidate_runs.delete(0, 'end')
+        self._candidate_run_ids = []
+        try:
+            _, _, _, design = self._snapshot(self.candidate_sheet.get())
+            for run in sorted(design.runs, key=lambda item: item.standard_order):
+                if self._has_experiment_data(run):
+                    continue
+                self._candidate_run_ids.append(run.run_id)
+                self.candidate_runs.insert('end', str(run.run_id))
+        except (ValueError, TypeError, KeyError) as error:
+            self.status.set(str(error))
+
+    def _toggle_runs(self):
+        for iid in self.run_tree.selection():
+            run_id = self._parent_run_ids[iid]
+            key = _run_key(run_id)
+            if key in self._protected_parent_ids:
+                self.status.set(f'已执行运行 {run_id} 保持锁定，不可替换。')
+                continue
+            values = list(self.run_tree.item(iid, 'values'))
+            locked = values[1] != '锁定'
+            values[1] = '锁定' if locked else '可替换'
+            self.run_tree.item(iid, values=values)
+            self._parent_states[key] = locked
+
+    def _partitions(self):
+        locked, replaceable = [], []
+        for iid, run_id in self._parent_run_ids.items():
+            state = self.run_tree.item(iid, 'values')[1]
+            (locked if state == '锁定' else replaceable).append(run_id)
+        candidate_ids = tuple(
+            self._candidate_run_ids[index]
+            for index in self.candidate_runs.curselection())
+        return tuple(locked), tuple(replaceable), candidate_ids
+
+    def _build(self):
+        if not self.parent_sheet.get() or not self.candidate_sheet.get():
+            raise ValueError('请选择父设计和候选设计')
+        if self.parent_sheet.get() == self.candidate_sheet.get():
+            raise ValueError('父设计与候选设计必须是不同工作表')
+        _, frame, metadata, _ = self._snapshot(self.parent_sheet.get())
+        _, candidate_frame, candidate_metadata, _ = self._snapshot(
+            self.candidate_sheet.get())
+        locked, replaceable, candidate_ids = self._partitions()
+        try:
+            seed, budget = int(self.seed.get()), int(self.budget.get())
+        except ValueError as error:
+            raise ValueError('Seed 和评价预算必须是整数') from error
+        return improve_fixed_size(
+            frame, metadata, candidate_frame, candidate_metadata,
+            locked, replaceable, candidate_ids, seed=seed,
+            evaluation_budget=budget)
+
+    def _show(self, value):
+        self.preview_text.configure(state='normal')
+        self.preview_text.delete('1.0', 'end')
+        self.preview_text.insert('1.0', value)
+        self.preview_text.configure(state='disabled')
+
+    def preview(self):
+        try:
+            _, _, summary = self._build()
+        except (ValueError, TypeError, OverflowError, KeyError) as error:
+            self._show(f'预览不可用：{error}')
+            self.status.set('预览不可用')
+            return False
+        stop_reason = {
+            'no_improving_exchange': '无进一步改善交换',
+            'evaluation_budget': '达到评价预算',
+            'sweep_limit': '达到交换轮数上限',
+            'no_replaceable_runs': '没有可替换运行',
+        }.get(summary['stop_reason'], summary['stop_reason'])
+        lines = [
+            f"父设计：{summary['parent_design_id']}；候选设计："
+            f"{summary['candidate_design_id']}",
+            f"运行数：{summary['parent_n']} → {summary['current_n']}",
+            f"Locked：{summary['locked_n']}；Replaceable：{summary['replaceable_n']}；"
+            f"实际替换：{summary['replaced_n']}",
+            f"模型秩：{summary['parent_rank']}/{summary['p']} → "
+            f"{summary['rank']}/{summary['p']}；logdet："
+            f"{summary['parent_logdet']:.12g} → {summary['current_logdet']:.12g}",
+            f"方法：{summary['method']}；Seed：{summary['seed']}；评价："
+            f"{summary['evaluations']}/{summary['evaluation_budget']}",
+            f"停止原因：{stop_reason}；不保证全局最优。",
+            '候选运行 → 新 Run ID → 被替换运行：',
+        ]
+        lines.extend(' → '.join(map(str, item))
+                     for item in summary['candidate_to_replaced_parent'])
+        if not summary['replaced_n']:
+            lines.append('没有改善交换；新工作表保留父设计运行。')
+        self._show('\n'.join(lines))
+        self.status.set('预览可用')
+        return True
+
+    def create(self):
+        try:
+            result, metadata, _ = self._build()
+        except (ValueError, TypeError, OverflowError, KeyError) as error:
+            messagebox.showerror('Improve', str(error), parent=self.main)
+            return False
+        self.app.addSheet(f'{self.parent_sheet.get()} Improve', result,
+                          {'doe': metadata})
         self.main.destroy()
         return True
 

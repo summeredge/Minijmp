@@ -473,6 +473,11 @@ class PredictMixture(_ResultWindow):
         self.response = ttk.Combobox(controls, values=names, state='readonly', width=12)
         self.response.set(names[0])
         self.response.pack(side='left')
+        ttk.Label(controls, text='置信度').pack(side='left', padx=(10, 3))
+        self.confidence = ttk.Combobox(
+            controls, values=('90%', '95%', '99%'), state='readonly', width=6)
+        self.confidence.set('95%')
+        self.confidence.pack(side='left')
         ttk.Button(controls, text='预测', command=self.predict).pack(side='left', padx=8)
         ttk.Button(controls, text='关闭', command=self.main.destroy).pack(side='right')
         inputs = ttk.Frame(self.main)
@@ -517,12 +522,26 @@ class PredictMixture(_ResultWindow):
             degree, terms = _saved_model(self.source, frame, self.metadata)
             result = predict_mixture(frame, self.metadata, self.response.get(),
                                      proportions, process, amount, terms, degree,
-                                     doe_metadata=self.source.doe_metadata)
+                                     doe_metadata=self.source.doe_metadata,
+                                     confidence=float(self.confidence.get().rstrip('%')) / 100)
             self.clear()
             self.status.set(result['note'] + '；' + result['status'])
             self.show_table('预测', ['响应', '预测值', '模型快照', '状态'], [[
                 result['response'], result['prediction'], result['snapshot_id'],
                 result['status']]])
+            interval = result['intervals']
+            fmt = lambda value: '—' if value is None else f'{value:.10g}'
+            bounds = lambda low, high: (f'[{fmt(low)}, {fmt(high)}]'
+                                        if interval['status'] == '可用' else '—')
+            self.show_table('预测区间', ['区间', '结果'], [
+                [f"{interval['confidence']:.0%} 均值 CI",
+                 bounds(interval['ci_low'], interval['ci_high'])],
+                [f"{interval['confidence']:.0%} 单次观测 PI",
+                 bounds(interval['pi_low'], interval['pi_high'])],
+                ['状态', interval['reason'] or
+                 f"可用；df={interval['df']}；置信度={interval['confidence']:.0%}；"
+                 + interval['assumption']],
+            ])
             self.show_table('实际条件', ['项', '值'], [
                 [key, value] for key, value in result['settings'].items()])
             if result['actual_amounts'] is not None:
@@ -586,6 +605,11 @@ class OptimizeMixture(_ResultWindow):
             entry.insert(0, f'{metadata["spec"]["amount_settings"][variable["variable_id"]]:.6g}')
             entry.pack(side='left', padx=3)
             self.conditions[variable['variable_id']] = entry
+        ttk.Label(conditions, text='置信度').pack(side='left', padx=(8, 3))
+        self.confidence = ttk.Combobox(
+            conditions, values=('90%', '95%', '99%'), state='readonly', width=6)
+        self.confidence.set('95%')
+        self.confidence.pack(side='left')
         ttk.Button(conditions, text='优化', command=self.optimize).pack(side='left', padx=8)
         self.status = tk.StringVar(value='')
         ttk.Label(self.main, textvariable=self.status).pack(fill='x', padx=8)
@@ -612,9 +636,10 @@ class OptimizeMixture(_ResultWindow):
             degree, terms = _saved_model(self.source, frame, self.metadata)
             result = optimize_mixture(frame, self.metadata, objectives, conditions,
                                       terms=terms, degree=degree,
-                                      doe_metadata=self.source.doe_metadata)
+                                      doe_metadata=self.source.doe_metadata,
+                                      confidence=float(self.confidence.get().rstrip('%')) / 100)
             self.clear()
-            self.status.set(result['status'])
+            self.status.set(result['status'] + '；' + result['interval_note'])
             self.show_table('优化结果', ['状态', '可行', '目标函数', '约束残差', '起点数',
                                          '综合期望', '停止原因'], [[
                 result['status'], result['feasible'], result['objective'],
@@ -629,9 +654,21 @@ class OptimizeMixture(_ResultWindow):
                 self.show_table('固定条件', ['变量', '设定'], [
                     [key, value] for key, value in result['settings'].items()
                     if key not in result['components']])
-            self.show_table('响应预测', ['响应', '目标', '目标值', '预测值', '期望值'], [
+            def format_interval(interval, low, high):
+                if interval['status'] != '可用':
+                    return '—'
+                return f'[{interval[low]:.10g}, {interval[high]:.10g}]'
+
+            self.show_table('响应预测', [
+                '响应', '目标', '目标值', '预测值', '期望值', '均值 CI', '单次观测 PI',
+                '残差 df', '置信度', '区间状态'], [
                 [item['response'], item['goal'], item.get('target'), item.get('prediction'),
-                 item.get('desirability')] for item in result['objectives']])
+                 item.get('desirability'),
+                 format_interval(item['intervals'], 'ci_low', 'ci_high'),
+                 format_interval(item['intervals'], 'pi_low', 'pi_high'),
+                 item['intervals']['df'], f"{item['intervals']['confidence']:.0%}",
+                 item['intervals']['reason'] or '可用']
+                for item in result['objectives']])
         except (ValueError, TypeError, OverflowError) as exc:
             messagebox.showerror('混料优化', str(exc), parent=self.main)
 

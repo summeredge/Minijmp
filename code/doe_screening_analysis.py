@@ -21,10 +21,48 @@ def _lenth_pse(effects, tolerance):
     return {'pse': pse, 'margin': float(stats.t.ppf(.975, df) * pse), 'df': df}
 
 
-def _fit(coded, y, names, selected, nuisance=(), allow_rank_deficiency=False):
+def _alias_projection(base, base_terms, model_terms, model_labels):
+    """把候选项投影到基础模型；秩亏时遮蔽不可唯一估计的系数。"""
+    u, singular, vh = np.linalg.svd(base, full_matrices=base.shape[1] > base.shape[0])
+    tolerance = (np.finfo(float).eps * max(base.shape) * singular[0]
+                 if len(singular) else 0.0)
+    rank = int(np.count_nonzero(singular > tolerance))
+    nullspace = vh[rank:]
+    coefficient_tolerance = 8 * np.finfo(float).eps * max(base.shape)
+    unique = (np.linalg.norm(nullspace, axis=0) <= coefficient_tolerance
+              if len(nullspace) else np.ones(base.shape[1], dtype=bool))
+    coefficients = ((vh[:rank].T / singular[:rank])
+                    @ (u[:, :rank].T @ model_terms))
+    estimable = np.broadcast_to(unique[:, None], coefficients.shape)
+    values = np.where(estimable, coefficients, np.nan)
+    relationships = []
+    for i, base_term in enumerate(base_terms):
+        for j, model_term in enumerate(model_labels):
+            estimable_pair = bool(estimable[i, j])
+            relationships.append({'main': base_term, 'effect': model_term,
+                                  'coefficient': float(coefficients[i, j]) if estimable_pair else None,
+                                  'estimable': estimable_pair})
+    matrix = {'rows': list(base_terms), 'columns': list(model_labels),
+              'values': [[float(value) if np.isfinite(value) else None for value in row]
+                         for row in values]}
+    return matrix, relationships
+
+
+def _model_matrix(coded, names, selected, nuisance=()):
     positions = {name: i for i, name in enumerate(names)}
-    x = np.column_stack([np.ones(len(y))] + [np.prod(coded[:, [positions[n] for n in term]], axis=1)
-                                            for term in selected] + list(nuisance))
+    columns = [np.ones(len(coded))] + [
+        np.prod(coded[:, [positions[name] for name in term]], axis=1)
+        for term in selected
+    ] + list(nuisance)
+    labels = ['截距'] + [f'{term[0]}²' if len(term) == 2 and term[0] == term[1]
+                         else '*'.join(term) for term in selected]
+    return np.column_stack(columns), labels
+
+
+def _fit(coded, y, names, selected, nuisance=(), allow_rank_deficiency=False,
+         fit_matrix=None):
+    x = fit_matrix if fit_matrix is not None else _model_matrix(
+        coded, names, selected, nuisance)[0]
     beta, _, rank, _ = np.linalg.lstsq(x, y, rcond=None)
     n, p = x.shape
     if rank != p and not allow_rank_deficiency:
@@ -34,7 +72,7 @@ def _fit(coded, y, names, selected, nuisance=(), allow_rank_deficiency=False):
     unit_cov = None
     contrast_tolerance = 8 * np.finfo(float).eps * max(n, p)
     if rank != p:
-        _, singular, vh = np.linalg.svd(x, full_matrices=True)
+        _, singular, vh = np.linalg.svd(x, full_matrices=p > n)
         nullspace = vh[int(rank):]
         estimable = np.linalg.norm(nullspace, axis=0) <= contrast_tolerance
         unit_cov = (vh[:rank].T / singular[:rank]**2) @ vh[:rank]
@@ -58,7 +96,8 @@ def _fit(coded, y, names, selected, nuisance=(), allow_rank_deficiency=False):
     else:
         mse = sse / df
         if unit_cov is None:
-            unit_cov = np.linalg.inv(x.T @ x)
+            _, singular, vh = np.linalg.svd(x, full_matrices=False)
+            unit_cov = (vh.T / singular**2) @ vh
         se = np.sqrt(np.diag(unit_cov) * mse)
         se[~estimable] = np.nan
         t = beta / se
@@ -151,8 +190,11 @@ def analyze_pb(frame, metadata, response, terms=None):
         for block in range(2, design.spec.block_count + 1):
             nuisance.append(np.asarray([run.block == block for run in design.runs], dtype=float))
             nuisance_names.append(f'区组{block}')
+    fit_matrix, fit_terms = _model_matrix(coded, names, selected, nuisance)
+    positions = {name: i for i, name in enumerate(names)}
+    fit_terms += nuisance_names
     beta, rank, n, p, fitted, residuals, sse, sst, ssr, df, inference, status, _ = _fit(
-        coded, y, names, selected, nuisance)
+        coded, y, names, selected, nuisance, fit_matrix=fit_matrix)
     lenth = None
     if df == 0:
         if selected == main and not nuisance:
@@ -168,6 +210,15 @@ def analyze_pb(frame, metadata, response, terms=None):
             if coefficient:
                 projections.append({'main': name, 'interaction': f'{names[a]}*{names[b]}',
                                     'projection': coefficient})
+    all_terms = list(main) + list(combinations(names, 2))
+    omitted_terms = [term for term in all_terms if term not in selected]
+    alias_labels = [f'{term[0]}²' if len(term) == 2 and term[0] == term[1] else '*'.join(term)
+                    for term in omitted_terms]
+    alias_terms = (np.column_stack([np.prod(coded[:, [positions[name] for name in term]], axis=1)
+                                    for term in omitted_terms]) if omitted_terms
+                   else np.empty((len(y), 0)))
+    alias_matrix, alias_relations = _alias_projection(fit_matrix, fit_terms,
+                                                      alias_terms, alias_labels)
     cells = {}
     for run, levels, value in zip(design.runs, coded, y):
         cells.setdefault((run.block, tuple(levels)), []).append(value)
@@ -186,6 +237,9 @@ def analyze_pb(frame, metadata, response, terms=None):
             'rank': int(rank), 'df': df, 'sse': sse, 'sst': sst,
             'ssr': ssr, 'inference': inference, 'status': status,
             'projections': projections, 'lenth': lenth, 'pure_error_df': pure_df,
+            'alias_matrix': alias_matrix,
+            'alias_relations': alias_relations, 'fit_terms': fit_terms,
+            'fit_matrix': fit_matrix,
             'pure_error_sse': pure_sse if pure_df else None, 'curvature': curvature,
             'assumption': ('主效应可能与未纳入模型的交互部分或完全混杂；投影不代表因果效应。'
                            + ('中心点只能检验整体曲率，不能独立估计各平方项。' if center.any() else ''))}
@@ -230,14 +284,28 @@ def analyze_dsd(frame, metadata, response, terms=None):
     block_names = [f'区组{block}' for block in range(2, (design.spec.block_count or 1) + 1)]
     block_columns = [np.asarray([run.block == block for run in design.runs], dtype=float)
                      for block in range(2, (design.spec.block_count or 1) + 1)]
+    n = len(y)
+    positions = {name: i for i, name in enumerate(names)}
+    fit_matrix, fit_terms = _model_matrix(coded, names, selected, block_columns)
+    fit_terms += block_names
     beta, rank, n, p, fitted, residuals, sse, sst, ssr, df, inference, status, details = _fit(
-        coded, y, names, selected, block_columns, allow_rank_deficiency=True)
+        coded, y, names, selected, block_columns, allow_rank_deficiency=True,
+        fit_matrix=fit_matrix)
     main_matrix = np.column_stack([np.ones(n), coded] + block_columns)
     projections = []
     second_order = [(f'{f.factor_id}²', coded[:, i] ** 2) for i, f in enumerate(factors)
                     if f.factor_type == 'continuous']
     second_order += [(f'{names[a]}*{names[b]}', coded[:, a] * coded[:, b])
                      for a, b in combinations(range(len(names)), 2)]
+    all_terms = list(main) + list(squares) + list(combinations(names, 2))
+    omitted_terms = [term for term in all_terms if term not in selected]
+    alias_labels = [f'{t[0]}²' if len(t) == 2 and t[0] == t[1] else '*'.join(t)
+                    for t in omitted_terms]
+    alias_terms = (np.column_stack([np.prod(coded[:, [positions[name] for name in term]], axis=1)
+                                    for term in omitted_terms]) if omitted_terms
+                   else np.empty((n, 0)))
+    alias_matrix, alias_relations = _alias_projection(fit_matrix, fit_terms,
+                                                      alias_terms, alias_labels)
     all_projections = np.linalg.lstsq(main_matrix, np.column_stack([column for _, column in second_order]), rcond=None)[0]
     for (label, _), projection in zip(second_order, all_projections.T):
         for name, value in zip(['截距'] + names + block_names, projection):
@@ -247,7 +315,6 @@ def analyze_dsd(frame, metadata, response, terms=None):
     selected_interactions = [t for t in selected if len(t) == 2 and t[0] != t[1]]
     nonlinear_projections = []
     if selected_squares and selected_interactions:
-        positions = {name: i for i, name in enumerate(names)}
         linear = np.column_stack([np.ones(n)] + [coded[:, positions[t[0]]] for t in selected if len(t) == 1] + block_columns)
         nonlinear = selected_squares + selected_interactions
         columns = np.column_stack([coded[:, positions[a]] * coded[:, positions[b]] for a, b in nonlinear])
@@ -270,6 +337,9 @@ def analyze_dsd(frame, metadata, response, terms=None):
             'rank': int(rank), 'df': df, 'sse': sse, 'sst': sst,
             'ssr': ssr, 'inference': inference, 'status': status,
             'projections': projections, 'nonlinear_projections': nonlinear_projections,
+            'alias_matrix': alias_matrix,
+            'alias_relations': alias_relations, 'fit_terms': fit_terms,
+            'fit_matrix': fit_matrix,
             'nullspace': details['nullspace'],
             'estimable': details['estimable'], '_fit_details': details,
             'effect_indices': tuple(range(1, len(selected) + 1)),
