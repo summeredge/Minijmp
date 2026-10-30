@@ -4,15 +4,16 @@ from __future__ import annotations
 from doe_mixture import MixtureSpec
 from doe_mixture_analysis import analyze_mixture
 from doe_mixture_constraints import (
-    MixtureConstraintError, check_point, normalize_proportions,
+    MixtureConstraintError, actual_amounts, check_point, normalize_proportions,
 )
 from doe_mixture_model import predict_row
 
 
 def predict_mixture(frame, metadata, response, proportions, process=None,
-                    amount=None, terms=None, degree=2):
+                    amount=None, terms=None, degree=2, *, doe_metadata=None):
     """给定实际组分比例与工艺条件，返回预测及模型范围。"""
-    analysis = analyze_mixture(frame, metadata, response, terms, degree)
+    analysis = analyze_mixture(frame, metadata, response, terms, degree,
+                               doe_metadata=doe_metadata)
     spec = analysis['spec']
     if not isinstance(proportions, (list, tuple, dict)):
         raise MixtureConstraintError('组分比例必须是列表或映射')
@@ -45,9 +46,16 @@ def predict_mixture(frame, metadata, response, proportions, process=None,
                                                     declared[variable.variable_id])
     # 变量范围由 to_coded 再次核验，非有限值在编码/预测处拒绝。
     prediction = predict_row(analysis['model'], analysis['coefficients'], settings)
+    amounts = None
+    if spec.amount_variables:
+        total = settings[spec.amount_variables[0].variable_id]
+        if total > 0:
+            amounts = dict(zip(spec.component_ids, actual_amounts(values, total)))
+    proportion_map = dict(zip(spec.component_ids, values))
     return {
         'response': response, 'prediction': prediction, 'settings': settings,
-        'proportions': dict(settings), 'terms': analysis['terms'],
+        'proportions': proportion_map, 'actual_amounts': amounts,
+        'terms': analysis['terms'],
         'model': analysis['model'], 'spec': spec,
         'snapshot_id': analysis['snapshot_id'],
         'model_range': {item.component_id: [item.lower, item.upper]

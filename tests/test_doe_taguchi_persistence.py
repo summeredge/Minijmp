@@ -32,6 +32,7 @@ def spec_for(array_id, count):
 @pytest.mark.parametrize("array_id,count,expected", [
     ("L8(2^7)", 4, 8), ("L9(3^4)", 4, 9), ("L18(2^1 3^7)", 7, 18),
     ("L16(4^5)", 5, 16), ("L25(5^6)", 6, 25),
+    ("L8(4^1 2^4)", 5, 8), ("L16(4^1 2^12)", 13, 16),
 ])
 def test_project_roundtrip_keeps_original_observations(array_id, count, expected):
     spec = spec_for(array_id, count)
@@ -158,6 +159,8 @@ def noise_spec():
     (lambda: spec_for("L18(2^1 3^7)", 7), "static", None),
     (lambda: spec_for("L16(4^5)", 5), "static", None),
     (lambda: spec_for("L25(5^6)", 6), "static", None),
+    (lambda: spec_for("L8(4^1 2^4)", 5), "static", None),
+    (lambda: spec_for("L16(4^1 2^12)", 13), "static", None),
     (dynamic_spec, "dynamic", (1.0, 2.0, 3.0)),
 ])
 def test_dexpl_roundtrip_covers_every_array_family(

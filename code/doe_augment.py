@@ -456,6 +456,11 @@ def augment_mixture(parent_frame, parent_mixture, parent_doe,
         raise ValueError('batch_id 必须是非空字符串')
     if batch_id == 'BASE':
         raise ValueError('增补 batch_id 不能使用保留值 BASE')
+    if (not isinstance(parent_mixture, dict)
+            or not isinstance(candidate_mixture, dict)
+            or parent_mixture.get('schema_version') != 1
+            or candidate_mixture.get('schema_version') != 1):
+        raise ValueError('Schema 2 改善设计不能作为普通 append-only 增补来源')
 
     parent_spec, parent_rows, parent_design = _mixture_source(
         parent_frame, parent_mixture, parent_doe)
@@ -648,7 +653,7 @@ def augment_mixture(parent_frame, parent_mixture, parent_doe,
     result_mixture = mixture_metadata(result, result_mixture_spec)
     model_config = mixture_model_config(
         result, result_mixture, result_mixture_spec.response_names[0],
-        model.degree, model.terms)
+        model.degree, model.terms, result_doe)
 
     summary = dict(chosen)
     summary.update({

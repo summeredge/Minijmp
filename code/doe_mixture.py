@@ -15,6 +15,7 @@ from doe_mixture_constraints import (
 
 
 MIXTURE_SCHEMA_VERSION = 1
+MIXTURE_METADATA_SCHEMA_VERSION = 2
 MIXTURE_TYPES = ('simplex_lattice', 'simplex_centroid', 'extreme_vertices')
 _SPEC_KEYS = {
     'schema_version', 'design_id', 'design_type', 'degree', 'components',
@@ -22,6 +23,7 @@ _SPEC_KEYS = {
     'linear_constraints', 'response_names', 'seed', 'construction_version',
 }
 _META_KEYS = {'schema_version', 'spec', 'worksheet'}
+_META_V2_KEYS = _META_KEYS | {'improvement_lineage'}
 _MODEL_KEYS = {'response', 'degree', 'terms', 'input_fingerprint'}
 
 
@@ -56,7 +58,7 @@ class MixtureSpec:
     def __post_init__(self):
         if self.schema_version != MIXTURE_SCHEMA_VERSION:
             raise MixtureConstraintError('未知混料 schema_version')
-        if self.construction_version != 'v1':
+        if self.construction_version not in ('v1', 'v2'):
             raise MixtureConstraintError('未知混料构造版本')
         if not isinstance(self.design_id, str) or not self.design_id:
             raise MixtureConstraintError('design_id 必须是非空字符串')
@@ -100,6 +102,13 @@ class MixtureSpec:
             raise MixtureConstraintError('当前仅支持一个总量变量')
         if len(process) > 6:
             raise MixtureConstraintError('过程变量最多支持 6 个')
+        if self.construction_version == 'v2':
+            if not 2 <= len(components) <= 4:
+                raise MixtureConstraintError('混料联合 v2 需要 2–4 个组分')
+            if len(process) > 3 or len(amount) != 1:
+                raise MixtureConstraintError('Mixture v2 支持最多 3 个过程变量和一个总量变量')
+            if amount[0].low <= 0:
+                raise MixtureConstraintError('混料联合 v2 的总量范围必须为正数')
         ids = [item.component_id for item in components]
         ids += [item.variable_id for item in (*process, *amount)]
         if len(set(ids)) != len(ids):
@@ -118,6 +127,8 @@ class MixtureSpec:
             if isinstance(value, bool) or not isinstance(value, (int, float)) \
                     or not math.isfinite(value) or not variable.low <= value <= variable.high:
                 raise MixtureConstraintError(f'总量 {variable.variable_id} 设定超出声明范围')
+            if self.construction_version == 'v2' and value <= 0:
+                raise MixtureConstraintError(f'总量 {variable.variable_id} 必须大于 0')
         object.__setattr__(self, 'amount_settings',
                            tuple((variable.variable_id, float(settings[variable.variable_id]))
                                  for variable in amount))
@@ -284,12 +295,17 @@ def mixture_metadata(frame, spec):
                           'input_fingerprint': input_fingerprint(frame, spec)}}
 
 
-def restore_mixture(frame, metadata):
+def restore_mixture(frame, metadata, doe_metadata=None):
     """严格验证混料元数据、行映射与设计输入摘要。"""
-    if not isinstance(metadata, dict) or set(metadata) != _META_KEYS:
+    if not isinstance(metadata, dict):
         raise MixtureConstraintError('混料元数据结构无效')
-    if metadata['schema_version'] != MIXTURE_SCHEMA_VERSION:
+    version = metadata.get('schema_version')
+    if type(version) is not int or version not in (
+            MIXTURE_SCHEMA_VERSION, MIXTURE_METADATA_SCHEMA_VERSION):
         raise MixtureConstraintError('未知混料元数据 schema_version')
+    expected_keys = _META_KEYS if version == MIXTURE_SCHEMA_VERSION else _META_V2_KEYS
+    if set(metadata) != expected_keys:
+        raise MixtureConstraintError('混料元数据结构无效')
     spec = MixtureSpec.from_dict(metadata['spec'])
     worksheet = metadata['worksheet']
     if not isinstance(worksheet, dict) or set(worksheet) != {
@@ -302,17 +318,50 @@ def restore_mixture(frame, metadata):
         raise MixtureConstraintError('混料输入摘要无效')
     if input_fingerprint(frame, spec) != fingerprint:
         raise MixtureConstraintError('混料设计输入、组分约束或运行映射已变化')
-    return spec, mixture_rows(frame, spec)
+    rows = mixture_rows(frame, spec)
+    if version == MIXTURE_SCHEMA_VERSION and spec.construction_version == 'v2':
+        append_only = False
+        if isinstance(doe_metadata, dict) and type(
+                doe_metadata.get('schema_version')) is int \
+                and doe_metadata['schema_version'] == 5:
+            from doe_core import restore_design_result
+            design = restore_design_result(frame, doe_metadata)
+            if (design.spec.design_type != 'mixture'
+                    or design.spec.design_id != spec.design_id
+                    or design.spec.construction_version != spec.construction_version
+                    or tuple(factor.factor_id for factor in design.spec.factors)
+                    != (*spec.component_ids, *spec.variable_ids)
+                    or design.spec.response_names != spec.response_names):
+                raise MixtureConstraintError('DOE 与 Mixture 设计身份不一致')
+            append_only = design.spec.augmentation_lineage is not None
+        if not append_only:
+            from doe_mixture_designs import validate_mixture_design
+            include_centroid = (spec.design_type != 'extreme_vertices'
+                                or any(item['row']['点类型'] == 'center' for item in rows))
+            validate_mixture_design(frame=frame, spec=spec,
+                                    include_centroid=include_centroid)
+    if version == MIXTURE_METADATA_SCHEMA_VERSION:
+        if (not isinstance(doe_metadata, dict)
+                or type(doe_metadata.get('schema_version')) is not int
+                or doe_metadata['schema_version'] != 5):
+            raise MixtureConstraintError('Mixture Schema 2 必须关联 DOE Schema v5')
+        from doe_mixture_improvement import validate_improvement_lineage
+        validate_improvement_lineage(frame, metadata, doe_metadata)
+    return spec, rows
 
 
-def validate_mixture_metadata(frame, metadata):
-    spec, _ = restore_mixture(frame, metadata)
-    return mixture_metadata(frame, spec)
+def validate_mixture_metadata(frame, metadata, doe_metadata=None):
+    spec, _ = restore_mixture(frame, metadata, doe_metadata)
+    if metadata['schema_version'] == MIXTURE_SCHEMA_VERSION:
+        return mixture_metadata(frame, spec)
+    from copy import deepcopy
+    return deepcopy(metadata)
 
 
-def mixture_model_config(frame, metadata, response, degree, terms):
+def mixture_model_config(frame, metadata, response, degree, terms,
+                         doe_metadata=None):
     """保存最近一次混料分析模型，供重开/复制后恢复。"""
-    spec, _ = restore_mixture(frame, metadata)
+    spec, _ = restore_mixture(frame, metadata, doe_metadata)
     from doe_mixture_model import MixtureTermModel
     model = MixtureTermModel(spec, terms, degree)
     if response not in spec.response_names:
@@ -322,9 +371,9 @@ def mixture_model_config(frame, metadata, response, degree, terms):
             'input_fingerprint': input_fingerprint(frame, spec)}
 
 
-def restore_mixture_model(frame, metadata, config):
+def restore_mixture_model(frame, metadata, config, doe_metadata=None):
     """验证最近模型仍对应当前混料输入；返回 response/degree/terms。"""
-    spec, _ = restore_mixture(frame, metadata)
+    spec, _ = restore_mixture(frame, metadata, doe_metadata)
     if not isinstance(config, dict) or set(config) != _MODEL_KEYS:
         raise MixtureConstraintError('混料模型配置结构无效')
     if config['input_fingerprint'] != input_fingerprint(frame, spec):

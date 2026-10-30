@@ -90,6 +90,157 @@ def test_mixture_gui_full_lifecycle(csv_app, tmp_path, monkeypatch):
     error.assert_not_called()
 
 
+def test_mixture_v2_gui_lifecycle_uses_saved_model_and_actual_amounts(
+        csv_app, tmp_path, monkeypatch):
+    import json
+    from pathlib import Path
+    import doe_mixture_dialog as mixture_dialog
+    from doe_mixture_analysis import analyze_mixture
+    from doe_mixture_predict import predict_mixture
+
+    app, error = csv_app
+    monkeypatch.setattr('doe_mixture_dialog.messagebox.showerror', error)
+    monkeypatch.setattr('worksheets.messagebox.askyesno', lambda *a, **k: True)
+    monkeypatch.setattr('worksheets.messagebox.askyesnocancel', lambda *a, **k: False)
+    reference = json.loads((Path(__file__).parent / 'fixtures'
+                            / 'doe_phase2_p4bc_reference' / 'reference.json').read_text(
+                                encoding='utf-8'))['joint_mixture_process_amount_model']
+    response_by_key = {
+        (tuple(round(float(value), 12) for value in item['proportions']),
+         tuple(item['process_codes']), item['amount_code']): response
+        for item, response in zip(reference['rows'], reference['responses'])}
+
+    create = CreateMixtureDesign(app)
+    create.process_count.set('2')
+    create.update_rows()
+    for index, fields in enumerate(create.processes[:2], 1):
+        for field, value in zip(fields, (f'P{index}', '1', '2', '')):
+            field.delete(0, 'end')
+            field.insert(0, value)
+    create.amount_enabled.set(True)
+    create.update_rows()
+    for key, value in (('name', 'T'), ('low', '100'), ('high', '200'),
+                       ('fixed', '150'), ('unit', 'g')):
+        create.amount[key].delete(0, 'end')
+        create.amount[key].insert(0, value)
+    for entry, value in zip(create.amount['levels'], ('100', '150', '200')):
+        entry.insert(0, value)
+    children = set(create.main.winfo_children())
+    create.preview()
+    assert '72 次运行' in create.preview_text.get()
+    for child in create.main.winfo_children():
+        if child not in children:
+            child.destroy()
+    create.create()
+    create.main.destroy()
+    source_name = app.getCurrentSheet()
+    source = app.getCurrentTable()
+    frame = source.model.df
+    assert source.mixture_metadata['spec']['construction_version'] == 'v2'
+    assert source.mixture_metadata['spec']['amount_settings'] == {'T': 150.0}
+
+    def row_key(row):
+        proportions = tuple(round(float(row[f'设定_{key}']), 12)
+                            for key in ('A', 'B', 'C'))
+        process = tuple(-1 if row[f'设定_P{index}'] == 1 else 1
+                        for index in (1, 2))
+        amount = 2 * (row['设定_T'] - 100) / 100 - 1
+        return proportions, process, amount
+
+    frame['响应_Y'] = [response_by_key[row_key(row)] for _, row in frame.iterrows()]
+    before = frame.copy(deep=True)
+    metadata = source.mixture_metadata.copy()
+    path = tmp_path / 'mixture-v2.dexpl'
+    assert app._save_project(path)
+    assert app.new_file()
+    assert app.load_file(path)
+    source = app.sheets[source_name]
+    assert_frame_equal(source.model.df, before)
+    assert source.mixture_metadata == metadata
+    copied = app.copySheet()
+    assert copied.mixture_metadata == metadata
+    app.nb.select(app.sheetframes[source_name])
+    source = app.getCurrentTable()
+
+    analysis = AnalyzeMixtureDesign(app)
+    analysis.degree.set('1')
+    analysis.terms.insert(0, 'A;B;C')
+    analysis.analyze()
+    assert analysis.result['rank'] == 3
+    assert source.mixture_model['terms'] == ['A', 'B', 'C']
+    saved_model = source.mixture_model.copy()
+    analysis.main.destroy()
+
+    path = tmp_path / 'mixture-v2-model.dexpl'
+    assert app._save_project(path)
+    assert app.new_file()
+    assert app.load_file(path)
+    source = app.sheets[source_name]
+    assert source.mixture_model == saved_model
+    app.nb.select(app.sheetframes[source_name])
+    source = app.getCurrentTable()
+    frame = source.model.df.copy(deep=True)
+
+    predictor = PredictMixture(app)
+    for key, value in (('A', str(1 / 3)), ('B', str(1 / 3)), ('C', str(1 / 3)),
+                       ('P1', '1'), ('P2', '2'), ('T', '175')):
+        predictor.entries[key].delete(0, 'end')
+        predictor.entries[key].insert(0, value)
+    expected = predict_mixture(
+        frame, source.mixture_metadata, 'Y', {'A': 1 / 3, 'B': 1 / 3, 'C': 1 / 3},
+        {'P1': 1, 'P2': 2}, {'T': 175}, terms=saved_model['terms'], degree=1)
+    predictor.predict()
+    prediction_tab = predictor.tabs.nametowidget(predictor.tabs.tabs()[0])
+    prediction_table = next(child.table for child in prediction_tab.winfo_children()
+                            if hasattr(child, 'table'))
+    assert prediction_table.values[0][1] == pytest.approx(expected['prediction'])
+    actual_tab = predictor.tabs.nametowidget(predictor.tabs.tabs()[2])
+    actual_table = next(child.table for child in actual_tab.winfo_children()
+                        if hasattr(child, 'table'))
+    assert sum(row[1] for row in actual_table.values) == pytest.approx(175)
+    predictor.main.destroy()
+
+    optimizer = OptimizeMixture(app)
+    for key, value in (('P1', '1'), ('P2', '2'), ('T', '175')):
+        optimizer.conditions[key].delete(0, 'end')
+        optimizer.conditions[key].insert(0, value)
+    original_optimize = mixture_dialog.optimize_mixture
+    calls = []
+
+    def checked_optimize(*args, **kwargs):
+        calls.append((kwargs.get('terms'), kwargs.get('degree'), args[3]))
+        return original_optimize(*args, **kwargs)
+
+    monkeypatch.setattr(mixture_dialog, 'optimize_mixture', checked_optimize)
+    optimizer.optimize()
+    assert calls[0][0] == tuple(saved_model['terms'])
+    assert calls[0][1] == saved_model['degree']
+    assert calls[0][2] == {'P1': 1, 'P2': 2, 'T': 175}
+    assert any(optimizer.tabs.tab(tab, 'text') == '实际组分用量'
+               for tab in optimizer.tabs.tabs())
+    optimizer.main.destroy()
+
+    original_analyze = mixture_dialog.analyze_mixture
+    plot_calls = []
+
+    def checked_analyze(*args, **kwargs):
+        plot_calls.append((kwargs.get('terms'), kwargs.get('degree')))
+        return original_analyze(*args, **kwargs)
+
+    monkeypatch.setattr(mixture_dialog, 'analyze_mixture', checked_analyze)
+    plots = MixturePlots(app)
+    plots.entries['T'].delete(0, 'end')
+    plots.entries['T'].insert(0, '175')
+    plots.entries['P1'].delete(0, 'end')
+    plots.entries['P1'].insert(0, '1')
+    plots.entries['P2'].delete(0, 'end')
+    plots.entries['P2'].insert(0, '2')
+    plots.draw()
+    assert plot_calls == [(tuple(saved_model['terms']), saved_model['degree'])]
+    plots.main.destroy()
+    error.assert_not_called()
+
+
 def test_mixture_gui_invalid_configuration_keeps_workbook(csv_app, monkeypatch):
     app, error = csv_app
     monkeypatch.setattr('doe_mixture_dialog.messagebox.showerror', error)
@@ -239,6 +390,78 @@ def test_mixture_optimal_gui_selection_augmentation_and_persistence(
     assert analysis.result is not None
     analysis.main.destroy()
     assert error.call_count == 2
+
+
+def test_mixture_improve_gui_lifecycle_after_source_sheets_are_deleted(
+        csv_app, monkeypatch, tmp_path):
+    from test_doe_mixture_improve import _oracle_sources
+
+    from doe_mixture_dialog import MixtureOptimalDesignDialog
+
+    app, error = csv_app
+    monkeypatch.setattr('doe_mixture_dialog.messagebox.showerror', error)
+    monkeypatch.setattr('worksheets.messagebox.askyesno', lambda *a, **k: True)
+    monkeypatch.setattr('worksheets.messagebox.askyesnocancel', lambda *a, **k: False)
+    case, parent, parent_mixture, parent_doe, candidates, candidate_mixture, candidate_doe = \
+        _oracle_sources()
+    parent_table = app.addSheet(
+        'Improve Parent', parent,
+        {'doe': parent_doe, 'mixture': parent_mixture})
+    candidate_table = app.addSheet(
+        'Improve Candidates', candidates,
+        {'doe': candidate_doe, 'mixture': candidate_mixture})
+    parent_original = parent.copy(deep=True)
+    candidate_original = candidates.copy(deep=True)
+
+    dialog = MixtureOptimalDesignDialog(app)
+    dialog.operation.set('改善')
+    dialog._operation_changed()
+    dialog.parent_sheet.set('Improve Parent')
+    dialog._parent_changed()
+    dialog.candidate.set('Improve Candidates')
+    dialog._candidate_changed()
+    dialog.degree.set('1')
+    dialog._default_terms()
+    dialog.run_tree.selection_set('p2')
+    dialog._toggle_run_state()
+    assert dialog.run_tree.item('p0', 'values')[1] == '已保护'
+    assert dialog.run_tree.item('p1', 'values')[1] == '已保护'
+    assert dialog.run_tree.item('p2', 'values')[1] == '可替换'
+    dialog.preview()
+    assert 'rank 3' in dialog.preview_text.get('1.0', 'end')
+    assert 'CAND-C' in dialog.preview_text.get('1.0', 'end')
+    assert parent_table.model.df.equals(parent_original)
+    assert candidate_table.model.df.equals(candidate_original)
+    dialog.create()
+
+    improved_name = app.getCurrentSheet()
+    improved = app.getCurrentTable()
+    improved_frame = improved.model.df.copy(deep=True)
+    assert improved.mixture_metadata['schema_version'] == 2
+    assert improved.doe_metadata['schema_version'] == 5
+    assert improved_frame['运行ID'].tolist() == case['after']['run_ids']
+    assert pd.isna(improved_frame.loc[2, '响应_Y'])
+
+    for name in ('Improve Parent', 'Improve Candidates'):
+        app.nb.select(app.sheetframes[name])
+        app._sheet_changed()
+        assert app.deleteSheet()
+    assert 'Improve Parent' not in app.sheets
+    assert 'Improve Candidates' not in app.sheets
+
+    path = tmp_path / 'mixture-improve.dexpl'
+    assert app._save_project(path)
+    assert app.new_file()
+    assert app.load_file(path)
+    assert improved_name in app.sheets
+    restored = app.sheets[improved_name]
+    assert_frame_equal(restored.model.df, improved_frame)
+    assert restored.mixture_metadata['improvement_lineage'] == \
+        improved.mixture_metadata['improvement_lineage']
+    copied = app.copySheet()
+    assert copied.mixture_metadata == restored.mixture_metadata
+    assert copied.doe_metadata == restored.doe_metadata
+    assert error.call_count == 0
 
 
 def test_mixture_gui_high_dimensional_slice(csv_app, monkeypatch):

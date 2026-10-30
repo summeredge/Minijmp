@@ -5,6 +5,7 @@ import pickle
 import posixpath
 import tempfile
 import zipfile
+from copy import deepcopy
 from decimal import Decimal, InvalidOperation
 from numbers import Number
 from pathlib import Path
@@ -246,31 +247,40 @@ class Worksheets:
                            if validate_doe else doe)
         mixture = getattr(table, 'mixture_metadata', None)
         if mixture is not None:
-            from doe_mixture import validate_mixture_metadata
-            meta['mixture'] = (validate_mixture_metadata(self._full_frame(table), mixture)
-                               if validate_doe else mixture)
             model = getattr(table, 'mixture_model', None)
-            if model is not None:
+            if validate_doe and model is not None:
                 from doe_mixture import restore_mixture_model
-                if validate_doe:
-                    restore_mixture_model(self._full_frame(table), mixture, model)
-                meta['mixture_model'] = (dict(model) if validate_doe else model)
+                restore_mixture_model(self._full_frame(table), mixture, model, doe)
+                meta['mixture'] = deepcopy(mixture)
+                meta['mixture_model'] = dict(model)
+            elif validate_doe:
+                from doe_mixture import validate_mixture_metadata
+                meta['mixture'] = validate_mixture_metadata(
+                    self._full_frame(table), mixture, doe)
+            else:
+                meta['mixture'] = mixture
+                if model is not None:
+                    meta['mixture_model'] = model
         return meta
 
     def loadMeta(self, table, meta):
         if not isinstance(meta, dict):
             return
-        doe = (validate_worksheet_metadata(self._full_frame(table), meta['doe'])
-               if 'doe' in meta else None)
+        raw_doe = meta.get('doe')
+        doe = (validate_worksheet_metadata(self._full_frame(table), raw_doe)
+               if raw_doe is not None else None)
         mixture = None
         mixture_model = None
         if 'mixture' in meta:
             from doe_mixture import restore_mixture_model, validate_mixture_metadata
-            mixture = validate_mixture_metadata(self._full_frame(table), meta['mixture'])
             if 'mixture_model' in meta:
-                restore_mixture_model(self._full_frame(table), mixture,
-                                      meta['mixture_model'])
+                restore_mixture_model(self._full_frame(table), meta['mixture'],
+                                      meta['mixture_model'], raw_doe)
+                mixture = deepcopy(meta['mixture'])
                 mixture_model = dict(meta['mixture_model'])
+            else:
+                mixture = validate_mixture_metadata(
+                    self._full_frame(table), meta['mixture'], raw_doe)
         table.doe_metadata = doe
         table.mixture_metadata = mixture
         table.mixture_model = mixture_model

@@ -204,7 +204,38 @@ def _process_combinations(spec):
             for signs in product((-1, 1), repeat=len(variables))]
 
 
-def create_mixture_design(spec, replicates=1, *, include_centroid=True):
+def _amount_values(spec, amount_levels):
+    if not spec.amount_variables:
+        if amount_levels is not None:
+            raise MixtureConstraintError('设计未声明总量变量')
+        return ()
+    default = dict(spec.amount_settings)[spec.amount_variables[0].variable_id]
+    if spec.construction_version == 'v1':
+        if amount_levels is not None:
+            raise MixtureConstraintError('Mixture v1 使用固定总量设定')
+        return (default,)
+    if not isinstance(amount_levels, (tuple, list)) or not 2 <= len(amount_levels) <= 3:
+        raise MixtureConstraintError('混料联合 v2 需要 2–3 个总量水平')
+    variable = spec.amount_variables[0]
+    values = []
+    for value in amount_levels:
+        if isinstance(value, bool) or not isinstance(value, (int, float)) \
+                or not math.isfinite(value) or value <= 0 \
+                or not variable.low <= value <= variable.high:
+            raise MixtureConstraintError('总量水平必须是范围内的有限正数')
+        values.append(float(value))
+    if len(set(values)) != len(values):
+        raise MixtureConstraintError('总量水平不得重复')
+    if any(abs(first - second) <= TOLERANCE
+           for index, first in enumerate(values) for second in values[index + 1:]):
+        raise MixtureConstraintError('总量水平间距必须大于数值校验容差')
+    if default not in values:
+        raise MixtureConstraintError('默认总量设定必须是一个实际总量水平')
+    return tuple(values)
+
+
+def create_mixture_design(spec, replicates=1, *, include_centroid=True,
+                          amount_levels=None):
     """生成混料工作表并返回 DOE v4 + mixture 两层元数据。"""
     if not isinstance(spec, MixtureSpec):
         raise MixtureConstraintError('spec 必须是 MixtureSpec')
@@ -218,20 +249,24 @@ def create_mixture_design(spec, replicates=1, *, include_centroid=True):
             raise MixtureConstraintError(f'运行总数不能超过 {MAX_RUNS}')
     points = design_points(spec, include_centroid=include_centroid)
     processes = _process_combinations(spec)
-    total = len(points) * len(processes) * replicates
+    levels = _amount_values(spec, amount_levels)
+    amount_combinations = ([{spec.amount_variables[0].variable_id: value}
+                            for value in levels] if levels else [{}])
+    total = len(points) * len(processes) * len(amount_combinations) * replicates
     if total > MAX_RUNS:
         raise MixtureConstraintError(f'运行总数不能超过 {MAX_RUNS}')
-    amount = dict(spec.amount_settings)
     base_rows = []
     for point, kind, source in points:
         for process in processes:
-            base_rows.append((point, kind, source, process))
+            for amount in amount_combinations:
+                base_rows.append((point, kind, source, process, amount))
     ids = [f'R{index:05d}' for index in range(1, total + 1)]
     standard = []
     for replicate in range(1, replicates + 1):
-        for point, kind, source, process in base_rows:
+        for point, kind, source, process, amount in base_rows:
             standard.append({'point': point, 'kind': kind, 'source': source,
-                             'process': process, 'replicate': replicate})
+                             'process': process, 'amount': amount,
+                             'replicate': replicate})
     order = {}
     for replicate in range(1, replicates + 1):
         block_ids = [ids[index] for index, row in enumerate(standard)
@@ -248,7 +283,7 @@ def create_mixture_design(spec, replicates=1, *, include_centroid=True):
         item.update({f'设定_{component_id}': value
                      for component_id, value in zip(component_ids, row['point'])})
         item.update({f'设定_{key}': value for key, value in row['process'].items()})
-        item.update({f'设定_{key}': value for key, value in amount.items()})
+        item.update({f'设定_{key}': value for key, value in row['amount'].items()})
         item.update({f'响应_{name}': None for name in spec.response_names})
         data.append(item)
     columns = ['运行ID', '标准序', '运行序', '点类型', '重复', '点来源']
@@ -262,20 +297,30 @@ def create_mixture_design(spec, replicates=1, *, include_centroid=True):
     return frame, {'doe': doe_meta, 'mixture': mixture_metadata(frame, spec)}
 
 
-def validate_mixture_design(spec, frame, *, include_centroid=True):
+def validate_mixture_design(spec, frame, *, include_centroid=True,
+                            amount_levels=None):
     """核验运行总数、点集、过程组合、重复、顺序与总和。"""
+    rows = mixture_rows(frame, spec)
+    if spec.construction_version == 'v2' and amount_levels is None:
+        amount_id = spec.amount_variables[0].variable_id
+        standard_rows = sorted(rows, key=lambda item: item['row']['标准序'])
+        amount_levels = tuple(dict.fromkeys(
+            item['settings'][amount_id] for item in standard_rows))
+    levels = _amount_values(spec, amount_levels)
+    amount_combinations = ([{spec.amount_variables[0].variable_id: value}
+                            for value in levels] if levels else [{}])
     points = design_points(spec, include_centroid=include_centroid)
     processes = _process_combinations(spec)
-    expected = [(point, kind, process)
-                for point, kind, _ in points for process in processes]
+    expected = [(point, kind, process, amount)
+                for point, kind, _ in points for process in processes
+                for amount in amount_combinations]
     replicates = int(frame['重复'].max()) if len(frame) else 0
     if replicates < 1 or len(frame) != len(expected) * replicates:
         raise MixtureConstraintError('混料运行数不是基础设计的整数倍')
-    rows = mixture_rows(frame, spec)
     by_standard = {int(row['row']['标准序']): row for row in rows}
     if set(by_standard) != set(range(1, len(frame) + 1)):
         raise MixtureConstraintError('标准序必须是 1 到运行数的排列')
-    for index, (point, kind, process) in enumerate(expected):
+    for index, (point, kind, process, amount) in enumerate(expected):
         for replicate in range(1, replicates + 1):
             standard = (replicate - 1) * len(expected) + index + 1
             row = by_standard.get(standard)
@@ -289,8 +334,8 @@ def validate_mixture_design(spec, frame, *, include_centroid=True):
             for key, value in process.items():
                 if abs(row['settings'][key] - value) > 1e-9:
                     raise MixtureConstraintError('过程变量组合与设计定义不一致')
-            for key, value in spec.amount_settings:
-                if abs(row['settings'][key] - value) > 1e-9:
+            for key, value in amount.items():
+                if row['settings'][key] != value:
                     raise MixtureConstraintError('总量设定与设计定义不一致')
     if sorted(int(row['row']['运行序']) for row in rows) != list(
             range(1, len(frame) + 1)):

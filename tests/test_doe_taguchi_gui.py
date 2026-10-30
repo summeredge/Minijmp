@@ -245,8 +245,38 @@ def test_target_mean_gui_reports_complete_tied_combinations_and_confirmation_sta
     rows = dict(block.table.values)
     assert rows['预测 SD'] == '不可用'
     assert '加性主效应预测为负' in rows['SD 说明']
-    assert error.call_count == 0
     negative.main.destroy()
+
+    analysis.best_metric.set('先稳健后目标')
+    analysis._best_mode_selected()
+    analysis.best_target.delete(0, 'end')
+    analysis.best_target.insert(0, '20')
+    analysis.best_sn_threshold.insert(0, '-30')
+    original = table.model.df.copy(deep=True)
+    analysis.best()
+    robust = analysis.best_window
+    assert robust.result['selection_mode'] == 'robust_then_target'
+    assert robust.result['sn_threshold'] == pytest.approx(-30)
+    assert [row['settings'] for row in robust.result['tied_combinations']] == [
+        {'A': '低', 'B': '高'}, {'A': '高', 'B': '低'}]
+    robust.confirm_value.insert(0, '19.5')
+    robust.confirm_tolerance.insert(0, '0.5')
+    assert robust.confirm() is True
+    assert robust.result['selection_mode'] == 'robust_then_target'
+    assert robust.result['confirmation']['difference'] == pytest.approx(-0.5)
+    assert robust.result['confirmation']['meets_target'] is True
+    assert table.model.df.equals(original)
+    robust.main.destroy()
+
+    analysis.best_sn_threshold.delete(0, 'end')
+    analysis.best_sn_threshold.insert(0, '1000')
+    analysis.best()
+    unreachable = analysis.best_window
+    assert unreachable.result['status_code'] == 'target_unreachable'
+    assert unreachable.result['best'] is None
+    assert str(unreachable.confirm_button.cget('state')) == 'disabled'
+    assert error.call_count == 0
+    unreachable.main.destroy()
     analysis.main.destroy()
 
 
@@ -290,14 +320,69 @@ def test_l18_gui_rejects_nonorthogonal_selected_columns(csv_app, monkeypatch):
     dialog.array.set('L18(2^1 3^7)')
     dialog.factor_count.set('2')
     dialog.update_rows()
-    for index, column_number in enumerate(('3', '8')):
+    for index, column_number in enumerate(('3', '9')):
         dialog.rows[index][2].delete(0, 'end')
         dialog.rows[index][2].insert(0, '低;中;高')
         dialog.rows[index][3].set(column_number)
         dialog.rows[index][4].set('控制')
     assert dialog.preview() is False
-    assert '3/8' in error.call_args.args[1]
+    assert '3/9' in error.call_args.args[1]
     assert list(app.sheets) == names
+    dialog.main.destroy()
+
+
+def test_mixed_l8_gui_maps_numeric_and_text_levels_by_column_capacity(csv_app):
+    app, _ = csv_app
+    dialog = CreateTaguchi(app)
+    dialog.array.set('L8(4^1 2^4)')
+    dialog.factor_count.set('5')
+    dialog.update_rows()
+    for index, (name, label_type, levels, column, role) in enumerate(dialog.rows[:5]):
+        role.set('控制')
+        column.set(str(index + 1))
+        if index == 0:
+            label_type.set('数值')
+            levels.delete(0, 'end')
+            levels.insert(0, '10;20;30;40')
+        else:
+            label_type.set('文字')
+            levels.delete(0, 'end')
+            levels.insert(0, '低;高')
+    frame, metadata = dialog.build()
+    assert len(frame) == 8
+    assert metadata['design']['taguchi']['array_id'] == 'L8(4^1 2^4)'
+    assert metadata['design']['taguchi']['columns'] == {
+        'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5}
+    assert set(frame['设定_A']) == {10.0, 20.0, 30.0, 40.0}
+    assert set(frame['设定_B']) == {'低', '高'}
+    dialog.main.destroy()
+
+
+def test_l18_noise_selector_displays_official_column_nine_and_maps_it(csv_app):
+    from doe_core import restore_design_result
+
+    app, _ = csv_app
+    dialog = CreateTaguchi(app)
+    dialog.array.set('L4(2^3)')
+    dialog.noise_array.set('L18(2^1 3^7)')
+    dialog.factor_count.set('3')
+    dialog.update_rows()
+    for index, (_, _, levels, column, role) in enumerate(dialog.rows[:2]):
+        role.set('控制')
+        column.set(str(index + 1))
+        levels.delete(0, 'end')
+        levels.insert(0, '低;高')
+    _, _, noise_levels, noise_column, noise_role = dialog.rows[2]
+    noise_role.set('噪声')
+    dialog.update_rows()
+    noise_levels.delete(0, 'end')
+    noise_levels.insert(0, '低;中;高')
+    assert '9' in noise_column.cget('values')
+    assert '8' not in noise_column.cget('values')
+    noise_column.set('9')
+    frame, metadata = dialog.build()
+    assert metadata['design']['taguchi']['noise_columns'] == {'C': 8}
+    assert len(restore_design_result(frame, metadata).runs) == 12
     dialog.main.destroy()
 
 
@@ -390,6 +475,7 @@ def test_dynamic_design_requires_signal_and_roundtrips(csv_app, monkeypatch):
     analysis.analyze()
     assert analysis.result is not None, error.call_args_list
     assert analysis.result['kind'] == 'dynamic'
+    assert '先稳健后目标' not in tuple(analysis.best_metric.cget('values'))
     assert [analysis.tabs.tab(tab, 'text') for tab in analysis.tabs.tabs()][0] == '动态拟合'
     assert {row['df'] for row in analysis.result['combinations']} == {1}
     analysis.plot()
@@ -440,7 +526,7 @@ def test_noise_robustness_window_reports_control_levels(csv_app, monkeypatch):
     window = analysis.noise_window
     assert window.main.title() == 'Taguchi 噪声稳健性'
     assert [window.tabs.tab(tab, 'text') for tab in window.tabs.tabs()] == [
-        '控制设定', '因子水平 S/N', 'Delta/Rank']
+        '控制设定', '噪声设置', '因子水平 S/N', 'Delta/Rank']
     assert window.result['response_table']['best']['A'] == '高'
     window.main.destroy()
     analysis.main.destroy()
@@ -468,7 +554,7 @@ def test_noise_window_displays_zero_sd_and_valid_sn(csv_app, monkeypatch, label,
     values = next(child.table.values for child in tab.winfo_children()
                   if hasattr(child, 'table'))
     assert len(values) == 4
-    assert all(row[4] == 0 and row[5] == pytest.approx(expected, abs=1e-10)
+    assert all(row[6] == 0 and row[8] == pytest.approx(expected, abs=1e-10)
                for row in values)
     assert error.call_count == 0
     window.main.destroy()

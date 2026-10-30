@@ -1,0 +1,58 @@
+{
+  "fixture_id": "doe_phase2_p4bc_reference",
+  "hashes_cover_complete_file_bytes": true,
+  "canonical_matrix_hash": "sha256(canonical JSON; sort_keys; compact separators; UTF-8)",
+  "source": {
+    "official_catalogue_url": "https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/taguchi-designs/catalogue-of-taguchi-designs/",
+    "official_sn_methods_url": "https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/taguchi/analyze-taguchi-design/methods-and-formulas/methods-and-formulas/",
+    "official_two_step_robustness_url": "https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/supporting-topics/taguchi-designs/what-is-the-signal-to-noise-ratio/",
+    "accessed": "2026-10-29",
+    "l16_section": "L16 (2^12), (4^1), official table headings 1..13",
+    "l18_section": "L18 (2^1), (3^7), official table headings 1..7,9",
+    "l18_prior_frozen_csv": "tests/fixtures/doe_taguchi_reference/l18_2_1_3_7.csv",
+    "l18_known_unbalanced_column_positions": [
+      [
+        3,
+        8
+      ],
+      [
+        4,
+        8
+      ],
+      [
+        5,
+        8
+      ],
+      [
+        6,
+        8
+      ],
+      [
+        7,
+        8
+      ]
+    ],
+    "l18_position_8_official_header": 9
+  },
+  "files": {
+    "README.md": {
+      "bytes": 4433,
+      "sha256": "5d1af8a76d05658dfef006278a8465038909ac7b93fd6be3c94c2dcb0b2b69f9"
+    },
+    "reference.json": {
+      "bytes": 190448,
+      "sha256": "f23cad153fd383bfef6be5b0bdb88d37009e338b89e19a3e92935464ba68ebd7"
+    },
+    "build_reference.py": {
+      "bytes": 33936,
+      "sha256": "1f844fbff1a192f51057d0c0b8dad0f41de7c2f122dbe5ac7f4c28d6c6936851"
+    },
+    "verify.py": {
+      "bytes": 31832,
+      "sha256": "59b394b8647e12ac779a83470fdc7f7672d4939bfc3783ed0281fb0e46acc58e"
+    }
+  },
+  "frozen_reference_sha256": "f23cad153fd383bfef6be5b0bdb88d37009e338b89e19a3e92935464ba68ebd7",
+  "generator_sha256": "1f844fbff1a192f51057d0c0b8dad0f41de7c2f122dbe5ac7f4c28d6c6936851",
+  "verifier_sha256": "59b394b8647e12ac779a83470fdc7f7672d4939bfc3783ed0281fb0e46acc58e"
+}

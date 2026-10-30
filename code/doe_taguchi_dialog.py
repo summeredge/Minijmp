@@ -38,6 +38,7 @@ class CreateTaguchi:
                                         state='readonly', width=16)
         self.noise_array.set('（无）')
         self.noise_array.pack(side='left')
+        self.noise_array.bind('<<ComboboxSelected>>', self.update_rows)
         ttk.Label(top, text='因子数').pack(side='left', padx=(12, 2))
         self.factor_count = ttk.Combobox(top, values=tuple(range(2, _MAX_FACTORS + 1)),
                                          state='readonly', width=4)
@@ -72,7 +73,7 @@ class CreateTaguchi:
             role.set('控制')
             role.grid(row=index + 1, column=5, padx=4, pady=2)
             column.bind('<<ComboboxSelected>>', self.update_projection_notice)
-            role.bind('<<ComboboxSelected>>', self.update_projection_notice)
+            role.bind('<<ComboboxSelected>>', self.update_rows)
             self.rows.append((name, label_type, levels, column, role))
         grid.columnconfigure(3, weight=1)
 
@@ -114,10 +115,11 @@ class CreateTaguchi:
 
     def update_rows(self, event=None):
         array = ARRAYS[self.array.get()]
+        noise_id = None if self.noise_array.get() == '（无）' else self.noise_array.get()
+        noise = ARRAYS[noise_id] if noise_id else None
         dynamic = self.kind.get() == 'dynamic'
         capacity = min(_MAX_FACTORS, int(self.factor_count.get()))
-        columns = [str(value) for value in range(1, array.factor_capacity + 1)]
-        used = set()
+        used = {'控制': set(), '噪声': set()}
         for index, (_, _, _, column, role) in enumerate(self.rows):
             visible = index < capacity
             for widget in self.rows[index]:
@@ -127,15 +129,25 @@ class CreateTaguchi:
                     widget.grid_remove()
             if not visible:
                 continue
-            column.configure(values=columns)
             if index >= capacity - (1 if dynamic else 0):
                 role.set('信号' if dynamic else '控制')
                 column.set('')
+                column.configure(values=(), state='disabled')
                 continue
-            if column.get() not in columns or column.get() in used:
-                free = next((value for value in columns if value not in used), '')
+            role_name = role.get()
+            assigned_array = noise if role_name == '噪声' else array
+            columns = ([] if role_name == '信号' or assigned_array is None else
+                       [str(value) for value in assigned_array.column_numbers])
+            column.configure(values=columns,
+                             state='disabled' if role_name == '信号' else 'readonly')
+            if role_name == '信号':
+                column.set('')
+                continue
+            if column.get() not in columns or column.get() in used[role_name]:
+                free = next((value for value in columns if value not in used[role_name]), '')
                 column.set(free)
-            used.add(column.get())
+            if column.get():
+                used[role_name].add(column.get())
         self.update_projection_notice()
 
     @staticmethod
@@ -163,6 +175,7 @@ class CreateTaguchi:
         columns = [int(column.get()) for _, _, _, column, role
                    in self.rows[:count]
                    if role.get() == '控制' and column.get().isdigit()]
+        columns = [array.column_position(column) for column in columns]
         self.limit_label.configure(
             text=self._projection_limit(array, columns))
 
@@ -201,9 +214,9 @@ class CreateTaguchi:
             elif choice == '噪声':
                 if noise is None:
                     raise ValueError('分配噪声因子前请选择噪声正交表')
-                noise_columns[factor_id] = int(column.get())
+                noise_columns[factor_id] = noise.column_position(int(column.get()))
             elif choice == '控制':
-                columns[factor_id] = int(column.get())
+                columns[factor_id] = array.column_position(int(column.get()))
             else:
                 raise ValueError('未知因子角色')
         if dynamic and signal is None:
