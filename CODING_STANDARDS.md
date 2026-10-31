@@ -10,6 +10,8 @@
 - 使用 SciPy 等外部库时，核对并记录其统计定义与项目方法一致。按适用性记录原假设、备择假设、统计量、参数估计、极端性方向、并列规则和边界约定；不适用项注明“不适用”。
 - 无法取得独立参考时，将该方法标记为“正确性未验证”，不得据此宣布验收通过。
 
+审查示例：多分类 DSD 的参考若重复生产端的候选矩阵装配，仅将整数行列式换为 `numpy.linalg.slogdet`，仍可能共享构造错误，不能单凭数值库不同认定参考独立。共享固定输入与共享关键计算路径应分开判断：参考可以使用声明的 conference 矩阵 C，但须核验其必要代数性质，并通过独立推导的信息矩阵 Schur 补验证目标值。此证明仅适用于给定有效 C 及声明的 b/z 候选族，不能外推为所有 DSD 的全局最优。对应正反示例见 `tests/test_doe_dsd_multi_categorical.py` 的 `_reference_max_logdet` 与 `test_multi_categorical_schur_reference_covers_every_supported_combination`。
+
 ### 逐方法证据
 
 为每个受影响方法记录完整关系：

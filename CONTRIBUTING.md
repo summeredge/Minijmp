@@ -17,10 +17,13 @@ requesting new features.
 
 ```powershell
 $python = (Resolve-Path ".venv\Scripts\python.exe").Path
+$env:PYTHONIOENCODING = "utf-8"
 & $python -c "import sys; print(sys.executable); print(sys.version)"
 ```
 
 按实际变更选择下表中的既有检查；清单需要人工复核后更新。
+
+记录测试日志时，Python 子进程输出与日志读取均使用 UTF-8；在新的 PowerShell 会话中重新设置上述编码变量。历史原始日志保留原样。
 
 | 变更触发条件 | 关联文件与已有工具 | 对应测试 |
 | --- | --- | --- |

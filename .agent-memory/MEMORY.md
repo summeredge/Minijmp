@@ -1,25 +1,19 @@
 # MiniJMP 工作记忆
 
-## DOE Phase 2 P2-6B 验收（2026-10-30）
+## 当前阶段：DOE Phase 2 已结束（2026-10-31）
 
-- TAG-005 L36、TAG-009 分类交互/预测/确认表、TAG-008 二水平控制×噪声响应模型与稳健搜索、FAC-012 多因子 Foldover 已完成限定范围验收；DOE Schema v5 不变。
-- MIX-005 按现有 Mixture v2 范围为 `IMPLEMENTED_SCOPED`；GEN-006 已补为 `IMPLEMENTED_SCOPED`：自定义因子/RSM 固定运行数 D-optimal Improve，保留 Mixture Improve 且未重写全 Fedorov 算法。
-- P2-6B 原 DOE 合并回归 183 passed；GEN-006 定向非 GUI 回归 88 passed，新 Improve GUI 与 Select/Augment/Mixture GUI 节点各 1 passed；py_compile 与 diff check 通过。改善采用有界局部交换，不保证全局最优；未验证 Minitab 22 parity。
-- 验收与状态清单：`Out/p2_6_doe_function_completion/p2-6b-acceptance.md`、`p2-6b-feature-status.csv`；未提交/推送/发布。
+- P2-6.5在约定支持范围内完成，本地提交 `5f785bd360281dec8ef219aa0378133b0f26011f`，父提交`71520c2`；未推送、打标签、发布。A/B生产实现和原测试已在父提交，本轮补参考、文档和证据，未改生产统计算法。
+- 80项：75 implemented、2 partial、1 unknown、2 excluded。SCR-002/FAC-012保留更宽DSD组合、Split-Plot/分类或区组PB折叠等缺口；GEN-013自动异常值处理unknown；GEN-012序贯规划器和GEN-014其他选点准则excluded，不计实现。
+- A/B的13项均达到各自范围。新增多分类DSD限4–12连续×2–4二水平分类；裂区2–8因子、1–3整区，限完整平衡，不支持非平衡/REML；Taguchi静态控制×噪声限二水平等权；Improve保护已执行运行，属于有界局部搜索。选模/优化点区间不校正选择偏差。
+- DOE Schema v5及Mixture Schema 1/2不变；v1–v5、保存重开复制及谱系恢复均由本轮回归覆盖。
+- 项目`.venv`：完整非gui文件集1412 passed/13 warnings；独立Schur补参考新增26 passed；18常规GUI文件150 passed及Screening16组320/320唯一节点通过；Help/Menu/G12首次93 passed/1清单失败，按源码补齐两个位置后G12 15 passed。去重后2002唯一成功节点，375 warnings；没有未解决的确定性失败，不重复相加重叠批次。
+- SCR-002初审发现独立参考共享构造路径且组合覆盖不足；新Schur oracle逐26组合直接推导信息矩阵、精确枚举b/z并检查反例，S2证据缺口已关闭；只证明给定有效C和指定族内最优，不证明跨所有DSD全局最优。G12清单失败也已修复，无计划内已知S1/S2。
+- 历史Tk整文件聚合`0x80000003`本轮分组未重现；未强制整文件聚合，不宣称根因已修复。没有可见桌面鼠标键盘/高DPI/像素人工抽检，测试字体与布局警告保留。
+- 正式矩阵、P2-5证据分层、路线图、开发记录、DOE帮助和索引均更新。最终入口：`Out/p2_6_doe_function_completion/p2-6-final-acceptance.md`、`p2-6-final-feature-audit.csv`、`p2-6-final-statistical-review.md`；精确批次/节点见`final-validation-summary.json`、`final-gui-manifest.json`，提交后状态见`final-git-state.log`。
+- 历史P2-5 1408 passed/69 warnings独立保留；原件见`Out/p5_automated_validation/`及`Out/p5_office_round1/`。有限Minitab输出只涉及SCR-001/003、FAC-012、RSM-002，其余76项无对应产品输出；DSD-S01仅RTF显示精度，BBD有标准序差异。不是全产品parity。
+- 下一阶段：后续版本需求与范围规划，尚未启动；不自动扩展高级DOE、采集产品输出或发布。项目记忆按规则独立更新，未纳入本次Git提交。过程见`logs/2026-10-31.md`。
 
-## DOE Phase 2 P2-6 核心功能（2026-10-30）
-
-- SCR-003、SCR-007、RSM-009、FAC-008、FAC-015、SCR-002、FAC-010 已在本地实现；DOE Schema v5 不变，未提交/推送/发布。详细范围和证据见 `Out/p2_6_doe_function_completion/report.md`。
-- `.venv` 非 GUI `test_doe_*.py`：1389 passed、12 warnings；后续 SCR-003 定向 8 passed、DSD Stepwise 18 passed。Screening GUI 320 个收集节点去重后均由分组/独立进程通过；历史整文件 Tk 中断的两项节点名未留存。
-- 独立 OLS 已覆盖 Backward 秩亏初始模型与可估计项删除，以及 BIC 恰留 1 个残差自由度；不需改生产实现。多分类 DSD 仍限 c=2–4、连续因子 4–12；裂区完整平衡且不做 REML；混料最优点区间不校正选点偏差。未验证 Minitab 22 parity。
-
-## DOE Phase 2 P2-5 自动化验收（2026-10-30）
-
-- 状态：本地自动化综合验收完成，不代表 Minitab 22 全功能 parity；未改统计源码、测试、正式 P2-5 文档、feature-matrix.csv 或原始产品证据；未生成新 Minitab 输出、未提交/推送。
-- 测试：1201 DOE 测试 + 141 Tk DOE 工作流 + 66 菜单测试 = 1408 passed、69 warnings、0 failed；筛选 GUI 全套未运行，PB/DSD 两个隔离 node 通过。
-- 独立误差：statsmodels 2² OLS 最大绝对误差 1.42e-14；五类静态 S/N 误差 0；DSD 五条逐步路径/秩/df 精确一致；Mixture 72×15 系数误差 2.13e-14、SSE 8.06e-12；连续全局最优未验证。
-- 覆盖：80 项仍为 58 implemented、19 partial、2 unknown、1 excluded；已有 Minitab 输出覆盖 SCR-001/SCR-003/FAC-012/RSM-002，其余 76 项无对应产品输出。
-- 观察：GEN-004 feature-matrix 行字段错位；TAG-005 范围描述与混合阵列案例不一致；BBD 仅运行序差异；测试环境有 CJK glyph 警告。验收材料见 Out/p5_automated_validation/。
+## 以下为历史阶段记录（不代表当前状态）
 
 ## DOE Phase 2 P2-4A/P2-4BC 最终本地集成（2026-10-30）
 
