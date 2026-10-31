@@ -11,7 +11,7 @@ from modified_table import MTable
 from pandastable_local.data import TableModel
 
 
-CASCADES = ['文件', '工作表', '编辑', '视图', '数据', '工具', '计算', '试验设计（DOE）',
+CASCADES = ['文件', '工作表', '编辑', '视图', '数据', '工具', '试验设计（DOE）',
             '统计', '质量', '图形', '调试', '帮助']
 
 
