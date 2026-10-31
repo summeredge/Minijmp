@@ -1,5 +1,6 @@
 """按精确节点隔离 Screening，其余 DOE GUI 文件逐进程串行验收。"""
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -7,11 +8,13 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = Path(__file__).resolve().parent
+environment = dict(os.environ, PYTHONIOENCODING='utf-8')
 files = sorted(ROOT.glob('tests/test_doe*gui.py'))
 screening = ROOT / 'tests/test_doe_screening_gui.py'
 collected = subprocess.run(
     [sys.executable, '-m', 'pytest', '--collect-only', '-q', str(screening)],
     cwd=ROOT, capture_output=True, text=True, encoding='utf-8', errors='replace',
+    env=environment,
 )
 (OUT / 'final-screening-collection.log').write_text(collected.stdout + collected.stderr, encoding='utf-8')
 assert collected.returncode == 0, collected.stderr
@@ -26,7 +29,8 @@ for name, args in groups:
     log = OUT / f'final-gui-{name}.log'
     command = [sys.executable, '-m', 'pytest', *args, '-q', '--tb=short', f'--junitxml={xml}']
     with log.open('w', encoding='utf-8') as stream:
-        result = subprocess.run(command, cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT)
+        result = subprocess.run(command, cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT,
+                                env=environment)
     record = {'name': name, 'args': args, 'returncode': result.returncode, 'log': log.name, 'xml': xml.name}
     if xml.exists():
         suites = ET.parse(xml).getroot().iter('testsuite')
