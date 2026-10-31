@@ -386,14 +386,25 @@ def fit_grouped_binomial(x, column_names, term_columns, events, trials, run_ids=
     if model_lr < -model_lr_tolerance:
         raise ValueError("全模型与截距模型的似然比较数值不稳定；模型检验不可用。")
     model_lr = max(0.0, model_lr)
-    covariance = np.asarray(fitted.cov_params(), dtype=float)
+    information = x.T @ ((trials * probabilities * (1.0 - probabilities))[:, None] * x)
+    try:
+        information_cholesky = np.linalg.cholesky(information)
+        covariance = np.linalg.solve(
+            information_cholesky.T,
+            np.linalg.solve(information_cholesky, np.eye(rank)),
+        )
+    except np.linalg.LinAlgError as error:
+        raise ValueError("Logistic 信息矩阵不可逆；该模型不提供推断。") from error
+    standard_errors = np.sqrt(np.diag(covariance))
+    z_values = np.asarray(fitted.params, dtype=float) / standard_errors
+    p_values = 2 * stats.norm.sf(np.abs(z_values))
     model_df = rank - 1
     model_p = float(stats.chi2.sf(model_lr, model_df)) if model_df > 0 else None
     residual_df = int(len(events) - rank)
 
     coefficient_rows = []
     for name, estimate, se, z_value, p_value in zip(
-            column_names, fitted.params, fitted.bse, fitted.tvalues, fitted.pvalues):
+            column_names, fitted.params, standard_errors, z_values, p_values):
         coefficient_rows.append({
             "term": name, "coefficient": float(estimate), "se": float(se),
             "z": float(z_value), "p": float(p_value),

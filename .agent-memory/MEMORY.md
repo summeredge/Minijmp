@@ -1,6 +1,6 @@
 # MiniJMP 工作记忆
 
-## 当前阶段：Minitab 19 supplemental DOE 七项最终验收完成（2026-10-31）
+## 当前阶段：Minitab 19 对标收尾；Binary Logistic 终点 Fisher 修复完成（2026-10-31）
 
 - 八案本地提交 `244ecf6d9ba48741194cb695acce0a51e6da7cb3`（54 文件），未推送。Minitab 19.1.0.1：2²、CCD、Mixture、BBD、PB、Split-Plot PASS；Taguchi L8/L9 PARTIAL。离线结果 3070 条明细、2605 个唯一比较：2559 PASS、0 FAIL、44 N/A、2 UNSUPPORTED。
 - 验收入口 `Out/minitab19_parity/reference_baseline_acceptance.md`、`reference_baseline_manifest.csv`、`reference_baseline_offline_results.csv`；manifest 固定逐案原始行数/状态计数及证据 SHA-256。离线复验重算至临时 CSV 并核对归档哈希，不覆盖固定结果；COM 未启动。
@@ -9,7 +9,8 @@
 - 未修改生产统计代码、CHANGELOG 或正式 DOE 功能矩阵。项目工作记忆保持为未提交文件。
 - 本轮补充对标在 `Out/minitab19_parity/supplemental/`：DSD 逐步选模 1,341 项全 PASS；一般全因子两案例 319 项，318 PASS/0 FAIL/1 N/A。后者通过原生 `LET Cn(row) = '*'` 写入缺失值；Minitab GFACTORIAL 残差为 Y−Fit，按观测行计算模型矩阵秩。
 - 正规与 PB Foldover 587 项：584 PASS/0 FAIL/3 N/A；单因子 REG 折叠使全模型秩 4→8，PB12 全折叠使 55 个主效应混杂交互变为可单独估计项。未改 `code/`、正式矩阵或冻结基线。
-- Binary Logistic 两案例 195 项：177 PASS/16 FAIL/2 N/A。`BFFACTORIAL` 与 `BRSREG` 均可运行；2² 饱和案 MiniJMP SE 与 Minitab inverse-X'WX 有 5.92e-7 相对差异，BBD 案 4 个 Wald z 超默认容差；未改生产算法或放宽容差。
+- Binary Logistic 初始对标（修复前）两案例 195 项：177 PASS/16 FAIL/2 N/A。`BFFACTORIAL` 与 `BRSREG` 均可运行；2² 饱和案 MiniJMP SE 与 Minitab inverse-X'WX 有 5.92e-7 相对差异，BBD 案 4 个 Wald z 超默认容差。第一阶段终点 Fisher 诊断归因其中 12 项，见 `Out/minitab19_parity/supplemental/binary/fisher_diagnosis/acceptance.md`。
+- Binary Logistic 终点 Fisher 修复已完成：`fit_grouped_binomial()` 用最终拟合概率与 trials 求协方差，并统一 SE/Wald z/p 及 `covariance_array`。原16项现为12 PASS/4 FAIL；完整唯一对比189 PASS/4 FAIL/2 N/A。定向测试72 passed。修复后证据在 `Out/minitab19_parity/supplemental/binary/fisher_diagnosis/repair_acceptance.md` 与 `repaired_comparison.csv`；未启动 Minitab/COM，冻结原始比较未改。
 - Optimal 三案例 18 项全 PASS：D-opt 4 角点选 3、Distance 9 点选 4、固定父设计增补 1 点；独立穷举验证 D-opt det(X'X)=16 与最大最小平方距离 4，增补 det 16→64。Minitab 19.1.0.1 `OPTDES K`+`FACMODEL` 实测 D-opt，候选列形式实测 Distance-based；DIRECT/DERIVED/DISPLAY=7/11/0。证据在 `Out/minitab19_parity/supplemental/optimal/`。
 - Dynamic Taguchi 与控制×噪声稳健两案共 57 项全 PASS；Minitab 来源 DIRECT/DERIVED/DISPLAY=31/26/0。动态案 12 行、4 个控制组合，斜率8/20/20/32，`NOREF` 与 MiniJMP自由截距定义一致；稳健案 16 行、L4控制×L4噪声，Minitab `ROBUST LOWER` 的均值/SD/SN及推荐设置通过。证据在 `Out/minitab19_parity/supplemental/taguchi_dynamic/`。
 - Mixture v2 固定72行联合案例已执行：MiniJMP API 实得 72×15、rank15、df57、SSE=12.000000000008034、指定点预测28.000000000000011；与冻结15列矩阵最大绝对误差0。Minitab 19.1.0.1 的 SLDESIGN 拒绝多总量+过程变量（常数和TOTAL列两种形式均实测），单总量T=150的24行子集通过；同子集MIXREG无AMOUNT项矩阵24×12、rank12，投影误差6.66e-16，但PROC+AMOUNT命令报错，不能代表72行15项模型。等价15列REGRESS比较190 PASS/0 FAIL/17 N/A/1 UNSUPPORTED，最大误差2.27e-13；直接PREDICT/PFITS未存储，系数点积预测通过。证据在 `Out/minitab19_parity/supplemental/mixture_extended/`。
@@ -27,7 +28,7 @@
 - 历史Tk整文件聚合`0x80000003`本轮分组未重现；未强制整文件聚合，不宣称根因已修复。没有可见桌面鼠标键盘/高DPI/像素人工抽检，测试字体与布局警告保留。
 - 正式矩阵、P2-5证据分层、路线图、开发记录、DOE帮助和索引均更新。最终入口：`Out/p2_6_doe_function_completion/p2-6-final-acceptance.md`、`p2-6-final-feature-audit.csv`、`p2-6-final-statistical-review.md`；精确批次/节点见`final-validation-summary.json`、`final-gui-manifest.json`，提交后状态见`final-git-state.log`。
 - 历史P2-5 1408 passed/69 warnings独立保留；原件见`Out/p5_automated_validation/`及`Out/p5_office_round1/`。有限Minitab输出只涉及SCR-001/003、FAC-012、RSM-002，其余76项无对应产品输出；DSD-S01仅RTF显示精度，BBD有标准序差异。不是全产品parity。
-- 下一阶段：后续版本需求与范围规划，尚未启动；不自动扩展高级DOE、采集产品输出或发布。项目记忆按规则独立更新，未纳入本次Git提交。过程见`logs/2026-10-31.md`。
+- 下一步：可基于现有 M2/FITS/X 归档独立调查 BIN-RSM 的 Minitab XPWXINVERSE 差异；根因仍未知。后续版本需求与范围规划尚未启动；不自动扩展高级 DOE、采集产品输出或发布。项目记忆按规则独立更新，未纳入 Git 提交。过程见 `logs/2026-10-31.md`。
 ## Minitab 19 对标（2026-10-31，当前）
 
 - **工作约定（用户明确要求）**：涉及 Minitab 命令语言/子命令时，先查官方 session commands 文档，不要凭记忆猜语法。入口：`https://support.minitab.com/zh-cn/minitab/media/pdfs/notranslate/session_commands.pdf`；下载后用 `.venv` 的 `pypdf` 抽全文再 `rg` 定位。已实测：`CCDESIGN 2; ALPHA 1; CENTER 5; DESIGN.`；`RSREG` 必带 `LEVELS`/`INUNIT`；`PREDICT <response>` 必带 `KPREDICTORS` 或 `CPREDICTORS`；SE Fit 存储项是 `PSEFITS`（不是 `SEFITS`）。
