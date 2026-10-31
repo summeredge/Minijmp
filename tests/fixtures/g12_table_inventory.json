@@ -1004,8 +1004,7 @@
     },
     "doe_dialog.py::AnalyzeDOE.show_table": {
       "sites": [
-        "construct:StatTable#1",
-        "emit:structured:print#1"
+        "construct:StatTable#1"
       ],
       "classification": "statistical",
       "logical_tables": 15,
@@ -2043,6 +2042,27 @@
       "status": "已迁移 StatTable",
       "tests": [
         "tests/test_g10_tables.py::test_text_values_and_real_exports"
+      ],
+      "exception_reason": ""
+    },
+    "doe_taguchi_analysis_dialog.py::NoiseResponseModelTaguchi._tab": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 4,
+      "titles": [
+        "系数",
+        "交互可估性",
+        "残差",
+        "控制组合"
+      ],
+      "entry_points": [
+        "NoiseTaguchi.response_model"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_doe_taguchi_models_gui.py::test_noise_response_model_gui_fits_selected_interaction_and_mean_range"
       ],
       "exception_reason": ""
     }
@@ -3328,15 +3348,15 @@
   "summary": {
     "python_files": 162,
     "files_with_production_sites": 38,
-    "producer_scopes": 70,
-    "constructor_calls": 140,
+    "producer_scopes": 71,
+    "constructor_calls": 141,
     "constructors": {
       "gen_table": 55,
-      "StatTable": 81,
+      "StatTable": 82,
       "PrettyTable": 4
     },
-    "statistical_source_positions": 76,
-    "logical_statistical_tables": 225,
+    "statistical_source_positions": 77,
+    "logical_statistical_tables": 229,
     "table_text_conversions": {
       "to_string": 2,
       "pred_table": 1,

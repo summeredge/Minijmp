@@ -1,0 +1,54 @@
+........................................................................ [  5%]
+........................................................................ [ 10%]
+........................................................................ [ 15%]
+........................................................................ [ 20%]
+........................................................................ [ 25%]
+........................................................................ [ 30%]
+........................................................................ [ 35%]
+........................................................................ [ 40%]
+........................................................................ [ 45%]
+........................................................................ [ 50%]
+........................................................................ [ 56%]
+........................................................................ [ 61%]
+........................................................................ [ 66%]
+........................................................................ [ 71%]
+........................................................................ [ 76%]
+........................................................................ [ 81%]
+........................................................................ [ 86%]
+........................................................................ [ 91%]
+........................................................................ [ 96%]
+............................................                             [100%]
+============================== warnings summary ===============================
+tests/test_doe_mixture_optimize.py::test_single_response_max_min_and_target_match_grid_reference
+tests/test_doe_mixture_optimize.py::test_single_response_max_min_and_target_match_grid_reference
+tests/test_doe_mixture_optimize.py::test_single_response_max_min_and_target_match_grid_reference
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\optimize\_slsqp_py.py:435: RuntimeWarning: Values in x were outside bounds during a minimize step, clipping to bounds
+    fx = wrapped_fun(x)
+
+tests/test_doe_mixture_optimize.py::test_single_response_max_min_and_target_match_grid_reference
+tests/test_doe_mixture_optimize.py::test_single_response_max_min_and_target_match_grid_reference
+tests/test_doe_mixture_optimize.py::test_single_response_max_min_and_target_match_grid_reference
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\optimize\_slsqp_py.py:439: RuntimeWarning: Values in x were outside bounds during a minimize step, clipping to bounds
+    g = append(wrapped_grad(x), 0.0)
+
+tests/test_doe_mixture_optimize.py::test_single_response_max_min_and_target_match_grid_reference
+tests/test_doe_mixture_optimize.py::test_single_response_max_min_and_target_match_grid_reference
+tests/test_doe_mixture_optimize.py::test_single_response_max_min_and_target_match_grid_reference
+  C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\scipy\optimize\_slsqp_py.py:493: RuntimeWarning: Values in x were outside bounds during a minimize step, clipping to bounds
+    a_eq = vstack([con['jac'](x, *con['args'])
+
+tests/test_doe_efg_workbook_integration.py::test_efg_designs_share_project_roundtrip_copy_analysis_and_metadata_isolation
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:2104: UserWarning: The figure layout has changed to tight
+    viewer.fig.tight_layout()
+
+tests/test_doe_efg_workbook_integration.py::test_efg_designs_share_project_roundtrip_copy_analysis_and_metadata_isolation
+  C:\Users\shaoy\Documents\Minijmp\code\doe_mixture_dialog.py:878: UserWarning: The figure layout has changed to tight
+    viewer.fig.tight_layout()
+
+tests/test_doe_efg_workbook_integration.py::test_efg_designs_share_project_roundtrip_copy_analysis_and_metadata_isolation
+tests/test_doe_efg_workbook_integration.py::test_efg_designs_share_project_roundtrip_copy_analysis_and_metadata_isolation
+  C:\Users\shaoy\Documents\Minijmp\code\doe_taguchi_analysis_dialog.py:330: UserWarning: The figure layout has changed to tight
+    viewer.fig.tight_layout()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1412 passed, 13 warnings in 751.19s (0:12:31)

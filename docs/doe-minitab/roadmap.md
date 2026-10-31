@@ -1,6 +1,8 @@
 # DOE 对标后续路线图
 
-## DOE Phase 2 / P2-0 审计结论（2026-10-29，现行）
+> 2026-10-31 P2-6.5 更新：以下保留历史阶段记录；当前状态以 [最终综合验收](../../Out/p2_6_doe_function_completion/p2-6-final-acceptance.md) 和 [80项矩阵](feature-matrix.csv) 为准，历史的“当前/未实现/未提交”不代表本轮结束状态。
+
+## DOE Phase 2 / P2-0 审计结论（2026-10-29，历史）
 
 - A–H 已完成限定范围验收；H 本地收尾状态 `WORK_PACKAGE_H_APPROVED_SCOPED`，基线提交 `ed85429ed23c52a6b2a238ad86fc1517ace93ff6`。DOE Schema v5 不变。
 - 以现有 `feature-matrix.csv` 的 **80** 项为审计基数：**58 implemented / 18 partial / 3 unknown / 1 excluded**。这些状态是 MiniJMP 既有功能矩阵的覆盖情况，**不是 Minitab 全产品实现百分比**。

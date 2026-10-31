@@ -1,5 +1,7 @@
 # DOE Phase 2 差距分析（重建稿）
 
+> 2026-10-31 P2-6.5 更新：以下保留历史阶段记录；当前状态以 [最终综合验收](../../Out/p2_6_doe_function_completion/p2-6-final-acceptance.md) 和 [80项矩阵](feature-matrix.csv) 为准，历史的“当前/未实现/未提交”不代表本轮结束状态。
+
 日期：2026-10-29
 状态：按本地 P2-0 摘要与本轮目标重新建立；**原始** `phase2-gap-analysis.md`、`phase2-roadmap.md`、`phase2-acceptance.md` 在本轮开始时均不存在，未读取或还原其原文。
 

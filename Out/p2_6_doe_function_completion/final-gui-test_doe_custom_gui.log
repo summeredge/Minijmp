@@ -1,0 +1,124 @@
+.......                                                                  [100%]
+============================== warnings summary ===============================
+tests/test_doe_custom_gui.py::test_custom_factorial_gui_preview_cancel_create_and_analyze
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1745: UserWarning: The figure layout has changed to tight
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_rsm_gui_analysis_and_response_surface_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:2104: UserWarning: The figure layout has changed to tight
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 25928 (\N{CJK UNIFIED IDEOGRAPH-6548}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 24212 (\N{CJK UNIFIED IDEOGRAPH-5E94}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 20027 (\N{CJK UNIFIED IDEOGRAPH-4E3B}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 32477 (\N{CJK UNIFIED IDEOGRAPH-7EDD}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 23545 (\N{CJK UNIFIED IDEOGRAPH-5BF9}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 20540 (\N{CJK UNIFIED IDEOGRAPH-503C}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 22270 (\N{CJK UNIFIED IDEOGRAPH-56FE}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 25311 (\N{CJK UNIFIED IDEOGRAPH-62DF}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 21512 (\N{CJK UNIFIED IDEOGRAPH-5408}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 27531 (\N{CJK UNIFIED IDEOGRAPH-6B8B}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 24046 (\N{CJK UNIFIED IDEOGRAPH-5DEE}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 19982 (\N{CJK UNIFIED IDEOGRAPH-4E0E}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 27491 (\N{CJK UNIFIED IDEOGRAPH-6B63}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 24577 (\N{CJK UNIFIED IDEOGRAPH-6001}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 29702 (\N{CJK UNIFIED IDEOGRAPH-7406}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 35770 (\N{CJK UNIFIED IDEOGRAPH-8BBA}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 20998 (\N{CJK UNIFIED IDEOGRAPH-5206}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 20301 (\N{CJK UNIFIED IDEOGRAPH-4F4D}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 25968 (\N{CJK UNIFIED IDEOGRAPH-6570}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 27010 (\N{CJK UNIFIED IDEOGRAPH-6982}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 29575 (\N{CJK UNIFIED IDEOGRAPH-7387}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 36816 (\N{CJK UNIFIED IDEOGRAPH-8FD0}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 34892 (\N{CJK UNIFIED IDEOGRAPH-884C}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 24207 (\N{CJK UNIFIED IDEOGRAPH-5E8F}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 23454 (\N{CJK UNIFIED IDEOGRAPH-5B9E}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 38469 (\N{CJK UNIFIED IDEOGRAPH-9645}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: Glyph 39034 (\N{CJK UNIFIED IDEOGRAPH-987A}) missing from font(s) DejaVu Sans.
+    viewer.fig.tight_layout()
+
+tests/test_doe_custom_gui.py::test_custom_screening_gui_analysis_and_effect_plot
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1583: UserWarning: The figure layout has changed to tight
+    viewer.fig.tight_layout()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+7 passed, 30 warnings in 8.29s

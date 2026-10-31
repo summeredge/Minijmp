@@ -1,5 +1,7 @@
 # DOE Phase 2 验收合同（重建稿）
 
+> 2026-10-31 P2-6.5 更新：以下保留历史阶段记录；当前状态以 [最终综合验收](../../Out/p2_6_doe_function_completion/p2-6-final-acceptance.md) 和 [80项矩阵](feature-matrix.csv) 为准，历史的“当前/未实现/未提交”不代表本轮结束状态。
+
 日期：2026-10-29。原始 `phase2-acceptance.md` 在本轮开始时不存在。本稿依据本轮目标、既有 `acceptance.md` 和 P2-0 路线图摘要重建；每项状态只按本地实际证据更新。
 
 当前检查点（2026-10-29）：单元 A、B 的本地验收均通过。首轮 ChatGPT/Local MCP Connector Review 的 A-01/B-01 已修复并完成定向复测；当前 ChatGPT/Local MCP Connector 复审对两个验收单元分别给出 `APPROVE`。没有 Minitab 22 产品输出，因此不声明版本或输出 parity。
