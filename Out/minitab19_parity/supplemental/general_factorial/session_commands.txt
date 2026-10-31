@@ -1,0 +1,35 @@
+# Minitab 19.1.0.1 official Session Commands: FDESIGN / GFACTORIAL
+
+# GFF-2X3: native 2×3 general full factorial design
+
+FDESIGN 2 3;
+  REPS 2;
+  DESIGN.
+
+GFACTORIAL;
+  RESPONSE C7;
+  FACTOR C5 C6;
+  TERMS C5 C6 C5*C6;
+  FITS C8;
+  RESIDUALS C9;
+  COEFFICIENTS C10;
+  XMATRIX M1;
+  TANOVA.
+
+# GFF-TYPEIII: native 2×3 general full factorial design
+
+FDESIGN 2 3;
+  REPS 3;
+  DESIGN.
+
+LET C7(10) = '*'
+
+GFACTORIAL;
+  RESPONSE C7;
+  FACTOR C5 C6;
+  TERMS C5 C6 C5*C6;
+  FITS C8;
+  RESIDUALS C9;
+  COEFFICIENTS C10;
+  XMATRIX M1;
+  TANOVA.

@@ -1,0 +1,32 @@
+# Minitab 19.1.0.1 official Session Commands PDF, release 19.1
+# DSDDESIGN creates the native 6-factor design; SCREEN performs stepwise DOE analysis.
+
+DSDESIGN 6;
+  REPLICATES 2;
+  LEVELS -1 1 -1 1 -1 1 -1 1 -1 1 -1 1;
+  RANDOMIZE 31;
+  FNAME "F1" "F2" "F3" "F4" "F5" "F6";
+  BRIEF 3.
+
+SCREEN;
+  RESPONSE C11;
+  FACTOR C5 C6 C7 C8 C9 C10;
+  TERMS C5 C6 C7 C8 C9 C10 C5*C5 C6*C6 C7*C7 C5*C6;
+  LEVELS -1 1 -1 1 -1 1 -1 1 -1 1 -1 1;
+  INUNIT 0;
+  STEPWISE;
+  AENTER 0.15;
+  AREMOVE 0.15;
+  HIERARCHICAL;
+  ALLTERMS;
+  ALWAYS;
+  SINGLE;
+  TMSDETAILS;
+  FULL;
+  TCOEFFICIENT;
+  TANOVA;
+  TSUMMARY;
+  FITS C12;
+  RESIDUALS C13;
+  COEFFICIENTS C14;
+  XMATRIX M1.

@@ -1,6 +1,22 @@
 # MiniJMP 工作记忆
 
-## 当前阶段：DOE Phase 2 已结束（2026-10-31）
+## 当前阶段：Minitab 19 supplemental DOE 七项最终验收完成（2026-10-31）
+
+- 八案本地提交 `244ecf6d9ba48741194cb695acce0a51e6da7cb3`（54 文件），未推送。Minitab 19.1.0.1：2²、CCD、Mixture、BBD、PB、Split-Plot PASS；Taguchi L8/L9 PARTIAL。离线结果 3070 条明细、2605 个唯一比较：2559 PASS、0 FAIL、44 N/A、2 UNSUPPORTED。
+- 验收入口 `Out/minitab19_parity/reference_baseline_acceptance.md`、`reference_baseline_manifest.csv`、`reference_baseline_offline_results.csv`；manifest 固定逐案原始行数/状态计数及证据 SHA-256。离线复验重算至临时 CSV 并核对归档哈希，不覆盖固定结果；COM 未启动。
+- Taguchi 调整型 Nominal-I 的 17 个 S/N 与 MiniJMP/独立公式直接吻合。L9 等价分类模型 CI/PI 通过；L8 因 MSE=0，区间比较为 N/A。两项 UNSUPPORTED 仅是 OAPREDICT 专用 CI/PI 存储能力。
+- `.venv` Python 3.11.9：两脚本 `py_compile`、Taguchi 自检、manifest 自检、八案离线复验与复验后哈希检查通过；运行后无 Mtb.exe。未运行全量 pytest，未验证 Minitab 22。
+- 未修改生产统计代码、CHANGELOG 或正式 DOE 功能矩阵。项目工作记忆保持为未提交文件。
+- 本轮补充对标在 `Out/minitab19_parity/supplemental/`：DSD 逐步选模 1,341 项全 PASS；一般全因子两案例 319 项，318 PASS/0 FAIL/1 N/A。后者通过原生 `LET Cn(row) = '*'` 写入缺失值；Minitab GFACTORIAL 残差为 Y−Fit，按观测行计算模型矩阵秩。
+- 正规与 PB Foldover 587 项：584 PASS/0 FAIL/3 N/A；单因子 REG 折叠使全模型秩 4→8，PB12 全折叠使 55 个主效应混杂交互变为可单独估计项。未改 `code/`、正式矩阵或冻结基线。
+- Binary Logistic 两案例 195 项：177 PASS/16 FAIL/2 N/A。`BFFACTORIAL` 与 `BRSREG` 均可运行；2² 饱和案 MiniJMP SE 与 Minitab inverse-X'WX 有 5.92e-7 相对差异，BBD 案 4 个 Wald z 超默认容差；未改生产算法或放宽容差。
+- Optimal 三案例 18 项全 PASS：D-opt 4 角点选 3、Distance 9 点选 4、固定父设计增补 1 点；独立穷举验证 D-opt det(X'X)=16 与最大最小平方距离 4，增补 det 16→64。Minitab 19.1.0.1 `OPTDES K`+`FACMODEL` 实测 D-opt，候选列形式实测 Distance-based；DIRECT/DERIVED/DISPLAY=7/11/0。证据在 `Out/minitab19_parity/supplemental/optimal/`。
+- Dynamic Taguchi 与控制×噪声稳健两案共 57 项全 PASS；Minitab 来源 DIRECT/DERIVED/DISPLAY=31/26/0。动态案 12 行、4 个控制组合，斜率8/20/20/32，`NOREF` 与 MiniJMP自由截距定义一致；稳健案 16 行、L4控制×L4噪声，Minitab `ROBUST LOWER` 的均值/SD/SN及推荐设置通过。证据在 `Out/minitab19_parity/supplemental/taguchi_dynamic/`。
+- Mixture v2 固定72行联合案例已执行：MiniJMP API 实得 72×15、rank15、df57、SSE=12.000000000008034、指定点预测28.000000000000011；与冻结15列矩阵最大绝对误差0。Minitab 19.1.0.1 的 SLDESIGN 拒绝多总量+过程变量（常数和TOTAL列两种形式均实测），单总量T=150的24行子集通过；同子集MIXREG无AMOUNT项矩阵24×12、rank12，投影误差6.66e-16，但PROC+AMOUNT命令报错，不能代表72行15项模型。等价15列REGRESS比较190 PASS/0 FAIL/17 N/A/1 UNSUPPORTED，最大误差2.27e-13；直接PREDICT/PFITS未存储，系数点积预测通过。证据在 `Out/minitab19_parity/supplemental/mixture_extended/`。
+- Task 7 两个独立案例随后补齐：MIX-PROCESS 使用三组分×一个过程变量，Minitab 原生 MIXREG 与 MiniJMP 同矩阵，34项全 PASS，含逐项 ANOVA 与预测 CI/PI；MIX-AMOUNT 使用总量50/100/150，Minitab 19 XMATRIX 为36×6而 MiniJMP v2 总量交叉模型为36×9，原生命令明确记 UNSUPPORTED。独立案例共35项：34 PASS、1 UNSUPPORTED、0 FAIL。
+- 最终批量重放 DSD、一般全因子、Foldover、Optimal、Dynamic Taguchi、Mixture 独立两案及72行联合案；Binary Logistic 因两案仍有16个真实 FAIL 未纳入成功案例重放，保留原始证据。联合案最终本次 PID 11716 已退出，启动前无 Mtb PID；脚本因历史 PID 34528 消失原因未知的保留记录保守返回退出码1，该旧事件仍未归因。
+- 冻结八案只做一次离线复验并通过清单/哈希核对：2,559 PASS、0 FAIL、44 N/A、2 UNSUPPORTED；DIRECT/DERIVED/DISPLAY=1655/625/61，Minitab COM 未启动。本轮新增对标按稳定键去重后2935项：2891 PASS、16 FAIL、23 N/A、5 UNSUPPORTED；6个重复键值一致、无冲突。
+- 最终汇总 `Out/minitab19_parity/supplemental/supplemental_summary.csv` 与 `supplemental_acceptance.md`。未改生产代码、CHANGELOG、正式DOE功能矩阵、冻结manifest或原始基线；未提交推送。其余 DOE 参数范围仍需后续按功能矩阵分批 parity；SCR-002/FAC-012仍partial，GEN-013仍unknown。
 
 - P2-6.5在约定支持范围内完成，本地提交 `5f785bd360281dec8ef219aa0378133b0f26011f`，父提交`71520c2`；未推送、打标签、发布。A/B生产实现和原测试已在父提交，本轮补参考、文档和证据，未改生产统计算法。
 - 80项：75 implemented、2 partial、1 unknown、2 excluded。SCR-002/FAC-012保留更宽DSD组合、Split-Plot/分类或区组PB折叠等缺口；GEN-013自动异常值处理unknown；GEN-012序贯规划器和GEN-014其他选点准则excluded，不计实现。
@@ -19,6 +35,19 @@
 - Minitab 侧 DIRECT 全精度：`M1`(13×6)、`C10` 系数、`C8` 拟合、`C9` 残差、`C11`–`C16` 预测/SE Fit/两区间。ANOVA 逐行 SS/F/P 与 S/R²/调整R²/SSE/SST/MSE 属 DERIVED（由上述量与固定 Y 重建，P 用 `scipy.stats.f.sf`），报告已标注。
 - 口径要点：Model SS = SST − SSE；线性/交互/平方组 Adj SS 须同时移除该组全部列再重拟合；`analyze_rsm` 的 ANOVA 行是逐项 Adj SS，不能相加当 Model SS。MiniJMP `A²`/`B²` 对应 Minitab `A*A`/`B*B`。
 - 未改 `code/` 生产算法，未更新正式 DOE 功能矩阵，未提交推送。
+
+### 五家族 DOE parity 批次（2026-10-31）
+
+- 目标来自 Codex 附件 `goal-objective.md`：按 Taguchi → Mixture → BBD → PB → Split-Plot 顺序，与本机 Minitab 19.1.0.1 做固定数据统计对标；不改生产代码、不更新正式功能矩阵。
+- Taguchi L8/L9 最终 PARTIAL：原始 602 行去重为 473 PASS、0 FAIL、25 N/A、2 UNSUPPORTED；最大绝对误差 0.003846153846（L9 均值模型 C 项 F 的 DISPLAY 舍入值）。调整型 nominal-I 的 17 个值 DIRECT 对照通过；L9 分类模型 CI/PI 通过，L8 区间因零 MSE 为 N/A；两项 UNSUPPORTED 是 OAPREDICT 的区间存储限制。
+- 去重来源：Minitab DIRECT 396、DERIVED 70、DISPLAY 43。ROBUST 均值系数和 ANOVA 仍从报表 DISPLAY 读取；效应编码系数转换到 MiniJMP treatment basis 并按显示精度核对。L8均值模型误差SS为零。
+- Minitab 19 实际拒绝 OADESIGN 的 `NAMES` 子命令；按默认 A/B/C/D 列名移除后，L8/L9设计成功。探索运行显示 `ROBUST COEFFICIENTS` 存储不被19.1接受，因此最后用 DISPLAY 表比较系数/ANOVA。SNRATIO/MEANS 的 DIRECT 存储值只落在每组三个重复行的首行，其余两行是缺失哨兵，按处理组合映射。输入矩阵映射保留标准序；响应均值和S/N均使用三个重复观测。
+- 入口及证据：`Out/minitab19_parity/verify_doe_taguchi.py`、`doe_taguchi_acceptance_report.md`、逐案例输入/Session Commands/raw/JSON/CSV、合并 `doe_taguchi_comparison.csv`；自检通过，运行后无 `Mtb.exe` 残留。`doe_taguchi_minitab_raw_l8/l9_designbound.txt` 是第一次成功 OADESIGN/ROBUST 输出，`doe_taguchi_minitab_raw_l8/l9.txt` 是最终 fresh worksheet 复现。
+- 阶段2 Mixture Scheffé 已完成，状态 PASS：247 PASS、6 N/A、0 FAIL/UNSUPPORTED；来源 DIRECT 174、DERIVED 61、DISPLAY 18；最大误差 0.0004470965（Minitab 三位小数预测表）。7 点三组分 Simplex Centroid、各重复 2 次，Minitab XMATRIX 为 14×6、秩 6；全二次系数、拟合/残差、ANOVA、纯误差/失拟及三点 95% 预测通过。Mixture API 的二次 Lattice 不包含 centroid，故按目标许可改用等点候选 SCDESIGN。Minitab 19 拒绝 PSFITS 存储；DISPLAY 保留并比较，区间由原生高精度矩阵/系数/误差重建。Session 命令已显式列二阶项，INUNIT 与零 LOWER 成对指定。证据见 `Out/minitab19_parity/verify_doe_mixture.py` 与阶段报告；运行后无 Mtb.exe 残留。
+- 阶段3 BBD 已通过统计对照：356 PASS、0 FAIL/N/A/UNSUPPORTED；来源 DIRECT 268、DERIVED 88；最大误差 2.667945864e-10（三点预测 P3 的 PI 下限）。固定 3 因子、12 边点、3 中心点；Minitab `BBDESIGN`/`RSREG` 的 XMATRIX 为 15×10、秩 10；模型系数、拟合/残差、ANOVA、线性/平方/二因子交互组、纯误差/失拟及三点 95% CI/PI 对照通过。最终批次重跑精简脚本通过，运行后无残留 Mtb.exe。
+- 阶段4 PB 已通过统计对照：475 PASS、0 FAIL/N/A/UNSUPPORTED；来源 DIRECT 224、DERIVED 251；最大误差 1.98951966e-13（主效应 A 的 F）。Minitab `PBDESIGN 7 12` 的 12×8 SCREEN 矩阵与冻结 NIST PB12 点集逐行映射一致；7列平衡正交，模型 rank 8、误差 df 4、SSE 非零；系数/效果/ANOVA/排序及实际矩阵的 8×21 交互投影均通过。SCREEN 未作为原生别名表来源，投影标为 Minitab 矩阵 DERIVED。最终批次重跑通过，运行后无残留 Mtb.exe。
+- 阶段5 Split-Plot 完成：A hard/B easy 两因子、3 区组、12 runs；模型 rank 6、残差 df 6；整区 SS/df=1.5/2，子区 SS/df=0.375/4。Minitab 19 `SPDESIGN`/`SPFACTORIAL` 对标 120 PASS、1 个预期 N/A（Total MS）、0 FAIL/UNSUPPORTED；DIRECT 76、DERIVED 45；最大误差 1.136868377e-13。直接读取 Minitab `WRESIDUALS` 与 `RESIDUALS` 分层残差；未比较随机区组方差分量、REML 或非平衡设计。
+- 五家族批次唯一比较 1705 项：1671 PASS、0 FAIL、32 N/A、2 UNSUPPORTED；原始行 1807（含102条重复Taguchi均值项）。Minitab 来源 DIRECT 1138、DERIVED 515、DISPLAY 61。六案汇总见 `Out/minitab19_parity/batch_parity_acceptance.md`、`batch_parity_summary.csv`；后续八案离线基线另含既有 2²/CCD。
 
 
 ## 以下为历史阶段记录（不代表当前状态）

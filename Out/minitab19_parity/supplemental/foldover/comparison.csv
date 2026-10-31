@@ -1,0 +1,588 @@
+﻿case_id,comparison_run,section,term,statistic,minitab_value,minijmp_value,absolute_error,relative_error,absolute_tolerance,relative_tolerance,minitab_value_source,minijmp_value_source,status
+FOLD-REG,1,design_mapping,all runs,point_keys,"('BASE', '-1,-1,1', 1);('BASE', '-1,-1,1', 2);('BASE', '-1,1,-1', 1);('BASE', '-1,1,-1', 2);('BASE', '1,-1,-1', 1);('BASE', '1,-1,-1', 2);('BASE', '1,1,1', 1);('BASE', '1,1,1', 2);('FOLD1', '-1,-1,-1', 1);('FOLD1', '-1,-1,-1', 2);('FOLD1', '-1,1,1', 1);('FOLD1', '-1,1,1', 2);('FOLD1', '1,-1,1', 1);('FOLD1', '1,-1,1', 2);('FOLD1', '1,1,-1', 1);('FOLD1', '1,1,-1', 2)","('BASE', '-1,-1,1', 1);('BASE', '-1,-1,1', 2);('BASE', '-1,1,-1', 1);('BASE', '-1,1,-1', 2);('BASE', '1,-1,-1', 1);('BASE', '1,-1,-1', 2);('BASE', '1,1,1', 1);('BASE', '1,1,1', 2);('FOLD1', '-1,-1,-1', 1);('FOLD1', '-1,-1,-1', 2);('FOLD1', '-1,1,1', 1);('FOLD1', '-1,1,1', 2);('FOLD1', '1,-1,1', 1);('FOLD1', '1,-1,1', 2);('FOLD1', '1,1,-1', 1);('FOLD1', '1,1,-1', 2)",,,,,Minitab native design factor columns (DIRECT),MiniJMP design matrix and foldover lineage,PASS
+FOLD-REG,1,input,"BASE/-1,-1,1/r1",Y,31.299999999999997,31.299999999999997,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,BASE,"BASE/-1,-1,1/r1:A",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/-1,-1,1/r1:B",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/-1,-1,1/r1:C",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"BASE/-1,-1,1/r2",Y,31.9,31.9,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,BASE,"BASE/-1,-1,1/r2:A",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/-1,-1,1/r2:B",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/-1,-1,1/r2:C",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"BASE/-1,1,-1/r1",Y,23.2,23.2,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,BASE,"BASE/-1,1,-1/r1:A",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/-1,1,-1/r1:B",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/-1,1,-1/r1:C",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"BASE/-1,1,-1/r2",Y,23.8,23.8,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,BASE,"BASE/-1,1,-1/r2:A",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/-1,1,-1/r2:B",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/-1,1,-1/r2:C",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"BASE/1,-1,-1/r1",Y,31.1,31.1,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,BASE,"BASE/1,-1,-1/r1:A",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/1,-1,-1/r1:B",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/1,-1,-1/r1:C",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"BASE/1,-1,-1/r2",Y,31.700000000000003,31.700000000000003,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,BASE,"BASE/1,-1,-1/r2:A",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/1,-1,-1/r2:B",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/1,-1,-1/r2:C",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"BASE/1,1,1/r1",Y,33.2,33.2,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,BASE,"BASE/1,1,1/r1:A",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/1,1,1/r1:B",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/1,1,1/r1:C",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"BASE/1,1,1/r2",Y,33.8,33.8,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,BASE,"BASE/1,1,1/r2:A",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/1,1,1/r2:B",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,BASE,"BASE/1,1,1/r2:C",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"FOLD1/-1,-1,-1/r1",Y,30.599999999999998,30.599999999999998,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/-1,-1,-1/r1:A",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/-1,-1,-1/r1:B",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/-1,-1,-1/r1:C",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"FOLD1/-1,-1,-1/r2",Y,31.2,31.2,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/-1,-1,-1/r2:A",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/-1,-1,-1/r2:B",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/-1,-1,-1/r2:C",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"FOLD1/-1,1,1/r1",Y,25.7,25.7,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/-1,1,1/r1:A",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/-1,1,1/r1:B",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/-1,1,1/r1:C",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"FOLD1/-1,1,1/r2",Y,26.3,26.3,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/-1,1,1/r2:A",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/-1,1,1/r2:B",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/-1,1,1/r2:C",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"FOLD1/1,-1,1/r1",Y,31.799999999999994,31.799999999999994,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/1,-1,1/r1:A",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/1,-1,1/r1:B",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/1,-1,1/r1:C",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"FOLD1/1,-1,1/r2",Y,32.39999999999999,32.39999999999999,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/1,-1,1/r2:A",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/1,-1,1/r2:B",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/1,-1,1/r2:C",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"FOLD1/1,1,-1/r1",Y,30.7,30.7,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/1,1,-1/r1:A",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/1,1,-1/r1:B",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/1,1,-1/r1:C",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,input,"FOLD1/1,1,-1/r2",Y,31.3,31.3,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/1,1,-1/r2:A",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/1,1,-1/r2:B",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,design,FOLD1,"FOLD1/1,1,-1/r2:C",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-REG,1,foldover_map,"FOLD1/1,-1,1/r1",source_point,"-1,-1,1","-1,-1,1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-REG,1,foldover_map,"FOLD1/-1,-1,-1/r1",source_point,"1,-1,-1","1,-1,-1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-REG,1,foldover_map,"FOLD1/1,1,-1/r1",source_point,"-1,1,-1","-1,1,-1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-REG,1,foldover_map,"FOLD1/-1,1,1/r1",source_point,"1,1,1","1,1,1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-REG,1,foldover_map,"FOLD1/1,-1,1/r2",source_point,"-1,-1,1","-1,-1,1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-REG,1,foldover_map,"FOLD1/-1,-1,-1/r2",source_point,"1,-1,-1","1,-1,-1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-REG,1,foldover_map,"FOLD1/1,1,-1/r2",source_point,"-1,1,-1","-1,1,-1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-REG,1,foldover_map,"FOLD1/-1,1,1/r2",source_point,"1,1,1","1,1,1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-REG,1,before_design,full model,rank,4.0,4.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab native factor columns, all factorial terms",MiniJMP foldover_summary,PASS
+FOLD-REG,1,before_design,runs,count,8.0,8.0,0.0,0.0,1e-09,1e-09,Minitab native design columns (DIRECT),MiniJMP foldover design,PASS
+FOLD-REG,1,after_design,full model,rank,8.0,8.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab native factor columns, all factorial terms",MiniJMP foldover_summary,PASS
+FOLD-REG,1,after_design,runs,count,8.0,8.0,0.0,0.0,1e-09,1e-09,Minitab native design columns (DIRECT),MiniJMP foldover design,PASS
+FOLD-REG,1,model_space,main-effects model,rank,4.0,4.0,0.0,0.0,1e-09,1e-09,Minitab stored XMATRIX (DIRECT),MiniJMP production model matrix,PASS
+FOLD-REG,1,model_space,main-effects model,basis_error,0.0,0.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab XMATRIX mapped to MiniJMP term basis,MiniJMP coded model matrix,PASS
+FOLD-REG,1,model_summary,after foldover,n,16.0,16.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-REG,1,model_summary,after foldover,p,4.0,4.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-REG,1,model_summary,after foldover,df,12.0,12.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-REG,1,model_summary,after foldover,sse,53.680000000000035,53.680000000000064,2.842170943040401e-14,5.294655259017137e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-REG,1,model_summary,after foldover,sst,163.91999999999993,163.91999999999993,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-REG,1,model_summary,after foldover,ssr,110.2399999999999,110.23999999999987,2.842170943040401e-14,2.578166675472064e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-REG,1,model_summary,after foldover,mse,4.473333333333336,4.473333333333339,2.6645352591003757e-15,5.956487166394279e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-REG,1,model_summary,after foldover,model_f,8.21460506706407,8.214605067064063,7.105427357601002e-15,8.64974919620878e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-REG,1,model_summary,after foldover,model_p,0.0030663993811901385,0.003066399381190146,7.37257477290143e-18,2.404310025017018e-15,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-REG,1,coefficient,截距,estimate,30.0,30.00000000000001,1.0658141036401503e-14,3.552713678800501e-16,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-REG,1,effect,截距,coded_effect,,,,,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,N/A
+FOLD-REG,1,coefficient,截距,standard_error,0.5287564026405104,0.5287564026405105,1.1102230246251565e-16,2.0996871509846705e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-REG,1,coefficient,截距,t,56.73690162461508,56.73690162461509,1.4210854715202004e-14,2.5046934725523823e-16,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-REG,1,coefficient,截距,p,5.929374094850139e-16,5.929374094850139e-16,0.0,0.0,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-REG,1,coefficient,截距,F,3219.0760059612494,3219.0760059612508,1.3642420526593924e-12,4.23799267284469e-16,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-REG,1,coefficient,A,estimate,2.0,2.0000000000000018,1.7763568394002505e-15,8.881784197001252e-16,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-REG,1,effect,A,coded_effect,4.0,4.0000000000000036,3.552713678800501e-15,8.881784197001252e-16,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,PASS
+FOLD-REG,1,coefficient,A,standard_error,0.5287564026405104,0.5287564026405105,1.1102230246251565e-16,2.0996871509846705e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-REG,1,coefficient,A,t,3.782460108307672,3.7824601083076748,2.6645352591003757e-15,7.044450391553575e-16,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-REG,1,coefficient,A,p,0.0026118544012339274,0.002611854401233913,1.431146867680866e-17,5.4794282062765224e-15,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-REG,1,coefficient,A,F,14.307004470938887,14.307004470938907,1.9539925233402755e-14,1.3657593574597143e-15,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-REG,1,coefficient,B,estimate,-1.4999999999999998,-1.499999999999998,1.7763568394002505e-15,1.1842378929335004e-15,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-REG,1,effect,B,coded_effect,-2.9999999999999996,-2.999999999999996,3.552713678800501e-15,1.1842378929335004e-15,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,PASS
+FOLD-REG,1,coefficient,B,standard_error,0.5287564026405104,0.5287564026405105,1.1102230246251565e-16,2.0996871509846705e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-REG,1,coefficient,B,t,-2.8368450812307535,-2.8368450812307495,3.9968028886505635e-15,1.4088900783107152e-15,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-REG,1,coefficient,B,p,0.014984188920263293,0.014984188920263411,1.1796119636642288e-16,7.872377810646967e-15,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-REG,1,coefficient,B,F,8.04769001490312,8.047690014903099,2.1316282072803006e-14,2.648745420527932e-15,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-REG,1,coefficient,C,estimate,0.7999999999999984,0.8000000000000003,1.887379141862766e-15,2.3592239273284624e-15,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-REG,1,effect,C,coded_effect,1.5999999999999968,1.6000000000000005,3.774758283725532e-15,2.3592239273284624e-15,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,PASS
+FOLD-REG,1,coefficient,C,standard_error,0.5287564026405104,0.5287564026405105,1.1102230246251565e-16,2.0996871509846705e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-REG,1,coefficient,C,t,1.5129840433230657,1.512984043323069,3.3306690738754696e-15,2.2013907473604966e-15,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-REG,1,coefficient,C,p,0.15616645687213854,0.15616645687213765,8.881784197001252e-16,5.687382793267329e-15,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-REG,1,coefficient,C,F,2.2891207153502124,2.289120715350222,9.769962616701378e-15,4.267997992061625e-15,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-REG,1,run_statistics,"BASE/-1,-1,1/r1",fit,30.299999999999997,30.300000000000004,7.105427357601002e-15,2.345025530561387e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"BASE/-1,-1,1/r1",residual,1.0,0.9999999999999929,7.105427357601002e-15,7.105427357601002e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"BASE/-1,-1,1/r2",fit,30.299999999999997,30.300000000000004,7.105427357601002e-15,2.345025530561387e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"BASE/-1,-1,1/r2",residual,1.6000000000000014,1.5999999999999943,7.105427357601002e-15,4.440892098500622e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"BASE/-1,1,-1/r1",fit,25.700000000000003,25.700000000000014,1.0658141036401503e-14,4.147136590039495e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"BASE/-1,1,-1/r1",residual,-2.5000000000000036,-2.500000000000014,1.0658141036401503e-14,4.2632564145605954e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"BASE/-1,1,-1/r2",fit,25.700000000000003,25.700000000000014,1.0658141036401503e-14,4.147136590039495e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"BASE/-1,1,-1/r2",residual,-1.9000000000000021,-1.9000000000000128,1.0658141036401503e-14,5.6095479138955216e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"BASE/1,-1,-1/r1",fit,32.7,32.70000000000001,7.105427357601002e-15,2.1729135650155966e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"BASE/1,-1,-1/r1",residual,-1.6000000000000014,-1.6000000000000085,7.105427357601002e-15,4.440892098500622e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"BASE/1,-1,-1/r2",fit,32.7,32.70000000000001,7.105427357601002e-15,2.1729135650155966e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"BASE/1,-1,-1/r2",residual,-1.0,-1.000000000000007,7.105427357601002e-15,7.105427357601002e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"BASE/1,1,1/r1",fit,31.299999999999997,31.300000000000015,1.7763568394002505e-14,5.67526146773243e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"BASE/1,1,1/r1",residual,1.9000000000000057,1.899999999999988,1.7763568394002505e-14,9.349246523159185e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"BASE/1,1,1/r2",fit,31.299999999999997,31.300000000000015,1.7763568394002505e-14,5.67526146773243e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"BASE/1,1,1/r2",residual,2.5,2.4999999999999822,1.7763568394002505e-14,7.105427357601002e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"FOLD1/-1,-1,-1/r1",fit,28.700000000000003,28.700000000000006,3.552713678800501e-15,1.237879330592509e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"FOLD1/-1,-1,-1/r1",residual,1.899999999999995,1.8999999999999915,3.552713678800501e-15,1.8698493046318476e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"FOLD1/-1,-1,-1/r2",fit,28.700000000000003,28.700000000000006,3.552713678800501e-15,1.237879330592509e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"FOLD1/-1,-1,-1/r2",residual,2.4999999999999964,2.499999999999993,3.552713678800501e-15,1.4210854715202024e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"FOLD1/-1,1,1/r1",fit,27.299999999999997,27.30000000000001,1.4210854715202004e-14,5.205441287619782e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"FOLD1/-1,1,1/r1",residual,-1.5999999999999979,-1.600000000000012,1.4210854715202004e-14,8.881784197001265e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"FOLD1/-1,1,1/r2",fit,27.299999999999997,27.30000000000001,1.4210854715202004e-14,5.205441287619782e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"FOLD1/-1,1,1/r2",residual,-0.9999999999999964,-1.0000000000000107,1.4210854715202004e-14,1.4210854715202054e-14,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"FOLD1/1,-1,1/r1",fit,34.3,34.30000000000001,1.4210854715202004e-14,4.1431063309626836e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"FOLD1/1,-1,1/r1",residual,-2.5000000000000036,-2.5000000000000178,1.4210854715202004e-14,5.684341886080793e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"FOLD1/1,-1,1/r2",fit,34.3,34.30000000000001,1.4210854715202004e-14,4.1431063309626836e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"FOLD1/1,-1,1/r2",residual,-1.9000000000000057,-1.90000000000002,1.4210854715202004e-14,7.479397218527348e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"FOLD1/1,1,-1/r1",fit,29.700000000000003,29.700000000000017,1.4210854715202004e-14,4.784799567408082e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"FOLD1/1,1,-1/r1",residual,0.9999999999999964,0.9999999999999822,1.4210854715202004e-14,1.4210854715202054e-14,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-REG,1,run_statistics,"FOLD1/1,1,-1/r2",fit,29.700000000000003,29.700000000000017,1.4210854715202004e-14,4.784799567408082e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-REG,1,run_statistics,"FOLD1/1,1,-1/r2",residual,1.5999999999999979,1.5999999999999837,1.4210854715202004e-14,8.881784197001265e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,design_mapping,all runs,point_keys,"('BASE', '-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1', 1);('BASE', '-1,-1,-1,1,1,1,-1,1,1,-1,1', 1);('BASE', '-1,-1,1,1,1,-1,1,1,-1,1,-1', 1);('BASE', '-1,1,-1,-1,-1,1,1,1,-1,1,1', 1);('BASE', '-1,1,1,-1,1,-1,-1,-1,1,1,1', 1);('BASE', '-1,1,1,1,-1,1,1,-1,1,-1,-1', 1);('BASE', '1,-1,-1,-1,1,1,1,-1,1,1,-1', 1);('BASE', '1,-1,1,-1,-1,-1,1,1,1,-1,1', 1);('BASE', '1,-1,1,1,-1,1,-1,-1,-1,1,1', 1);('BASE', '1,1,-1,1,-1,-1,-1,1,1,1,-1', 1);('BASE', '1,1,-1,1,1,-1,1,-1,-1,-1,1', 1);('BASE', '1,1,1,-1,1,1,-1,1,-1,-1,-1', 1);('FOLD1', '-1,-1,-1,1,-1,-1,1,-1,1,1,1', 1);('FOLD1', '-1,-1,1,-1,-1,1,-1,1,1,1,-1', 1);('FOLD1', '-1,-1,1,-1,1,1,1,-1,-1,-1,1', 1);('FOLD1', '-1,1,-1,-1,1,-1,1,1,1,-1,-1', 1);('FOLD1', '-1,1,-1,1,1,1,-1,-1,-1,1,-1', 1);('FOLD1', '-1,1,1,1,-1,-1,-1,1,-1,-1,1', 1);('FOLD1', '1,-1,-1,-1,1,-1,-1,1,-1,1,1', 1);('FOLD1', '1,-1,-1,1,-1,1,1,1,-1,-1,-1', 1);('FOLD1', '1,-1,1,1,1,-1,-1,-1,1,-1,-1', 1);('FOLD1', '1,1,-1,-1,-1,1,-1,-1,1,-1,1', 1);('FOLD1', '1,1,1,-1,-1,-1,1,-1,-1,1,-1', 1);('FOLD1', '1,1,1,1,1,1,1,1,1,1,1', 1)","('BASE', '-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1', 1);('BASE', '-1,-1,-1,1,1,1,-1,1,1,-1,1', 1);('BASE', '-1,-1,1,1,1,-1,1,1,-1,1,-1', 1);('BASE', '-1,1,-1,-1,-1,1,1,1,-1,1,1', 1);('BASE', '-1,1,1,-1,1,-1,-1,-1,1,1,1', 1);('BASE', '-1,1,1,1,-1,1,1,-1,1,-1,-1', 1);('BASE', '1,-1,-1,-1,1,1,1,-1,1,1,-1', 1);('BASE', '1,-1,1,-1,-1,-1,1,1,1,-1,1', 1);('BASE', '1,-1,1,1,-1,1,-1,-1,-1,1,1', 1);('BASE', '1,1,-1,1,-1,-1,-1,1,1,1,-1', 1);('BASE', '1,1,-1,1,1,-1,1,-1,-1,-1,1', 1);('BASE', '1,1,1,-1,1,1,-1,1,-1,-1,-1', 1);('FOLD1', '-1,-1,-1,1,-1,-1,1,-1,1,1,1', 1);('FOLD1', '-1,-1,1,-1,-1,1,-1,1,1,1,-1', 1);('FOLD1', '-1,-1,1,-1,1,1,1,-1,-1,-1,1', 1);('FOLD1', '-1,1,-1,-1,1,-1,1,1,1,-1,-1', 1);('FOLD1', '-1,1,-1,1,1,1,-1,-1,-1,1,-1', 1);('FOLD1', '-1,1,1,1,-1,-1,-1,1,-1,-1,1', 1);('FOLD1', '1,-1,-1,-1,1,-1,-1,1,-1,1,1', 1);('FOLD1', '1,-1,-1,1,-1,1,1,1,-1,-1,-1', 1);('FOLD1', '1,-1,1,1,1,-1,-1,-1,1,-1,-1', 1);('FOLD1', '1,1,-1,-1,-1,1,-1,-1,1,-1,1', 1);('FOLD1', '1,1,1,-1,-1,-1,1,-1,-1,1,-1', 1);('FOLD1', '1,1,1,1,1,1,1,1,1,1,1', 1)",,,,,Minitab native design factor columns (DIRECT),MiniJMP design matrix and foldover lineage,PASS
+FOLD-PB,1,input,"BASE/-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/r1",Y,19.5,19.5,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/r1:F1",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/r1:F2",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/r1:F3",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/r1:F4",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/r1:F5",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/r1:F6",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/r1:F7",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/r1:F8",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/r1:F9",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/r1:F10",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/r1:F11",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"BASE/-1,-1,-1,1,1,1,-1,1,1,-1,1/r1",Y,18.9,18.9,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,1,1,1,-1,1,1,-1,1/r1:F1",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,1,1,1,-1,1,1,-1,1/r1:F2",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,1,1,1,-1,1,1,-1,1/r1:F3",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,1,1,1,-1,1,1,-1,1/r1:F4",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,1,1,1,-1,1,1,-1,1/r1:F5",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,1,1,1,-1,1,1,-1,1/r1:F6",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,1,1,1,-1,1,1,-1,1/r1:F7",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,1,1,1,-1,1,1,-1,1/r1:F8",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,1,1,1,-1,1,1,-1,1/r1:F9",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,1,1,1,-1,1,1,-1,1/r1:F10",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,-1,1,1,1,-1,1,1,-1,1/r1:F11",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"BASE/-1,-1,1,1,1,-1,1,1,-1,1,-1/r1",Y,21.699999999999996,21.699999999999996,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,1,1,1,-1,1,1,-1,1,-1/r1:F1",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,1,1,1,-1,1,1,-1,1,-1/r1:F2",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,1,1,1,-1,1,1,-1,1,-1/r1:F3",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,1,1,1,-1,1,1,-1,1,-1/r1:F4",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,1,1,1,-1,1,1,-1,1,-1/r1:F5",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,1,1,1,-1,1,1,-1,1,-1/r1:F6",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,1,1,1,-1,1,1,-1,1,-1/r1:F7",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,1,1,1,-1,1,1,-1,1,-1/r1:F8",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,1,1,1,-1,1,1,-1,1,-1/r1:F9",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,1,1,1,-1,1,1,-1,1,-1/r1:F10",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,-1,1,1,1,-1,1,1,-1,1,-1/r1:F11",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"BASE/-1,1,-1,-1,-1,1,1,1,-1,1,1/r1",Y,12.999999999999998,12.999999999999998,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,-1,-1,-1,1,1,1,-1,1,1/r1:F1",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,-1,-1,-1,1,1,1,-1,1,1/r1:F2",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,-1,-1,-1,1,1,1,-1,1,1/r1:F3",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,-1,-1,-1,1,1,1,-1,1,1/r1:F4",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,-1,-1,-1,1,1,1,-1,1,1/r1:F5",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,-1,-1,-1,1,1,1,-1,1,1/r1:F6",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,-1,-1,-1,1,1,1,-1,1,1/r1:F7",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,-1,-1,-1,1,1,1,-1,1,1/r1:F8",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,-1,-1,-1,1,1,1,-1,1,1/r1:F9",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,-1,-1,-1,1,1,1,-1,1,1/r1:F10",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,-1,-1,-1,1,1,1,-1,1,1/r1:F11",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"BASE/-1,1,1,-1,1,-1,-1,-1,1,1,1/r1",Y,16.9,16.9,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,-1,1,-1,-1,-1,1,1,1/r1:F1",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,-1,1,-1,-1,-1,1,1,1/r1:F2",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,-1,1,-1,-1,-1,1,1,1/r1:F3",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,-1,1,-1,-1,-1,1,1,1/r1:F4",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,-1,1,-1,-1,-1,1,1,1/r1:F5",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,-1,1,-1,-1,-1,1,1,1/r1:F6",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,-1,1,-1,-1,-1,1,1,1/r1:F7",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,-1,1,-1,-1,-1,1,1,1/r1:F8",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,-1,1,-1,-1,-1,1,1,1/r1:F9",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,-1,1,-1,-1,-1,1,1,1/r1:F10",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,-1,1,-1,-1,-1,1,1,1/r1:F11",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"BASE/-1,1,1,1,-1,1,1,-1,1,-1,-1/r1",Y,17.5,17.5,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,1,-1,1,1,-1,1,-1,-1/r1:F1",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,1,-1,1,1,-1,1,-1,-1/r1:F2",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,1,-1,1,1,-1,1,-1,-1/r1:F3",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,1,-1,1,1,-1,1,-1,-1/r1:F4",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,1,-1,1,1,-1,1,-1,-1/r1:F5",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,1,-1,1,1,-1,1,-1,-1/r1:F6",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,1,-1,1,1,-1,1,-1,-1/r1:F7",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,1,-1,1,1,-1,1,-1,-1/r1:F8",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,1,-1,1,1,-1,1,-1,-1/r1:F9",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,1,-1,1,1,-1,1,-1,-1/r1:F10",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/-1,1,1,1,-1,1,1,-1,1,-1,-1/r1:F11",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"BASE/1,-1,-1,-1,1,1,1,-1,1,1,-1/r1",Y,22.700000000000003,22.700000000000003,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,-1,-1,1,1,1,-1,1,1,-1/r1:F1",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,-1,-1,1,1,1,-1,1,1,-1/r1:F2",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,-1,-1,1,1,1,-1,1,1,-1/r1:F3",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,-1,-1,1,1,1,-1,1,1,-1/r1:F4",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,-1,-1,1,1,1,-1,1,1,-1/r1:F5",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,-1,-1,1,1,1,-1,1,1,-1/r1:F6",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,-1,-1,1,1,1,-1,1,1,-1/r1:F7",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,-1,-1,1,1,1,-1,1,1,-1/r1:F8",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,-1,-1,1,1,1,-1,1,1,-1/r1:F9",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,-1,-1,1,1,1,-1,1,1,-1/r1:F10",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,-1,-1,1,1,1,-1,1,1,-1/r1:F11",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"BASE/1,-1,1,-1,-1,-1,1,1,1,-1,1/r1",Y,24.4,24.4,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,-1,-1,-1,1,1,1,-1,1/r1:F1",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,-1,-1,-1,1,1,1,-1,1/r1:F2",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,-1,-1,-1,1,1,1,-1,1/r1:F3",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,-1,-1,-1,1,1,1,-1,1/r1:F4",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,-1,-1,-1,1,1,1,-1,1/r1:F5",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,-1,-1,-1,1,1,1,-1,1/r1:F6",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,-1,-1,-1,1,1,1,-1,1/r1:F7",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,-1,-1,-1,1,1,1,-1,1/r1:F8",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,-1,-1,-1,1,1,1,-1,1/r1:F9",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,-1,-1,-1,1,1,1,-1,1/r1:F10",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,-1,-1,-1,1,1,1,-1,1/r1:F11",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"BASE/1,-1,1,1,-1,1,-1,-1,-1,1,1/r1",Y,25.5,25.5,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,1,-1,1,-1,-1,-1,1,1/r1:F1",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,1,-1,1,-1,-1,-1,1,1/r1:F2",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,1,-1,1,-1,-1,-1,1,1/r1:F3",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,1,-1,1,-1,-1,-1,1,1/r1:F4",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,1,-1,1,-1,-1,-1,1,1/r1:F5",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,1,-1,1,-1,-1,-1,1,1/r1:F6",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,1,-1,1,-1,-1,-1,1,1/r1:F7",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,1,-1,1,-1,-1,-1,1,1/r1:F8",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,1,-1,1,-1,-1,-1,1,1/r1:F9",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,1,-1,1,-1,-1,-1,1,1/r1:F10",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,-1,1,1,-1,1,-1,-1,-1,1,1/r1:F11",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"BASE/1,1,-1,1,-1,-1,-1,1,1,1,-1/r1",Y,19.200000000000003,19.200000000000003,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,-1,-1,-1,1,1,1,-1/r1:F1",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,-1,-1,-1,1,1,1,-1/r1:F2",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,-1,-1,-1,1,1,1,-1/r1:F3",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,-1,-1,-1,1,1,1,-1/r1:F4",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,-1,-1,-1,1,1,1,-1/r1:F5",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,-1,-1,-1,1,1,1,-1/r1:F6",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,-1,-1,-1,1,1,1,-1/r1:F7",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,-1,-1,-1,1,1,1,-1/r1:F8",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,-1,-1,-1,1,1,1,-1/r1:F9",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,-1,-1,-1,1,1,1,-1/r1:F10",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,-1,-1,-1,1,1,1,-1/r1:F11",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"BASE/1,1,-1,1,1,-1,1,-1,-1,-1,1/r1",Y,18.1,18.1,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,1,-1,1,-1,-1,-1,1/r1:F1",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,1,-1,1,-1,-1,-1,1/r1:F2",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,1,-1,1,-1,-1,-1,1/r1:F3",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,1,-1,1,-1,-1,-1,1/r1:F4",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,1,-1,1,-1,-1,-1,1/r1:F5",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,1,-1,1,-1,-1,-1,1/r1:F6",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,1,-1,1,-1,-1,-1,1/r1:F7",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,1,-1,1,-1,-1,-1,1/r1:F8",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,1,-1,1,-1,-1,-1,1/r1:F9",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,1,-1,1,-1,-1,-1,1/r1:F10",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,-1,1,1,-1,1,-1,-1,-1,1/r1:F11",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"BASE/1,1,1,-1,1,1,-1,1,-1,-1,-1/r1",Y,22.6,22.6,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,1,-1,1,1,-1,1,-1,-1,-1/r1:F1",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,1,-1,1,1,-1,1,-1,-1,-1/r1:F2",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,1,-1,1,1,-1,1,-1,-1,-1/r1:F3",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,1,-1,1,1,-1,1,-1,-1,-1/r1:F4",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,1,-1,1,1,-1,1,-1,-1,-1/r1:F5",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,1,-1,1,1,-1,1,-1,-1,-1/r1:F6",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,1,-1,1,1,-1,1,-1,-1,-1/r1:F7",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,1,-1,1,1,-1,1,-1,-1,-1/r1:F8",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,1,-1,1,1,-1,1,-1,-1,-1/r1:F9",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,1,-1,1,1,-1,1,-1,-1,-1/r1:F10",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,BASE,"BASE/1,1,1,-1,1,1,-1,1,-1,-1,-1/r1:F11",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1",Y,20.6,20.6,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1:F1",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1:F2",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1:F3",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1:F4",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1:F5",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1:F6",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1:F7",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1:F8",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1:F9",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1:F10",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1:F11",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1",Y,21.699999999999996,21.699999999999996,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1:F1",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1:F2",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1:F3",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1:F4",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1:F5",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1:F6",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1:F7",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1:F8",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1:F9",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1:F10",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1:F11",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1",Y,22.799999999999997,22.799999999999997,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1:F1",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1:F2",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1:F3",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1:F4",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1:F5",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1:F6",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1:F7",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1:F8",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1:F9",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1:F10",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1:F11",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1",Y,14.700000000000001,14.700000000000001,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1:F1",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1:F2",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1:F3",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1:F4",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1:F5",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1:F6",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1:F7",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1:F8",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1:F9",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1:F10",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1:F11",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1",Y,13.6,13.6,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1:F1",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1:F2",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1:F3",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1:F4",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1:F5",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1:F6",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1:F7",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1:F8",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1:F9",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1:F10",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1:F11",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1",Y,17.5,17.5,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1:F1",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1:F2",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1:F3",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1:F4",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1:F5",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1:F6",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1:F7",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1:F8",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1:F9",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1:F10",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1:F11",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1",Y,22.700000000000003,22.700000000000003,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1:F1",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1:F2",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1:F3",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1:F4",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1:F5",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1:F6",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1:F7",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1:F8",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1:F9",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1:F10",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1:F11",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1",Y,22.1,22.1,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1:F1",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1:F2",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1:F3",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1:F4",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1:F5",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1:F6",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1:F7",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1:F8",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1:F9",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1:F10",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1:F11",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1",Y,23.799999999999997,23.799999999999997,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1:F1",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1:F2",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1:F3",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1:F4",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1:F5",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1:F6",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1:F7",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1:F8",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1:F9",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1:F10",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1:F11",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1",Y,18.1,18.1,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1:F1",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1:F2",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1:F3",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1:F4",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1:F5",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1:F6",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1:F7",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1:F8",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1:F9",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1:F10",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1:F11",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1",Y,20.9,20.9,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1:F1",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1:F2",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1:F3",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1:F4",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1:F5",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1:F6",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1:F7",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1:F8",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1:F9",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1:F10",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1:F11",-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,input,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1",Y,21.5,21.5,0.0,0.0,1e-09,1e-09,fixed response loaded into Minitab worksheet,MiniJMP fixed input,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1:F1",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1:F2",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1:F3",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1:F4",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1:F5",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1:F6",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1:F7",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1:F8",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1:F9",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1:F10",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,design,FOLD1,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1:F11",1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab native factor column (DIRECT),MiniJMP coded design row,PASS
+FOLD-PB,1,foldover_map,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1",source_point,"1,-1,1,-1,-1,-1,1,1,1,-1,1","1,-1,1,-1,-1,-1,1,1,1,-1,1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-PB,1,foldover_map,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1",source_point,"1,1,-1,1,-1,-1,-1,1,1,1,-1","1,1,-1,1,-1,-1,-1,1,1,1,-1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-PB,1,foldover_map,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1",source_point,"-1,1,1,-1,1,-1,-1,-1,1,1,1","-1,1,1,-1,1,-1,-1,-1,1,1,1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-PB,1,foldover_map,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1",source_point,"1,-1,1,1,-1,1,-1,-1,-1,1,1","1,-1,1,1,-1,1,-1,-1,-1,1,1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-PB,1,foldover_map,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1",source_point,"1,1,-1,1,1,-1,1,-1,-1,-1,1","1,1,-1,1,1,-1,1,-1,-1,-1,1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-PB,1,foldover_map,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1",source_point,"1,1,1,-1,1,1,-1,1,-1,-1,-1","1,1,1,-1,1,1,-1,1,-1,-1,-1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-PB,1,foldover_map,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1",source_point,"-1,1,1,1,-1,1,1,-1,1,-1,-1","-1,1,1,1,-1,1,1,-1,1,-1,-1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-PB,1,foldover_map,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1",source_point,"-1,-1,1,1,1,-1,1,1,-1,1,-1","-1,-1,1,1,1,-1,1,1,-1,1,-1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-PB,1,foldover_map,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1",source_point,"-1,-1,-1,1,1,1,-1,1,1,-1,1","-1,-1,-1,1,1,1,-1,1,1,-1,1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-PB,1,foldover_map,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1",source_point,"1,-1,-1,-1,1,1,1,-1,1,1,-1","1,-1,-1,-1,1,1,1,-1,1,1,-1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-PB,1,foldover_map,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1",source_point,"-1,1,-1,-1,-1,1,1,1,-1,1,1","-1,1,-1,-1,-1,1,1,1,-1,1,1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-PB,1,foldover_map,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1",source_point,"-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1","-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1",,,,,Minitab factor flip mapped to base point (DERIVED),MiniJMP source_run_id lineage,PASS
+FOLD-PB,1,before_design,PB12,main_rank,12.0,12.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab native PB factor matrix,MiniJMP pb_foldover_summary,PASS
+FOLD-PB,1,before_design,PB12,joint_rank,12.0,12.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab native PB factor matrix,MiniJMP pb_foldover_summary,PASS
+FOLD-PB,1,before_design,two-factor interactions,complete_confounding_count,55.0,55.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab native PB factor matrix,MiniJMP pb_foldover_summary,PASS
+FOLD-PB,1,before_design,two-factor interactions,estimable_count,0.0,0.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab native PB factor matrix,MiniJMP pb_foldover_summary,PASS
+FOLD-PB,1,before_design,PB12,runs,12.0,12.0,0.0,0.0,1e-09,1e-09,Minitab native design columns (DIRECT),MiniJMP foldover design,PASS
+FOLD-PB,1,after_design,PB12,main_rank,12.0,12.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab native PB factor matrix,MiniJMP pb_foldover_summary,PASS
+FOLD-PB,1,after_design,PB12,joint_rank,23.0,23.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab native PB factor matrix,MiniJMP pb_foldover_summary,PASS
+FOLD-PB,1,after_design,two-factor interactions,complete_confounding_count,0.0,0.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab native PB factor matrix,MiniJMP pb_foldover_summary,PASS
+FOLD-PB,1,after_design,two-factor interactions,estimable_count,55.0,55.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab native PB factor matrix,MiniJMP pb_foldover_summary,PASS
+FOLD-PB,1,after_design,PB12,runs,24.0,24.0,0.0,0.0,1e-09,1e-09,Minitab native design columns (DIRECT),MiniJMP foldover design,PASS
+FOLD-PB,1,before_statistics,main effects,inference,,,,,1e-09,1e-09,saturated PB12 main-effects model (df=0),MiniJMP saturated PB12 main-effects model (df=0),N/A
+FOLD-PB,1,model_space,main-effects model,rank,12.0,12.0,0.0,0.0,1e-09,1e-09,Minitab stored XMATRIX (DIRECT),MiniJMP production model matrix,PASS
+FOLD-PB,1,model_space,main-effects model,basis_error,0.0,0.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab XMATRIX mapped to MiniJMP term basis,MiniJMP coded model matrix,PASS
+FOLD-PB,1,model_summary,after foldover,n,24.0,24.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-PB,1,model_summary,after foldover,p,12.0,12.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-PB,1,model_summary,after foldover,df,12.0,12.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-PB,1,model_summary,after foldover,sse,15.360000000000033,15.360000000000019,1.4210854715202004e-14,9.251858538542952e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-PB,1,model_summary,after foldover,sst,256.32,256.31999999999994,5.684341886080802e-14,2.2176739568043077e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-PB,1,model_summary,after foldover,ssr,240.95999999999995,240.95999999999992,2.842170943040401e-14,1.1795198136787854e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-PB,1,model_summary,after foldover,mse,1.2800000000000027,1.2800000000000016,1.1102230246251565e-15,8.673617379884018e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-PB,1,model_summary,after foldover,model_f,17.113636363636324,17.11363636363634,1.4210854715202004e-14,8.303819488298667e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-PB,1,model_summary,after foldover,model_p,1.153843819783166e-05,1.1538438197831611e-05,4.912791094074942e-20,4.2577608943627824e-15,1e-09,1e-09,"DERIVED: Minitab XMATRIX, FITS/RESIDUALS and fixed response",MiniJMP production analysis,PASS
+FOLD-PB,1,coefficient,截距,estimate,20.0,20.000000000000004,3.552713678800501e-15,1.7763568394002506e-16,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-PB,1,effect,截距,coded_effect,,,,,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,N/A
+FOLD-PB,1,coefficient,截距,standard_error,0.23094010767585055,0.23094010767585046,8.326672684688674e-17,3.6055550369691785e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,截距,t,86.60254037844378,86.60254037844382,4.263256414560601e-14,4.922784477141929e-16,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,截距,p,3.75114248003611e-18,3.7511424800360845e-18,2.5422275265911513e-32,6.777208650753993e-15,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,截距,F,7499.9999999999845,7499.999999999992,7.275957614183426e-12,9.701276818911255e-16,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-PB,1,coefficient,F1,estimate,1.800000000000001,1.8000000000000007,2.220446049250313e-16,1.2335811384723955e-16,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-PB,1,effect,F1,coded_effect,3.600000000000002,3.6000000000000014,4.440892098500626e-16,1.2335811384723955e-16,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,PASS
+FOLD-PB,1,coefficient,F1,standard_error,0.23094010767585055,0.23094010767585046,8.326672684688674e-17,3.6055550369691785e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F1,t,7.794228634059944,7.794228634059945,1.7763568394002505e-15,2.2790668875657066e-16,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F1,p,4.904468387681989e-06,4.904468387681971e-06,1.7787691892340307e-20,3.626833835246178e-15,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F1,F,60.749999999999936,60.749999999999964,2.842170943040401e-14,4.678470688132352e-16,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-PB,1,coefficient,F2,estimate,-2.2,-2.200000000000002,1.7763568394002505e-15,8.074349270001138e-16,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-PB,1,effect,F2,coded_effect,-4.4,-4.400000000000004,3.552713678800501e-15,8.074349270001138e-16,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,PASS
+FOLD-PB,1,coefficient,F2,standard_error,0.23094010767585055,0.2309401076758505,5.551115123125783e-17,2.403703357979452e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F2,t,-9.526279441628816,-9.526279441628827,1.0658141036401503e-14,1.1188146538958928e-15,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F2,p,6.034672685696667e-07,6.034672685696601e-07,6.564505341220828e-21,1.087798076734131e-14,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F2,F,90.74999999999983,90.75000000000003,1.9895196601282805e-13,2.192308165430616e-15,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-PB,1,coefficient,F3,estimate,1.3999999999999986,1.4000000000000004,1.7763568394002505e-15,1.268826313857323e-15,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-PB,1,effect,F3,coded_effect,2.799999999999997,2.8000000000000007,3.552713678800501e-15,1.268826313857323e-15,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,PASS
+FOLD-PB,1,coefficient,F3,standard_error,0.23094010767585055,0.2309401076758504,1.3877787807814457e-16,6.009258394948631e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F3,t,6.062177826491058,6.0621778264910695,1.1546319456101628e-14,1.9046487560370576e-15,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F3,p,5.652543430677198e-05,5.6525434306771046e-05,9.351243737687476e-19,1.6543426604980826e-14,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F3,F,36.74999999999985,36.749999999999986,1.3500311979441904e-13,3.673554280120261e-15,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-PB,1,coefficient,F4,estimate,1.21886145178536e-16,-2.220446049250313e-16,3.439307501035673e-16,2.821737857077894,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-PB,1,effect,F4,coded_effect,2.43772290357072e-16,-4.440892098500626e-16,6.878615002071346e-16,2.821737857077894,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,PASS
+FOLD-PB,1,coefficient,F4,standard_error,0.23094010767585055,0.2309401076758505,5.551115123125783e-17,2.403703357979452e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F4,t,5.277824904698512e-16,-9.614813431917813e-16,1.4892638336616326e-15,2.821737857077895,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F4,p,0.9999999999999996,0.9999999999999992,3.3306690738754696e-16,3.330669073875471e-16,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F4,F,2.7855435724655856e-31,9.244463733058718e-31,6.4589201605931325e-31,2.318728819910761,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-PB,1,coefficient,F5,estimate,-2.551105364201917e-16,8.881784197001252e-16,1.1432889561203169e-15,4.481543460193309,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-PB,1,effect,F5,coded_effect,-5.102210728403834e-16,1.7763568394002505e-15,2.2865779122406337e-15,4.481543460193309,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,PASS
+FOLD-PB,1,coefficient,F5,standard_error,0.23094010767585055,0.23094010767585055,0.0,0.0,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F5,t,-1.1046610265648051e-15,3.8459253727671235e-15,4.9505863993319284e-15,4.481543460193308,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F5,p,0.9999999999999991,0.999999999999997,2.1094237467877974e-15,2.1094237467877994e-15,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F5,F,1.220275983611209e-30,1.4791141972893938e-29,1.357086598928273e-29,11.121144865214795,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-PB,1,coefficient,F6,estimate,-1.5306632185211506e-16,-3.3306690738754696e-16,1.800005855354319e-16,1.1759646626208171,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-PB,1,effect,F6,coded_effect,-3.061326437042301e-16,-6.661338147750939e-16,3.600011710708638e-16,1.1759646626208171,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,PASS
+FOLD-PB,1,coefficient,F6,standard_error,0.23094010767585055,0.23094010767585046,8.326672684688674e-17,3.6055550369691785e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F6,t,-6.627966159388833e-16,-1.442222014787672e-15,7.794253988487887e-16,1.175964662620818,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F6,p,0.9999999999999996,0.9999999999999989,6.661338147750939e-16,6.661338147750942e-16,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F6,F,4.392993541000355e-31,2.080004339938212e-30,1.6407049858381765e-30,3.7348222129745308,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-PB,1,coefficient,F7,estimate,9.637509153651695e-17,1.0824674490095276e-15,9.860923574730107e-16,10.231817596763328,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-PB,1,effect,F7,coded_effect,1.927501830730339e-16,2.1649348980190553e-15,1.9721847149460214e-15,10.231817596763328,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,PASS
+FOLD-PB,1,coefficient,F7,standard_error,0.23094010767585055,0.23094010767585044,1.1102230246251565e-16,4.807406715958904e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F7,t,4.173163878133712e-16,4.687221548059934e-15,4.2699051602465625e-15,10.231817596763332,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F7,p,0.9999999999999997,0.9999999999999963,3.3306690738754696e-15,3.330669073875471e-15,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F7,F,1.7415296753760004e-31,2.1970045840597365e-29,2.1795892873059765e-29,125.15372652696244,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-PB,1,coefficient,F8,estimate,3.4014738189358903e-17,2.220446049250313e-16,1.8802986673567242e-16,5.527893987862452,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-PB,1,effect,F8,coded_effect,6.802947637871781e-17,4.440892098500626e-16,3.7605973347134483e-16,5.527893987862452,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,PASS
+FOLD-PB,1,coefficient,F8,standard_error,0.23094010767585055,0.23094010767585046,8.326672684688674e-17,3.6055550369691785e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F8,t,1.472881368753074e-16,9.614813431917813e-16,8.141932063164739e-16,5.527893987862454,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F8,p,0.9999999999999999,0.9999999999999992,6.661338147750939e-16,6.66133814775094e-16,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F8,F,2.1693795264199286e-32,9.244463733058718e-31,9.027525780416725e-31,41.61339991677076,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-PB,1,coefficient,F9,estimate,1.4172807578899544e-16,-4.996003610813204e-16,6.413284368703158e-16,4.525062753445723,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-PB,1,effect,F9,coded_effect,2.834561515779909e-16,-9.992007221626409e-16,1.2826568737406317e-15,4.525062753445723,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,PASS
+FOLD-PB,1,coefficient,F9,standard_error,0.23094010767585055,0.23094010767585044,1.1102230246251565e-16,4.807406715958904e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F9,t,6.137005703137809e-16,-2.1633330221815083e-15,2.777033592495289e-15,4.5250627534457255,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F9,p,0.9999999999999996,0.9999999999999983,1.2212453270876722e-15,1.2212453270876728e-15,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F9,F,3.7662839000345987e-31,4.680009764860978e-30,4.303381374857518e-30,11.426067415730358,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-PB,1,coefficient,F10,estimate,-1.7574281397835429e-16,6.661338147750939e-16,8.418766287534482e-16,4.790390057468521,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-PB,1,effect,F10,coded_effect,-3.5148562795670857e-16,1.3322676295501878e-15,1.6837532575068964e-15,4.790390057468521,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,PASS
+FOLD-PB,1,coefficient,F10,standard_error,0.23094010767585055,0.23094010767585046,8.326672684688674e-17,3.6055550369691785e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F10,t,-7.60988707189088e-16,2.884444029575344e-15,3.645432736764432e-15,4.790390057468522,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F10,p,0.9999999999999993,0.9999999999999978,1.5543122344752192e-15,1.5543122344752201e-15,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F10,F,5.791038124693196e-31,8.320017359752848e-30,7.740913547283528e-30,13.367056787756228,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-PB,1,coefficient,F11,estimate,-5.102210728403833e-17,-1.1102230246251565e-16,6.000019517847732e-17,1.175964662620818,1e-09,1e-09,Minitab COEFFICIENTS transformed to MiniJMP basis (DIRECT),MiniJMP production coefficient,PASS
+FOLD-PB,1,effect,F11,coded_effect,-1.0204421456807666e-16,-2.220446049250313e-16,1.2000039035695464e-16,1.175964662620818,1e-09,1e-09,DERIVED: twice Minitab coded coefficient,MiniJMP production effect,PASS
+FOLD-PB,1,coefficient,F11,standard_error,0.23094010767585055,0.23094010767585052,2.7755575615628914e-17,1.201851678989726e-16,1e-09,1e-09,DERIVED: Minitab XMATRIX and MSE,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F11,t,-2.2093220531296099e-16,-4.807406715958905e-16,2.5980846628292957e-16,1.1759646626208184,1e-09,1e-09,DERIVED: Minitab coefficient and standard error,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F11,p,0.9999999999999998,0.9999999999999996,2.220446049250313e-16,2.2204460492503136e-16,1e-09,1e-09,DERIVED: two-sided Student t distribution,MiniJMP production inference,PASS
+FOLD-PB,1,coefficient,F11,F,4.881103934444835e-32,2.3111159332646786e-31,1.823005539820195e-31,3.7348222129745317,1e-09,1e-09,DERIVED: Minitab t statistic squared (1 df),MiniJMP production t statistic squared,PASS
+FOLD-PB,1,run_statistics,"BASE/-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/r1",fit,19.000000000000004,19.000000000000004,0.0,0.0,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"BASE/-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/r1",residual,0.49999999999999645,0.49999999999999645,0.0,0.0,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"BASE/-1,-1,-1,1,1,1,-1,1,1,-1,1/r1",fit,19.000000000000004,19.0,3.552713678800501e-15,1.8698493046318422e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"BASE/-1,-1,-1,1,1,1,-1,1,1,-1,1/r1",residual,-0.10000000000000497,-0.10000000000000142,3.552713678800501e-15,3.552713678800324e-14,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"BASE/-1,-1,1,1,1,-1,1,1,-1,1,-1/r1",fit,21.8,21.800000000000008,7.105427357601002e-15,3.259370347523395e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"BASE/-1,-1,1,1,1,-1,1,1,-1,1,-1/r1",residual,-0.10000000000000497,-0.10000000000001208,7.105427357601002e-15,7.105427357600648e-14,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"BASE/-1,1,-1,-1,-1,1,1,1,-1,1,1/r1",fit,14.600000000000005,14.6,5.329070518200751e-15,3.6500483001375e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"BASE/-1,1,-1,-1,-1,1,1,1,-1,1,1/r1",residual,-1.6000000000000068,-1.6000000000000014,5.329070518200751e-15,3.3306690738754554e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"BASE/-1,1,1,-1,1,-1,-1,-1,1,1,1/r1",fit,17.400000000000002,17.400000000000002,0.0,0.0,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"BASE/-1,1,1,-1,1,-1,-1,-1,1,1,1/r1",residual,-0.5000000000000036,-0.5000000000000036,0.0,0.0,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"BASE/-1,1,1,1,-1,1,1,-1,1,-1,-1/r1",fit,17.400000000000002,17.4,3.552713678800501e-15,2.0417894705750003e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"BASE/-1,1,1,1,-1,1,1,-1,1,-1,-1/r1",residual,0.09999999999999787,0.10000000000000142,3.552713678800501e-15,3.5527136788005767e-14,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"BASE/1,-1,-1,-1,1,1,1,-1,1,1,-1/r1",fit,22.600000000000005,22.60000000000001,3.552713678800501e-15,1.571997203009071e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"BASE/1,-1,-1,-1,1,1,1,-1,1,1,-1/r1",residual,0.09999999999999787,0.09999999999999432,3.552713678800501e-15,3.5527136788005767e-14,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"BASE/1,-1,1,-1,-1,-1,1,1,1,-1,1/r1",fit,25.400000000000002,25.400000000000006,3.552713678800501e-15,1.3987061727561027e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"BASE/1,-1,1,-1,-1,-1,1,1,1,-1,1/r1",residual,-1.0000000000000036,-1.000000000000007,3.552713678800501e-15,3.5527136788004883e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"BASE/1,-1,1,1,-1,1,-1,-1,-1,1,1/r1",fit,25.400000000000002,25.400000000000006,3.552713678800501e-15,1.3987061727561027e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"BASE/1,-1,1,1,-1,1,-1,-1,-1,1,1/r1",residual,0.09999999999999787,0.09999999999999432,3.552713678800501e-15,3.5527136788005767e-14,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"BASE/1,1,-1,1,-1,-1,-1,1,1,1,-1/r1",fit,18.200000000000006,18.200000000000003,3.552713678800501e-15,1.9520404828574173e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"BASE/1,1,-1,1,-1,-1,-1,1,1,1,-1/r1",residual,0.9999999999999964,1.0,3.552713678800501e-15,3.5527136788005136e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"BASE/1,1,-1,1,1,-1,1,-1,-1,-1,1/r1",fit,18.200000000000006,18.200000000000003,3.552713678800501e-15,1.9520404828574173e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"BASE/1,1,-1,1,1,-1,1,-1,-1,-1,1/r1",residual,-0.10000000000000497,-0.10000000000000142,3.552713678800501e-15,3.552713678800324e-14,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"BASE/1,1,1,-1,1,1,-1,1,-1,-1,-1/r1",fit,21.000000000000004,21.000000000000004,0.0,0.0,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"BASE/1,1,1,-1,1,1,-1,1,-1,-1,-1/r1",residual,1.5999999999999979,1.5999999999999979,0.0,0.0,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1",fit,19.000000000000004,19.000000000000004,0.0,0.0,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"FOLD1/-1,-1,-1,1,-1,-1,1,-1,1,1,1/r1",residual,1.5999999999999979,1.5999999999999979,0.0,0.0,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1",fit,21.8,21.800000000000004,3.552713678800501e-15,1.6296851737616975e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"FOLD1/-1,-1,1,-1,-1,1,-1,1,1,1,-1/r1",residual,-0.10000000000000497,-0.10000000000000853,3.552713678800501e-15,3.552713678800324e-14,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1",fit,21.8,21.800000000000004,3.552713678800501e-15,1.6296851737616975e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"FOLD1/-1,-1,1,-1,1,1,1,-1,-1,-1,1/r1",residual,0.9999999999999964,0.9999999999999929,3.552713678800501e-15,3.5527136788005136e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1",fit,14.600000000000005,14.600000000000001,3.552713678800501e-15,2.433365533425e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"FOLD1/-1,1,-1,-1,1,-1,1,1,1,-1,-1/r1",residual,0.09999999999999609,0.09999999999999964,3.552713678800501e-15,3.55271367880064e-14,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1",fit,14.600000000000005,14.6,5.329070518200751e-15,3.6500483001375e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"FOLD1/-1,1,-1,1,1,1,-1,-1,-1,1,-1/r1",residual,-1.0000000000000053,-1.0,5.329070518200751e-15,5.329070518200723e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1",fit,17.400000000000002,17.4,3.552713678800501e-15,2.0417894705750003e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"FOLD1/-1,1,1,1,-1,-1,-1,1,-1,-1,1/r1",residual,0.09999999999999787,0.10000000000000142,3.552713678800501e-15,3.5527136788005767e-14,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1",fit,22.600000000000005,22.60000000000001,3.552713678800501e-15,1.571997203009071e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"FOLD1/1,-1,-1,-1,1,-1,-1,1,-1,1,1/r1",residual,0.09999999999999787,0.09999999999999432,3.552713678800501e-15,3.5527136788005767e-14,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1",fit,22.600000000000005,22.600000000000005,0.0,0.0,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"FOLD1/1,-1,-1,1,-1,1,1,1,-1,-1,-1/r1",residual,-0.5000000000000036,-0.5000000000000036,0.0,0.0,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1",fit,25.400000000000002,25.400000000000006,3.552713678800501e-15,1.3987061727561027e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"FOLD1/1,-1,1,1,1,-1,-1,-1,1,-1,-1/r1",residual,-1.600000000000005,-1.6000000000000085,3.552713678800501e-15,2.2204460492503064e-15,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1",fit,18.200000000000006,18.2,7.105427357601002e-15,3.9040809657148346e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"FOLD1/1,1,-1,-1,-1,1,-1,-1,1,-1,1/r1",residual,-0.10000000000000497,-0.09999999999999787,7.105427357601002e-15,7.105427357600648e-14,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1",fit,21.000000000000004,21.000000000000007,3.552713678800501e-15,1.6917684184764287e-16,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"FOLD1/1,1,1,-1,-1,-1,1,-1,-1,1,-1/r1",residual,-0.10000000000000497,-0.10000000000000853,3.552713678800501e-15,3.552713678800324e-14,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS
+FOLD-PB,1,run_statistics,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1",fit,21.000000000000004,21.000000000000004,0.0,0.0,1e-09,1e-09,Minitab FITS (DIRECT),MiniJMP fitted value,PASS
+FOLD-PB,1,run_statistics,"FOLD1/1,1,1,1,1,1,1,1,1,1,1/r1",residual,0.49999999999999645,0.49999999999999645,0.0,0.0,1e-09,1e-09,Minitab RESIDUALS (DIRECT; Y−Fit),MiniJMP residual (Y−Fit),PASS

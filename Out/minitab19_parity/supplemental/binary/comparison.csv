@@ -1,0 +1,202 @@
+﻿case_id,comparison_run,section,term,statistic,minitab_value,minijmp_value,absolute_error,relative_error,absolute_tolerance,relative_tolerance,minitab_value_source,minijmp_value_source,status
+BIN-FACTORIAL,1,design,"-1,-1",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-FACTORIAL,1,design,"-1,-1",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-FACTORIAL,1,input,"-1,-1",events,2.0,2.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-FACTORIAL,1,input,"-1,-1",trials,10.0,10.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-FACTORIAL,1,design,"-1,1",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-FACTORIAL,1,design,"-1,1",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-FACTORIAL,1,input,"-1,1",events,5.0,5.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-FACTORIAL,1,input,"-1,1",trials,10.0,10.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-FACTORIAL,1,design,"1,-1",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-FACTORIAL,1,design,"1,-1",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-FACTORIAL,1,input,"1,-1",events,5.0,5.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-FACTORIAL,1,input,"1,-1",trials,10.0,10.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-FACTORIAL,1,design,"1,1",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-FACTORIAL,1,design,"1,1",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-FACTORIAL,1,input,"1,1",events,8.0,8.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-FACTORIAL,1,input,"1,1",trials,10.0,10.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-FACTORIAL,1,model_space,grouped binomial,rank,4.0,4.0,0.0,0.0,1e-09,1e-09,Minitab model matrix (DIRECT/DERIVED per command),MiniJMP production matrix,PASS
+BIN-FACTORIAL,1,model_space,grouped binomial,basis_error,0.0,0.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab coded model basis,MiniJMP production model basis,PASS
+BIN-FACTORIAL,1,run_statistics,"-1,-1",probability,0.2,0.20000000000050275,5.027367411258865e-13,2.5136837056294326e-12,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-FACTORIAL,1,run_statistics,"-1,1",probability,0.5,0.5000000000000001,1.1102230246251565e-16,2.220446049250313e-16,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-FACTORIAL,1,run_statistics,"1,-1",probability,0.4999999999999999,0.5,1.1102230246251565e-16,2.2204460492503136e-16,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-FACTORIAL,1,run_statistics,"1,1",probability,0.8000000000000002,0.7999999999994972,5.029310301551959e-13,6.286637876939948e-13,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-FACTORIAL,1,coefficient,截距,estimate,1.657489964321006e-16,1.1102230246251565e-16,5.472669396958494e-17,0.3301781316787872,1e-09,1e-09,Minitab COEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-FACTORIAL,1,coefficient,截距,standard_error,0.35794552657713063,0.35794531467409374,2.1190303689522239e-07,5.919980029407106e-07,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,FAIL
+BIN-FACTORIAL,1,coefficient,截距,wald_z,4.630564824125124e-16,3.1016554180517924e-16,1.5289094060733315e-16,0.330177735145344,1e-09,1e-09,DERIVED: coefficient / SE,MiniJMP fit_grouped_binomial,PASS
+BIN-FACTORIAL,1,coefficient,截距,wald_p,0.9999999999999997,0.9999999999999998,1.1102230246251565e-16,1.110223024625157e-16,1e-09,1e-09,DERIVED: two-sided normal tail,MiniJMP fit_grouped_binomial,PASS
+BIN-FACTORIAL,1,coefficient,A,estimate,0.6931471805599454,0.6931471805583741,1.571298646751984e-12,2.266904765424626e-12,1e-09,1e-09,Minitab COEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-FACTORIAL,1,coefficient,A,standard_error,0.35794552657713063,0.3579453146740938,2.1190303683971123e-07,5.919980027856279e-07,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,FAIL
+BIN-FACTORIAL,1,coefficient,A,wald_z,1.9364599613471773,1.9364611077238958,1.146376718441644e-06,5.919960863245117e-07,1e-09,1e-09,DERIVED: coefficient / SE,MiniJMP fit_grouped_binomial,FAIL
+BIN-FACTORIAL,1,coefficient,A,wald_p,0.05281139177184483,0.05281125149323511,1.4027860972126716e-07,2.6562187629384432e-06,1e-09,1e-09,DERIVED: two-sided normal tail,MiniJMP fit_grouped_binomial,FAIL
+BIN-FACTORIAL,1,coefficient,B,estimate,0.6931471805599456,0.6931471805583742,1.5714096690544466e-12,2.267064936749816e-12,1e-09,1e-09,Minitab COEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-FACTORIAL,1,coefficient,B,standard_error,0.35794552657713063,0.35794531467409385,2.1190303678420008e-07,5.919980026305453e-07,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,FAIL
+BIN-FACTORIAL,1,coefficient,B,wald_z,1.9364599613471778,1.9364611077238958,1.1463767179975548e-06,5.91996086095181e-07,1e-09,1e-09,DERIVED: coefficient / SE,MiniJMP fit_grouped_binomial,FAIL
+BIN-FACTORIAL,1,coefficient,B,wald_p,0.05281139177184479,0.05281125149323511,1.402786096796338e-07,2.6562187621501046e-06,1e-09,1e-09,DERIVED: two-sided normal tail,MiniJMP fit_grouped_binomial,FAIL
+BIN-FACTORIAL,1,coefficient,A*B,estimate,2.6164630616832366e-16,-1.6653345369377348e-16,4.2817975986209714e-16,1.6364831062688052,1e-09,1e-09,Minitab COEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-FACTORIAL,1,coefficient,A*B,standard_error,0.3579455265771306,0.35794531467409374,2.1190303683971123e-07,5.91998002785628e-07,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,FAIL
+BIN-FACTORIAL,1,coefficient,A*B,wald_z,7.309668280263973e-16,-4.652483127077688e-16,1.196215140734166e-15,1.6364834830657558,1e-09,1e-09,DERIVED: coefficient / SE,MiniJMP fit_grouped_binomial,PASS
+BIN-FACTORIAL,1,coefficient,A*B,wald_p,0.9999999999999994,0.9999999999999997,2.220446049250313e-16,2.2204460492503146e-16,1e-09,1e-09,DERIVED: two-sided normal tail,MiniJMP fit_grouped_binomial,PASS
+BIN-FACTORIAL,1,independent_hessian,截距,minitab_se_vs_fisher,0.35794552657713063,0.35794552658190887,4.77823336453298e-12,1.334905176836554e-11,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),DERIVED: inverse X'WX from Minitab FITS and trials,PASS
+BIN-FACTORIAL,1,independent_hessian,截距,minijmp_se_vs_fisher,0.35794552658190887,0.35794531467409374,2.1190781512858692e-07,5.920113519845762e-07,1e-09,1e-09,DERIVED: inverse X'WX from Minitab FITS and trials,MiniJMP fit_grouped_binomial covariance,FAIL
+BIN-FACTORIAL,1,independent_hessian,A,minitab_se_vs_fisher,0.35794552657713063,0.35794552658190887,4.77823336453298e-12,1.334905176836554e-11,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),DERIVED: inverse X'WX from Minitab FITS and trials,PASS
+BIN-FACTORIAL,1,independent_hessian,A,minijmp_se_vs_fisher,0.35794552658190887,0.3579453146740938,2.1190781507307577e-07,5.920113518294935e-07,1e-09,1e-09,DERIVED: inverse X'WX from Minitab FITS and trials,MiniJMP fit_grouped_binomial covariance,FAIL
+BIN-FACTORIAL,1,independent_hessian,B,minitab_se_vs_fisher,0.35794552657713063,0.35794552658190887,4.77823336453298e-12,1.334905176836554e-11,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),DERIVED: inverse X'WX from Minitab FITS and trials,PASS
+BIN-FACTORIAL,1,independent_hessian,B,minijmp_se_vs_fisher,0.35794552658190887,0.35794531467409385,2.1190781501756462e-07,5.920113516744108e-07,1e-09,1e-09,DERIVED: inverse X'WX from Minitab FITS and trials,MiniJMP fit_grouped_binomial covariance,FAIL
+BIN-FACTORIAL,1,independent_hessian,A*B,minitab_se_vs_fisher,0.3579455265771306,0.35794552658190887,4.778288875684211e-12,1.3349206851044636e-11,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),DERIVED: inverse X'WX from Minitab FITS and trials,PASS
+BIN-FACTORIAL,1,independent_hessian,A*B,minijmp_se_vs_fisher,0.35794552658190887,0.35794531467409374,2.1190781512858692e-07,5.920113519845762e-07,1e-09,1e-09,DERIVED: inverse X'WX from Minitab FITS and trials,MiniJMP fit_grouped_binomial covariance,FAIL
+BIN-FACTORIAL,1,model_fit,grouped binomial,log_likelihood,-5.1988089273991775,-5.1988089273991775,0.0,0.0,1e-09,1e-09,DERIVED: Minitab FITS and fixed event/trial counts,MiniJMP fit_grouped_binomial,PASS
+BIN-FACTORIAL,1,model_fit,grouped binomial,deviance,0.0,4.440892066899741e-15,4.440892066899741e-15,,1e-09,1e-09,DERIVED: Minitab FITS and fixed event/trial counts,MiniJMP fit_grouped_binomial,PASS
+BIN-FACTORIAL,1,model_fit,grouped binomial,pearson_chi_square,2.2876966251409352e-30,3.159826244140971e-23,3.1598260153713087e-23,13812259.810352456,1e-09,1e-09,DERIVED: Minitab FITS and fixed event/trial counts,MiniJMP fit_grouped_binomial,PASS
+BIN-FACTORIAL,1,model_fit,grouped binomial,model_lr,7.709790280870301,7.709790280870298,3.552713678800501e-15,4.608054887842502e-16,1e-09,1e-09,DERIVED: Minitab FITS and fixed event/trial counts,MiniJMP fit_grouped_binomial,PASS
+BIN-FACTORIAL,1,model_fit,grouped binomial,model_lr_p,0.052406125973294373,0.052406125973294436,6.245004513516506e-17,1.1916554405679398e-15,1e-09,1e-09,DERIVED: Minitab FITS and fixed event/trial counts,MiniJMP fit_grouped_binomial,PASS
+BIN-FACTORIAL,1,model_fit,grouped binomial,deviance_p,,,,,1e-09,1e-09,DERIVED: Minitab FITS and fixed event/trial counts,MiniJMP fit_grouped_binomial,N/A
+BIN-FACTORIAL,1,model_fit,grouped binomial,pearson_p,,,,,1e-09,1e-09,DERIVED: Minitab FITS and fixed event/trial counts,MiniJMP fit_grouped_binomial,N/A
+BIN-RSM,1,design,"-1,-1,0",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"-1,-1,0",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"-1,-1,0",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,input,"-1,-1,0",events,30.0,30.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,input,"-1,-1,0",trials,90.0,90.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,design,"-1,0,-1",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"-1,0,-1",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"-1,0,-1",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,input,"-1,0,-1",events,60.0,60.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,input,"-1,0,-1",trials,90.0,90.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,design,"-1,0,1",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"-1,0,1",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"-1,0,1",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,input,"-1,0,1",events,30.0,30.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,input,"-1,0,1",trials,90.0,90.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,design,"-1,1,0",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"-1,1,0",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"-1,1,0",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,input,"-1,1,0",events,30.0,30.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,input,"-1,1,0",trials,90.0,90.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,design,"0,-1,-1",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"0,-1,-1",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"0,-1,-1",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,input,"0,-1,-1",events,30.0,30.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,input,"0,-1,-1",trials,90.0,90.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,design,"0,-1,1",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"0,-1,1",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"0,-1,1",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,input,"0,-1,1",events,30.0,30.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,input,"0,-1,1",trials,90.0,90.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,design,"0,0,0",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"0,0,0",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"0,0,0",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,input,"0,0,0",events,45.0,45.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,input,"0,0,0",trials,90.0,90.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,design,"0,0,0",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"0,0,0",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"0,0,0",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,input,"0,0,0",events,45.0,45.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,input,"0,0,0",trials,90.0,90.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,design,"0,1,-1",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"0,1,-1",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"0,1,-1",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,input,"0,1,-1",events,30.0,30.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,input,"0,1,-1",trials,90.0,90.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,design,"0,1,1",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"0,1,1",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"0,1,1",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,input,"0,1,1",events,30.0,30.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,input,"0,1,1",trials,90.0,90.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,design,"1,-1,0",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"1,-1,0",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"1,-1,0",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,input,"1,-1,0",events,60.0,60.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,input,"1,-1,0",trials,90.0,90.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,design,"1,0,-1",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"1,0,-1",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"1,0,-1",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,input,"1,0,-1",events,60.0,60.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,input,"1,0,-1",trials,90.0,90.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,design,"1,0,1",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"1,0,1",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"1,0,1",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,input,"1,0,1",events,80.0,80.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,input,"1,0,1",trials,90.0,90.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,design,"1,1,0",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"1,1,0",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,design,"1,1,0",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab DOE worksheet factor column (DIRECT),MiniJMP fixed design row,PASS
+BIN-RSM,1,input,"1,1,0",events,60.0,60.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,input,"1,1,0",trials,90.0,90.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab,MiniJMP fixed input,PASS
+BIN-RSM,1,model_space,grouped binomial,rank,10.0,10.0,0.0,0.0,1e-09,1e-09,Minitab model matrix (DIRECT/DERIVED per command),MiniJMP production matrix,PASS
+BIN-RSM,1,model_space,grouped binomial,basis_error,0.0,0.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab coded model basis,MiniJMP production model basis,PASS
+BIN-RSM,1,run_statistics,"-1,-1,0",probability,0.33333333333333337,0.3333333333333333,5.551115123125783e-17,1.6653345369377346e-16,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-RSM,1,run_statistics,"-1,0,-1",probability,0.6666666666666667,0.6666666666666666,1.1102230246251565e-16,1.6653345369377346e-16,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-RSM,1,run_statistics,"-1,0,1",probability,0.3333333333333334,0.3333333333333334,0.0,0.0,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-RSM,1,run_statistics,"-1,1,0",probability,0.3333333333333334,0.3333333333333334,0.0,0.0,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-RSM,1,run_statistics,"0,-1,-1",probability,0.3333333333333333,0.33333333333333326,5.551115123125783e-17,1.6653345369377348e-16,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-RSM,1,run_statistics,"0,-1,1",probability,0.33333333333333326,0.3333333333333333,5.551115123125783e-17,1.6653345369377353e-16,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-RSM,1,run_statistics,"0,0,0",probability,0.5000000000000001,0.5,1.1102230246251565e-16,2.2204460492503126e-16,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-RSM,1,run_statistics,"0,0,0",probability,0.5000000000000001,0.5,1.1102230246251565e-16,2.2204460492503126e-16,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-RSM,1,run_statistics,"0,1,-1",probability,0.3333333333333333,0.33333333333333326,5.551115123125783e-17,1.6653345369377348e-16,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-RSM,1,run_statistics,"0,1,1",probability,0.33333333333333326,0.3333333333333333,5.551115123125783e-17,1.6653345369377353e-16,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-RSM,1,run_statistics,"1,-1,0",probability,0.6666666666666665,0.6666666666666665,0.0,0.0,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-RSM,1,run_statistics,"1,0,-1",probability,0.6666666666666666,0.6666666666666665,1.1102230246251565e-16,1.6653345369377348e-16,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-RSM,1,run_statistics,"1,0,1",probability,0.8888888888888888,0.8888888888888888,0.0,0.0,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-RSM,1,run_statistics,"1,1,0",probability,0.6666666666666665,0.6666666666666665,0.0,0.0,1e-09,1e-09,Minitab FITS event probability (DIRECT),MiniJMP fitted probability,PASS
+BIN-RSM,1,coefficient,截距,estimate,2.0125388697054667e-16,-3.040345548106697e-16,5.052884417812163e-16,2.510701529233892,1e-09,1e-09,Minitab COEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,截距,standard_error,0.14907119849998599,0.14907119849998604,5.551115123125783e-17,3.723801229870909e-16,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,截距,wald_z,1.3500521160066046e-15,-2.0395257961966284e-15,3.389577912203233e-15,2.5107015292338914,1e-09,1e-09,DERIVED: coefficient / SE,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,截距,wald_p,0.9999999999999989,0.9999999999999983,5.551115123125783e-16,5.551115123125789e-16,1e-09,1e-09,DERIVED: two-sided normal tail,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,A,estimate,0.693147180559945,0.693147180559945,0.0,0.0,1e-09,1e-09,Minitab COEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,A,standard_error,0.08363042254960111,0.083630422803578,2.539768950704513e-10,3.0368959922427495e-09,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,A,wald_z,8.288218084140853,8.288218058970397,2.5170455941747605e-08,3.0368959511224958e-09,1e-09,1e-09,DERIVED: coefficient / SE,MiniJMP fit_grouped_binomial,FAIL
+BIN-RSM,1,coefficient,A,wald_p,1.1495765698895411e-16,1.1495768131083964e-16,2.43218855224768e-23,2.1157255775327613e-07,1e-09,1e-09,DERIVED: two-sided normal tail,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,B,estimate,-1.5094105279486137e-17,5.551115123125783e-17,7.060525651074396e-17,4.6776708657717565,1e-09,1e-09,Minitab COEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,B,standard_error,0.07905694145617334,0.07905694150340958,4.72362426950923e-11,5.974964604629762e-10,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,B,wald_z,-1.9092700781820443e-16,7.021666937224447e-16,8.930937015406491e-16,4.677670863574361,1e-09,1e-09,DERIVED: coefficient / SE,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,B,wald_p,0.9999999999999999,0.9999999999999994,4.440892098500626e-16,4.440892098500627e-16,1e-09,1e-09,DERIVED: two-sided normal tail,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,C,estimate,-1.279637442288335e-16,1.6653345369377348e-16,2.9449719792260695e-16,2.3014112293867157,1e-09,1e-09,Minitab COEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,C,standard_error,0.0836304225951442,0.08363042280433738,2.091931905479072e-10,2.501400615426921e-09,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,C,wald_z,-1.530109979813296e-15,1.99130230494466e-15,3.5214122847579563e-15,2.3014112261313655,1e-09,1e-09,DERIVED: coefficient / SE,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,C,wald_p,0.9999999999999988,0.9999999999999984,3.3306690738754696e-16,3.3306690738754736e-16,1e-09,1e-09,DERIVED: two-sided normal tail,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,A²,estimate,0.6931471805599453,0.6931471805599454,1.1102230246251565e-16,1.6017132519074588e-16,1e-09,1e-09,Minitab COEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,A²,standard_error,0.1251982552876164,0.12519825547420033,1.8658391498505011e-10,1.4903076289395023e-09,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,A²,wald_z,5.536396485458897,5.536396477207965,8.250932381770326e-09,1.4903073512601633e-09,1e-09,1e-09,DERIVED: coefficient / SE,MiniJMP fit_grouped_binomial,FAIL
+BIN-RSM,1,coefficient,A²,wald_p,3.087581820325371e-08,3.0875819657085144e-08,1.4538314357122956e-15,4.7086410022944436e-08,1e-09,1e-09,DERIVED: two-sided normal tail,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,B²,estimate,-0.6931471805599455,-0.6931471805599452,3.3306690738754696e-16,4.805139755722375e-16,1e-09,1e-09,Minitab COEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,B²,standard_error,0.1251982552876164,0.12519825547420027,1.8658385947389888e-10,1.4903071855535213e-09,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,B²,wald_z,-5.536396485458899,-5.536396477207965,8.250934158127166e-09,1.4903076721108902e-09,1e-09,1e-09,DERIVED: coefficient / SE,MiniJMP fit_grouped_binomial,FAIL
+BIN-RSM,1,coefficient,B²,wald_p,3.087581820325338e-08,3.0875819657085144e-08,1.4538317665845406e-15,4.7086420739170915e-08,1e-09,1e-09,DERIVED: two-sided normal tail,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,C²,estimate,-1.6603452915303313e-16,-2.7755575615628914e-17,1.3827895353740422e-16,0.8328325092544651,1e-09,1e-09,Minitab COEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,C²,standard_error,0.1251982552999823,0.1251982554744082,1.7442589039795564e-10,1.3931974529518886e-09,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,C²,wald_z,-1.3261728668279342e-15,-2.216929901335761e-16,1.104479876694358e-15,0.8328325094873623,1e-09,1e-09,DERIVED: coefficient / SE,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,C²,wald_p,0.9999999999999989,0.9999999999999998,8.881784197001252e-16,8.881784197001262e-16,1e-09,1e-09,DERIVED: two-sided normal tail,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,A*B,estimate,-7.26653190849223e-17,-1.7697705481157281e-16,1.0431173572665052e-16,1.4355092228349506,1e-09,1e-09,Minitab COEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,A*B,standard_error,0.11180339875202515,0.1118033988729406,1.209154443237992e-10,1.0815006133398874e-09,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,A*B,wald_z,-6.499383730372157e-16,-1.5829309000945407e-15,9.32992527057325e-16,1.4355092202009458,1e-09,1e-09,DERIVED: coefficient / SE,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,A*B,wald_p,0.9999999999999994,0.9999999999999988,6.661338147750939e-16,6.661338147750943e-16,1e-09,1e-09,DERIVED: two-sided normal tail,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,A*C,estimate,0.6931471805599451,0.6931471805599452,1.1102230246251565e-16,1.6017132519074593e-16,1e-09,1e-09,Minitab COEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,A*C,standard_error,0.12440333726473714,0.1244033378712977,6.065605656635498e-10,4.875757990099217e-09,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,A*C,wald_z,5.571773199981684,5.571773172815067,2.7166617400098403e-08,4.875757936483794e-09,1e-09,1e-09,DERIVED: coefficient / SE,MiniJMP fit_grouped_binomial,FAIL
+BIN-RSM,1,coefficient,A*C,wald_p,2.5215955241342015e-08,2.5215959174253192e-08,3.9329111768955594e-15,1.5596915283413418e-07,1e-09,1e-09,DERIVED: two-sided normal tail,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,B*C,estimate,1.1339971257104606e-17,-5.551115123125783e-17,6.685112248836244e-17,5.8951756554479395,1e-09,1e-09,Minitab COEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,B*C,standard_error,0.11180339886208715,0.11180339887477585,1.268869731507749e-11,1.1349115898282645e-10,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,B*C,wald_z,1.0142778638682354e-16,-4.965068306504033e-16,5.979346170372269e-16,5.8951756548923795,1e-09,1e-09,DERIVED: coefficient / SE,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,coefficient,B*C,wald_p,0.9999999999999999,0.9999999999999996,3.3306690738754696e-16,3.33066907387547e-16,1e-09,1e-09,DERIVED: two-sided normal tail,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,independent_hessian,截距,minitab_se_vs_xpw_inverse,0.14907119849998599,0.14907119849998599,0.0,0.0,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),Minitab XPWXINVERSE M2 (DIRECT),PASS
+BIN-RSM,1,independent_hessian,A,minitab_se_vs_xpw_inverse,0.08363042254960111,0.08363042254960111,0.0,0.0,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),Minitab XPWXINVERSE M2 (DIRECT),PASS
+BIN-RSM,1,independent_hessian,B,minitab_se_vs_xpw_inverse,0.07905694145617334,0.07905694145617334,0.0,0.0,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),Minitab XPWXINVERSE M2 (DIRECT),PASS
+BIN-RSM,1,independent_hessian,C,minitab_se_vs_xpw_inverse,0.0836304225951442,0.0836304225951442,0.0,0.0,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),Minitab XPWXINVERSE M2 (DIRECT),PASS
+BIN-RSM,1,independent_hessian,A²,minitab_se_vs_xpw_inverse,0.1251982552876164,0.1251982552876164,0.0,0.0,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),Minitab XPWXINVERSE M2 (DIRECT),PASS
+BIN-RSM,1,independent_hessian,B²,minitab_se_vs_xpw_inverse,0.1251982552876164,0.1251982552876164,0.0,0.0,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),Minitab XPWXINVERSE M2 (DIRECT),PASS
+BIN-RSM,1,independent_hessian,C²,minitab_se_vs_xpw_inverse,0.1251982552999823,0.1251982552999823,0.0,0.0,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),Minitab XPWXINVERSE M2 (DIRECT),PASS
+BIN-RSM,1,independent_hessian,A*B,minitab_se_vs_xpw_inverse,0.11180339875202515,0.11180339875202515,0.0,0.0,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),Minitab XPWXINVERSE M2 (DIRECT),PASS
+BIN-RSM,1,independent_hessian,A*C,minitab_se_vs_xpw_inverse,0.12440333726473714,0.12440333726473714,0.0,0.0,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),Minitab XPWXINVERSE M2 (DIRECT),PASS
+BIN-RSM,1,independent_hessian,B*C,minitab_se_vs_xpw_inverse,0.11180339886208715,0.11180339886208715,0.0,0.0,1e-09,1e-09,Minitab SECOEFFICIENTS (DIRECT),Minitab XPWXINVERSE M2 (DIRECT),PASS
+BIN-RSM,1,model_fit,grouped binomial,log_likelihood,-33.59723196839548,-33.59723196839535,1.2789769243681803e-13,3.806792552348655e-15,1e-09,1e-09,DERIVED: Minitab FITS and fixed event/trial counts,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,model_fit,grouped binomial,deviance,0.0,1.1324274851176593e-13,1.1324274851176593e-13,,1e-09,1e-09,DERIVED: Minitab FITS and fixed event/trial counts,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,model_fit,grouped binomial,pearson_chi_square,3.7935444419961545e-29,2.7456057287184434e-29,1.0479387132777111e-29,0.2762426351663586,1e-09,1e-09,DERIVED: Minitab FITS and fixed event/trial counts,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,model_fit,grouped binomial,model_lr,173.792605884375,173.79260588437535,3.410605131648481e-13,1.9624569838820252e-15,1e-09,1e-09,DERIVED: Minitab FITS and fixed event/trial counts,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,model_fit,grouped binomial,model_lr_p,9.998081921784495e-33,9.998081921782913e-33,1.581934594491688e-45,1.5822380801310123e-13,1e-09,1e-09,DERIVED: Minitab FITS and fixed event/trial counts,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,model_fit,grouped binomial,deviance_p,1.0,1.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab FITS and fixed event/trial counts,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,model_fit,grouped binomial,pearson_p,1.0,1.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab FITS and fixed event/trial counts,MiniJMP fit_grouped_binomial,PASS
+BIN-RSM,1,prediction,"A=.2,B=-.3,C=.4",eta_hat,0.15942385152878746,0.15942385152878713,3.3306690738754696e-16,2.089191198140163e-15,1e-09,1e-09,DERIVED: Minitab BRSREG coefficients and X'WX inverse,MiniJMP predict_binary_probability (95% logit Wald),PASS
+BIN-RSM,1,prediction,"A=.2,B=-.3,C=.4",se_eta,0.1382176078474526,0.13821760793200893,8.455633415671571e-11,6.117623902884969e-10,1e-09,1e-09,DERIVED: Minitab BRSREG coefficients and X'WX inverse,MiniJMP predict_binary_probability (95% logit Wald),PASS
+BIN-RSM,1,prediction,"A=.2,B=-.3,C=.4",p_hat,0.5397717620689454,0.5397717620689454,0.0,0.0,1e-09,1e-09,DERIVED: Minitab BRSREG coefficients and X'WX inverse,MiniJMP predict_binary_probability (95% logit Wald),PASS
+BIN-RSM,1,prediction,"A=.2,B=-.3,C=.4",ci_low,0.4721594054500682,0.4721594054087647,4.1303460651676005e-11,8.747778859197994e-11,1e-09,1e-09,DERIVED: Minitab BRSREG coefficients and X'WX inverse,MiniJMP predict_binary_probability (95% logit Wald),PASS
+BIN-RSM,1,prediction,"A=.2,B=-.3,C=.4",ci_high,0.605951364673418,0.6059513647129894,3.957134619980707e-11,6.530449225266509e-11,1e-09,1e-09,DERIVED: Minitab BRSREG coefficients and X'WX inverse,MiniJMP predict_binary_probability (95% logit Wald),PASS

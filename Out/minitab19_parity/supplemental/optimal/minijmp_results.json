@@ -1,0 +1,307 @@
+{
+  "cases": {
+    "OPT-D": {
+      "candidate_points": [
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "selected_points": [
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          1,
+          -1
+        ]
+      ],
+      "selected_indices": [
+        0,
+        1,
+        2
+      ],
+      "selected_n": 3,
+      "rank": 3,
+      "p": 3,
+      "det_xtx": 16.000000000000007,
+      "logdet": 0.0,
+      "summary": {
+        "indices": [
+          0,
+          1,
+          2
+        ],
+        "selection_order": [
+          0,
+          1,
+          2
+        ],
+        "logdet": 0.0,
+        "rank": 3,
+        "p": 3,
+        "candidates": 4,
+        "count": 3,
+        "method": "exact_enumeration",
+        "global_optimum_proven": true,
+        "seed": 1,
+        "exact_budget": 200000,
+        "subsets": 4,
+        "evaluations": 4,
+        "stop_reason": "完成全部候选子集穷举",
+        "selected_n": 3,
+        "selected_p": 3,
+        "selected_rank": 3,
+        "estimable": true
+      }
+    },
+    "OPT-DIST": {
+      "candidate_points": [
+        [
+          1,
+          1
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          -1,
+          0
+        ],
+        [
+          0,
+          -1
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "selected_points": [
+        [
+          1,
+          1
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          1,
+          -1
+        ]
+      ],
+      "selected_indices": [
+        0,
+        2,
+        1,
+        3
+      ],
+      "selected_n": 4,
+      "rank": 3,
+      "p": 3,
+      "det_xtx": 63.99999999999998,
+      "logdet": 4.1588830833596715,
+      "summary": {
+        "indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "selection_order": [
+          0,
+          2,
+          1,
+          3
+        ],
+        "min_squared_distance": 4.0,
+        "step_squared_distances": [
+          2.0,
+          8.0,
+          4.0,
+          4.0
+        ],
+        "criterion": "distance",
+        "candidates": 9,
+        "count": 4,
+        "kind": "rsm",
+        "evaluations": 55,
+        "rank": 3,
+        "p": 3,
+        "logdet": 4.1588830833596715,
+        "selected_n": 4,
+        "selected_p": 3,
+        "selected_rank": 3,
+        "estimable": true,
+        "condition": 1.0000000000000002
+      },
+      "min_squared_distance": 4
+    },
+    "OPT-AUG": {
+      "parent_points": [
+        [
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          -1,
+          1
+        ]
+      ],
+      "candidate_points": [
+        [
+          1,
+          1
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "selected_points": [
+        [
+          1,
+          1
+        ]
+      ],
+      "final_points": [
+        [
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "parent_n": 3,
+      "added_n": 1,
+      "initial_rank": 3,
+      "augmented_rank": 3,
+      "initial_det_xtx": 16.000000000000007,
+      "augmented_det_xtx": 63.99999999999998,
+      "summary": {
+        "indices": [
+          0
+        ],
+        "selection_order": [
+          0
+        ],
+        "logdet": 4.1588830833596715,
+        "method": "exact_enumeration",
+        "initial_rank": 3,
+        "augmented_rank": 3,
+        "p": 3,
+        "subsets": 2,
+        "evaluations": 2,
+        "exact_budget": 200000,
+        "stop_reason": "完成全部候选组合穷举",
+        "global_optimum_proven": true,
+        "rank_improved": false,
+        "parent_design_id": "opt-aug-parent",
+        "batch_id": "AUG1"
+      }
+    }
+  },
+  "exact_reference": {
+    "OPT-D": {
+      "candidate_count": 4,
+      "subset_count": 4,
+      "max_det_xtx": 16,
+      "optimal_subsets": [
+        [
+          0,
+          1,
+          2
+        ],
+        [
+          0,
+          1,
+          3
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          1,
+          2,
+          3
+        ]
+      ]
+    },
+    "OPT-DIST": {
+      "subset_count": 126,
+      "max_min_squared_distance": 4,
+      "optimal_subsets": [
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ]
+    },
+    "OPT-AUG": {
+      "parent_det_xtx": 16,
+      "candidate_det_xtx": [
+        64,
+        24
+      ],
+      "best_candidate_index": 0,
+      "max_det_xtx": 64
+    }
+  }
+}

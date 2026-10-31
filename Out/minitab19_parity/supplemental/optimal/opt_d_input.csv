@@ -1,0 +1,5 @@
+﻿run_id,standard_order,run_order,point_type,replicate,batch_id,source_run_id,A,B,Y
+OPTD1,1,1,factorial,1,BASE,,-1,-1,13.5
+OPTD2,2,2,factorial,1,BASE,,-1,1,6.5
+OPTD3,3,3,factorial,1,BASE,,1,-1,16.5
+OPTD4,4,4,factorial,1,BASE,,1,1,11.5
