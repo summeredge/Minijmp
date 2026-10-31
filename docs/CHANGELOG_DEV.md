@@ -2,6 +2,11 @@
 
 ## 未发布
 
+### 2026-10-31 Binary Logistic 推断修正
+
+- Binary Logistic 的系数标准误、Wald z/p 和响应面预测区间现统一使用最终拟合概率计算的 Fisher 协方差。
+- 原 Minitab 19 对标中的 12 项差异已通过原容差；BIN-RSM 的 4 项 Wald z 差异仍保留并单独记录。
+
 ### 2026-10-31 DOE 帮助与功能范围说明
 
 - 同步 DOE 帮助与搜索内容，补齐多分类 DSD、选模、别名、混杂区组、Type III、扩展裂区、混料区间、Taguchi 响应模型与 Improve 的实际入口和限制。

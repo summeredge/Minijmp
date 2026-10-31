@@ -3,6 +3,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from scipy.stats import norm
 
 from doe_bbd import create_bbd
 from doe_binary_analysis import (
@@ -98,6 +99,58 @@ def test_binary_fit_covariance_matches_independent_grouped_glm_reference():
                                rtol=1e-9, atol=1e-12)
     np.testing.assert_allclose(fitted["probabilities"], expected["probabilities"],
                                rtol=1e-10, atol=1e-12)
+
+
+def test_binary_fit_uses_final_fisher_covariance_for_wald_inference():
+    matrix = np.asarray([
+        [1, -1, -1, 1], [1, 1, -1, -1],
+        [1, -1, 1, -1], [1, 1, 1, 1],
+    ], dtype=float)
+    column_names = ["截距", "A", "B", "A*B"]
+    fitted = fit_grouped_binomial(
+        matrix, column_names, {"A": [1], "B": [2], "A*B": [3]},
+        [2, 5, 5, 8], [10] * 4,
+    )
+    weights = 10 * fitted["probabilities"] * (1 - fitted["probabilities"])
+    information = matrix.T @ (weights[:, None] * matrix)
+    expected_covariance = np.linalg.solve(information, np.eye(4))
+    expected_se = np.sqrt(np.diag(expected_covariance))
+    expected_z = fitted["coefficients_array"] / expected_se
+
+    np.testing.assert_allclose(fitted["covariance_array"], expected_covariance,
+                               rtol=1e-12, atol=1e-14)
+    np.testing.assert_allclose([row["se"] for row in fitted["coefficients"]],
+                               expected_se, rtol=1e-12, atol=1e-14)
+    np.testing.assert_allclose([row["z"] for row in fitted["coefficients"]],
+                               expected_z, rtol=1e-12, atol=1e-14)
+    np.testing.assert_allclose(
+        [row["p"] for row in fitted["coefficients"]],
+        2 * norm.sf(np.abs(expected_z)), rtol=1e-12, atol=1e-14,
+    )
+
+
+def test_rsm_prediction_interval_uses_final_fisher_covariance(rsm_result):
+    matrix = np.asarray(rsm_result["matrix"], dtype=float)
+    trials = np.asarray([row["trials"] for row in rsm_result["rows"]], dtype=float)
+    probabilities = np.asarray(rsm_result["probabilities"], dtype=float)
+    weights = trials * probabilities * (1 - probabilities)
+    information = matrix.T @ (weights[:, None] * matrix)
+    expected_covariance = np.linalg.solve(information, np.eye(matrix.shape[1]))
+    np.testing.assert_allclose(rsm_result["covariance_array"], expected_covariance,
+                               rtol=1e-12, atol=1e-14)
+
+    settings = {"A": 0.5, "B": -0.25, "C": 0.125}
+    model = rsm_result["detail"]["term_model"]
+    x0 = model.row(model.coded(settings))
+    eta = float(x0 @ rsm_result["coefficients_array"])
+    se_eta = float(np.sqrt(x0 @ expected_covariance @ x0))
+    critical = norm.ppf(0.975)
+    prediction = predict_binary_probability(rsm_result, settings, confidence=0.95)
+    assert prediction["se_eta"] == pytest.approx(se_eta, rel=1e-12, abs=1e-14)
+    assert prediction["ci_low"] == pytest.approx(
+        1 / (1 + np.exp(-(eta - critical * se_eta))), rel=1e-12, abs=1e-14)
+    assert prediction["ci_high"] == pytest.approx(
+        1 / (1 + np.exp(-(eta + critical * se_eta))), rel=1e-12, abs=1e-14)
 
 
 def test_manual_logit_representatives_cover_probability_edges():
