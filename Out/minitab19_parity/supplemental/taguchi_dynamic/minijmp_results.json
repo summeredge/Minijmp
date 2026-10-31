@@ -1,0 +1,978 @@
+{
+  "cases": {
+    "TAG-DYNAMIC": {
+      "n": 12,
+      "rows": [
+        {
+          "case_id": "TAG-DYNAMIC",
+          "standard_order": 1,
+          "run_id": "R00001",
+          "control_run_id": "C00001",
+          "A_code": 1,
+          "B_code": 1,
+          "S": 1.0,
+          "Y": 11.1
+        },
+        {
+          "case_id": "TAG-DYNAMIC",
+          "standard_order": 2,
+          "run_id": "R00002",
+          "control_run_id": "C00001",
+          "A_code": 1,
+          "B_code": 1,
+          "S": 2.0,
+          "Y": 18.8
+        },
+        {
+          "case_id": "TAG-DYNAMIC",
+          "standard_order": 3,
+          "run_id": "R00003",
+          "control_run_id": "C00001",
+          "A_code": 1,
+          "B_code": 1,
+          "S": 3.0,
+          "Y": 27.1
+        },
+        {
+          "case_id": "TAG-DYNAMIC",
+          "standard_order": 4,
+          "run_id": "R00004",
+          "control_run_id": "C00002",
+          "A_code": 1,
+          "B_code": 2,
+          "S": 1.0,
+          "Y": 23.1
+        },
+        {
+          "case_id": "TAG-DYNAMIC",
+          "standard_order": 5,
+          "run_id": "R00005",
+          "control_run_id": "C00002",
+          "A_code": 1,
+          "B_code": 2,
+          "S": 2.0,
+          "Y": 42.8
+        },
+        {
+          "case_id": "TAG-DYNAMIC",
+          "standard_order": 6,
+          "run_id": "R00006",
+          "control_run_id": "C00002",
+          "A_code": 1,
+          "B_code": 2,
+          "S": 3.0,
+          "Y": 63.1
+        },
+        {
+          "case_id": "TAG-DYNAMIC",
+          "standard_order": 7,
+          "run_id": "R00007",
+          "control_run_id": "C00003",
+          "A_code": 2,
+          "B_code": 1,
+          "S": 1.0,
+          "Y": 23.1
+        },
+        {
+          "case_id": "TAG-DYNAMIC",
+          "standard_order": 8,
+          "run_id": "R00008",
+          "control_run_id": "C00003",
+          "A_code": 2,
+          "B_code": 1,
+          "S": 2.0,
+          "Y": 42.8
+        },
+        {
+          "case_id": "TAG-DYNAMIC",
+          "standard_order": 9,
+          "run_id": "R00009",
+          "control_run_id": "C00003",
+          "A_code": 2,
+          "B_code": 1,
+          "S": 3.0,
+          "Y": 63.1
+        },
+        {
+          "case_id": "TAG-DYNAMIC",
+          "standard_order": 10,
+          "run_id": "R00010",
+          "control_run_id": "C00004",
+          "A_code": 2,
+          "B_code": 2,
+          "S": 1.0,
+          "Y": 35.1
+        },
+        {
+          "case_id": "TAG-DYNAMIC",
+          "standard_order": 11,
+          "run_id": "R00011",
+          "control_run_id": "C00004",
+          "A_code": 2,
+          "B_code": 2,
+          "S": 2.0,
+          "Y": 66.8
+        },
+        {
+          "case_id": "TAG-DYNAMIC",
+          "standard_order": 12,
+          "run_id": "R00012",
+          "control_run_id": "C00004",
+          "A_code": 2,
+          "B_code": 2,
+          "S": 3.0,
+          "Y": 99.1
+        }
+      ],
+      "combinations": [
+        {
+          "settings": {
+            "A": "high",
+            "B": "high"
+          },
+          "slope": 31.999999999999993,
+          "intercept": 2.9999999999999676,
+          "mse": 0.06000000000000312,
+          "df": 1,
+          "sn": 42.32148706256146,
+          "signal": [
+            2.0,
+            3.0,
+            1.0
+          ],
+          "response": [
+            66.8,
+            99.1,
+            35.1
+          ]
+        },
+        {
+          "settings": {
+            "A": "low",
+            "B": "high"
+          },
+          "slope": 19.999999999999993,
+          "intercept": 3.0000000000000195,
+          "mse": 0.060000000000001705,
+          "df": 1,
+          "sn": 38.23908740944306,
+          "signal": [
+            1.0,
+            3.0,
+            2.0
+          ],
+          "response": [
+            23.1,
+            63.1,
+            42.8
+          ]
+        },
+        {
+          "settings": {
+            "A": "low",
+            "B": "low"
+          },
+          "slope": 8.0,
+          "intercept": 3.000000000000002,
+          "mse": 0.06000000000000029,
+          "df": 1,
+          "sn": 30.280287236002415,
+          "signal": [
+            1.0,
+            3.0,
+            2.0
+          ],
+          "response": [
+            11.1,
+            27.1,
+            18.8
+          ]
+        },
+        {
+          "settings": {
+            "A": "high",
+            "B": "low"
+          },
+          "slope": 20.0,
+          "intercept": 2.999999999999975,
+          "mse": 0.06000000000000099,
+          "df": 1,
+          "sn": 38.239087409443115,
+          "signal": [
+            2.0,
+            1.0,
+            3.0
+          ],
+          "response": [
+            42.8,
+            23.1,
+            63.1
+          ]
+        }
+      ],
+      "slope_factor_table": [
+        {
+          "factor_id": "A",
+          "levels": [
+            {
+              "level": "low",
+              "slope": 13.999999999999996,
+              "mean": 31.0,
+              "sn": 34.25968732272274
+            },
+            {
+              "level": "high",
+              "slope": 25.999999999999996,
+              "mean": 54.99999999999999,
+              "sn": 40.28028723600229
+            }
+          ],
+          "delta": 12.0
+        },
+        {
+          "factor_id": "B",
+          "levels": [
+            {
+              "level": "low",
+              "slope": 14.0,
+              "mean": 31.0,
+              "sn": 34.25968732272277
+            },
+            {
+              "level": "high",
+              "slope": 25.999999999999993,
+              "mean": 54.99999999999999,
+              "sn": 40.28028723600226
+            }
+          ],
+          "delta": 11.999999999999993
+        }
+      ],
+      "slope_factor_ranked": [
+        "A",
+        "B"
+      ],
+      "sn_factor_table": [
+        {
+          "factor_id": "A",
+          "levels": [
+            {
+              "level": "low",
+              "sn": 34.25968732272274,
+              "slope": 13.999999999999996,
+              "mean": 31.0,
+              "sd": 14.001312383131474,
+              "ln_sd": null,
+              "n": 6,
+              "effect": -3.01029995663977
+            },
+            {
+              "level": "high",
+              "sn": 40.28028723600229,
+              "slope": 25.999999999999996,
+              "mean": 54.99999999999999,
+              "sd": 26.00060936625242,
+              "ln_sd": null,
+              "n": 6,
+              "effect": 3.010299956639777
+            }
+          ],
+          "delta": 6.020599913279547,
+          "rank": 1
+        },
+        {
+          "factor_id": "B",
+          "levels": [
+            {
+              "level": "low",
+              "sn": 34.25968732272277,
+              "slope": 14.0,
+              "mean": 31.0,
+              "sd": 14.001312383131474,
+              "ln_sd": null,
+              "n": 6,
+              "effect": -3.0102999566397415
+            },
+            {
+              "level": "high",
+              "sn": 40.28028723600226,
+              "slope": 25.999999999999993,
+              "mean": 54.99999999999999,
+              "sd": 26.00060936625242,
+              "ln_sd": null,
+              "n": 6,
+              "effect": 3.0102999566397486
+            }
+          ],
+          "delta": 6.02059991327949,
+          "rank": 2
+        }
+      ],
+      "best": {
+        "settings": {
+          "A": "low",
+          "B": "high"
+        },
+        "tied_combinations": [
+          {
+            "settings": {
+              "A": "low",
+              "B": "high"
+            },
+            "predicted": 19.999999999999993,
+            "distance": 7.105427357601002e-15
+          },
+          {
+            "settings": {
+              "A": "high",
+              "B": "low"
+            },
+            "predicted": 20.0,
+            "distance": 0.0
+          }
+        ],
+        "predicted_slope": 19.999999999999993,
+        "target": 20.0
+      },
+      "formula": "S/N=10*log10(slope^2/MSE); free intercept; residual df=1"
+    },
+    "TAG-ROBUST": {
+      "n": 16,
+      "rows": [
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 1,
+          "run_id": "R00001",
+          "control_run_id": "C00001",
+          "noise_condition_id": "N11R1",
+          "A_code": 1,
+          "B_code": 1,
+          "N1_code": 1,
+          "N2_code": 1,
+          "Y": 27.0
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 2,
+          "run_id": "R00002",
+          "control_run_id": "C00001",
+          "noise_condition_id": "N12R1",
+          "A_code": 1,
+          "B_code": 1,
+          "N1_code": 1,
+          "N2_code": 2,
+          "Y": 24.200000000000003
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 3,
+          "run_id": "R00003",
+          "control_run_id": "C00001",
+          "noise_condition_id": "N21R1",
+          "A_code": 1,
+          "B_code": 1,
+          "N1_code": 2,
+          "N2_code": 1,
+          "Y": 23.799999999999997
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 4,
+          "run_id": "R00004",
+          "control_run_id": "C00001",
+          "noise_condition_id": "N22R1",
+          "A_code": 1,
+          "B_code": 1,
+          "N1_code": 2,
+          "N2_code": 2,
+          "Y": 21.0
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 5,
+          "run_id": "R00005",
+          "control_run_id": "C00002",
+          "noise_condition_id": "N11R1",
+          "A_code": 1,
+          "B_code": 2,
+          "N1_code": 1,
+          "N2_code": 1,
+          "Y": 18.6
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 6,
+          "run_id": "R00006",
+          "control_run_id": "C00002",
+          "noise_condition_id": "N12R1",
+          "A_code": 1,
+          "B_code": 2,
+          "N1_code": 1,
+          "N2_code": 2,
+          "Y": 20.6
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 7,
+          "run_id": "R00007",
+          "control_run_id": "C00002",
+          "noise_condition_id": "N21R1",
+          "A_code": 1,
+          "B_code": 2,
+          "N1_code": 2,
+          "N2_code": 1,
+          "Y": 15.4
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 8,
+          "run_id": "R00008",
+          "control_run_id": "C00002",
+          "noise_condition_id": "N22R1",
+          "A_code": 1,
+          "B_code": 2,
+          "N1_code": 2,
+          "N2_code": 2,
+          "Y": 17.4
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 9,
+          "run_id": "R00009",
+          "control_run_id": "C00003",
+          "noise_condition_id": "N11R1",
+          "A_code": 2,
+          "B_code": 2,
+          "N1_code": 1,
+          "N2_code": 1,
+          "Y": 22.6
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 10,
+          "run_id": "R00010",
+          "control_run_id": "C00003",
+          "noise_condition_id": "N12R1",
+          "A_code": 2,
+          "B_code": 2,
+          "N1_code": 1,
+          "N2_code": 2,
+          "Y": 24.6
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 11,
+          "run_id": "R00011",
+          "control_run_id": "C00003",
+          "noise_condition_id": "N21R1",
+          "A_code": 2,
+          "B_code": 2,
+          "N1_code": 2,
+          "N2_code": 1,
+          "Y": 27.4
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 12,
+          "run_id": "R00012",
+          "control_run_id": "C00003",
+          "noise_condition_id": "N22R1",
+          "A_code": 2,
+          "B_code": 2,
+          "N1_code": 2,
+          "N2_code": 2,
+          "Y": 29.4
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 13,
+          "run_id": "R00013",
+          "control_run_id": "C00004",
+          "noise_condition_id": "N11R1",
+          "A_code": 2,
+          "B_code": 1,
+          "N1_code": 1,
+          "N2_code": 1,
+          "Y": 31.0
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 14,
+          "run_id": "R00014",
+          "control_run_id": "C00004",
+          "noise_condition_id": "N12R1",
+          "A_code": 2,
+          "B_code": 1,
+          "N1_code": 1,
+          "N2_code": 2,
+          "Y": 28.200000000000003
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 15,
+          "run_id": "R00015",
+          "control_run_id": "C00004",
+          "noise_condition_id": "N21R1",
+          "A_code": 2,
+          "B_code": 1,
+          "N1_code": 2,
+          "N2_code": 1,
+          "Y": 35.800000000000004
+        },
+        {
+          "case_id": "TAG-ROBUST",
+          "standard_order": 16,
+          "run_id": "R00016",
+          "control_run_id": "C00004",
+          "noise_condition_id": "N22R1",
+          "A_code": 2,
+          "B_code": 1,
+          "N1_code": 2,
+          "N2_code": 2,
+          "Y": 32.99999999999999
+        }
+      ],
+      "combinations": [
+        {
+          "settings": {
+            "A": "low",
+            "B": "low"
+          },
+          "mean": 24.0,
+          "sd": 2.4549270186029295,
+          "sn": -27.638171865896894,
+          "condition_mean_range": 6.0,
+          "condition_count": 4,
+          "noise_conditions": [
+            {
+              "condition_id": "N11",
+              "noise_settings": {
+                "N1": "n1",
+                "N2": "n1"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                1
+              ],
+              "run_ids": [
+                "R00001"
+              ],
+              "n": 1,
+              "mean": 27.0,
+              "sd": null,
+              "response_range": 0.0
+            },
+            {
+              "condition_id": "N12",
+              "noise_settings": {
+                "N1": "n1",
+                "N2": "n2"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                2
+              ],
+              "run_ids": [
+                "R00002"
+              ],
+              "n": 1,
+              "mean": 24.200000000000003,
+              "sd": null,
+              "response_range": 0.0
+            },
+            {
+              "condition_id": "N21",
+              "noise_settings": {
+                "N1": "n2",
+                "N2": "n1"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                3
+              ],
+              "run_ids": [
+                "R00003"
+              ],
+              "n": 1,
+              "mean": 23.799999999999997,
+              "sd": null,
+              "response_range": 0.0
+            },
+            {
+              "condition_id": "N22",
+              "noise_settings": {
+                "N1": "n2",
+                "N2": "n2"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                4
+              ],
+              "run_ids": [
+                "R00004"
+              ],
+              "n": 1,
+              "mean": 21.0,
+              "sd": null,
+              "response_range": 0.0
+            }
+          ]
+        },
+        {
+          "settings": {
+            "A": "low",
+            "B": "high"
+          },
+          "mean": 18.0,
+          "sd": 2.178684618449093,
+          "sn": -25.15290862441523,
+          "condition_mean_range": 5.200000000000001,
+          "condition_count": 4,
+          "noise_conditions": [
+            {
+              "condition_id": "N11",
+              "noise_settings": {
+                "N1": "n1",
+                "N2": "n1"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                5
+              ],
+              "run_ids": [
+                "R00005"
+              ],
+              "n": 1,
+              "mean": 18.6,
+              "sd": null,
+              "response_range": 0.0
+            },
+            {
+              "condition_id": "N12",
+              "noise_settings": {
+                "N1": "n1",
+                "N2": "n2"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                6
+              ],
+              "run_ids": [
+                "R00006"
+              ],
+              "n": 1,
+              "mean": 20.6,
+              "sd": null,
+              "response_range": 0.0
+            },
+            {
+              "condition_id": "N21",
+              "noise_settings": {
+                "N1": "n2",
+                "N2": "n1"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                7
+              ],
+              "run_ids": [
+                "R00007"
+              ],
+              "n": 1,
+              "mean": 15.4,
+              "sd": null,
+              "response_range": 0.0
+            },
+            {
+              "condition_id": "N22",
+              "noise_settings": {
+                "N1": "n2",
+                "N2": "n2"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                8
+              ],
+              "run_ids": [
+                "R00008"
+              ],
+              "n": 1,
+              "mean": 17.4,
+              "sd": null,
+              "response_range": 0.0
+            }
+          ]
+        },
+        {
+          "settings": {
+            "A": "high",
+            "B": "high"
+          },
+          "mean": 26.0,
+          "sd": 3.0022213997860523,
+          "sn": -28.342680697242784,
+          "condition_mean_range": 6.799999999999997,
+          "condition_count": 4,
+          "noise_conditions": [
+            {
+              "condition_id": "N11",
+              "noise_settings": {
+                "N1": "n1",
+                "N2": "n1"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                9
+              ],
+              "run_ids": [
+                "R00009"
+              ],
+              "n": 1,
+              "mean": 22.6,
+              "sd": null,
+              "response_range": 0.0
+            },
+            {
+              "condition_id": "N12",
+              "noise_settings": {
+                "N1": "n1",
+                "N2": "n2"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                10
+              ],
+              "run_ids": [
+                "R00010"
+              ],
+              "n": 1,
+              "mean": 24.6,
+              "sd": null,
+              "response_range": 0.0
+            },
+            {
+              "condition_id": "N21",
+              "noise_settings": {
+                "N1": "n2",
+                "N2": "n1"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                11
+              ],
+              "run_ids": [
+                "R00011"
+              ],
+              "n": 1,
+              "mean": 27.4,
+              "sd": null,
+              "response_range": 0.0
+            },
+            {
+              "condition_id": "N22",
+              "noise_settings": {
+                "N1": "n2",
+                "N2": "n2"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                12
+              ],
+              "run_ids": [
+                "R00012"
+              ],
+              "n": 1,
+              "mean": 29.4,
+              "sd": null,
+              "response_range": 0.0
+            }
+          ]
+        },
+        {
+          "settings": {
+            "A": "high",
+            "B": "low"
+          },
+          "mean": 32.0,
+          "sd": 3.208322510804257,
+          "sn": -30.135618494671867,
+          "condition_mean_range": 7.600000000000001,
+          "condition_count": 4,
+          "noise_conditions": [
+            {
+              "condition_id": "N11",
+              "noise_settings": {
+                "N1": "n1",
+                "N2": "n1"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                13
+              ],
+              "run_ids": [
+                "R00013"
+              ],
+              "n": 1,
+              "mean": 31.0,
+              "sd": null,
+              "response_range": 0.0
+            },
+            {
+              "condition_id": "N12",
+              "noise_settings": {
+                "N1": "n1",
+                "N2": "n2"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                14
+              ],
+              "run_ids": [
+                "R00014"
+              ],
+              "n": 1,
+              "mean": 28.200000000000003,
+              "sd": null,
+              "response_range": 0.0
+            },
+            {
+              "condition_id": "N21",
+              "noise_settings": {
+                "N1": "n2",
+                "N2": "n1"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                15
+              ],
+              "run_ids": [
+                "R00015"
+              ],
+              "n": 1,
+              "mean": 35.800000000000004,
+              "sd": null,
+              "response_range": 0.0
+            },
+            {
+              "condition_id": "N22",
+              "noise_settings": {
+                "N1": "n2",
+                "N2": "n2"
+              },
+              "replicates": [
+                1
+              ],
+              "standard_orders": [
+                16
+              ],
+              "run_ids": [
+                "R00016"
+              ],
+              "n": 1,
+              "mean": 32.99999999999999,
+              "sd": null,
+              "response_range": 0.0
+            }
+          ]
+        }
+      ],
+      "sn_factor_table": [
+        {
+          "factor_id": "A",
+          "levels": [
+            {
+              "level": "low",
+              "sn": -26.395540245156063,
+              "slope": null,
+              "mean": 21.0,
+              "sd": 2.316805818526011,
+              "ln_sd": null,
+              "n": 8,
+              "effect": 1.4218046754006295
+            },
+            {
+              "level": "high",
+              "sn": -29.239149595957326,
+              "slope": null,
+              "mean": 29.0,
+              "sd": 3.1052719552951547,
+              "ln_sd": null,
+              "n": 8,
+              "effect": -1.421804675400633
+            }
+          ],
+          "delta": 2.8436093508012625,
+          "rank": 1
+        },
+        {
+          "factor_id": "B",
+          "levels": [
+            {
+              "level": "low",
+              "sn": -28.88689518028438,
+              "slope": null,
+              "mean": 28.0,
+              "sd": 2.8316247647035935,
+              "ln_sd": null,
+              "n": 8,
+              "effect": -1.0695502597276878
+            },
+            {
+              "level": "high",
+              "sn": -26.74779466082901,
+              "slope": null,
+              "mean": 22.0,
+              "sd": 2.5904530091175726,
+              "ln_sd": null,
+              "n": 8,
+              "effect": 1.0695502597276842
+            }
+          ],
+          "delta": 2.139100519455372,
+          "rank": 2
+        }
+      ],
+      "best": {
+        "settings": {
+          "A": "low",
+          "B": "high"
+        },
+        "predicted_sn": -25.32598998542838,
+        "predicted_mean": 18.0,
+        "predicted_sd": 2.1962199407330005,
+        "tied_combinations": []
+      },
+      "formula": "smaller-is-better S/N=-10*log10(mean(Y^2)) over four noise conditions"
+    }
+  }
+}

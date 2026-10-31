@@ -1,0 +1,885 @@
+===== BIN-FACTORIAL DOE design actual command =====
+FFDESIGN 2 4;
+  LEVELS -1 1 -1 1;
+  DESIGN.
+===== BIN-FACTORIAL DOE design OutputDocument/Outputs =====
+OutputDocument.Text:
+全因子设计
+ 
+
+设计摘要
+
+因子:    2   基本设计:     2, 4
+试验次数:  4   仿行:          1
+区组:    1   中心点（合计）:     0
+
+
+所有项均不混杂。
+
+
+Output.Text[1]:
+设计摘要
+
+因子:    2   基本设计:     2, 4
+试验次数:  4   仿行:          1
+区组:    1   中心点（合计）:     0
+
+
+Output.Text[2]:
+所有项均不混杂。
+
+===== LastError =====
+
+
+===== BIN-FACTORIAL BFFACTORIAL actual command =====
+BFFACTORIAL;
+  RESPONSE C7 C8;
+  FACTOR C5 C6;
+  TERMS C5 C6 C5*C6;
+  LEVELS -1 1 -1 1;
+  INUNIT 0;
+  LOGIT;
+  ITERATION 200;
+  CTOLERANCE 1e-10;
+  FITS C9;
+  COEFFICIENTS C10;
+  SECOEFFICIENTS C11.
+===== BIN-FACTORIAL BFFACTORIAL OutputDocument/Outputs =====
+OutputDocument.Text:
+因子二值 Logistic 回归: Events 与 A, B
+ 
+
+方法
+
+链接函数    Logit
+最大迭代次数  200
+公差      1e-10
+已使用的行数  4
+
+
+响应信息
+
+变量      值    计数  事件名称
+Events  事件   20  事件
+        非事件  20
+Trials  合计   40
+
+
+已编码系数
+
+项       效应     系数  系数标准误  方差膨胀因子
+常量          0.000  0.358
+A    1.386  0.693  0.358    1.05
+B    1.386  0.693  0.358    1.05
+A*B  0.000  0.000  0.358    1.00
+
+
+连续预测变量的优势比
+
+                95%
+   变更单位  优势比   置信区间
+A     1    *  (*, *)
+B     1    *  (*, *)
+
+没有计算交互作用项中包含的预测变量的优势比，原因是这些优势比取决于交互作用项中的其他预测变量的值。
+
+
+模型汇总
+
+         偏差 R-Sq
+偏差 R-Sq     (调整)    AIC  AICc    BIC
+100.00%   61.09%  18.40     *  15.94
+
+
+拟合优度检验
+
+检验               自由度    卡方    P 值
+偏差                 0  0.00      *
+Pearson            0  0.00      *
+Hosmer-Lemeshow    2  0.00  1.000
+
+
+方差分析
+
+来源     自由度    调整后偏差    调整后均值    卡方    P 值
+模型       3  7.70979  2.56993  7.71  0.052
+  A      1  4.05375  4.05375  4.05  0.044
+  B      1  4.05375  4.05375  4.05  0.044
+  A*B    1  0.00000  0.00000  0.00  1.000
+误差       0  0.00000        *
+合计       3  7.70979
+
+
+以未编码单位表示的回归方程
+
+P(事件)  =  exp(Y')/(1 + exp(Y'))
+
+Y' = 0.000 + 0.693 A + 0.693 B + 0.000 A*B
+
+
+Events 的效应 Pareto
+
+
+
+
+Output.Text[1]:
+方法
+
+链接函数    Logit
+最大迭代次数  200
+公差      1e-10
+已使用的行数  4
+
+
+Output.Text[2]:
+响应信息
+
+变量      值    计数  事件名称
+Events  事件   20  事件
+        非事件  20
+Trials  合计   40
+
+
+Output.Text[3]:
+已编码系数
+
+项       效应     系数  系数标准误  方差膨胀因子
+常量          0.000  0.358
+A    1.386  0.693  0.358    1.05
+B    1.386  0.693  0.358    1.05
+A*B  0.000  0.000  0.358    1.00
+
+
+Output.Text[4]:
+连续预测变量的优势比
+
+                95%
+   变更单位  优势比   置信区间
+A     1    *  (*, *)
+B     1    *  (*, *)
+
+没有计算交互作用项中包含的预测变量的优势比，原因是这些优势比取决于交互作用项中的其他预测变量的值。
+
+
+Output.Text[5]:
+模型汇总
+
+         偏差 R-Sq
+偏差 R-Sq     (调整)    AIC  AICc    BIC
+100.00%   61.09%  18.40     *  15.94
+
+
+Output.Text[6]:
+拟合优度检验
+
+检验               自由度    卡方    P 值
+偏差                 0  0.00      *
+Pearson            0  0.00      *
+Hosmer-Lemeshow    2  0.00  1.000
+
+
+Output.Text[7]:
+方差分析
+
+来源     自由度    调整后偏差    调整后均值    卡方    P 值
+模型       3  7.70979  2.56993  7.71  0.052
+  A      1  4.05375  4.05375  4.05  0.044
+  B      1  4.05375  4.05375  4.05  0.044
+  A*B    1  0.00000  0.00000  0.00  1.000
+误差       0  0.00000        *
+合计       3  7.70979
+
+
+Output.Text[8]:
+以未编码单位表示的回归方程
+
+P(事件)  =  exp(Y')/(1 + exp(Y'))
+
+Y' = 0.000 + 0.693 A + 0.693 B + 0.000 A*B
+
+
+Output.Text[9]:
+Events 的效应 Pareto
+
+===== LastError =====
+
+
+===== BIN-RSM DOE design actual command =====
+BBDESIGN 3;
+  CENTER 2;
+  DESIGN.
+===== BIN-RSM DOE design OutputDocument/Outputs =====
+OutputDocument.Text:
+Box-Behnken 设计
+ 
+
+设计摘要
+
+因子:     3     仿行:      1
+基础次数:  14     总试验数:   14
+基础区组:   1     合计区组数:   1
+
+
+中心点: 2
+
+
+Output.Text[1]:
+设计摘要
+
+因子:     3     仿行:      1
+基础次数:  14     总试验数:   14
+基础区组:   1     合计区组数:   1
+
+
+Output.Text[2]:
+中心点: 2
+
+===== LastError =====
+
+
+===== BIN-RSM BRSREG actual command =====
+BRSREG;
+  RESPONSE C8 C9;
+  FACTOR C5 C6 C7;
+  TERMS C5 C6 C7 C5*C5 C6*C6 C7*C7 C5*C6 C5*C7 C6*C7;
+  LEVELS -1 1 -1 1 -1 1;
+  INUNIT 0;
+  LOGIT;
+  ITERATION 200;
+  CTOLERANCE 1e-10;
+  FITS C10;
+  COEFFICIENTS C11;
+  SECOEFFICIENTS C12;
+  CONFIDENCE 95;
+  ITYPE 0;
+  XMATRIX M1;
+  XPWXINVERSE M2.
+===== BIN-RSM BRSREG OutputDocument/Outputs =====
+OutputDocument.Text:
+响应曲面二值 Logistic 回归: Events 与 A, B, C
+ 
+
+方法
+
+链接函数    Logit
+最大迭代次数  200
+公差      1e-10
+已使用的行数  14
+
+
+响应信息
+
+变量      值      计数  事件名称
+Events  事件    620  事件
+        非事件   640
+Trials  合计   1260
+
+
+已编码系数
+
+项         系数   系数标准误  方差膨胀因子
+常量     0.000   0.149
+A     0.6931  0.0836    1.04
+B    -0.0000  0.0791    1.00
+C    -0.0000  0.0836    1.04
+A*A    0.693   0.125    1.07
+B*B   -0.693   0.125    1.04
+C*C   -0.000   0.125    1.07
+A*B   -0.000   0.112    1.00
+A*C    0.693   0.124    1.06
+B*C    0.000   0.112    1.00
+
+
+连续预测变量的优势比
+
+                95%
+   变更单位  优势比   置信区间
+A     1    *  (*, *)
+B     1    *  (*, *)
+C     1    *  (*, *)
+
+没有计算交互作用项中包含的预测变量的优势比，原因是这些优势比取决于交互作用项中的其他预测变量的值。
+
+
+模型汇总
+
+         偏差 R-Sq
+偏差 R-Sq     (调整)    AIC    AICc    BIC
+100.00%   94.82%  87.19  160.53  93.59
+
+
+拟合优度检验
+
+检验               自由度    卡方    P 值
+偏差                 4  0.00  1.000
+Pearson            4  0.00  1.000
+Hosmer-Lemeshow    5  0.00  1.000
+
+
+方差分析
+
+来源     自由度    调整后偏差    调整后均值      卡方    P 值
+模型       9  173.793  19.3103  173.79  0.000
+  A      1   73.855  73.8548   73.85  0.000
+  B      1        *        *       *      *
+  C      1        *        *       *      *
+  A*A    1   31.024  31.0238   31.02  0.000
+  B*B    1   31.024  31.0238   31.02  0.000
+  C*C    1        *        *       *      *
+  A*B    1    0.000   0.0000    0.00  1.000
+  A*C    1   33.247  33.2468   33.25  0.000
+  B*C    1        *        *       *      *
+误差       4    0.000   0.0000
+合计      13  173.793
+
+
+以未编码单位表示的回归方程
+
+P(事件)  =  exp(Y')/(1 + exp(Y'))
+
+Y' = 0.000 + 0.6931 A - 0.0000 B - 0.0000 C + 0.693 A*A - 0.693 B*B - 0.000 C*C - 0.000 A*B
+     + 0.693 A*C + 0.000 B*C
+
+
+Events 的效应 Pareto
+
+
+
+
+Output.Text[1]:
+方法
+
+链接函数    Logit
+最大迭代次数  200
+公差      1e-10
+已使用的行数  14
+
+
+Output.Text[2]:
+响应信息
+
+变量      值      计数  事件名称
+Events  事件    620  事件
+        非事件   640
+Trials  合计   1260
+
+
+Output.Text[3]:
+已编码系数
+
+项         系数   系数标准误  方差膨胀因子
+常量     0.000   0.149
+A     0.6931  0.0836    1.04
+B    -0.0000  0.0791    1.00
+C    -0.0000  0.0836    1.04
+A*A    0.693   0.125    1.07
+B*B   -0.693   0.125    1.04
+C*C   -0.000   0.125    1.07
+A*B   -0.000   0.112    1.00
+A*C    0.693   0.124    1.06
+B*C    0.000   0.112    1.00
+
+
+Output.Text[4]:
+连续预测变量的优势比
+
+                95%
+   变更单位  优势比   置信区间
+A     1    *  (*, *)
+B     1    *  (*, *)
+C     1    *  (*, *)
+
+没有计算交互作用项中包含的预测变量的优势比，原因是这些优势比取决于交互作用项中的其他预测变量的值。
+
+
+Output.Text[5]:
+模型汇总
+
+         偏差 R-Sq
+偏差 R-Sq     (调整)    AIC    AICc    BIC
+100.00%   94.82%  87.19  160.53  93.59
+
+
+Output.Text[6]:
+拟合优度检验
+
+检验               自由度    卡方    P 值
+偏差                 4  0.00  1.000
+Pearson            4  0.00  1.000
+Hosmer-Lemeshow    5  0.00  1.000
+
+
+Output.Text[7]:
+方差分析
+
+来源     自由度    调整后偏差    调整后均值      卡方    P 值
+模型       9  173.793  19.3103  173.79  0.000
+  A      1   73.855  73.8548   73.85  0.000
+  B      1        *        *       *      *
+  C      1        *        *       *      *
+  A*A    1   31.024  31.0238   31.02  0.000
+  B*B    1   31.024  31.0238   31.02  0.000
+  C*C    1        *        *       *      *
+  A*B    1    0.000   0.0000    0.00  1.000
+  A*C    1   33.247  33.2468   33.25  0.000
+  B*C    1        *        *       *      *
+误差       4    0.000   0.0000
+合计      13  173.793
+
+
+Output.Text[8]:
+以未编码单位表示的回归方程
+
+P(事件)  =  exp(Y')/(1 + exp(Y'))
+
+Y' = 0.000 + 0.6931 A - 0.0000 B - 0.0000 C + 0.693 A*A - 0.693 B*B - 0.000 C*C - 0.000 A*B
+     + 0.693 A*C + 0.000 B*C
+
+
+Output.Text[9]:
+Events 的效应 Pareto
+
+===== LastError =====
+
+
+===== BIN-FACTORIAL mapped native rows =====
+[
+  {
+    "worksheet_row": 1,
+    "standard_order": 1,
+    "run_order": 1,
+    "occurrence": 1,
+    "point_key": "-1,-1",
+    "settings": {
+      "A": -1.0,
+      "B": -1.0
+    },
+    "events": 2,
+    "trials": 10,
+    "fit": 0.2
+  },
+  {
+    "worksheet_row": 2,
+    "standard_order": 2,
+    "run_order": 2,
+    "occurrence": 1,
+    "point_key": "1,-1",
+    "settings": {
+      "A": 1.0,
+      "B": -1.0
+    },
+    "events": 5,
+    "trials": 10,
+    "fit": 0.4999999999999999
+  },
+  {
+    "worksheet_row": 3,
+    "standard_order": 3,
+    "run_order": 3,
+    "occurrence": 1,
+    "point_key": "-1,1",
+    "settings": {
+      "A": -1.0,
+      "B": 1.0
+    },
+    "events": 5,
+    "trials": 10,
+    "fit": 0.5
+  },
+  {
+    "worksheet_row": 4,
+    "standard_order": 4,
+    "run_order": 4,
+    "occurrence": 1,
+    "point_key": "1,1",
+    "settings": {
+      "A": 1.0,
+      "B": 1.0
+    },
+    "events": 8,
+    "trials": 10,
+    "fit": 0.8000000000000002
+  }
+]
+
+===== BIN-RSM mapped native rows =====
+[
+  {
+    "worksheet_row": 1,
+    "standard_order": 1,
+    "run_order": 1,
+    "occurrence": 1,
+    "point_key": "-1,-1,0",
+    "settings": {
+      "A": -1.0,
+      "B": -1.0,
+      "C": 0.0
+    },
+    "events": 30,
+    "trials": 90,
+    "fit": 0.33333333333333337,
+    "matrix": [
+      1.0,
+      -1.0,
+      -1.0,
+      0.0,
+      1.0,
+      1.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "worksheet_row": 2,
+    "standard_order": 2,
+    "run_order": 2,
+    "occurrence": 1,
+    "point_key": "1,-1,0",
+    "settings": {
+      "A": 1.0,
+      "B": -1.0,
+      "C": 0.0
+    },
+    "events": 60,
+    "trials": 90,
+    "fit": 0.6666666666666665,
+    "matrix": [
+      1.0,
+      1.0,
+      -1.0,
+      0.0,
+      1.0,
+      1.0,
+      0.0,
+      -1.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "worksheet_row": 3,
+    "standard_order": 3,
+    "run_order": 3,
+    "occurrence": 1,
+    "point_key": "-1,1,0",
+    "settings": {
+      "A": -1.0,
+      "B": 1.0,
+      "C": 0.0
+    },
+    "events": 30,
+    "trials": 90,
+    "fit": 0.3333333333333334,
+    "matrix": [
+      1.0,
+      -1.0,
+      1.0,
+      0.0,
+      1.0,
+      1.0,
+      0.0,
+      -1.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "worksheet_row": 4,
+    "standard_order": 4,
+    "run_order": 4,
+    "occurrence": 1,
+    "point_key": "1,1,0",
+    "settings": {
+      "A": 1.0,
+      "B": 1.0,
+      "C": 0.0
+    },
+    "events": 60,
+    "trials": 90,
+    "fit": 0.6666666666666665,
+    "matrix": [
+      1.0,
+      1.0,
+      1.0,
+      0.0,
+      1.0,
+      1.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "worksheet_row": 5,
+    "standard_order": 5,
+    "run_order": 5,
+    "occurrence": 1,
+    "point_key": "-1,0,-1",
+    "settings": {
+      "A": -1.0,
+      "B": 0.0,
+      "C": -1.0
+    },
+    "events": 60,
+    "trials": 90,
+    "fit": 0.6666666666666667,
+    "matrix": [
+      1.0,
+      -1.0,
+      0.0,
+      -1.0,
+      1.0,
+      0.0,
+      1.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "worksheet_row": 6,
+    "standard_order": 6,
+    "run_order": 6,
+    "occurrence": 1,
+    "point_key": "1,0,-1",
+    "settings": {
+      "A": 1.0,
+      "B": 0.0,
+      "C": -1.0
+    },
+    "events": 60,
+    "trials": 90,
+    "fit": 0.6666666666666666,
+    "matrix": [
+      1.0,
+      1.0,
+      0.0,
+      -1.0,
+      1.0,
+      0.0,
+      1.0,
+      0.0,
+      -1.0,
+      0.0
+    ]
+  },
+  {
+    "worksheet_row": 7,
+    "standard_order": 7,
+    "run_order": 7,
+    "occurrence": 1,
+    "point_key": "-1,0,1",
+    "settings": {
+      "A": -1.0,
+      "B": 0.0,
+      "C": 1.0
+    },
+    "events": 30,
+    "trials": 90,
+    "fit": 0.3333333333333334,
+    "matrix": [
+      1.0,
+      -1.0,
+      0.0,
+      1.0,
+      1.0,
+      0.0,
+      1.0,
+      0.0,
+      -1.0,
+      0.0
+    ]
+  },
+  {
+    "worksheet_row": 8,
+    "standard_order": 8,
+    "run_order": 8,
+    "occurrence": 1,
+    "point_key": "1,0,1",
+    "settings": {
+      "A": 1.0,
+      "B": 0.0,
+      "C": 1.0
+    },
+    "events": 80,
+    "trials": 90,
+    "fit": 0.8888888888888888,
+    "matrix": [
+      1.0,
+      1.0,
+      0.0,
+      1.0,
+      1.0,
+      0.0,
+      1.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "worksheet_row": 9,
+    "standard_order": 9,
+    "run_order": 9,
+    "occurrence": 1,
+    "point_key": "0,-1,-1",
+    "settings": {
+      "A": 0.0,
+      "B": -1.0,
+      "C": -1.0
+    },
+    "events": 30,
+    "trials": 90,
+    "fit": 0.3333333333333333,
+    "matrix": [
+      1.0,
+      0.0,
+      -1.0,
+      -1.0,
+      0.0,
+      1.0,
+      1.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  {
+    "worksheet_row": 10,
+    "standard_order": 10,
+    "run_order": 10,
+    "occurrence": 1,
+    "point_key": "0,1,-1",
+    "settings": {
+      "A": 0.0,
+      "B": 1.0,
+      "C": -1.0
+    },
+    "events": 30,
+    "trials": 90,
+    "fit": 0.3333333333333333,
+    "matrix": [
+      1.0,
+      0.0,
+      1.0,
+      -1.0,
+      0.0,
+      1.0,
+      1.0,
+      0.0,
+      0.0,
+      -1.0
+    ]
+  },
+  {
+    "worksheet_row": 11,
+    "standard_order": 11,
+    "run_order": 11,
+    "occurrence": 1,
+    "point_key": "0,-1,1",
+    "settings": {
+      "A": 0.0,
+      "B": -1.0,
+      "C": 1.0
+    },
+    "events": 30,
+    "trials": 90,
+    "fit": 0.33333333333333326,
+    "matrix": [
+      1.0,
+      0.0,
+      -1.0,
+      1.0,
+      0.0,
+      1.0,
+      1.0,
+      0.0,
+      0.0,
+      -1.0
+    ]
+  },
+  {
+    "worksheet_row": 12,
+    "standard_order": 12,
+    "run_order": 12,
+    "occurrence": 1,
+    "point_key": "0,1,1",
+    "settings": {
+      "A": 0.0,
+      "B": 1.0,
+      "C": 1.0
+    },
+    "events": 30,
+    "trials": 90,
+    "fit": 0.33333333333333326,
+    "matrix": [
+      1.0,
+      0.0,
+      1.0,
+      1.0,
+      0.0,
+      1.0,
+      1.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  {
+    "worksheet_row": 13,
+    "standard_order": 13,
+    "run_order": 13,
+    "occurrence": 1,
+    "point_key": "0,0,0",
+    "settings": {
+      "A": 0.0,
+      "B": 0.0,
+      "C": 0.0
+    },
+    "events": 45,
+    "trials": 90,
+    "fit": 0.5000000000000001,
+    "matrix": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "worksheet_row": 14,
+    "standard_order": 14,
+    "run_order": 14,
+    "occurrence": 2,
+    "point_key": "0,0,0",
+    "settings": {
+      "A": 0.0,
+      "B": 0.0,
+      "C": 0.0
+    },
+    "events": 45,
+    "trials": 90,
+    "fit": 0.5000000000000001,
+    "matrix": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  }
+]

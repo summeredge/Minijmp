@@ -1,0 +1,10 @@
+﻿run_id,standard_order,run_order,point_type,replicate,batch_id,source_run_id,A,B,Y
+OPTDIST1,1,1,factorial,1,BASE,,1,1,11.5
+OPTDIST2,2,2,factorial,1,BASE,,-1,1,6.5
+OPTDIST3,3,3,factorial,1,BASE,,-1,-1,13.5
+OPTDIST4,4,4,factorial,1,BASE,,1,-1,16.5
+OPTDIST5,5,5,factorial,1,BASE,,1,0,14.0
+OPTDIST6,6,6,factorial,1,BASE,,0,1,9.0
+OPTDIST7,7,7,factorial,1,BASE,,-1,0,10.0
+OPTDIST8,8,8,factorial,1,BASE,,0,-1,15.0
+OPTDIST9,9,9,factorial,1,BASE,,0,0,12.0

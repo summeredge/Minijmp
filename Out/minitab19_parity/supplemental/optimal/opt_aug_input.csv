@@ -1,0 +1,6 @@
+﻿run_id,standard_order,run_order,point_type,replicate,batch_id,source_run_id,A,B,Y
+AUG1,1,1,factorial,1,BASE,,-1,-1,13.5
+AUG2,2,2,factorial,1,BASE,,1,-1,16.5
+AUG3,3,3,factorial,1,BASE,,-1,1,6.5
+CAND1,1,1,factorial,1,CAND,parent,1,1,11.5
+CAND2,2,2,center,1,CAND,parent,0,0,12.0

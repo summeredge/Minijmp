@@ -1,0 +1,320 @@
+﻿case_id,comparison_run,section,term,statistic,minitab_value,minijmp_value,absolute_error,relative_error,absolute_tolerance,relative_tolerance,minitab_value_source,minijmp_value_source,status
+GFF-2X3,1,design,1|1|1,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,1|1|1,A_label,low,low,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,design,1|1|1,B_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,1|1|1,B_label,100,100,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,input,1|1|1,Y,8.0,8.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-2X3,1,design,1|1|2,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,1|1|2,A_label,low,low,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,design,1|1|2,B_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,1|1|2,B_label,100,100,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,input,1|1|2,Y,10.0,10.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-2X3,1,design,1|2|1,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,1|2|1,A_label,low,low,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,design,1|2|1,B_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,1|2|1,B_label,150,150,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,input,1|2|1,Y,7.0,7.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-2X3,1,design,1|2|2,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,1|2|2,A_label,low,low,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,design,1|2|2,B_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,1|2|2,B_label,150,150,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,input,1|2|2,Y,9.0,9.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-2X3,1,design,1|3|1,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,1|3|1,A_label,low,low,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,design,1|3|1,B_native_level,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,1|3|1,B_label,200,200,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,input,1|3|1,Y,6.0,6.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-2X3,1,design,1|3|2,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,1|3|2,A_label,low,low,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,design,1|3|2,B_native_level,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,1|3|2,B_label,200,200,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,input,1|3|2,Y,8.0,8.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-2X3,1,design,2|1|1,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,2|1|1,A_label,high,high,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,design,2|1|1,B_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,2|1|1,B_label,100,100,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,input,2|1|1,Y,4.0,4.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-2X3,1,design,2|1|2,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,2|1|2,A_label,high,high,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,design,2|1|2,B_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,2|1|2,B_label,100,100,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,input,2|1|2,Y,6.0,6.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-2X3,1,design,2|2|1,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,2|2|1,A_label,high,high,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,design,2|2|1,B_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,2|2|1,B_label,150,150,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,input,2|2|1,Y,11.0,11.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-2X3,1,design,2|2|2,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,2|2|2,A_label,high,high,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,design,2|2|2,B_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,2|2|2,B_label,150,150,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,input,2|2|2,Y,13.0,13.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-2X3,1,design,2|3|1,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,2|3|1,A_label,high,high,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,design,2|3|1,B_native_level,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,2|3|1,B_label,200,200,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,input,2|3|1,Y,18.0,18.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-2X3,1,design,2|3|2,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,2|3|2,A_label,high,high,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,design,2|3|2,B_native_level,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-2X3,1,design,2|3|2,B_label,200,200,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-2X3,1,input,2|3|2,Y,20.0,20.0,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-2X3,1,model_space,full factorial,rank,6.0,6.0,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL XMATRIX (DIRECT),MiniJMP full categorical model matrix,PASS
+GFF-2X3,1,model_space,full factorial,basis_error,1.5543122344752192e-15,0.0,1.5543122344752192e-15,1.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP sum-to-zero contrast matrix,PASS
+GFF-2X3,1,coefficient,截距,estimate,10.000000000000005,10.0,5.329070518200751e-15,5.329070518200748e-16,1e-09,1e-09,Minitab coefficient transformed to MiniJMP contrast basis,MiniJMP analyze_general_factorial coefficients,PASS
+GFF-2X3,1,coefficient,A[high],estimate,1.9999999999999996,1.9999999999999996,0.0,0.0,1e-09,1e-09,Minitab coefficient transformed to MiniJMP contrast basis,MiniJMP analyze_general_factorial coefficients,PASS
+GFF-2X3,1,coefficient,B[150],estimate,2.275957200481571e-15,6.661338147750939e-16,1.609823385706477e-15,0.7073170731707317,1e-09,1e-09,Minitab coefficient transformed to MiniJMP contrast basis,MiniJMP analyze_general_factorial coefficients,PASS
+GFF-2X3,1,coefficient,B[200],estimate,2.999999999999995,3.0,4.884981308350689e-15,1.6283271027835656e-15,1e-09,1e-09,Minitab coefficient transformed to MiniJMP contrast basis,MiniJMP analyze_general_factorial coefficients,PASS
+GFF-2X3,1,coefficient,A[high]*B[150],estimate,-1.790234627208065e-15,-8.881784197001252e-16,9.020562075079397e-16,0.5038759689922481,1e-09,1e-09,Minitab coefficient transformed to MiniJMP contrast basis,MiniJMP analyze_general_factorial coefficients,PASS
+GFF-2X3,1,coefficient,A[high]*B[200],estimate,4.000000000000003,3.9999999999999996,3.1086244689504383e-15,7.771561172376091e-16,1e-09,1e-09,Minitab coefficient transformed to MiniJMP contrast basis,MiniJMP analyze_general_factorial coefficients,PASS
+GFF-2X3,1,run_statistics,1|1|1,fit,8.999999999999998,9.000000000000002,3.552713678800501e-15,3.9474596431116685e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-2X3,1,run_statistics,1|1|1,residual,-0.9999999999999982,-1.0000000000000022,3.9968028886505635e-15,3.996802888650571e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-2X3,1,run_statistics,1|1|2,fit,8.999999999999998,9.000000000000002,3.552713678800501e-15,3.9474596431116685e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-2X3,1,run_statistics,1|1|2,residual,1.0000000000000018,0.9999999999999979,3.885780586188048e-15,3.885780586188041e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-2X3,1,run_statistics,1|2|1,fit,8.0,8.000000000000002,1.7763568394002505e-15,2.220446049250313e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-2X3,1,run_statistics,1|2|1,residual,-1.0,-1.0000000000000018,1.7763568394002505e-15,1.7763568394002505e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-2X3,1,run_statistics,1|2|2,fit,8.0,8.0,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-2X3,1,run_statistics,1|2|2,residual,1.0,0.9999999999999996,4.440892098500626e-16,4.440892098500626e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-2X3,1,run_statistics,1|3|1,fit,7.000000000000002,7.000000000000002,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-2X3,1,run_statistics,1|3|1,residual,-1.0000000000000018,-1.0000000000000013,4.440892098500626e-16,4.4408920985006183e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-2X3,1,run_statistics,1|3|2,fit,7.000000000000002,7.000000000000002,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-2X3,1,run_statistics,1|3|2,residual,0.9999999999999982,0.9999999999999987,4.440892098500626e-16,4.440892098500634e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-2X3,1,run_statistics,2|1|1,fit,5.000000000000002,5.0,1.7763568394002505e-15,3.5527136788004996e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-2X3,1,run_statistics,2|1|1,residual,-1.0000000000000018,-1.0,1.7763568394002505e-15,1.7763568394002473e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-2X3,1,run_statistics,2|1|2,fit,5.000000000000002,5.0000000000000036,1.7763568394002505e-15,3.5527136788004996e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-2X3,1,run_statistics,2|1|2,residual,0.9999999999999982,0.9999999999999964,1.7763568394002505e-15,1.7763568394002536e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-2X3,1,run_statistics,2|2|1,fit,12.0,11.999999999999998,1.7763568394002505e-15,1.4802973661668753e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-2X3,1,run_statistics,2|2|1,residual,-1.0,-0.9999999999999978,2.220446049250313e-15,2.220446049250313e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-2X3,1,run_statistics,2|2|2,fit,12.0,11.999999999999998,1.7763568394002505e-15,1.4802973661668753e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-2X3,1,run_statistics,2|2|2,residual,1.0,1.0000000000000022,2.220446049250313e-15,2.220446049250313e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-2X3,1,run_statistics,2|3|1,fit,19.0,19.0,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-2X3,1,run_statistics,2|3|1,residual,-1.0,-0.9999999999999982,1.7763568394002505e-15,1.7763568394002505e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-2X3,1,run_statistics,2|3|2,fit,19.0,18.999999999999993,7.105427357601002e-15,3.739698609263685e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-2X3,1,run_statistics,2|3|2,residual,1.0,1.0000000000000053,5.329070518200751e-15,5.329070518200751e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-2X3,1,anova_type_I,A,ss,48.0,48.00000000000004,4.263256414560601e-14,8.881784197001252e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_I,A,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_I,A,ms,48.0,48.00000000000004,4.263256414560601e-14,8.881784197001252e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_I,A,f,24.0,24.00000000000002,2.1316282072803006e-14,8.881784197001252e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_I,A,p,0.002713682035093796,0.0027136820350937884,7.806255641895632e-18,2.8766287062904978e-15,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_I,B,ss,71.99999999999997,71.99999999999997,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_I,B,df,2.0,2.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_I,B,ms,35.999999999999986,35.999999999999986,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_I,B,f,17.999999999999993,17.999999999999993,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_I,B,p,0.0029154518950437343,0.0029154518950437343,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_I,A*B,ss,128.00000000000003,127.99999999999994,8.526512829121202e-14,6.661338147750938e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_I,A*B,df,2.0,2.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_I,A*B,ms,64.00000000000001,63.99999999999997,4.263256414560601e-14,6.661338147750938e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_I,A*B,f,32.00000000000001,31.999999999999986,2.1316282072803006e-14,6.661338147750938e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_I,A*B,p,0.0006297376093294457,0.0006297376093294467,9.75781955236954e-19,1.5495056048438675e-15,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=I,PASS
+GFF-2X3,1,anova_type_III,A,ss,47.999999999999986,48.00000000000003,4.263256414560601e-14,8.881784197001254e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_type_III,A,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_type_III,A,ms,47.999999999999986,48.00000000000003,4.263256414560601e-14,8.881784197001254e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_type_III,A,f,23.999999999999993,24.000000000000007,1.4210854715202004e-14,5.921189464667503e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_type_III,A,p,0.0027136820350937966,0.0027136820350937936,3.0357660829594124e-18,1.1186889413351935e-15,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_type_III,B,ss,72.0,72.00000000000009,8.526512829121202e-14,1.1842378929335002e-15,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_type_III,B,df,2.0,2.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_type_III,B,ms,36.0,36.00000000000004,4.263256414560601e-14,1.1842378929335002e-15,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_type_III,B,f,18.0,18.000000000000018,1.7763568394002505e-14,9.86864910777917e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_type_III,B,p,0.0029154518950437313,0.002915451895043725,6.5052130349130266e-18,2.2312880709751685e-15,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_type_III,A*B,ss,128.00000000000003,128.00000000000003,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_type_III,A*B,df,2.0,2.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_type_III,A*B,ms,64.00000000000001,64.00000000000001,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_type_III,A*B,f,32.00000000000001,32.0,7.105427357601002e-15,2.2204460492503126e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_type_III,A*B,p,0.0006297376093294457,0.0006297376093294461,3.2526065174565133e-19,5.165018682812892e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-2X3,1,anova_summary,model,n,12.0,12.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-2X3,1,anova_summary,model,rank,6.0,6.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-2X3,1,anova_summary,model,error_df,6.0,6.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-2X3,1,anova_summary,model,sse,12.0,12.000000000000004,3.552713678800501e-15,2.9605947323337506e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-2X3,1,anova_summary,model,sst,260.0,260.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-2X3,1,anova_summary,model,model_ss,248.0,248.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-2X3,1,anova_summary,model,mse,2.0,2.0000000000000004,4.440892098500626e-16,2.220446049250313e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-2X3,1,anova_summary,model,model_f,24.8,24.799999999999994,7.105427357601002e-15,2.865091676452017e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-2X3,1,anova_summary,model,model_p,0.0006120085812399832,0.0006120085812399834,2.168404344971009e-19,3.5430946745511823e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-2X3,1,cell_mean,1|1,fit_mean,8.999999999999998,9.0,1.7763568394002505e-15,1.9737298215558342e-16,1e-09,1e-09,DERIVED: Minitab direct FITS grouped by full cell,MiniJMP general factorial cell means,PASS
+GFF-2X3,1,cell_mean,1|2,fit_mean,8.0,8.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab direct FITS grouped by full cell,MiniJMP general factorial cell means,PASS
+GFF-2X3,1,cell_mean,1|3,fit_mean,7.000000000000002,7.0,1.7763568394002505e-15,2.537652627714643e-16,1e-09,1e-09,DERIVED: Minitab direct FITS grouped by full cell,MiniJMP general factorial cell means,PASS
+GFF-2X3,1,cell_mean,2|1,fit_mean,5.000000000000002,5.0,1.7763568394002505e-15,3.5527136788004996e-16,1e-09,1e-09,DERIVED: Minitab direct FITS grouped by full cell,MiniJMP general factorial cell means,PASS
+GFF-2X3,1,cell_mean,2|2,fit_mean,12.0,12.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab direct FITS grouped by full cell,MiniJMP general factorial cell means,PASS
+GFF-2X3,1,cell_mean,2|3,fit_mean,19.0,19.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab direct FITS grouped by full cell,MiniJMP general factorial cell means,PASS
+GFF-2X3,1,observed_marginal_mean,A=low,mean,8.0,8.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab fixed response grouped by factor level,MiniJMP observed marginal means,PASS
+GFF-2X3,1,least_squares_marginal_mean,A=low,mean,8.0,8.0,0.0,0.0,1e-09,1e-09,DERIVED: equally weighted Minitab fitted cell means,DERIVED: equally weighted MiniJMP cell means,PASS
+GFF-2X3,1,observed_marginal_mean,A=high,mean,12.0,12.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab fixed response grouped by factor level,MiniJMP observed marginal means,PASS
+GFF-2X3,1,least_squares_marginal_mean,A=high,mean,12.0,12.0,0.0,0.0,1e-09,1e-09,DERIVED: equally weighted Minitab fitted cell means,DERIVED: equally weighted MiniJMP cell means,PASS
+GFF-2X3,1,observed_marginal_mean,B=100,mean,7.0,7.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab fixed response grouped by factor level,MiniJMP observed marginal means,PASS
+GFF-2X3,1,least_squares_marginal_mean,B=100,mean,7.0,7.0,0.0,0.0,1e-09,1e-09,DERIVED: equally weighted Minitab fitted cell means,DERIVED: equally weighted MiniJMP cell means,PASS
+GFF-2X3,1,observed_marginal_mean,B=150,mean,10.0,10.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab fixed response grouped by factor level,MiniJMP observed marginal means,PASS
+GFF-2X3,1,least_squares_marginal_mean,B=150,mean,10.0,10.0,0.0,0.0,1e-09,1e-09,DERIVED: equally weighted Minitab fitted cell means,DERIVED: equally weighted MiniJMP cell means,PASS
+GFF-2X3,1,observed_marginal_mean,B=200,mean,13.0,13.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab fixed response grouped by factor level,MiniJMP observed marginal means,PASS
+GFF-2X3,1,least_squares_marginal_mean,B=200,mean,13.0,13.0,0.0,0.0,1e-09,1e-09,DERIVED: equally weighted Minitab fitted cell means,DERIVED: equally weighted MiniJMP cell means,PASS
+GFF-TYPEIII,1,design,1|1|1,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|1|1,A_label,off,off,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,1|1|1,B_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|1|1,B_label,100,100,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,1|1|1,Y,19.324,19.324,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,1|1|2,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|1|2,A_label,off,off,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,1|1|2,B_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|1|2,B_label,100,100,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,1|1|2,Y,20.843,20.843,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,1|1|3,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|1|3,A_label,off,off,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,1|1|3,B_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|1|3,B_label,100,100,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,1|1|3,Y,21.872,21.872,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,1|2|1,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|2|1,A_label,off,off,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,1|2|1,B_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|2|1,B_label,150,150,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,1|2|1,Y,21.92,21.92,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,1|2|2,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|2|2,A_label,off,off,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,1|2|2,B_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|2|2,B_label,150,150,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,1|2|2,Y,23.315,23.315,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,1|2|3,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|2|3,A_label,off,off,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,1|2|3,B_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|2|3,B_label,150,150,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,1|2|3,Y,24.26,24.26,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,1|3|1,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|3|1,A_label,off,off,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,1|3|1,B_native_level,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|3|1,B_label,200,200,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,1|3|1,Y,24.516,24.516,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,1|3|2,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|3|2,A_label,off,off,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,1|3|2,B_native_level,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|3|2,B_label,200,200,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,1|3|2,Y,25.787,25.787,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,1|3|3,A_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|3|3,A_label,off,off,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,1|3|3,B_native_level,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,1|3|3,B_label,200,200,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,1|3|3,Y,26.648,26.648,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,2|1|1,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|1|1,A_label,on,on,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,2|1|1,B_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|1|1,B_label,100,100,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,2|1|1,Y,26.084,26.084,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,2|1|2,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|1|2,A_label,on,on,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,2|1|2,B_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|1|2,B_label,100,100,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,2|1|2,Y,,,,,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,N/A
+GFF-TYPEIII,1,design,2|1|3,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|1|3,A_label,on,on,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,2|1|3,B_native_level,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|1|3,B_label,100,100,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,2|1|3,Y,29.152,29.152,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,2|2|1,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|2|1,A_label,on,on,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,2|2|1,B_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|2|1,B_label,150,150,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,2|2|1,Y,25.68,25.68,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,2|2|2,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|2|2,A_label,on,on,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,2|2|2,B_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|2|2,B_label,150,150,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,2|2|2,Y,27.385,27.385,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,2|2|3,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|2|3,A_label,on,on,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,2|2|3,B_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|2|3,B_label,150,150,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,2|2|3,Y,28.54,28.54,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,2|3|1,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|3|1,A_label,on,on,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,2|3|1,B_native_level,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|3|1,B_label,200,200,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,2|3|1,Y,25.276,25.276,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,2|3|2,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|3|2,A_label,on,on,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,2|3|2,B_native_level,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|3|2,B_label,200,200,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,2|3|2,Y,26.857,26.857,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,design,2|3|3,A_native_level,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|3|3,A_label,on,on,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,design,2|3|3,B_native_level,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab FDESIGN worksheet factors (DIRECT),MiniJMP level map from factor levels,PASS
+GFF-TYPEIII,1,design,2|3|3,B_label,200,200,,,,,Minitab FDESIGN level-code mapping,MiniJMP FactorSpec levels,PASS
+GFF-TYPEIII,1,input,2|3|3,Y,27.928,27.928,0.0,0.0,1e-09,1e-09,fixed input loaded into Minitab worksheet,MiniJMP fixed response input,PASS
+GFF-TYPEIII,1,model_space,full factorial,rank,6.0,6.0,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL XMATRIX (DIRECT),MiniJMP full categorical model matrix,PASS
+GFF-TYPEIII,1,model_space,full factorial,basis_error,8.881784197001252e-16,0.0,8.881784197001252e-16,1.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP sum-to-zero contrast matrix,PASS
+GFF-TYPEIII,1,coefficient,截距,estimate,25.16694444444444,25.166944444444443,3.552713678800501e-15,1.411658728234987e-16,1e-09,1e-09,Minitab coefficient transformed to MiniJMP contrast basis,MiniJMP analyze_general_factorial coefficients,PASS
+GFF-TYPEIII,1,coefficient,A[on],estimate,2.0019444444444443,2.001944444444445,8.881784197001252e-16,4.4365787580414196e-16,1e-09,1e-09,Minitab coefficient transformed to MiniJMP contrast basis,MiniJMP analyze_general_factorial coefficients,PASS
+GFF-TYPEIII,1,coefficient,B[150],estimate,0.01638888888889134,0.016388888888888897,2.4424906541753444e-15,1.4903332805135465e-13,1e-09,1e-09,Minitab coefficient transformed to MiniJMP contrast basis,MiniJMP analyze_general_factorial coefficients,PASS
+GFF-TYPEIII,1,coefficient,B[200],estimate,1.0017222222222233,1.001722222222222,1.3322676295501878e-15,1.329977113410424e-15,1e-09,1e-09,Minitab coefficient transformed to MiniJMP contrast basis,MiniJMP analyze_general_factorial coefficients,PASS
+GFF-TYPEIII,1,coefficient,A[on]*B[150],estimate,0.01638888888889023,0.016388888888887232,2.9976021664879227e-15,1.8290453897212946e-13,1e-09,1e-09,Minitab coefficient transformed to MiniJMP contrast basis,MiniJMP analyze_general_factorial coefficients,PASS
+GFF-TYPEIII,1,coefficient,A[on]*B[200],estimate,-1.483611111111109,-1.4836111111111092,2.220446049250313e-16,1.4966496493729899e-16,1e-09,1e-09,Minitab coefficient transformed to MiniJMP contrast basis,MiniJMP analyze_general_factorial coefficients,PASS
+GFF-TYPEIII,1,run_statistics,1|1|1,fit,20.679666666666666,20.679666666666662,3.552713678800501e-15,1.717974344589936e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,1|1|1,residual,-1.3556666666666644,-1.3556666666666626,1.7763568394002505e-15,1.310319773346634e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,1|1|2,fit,20.679666666666666,20.679666666666662,3.552713678800501e-15,1.717974344589936e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,1|1|2,residual,0.163333333333334,0.16333333333333577,1.7763568394002505e-15,1.0875654118776999e-14,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,1|1|3,fit,20.679666666666666,20.679666666666666,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,1|1|3,residual,1.192333333333334,1.1923333333333348,8.881784197001252e-16,7.449078163545916e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,1|2|1,fit,23.165,23.165,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,1|2|1,residual,-1.2449999999999974,-1.2449999999999979,4.440892098500626e-16,3.566981605221394e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,1|2|2,fit,23.165,23.165,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,1|2|2,residual,0.15000000000000213,0.1500000000000017,4.440892098500626e-16,2.9605947323337087e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,1|2|3,fit,23.165,23.165,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,1|2|3,residual,1.0950000000000024,1.095000000000002,4.440892098500626e-16,4.055609222374992e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,1|3|1,fit,25.65033333333333,25.65033333333333,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,1|3|1,residual,-1.1343333333333305,-1.1343333333333323,1.7763568394002505e-15,1.5659919242435395e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,1|3|2,fit,25.65033333333333,25.650333333333332,3.552713678800501e-15,1.3850555595640739e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,1|3|2,residual,0.13666666666667027,0.13666666666666827,1.9984014443252818e-15,1.462244959262363e-14,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,1|3|3,fit,25.65033333333333,25.65033333333333,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,1|3|3,residual,0.9976666666666709,0.9976666666666691,1.7763568394002505e-15,1.7805113659207245e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,2|1|1,fit,27.617999999999995,27.618000000000002,7.105427357601002e-15,2.57275232008147e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,2|1|1,residual,-1.5339999999999954,-1.534000000000003,7.549516567451064e-15,4.921457997034607e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,2|1|3,fit,27.617999999999995,27.618000000000002,7.105427357601002e-15,2.57275232008147e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,2|1|3,residual,1.534000000000006,1.533999999999999,7.105427357601002e-15,4.631960467797245e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,2|2|1,fit,27.201666666666668,27.201666666666668,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,2|2|1,residual,-1.5216666666666683,-1.5216666666666674,8.881784197001252e-16,5.836878990362263e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,2|2|2,fit,27.201666666666668,27.201666666666668,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,2|2|2,residual,0.18333333333333357,0.18333333333333446,8.881784197001252e-16,4.844609562000677e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,2|2|3,fit,27.201666666666668,27.201666666666668,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,2|2|3,residual,1.3383333333333312,1.338333333333332,8.881784197001252e-16,6.636451454795467e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,2|3|1,fit,26.687,26.687,0.0,0.0,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,2|3|1,residual,-1.4110000000000014,-1.4110000000000027,1.3322676295501878e-15,9.442010131468366e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,2|3|2,fit,26.687,26.687000000000005,3.552713678800501e-15,1.3312525494812083e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,2|3|2,residual,0.16999999999999815,0.16999999999999638,1.7763568394002505e-15,1.0449157878825117e-14,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,run_statistics,2|3|3,fit,26.687,26.687000000000005,3.552713678800501e-15,1.3312525494812083e-16,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP fitted values,PASS
+GFF-TYPEIII,1,run_statistics,2|3|3,residual,1.2409999999999997,1.2409999999999979,1.7763568394002505e-15,1.4313914902500008e-15,1e-09,1e-09,Minitab GFACTORIAL FITS/RESIDUALS (DIRECT),MiniJMP residuals (Y - fit),PASS
+GFF-TYPEIII,1,anova_type_III,A,ss,66.59083205128204,66.590832051282,2.842170943040401e-14,4.2681114734407076e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_type_III,A,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_type_III,A,ms,66.59083205128204,66.590832051282,2.842170943040401e-14,4.2681114734407076e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_type_III,A,f,35.2758707546513,35.275870754651294,7.105427357601002e-15,2.0142457735544673e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_type_III,A,p,9.740939130475081e-05,9.740939130475081e-05,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_type_III,B,ss,10.908889999999989,10.908889999999984,5.329070518200751e-15,4.88507127508001e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_type_III,B,df,2.0,2.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_type_III,B,ms,5.454444999999994,5.454444999999992,2.6645352591003757e-15,4.88507127508001e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_type_III,B,f,2.8894412478609275,2.889441247860927,4.440892098500626e-16,1.5369380158839527e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_type_III,B,p,0.09805349739631296,0.09805349739631304,8.326672684688674e-17,8.491969084013291e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_type_III,A*B,ss,23.35685952380953,23.356859523809522,7.105427357601002e-15,3.042115893345108e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_type_III,A*B,df,2.0,2.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_type_III,A*B,ms,11.678429761904765,11.678429761904761,3.552713678800501e-15,3.042115893345108e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_type_III,A*B,f,6.186538990547037,6.186538990547037,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_type_III,A*B,p,0.01583879997319541,0.01583879997319541,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial ss_type=III,PASS
+GFF-TYPEIII,1,anova_summary,model,n,17.0,17.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-TYPEIII,1,anova_summary,model,rank,6.0,6.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-TYPEIII,1,anova_summary,model,error_df,11.0,11.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-TYPEIII,1,anova_summary,model,sse,20.764878000000007,20.764878,7.105427357601002e-15,3.4218488341713346e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-TYPEIII,1,anova_summary,model,sst,124.9101470588235,124.9101470588235,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-TYPEIII,1,anova_summary,model,model_ss,104.14526905882349,104.1452690588235,1.4210854715202004e-14,1.364522348794875e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-TYPEIII,1,anova_summary,model,mse,1.8877161818181825,1.8877161818181818,6.661338147750939e-16,3.528781610239189e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-TYPEIII,1,anova_summary,model,model_f,11.033996536334651,11.033996536334657,5.329070518200751e-15,4.829682971761199e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-TYPEIII,1,anova_summary,model,model_p,0.0005431868668973499,0.0005431868668973493,5.421010862427522e-19,9.980010918511347e-16,1e-09,1e-09,"DERIVED: Minitab XMATRIX, fixed response, grouped model terms",MiniJMP analyze_general_factorial,PASS
+GFF-TYPEIII,1,cell_mean,1|1,fit_mean,20.679666666666666,20.679666666666666,0.0,0.0,1e-09,1e-09,DERIVED: Minitab direct FITS grouped by full cell,MiniJMP general factorial cell means,PASS
+GFF-TYPEIII,1,cell_mean,1|2,fit_mean,23.165000000000003,23.165000000000003,0.0,0.0,1e-09,1e-09,DERIVED: Minitab direct FITS grouped by full cell,MiniJMP general factorial cell means,PASS
+GFF-TYPEIII,1,cell_mean,1|3,fit_mean,25.650333333333332,25.650333333333332,0.0,0.0,1e-09,1e-09,DERIVED: Minitab direct FITS grouped by full cell,MiniJMP general factorial cell means,PASS
+GFF-TYPEIII,1,cell_mean,2|1,fit_mean,27.617999999999995,27.618000000000002,7.105427357601002e-15,2.57275232008147e-16,1e-09,1e-09,DERIVED: Minitab direct FITS grouped by full cell,MiniJMP general factorial cell means,PASS
+GFF-TYPEIII,1,cell_mean,2|2,fit_mean,27.201666666666668,27.201666666666664,3.552713678800501e-15,1.3060647063784698e-16,1e-09,1e-09,DERIVED: Minitab direct FITS grouped by full cell,MiniJMP general factorial cell means,PASS
+GFF-TYPEIII,1,cell_mean,2|3,fit_mean,26.687,26.686999999999998,3.552713678800501e-15,1.3312525494812083e-16,1e-09,1e-09,DERIVED: Minitab direct FITS grouped by full cell,MiniJMP general factorial cell means,PASS
+GFF-TYPEIII,1,observed_marginal_mean,A=off,mean,23.165,23.165,0.0,0.0,1e-09,1e-09,DERIVED: Minitab fixed response grouped by factor level,MiniJMP observed marginal means,PASS
+GFF-TYPEIII,1,least_squares_marginal_mean,A=off,mean,23.165000000000003,23.165000000000003,0.0,0.0,1e-09,1e-09,DERIVED: equally weighted Minitab fitted cell means,DERIVED: equally weighted MiniJMP cell means,PASS
+GFF-TYPEIII,1,observed_marginal_mean,A=on,mean,27.11275,27.11275,0.0,0.0,1e-09,1e-09,DERIVED: Minitab fixed response grouped by factor level,MiniJMP observed marginal means,PASS
+GFF-TYPEIII,1,least_squares_marginal_mean,A=on,mean,27.168888888888887,27.168888888888887,0.0,0.0,1e-09,1e-09,DERIVED: equally weighted Minitab fitted cell means,DERIVED: equally weighted MiniJMP cell means,PASS
+GFF-TYPEIII,1,observed_marginal_mean,B=100,mean,23.455000000000002,23.455000000000002,0.0,0.0,1e-09,1e-09,DERIVED: Minitab fixed response grouped by factor level,MiniJMP observed marginal means,PASS
+GFF-TYPEIII,1,least_squares_marginal_mean,B=100,mean,24.14883333333333,24.148833333333336,7.105427357601002e-15,2.9423480875960894e-16,1e-09,1e-09,DERIVED: equally weighted Minitab fitted cell means,DERIVED: equally weighted MiniJMP cell means,PASS
+GFF-TYPEIII,1,observed_marginal_mean,B=150,mean,25.183333333333337,25.183333333333337,0.0,0.0,1e-09,1e-09,DERIVED: Minitab fixed response grouped by factor level,MiniJMP observed marginal means,PASS
+GFF-TYPEIII,1,least_squares_marginal_mean,B=150,mean,25.183333333333337,25.183333333333334,3.552713678800501e-15,1.4107400445270022e-16,1e-09,1e-09,DERIVED: equally weighted Minitab fitted cell means,DERIVED: equally weighted MiniJMP cell means,PASS
+GFF-TYPEIII,1,observed_marginal_mean,B=200,mean,26.168666666666667,26.168666666666667,0.0,0.0,1e-09,1e-09,DERIVED: Minitab fixed response grouped by factor level,MiniJMP observed marginal means,PASS
+GFF-TYPEIII,1,least_squares_marginal_mean,B=200,mean,26.168666666666667,26.168666666666667,0.0,0.0,1e-09,1e-09,DERIVED: equally weighted Minitab fitted cell means,DERIVED: equally weighted MiniJMP cell means,PASS

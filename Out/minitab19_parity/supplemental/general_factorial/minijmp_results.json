@@ -1,0 +1,3314 @@
+{
+  "GFF-2X3": {
+    "case_id": "GFF-2X3",
+    "design_type": "general_full_factorial",
+    "factors": [
+      {
+        "factor_id": "A",
+        "levels": [
+          "low",
+          "high"
+        ]
+      },
+      {
+        "factor_id": "B",
+        "levels": [
+          100,
+          150,
+          200
+        ]
+      }
+    ],
+    "factor_levels": {
+      "A": [
+        "low",
+        "high"
+      ],
+      "B": [
+        100,
+        150,
+        200
+      ]
+    },
+    "native_level_map": {
+      "A": {
+        "low": 1,
+        "high": 2
+      },
+      "B": {
+        "100": 1,
+        "150": 2,
+        "200": 3
+      }
+    },
+    "design_command": "FDESIGN 2 3; REPS 2; DESIGN.",
+    "model_terms": [
+      "A",
+      "B",
+      "A*B"
+    ],
+    "contrast_labels": [
+      "截距",
+      "A[high]",
+      "B[150]",
+      "B[200]",
+      "A[high]*B[150]",
+      "A[high]*B[200]"
+    ],
+    "effect_groups": {
+      "截距": [
+        0,
+        1
+      ],
+      "A": [
+        1,
+        2
+      ],
+      "B": [
+        2,
+        4
+      ],
+      "A*B": [
+        4,
+        6
+      ]
+    },
+    "design_rows": [
+      {
+        "run_id": "R00008",
+        "standard_order": 8,
+        "run_order": 1,
+        "replicate": 2,
+        "A": "high",
+        "B": 100,
+        "A_code": 2,
+        "B_code": 1,
+        "Y": 6.0,
+        "point_key": "2|1|2"
+      },
+      {
+        "run_id": "R00012",
+        "standard_order": 12,
+        "run_order": 2,
+        "replicate": 2,
+        "A": "high",
+        "B": 200,
+        "A_code": 2,
+        "B_code": 3,
+        "Y": 20.0,
+        "point_key": "2|3|2"
+      },
+      {
+        "run_id": "R00001",
+        "standard_order": 1,
+        "run_order": 3,
+        "replicate": 1,
+        "A": "low",
+        "B": 100,
+        "A_code": 1,
+        "B_code": 1,
+        "Y": 8.0,
+        "point_key": "1|1|1"
+      },
+      {
+        "run_id": "R00009",
+        "standard_order": 9,
+        "run_order": 4,
+        "replicate": 2,
+        "A": "low",
+        "B": 150,
+        "A_code": 1,
+        "B_code": 2,
+        "Y": 9.0,
+        "point_key": "1|2|2"
+      },
+      {
+        "run_id": "R00006",
+        "standard_order": 6,
+        "run_order": 5,
+        "replicate": 1,
+        "A": "high",
+        "B": 200,
+        "A_code": 2,
+        "B_code": 3,
+        "Y": 18.0,
+        "point_key": "2|3|1"
+      },
+      {
+        "run_id": "R00007",
+        "standard_order": 7,
+        "run_order": 6,
+        "replicate": 2,
+        "A": "low",
+        "B": 100,
+        "A_code": 1,
+        "B_code": 1,
+        "Y": 10.0,
+        "point_key": "1|1|2"
+      },
+      {
+        "run_id": "R00004",
+        "standard_order": 4,
+        "run_order": 7,
+        "replicate": 1,
+        "A": "high",
+        "B": 150,
+        "A_code": 2,
+        "B_code": 2,
+        "Y": 11.0,
+        "point_key": "2|2|1"
+      },
+      {
+        "run_id": "R00011",
+        "standard_order": 11,
+        "run_order": 8,
+        "replicate": 2,
+        "A": "low",
+        "B": 200,
+        "A_code": 1,
+        "B_code": 3,
+        "Y": 8.0,
+        "point_key": "1|3|2"
+      },
+      {
+        "run_id": "R00005",
+        "standard_order": 5,
+        "run_order": 9,
+        "replicate": 1,
+        "A": "low",
+        "B": 200,
+        "A_code": 1,
+        "B_code": 3,
+        "Y": 6.0,
+        "point_key": "1|3|1"
+      },
+      {
+        "run_id": "R00002",
+        "standard_order": 2,
+        "run_order": 10,
+        "replicate": 1,
+        "A": "high",
+        "B": 100,
+        "A_code": 2,
+        "B_code": 1,
+        "Y": 4.0,
+        "point_key": "2|1|1"
+      },
+      {
+        "run_id": "R00010",
+        "standard_order": 10,
+        "run_order": 11,
+        "replicate": 2,
+        "A": "high",
+        "B": 150,
+        "A_code": 2,
+        "B_code": 2,
+        "Y": 13.0,
+        "point_key": "2|2|2"
+      },
+      {
+        "run_id": "R00003",
+        "standard_order": 3,
+        "run_order": 12,
+        "replicate": 1,
+        "A": "low",
+        "B": 150,
+        "A_code": 1,
+        "B_code": 2,
+        "Y": 7.0,
+        "point_key": "1|2|1"
+      }
+    ],
+    "model_matrix_rows": {
+      "2|1|2": {
+        "point_key": "2|1|2",
+        "standard_order": 8,
+        "run_order": 1,
+        "replicate": 2,
+        "A": "high",
+        "B": 100,
+        "A_code": 2,
+        "B_code": 1,
+        "Y": 6.0,
+        "matrix": [
+          1.0,
+          1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          -1.0
+        ],
+        "fit": 5.0000000000000036,
+        "residual": 0.9999999999999964
+      },
+      "2|3|2": {
+        "point_key": "2|3|2",
+        "standard_order": 12,
+        "run_order": 2,
+        "replicate": 2,
+        "A": "high",
+        "B": 200,
+        "A_code": 2,
+        "B_code": 3,
+        "Y": 20.0,
+        "matrix": [
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ],
+        "fit": 18.999999999999993,
+        "residual": 1.0000000000000053
+      },
+      "1|1|1": {
+        "point_key": "1|1|1",
+        "standard_order": 1,
+        "run_order": 3,
+        "replicate": 1,
+        "A": "low",
+        "B": 100,
+        "A_code": 1,
+        "B_code": 1,
+        "Y": 8.0,
+        "matrix": [
+          1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          1.0,
+          1.0
+        ],
+        "fit": 9.000000000000002,
+        "residual": -1.0000000000000022
+      },
+      "1|2|2": {
+        "point_key": "1|2|2",
+        "standard_order": 9,
+        "run_order": 4,
+        "replicate": 2,
+        "A": "low",
+        "B": 150,
+        "A_code": 1,
+        "B_code": 2,
+        "Y": 9.0,
+        "matrix": [
+          1.0,
+          -1.0,
+          1.0,
+          0.0,
+          -1.0,
+          -0.0
+        ],
+        "fit": 8.0,
+        "residual": 0.9999999999999996
+      },
+      "2|3|1": {
+        "point_key": "2|3|1",
+        "standard_order": 6,
+        "run_order": 5,
+        "replicate": 1,
+        "A": "high",
+        "B": 200,
+        "A_code": 2,
+        "B_code": 3,
+        "Y": 18.0,
+        "matrix": [
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ],
+        "fit": 19.0,
+        "residual": -0.9999999999999982
+      },
+      "1|1|2": {
+        "point_key": "1|1|2",
+        "standard_order": 7,
+        "run_order": 6,
+        "replicate": 2,
+        "A": "low",
+        "B": 100,
+        "A_code": 1,
+        "B_code": 1,
+        "Y": 10.0,
+        "matrix": [
+          1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          1.0,
+          1.0
+        ],
+        "fit": 9.000000000000002,
+        "residual": 0.9999999999999979
+      },
+      "2|2|1": {
+        "point_key": "2|2|1",
+        "standard_order": 4,
+        "run_order": 7,
+        "replicate": 1,
+        "A": "high",
+        "B": 150,
+        "A_code": 2,
+        "B_code": 2,
+        "Y": 11.0,
+        "matrix": [
+          1.0,
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        "fit": 11.999999999999998,
+        "residual": -0.9999999999999978
+      },
+      "1|3|2": {
+        "point_key": "1|3|2",
+        "standard_order": 11,
+        "run_order": 8,
+        "replicate": 2,
+        "A": "low",
+        "B": 200,
+        "A_code": 1,
+        "B_code": 3,
+        "Y": 8.0,
+        "matrix": [
+          1.0,
+          -1.0,
+          0.0,
+          1.0,
+          -0.0,
+          -1.0
+        ],
+        "fit": 7.000000000000002,
+        "residual": 0.9999999999999987
+      },
+      "1|3|1": {
+        "point_key": "1|3|1",
+        "standard_order": 5,
+        "run_order": 9,
+        "replicate": 1,
+        "A": "low",
+        "B": 200,
+        "A_code": 1,
+        "B_code": 3,
+        "Y": 6.0,
+        "matrix": [
+          1.0,
+          -1.0,
+          0.0,
+          1.0,
+          -0.0,
+          -1.0
+        ],
+        "fit": 7.000000000000002,
+        "residual": -1.0000000000000013
+      },
+      "2|1|1": {
+        "point_key": "2|1|1",
+        "standard_order": 2,
+        "run_order": 10,
+        "replicate": 1,
+        "A": "high",
+        "B": 100,
+        "A_code": 2,
+        "B_code": 1,
+        "Y": 4.0,
+        "matrix": [
+          1.0,
+          1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          -1.0
+        ],
+        "fit": 5.0,
+        "residual": -1.0
+      },
+      "2|2|2": {
+        "point_key": "2|2|2",
+        "standard_order": 10,
+        "run_order": 11,
+        "replicate": 2,
+        "A": "high",
+        "B": 150,
+        "A_code": 2,
+        "B_code": 2,
+        "Y": 13.0,
+        "matrix": [
+          1.0,
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        "fit": 11.999999999999998,
+        "residual": 1.0000000000000022
+      },
+      "1|2|1": {
+        "point_key": "1|2|1",
+        "standard_order": 3,
+        "run_order": 12,
+        "replicate": 1,
+        "A": "low",
+        "B": 150,
+        "A_code": 1,
+        "B_code": 2,
+        "Y": 7.0,
+        "matrix": [
+          1.0,
+          -1.0,
+          1.0,
+          0.0,
+          -1.0,
+          -0.0
+        ],
+        "fit": 8.000000000000002,
+        "residual": -1.0000000000000018
+      }
+    },
+    "cell_means": [
+      {
+        "levels": {
+          "A": "low",
+          "B": 100
+        },
+        "mean": 9.0,
+        "n": 2
+      },
+      {
+        "levels": {
+          "A": "low",
+          "B": 150
+        },
+        "mean": 8.0,
+        "n": 2
+      },
+      {
+        "levels": {
+          "A": "low",
+          "B": 200
+        },
+        "mean": 7.0,
+        "n": 2
+      },
+      {
+        "levels": {
+          "A": "high",
+          "B": 100
+        },
+        "mean": 5.0,
+        "n": 2
+      },
+      {
+        "levels": {
+          "A": "high",
+          "B": 150
+        },
+        "mean": 12.0,
+        "n": 2
+      },
+      {
+        "levels": {
+          "A": "high",
+          "B": 200
+        },
+        "mean": 19.0,
+        "n": 2
+      }
+    ],
+    "marginal_means": [
+      {
+        "factor_id": "A",
+        "level": "low",
+        "mean": 8.0,
+        "n": 6
+      },
+      {
+        "factor_id": "A",
+        "level": "high",
+        "mean": 12.0,
+        "n": 6
+      },
+      {
+        "factor_id": "B",
+        "level": 100,
+        "mean": 7.0,
+        "n": 4
+      },
+      {
+        "factor_id": "B",
+        "level": 150,
+        "mean": 10.0,
+        "n": 4
+      },
+      {
+        "factor_id": "B",
+        "level": 200,
+        "mean": 13.0,
+        "n": 4
+      }
+    ],
+    "missing_run_id": null,
+    "analyses": {
+      "I": {
+        "ss_type": "I",
+        "n": 12,
+        "p": 6,
+        "rank": 6,
+        "error_df": 6,
+        "sse": 12.0,
+        "sst": 260.0,
+        "ssr": 248.0,
+        "anova": [
+          {
+            "term": "A",
+            "ss": 48.00000000000004,
+            "df": 1,
+            "ms": 48.00000000000004,
+            "f": 24.00000000000002,
+            "p": 0.0027136820350937884
+          },
+          {
+            "term": "B",
+            "ss": 71.99999999999997,
+            "df": 2,
+            "ms": 35.999999999999986,
+            "f": 17.999999999999993,
+            "p": 0.0029154518950437343
+          },
+          {
+            "term": "A*B",
+            "ss": 127.99999999999994,
+            "df": 2,
+            "ms": 63.99999999999997,
+            "f": 31.999999999999986,
+            "p": 0.0006297376093294467
+          },
+          {
+            "term": "误差",
+            "ss": 12.0,
+            "df": 6,
+            "ms": 2.0,
+            "f": null,
+            "p": null
+          },
+          {
+            "term": "总计",
+            "ss": 260.0,
+            "df": 11,
+            "ms": null,
+            "f": null,
+            "p": null
+          }
+        ],
+        "inference": {
+          "mse": 2.0
+        },
+        "coefficients": [
+          10.000000000000002,
+          2.000000000000001,
+          -8.881784197001252e-16,
+          3.0,
+          -1.3322676295501878e-15,
+          3.9999999999999996
+        ],
+        "names": [
+          "截距",
+          "A",
+          "B",
+          "A*B"
+        ],
+        "labels": [
+          "截距",
+          "A[high]",
+          "B[150]",
+          "B[200]",
+          "A[high]*B[150]",
+          "A[high]*B[200]"
+        ],
+        "groups": {
+          "截距": [
+            0,
+            1
+          ],
+          "A": [
+            1,
+            2
+          ],
+          "B": [
+            2,
+            4
+          ],
+          "A*B": [
+            4,
+            6
+          ]
+        },
+        "matrix_rows": {
+          "2|1|2": {
+            "point_key": "2|1|2",
+            "standard_order": 8,
+            "run_order": 1,
+            "replicate": 2,
+            "A": "high",
+            "B": 100,
+            "A_code": 2,
+            "B_code": 1,
+            "Y": 6.0,
+            "matrix": [
+              1.0,
+              1.0,
+              -1.0,
+              -1.0,
+              -1.0,
+              -1.0
+            ],
+            "fit": 5.000000000000005,
+            "residual": 0.9999999999999947
+          },
+          "2|3|2": {
+            "point_key": "2|3|2",
+            "standard_order": 12,
+            "run_order": 2,
+            "replicate": 2,
+            "A": "high",
+            "B": 200,
+            "A_code": 2,
+            "B_code": 3,
+            "Y": 20.0,
+            "matrix": [
+              1.0,
+              1.0,
+              0.0,
+              1.0,
+              0.0,
+              1.0
+            ],
+            "fit": 19.000000000000004,
+            "residual": 0.9999999999999964
+          },
+          "1|1|1": {
+            "point_key": "1|1|1",
+            "standard_order": 1,
+            "run_order": 3,
+            "replicate": 1,
+            "A": "low",
+            "B": 100,
+            "A_code": 1,
+            "B_code": 1,
+            "Y": 8.0,
+            "matrix": [
+              1.0,
+              -1.0,
+              -1.0,
+              -1.0,
+              1.0,
+              1.0
+            ],
+            "fit": 9.0,
+            "residual": -1.0
+          },
+          "1|2|2": {
+            "point_key": "1|2|2",
+            "standard_order": 9,
+            "run_order": 4,
+            "replicate": 2,
+            "A": "low",
+            "B": 150,
+            "A_code": 1,
+            "B_code": 2,
+            "Y": 9.0,
+            "matrix": [
+              1.0,
+              -1.0,
+              1.0,
+              0.0,
+              -1.0,
+              -0.0
+            ],
+            "fit": 8.0,
+            "residual": 1.0
+          },
+          "2|3|1": {
+            "point_key": "2|3|1",
+            "standard_order": 6,
+            "run_order": 5,
+            "replicate": 1,
+            "A": "high",
+            "B": 200,
+            "A_code": 2,
+            "B_code": 3,
+            "Y": 18.0,
+            "matrix": [
+              1.0,
+              1.0,
+              0.0,
+              1.0,
+              0.0,
+              1.0
+            ],
+            "fit": 19.000000000000004,
+            "residual": -1.0000000000000036
+          },
+          "1|1|2": {
+            "point_key": "1|1|2",
+            "standard_order": 7,
+            "run_order": 6,
+            "replicate": 2,
+            "A": "low",
+            "B": 100,
+            "A_code": 1,
+            "B_code": 1,
+            "Y": 10.0,
+            "matrix": [
+              1.0,
+              -1.0,
+              -1.0,
+              -1.0,
+              1.0,
+              1.0
+            ],
+            "fit": 9.0,
+            "residual": 1.0
+          },
+          "2|2|1": {
+            "point_key": "2|2|1",
+            "standard_order": 4,
+            "run_order": 7,
+            "replicate": 1,
+            "A": "high",
+            "B": 150,
+            "A_code": 2,
+            "B_code": 2,
+            "Y": 11.0,
+            "matrix": [
+              1.0,
+              1.0,
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            "fit": 11.999999999999998,
+            "residual": -0.9999999999999982
+          },
+          "1|3|2": {
+            "point_key": "1|3|2",
+            "standard_order": 11,
+            "run_order": 8,
+            "replicate": 2,
+            "A": "low",
+            "B": 200,
+            "A_code": 1,
+            "B_code": 3,
+            "Y": 8.0,
+            "matrix": [
+              1.0,
+              -1.0,
+              0.0,
+              1.0,
+              -0.0,
+              -1.0
+            ],
+            "fit": 7.0,
+            "residual": 1.0
+          },
+          "1|3|1": {
+            "point_key": "1|3|1",
+            "standard_order": 5,
+            "run_order": 9,
+            "replicate": 1,
+            "A": "low",
+            "B": 200,
+            "A_code": 1,
+            "B_code": 3,
+            "Y": 6.0,
+            "matrix": [
+              1.0,
+              -1.0,
+              0.0,
+              1.0,
+              -0.0,
+              -1.0
+            ],
+            "fit": 7.0,
+            "residual": -1.0
+          },
+          "2|1|1": {
+            "point_key": "2|1|1",
+            "standard_order": 2,
+            "run_order": 10,
+            "replicate": 1,
+            "A": "high",
+            "B": 100,
+            "A_code": 2,
+            "B_code": 1,
+            "Y": 4.0,
+            "matrix": [
+              1.0,
+              1.0,
+              -1.0,
+              -1.0,
+              -1.0,
+              -1.0
+            ],
+            "fit": 5.000000000000005,
+            "residual": -1.0000000000000053
+          },
+          "2|2|2": {
+            "point_key": "2|2|2",
+            "standard_order": 10,
+            "run_order": 11,
+            "replicate": 2,
+            "A": "high",
+            "B": 150,
+            "A_code": 2,
+            "B_code": 2,
+            "Y": 13.0,
+            "matrix": [
+              1.0,
+              1.0,
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            "fit": 11.999999999999998,
+            "residual": 1.0000000000000018
+          },
+          "1|2|1": {
+            "point_key": "1|2|1",
+            "standard_order": 3,
+            "run_order": 12,
+            "replicate": 1,
+            "A": "low",
+            "B": 150,
+            "A_code": 1,
+            "B_code": 2,
+            "Y": 7.0,
+            "matrix": [
+              1.0,
+              -1.0,
+              1.0,
+              0.0,
+              -1.0,
+              -0.0
+            ],
+            "fit": 8.0,
+            "residual": -1.0
+          }
+        },
+        "cell_means": [
+          {
+            "levels": {
+              "A": "low",
+              "B": 100
+            },
+            "mean": 9.0,
+            "n": 2
+          },
+          {
+            "levels": {
+              "A": "low",
+              "B": 150
+            },
+            "mean": 8.0,
+            "n": 2
+          },
+          {
+            "levels": {
+              "A": "low",
+              "B": 200
+            },
+            "mean": 7.0,
+            "n": 2
+          },
+          {
+            "levels": {
+              "A": "high",
+              "B": 100
+            },
+            "mean": 5.0,
+            "n": 2
+          },
+          {
+            "levels": {
+              "A": "high",
+              "B": 150
+            },
+            "mean": 12.0,
+            "n": 2
+          },
+          {
+            "levels": {
+              "A": "high",
+              "B": 200
+            },
+            "mean": 19.0,
+            "n": 2
+          }
+        ],
+        "marginal_means": [
+          {
+            "factor_id": "A",
+            "level": "low",
+            "mean": 8.0,
+            "n": 6
+          },
+          {
+            "factor_id": "A",
+            "level": "high",
+            "mean": 12.0,
+            "n": 6
+          },
+          {
+            "factor_id": "B",
+            "level": 100,
+            "mean": 7.0,
+            "n": 4
+          },
+          {
+            "factor_id": "B",
+            "level": 150,
+            "mean": 10.0,
+            "n": 4
+          },
+          {
+            "factor_id": "B",
+            "level": 200,
+            "mean": 13.0,
+            "n": 4
+          }
+        ],
+        "missing_run_id": null,
+        "design_rows": [
+          {
+            "run_id": "R00008",
+            "standard_order": 8,
+            "run_order": 1,
+            "replicate": 2,
+            "A": "high",
+            "B": 100,
+            "A_code": 2,
+            "B_code": 1,
+            "Y": 6.0,
+            "point_key": "2|1|2"
+          },
+          {
+            "run_id": "R00012",
+            "standard_order": 12,
+            "run_order": 2,
+            "replicate": 2,
+            "A": "high",
+            "B": 200,
+            "A_code": 2,
+            "B_code": 3,
+            "Y": 20.0,
+            "point_key": "2|3|2"
+          },
+          {
+            "run_id": "R00001",
+            "standard_order": 1,
+            "run_order": 3,
+            "replicate": 1,
+            "A": "low",
+            "B": 100,
+            "A_code": 1,
+            "B_code": 1,
+            "Y": 8.0,
+            "point_key": "1|1|1"
+          },
+          {
+            "run_id": "R00009",
+            "standard_order": 9,
+            "run_order": 4,
+            "replicate": 2,
+            "A": "low",
+            "B": 150,
+            "A_code": 1,
+            "B_code": 2,
+            "Y": 9.0,
+            "point_key": "1|2|2"
+          },
+          {
+            "run_id": "R00006",
+            "standard_order": 6,
+            "run_order": 5,
+            "replicate": 1,
+            "A": "high",
+            "B": 200,
+            "A_code": 2,
+            "B_code": 3,
+            "Y": 18.0,
+            "point_key": "2|3|1"
+          },
+          {
+            "run_id": "R00007",
+            "standard_order": 7,
+            "run_order": 6,
+            "replicate": 2,
+            "A": "low",
+            "B": 100,
+            "A_code": 1,
+            "B_code": 1,
+            "Y": 10.0,
+            "point_key": "1|1|2"
+          },
+          {
+            "run_id": "R00004",
+            "standard_order": 4,
+            "run_order": 7,
+            "replicate": 1,
+            "A": "high",
+            "B": 150,
+            "A_code": 2,
+            "B_code": 2,
+            "Y": 11.0,
+            "point_key": "2|2|1"
+          },
+          {
+            "run_id": "R00011",
+            "standard_order": 11,
+            "run_order": 8,
+            "replicate": 2,
+            "A": "low",
+            "B": 200,
+            "A_code": 1,
+            "B_code": 3,
+            "Y": 8.0,
+            "point_key": "1|3|2"
+          },
+          {
+            "run_id": "R00005",
+            "standard_order": 5,
+            "run_order": 9,
+            "replicate": 1,
+            "A": "low",
+            "B": 200,
+            "A_code": 1,
+            "B_code": 3,
+            "Y": 6.0,
+            "point_key": "1|3|1"
+          },
+          {
+            "run_id": "R00002",
+            "standard_order": 2,
+            "run_order": 10,
+            "replicate": 1,
+            "A": "high",
+            "B": 100,
+            "A_code": 2,
+            "B_code": 1,
+            "Y": 4.0,
+            "point_key": "2|1|1"
+          },
+          {
+            "run_id": "R00010",
+            "standard_order": 10,
+            "run_order": 11,
+            "replicate": 2,
+            "A": "high",
+            "B": 150,
+            "A_code": 2,
+            "B_code": 2,
+            "Y": 13.0,
+            "point_key": "2|2|2"
+          },
+          {
+            "run_id": "R00003",
+            "standard_order": 3,
+            "run_order": 12,
+            "replicate": 1,
+            "A": "low",
+            "B": 150,
+            "A_code": 1,
+            "B_code": 2,
+            "Y": 7.0,
+            "point_key": "1|2|1"
+          }
+        ]
+      },
+      "III": {
+        "ss_type": "III",
+        "n": 12,
+        "p": 6,
+        "rank": 6,
+        "error_df": 6,
+        "sse": 12.000000000000004,
+        "sst": 260.0,
+        "ssr": 248.0,
+        "anova": [
+          {
+            "term": "A",
+            "ss": 48.00000000000003,
+            "df": 1,
+            "ms": 48.00000000000003,
+            "f": 24.000000000000007,
+            "p": 0.0027136820350937936,
+            "estimable": true,
+            "status": "可估计"
+          },
+          {
+            "term": "B",
+            "ss": 72.00000000000009,
+            "df": 2,
+            "ms": 36.00000000000004,
+            "f": 18.000000000000018,
+            "p": 0.002915451895043725,
+            "estimable": true,
+            "status": "可估计"
+          },
+          {
+            "term": "A*B",
+            "ss": 128.00000000000003,
+            "df": 2,
+            "ms": 64.00000000000001,
+            "f": 32.0,
+            "p": 0.0006297376093294461,
+            "estimable": true,
+            "status": "可估计"
+          },
+          {
+            "term": "误差",
+            "ss": 12.000000000000004,
+            "df": 6,
+            "ms": 2.0000000000000004,
+            "f": null,
+            "p": null,
+            "estimable": true,
+            "status": "误差自由度和 MSE 可用"
+          },
+          {
+            "term": "总计",
+            "ss": 260.0,
+            "df": 11,
+            "ms": null,
+            "f": null,
+            "p": null,
+            "estimable": true,
+            "status": "总计"
+          }
+        ],
+        "inference": {
+          "mse": 2.0000000000000004,
+          "se": [
+            0.4082482904638631,
+            0.40824829046386296,
+            0.5773502691896261,
+            0.5773502691896261,
+            0.5773502691896257,
+            0.5773502691896258
+          ],
+          "t": [
+            24.494897427831777,
+            4.898979485566356,
+            1.1537776118301378e-15,
+            5.196152422706629,
+            -1.5383701491068513e-15,
+            6.928203230275508
+          ],
+          "p": [
+            3.0444230640425525e-07,
+            0.002713682035093796,
+            0.9999999999999991,
+            0.0020223677405427245,
+            0.9999999999999989,
+            0.0004478216560531911
+          ],
+          "ci_low": [
+            9.0010524198543,
+            1.0010524198542996,
+            -1.4127252159418335,
+            1.5872747840581658,
+            -1.4127252159418342,
+            2.587274784058166
+          ],
+          "ci_high": [
+            10.9989475801457,
+            2.9989475801456997,
+            1.4127252159418349,
+            4.412725215941834,
+            1.4127252159418324,
+            5.412725215941833
+          ],
+          "f": 24.799999999999994,
+          "model_p": 0.0006120085812399834
+        },
+        "coefficients": [
+          10.0,
+          1.9999999999999996,
+          6.661338147750939e-16,
+          3.0,
+          -8.881784197001252e-16,
+          3.9999999999999996
+        ],
+        "names": [
+          "截距",
+          "A",
+          "B",
+          "A*B"
+        ],
+        "labels": [
+          "截距",
+          "A[high]",
+          "B[150]",
+          "B[200]",
+          "A[high]*B[150]",
+          "A[high]*B[200]"
+        ],
+        "groups": {
+          "截距": [
+            0,
+            1
+          ],
+          "A": [
+            1,
+            2
+          ],
+          "B": [
+            2,
+            4
+          ],
+          "A*B": [
+            4,
+            6
+          ]
+        },
+        "matrix_rows": {
+          "2|1|2": {
+            "point_key": "2|1|2",
+            "standard_order": 8,
+            "run_order": 1,
+            "replicate": 2,
+            "A": "high",
+            "B": 100,
+            "A_code": 2,
+            "B_code": 1,
+            "Y": 6.0,
+            "matrix": [
+              1.0,
+              1.0,
+              -1.0,
+              -1.0,
+              -1.0,
+              -1.0
+            ],
+            "fit": 5.0000000000000036,
+            "residual": 0.9999999999999964
+          },
+          "2|3|2": {
+            "point_key": "2|3|2",
+            "standard_order": 12,
+            "run_order": 2,
+            "replicate": 2,
+            "A": "high",
+            "B": 200,
+            "A_code": 2,
+            "B_code": 3,
+            "Y": 20.0,
+            "matrix": [
+              1.0,
+              1.0,
+              0.0,
+              1.0,
+              0.0,
+              1.0
+            ],
+            "fit": 18.999999999999993,
+            "residual": 1.0000000000000053
+          },
+          "1|1|1": {
+            "point_key": "1|1|1",
+            "standard_order": 1,
+            "run_order": 3,
+            "replicate": 1,
+            "A": "low",
+            "B": 100,
+            "A_code": 1,
+            "B_code": 1,
+            "Y": 8.0,
+            "matrix": [
+              1.0,
+              -1.0,
+              -1.0,
+              -1.0,
+              1.0,
+              1.0
+            ],
+            "fit": 9.000000000000002,
+            "residual": -1.0000000000000022
+          },
+          "1|2|2": {
+            "point_key": "1|2|2",
+            "standard_order": 9,
+            "run_order": 4,
+            "replicate": 2,
+            "A": "low",
+            "B": 150,
+            "A_code": 1,
+            "B_code": 2,
+            "Y": 9.0,
+            "matrix": [
+              1.0,
+              -1.0,
+              1.0,
+              0.0,
+              -1.0,
+              -0.0
+            ],
+            "fit": 8.0,
+            "residual": 0.9999999999999996
+          },
+          "2|3|1": {
+            "point_key": "2|3|1",
+            "standard_order": 6,
+            "run_order": 5,
+            "replicate": 1,
+            "A": "high",
+            "B": 200,
+            "A_code": 2,
+            "B_code": 3,
+            "Y": 18.0,
+            "matrix": [
+              1.0,
+              1.0,
+              0.0,
+              1.0,
+              0.0,
+              1.0
+            ],
+            "fit": 19.0,
+            "residual": -0.9999999999999982
+          },
+          "1|1|2": {
+            "point_key": "1|1|2",
+            "standard_order": 7,
+            "run_order": 6,
+            "replicate": 2,
+            "A": "low",
+            "B": 100,
+            "A_code": 1,
+            "B_code": 1,
+            "Y": 10.0,
+            "matrix": [
+              1.0,
+              -1.0,
+              -1.0,
+              -1.0,
+              1.0,
+              1.0
+            ],
+            "fit": 9.000000000000002,
+            "residual": 0.9999999999999979
+          },
+          "2|2|1": {
+            "point_key": "2|2|1",
+            "standard_order": 4,
+            "run_order": 7,
+            "replicate": 1,
+            "A": "high",
+            "B": 150,
+            "A_code": 2,
+            "B_code": 2,
+            "Y": 11.0,
+            "matrix": [
+              1.0,
+              1.0,
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            "fit": 11.999999999999998,
+            "residual": -0.9999999999999978
+          },
+          "1|3|2": {
+            "point_key": "1|3|2",
+            "standard_order": 11,
+            "run_order": 8,
+            "replicate": 2,
+            "A": "low",
+            "B": 200,
+            "A_code": 1,
+            "B_code": 3,
+            "Y": 8.0,
+            "matrix": [
+              1.0,
+              -1.0,
+              0.0,
+              1.0,
+              -0.0,
+              -1.0
+            ],
+            "fit": 7.000000000000002,
+            "residual": 0.9999999999999987
+          },
+          "1|3|1": {
+            "point_key": "1|3|1",
+            "standard_order": 5,
+            "run_order": 9,
+            "replicate": 1,
+            "A": "low",
+            "B": 200,
+            "A_code": 1,
+            "B_code": 3,
+            "Y": 6.0,
+            "matrix": [
+              1.0,
+              -1.0,
+              0.0,
+              1.0,
+              -0.0,
+              -1.0
+            ],
+            "fit": 7.000000000000002,
+            "residual": -1.0000000000000013
+          },
+          "2|1|1": {
+            "point_key": "2|1|1",
+            "standard_order": 2,
+            "run_order": 10,
+            "replicate": 1,
+            "A": "high",
+            "B": 100,
+            "A_code": 2,
+            "B_code": 1,
+            "Y": 4.0,
+            "matrix": [
+              1.0,
+              1.0,
+              -1.0,
+              -1.0,
+              -1.0,
+              -1.0
+            ],
+            "fit": 5.0,
+            "residual": -1.0
+          },
+          "2|2|2": {
+            "point_key": "2|2|2",
+            "standard_order": 10,
+            "run_order": 11,
+            "replicate": 2,
+            "A": "high",
+            "B": 150,
+            "A_code": 2,
+            "B_code": 2,
+            "Y": 13.0,
+            "matrix": [
+              1.0,
+              1.0,
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            "fit": 11.999999999999998,
+            "residual": 1.0000000000000022
+          },
+          "1|2|1": {
+            "point_key": "1|2|1",
+            "standard_order": 3,
+            "run_order": 12,
+            "replicate": 1,
+            "A": "low",
+            "B": 150,
+            "A_code": 1,
+            "B_code": 2,
+            "Y": 7.0,
+            "matrix": [
+              1.0,
+              -1.0,
+              1.0,
+              0.0,
+              -1.0,
+              -0.0
+            ],
+            "fit": 8.000000000000002,
+            "residual": -1.0000000000000018
+          }
+        },
+        "cell_means": [
+          {
+            "levels": {
+              "A": "low",
+              "B": 100
+            },
+            "mean": 9.0,
+            "n": 2
+          },
+          {
+            "levels": {
+              "A": "low",
+              "B": 150
+            },
+            "mean": 8.0,
+            "n": 2
+          },
+          {
+            "levels": {
+              "A": "low",
+              "B": 200
+            },
+            "mean": 7.0,
+            "n": 2
+          },
+          {
+            "levels": {
+              "A": "high",
+              "B": 100
+            },
+            "mean": 5.0,
+            "n": 2
+          },
+          {
+            "levels": {
+              "A": "high",
+              "B": 150
+            },
+            "mean": 12.0,
+            "n": 2
+          },
+          {
+            "levels": {
+              "A": "high",
+              "B": 200
+            },
+            "mean": 19.0,
+            "n": 2
+          }
+        ],
+        "marginal_means": [
+          {
+            "factor_id": "A",
+            "level": "low",
+            "mean": 8.0,
+            "n": 6
+          },
+          {
+            "factor_id": "A",
+            "level": "high",
+            "mean": 12.0,
+            "n": 6
+          },
+          {
+            "factor_id": "B",
+            "level": 100,
+            "mean": 7.0,
+            "n": 4
+          },
+          {
+            "factor_id": "B",
+            "level": 150,
+            "mean": 10.0,
+            "n": 4
+          },
+          {
+            "factor_id": "B",
+            "level": 200,
+            "mean": 13.0,
+            "n": 4
+          }
+        ],
+        "missing_run_id": null,
+        "design_rows": [
+          {
+            "run_id": "R00008",
+            "standard_order": 8,
+            "run_order": 1,
+            "replicate": 2,
+            "A": "high",
+            "B": 100,
+            "A_code": 2,
+            "B_code": 1,
+            "Y": 6.0,
+            "point_key": "2|1|2"
+          },
+          {
+            "run_id": "R00012",
+            "standard_order": 12,
+            "run_order": 2,
+            "replicate": 2,
+            "A": "high",
+            "B": 200,
+            "A_code": 2,
+            "B_code": 3,
+            "Y": 20.0,
+            "point_key": "2|3|2"
+          },
+          {
+            "run_id": "R00001",
+            "standard_order": 1,
+            "run_order": 3,
+            "replicate": 1,
+            "A": "low",
+            "B": 100,
+            "A_code": 1,
+            "B_code": 1,
+            "Y": 8.0,
+            "point_key": "1|1|1"
+          },
+          {
+            "run_id": "R00009",
+            "standard_order": 9,
+            "run_order": 4,
+            "replicate": 2,
+            "A": "low",
+            "B": 150,
+            "A_code": 1,
+            "B_code": 2,
+            "Y": 9.0,
+            "point_key": "1|2|2"
+          },
+          {
+            "run_id": "R00006",
+            "standard_order": 6,
+            "run_order": 5,
+            "replicate": 1,
+            "A": "high",
+            "B": 200,
+            "A_code": 2,
+            "B_code": 3,
+            "Y": 18.0,
+            "point_key": "2|3|1"
+          },
+          {
+            "run_id": "R00007",
+            "standard_order": 7,
+            "run_order": 6,
+            "replicate": 2,
+            "A": "low",
+            "B": 100,
+            "A_code": 1,
+            "B_code": 1,
+            "Y": 10.0,
+            "point_key": "1|1|2"
+          },
+          {
+            "run_id": "R00004",
+            "standard_order": 4,
+            "run_order": 7,
+            "replicate": 1,
+            "A": "high",
+            "B": 150,
+            "A_code": 2,
+            "B_code": 2,
+            "Y": 11.0,
+            "point_key": "2|2|1"
+          },
+          {
+            "run_id": "R00011",
+            "standard_order": 11,
+            "run_order": 8,
+            "replicate": 2,
+            "A": "low",
+            "B": 200,
+            "A_code": 1,
+            "B_code": 3,
+            "Y": 8.0,
+            "point_key": "1|3|2"
+          },
+          {
+            "run_id": "R00005",
+            "standard_order": 5,
+            "run_order": 9,
+            "replicate": 1,
+            "A": "low",
+            "B": 200,
+            "A_code": 1,
+            "B_code": 3,
+            "Y": 6.0,
+            "point_key": "1|3|1"
+          },
+          {
+            "run_id": "R00002",
+            "standard_order": 2,
+            "run_order": 10,
+            "replicate": 1,
+            "A": "high",
+            "B": 100,
+            "A_code": 2,
+            "B_code": 1,
+            "Y": 4.0,
+            "point_key": "2|1|1"
+          },
+          {
+            "run_id": "R00010",
+            "standard_order": 10,
+            "run_order": 11,
+            "replicate": 2,
+            "A": "high",
+            "B": 150,
+            "A_code": 2,
+            "B_code": 2,
+            "Y": 13.0,
+            "point_key": "2|2|2"
+          },
+          {
+            "run_id": "R00003",
+            "standard_order": 3,
+            "run_order": 12,
+            "replicate": 1,
+            "A": "low",
+            "B": 150,
+            "A_code": 1,
+            "B_code": 2,
+            "Y": 7.0,
+            "point_key": "1|2|1"
+          }
+        ]
+      }
+    }
+  },
+  "GFF-TYPEIII": {
+    "case_id": "GFF-TYPEIII",
+    "design_type": "general_full_factorial",
+    "factors": [
+      {
+        "factor_id": "A",
+        "levels": [
+          "off",
+          "on"
+        ]
+      },
+      {
+        "factor_id": "B",
+        "levels": [
+          100,
+          150,
+          200
+        ]
+      }
+    ],
+    "factor_levels": {
+      "A": [
+        "off",
+        "on"
+      ],
+      "B": [
+        100,
+        150,
+        200
+      ]
+    },
+    "native_level_map": {
+      "A": {
+        "off": 1,
+        "on": 2
+      },
+      "B": {
+        "100": 1,
+        "150": 2,
+        "200": 3
+      }
+    },
+    "design_command": "FDESIGN 2 3; REPS 3; DESIGN.",
+    "model_terms": [
+      "A",
+      "B",
+      "A*B"
+    ],
+    "contrast_labels": [
+      "截距",
+      "A[on]",
+      "B[150]",
+      "B[200]",
+      "A[on]*B[150]",
+      "A[on]*B[200]"
+    ],
+    "effect_groups": {
+      "截距": [
+        0,
+        1
+      ],
+      "A": [
+        1,
+        2
+      ],
+      "B": [
+        2,
+        4
+      ],
+      "A*B": [
+        4,
+        6
+      ]
+    },
+    "design_rows": [
+      {
+        "run_id": "R00008",
+        "standard_order": 8,
+        "run_order": 1,
+        "replicate": 2,
+        "A": "on",
+        "B": 100,
+        "A_code": 2,
+        "B_code": 1,
+        "Y": null,
+        "point_key": "2|1|2"
+      },
+      {
+        "run_id": "R00013",
+        "standard_order": 13,
+        "run_order": 2,
+        "replicate": 3,
+        "A": "off",
+        "B": 100,
+        "A_code": 1,
+        "B_code": 1,
+        "Y": 21.872,
+        "point_key": "1|1|3"
+      },
+      {
+        "run_id": "R00018",
+        "standard_order": 18,
+        "run_order": 3,
+        "replicate": 3,
+        "A": "on",
+        "B": 200,
+        "A_code": 2,
+        "B_code": 3,
+        "Y": 27.928,
+        "point_key": "2|3|3"
+      },
+      {
+        "run_id": "R00012",
+        "standard_order": 12,
+        "run_order": 4,
+        "replicate": 2,
+        "A": "on",
+        "B": 200,
+        "A_code": 2,
+        "B_code": 3,
+        "Y": 26.857,
+        "point_key": "2|3|2"
+      },
+      {
+        "run_id": "R00014",
+        "standard_order": 14,
+        "run_order": 5,
+        "replicate": 3,
+        "A": "on",
+        "B": 100,
+        "A_code": 2,
+        "B_code": 1,
+        "Y": 29.152,
+        "point_key": "2|1|3"
+      },
+      {
+        "run_id": "R00011",
+        "standard_order": 11,
+        "run_order": 6,
+        "replicate": 2,
+        "A": "off",
+        "B": 200,
+        "A_code": 1,
+        "B_code": 3,
+        "Y": 25.787,
+        "point_key": "1|3|2"
+      },
+      {
+        "run_id": "R00001",
+        "standard_order": 1,
+        "run_order": 7,
+        "replicate": 1,
+        "A": "off",
+        "B": 100,
+        "A_code": 1,
+        "B_code": 1,
+        "Y": 19.324,
+        "point_key": "1|1|1"
+      },
+      {
+        "run_id": "R00010",
+        "standard_order": 10,
+        "run_order": 8,
+        "replicate": 2,
+        "A": "on",
+        "B": 150,
+        "A_code": 2,
+        "B_code": 2,
+        "Y": 27.385,
+        "point_key": "2|2|2"
+      },
+      {
+        "run_id": "R00003",
+        "standard_order": 3,
+        "run_order": 9,
+        "replicate": 1,
+        "A": "off",
+        "B": 150,
+        "A_code": 1,
+        "B_code": 2,
+        "Y": 21.92,
+        "point_key": "1|2|1"
+      },
+      {
+        "run_id": "R00005",
+        "standard_order": 5,
+        "run_order": 10,
+        "replicate": 1,
+        "A": "off",
+        "B": 200,
+        "A_code": 1,
+        "B_code": 3,
+        "Y": 24.516,
+        "point_key": "1|3|1"
+      },
+      {
+        "run_id": "R00015",
+        "standard_order": 15,
+        "run_order": 11,
+        "replicate": 3,
+        "A": "off",
+        "B": 150,
+        "A_code": 1,
+        "B_code": 2,
+        "Y": 24.26,
+        "point_key": "1|2|3"
+      },
+      {
+        "run_id": "R00006",
+        "standard_order": 6,
+        "run_order": 12,
+        "replicate": 1,
+        "A": "on",
+        "B": 200,
+        "A_code": 2,
+        "B_code": 3,
+        "Y": 25.276,
+        "point_key": "2|3|1"
+      },
+      {
+        "run_id": "R00007",
+        "standard_order": 7,
+        "run_order": 13,
+        "replicate": 2,
+        "A": "off",
+        "B": 100,
+        "A_code": 1,
+        "B_code": 1,
+        "Y": 20.843,
+        "point_key": "1|1|2"
+      },
+      {
+        "run_id": "R00016",
+        "standard_order": 16,
+        "run_order": 14,
+        "replicate": 3,
+        "A": "on",
+        "B": 150,
+        "A_code": 2,
+        "B_code": 2,
+        "Y": 28.54,
+        "point_key": "2|2|3"
+      },
+      {
+        "run_id": "R00009",
+        "standard_order": 9,
+        "run_order": 15,
+        "replicate": 2,
+        "A": "off",
+        "B": 150,
+        "A_code": 1,
+        "B_code": 2,
+        "Y": 23.315,
+        "point_key": "1|2|2"
+      },
+      {
+        "run_id": "R00004",
+        "standard_order": 4,
+        "run_order": 16,
+        "replicate": 1,
+        "A": "on",
+        "B": 150,
+        "A_code": 2,
+        "B_code": 2,
+        "Y": 25.68,
+        "point_key": "2|2|1"
+      },
+      {
+        "run_id": "R00017",
+        "standard_order": 17,
+        "run_order": 17,
+        "replicate": 3,
+        "A": "off",
+        "B": 200,
+        "A_code": 1,
+        "B_code": 3,
+        "Y": 26.648,
+        "point_key": "1|3|3"
+      },
+      {
+        "run_id": "R00002",
+        "standard_order": 2,
+        "run_order": 18,
+        "replicate": 1,
+        "A": "on",
+        "B": 100,
+        "A_code": 2,
+        "B_code": 1,
+        "Y": 26.084,
+        "point_key": "2|1|1"
+      }
+    ],
+    "model_matrix_rows": {
+      "1|1|3": {
+        "point_key": "1|1|3",
+        "standard_order": 13,
+        "run_order": 2,
+        "replicate": 3,
+        "A": "off",
+        "B": 100,
+        "A_code": 1,
+        "B_code": 1,
+        "Y": 21.872,
+        "matrix": [
+          1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          1.0,
+          1.0
+        ],
+        "fit": 20.679666666666666,
+        "residual": 1.1923333333333348
+      },
+      "2|3|3": {
+        "point_key": "2|3|3",
+        "standard_order": 18,
+        "run_order": 3,
+        "replicate": 3,
+        "A": "on",
+        "B": 200,
+        "A_code": 2,
+        "B_code": 3,
+        "Y": 27.928,
+        "matrix": [
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ],
+        "fit": 26.687000000000005,
+        "residual": 1.2409999999999979
+      },
+      "2|3|2": {
+        "point_key": "2|3|2",
+        "standard_order": 12,
+        "run_order": 4,
+        "replicate": 2,
+        "A": "on",
+        "B": 200,
+        "A_code": 2,
+        "B_code": 3,
+        "Y": 26.857,
+        "matrix": [
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ],
+        "fit": 26.687000000000005,
+        "residual": 0.16999999999999638
+      },
+      "2|1|3": {
+        "point_key": "2|1|3",
+        "standard_order": 14,
+        "run_order": 5,
+        "replicate": 3,
+        "A": "on",
+        "B": 100,
+        "A_code": 2,
+        "B_code": 1,
+        "Y": 29.152,
+        "matrix": [
+          1.0,
+          1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          -1.0
+        ],
+        "fit": 27.618000000000002,
+        "residual": 1.533999999999999
+      },
+      "1|3|2": {
+        "point_key": "1|3|2",
+        "standard_order": 11,
+        "run_order": 6,
+        "replicate": 2,
+        "A": "off",
+        "B": 200,
+        "A_code": 1,
+        "B_code": 3,
+        "Y": 25.787,
+        "matrix": [
+          1.0,
+          -1.0,
+          0.0,
+          1.0,
+          -0.0,
+          -1.0
+        ],
+        "fit": 25.650333333333332,
+        "residual": 0.13666666666666827
+      },
+      "1|1|1": {
+        "point_key": "1|1|1",
+        "standard_order": 1,
+        "run_order": 7,
+        "replicate": 1,
+        "A": "off",
+        "B": 100,
+        "A_code": 1,
+        "B_code": 1,
+        "Y": 19.324,
+        "matrix": [
+          1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          1.0,
+          1.0
+        ],
+        "fit": 20.679666666666662,
+        "residual": -1.3556666666666626
+      },
+      "2|2|2": {
+        "point_key": "2|2|2",
+        "standard_order": 10,
+        "run_order": 8,
+        "replicate": 2,
+        "A": "on",
+        "B": 150,
+        "A_code": 2,
+        "B_code": 2,
+        "Y": 27.385,
+        "matrix": [
+          1.0,
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        "fit": 27.201666666666668,
+        "residual": 0.18333333333333446
+      },
+      "1|2|1": {
+        "point_key": "1|2|1",
+        "standard_order": 3,
+        "run_order": 9,
+        "replicate": 1,
+        "A": "off",
+        "B": 150,
+        "A_code": 1,
+        "B_code": 2,
+        "Y": 21.92,
+        "matrix": [
+          1.0,
+          -1.0,
+          1.0,
+          0.0,
+          -1.0,
+          -0.0
+        ],
+        "fit": 23.165,
+        "residual": -1.2449999999999979
+      },
+      "1|3|1": {
+        "point_key": "1|3|1",
+        "standard_order": 5,
+        "run_order": 10,
+        "replicate": 1,
+        "A": "off",
+        "B": 200,
+        "A_code": 1,
+        "B_code": 3,
+        "Y": 24.516,
+        "matrix": [
+          1.0,
+          -1.0,
+          0.0,
+          1.0,
+          -0.0,
+          -1.0
+        ],
+        "fit": 25.65033333333333,
+        "residual": -1.1343333333333323
+      },
+      "1|2|3": {
+        "point_key": "1|2|3",
+        "standard_order": 15,
+        "run_order": 11,
+        "replicate": 3,
+        "A": "off",
+        "B": 150,
+        "A_code": 1,
+        "B_code": 2,
+        "Y": 24.26,
+        "matrix": [
+          1.0,
+          -1.0,
+          1.0,
+          0.0,
+          -1.0,
+          -0.0
+        ],
+        "fit": 23.165,
+        "residual": 1.095000000000002
+      },
+      "2|3|1": {
+        "point_key": "2|3|1",
+        "standard_order": 6,
+        "run_order": 12,
+        "replicate": 1,
+        "A": "on",
+        "B": 200,
+        "A_code": 2,
+        "B_code": 3,
+        "Y": 25.276,
+        "matrix": [
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ],
+        "fit": 26.687,
+        "residual": -1.4110000000000027
+      },
+      "1|1|2": {
+        "point_key": "1|1|2",
+        "standard_order": 7,
+        "run_order": 13,
+        "replicate": 2,
+        "A": "off",
+        "B": 100,
+        "A_code": 1,
+        "B_code": 1,
+        "Y": 20.843,
+        "matrix": [
+          1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          1.0,
+          1.0
+        ],
+        "fit": 20.679666666666662,
+        "residual": 0.16333333333333577
+      },
+      "2|2|3": {
+        "point_key": "2|2|3",
+        "standard_order": 16,
+        "run_order": 14,
+        "replicate": 3,
+        "A": "on",
+        "B": 150,
+        "A_code": 2,
+        "B_code": 2,
+        "Y": 28.54,
+        "matrix": [
+          1.0,
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        "fit": 27.201666666666668,
+        "residual": 1.338333333333332
+      },
+      "1|2|2": {
+        "point_key": "1|2|2",
+        "standard_order": 9,
+        "run_order": 15,
+        "replicate": 2,
+        "A": "off",
+        "B": 150,
+        "A_code": 1,
+        "B_code": 2,
+        "Y": 23.315,
+        "matrix": [
+          1.0,
+          -1.0,
+          1.0,
+          0.0,
+          -1.0,
+          -0.0
+        ],
+        "fit": 23.165,
+        "residual": 0.1500000000000017
+      },
+      "2|2|1": {
+        "point_key": "2|2|1",
+        "standard_order": 4,
+        "run_order": 16,
+        "replicate": 1,
+        "A": "on",
+        "B": 150,
+        "A_code": 2,
+        "B_code": 2,
+        "Y": 25.68,
+        "matrix": [
+          1.0,
+          1.0,
+          1.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        "fit": 27.201666666666668,
+        "residual": -1.5216666666666674
+      },
+      "1|3|3": {
+        "point_key": "1|3|3",
+        "standard_order": 17,
+        "run_order": 17,
+        "replicate": 3,
+        "A": "off",
+        "B": 200,
+        "A_code": 1,
+        "B_code": 3,
+        "Y": 26.648,
+        "matrix": [
+          1.0,
+          -1.0,
+          0.0,
+          1.0,
+          -0.0,
+          -1.0
+        ],
+        "fit": 25.65033333333333,
+        "residual": 0.9976666666666691
+      },
+      "2|1|1": {
+        "point_key": "2|1|1",
+        "standard_order": 2,
+        "run_order": 18,
+        "replicate": 1,
+        "A": "on",
+        "B": 100,
+        "A_code": 2,
+        "B_code": 1,
+        "Y": 26.084,
+        "matrix": [
+          1.0,
+          1.0,
+          -1.0,
+          -1.0,
+          -1.0,
+          -1.0
+        ],
+        "fit": 27.618000000000002,
+        "residual": -1.534000000000003
+      }
+    },
+    "cell_means": [
+      {
+        "levels": {
+          "A": "off",
+          "B": 100
+        },
+        "mean": 20.679666666666666,
+        "n": 3
+      },
+      {
+        "levels": {
+          "A": "off",
+          "B": 150
+        },
+        "mean": 23.165000000000003,
+        "n": 3
+      },
+      {
+        "levels": {
+          "A": "off",
+          "B": 200
+        },
+        "mean": 25.650333333333332,
+        "n": 3
+      },
+      {
+        "levels": {
+          "A": "on",
+          "B": 100
+        },
+        "mean": 27.618000000000002,
+        "n": 2
+      },
+      {
+        "levels": {
+          "A": "on",
+          "B": 150
+        },
+        "mean": 27.201666666666664,
+        "n": 3
+      },
+      {
+        "levels": {
+          "A": "on",
+          "B": 200
+        },
+        "mean": 26.686999999999998,
+        "n": 3
+      }
+    ],
+    "marginal_means": [
+      {
+        "factor_id": "A",
+        "level": "off",
+        "mean": 23.165,
+        "n": 9
+      },
+      {
+        "factor_id": "A",
+        "level": "on",
+        "mean": 27.11275,
+        "n": 8
+      },
+      {
+        "factor_id": "B",
+        "level": 100,
+        "mean": 23.455000000000002,
+        "n": 5
+      },
+      {
+        "factor_id": "B",
+        "level": 150,
+        "mean": 25.183333333333337,
+        "n": 6
+      },
+      {
+        "factor_id": "B",
+        "level": 200,
+        "mean": 26.168666666666667,
+        "n": 6
+      }
+    ],
+    "missing_run_id": "R00008",
+    "analyses": {
+      "III": {
+        "ss_type": "III",
+        "n": 17,
+        "p": 6,
+        "rank": 6,
+        "error_df": 11,
+        "sse": 20.764878,
+        "sst": 124.9101470588235,
+        "ssr": 104.1452690588235,
+        "anova": [
+          {
+            "term": "A",
+            "ss": 66.590832051282,
+            "df": 1,
+            "ms": 66.590832051282,
+            "f": 35.275870754651294,
+            "p": 9.740939130475081e-05,
+            "estimable": true,
+            "status": "可估计"
+          },
+          {
+            "term": "B",
+            "ss": 10.908889999999984,
+            "df": 2,
+            "ms": 5.454444999999992,
+            "f": 2.889441247860927,
+            "p": 0.09805349739631304,
+            "estimable": true,
+            "status": "可估计"
+          },
+          {
+            "term": "A*B",
+            "ss": 23.356859523809522,
+            "df": 2,
+            "ms": 11.678429761904761,
+            "f": 6.186538990547037,
+            "p": 0.01583879997319541,
+            "estimable": true,
+            "status": "可估计"
+          },
+          {
+            "term": "误差",
+            "ss": 20.764878,
+            "df": 11,
+            "ms": 1.8877161818181818,
+            "f": null,
+            "p": null,
+            "estimable": true,
+            "status": "误差自由度和 MSE 可用"
+          },
+          {
+            "term": "总计",
+            "ss": 124.9101470588235,
+            "df": 16,
+            "ms": null,
+            "f": null,
+            "p": null,
+            "estimable": true,
+            "status": "总计"
+          }
+        ],
+        "inference": {
+          "mse": 1.8877161818181818,
+          "se": [
+            0.33706460505339025,
+            0.33706460505339025,
+            0.46742450640923733,
+            0.4674245064092373,
+            0.4674245064092373,
+            0.4674245064092373
+          ],
+          "t": [
+            74.66504660273675,
+            5.939349354487523,
+            0.035062108777283864,
+            2.143067401231203,
+            0.035062108777280304,
+            -3.1740122538893694
+          ],
+          "p": [
+            3.093211254937597e-16,
+            9.740939130475001e-05,
+            0.9726583847192258,
+            0.05530964837302395,
+            0.9726583847192286,
+            0.00885510031309363
+          ],
+          "ci_low": [
+            24.42507025073271,
+            1.260070250732713,
+            -1.0124055131769398,
+            -0.027072179843606436,
+            -1.0124055131769412,
+            -2.5124055131769376
+          ],
+          "ci_high": [
+            25.908818638156177,
+            2.7438186381561773,
+            1.0451832909547174,
+            2.03051662428805,
+            1.0451832909547156,
+            -0.4548167090452808
+          ],
+          "f": 11.033996536334657,
+          "model_p": 0.0005431868668973493
+        },
+        "coefficients": [
+          25.166944444444443,
+          2.001944444444445,
+          0.016388888888888897,
+          1.001722222222222,
+          0.016388888888887232,
+          -1.4836111111111092
+        ],
+        "names": [
+          "截距",
+          "A",
+          "B",
+          "A*B"
+        ],
+        "labels": [
+          "截距",
+          "A[on]",
+          "B[150]",
+          "B[200]",
+          "A[on]*B[150]",
+          "A[on]*B[200]"
+        ],
+        "groups": {
+          "截距": [
+            0,
+            1
+          ],
+          "A": [
+            1,
+            2
+          ],
+          "B": [
+            2,
+            4
+          ],
+          "A*B": [
+            4,
+            6
+          ]
+        },
+        "matrix_rows": {
+          "1|1|3": {
+            "point_key": "1|1|3",
+            "standard_order": 13,
+            "run_order": 2,
+            "replicate": 3,
+            "A": "off",
+            "B": 100,
+            "A_code": 1,
+            "B_code": 1,
+            "Y": 21.872,
+            "matrix": [
+              1.0,
+              -1.0,
+              -1.0,
+              -1.0,
+              1.0,
+              1.0
+            ],
+            "fit": 20.679666666666666,
+            "residual": 1.1923333333333348
+          },
+          "2|3|3": {
+            "point_key": "2|3|3",
+            "standard_order": 18,
+            "run_order": 3,
+            "replicate": 3,
+            "A": "on",
+            "B": 200,
+            "A_code": 2,
+            "B_code": 3,
+            "Y": 27.928,
+            "matrix": [
+              1.0,
+              1.0,
+              0.0,
+              1.0,
+              0.0,
+              1.0
+            ],
+            "fit": 26.687000000000005,
+            "residual": 1.2409999999999979
+          },
+          "2|3|2": {
+            "point_key": "2|3|2",
+            "standard_order": 12,
+            "run_order": 4,
+            "replicate": 2,
+            "A": "on",
+            "B": 200,
+            "A_code": 2,
+            "B_code": 3,
+            "Y": 26.857,
+            "matrix": [
+              1.0,
+              1.0,
+              0.0,
+              1.0,
+              0.0,
+              1.0
+            ],
+            "fit": 26.687000000000005,
+            "residual": 0.16999999999999638
+          },
+          "2|1|3": {
+            "point_key": "2|1|3",
+            "standard_order": 14,
+            "run_order": 5,
+            "replicate": 3,
+            "A": "on",
+            "B": 100,
+            "A_code": 2,
+            "B_code": 1,
+            "Y": 29.152,
+            "matrix": [
+              1.0,
+              1.0,
+              -1.0,
+              -1.0,
+              -1.0,
+              -1.0
+            ],
+            "fit": 27.618000000000002,
+            "residual": 1.533999999999999
+          },
+          "1|3|2": {
+            "point_key": "1|3|2",
+            "standard_order": 11,
+            "run_order": 6,
+            "replicate": 2,
+            "A": "off",
+            "B": 200,
+            "A_code": 1,
+            "B_code": 3,
+            "Y": 25.787,
+            "matrix": [
+              1.0,
+              -1.0,
+              0.0,
+              1.0,
+              -0.0,
+              -1.0
+            ],
+            "fit": 25.650333333333332,
+            "residual": 0.13666666666666827
+          },
+          "1|1|1": {
+            "point_key": "1|1|1",
+            "standard_order": 1,
+            "run_order": 7,
+            "replicate": 1,
+            "A": "off",
+            "B": 100,
+            "A_code": 1,
+            "B_code": 1,
+            "Y": 19.324,
+            "matrix": [
+              1.0,
+              -1.0,
+              -1.0,
+              -1.0,
+              1.0,
+              1.0
+            ],
+            "fit": 20.679666666666662,
+            "residual": -1.3556666666666626
+          },
+          "2|2|2": {
+            "point_key": "2|2|2",
+            "standard_order": 10,
+            "run_order": 8,
+            "replicate": 2,
+            "A": "on",
+            "B": 150,
+            "A_code": 2,
+            "B_code": 2,
+            "Y": 27.385,
+            "matrix": [
+              1.0,
+              1.0,
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            "fit": 27.201666666666668,
+            "residual": 0.18333333333333446
+          },
+          "1|2|1": {
+            "point_key": "1|2|1",
+            "standard_order": 3,
+            "run_order": 9,
+            "replicate": 1,
+            "A": "off",
+            "B": 150,
+            "A_code": 1,
+            "B_code": 2,
+            "Y": 21.92,
+            "matrix": [
+              1.0,
+              -1.0,
+              1.0,
+              0.0,
+              -1.0,
+              -0.0
+            ],
+            "fit": 23.165,
+            "residual": -1.2449999999999979
+          },
+          "1|3|1": {
+            "point_key": "1|3|1",
+            "standard_order": 5,
+            "run_order": 10,
+            "replicate": 1,
+            "A": "off",
+            "B": 200,
+            "A_code": 1,
+            "B_code": 3,
+            "Y": 24.516,
+            "matrix": [
+              1.0,
+              -1.0,
+              0.0,
+              1.0,
+              -0.0,
+              -1.0
+            ],
+            "fit": 25.65033333333333,
+            "residual": -1.1343333333333323
+          },
+          "1|2|3": {
+            "point_key": "1|2|3",
+            "standard_order": 15,
+            "run_order": 11,
+            "replicate": 3,
+            "A": "off",
+            "B": 150,
+            "A_code": 1,
+            "B_code": 2,
+            "Y": 24.26,
+            "matrix": [
+              1.0,
+              -1.0,
+              1.0,
+              0.0,
+              -1.0,
+              -0.0
+            ],
+            "fit": 23.165,
+            "residual": 1.095000000000002
+          },
+          "2|3|1": {
+            "point_key": "2|3|1",
+            "standard_order": 6,
+            "run_order": 12,
+            "replicate": 1,
+            "A": "on",
+            "B": 200,
+            "A_code": 2,
+            "B_code": 3,
+            "Y": 25.276,
+            "matrix": [
+              1.0,
+              1.0,
+              0.0,
+              1.0,
+              0.0,
+              1.0
+            ],
+            "fit": 26.687,
+            "residual": -1.4110000000000027
+          },
+          "1|1|2": {
+            "point_key": "1|1|2",
+            "standard_order": 7,
+            "run_order": 13,
+            "replicate": 2,
+            "A": "off",
+            "B": 100,
+            "A_code": 1,
+            "B_code": 1,
+            "Y": 20.843,
+            "matrix": [
+              1.0,
+              -1.0,
+              -1.0,
+              -1.0,
+              1.0,
+              1.0
+            ],
+            "fit": 20.679666666666662,
+            "residual": 0.16333333333333577
+          },
+          "2|2|3": {
+            "point_key": "2|2|3",
+            "standard_order": 16,
+            "run_order": 14,
+            "replicate": 3,
+            "A": "on",
+            "B": 150,
+            "A_code": 2,
+            "B_code": 2,
+            "Y": 28.54,
+            "matrix": [
+              1.0,
+              1.0,
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            "fit": 27.201666666666668,
+            "residual": 1.338333333333332
+          },
+          "1|2|2": {
+            "point_key": "1|2|2",
+            "standard_order": 9,
+            "run_order": 15,
+            "replicate": 2,
+            "A": "off",
+            "B": 150,
+            "A_code": 1,
+            "B_code": 2,
+            "Y": 23.315,
+            "matrix": [
+              1.0,
+              -1.0,
+              1.0,
+              0.0,
+              -1.0,
+              -0.0
+            ],
+            "fit": 23.165,
+            "residual": 0.1500000000000017
+          },
+          "2|2|1": {
+            "point_key": "2|2|1",
+            "standard_order": 4,
+            "run_order": 16,
+            "replicate": 1,
+            "A": "on",
+            "B": 150,
+            "A_code": 2,
+            "B_code": 2,
+            "Y": 25.68,
+            "matrix": [
+              1.0,
+              1.0,
+              1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            "fit": 27.201666666666668,
+            "residual": -1.5216666666666674
+          },
+          "1|3|3": {
+            "point_key": "1|3|3",
+            "standard_order": 17,
+            "run_order": 17,
+            "replicate": 3,
+            "A": "off",
+            "B": 200,
+            "A_code": 1,
+            "B_code": 3,
+            "Y": 26.648,
+            "matrix": [
+              1.0,
+              -1.0,
+              0.0,
+              1.0,
+              -0.0,
+              -1.0
+            ],
+            "fit": 25.65033333333333,
+            "residual": 0.9976666666666691
+          },
+          "2|1|1": {
+            "point_key": "2|1|1",
+            "standard_order": 2,
+            "run_order": 18,
+            "replicate": 1,
+            "A": "on",
+            "B": 100,
+            "A_code": 2,
+            "B_code": 1,
+            "Y": 26.084,
+            "matrix": [
+              1.0,
+              1.0,
+              -1.0,
+              -1.0,
+              -1.0,
+              -1.0
+            ],
+            "fit": 27.618000000000002,
+            "residual": -1.534000000000003
+          }
+        },
+        "cell_means": [
+          {
+            "levels": {
+              "A": "off",
+              "B": 100
+            },
+            "mean": 20.679666666666666,
+            "n": 3
+          },
+          {
+            "levels": {
+              "A": "off",
+              "B": 150
+            },
+            "mean": 23.165000000000003,
+            "n": 3
+          },
+          {
+            "levels": {
+              "A": "off",
+              "B": 200
+            },
+            "mean": 25.650333333333332,
+            "n": 3
+          },
+          {
+            "levels": {
+              "A": "on",
+              "B": 100
+            },
+            "mean": 27.618000000000002,
+            "n": 2
+          },
+          {
+            "levels": {
+              "A": "on",
+              "B": 150
+            },
+            "mean": 27.201666666666664,
+            "n": 3
+          },
+          {
+            "levels": {
+              "A": "on",
+              "B": 200
+            },
+            "mean": 26.686999999999998,
+            "n": 3
+          }
+        ],
+        "marginal_means": [
+          {
+            "factor_id": "A",
+            "level": "off",
+            "mean": 23.165,
+            "n": 9
+          },
+          {
+            "factor_id": "A",
+            "level": "on",
+            "mean": 27.11275,
+            "n": 8
+          },
+          {
+            "factor_id": "B",
+            "level": 100,
+            "mean": 23.455000000000002,
+            "n": 5
+          },
+          {
+            "factor_id": "B",
+            "level": 150,
+            "mean": 25.183333333333337,
+            "n": 6
+          },
+          {
+            "factor_id": "B",
+            "level": 200,
+            "mean": 26.168666666666667,
+            "n": 6
+          }
+        ],
+        "missing_run_id": "R00008",
+        "design_rows": [
+          {
+            "run_id": "R00008",
+            "standard_order": 8,
+            "run_order": 1,
+            "replicate": 2,
+            "A": "on",
+            "B": 100,
+            "A_code": 2,
+            "B_code": 1,
+            "Y": null,
+            "point_key": "2|1|2"
+          },
+          {
+            "run_id": "R00013",
+            "standard_order": 13,
+            "run_order": 2,
+            "replicate": 3,
+            "A": "off",
+            "B": 100,
+            "A_code": 1,
+            "B_code": 1,
+            "Y": 21.872,
+            "point_key": "1|1|3"
+          },
+          {
+            "run_id": "R00018",
+            "standard_order": 18,
+            "run_order": 3,
+            "replicate": 3,
+            "A": "on",
+            "B": 200,
+            "A_code": 2,
+            "B_code": 3,
+            "Y": 27.928,
+            "point_key": "2|3|3"
+          },
+          {
+            "run_id": "R00012",
+            "standard_order": 12,
+            "run_order": 4,
+            "replicate": 2,
+            "A": "on",
+            "B": 200,
+            "A_code": 2,
+            "B_code": 3,
+            "Y": 26.857,
+            "point_key": "2|3|2"
+          },
+          {
+            "run_id": "R00014",
+            "standard_order": 14,
+            "run_order": 5,
+            "replicate": 3,
+            "A": "on",
+            "B": 100,
+            "A_code": 2,
+            "B_code": 1,
+            "Y": 29.152,
+            "point_key": "2|1|3"
+          },
+          {
+            "run_id": "R00011",
+            "standard_order": 11,
+            "run_order": 6,
+            "replicate": 2,
+            "A": "off",
+            "B": 200,
+            "A_code": 1,
+            "B_code": 3,
+            "Y": 25.787,
+            "point_key": "1|3|2"
+          },
+          {
+            "run_id": "R00001",
+            "standard_order": 1,
+            "run_order": 7,
+            "replicate": 1,
+            "A": "off",
+            "B": 100,
+            "A_code": 1,
+            "B_code": 1,
+            "Y": 19.324,
+            "point_key": "1|1|1"
+          },
+          {
+            "run_id": "R00010",
+            "standard_order": 10,
+            "run_order": 8,
+            "replicate": 2,
+            "A": "on",
+            "B": 150,
+            "A_code": 2,
+            "B_code": 2,
+            "Y": 27.385,
+            "point_key": "2|2|2"
+          },
+          {
+            "run_id": "R00003",
+            "standard_order": 3,
+            "run_order": 9,
+            "replicate": 1,
+            "A": "off",
+            "B": 150,
+            "A_code": 1,
+            "B_code": 2,
+            "Y": 21.92,
+            "point_key": "1|2|1"
+          },
+          {
+            "run_id": "R00005",
+            "standard_order": 5,
+            "run_order": 10,
+            "replicate": 1,
+            "A": "off",
+            "B": 200,
+            "A_code": 1,
+            "B_code": 3,
+            "Y": 24.516,
+            "point_key": "1|3|1"
+          },
+          {
+            "run_id": "R00015",
+            "standard_order": 15,
+            "run_order": 11,
+            "replicate": 3,
+            "A": "off",
+            "B": 150,
+            "A_code": 1,
+            "B_code": 2,
+            "Y": 24.26,
+            "point_key": "1|2|3"
+          },
+          {
+            "run_id": "R00006",
+            "standard_order": 6,
+            "run_order": 12,
+            "replicate": 1,
+            "A": "on",
+            "B": 200,
+            "A_code": 2,
+            "B_code": 3,
+            "Y": 25.276,
+            "point_key": "2|3|1"
+          },
+          {
+            "run_id": "R00007",
+            "standard_order": 7,
+            "run_order": 13,
+            "replicate": 2,
+            "A": "off",
+            "B": 100,
+            "A_code": 1,
+            "B_code": 1,
+            "Y": 20.843,
+            "point_key": "1|1|2"
+          },
+          {
+            "run_id": "R00016",
+            "standard_order": 16,
+            "run_order": 14,
+            "replicate": 3,
+            "A": "on",
+            "B": 150,
+            "A_code": 2,
+            "B_code": 2,
+            "Y": 28.54,
+            "point_key": "2|2|3"
+          },
+          {
+            "run_id": "R00009",
+            "standard_order": 9,
+            "run_order": 15,
+            "replicate": 2,
+            "A": "off",
+            "B": 150,
+            "A_code": 1,
+            "B_code": 2,
+            "Y": 23.315,
+            "point_key": "1|2|2"
+          },
+          {
+            "run_id": "R00004",
+            "standard_order": 4,
+            "run_order": 16,
+            "replicate": 1,
+            "A": "on",
+            "B": 150,
+            "A_code": 2,
+            "B_code": 2,
+            "Y": 25.68,
+            "point_key": "2|2|1"
+          },
+          {
+            "run_id": "R00017",
+            "standard_order": 17,
+            "run_order": 17,
+            "replicate": 3,
+            "A": "off",
+            "B": 200,
+            "A_code": 1,
+            "B_code": 3,
+            "Y": 26.648,
+            "point_key": "1|3|3"
+          },
+          {
+            "run_id": "R00002",
+            "standard_order": 2,
+            "run_order": 18,
+            "replicate": 1,
+            "A": "on",
+            "B": 100,
+            "A_code": 2,
+            "B_code": 1,
+            "Y": 26.084,
+            "point_key": "2|1|1"
+          }
+        ]
+      }
+    }
+  }
+}

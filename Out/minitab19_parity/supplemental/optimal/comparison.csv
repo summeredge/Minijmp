@@ -1,0 +1,19 @@
+﻿case_id,comparison_run,section,term,statistic,minitab_value,minijmp_value,absolute_error,relative_error,absolute_tolerance,relative_tolerance,minitab_value_source,minijmp_value_source,status
+OPT-D,1,design,model,selected_run_count,3.0,3.0,0.0,0.0,1e-09,1e-09,DIRECT,DIRECT,PASS
+OPT-D,1,design,model,rank,3.0,3.0,0.0,0.0,1e-09,1e-09,DERIVED,DIRECT,PASS
+OPT-D,1,quality,D-opt,det_xtx,16.0,16.000000000000007,7.105427357601002e-15,4.440892098500626e-16,1e-09,1e-09,DERIVED,DERIVED,PASS
+OPT-D,1,quality,D-opt,exact_max_det_xtx,16.0,16.0,0.0,0.0,1e-09,1e-09,DERIVED,DERIVED,PASS
+OPT-D,1,quality,D-opt,global_optimum_verified,True,True,,,,,DERIVED,DERIVED,PASS
+OPT-D,1,design,candidate_set,selected_points_within_four_corners,True,True,,,,,DIRECT,DERIVED,PASS
+OPT-DIST,1,design,distance,selected_run_count,4.0,4.0,0.0,0.0,1e-09,1e-09,DIRECT,DIRECT,PASS
+OPT-DIST,1,design,model,rank,3.0,3.0,0.0,0.0,1e-09,1e-09,DERIVED,DIRECT,PASS
+OPT-DIST,1,quality,distance,min_squared_distance,4.0,4.0,0.0,0.0,1e-09,1e-09,DERIVED,DERIVED,PASS
+OPT-DIST,1,quality,distance,exact_max_min_squared_distance,4.0,4.0,0.0,0.0,1e-09,1e-09,DERIVED,DERIVED,PASS
+OPT-DIST,1,design,distance,selected_candidate_set,"[(-1, -1), (-1, 1), (1, -1), (1, 1)]","[(-1, -1), (-1, 1), (1, -1), (1, 1)]",,,,,DIRECT,DIRECT,PASS
+OPT-AUG,1,design,parent,fixed_run_count,3.0,3.0,0.0,0.0,1e-09,1e-09,DIRECT,DIRECT,PASS
+OPT-AUG,1,design,augmentation,added_run_count,1.0,1.0,0.0,0.0,1e-09,1e-09,DIRECT,DIRECT,PASS
+OPT-AUG,1,design,augmentation,added_candidate,"[[1, 1]]","[[1, 1]]",,,,,DIRECT,DIRECT,PASS
+OPT-AUG,1,design,model,augmented_rank,3.0,3.0,0.0,0.0,1e-09,1e-09,DERIVED,DIRECT,PASS
+OPT-AUG,1,quality,D-opt,parent_det_xtx,16.0,16.000000000000007,7.105427357601002e-15,4.440892098500626e-16,1e-09,1e-09,DERIVED,DERIVED,PASS
+OPT-AUG,1,quality,D-opt,augmented_det_xtx,64.0,63.99999999999998,2.1316282072803006e-14,3.3306690738754696e-16,1e-09,1e-09,DERIVED,DERIVED,PASS
+OPT-AUG,1,design,augmentation,candidate_choice_verified,True,True,,,,,DERIVED,DERIVED,PASS

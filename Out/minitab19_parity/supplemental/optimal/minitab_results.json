@@ -1,0 +1,145 @@
+{
+  "version": "19.1.0.1",
+  "cases": {
+    "OPT-D": {
+      "command": "FFDESIGN 2 4; LEVELS -1 1 -1 1; DESIGN.\nOPTDES 3; FACMODEL A B; INDICATOR C7; BRIEF 3.",
+      "design_command": "FFDESIGN 2 4; LEVELS -1 1 -1 1; DESIGN.",
+      "optimal_command": "OPTDES 3; FACMODEL A B; INDICATOR C7; BRIEF 3.",
+      "indicator_column": "C7",
+      "indicator_values": [
+        1.0,
+        1.0,
+        1.0,
+        0.0
+      ],
+      "selected_indices": [
+        0,
+        1,
+        2
+      ],
+      "selected_points": [
+        [
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          -1,
+          1
+        ]
+      ],
+      "rank": 3,
+      "det_xtx": 16,
+      "output_excerpt": "OutputDocument.Text:\n最优设计: A, B\r\n \r\n\r\n根据 D 最优性选择的因子设计\r\n候选设计点: 4\r\n最优设计中的设计点数: 3\r\n\r\n模型项: A, B\r\n\r\n用序贯法生成初始设计\r\n未要求改善初始设计\r\n\r\n最优设计\r\n所选设计点的行号: 1, 2, 3\r\n\r\n条件数:                   3\r\nD 最优性（XTX 行列式）:       16\r\nA 最优性（XTX 逆矩阵之迹）:    1.5\r\nG 最优性（平均杠杆率/最大杠杆率）:    1\r\nV 最优性（平均杠杆率）:          1\r\n最大杠杆率:                 1\r\n\r\n\r\n数据矩阵\r\n\r\n运行   A   B\r\n 1  -1  -1\r\n 2   1  -1\r\n 3  -1   1\r\n\r\n\n\nOutput.Text[1]:\n根据 D 最优性选择的因子设计\r\n候选设计点: 4\r\n最优设计中的设计点数: 3\r\n\n\nOutput.Text[2]:\n模型项: A, B\r\n\n\nOutput.Text[3]:\n用序贯法生成初始设计\r\n未要求改善初始设计\r\n\n\nOutput.Text[4]:\n最优设计\r\n所选设计点的行号: 1, 2, 3\r\n\r\n条件数:                   3\r\nD 最优性（XTX 行列式）:       16\r\nA 最优性（XTX 逆矩阵之迹）:    1.5\r\nG 最优性（平均杠杆率/最大杠杆率）:    1\r\nV 最优性（平均杠杆率）:          1\r\n最大杠杆率:                 1\r\n\n\nOutput.Text[5]:\n数据矩阵\r\n\r\n运行   A   B\r\n 1  -1  -1\r\n 2   1  -1\r\n 3  -1   1\r\n"
+    },
+    "OPT-DIST": {
+      "command": "OPTDES 4 C1-C2; INDICATOR C3; BRIEF 3.",
+      "indicator_column": "C3",
+      "indicator_values": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "selected_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "selected_points": [
+        [
+          1,
+          1
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1
+        ]
+      ],
+      "rank": 3,
+      "min_squared_distance": 4,
+      "output_excerpt": "OutputDocument.Text:\n最优设计: A, B\r\n \r\n\r\n使用基于距离的最优性选择的响应曲面设计\r\n候选设计点: 9\r\n最优设计中的设计点数: 4\r\n因子数: 2\r\n\r\n所选设计点的行号: 1, 3, 2, 4\r\n\r\n优化点之间的最小距离: 2.0000\r\n优化点之间的最大距离:  2.8284\r\n\r\n数据矩阵\r\n\r\n运行       A       B\r\n 1   1.000   1.000\r\n 3  -1.000  -1.000\r\n 2  -1.000   1.000\r\n 4   1.000  -1.000\r\n\r\n\n\nOutput.Text[1]:\n使用基于距离的最优性选择的响应曲面设计\r\n候选设计点: 9\r\n最优设计中的设计点数: 4\r\n因子数: 2\r\n\r\n所选设计点的行号: 1, 3, 2, 4\r\n\r\n优化点之间的最小距离: 2.0000\r\n优化点之间的最大距离:  2.8284\r\n\n\nOutput.Text[2]:\n数据矩阵\r\n\r\n运行       A       B\r\n 1   1.000   1.000\r\n 3  -1.000  -1.000\r\n 2  -1.000   1.000\r\n 4   1.000  -1.000\r\n"
+    },
+    "OPT-AUG": {
+      "command": "OPTDES 4; RESMODEL A B; INUNIT 0; LEVELS -1 1 -1 1; AUGMENT C3; INDICATOR C4; BRIEF 3.",
+      "augment_flags": [
+        1,
+        1,
+        1,
+        0,
+        0
+      ],
+      "indicator_column": "C4",
+      "indicator_values": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0
+      ],
+      "added_indices": [
+        0
+      ],
+      "added_points": [
+        [
+          1,
+          1
+        ]
+      ],
+      "parent_points": [
+        [
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          -1,
+          1
+        ]
+      ],
+      "final_points": [
+        [
+          -1,
+          -1
+        ],
+        [
+          1,
+          -1
+        ],
+        [
+          -1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "initial_rank": 3,
+      "augmented_rank": 3,
+      "initial_det_xtx": 16,
+      "augmented_det_xtx": 64,
+      "output_excerpt": "OutputDocument.Text:\n最优设计: A, B\r\n \r\n\r\n根据 D 最优性增强的响应曲面设计\r\n候选设计点: 5\r\n要增强/改善的设计点数: 3\r\n最优设计中的设计点数: 4\r\n\r\n模型项: A, B\r\n\r\n用序贯法增强初始设计\r\n未要求改善初始设计\r\n\r\n最优设计\r\n所选设计点的行号: 1, 2, 3, 4\r\n\r\n条件数:                    1\r\nD 最优性（XTX 行列式）:        64\r\nA 最优性（XTX 逆矩阵之迹）:    0.75\r\nG 最优性（平均杠杆率/最大杠杆率）:     1\r\nV 最优性（平均杠杆率）:        0.75\r\n最大杠杆率:               0.75\r\n\r\n\r\n数据矩阵\r\n\r\n运行       A       B\r\n 1  -1.000  -1.000\r\n 2   1.000  -1.000\r\n 3  -1.000   1.000\r\n 4   1.000   1.000\r\n\r\n\n\nOutput.Text[1]:\n根据 D 最优性增强的响应曲面设计\r\n候选设计点: 5\r\n要增强/改善的设计点数: 3\r\n最优设计中的设计点数: 4\r\n\n\nOutput.Text[2]:\n模型项: A, B\r\n\n\nOutput.Text[3]:\n用序贯法增强初始设计\r\n未要求改善初始设计\r\n\n\nOutput.Text[4]:\n最优设计\r\n所选设计点的行号: 1, 2, 3, 4\r\n\r\n条件数:                    1\r\nD 最优性（XTX 行列式）:        64\r\nA 最优性（XTX 逆矩阵之迹）:    0.75\r\nG 最优性（平均杠杆率/最大杠杆率）:     1\r\nV 最优性（平均杠杆率）:        0.75\r\n最大杠杆率:               0.75\r\n\n\nOutput.Text[5]:\n数据矩阵\r\n\r\n运行       A       B\r\n 1  -1.000  -1.000\r\n 2   1.000  -1.000\r\n 3  -1.000   1.000\r\n 4   1.000   1.000\r\n"
+    }
+  }
+}

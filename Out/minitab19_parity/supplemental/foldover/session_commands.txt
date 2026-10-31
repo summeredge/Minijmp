@@ -1,0 +1,52 @@
+# Minitab 19.1.0.1 Session Commands from the official release 19.1 manual
+
+# FOLD-REG base design
+
+FFDESIGN 3 4;
+  REPS 2;
+  LEVELS -1 1 -1 1 -1 1;
+  DESIGN.
+
+# FOLD-REG foldover
+
+MDESIGN;
+  FOLD A.
+
+# FOLD-REG fixed-response model
+
+FFACTORIAL;
+  RESPONSE C8;
+  FACTOR C5 C6 C7;
+  TERMS C5 C6 C7;
+  LEVELS -1 1 -1 1 -1 1;
+  INUNIT 0;
+  FITS C9;
+  RESIDUALS C10;
+  COEFFICIENTS C11;
+  XMATRIX M1;
+  TEXPAND.
+
+# FOLD-PB base design
+
+PBDESIGN 11 12;
+  LEVELS -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1;
+  DESIGN.
+
+# FOLD-PB foldover
+
+MDESIGN;
+  FOLD.
+
+# FOLD-PB fixed-response model
+
+SCREEN;
+  RESPONSE C16;
+  FACTOR C5 C6 C7 C8 C9 C10 C11 C12 C13 C14 C15;
+  TERMS C5 C6 C7 C8 C9 C10 C11 C12 C13 C14 C15;
+  LEVELS -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1;
+  INUNIT 0;
+  FITS C17;
+  RESIDUALS C18;
+  COEFFICIENTS C19;
+  XMATRIX M1;
+  TANOVA.

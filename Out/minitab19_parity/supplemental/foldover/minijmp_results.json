@@ -1,0 +1,4693 @@
+{
+  "FOLD-REG": {
+    "case_id": "FOLD-REG",
+    "factor_ids": [
+      "A",
+      "B",
+      "C"
+    ],
+    "folded_factors": [
+      "A"
+    ],
+    "base_runs": [
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00001",
+        "source_run_id": null,
+        "standard_order": 1,
+        "run_order": 6,
+        "replicate": 1,
+        "point_key": "-1,-1,1",
+        "A_code": -1,
+        "B_code": -1,
+        "C_code": 1,
+        "Y": 31.299999999999997
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00002",
+        "source_run_id": null,
+        "standard_order": 2,
+        "run_order": 3,
+        "replicate": 1,
+        "point_key": "1,-1,-1",
+        "A_code": 1,
+        "B_code": -1,
+        "C_code": -1,
+        "Y": 31.1
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00003",
+        "source_run_id": null,
+        "standard_order": 3,
+        "run_order": 4,
+        "replicate": 1,
+        "point_key": "-1,1,-1",
+        "A_code": -1,
+        "B_code": 1,
+        "C_code": -1,
+        "Y": 23.2
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00004",
+        "source_run_id": null,
+        "standard_order": 4,
+        "run_order": 2,
+        "replicate": 1,
+        "point_key": "1,1,1",
+        "A_code": 1,
+        "B_code": 1,
+        "C_code": 1,
+        "Y": 33.2
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00005",
+        "source_run_id": null,
+        "standard_order": 5,
+        "run_order": 8,
+        "replicate": 2,
+        "point_key": "-1,-1,1",
+        "A_code": -1,
+        "B_code": -1,
+        "C_code": 1,
+        "Y": 31.9
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00006",
+        "source_run_id": null,
+        "standard_order": 6,
+        "run_order": 5,
+        "replicate": 2,
+        "point_key": "1,-1,-1",
+        "A_code": 1,
+        "B_code": -1,
+        "C_code": -1,
+        "Y": 31.700000000000003
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00007",
+        "source_run_id": null,
+        "standard_order": 7,
+        "run_order": 7,
+        "replicate": 2,
+        "point_key": "-1,1,-1",
+        "A_code": -1,
+        "B_code": 1,
+        "C_code": -1,
+        "Y": 23.8
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00008",
+        "source_run_id": null,
+        "standard_order": 8,
+        "run_order": 1,
+        "replicate": 2,
+        "point_key": "1,1,1",
+        "A_code": 1,
+        "B_code": 1,
+        "C_code": 1,
+        "Y": 33.8
+      }
+    ],
+    "input_rows": [
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00001",
+        "source_run_id": null,
+        "standard_order": 1,
+        "run_order": 6,
+        "replicate": 1,
+        "point_key": "-1,-1,1",
+        "A_code": -1,
+        "B_code": -1,
+        "C_code": 1,
+        "Y": 31.299999999999997
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00002",
+        "source_run_id": null,
+        "standard_order": 2,
+        "run_order": 3,
+        "replicate": 1,
+        "point_key": "1,-1,-1",
+        "A_code": 1,
+        "B_code": -1,
+        "C_code": -1,
+        "Y": 31.1
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00003",
+        "source_run_id": null,
+        "standard_order": 3,
+        "run_order": 4,
+        "replicate": 1,
+        "point_key": "-1,1,-1",
+        "A_code": -1,
+        "B_code": 1,
+        "C_code": -1,
+        "Y": 23.2
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00004",
+        "source_run_id": null,
+        "standard_order": 4,
+        "run_order": 2,
+        "replicate": 1,
+        "point_key": "1,1,1",
+        "A_code": 1,
+        "B_code": 1,
+        "C_code": 1,
+        "Y": 33.2
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00005",
+        "source_run_id": null,
+        "standard_order": 5,
+        "run_order": 8,
+        "replicate": 2,
+        "point_key": "-1,-1,1",
+        "A_code": -1,
+        "B_code": -1,
+        "C_code": 1,
+        "Y": 31.9
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00006",
+        "source_run_id": null,
+        "standard_order": 6,
+        "run_order": 5,
+        "replicate": 2,
+        "point_key": "1,-1,-1",
+        "A_code": 1,
+        "B_code": -1,
+        "C_code": -1,
+        "Y": 31.700000000000003
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00007",
+        "source_run_id": null,
+        "standard_order": 7,
+        "run_order": 7,
+        "replicate": 2,
+        "point_key": "-1,1,-1",
+        "A_code": -1,
+        "B_code": 1,
+        "C_code": -1,
+        "Y": 23.8
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "BASE",
+        "run_id": "R00008",
+        "source_run_id": null,
+        "standard_order": 8,
+        "run_order": 1,
+        "replicate": 2,
+        "point_key": "1,1,1",
+        "A_code": 1,
+        "B_code": 1,
+        "C_code": 1,
+        "Y": 33.8
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "FOLD1",
+        "run_id": "F00001",
+        "source_run_id": "R00001",
+        "standard_order": 9,
+        "run_order": 14,
+        "replicate": 1,
+        "point_key": "1,-1,1",
+        "A_code": 1,
+        "B_code": -1,
+        "C_code": 1,
+        "Y": 31.799999999999994
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "FOLD1",
+        "run_id": "F00002",
+        "source_run_id": "R00002",
+        "standard_order": 10,
+        "run_order": 11,
+        "replicate": 1,
+        "point_key": "-1,-1,-1",
+        "A_code": -1,
+        "B_code": -1,
+        "C_code": -1,
+        "Y": 30.599999999999998
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "FOLD1",
+        "run_id": "F00003",
+        "source_run_id": "R00003",
+        "standard_order": 11,
+        "run_order": 12,
+        "replicate": 1,
+        "point_key": "1,1,-1",
+        "A_code": 1,
+        "B_code": 1,
+        "C_code": -1,
+        "Y": 30.7
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "FOLD1",
+        "run_id": "F00004",
+        "source_run_id": "R00004",
+        "standard_order": 12,
+        "run_order": 10,
+        "replicate": 1,
+        "point_key": "-1,1,1",
+        "A_code": -1,
+        "B_code": 1,
+        "C_code": 1,
+        "Y": 25.7
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "FOLD1",
+        "run_id": "F00005",
+        "source_run_id": "R00005",
+        "standard_order": 13,
+        "run_order": 16,
+        "replicate": 2,
+        "point_key": "1,-1,1",
+        "A_code": 1,
+        "B_code": -1,
+        "C_code": 1,
+        "Y": 32.39999999999999
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "FOLD1",
+        "run_id": "F00006",
+        "source_run_id": "R00006",
+        "standard_order": 14,
+        "run_order": 13,
+        "replicate": 2,
+        "point_key": "-1,-1,-1",
+        "A_code": -1,
+        "B_code": -1,
+        "C_code": -1,
+        "Y": 31.2
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "FOLD1",
+        "run_id": "F00007",
+        "source_run_id": "R00007",
+        "standard_order": 15,
+        "run_order": 15,
+        "replicate": 2,
+        "point_key": "1,1,-1",
+        "A_code": 1,
+        "B_code": 1,
+        "C_code": -1,
+        "Y": 31.3
+      },
+      {
+        "case_id": "FOLD-REG",
+        "batch_id": "FOLD1",
+        "run_id": "F00008",
+        "source_run_id": "R00008",
+        "standard_order": 16,
+        "run_order": 9,
+        "replicate": 2,
+        "point_key": "-1,1,1",
+        "A_code": -1,
+        "B_code": 1,
+        "C_code": 1,
+        "Y": 26.3
+      }
+    ],
+    "before_summary": {
+      "model_rank": 4,
+      "resolution": 3,
+      "defining_relations": [
+        "I=ABC"
+      ],
+      "alias_groups": [
+        {
+          "terms": [
+            "截距",
+            "A*B*C"
+          ],
+          "signs": [
+            1,
+            1
+          ],
+          "label": "截距 = A*B*C",
+          "representative": null,
+          "selectable_terms": []
+        },
+        {
+          "terms": [
+            "A",
+            "B*C"
+          ],
+          "signs": [
+            1,
+            1
+          ],
+          "label": "A = B*C",
+          "representative": null,
+          "selectable_terms": [
+            "A",
+            "B*C"
+          ]
+        },
+        {
+          "terms": [
+            "B",
+            "A*C"
+          ],
+          "signs": [
+            1,
+            1
+          ],
+          "label": "B = A*C",
+          "representative": null,
+          "selectable_terms": [
+            "B",
+            "A*C"
+          ]
+        },
+        {
+          "terms": [
+            "C",
+            "A*B"
+          ],
+          "signs": [
+            1,
+            1
+          ],
+          "label": "C = A*B",
+          "representative": null,
+          "selectable_terms": [
+            "C",
+            "A*B"
+          ]
+        }
+      ]
+    },
+    "after_summary": {
+      "model_rank": 8,
+      "resolution": null,
+      "defining_relations": [],
+      "alias_groups": [
+        {
+          "terms": [
+            "截距"
+          ],
+          "signs": [
+            1
+          ],
+          "label": "截距",
+          "representative": null,
+          "selectable_terms": []
+        },
+        {
+          "terms": [
+            "A"
+          ],
+          "signs": [
+            1
+          ],
+          "label": "A",
+          "representative": null,
+          "selectable_terms": [
+            "A"
+          ]
+        },
+        {
+          "terms": [
+            "B"
+          ],
+          "signs": [
+            1
+          ],
+          "label": "B",
+          "representative": null,
+          "selectable_terms": [
+            "B"
+          ]
+        },
+        {
+          "terms": [
+            "C"
+          ],
+          "signs": [
+            1
+          ],
+          "label": "C",
+          "representative": null,
+          "selectable_terms": [
+            "C"
+          ]
+        },
+        {
+          "terms": [
+            "A*B"
+          ],
+          "signs": [
+            1
+          ],
+          "label": "A*B",
+          "representative": null,
+          "selectable_terms": [
+            "A*B"
+          ]
+        },
+        {
+          "terms": [
+            "A*C"
+          ],
+          "signs": [
+            1
+          ],
+          "label": "A*C",
+          "representative": null,
+          "selectable_terms": [
+            "A*C"
+          ]
+        },
+        {
+          "terms": [
+            "B*C"
+          ],
+          "signs": [
+            1
+          ],
+          "label": "B*C",
+          "representative": null,
+          "selectable_terms": [
+            "B*C"
+          ]
+        },
+        {
+          "terms": [
+            "A*B*C"
+          ],
+          "signs": [
+            1
+          ],
+          "label": "A*B*C",
+          "representative": null,
+          "selectable_terms": [
+            "A*B*C"
+          ]
+        }
+      ]
+    },
+    "before_analysis": {
+      "terms": [
+        "截距",
+        "A",
+        "B",
+        "C"
+      ],
+      "n": 8,
+      "p": 4,
+      "rank": 4,
+      "df": 4,
+      "sse": 0.7199999999999993,
+      "sst": 118.75999999999999,
+      "ssr": 118.03999999999999,
+      "coefficients": [
+        29.999999999999993,
+        2.45,
+        -1.5000000000000018,
+        2.549999999999998
+      ],
+      "effects": [
+        null,
+        4.9,
+        -3.0000000000000036,
+        5.099999999999996
+      ],
+      "inference": {
+        "mse": 0.17999999999999983,
+        "se": [
+          0.14999999999999994,
+          0.14999999999999994,
+          0.14999999999999994,
+          0.14999999999999994
+        ],
+        "t": [
+          200.00000000000003,
+          16.333333333333343,
+          -10.000000000000016,
+          16.999999999999993
+        ],
+        "p": [
+          3.7493750820214046e-09,
+          8.223871677309476e-05,
+          0.0005620036227159875,
+          7.021066468096136e-05
+        ],
+        "ci_low": [
+          29.583533234220322,
+          2.0335332342203305,
+          -1.9164667657796715,
+          2.1335332342203284
+        ],
+        "ci_high": [
+          30.416466765779663,
+          2.86646676577967,
+          -1.083533234220332,
+          2.9664667657796677
+        ],
+        "f": 218.59259259259278,
+        "model_p": 6.877749260009545e-05
+      },
+      "anova": [
+        {
+          "term": "A",
+          "ss": 48.02000000000001,
+          "df": 1,
+          "ms": 48.02000000000001,
+          "f": 266.7777777777781,
+          "p": 8.22387167730948e-05
+        },
+        {
+          "term": "B",
+          "ss": 18.000000000000043,
+          "df": 1,
+          "ms": 18.000000000000043,
+          "f": 100.00000000000033,
+          "p": 0.0005620036227159875
+        },
+        {
+          "term": "C",
+          "ss": 52.01999999999992,
+          "df": 1,
+          "ms": 52.01999999999992,
+          "f": 288.99999999999983,
+          "p": 7.021066468096129e-05
+        },
+        {
+          "term": "残差",
+          "ss": 0.7199999999999993,
+          "df": 4,
+          "ms": 0.17999999999999983,
+          "f": null,
+          "p": null
+        },
+        {
+          "term": "总计",
+          "ss": 118.75999999999999,
+          "df": 7,
+          "ms": null,
+          "f": null,
+          "p": null
+        }
+      ],
+      "pure_error_df": 4,
+      "pure_error_sse": 0.7199999999999991,
+      "lack_of_fit_df": 0,
+      "lack_of_fit_sse": 2.220446049250313e-16,
+      "status": "可推断；系数按完整别名组解释，区组误差假设无处理×区组交互",
+      "rows": [
+        {
+          "batch_id": "BASE",
+          "run_id": "R00008",
+          "source_run_id": null,
+          "standard_order": 8,
+          "run_order": 1,
+          "replicate": 2,
+          "settings": {
+            "A": 1,
+            "B": 1,
+            "C": 1
+          },
+          "point_key": "1,1,1",
+          "Y": 33.8,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 33.49999999999999,
+          "residual": 0.30000000000000426
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00004",
+          "source_run_id": null,
+          "standard_order": 4,
+          "run_order": 2,
+          "replicate": 1,
+          "settings": {
+            "A": 1,
+            "B": 1,
+            "C": 1
+          },
+          "point_key": "1,1,1",
+          "Y": 33.2,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 33.49999999999999,
+          "residual": -0.29999999999999005
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00002",
+          "source_run_id": null,
+          "standard_order": 2,
+          "run_order": 3,
+          "replicate": 1,
+          "settings": {
+            "A": 1,
+            "B": -1,
+            "C": -1
+          },
+          "point_key": "1,-1,-1",
+          "Y": 31.1,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 31.399999999999995,
+          "residual": -0.2999999999999936
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00003",
+          "source_run_id": null,
+          "standard_order": 3,
+          "run_order": 4,
+          "replicate": 1,
+          "settings": {
+            "A": -1,
+            "B": 1,
+            "C": -1
+          },
+          "point_key": "-1,1,-1",
+          "Y": 23.2,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 23.499999999999993,
+          "residual": -0.2999999999999936
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00006",
+          "source_run_id": null,
+          "standard_order": 6,
+          "run_order": 5,
+          "replicate": 2,
+          "settings": {
+            "A": 1,
+            "B": -1,
+            "C": -1
+          },
+          "point_key": "1,-1,-1",
+          "Y": 31.700000000000003,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 31.399999999999995,
+          "residual": 0.3000000000000078
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00001",
+          "source_run_id": null,
+          "standard_order": 1,
+          "run_order": 6,
+          "replicate": 1,
+          "settings": {
+            "A": -1,
+            "B": -1,
+            "C": 1
+          },
+          "point_key": "-1,-1,1",
+          "Y": 31.299999999999997,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 31.59999999999999,
+          "residual": -0.2999999999999936
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00007",
+          "source_run_id": null,
+          "standard_order": 7,
+          "run_order": 7,
+          "replicate": 2,
+          "settings": {
+            "A": -1,
+            "B": 1,
+            "C": -1
+          },
+          "point_key": "-1,1,-1",
+          "Y": 23.8,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 23.499999999999993,
+          "residual": 0.3000000000000078
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00005",
+          "source_run_id": null,
+          "standard_order": 5,
+          "run_order": 8,
+          "replicate": 2,
+          "settings": {
+            "A": -1,
+            "B": -1,
+            "C": 1
+          },
+          "point_key": "-1,-1,1",
+          "Y": 31.9,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 31.59999999999999,
+          "residual": 0.3000000000000078
+        }
+      ]
+    },
+    "after_analysis": {
+      "terms": [
+        "截距",
+        "A",
+        "B",
+        "C"
+      ],
+      "n": 16,
+      "p": 4,
+      "rank": 4,
+      "df": 12,
+      "sse": 53.680000000000064,
+      "sst": 163.91999999999993,
+      "ssr": 110.23999999999987,
+      "coefficients": [
+        30.00000000000001,
+        2.0000000000000018,
+        -1.499999999999998,
+        0.8000000000000003
+      ],
+      "effects": [
+        null,
+        4.0000000000000036,
+        -2.999999999999996,
+        1.6000000000000005
+      ],
+      "inference": {
+        "mse": 4.473333333333339,
+        "se": [
+          0.5287564026405105,
+          0.5287564026405105,
+          0.5287564026405105,
+          0.5287564026405105
+        ],
+        "t": [
+          56.73690162461509,
+          3.7824601083076748,
+          -2.8368450812307495,
+          1.512984043323069
+        ],
+        "p": [
+          5.929374094850139e-16,
+          0.002611854401233913,
+          0.014984188920263411,
+          0.15616645687213765
+        ],
+        "ci_low": [
+          28.84793876616019,
+          0.8479387661601816,
+          -2.6520612338398184,
+          -0.3520612338398199
+        ],
+        "ci_high": [
+          31.15206123383983,
+          3.152061233839822,
+          -0.3479387661601778,
+          1.9520612338398204
+        ],
+        "f": 8.214605067064063,
+        "model_p": 0.003066399381190146
+      },
+      "anova": [
+        {
+          "term": "A",
+          "ss": 64.00000000000011,
+          "df": 1,
+          "ms": 64.00000000000011,
+          "f": 14.307004470938905,
+          "p": 0.0026118544012339166
+        },
+        {
+          "term": "B",
+          "ss": 35.9999999999999,
+          "df": 1,
+          "ms": 35.9999999999999,
+          "f": 8.047690014903097,
+          "p": 0.014984188920263417
+        },
+        {
+          "term": "C",
+          "ss": 10.240000000000007,
+          "df": 1,
+          "ms": 10.240000000000007,
+          "f": 2.289120715350222,
+          "p": 0.15616645687213754
+        },
+        {
+          "term": "残差",
+          "ss": 53.680000000000064,
+          "df": 12,
+          "ms": 4.473333333333339,
+          "f": null,
+          "p": null
+        },
+        {
+          "term": "总计",
+          "ss": 163.91999999999993,
+          "df": 15,
+          "ms": null,
+          "f": null,
+          "p": null
+        }
+      ],
+      "pure_error_df": 8,
+      "pure_error_sse": 1.4400000000000004,
+      "lack_of_fit_df": 4,
+      "lack_of_fit_sse": 52.240000000000066,
+      "status": "可推断；系数按完整别名组解释，区组误差假设无处理×区组交互",
+      "rows": [
+        {
+          "batch_id": "BASE",
+          "run_id": "R00008",
+          "source_run_id": null,
+          "standard_order": 8,
+          "run_order": 1,
+          "replicate": 2,
+          "settings": {
+            "A": 1,
+            "B": 1,
+            "C": 1
+          },
+          "point_key": "1,1,1",
+          "Y": 33.8,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 31.300000000000015,
+          "residual": 2.4999999999999822
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00004",
+          "source_run_id": null,
+          "standard_order": 4,
+          "run_order": 2,
+          "replicate": 1,
+          "settings": {
+            "A": 1,
+            "B": 1,
+            "C": 1
+          },
+          "point_key": "1,1,1",
+          "Y": 33.2,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 31.300000000000015,
+          "residual": 1.899999999999988
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00002",
+          "source_run_id": null,
+          "standard_order": 2,
+          "run_order": 3,
+          "replicate": 1,
+          "settings": {
+            "A": 1,
+            "B": -1,
+            "C": -1
+          },
+          "point_key": "1,-1,-1",
+          "Y": 31.1,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 32.70000000000001,
+          "residual": -1.6000000000000085
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00003",
+          "source_run_id": null,
+          "standard_order": 3,
+          "run_order": 4,
+          "replicate": 1,
+          "settings": {
+            "A": -1,
+            "B": 1,
+            "C": -1
+          },
+          "point_key": "-1,1,-1",
+          "Y": 23.2,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 25.700000000000014,
+          "residual": -2.500000000000014
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00006",
+          "source_run_id": null,
+          "standard_order": 6,
+          "run_order": 5,
+          "replicate": 2,
+          "settings": {
+            "A": 1,
+            "B": -1,
+            "C": -1
+          },
+          "point_key": "1,-1,-1",
+          "Y": 31.700000000000003,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 32.70000000000001,
+          "residual": -1.000000000000007
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00001",
+          "source_run_id": null,
+          "standard_order": 1,
+          "run_order": 6,
+          "replicate": 1,
+          "settings": {
+            "A": -1,
+            "B": -1,
+            "C": 1
+          },
+          "point_key": "-1,-1,1",
+          "Y": 31.299999999999997,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 30.300000000000004,
+          "residual": 0.9999999999999929
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00007",
+          "source_run_id": null,
+          "standard_order": 7,
+          "run_order": 7,
+          "replicate": 2,
+          "settings": {
+            "A": -1,
+            "B": 1,
+            "C": -1
+          },
+          "point_key": "-1,1,-1",
+          "Y": 23.8,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 25.700000000000014,
+          "residual": -1.9000000000000128
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00005",
+          "source_run_id": null,
+          "standard_order": 5,
+          "run_order": 8,
+          "replicate": 2,
+          "settings": {
+            "A": -1,
+            "B": -1,
+            "C": 1
+          },
+          "point_key": "-1,-1,1",
+          "Y": 31.9,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 30.300000000000004,
+          "residual": 1.5999999999999943
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00008",
+          "source_run_id": "R00008",
+          "standard_order": 16,
+          "run_order": 9,
+          "replicate": 2,
+          "settings": {
+            "A": -1,
+            "B": 1,
+            "C": 1
+          },
+          "point_key": "-1,1,1",
+          "Y": 26.3,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 27.30000000000001,
+          "residual": -1.0000000000000107
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00004",
+          "source_run_id": "R00004",
+          "standard_order": 12,
+          "run_order": 10,
+          "replicate": 1,
+          "settings": {
+            "A": -1,
+            "B": 1,
+            "C": 1
+          },
+          "point_key": "-1,1,1",
+          "Y": 25.7,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 27.30000000000001,
+          "residual": -1.600000000000012
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00002",
+          "source_run_id": "R00002",
+          "standard_order": 10,
+          "run_order": 11,
+          "replicate": 1,
+          "settings": {
+            "A": -1,
+            "B": -1,
+            "C": -1
+          },
+          "point_key": "-1,-1,-1",
+          "Y": 30.599999999999998,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 28.700000000000006,
+          "residual": 1.8999999999999915
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00003",
+          "source_run_id": "R00003",
+          "standard_order": 11,
+          "run_order": 12,
+          "replicate": 1,
+          "settings": {
+            "A": 1,
+            "B": 1,
+            "C": -1
+          },
+          "point_key": "1,1,-1",
+          "Y": 30.7,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 29.700000000000017,
+          "residual": 0.9999999999999822
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00006",
+          "source_run_id": "R00006",
+          "standard_order": 14,
+          "run_order": 13,
+          "replicate": 2,
+          "settings": {
+            "A": -1,
+            "B": -1,
+            "C": -1
+          },
+          "point_key": "-1,-1,-1",
+          "Y": 31.2,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 28.700000000000006,
+          "residual": 2.499999999999993
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00001",
+          "source_run_id": "R00001",
+          "standard_order": 9,
+          "run_order": 14,
+          "replicate": 1,
+          "settings": {
+            "A": 1,
+            "B": -1,
+            "C": 1
+          },
+          "point_key": "1,-1,1",
+          "Y": 31.799999999999994,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 34.30000000000001,
+          "residual": -2.5000000000000178
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00007",
+          "source_run_id": "R00007",
+          "standard_order": 15,
+          "run_order": 15,
+          "replicate": 2,
+          "settings": {
+            "A": 1,
+            "B": 1,
+            "C": -1
+          },
+          "point_key": "1,1,-1",
+          "Y": 31.3,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 29.700000000000017,
+          "residual": 1.5999999999999837
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00005",
+          "source_run_id": "R00005",
+          "standard_order": 13,
+          "run_order": 16,
+          "replicate": 2,
+          "settings": {
+            "A": 1,
+            "B": -1,
+            "C": 1
+          },
+          "point_key": "1,-1,1",
+          "Y": 32.39999999999999,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 34.30000000000001,
+          "residual": -1.90000000000002
+        }
+      ]
+    }
+  },
+  "FOLD-PB": {
+    "case_id": "FOLD-PB",
+    "factor_ids": [
+      "F1",
+      "F2",
+      "F3",
+      "F4",
+      "F5",
+      "F6",
+      "F7",
+      "F8",
+      "F9",
+      "F10",
+      "F11"
+    ],
+    "folded_factors": [
+      "F1",
+      "F2",
+      "F3",
+      "F4",
+      "F5",
+      "F6",
+      "F7",
+      "F8",
+      "F9",
+      "F10",
+      "F11"
+    ],
+    "base_runs": [
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00001",
+        "source_run_id": null,
+        "standard_order": 1,
+        "run_order": 9,
+        "replicate": 1,
+        "point_key": "1,-1,1,-1,-1,-1,1,1,1,-1,1",
+        "F1_code": 1,
+        "F2_code": -1,
+        "F3_code": 1,
+        "F4_code": -1,
+        "F5_code": -1,
+        "F6_code": -1,
+        "F7_code": 1,
+        "F8_code": 1,
+        "F9_code": 1,
+        "F10_code": -1,
+        "F11_code": 1,
+        "Y": 24.4
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00002",
+        "source_run_id": null,
+        "standard_order": 2,
+        "run_order": 8,
+        "replicate": 1,
+        "point_key": "1,1,-1,1,-1,-1,-1,1,1,1,-1",
+        "F1_code": 1,
+        "F2_code": 1,
+        "F3_code": -1,
+        "F4_code": 1,
+        "F5_code": -1,
+        "F6_code": -1,
+        "F7_code": -1,
+        "F8_code": 1,
+        "F9_code": 1,
+        "F10_code": 1,
+        "F11_code": -1,
+        "Y": 19.200000000000003
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00003",
+        "source_run_id": null,
+        "standard_order": 3,
+        "run_order": 11,
+        "replicate": 1,
+        "point_key": "-1,1,1,-1,1,-1,-1,-1,1,1,1",
+        "F1_code": -1,
+        "F2_code": 1,
+        "F3_code": 1,
+        "F4_code": -1,
+        "F5_code": 1,
+        "F6_code": -1,
+        "F7_code": -1,
+        "F8_code": -1,
+        "F9_code": 1,
+        "F10_code": 1,
+        "F11_code": 1,
+        "Y": 16.9
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00004",
+        "source_run_id": null,
+        "standard_order": 4,
+        "run_order": 3,
+        "replicate": 1,
+        "point_key": "1,-1,1,1,-1,1,-1,-1,-1,1,1",
+        "F1_code": 1,
+        "F2_code": -1,
+        "F3_code": 1,
+        "F4_code": 1,
+        "F5_code": -1,
+        "F6_code": 1,
+        "F7_code": -1,
+        "F8_code": -1,
+        "F9_code": -1,
+        "F10_code": 1,
+        "F11_code": 1,
+        "Y": 25.5
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00005",
+        "source_run_id": null,
+        "standard_order": 5,
+        "run_order": 6,
+        "replicate": 1,
+        "point_key": "1,1,-1,1,1,-1,1,-1,-1,-1,1",
+        "F1_code": 1,
+        "F2_code": 1,
+        "F3_code": -1,
+        "F4_code": 1,
+        "F5_code": 1,
+        "F6_code": -1,
+        "F7_code": 1,
+        "F8_code": -1,
+        "F9_code": -1,
+        "F10_code": -1,
+        "F11_code": 1,
+        "Y": 18.1
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00006",
+        "source_run_id": null,
+        "standard_order": 6,
+        "run_order": 12,
+        "replicate": 1,
+        "point_key": "1,1,1,-1,1,1,-1,1,-1,-1,-1",
+        "F1_code": 1,
+        "F2_code": 1,
+        "F3_code": 1,
+        "F4_code": -1,
+        "F5_code": 1,
+        "F6_code": 1,
+        "F7_code": -1,
+        "F8_code": 1,
+        "F9_code": -1,
+        "F10_code": -1,
+        "F11_code": -1,
+        "Y": 22.6
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00007",
+        "source_run_id": null,
+        "standard_order": 7,
+        "run_order": 10,
+        "replicate": 1,
+        "point_key": "-1,1,1,1,-1,1,1,-1,1,-1,-1",
+        "F1_code": -1,
+        "F2_code": 1,
+        "F3_code": 1,
+        "F4_code": 1,
+        "F5_code": -1,
+        "F6_code": 1,
+        "F7_code": 1,
+        "F8_code": -1,
+        "F9_code": 1,
+        "F10_code": -1,
+        "F11_code": -1,
+        "Y": 17.5
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00008",
+        "source_run_id": null,
+        "standard_order": 8,
+        "run_order": 1,
+        "replicate": 1,
+        "point_key": "-1,-1,1,1,1,-1,1,1,-1,1,-1",
+        "F1_code": -1,
+        "F2_code": -1,
+        "F3_code": 1,
+        "F4_code": 1,
+        "F5_code": 1,
+        "F6_code": -1,
+        "F7_code": 1,
+        "F8_code": 1,
+        "F9_code": -1,
+        "F10_code": 1,
+        "F11_code": -1,
+        "Y": 21.699999999999996
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00009",
+        "source_run_id": null,
+        "standard_order": 9,
+        "run_order": 5,
+        "replicate": 1,
+        "point_key": "-1,-1,-1,1,1,1,-1,1,1,-1,1",
+        "F1_code": -1,
+        "F2_code": -1,
+        "F3_code": -1,
+        "F4_code": 1,
+        "F5_code": 1,
+        "F6_code": 1,
+        "F7_code": -1,
+        "F8_code": 1,
+        "F9_code": 1,
+        "F10_code": -1,
+        "F11_code": 1,
+        "Y": 18.9
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00010",
+        "source_run_id": null,
+        "standard_order": 10,
+        "run_order": 7,
+        "replicate": 1,
+        "point_key": "1,-1,-1,-1,1,1,1,-1,1,1,-1",
+        "F1_code": 1,
+        "F2_code": -1,
+        "F3_code": -1,
+        "F4_code": -1,
+        "F5_code": 1,
+        "F6_code": 1,
+        "F7_code": 1,
+        "F8_code": -1,
+        "F9_code": 1,
+        "F10_code": 1,
+        "F11_code": -1,
+        "Y": 22.700000000000003
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00011",
+        "source_run_id": null,
+        "standard_order": 11,
+        "run_order": 4,
+        "replicate": 1,
+        "point_key": "-1,1,-1,-1,-1,1,1,1,-1,1,1",
+        "F1_code": -1,
+        "F2_code": 1,
+        "F3_code": -1,
+        "F4_code": -1,
+        "F5_code": -1,
+        "F6_code": 1,
+        "F7_code": 1,
+        "F8_code": 1,
+        "F9_code": -1,
+        "F10_code": 1,
+        "F11_code": 1,
+        "Y": 12.999999999999998
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00012",
+        "source_run_id": null,
+        "standard_order": 12,
+        "run_order": 2,
+        "replicate": 1,
+        "point_key": "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1",
+        "F1_code": -1,
+        "F2_code": -1,
+        "F3_code": -1,
+        "F4_code": -1,
+        "F5_code": -1,
+        "F6_code": -1,
+        "F7_code": -1,
+        "F8_code": -1,
+        "F9_code": -1,
+        "F10_code": -1,
+        "F11_code": -1,
+        "Y": 19.5
+      }
+    ],
+    "input_rows": [
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00001",
+        "source_run_id": null,
+        "standard_order": 1,
+        "run_order": 9,
+        "replicate": 1,
+        "point_key": "1,-1,1,-1,-1,-1,1,1,1,-1,1",
+        "F1_code": 1,
+        "F2_code": -1,
+        "F3_code": 1,
+        "F4_code": -1,
+        "F5_code": -1,
+        "F6_code": -1,
+        "F7_code": 1,
+        "F8_code": 1,
+        "F9_code": 1,
+        "F10_code": -1,
+        "F11_code": 1,
+        "Y": 24.4
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00002",
+        "source_run_id": null,
+        "standard_order": 2,
+        "run_order": 8,
+        "replicate": 1,
+        "point_key": "1,1,-1,1,-1,-1,-1,1,1,1,-1",
+        "F1_code": 1,
+        "F2_code": 1,
+        "F3_code": -1,
+        "F4_code": 1,
+        "F5_code": -1,
+        "F6_code": -1,
+        "F7_code": -1,
+        "F8_code": 1,
+        "F9_code": 1,
+        "F10_code": 1,
+        "F11_code": -1,
+        "Y": 19.200000000000003
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00003",
+        "source_run_id": null,
+        "standard_order": 3,
+        "run_order": 11,
+        "replicate": 1,
+        "point_key": "-1,1,1,-1,1,-1,-1,-1,1,1,1",
+        "F1_code": -1,
+        "F2_code": 1,
+        "F3_code": 1,
+        "F4_code": -1,
+        "F5_code": 1,
+        "F6_code": -1,
+        "F7_code": -1,
+        "F8_code": -1,
+        "F9_code": 1,
+        "F10_code": 1,
+        "F11_code": 1,
+        "Y": 16.9
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00004",
+        "source_run_id": null,
+        "standard_order": 4,
+        "run_order": 3,
+        "replicate": 1,
+        "point_key": "1,-1,1,1,-1,1,-1,-1,-1,1,1",
+        "F1_code": 1,
+        "F2_code": -1,
+        "F3_code": 1,
+        "F4_code": 1,
+        "F5_code": -1,
+        "F6_code": 1,
+        "F7_code": -1,
+        "F8_code": -1,
+        "F9_code": -1,
+        "F10_code": 1,
+        "F11_code": 1,
+        "Y": 25.5
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00005",
+        "source_run_id": null,
+        "standard_order": 5,
+        "run_order": 6,
+        "replicate": 1,
+        "point_key": "1,1,-1,1,1,-1,1,-1,-1,-1,1",
+        "F1_code": 1,
+        "F2_code": 1,
+        "F3_code": -1,
+        "F4_code": 1,
+        "F5_code": 1,
+        "F6_code": -1,
+        "F7_code": 1,
+        "F8_code": -1,
+        "F9_code": -1,
+        "F10_code": -1,
+        "F11_code": 1,
+        "Y": 18.1
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00006",
+        "source_run_id": null,
+        "standard_order": 6,
+        "run_order": 12,
+        "replicate": 1,
+        "point_key": "1,1,1,-1,1,1,-1,1,-1,-1,-1",
+        "F1_code": 1,
+        "F2_code": 1,
+        "F3_code": 1,
+        "F4_code": -1,
+        "F5_code": 1,
+        "F6_code": 1,
+        "F7_code": -1,
+        "F8_code": 1,
+        "F9_code": -1,
+        "F10_code": -1,
+        "F11_code": -1,
+        "Y": 22.6
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00007",
+        "source_run_id": null,
+        "standard_order": 7,
+        "run_order": 10,
+        "replicate": 1,
+        "point_key": "-1,1,1,1,-1,1,1,-1,1,-1,-1",
+        "F1_code": -1,
+        "F2_code": 1,
+        "F3_code": 1,
+        "F4_code": 1,
+        "F5_code": -1,
+        "F6_code": 1,
+        "F7_code": 1,
+        "F8_code": -1,
+        "F9_code": 1,
+        "F10_code": -1,
+        "F11_code": -1,
+        "Y": 17.5
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00008",
+        "source_run_id": null,
+        "standard_order": 8,
+        "run_order": 1,
+        "replicate": 1,
+        "point_key": "-1,-1,1,1,1,-1,1,1,-1,1,-1",
+        "F1_code": -1,
+        "F2_code": -1,
+        "F3_code": 1,
+        "F4_code": 1,
+        "F5_code": 1,
+        "F6_code": -1,
+        "F7_code": 1,
+        "F8_code": 1,
+        "F9_code": -1,
+        "F10_code": 1,
+        "F11_code": -1,
+        "Y": 21.699999999999996
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00009",
+        "source_run_id": null,
+        "standard_order": 9,
+        "run_order": 5,
+        "replicate": 1,
+        "point_key": "-1,-1,-1,1,1,1,-1,1,1,-1,1",
+        "F1_code": -1,
+        "F2_code": -1,
+        "F3_code": -1,
+        "F4_code": 1,
+        "F5_code": 1,
+        "F6_code": 1,
+        "F7_code": -1,
+        "F8_code": 1,
+        "F9_code": 1,
+        "F10_code": -1,
+        "F11_code": 1,
+        "Y": 18.9
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00010",
+        "source_run_id": null,
+        "standard_order": 10,
+        "run_order": 7,
+        "replicate": 1,
+        "point_key": "1,-1,-1,-1,1,1,1,-1,1,1,-1",
+        "F1_code": 1,
+        "F2_code": -1,
+        "F3_code": -1,
+        "F4_code": -1,
+        "F5_code": 1,
+        "F6_code": 1,
+        "F7_code": 1,
+        "F8_code": -1,
+        "F9_code": 1,
+        "F10_code": 1,
+        "F11_code": -1,
+        "Y": 22.700000000000003
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00011",
+        "source_run_id": null,
+        "standard_order": 11,
+        "run_order": 4,
+        "replicate": 1,
+        "point_key": "-1,1,-1,-1,-1,1,1,1,-1,1,1",
+        "F1_code": -1,
+        "F2_code": 1,
+        "F3_code": -1,
+        "F4_code": -1,
+        "F5_code": -1,
+        "F6_code": 1,
+        "F7_code": 1,
+        "F8_code": 1,
+        "F9_code": -1,
+        "F10_code": 1,
+        "F11_code": 1,
+        "Y": 12.999999999999998
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "BASE",
+        "run_id": "R00012",
+        "source_run_id": null,
+        "standard_order": 12,
+        "run_order": 2,
+        "replicate": 1,
+        "point_key": "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1",
+        "F1_code": -1,
+        "F2_code": -1,
+        "F3_code": -1,
+        "F4_code": -1,
+        "F5_code": -1,
+        "F6_code": -1,
+        "F7_code": -1,
+        "F8_code": -1,
+        "F9_code": -1,
+        "F10_code": -1,
+        "F11_code": -1,
+        "Y": 19.5
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "FOLD1",
+        "run_id": "F00001",
+        "source_run_id": "R00001",
+        "standard_order": 13,
+        "run_order": 21,
+        "replicate": 1,
+        "point_key": "-1,1,-1,1,1,1,-1,-1,-1,1,-1",
+        "F1_code": -1,
+        "F2_code": 1,
+        "F3_code": -1,
+        "F4_code": 1,
+        "F5_code": 1,
+        "F6_code": 1,
+        "F7_code": -1,
+        "F8_code": -1,
+        "F9_code": -1,
+        "F10_code": 1,
+        "F11_code": -1,
+        "Y": 13.6
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "FOLD1",
+        "run_id": "F00002",
+        "source_run_id": "R00002",
+        "standard_order": 14,
+        "run_order": 20,
+        "replicate": 1,
+        "point_key": "-1,-1,1,-1,1,1,1,-1,-1,-1,1",
+        "F1_code": -1,
+        "F2_code": -1,
+        "F3_code": 1,
+        "F4_code": -1,
+        "F5_code": 1,
+        "F6_code": 1,
+        "F7_code": 1,
+        "F8_code": -1,
+        "F9_code": -1,
+        "F10_code": -1,
+        "F11_code": 1,
+        "Y": 22.799999999999997
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "FOLD1",
+        "run_id": "F00003",
+        "source_run_id": "R00003",
+        "standard_order": 15,
+        "run_order": 23,
+        "replicate": 1,
+        "point_key": "1,-1,-1,1,-1,1,1,1,-1,-1,-1",
+        "F1_code": 1,
+        "F2_code": -1,
+        "F3_code": -1,
+        "F4_code": 1,
+        "F5_code": -1,
+        "F6_code": 1,
+        "F7_code": 1,
+        "F8_code": 1,
+        "F9_code": -1,
+        "F10_code": -1,
+        "F11_code": -1,
+        "Y": 22.1
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "FOLD1",
+        "run_id": "F00004",
+        "source_run_id": "R00004",
+        "standard_order": 16,
+        "run_order": 15,
+        "replicate": 1,
+        "point_key": "-1,1,-1,-1,1,-1,1,1,1,-1,-1",
+        "F1_code": -1,
+        "F2_code": 1,
+        "F3_code": -1,
+        "F4_code": -1,
+        "F5_code": 1,
+        "F6_code": -1,
+        "F7_code": 1,
+        "F8_code": 1,
+        "F9_code": 1,
+        "F10_code": -1,
+        "F11_code": -1,
+        "Y": 14.700000000000001
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "FOLD1",
+        "run_id": "F00005",
+        "source_run_id": "R00005",
+        "standard_order": 17,
+        "run_order": 18,
+        "replicate": 1,
+        "point_key": "-1,-1,1,-1,-1,1,-1,1,1,1,-1",
+        "F1_code": -1,
+        "F2_code": -1,
+        "F3_code": 1,
+        "F4_code": -1,
+        "F5_code": -1,
+        "F6_code": 1,
+        "F7_code": -1,
+        "F8_code": 1,
+        "F9_code": 1,
+        "F10_code": 1,
+        "F11_code": -1,
+        "Y": 21.699999999999996
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "FOLD1",
+        "run_id": "F00006",
+        "source_run_id": "R00006",
+        "standard_order": 18,
+        "run_order": 24,
+        "replicate": 1,
+        "point_key": "-1,-1,-1,1,-1,-1,1,-1,1,1,1",
+        "F1_code": -1,
+        "F2_code": -1,
+        "F3_code": -1,
+        "F4_code": 1,
+        "F5_code": -1,
+        "F6_code": -1,
+        "F7_code": 1,
+        "F8_code": -1,
+        "F9_code": 1,
+        "F10_code": 1,
+        "F11_code": 1,
+        "Y": 20.6
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "FOLD1",
+        "run_id": "F00007",
+        "source_run_id": "R00007",
+        "standard_order": 19,
+        "run_order": 22,
+        "replicate": 1,
+        "point_key": "1,-1,-1,-1,1,-1,-1,1,-1,1,1",
+        "F1_code": 1,
+        "F2_code": -1,
+        "F3_code": -1,
+        "F4_code": -1,
+        "F5_code": 1,
+        "F6_code": -1,
+        "F7_code": -1,
+        "F8_code": 1,
+        "F9_code": -1,
+        "F10_code": 1,
+        "F11_code": 1,
+        "Y": 22.700000000000003
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "FOLD1",
+        "run_id": "F00008",
+        "source_run_id": "R00008",
+        "standard_order": 20,
+        "run_order": 13,
+        "replicate": 1,
+        "point_key": "1,1,-1,-1,-1,1,-1,-1,1,-1,1",
+        "F1_code": 1,
+        "F2_code": 1,
+        "F3_code": -1,
+        "F4_code": -1,
+        "F5_code": -1,
+        "F6_code": 1,
+        "F7_code": -1,
+        "F8_code": -1,
+        "F9_code": 1,
+        "F10_code": -1,
+        "F11_code": 1,
+        "Y": 18.1
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "FOLD1",
+        "run_id": "F00009",
+        "source_run_id": "R00009",
+        "standard_order": 21,
+        "run_order": 17,
+        "replicate": 1,
+        "point_key": "1,1,1,-1,-1,-1,1,-1,-1,1,-1",
+        "F1_code": 1,
+        "F2_code": 1,
+        "F3_code": 1,
+        "F4_code": -1,
+        "F5_code": -1,
+        "F6_code": -1,
+        "F7_code": 1,
+        "F8_code": -1,
+        "F9_code": -1,
+        "F10_code": 1,
+        "F11_code": -1,
+        "Y": 20.9
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "FOLD1",
+        "run_id": "F00010",
+        "source_run_id": "R00010",
+        "standard_order": 22,
+        "run_order": 19,
+        "replicate": 1,
+        "point_key": "-1,1,1,1,-1,-1,-1,1,-1,-1,1",
+        "F1_code": -1,
+        "F2_code": 1,
+        "F3_code": 1,
+        "F4_code": 1,
+        "F5_code": -1,
+        "F6_code": -1,
+        "F7_code": -1,
+        "F8_code": 1,
+        "F9_code": -1,
+        "F10_code": -1,
+        "F11_code": 1,
+        "Y": 17.5
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "FOLD1",
+        "run_id": "F00011",
+        "source_run_id": "R00011",
+        "standard_order": 23,
+        "run_order": 16,
+        "replicate": 1,
+        "point_key": "1,-1,1,1,1,-1,-1,-1,1,-1,-1",
+        "F1_code": 1,
+        "F2_code": -1,
+        "F3_code": 1,
+        "F4_code": 1,
+        "F5_code": 1,
+        "F6_code": -1,
+        "F7_code": -1,
+        "F8_code": -1,
+        "F9_code": 1,
+        "F10_code": -1,
+        "F11_code": -1,
+        "Y": 23.799999999999997
+      },
+      {
+        "case_id": "FOLD-PB",
+        "batch_id": "FOLD1",
+        "run_id": "F00012",
+        "source_run_id": "R00012",
+        "standard_order": 24,
+        "run_order": 14,
+        "replicate": 1,
+        "point_key": "1,1,1,1,1,1,1,1,1,1,1",
+        "F1_code": 1,
+        "F2_code": 1,
+        "F3_code": 1,
+        "F4_code": 1,
+        "F5_code": 1,
+        "F6_code": 1,
+        "F7_code": 1,
+        "F8_code": 1,
+        "F9_code": 1,
+        "F10_code": 1,
+        "F11_code": 1,
+        "Y": 21.5
+      }
+    ],
+    "before_summary": {
+      "folded": false,
+      "base_runs": 12,
+      "added_runs": 0,
+      "total_runs": 12,
+      "folded_factors": [],
+      "before": {
+        "runs": 12,
+        "main_rank": 12,
+        "joint_rank": 12,
+        "joint_parameter_count": 67,
+        "joint_residual_df": 0,
+        "interaction_count": 55,
+        "complete": [
+          {
+            "interaction": "F1*F2",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F1*F3",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F1*F4",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F1*F5",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F1*F6",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F1*F7",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F1*F8",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F1*F9",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F1*F10",
+            "main": null,
+            "projection": 0.3333333333333337
+          },
+          {
+            "interaction": "F1*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F3",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F4",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F2*F5",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F6",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F7",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F2*F8",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F9",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F2*F10",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F2*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F3*F4",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F3*F5",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F3*F6",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F3*F7",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F3*F8",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F3*F9",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F3*F10",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F3*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F4*F5",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F4*F6",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F4*F7",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F4*F8",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F4*F9",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F4*F10",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F4*F11",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F5*F6",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F5*F7",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F5*F8",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F5*F9",
+            "main": null,
+            "projection": 0.3333333333333337
+          },
+          {
+            "interaction": "F5*F10",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F5*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F6*F7",
+            "main": null,
+            "projection": 0.3333333333333337
+          },
+          {
+            "interaction": "F6*F8",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F6*F9",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F6*F10",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F6*F11",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F7*F8",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F7*F9",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F7*F10",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F7*F11",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F8*F9",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F8*F10",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F8*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F9*F10",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F9*F11",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F10*F11",
+            "main": null,
+            "projection": 0.33333333333333365
+          }
+        ],
+        "partial": [],
+        "unestimable": [],
+        "estimable": []
+      },
+      "after": {
+        "runs": 12,
+        "main_rank": 12,
+        "joint_rank": 12,
+        "joint_parameter_count": 67,
+        "joint_residual_df": 0,
+        "interaction_count": 55,
+        "complete": [
+          {
+            "interaction": "F1*F2",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F1*F3",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F1*F4",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F1*F5",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F1*F6",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F1*F7",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F1*F8",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F1*F9",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F1*F10",
+            "main": null,
+            "projection": 0.3333333333333337
+          },
+          {
+            "interaction": "F1*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F3",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F4",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F2*F5",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F6",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F7",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F2*F8",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F9",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F2*F10",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F2*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F3*F4",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F3*F5",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F3*F6",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F3*F7",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F3*F8",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F3*F9",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F3*F10",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F3*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F4*F5",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F4*F6",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F4*F7",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F4*F8",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F4*F9",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F4*F10",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F4*F11",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F5*F6",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F5*F7",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F5*F8",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F5*F9",
+            "main": null,
+            "projection": 0.3333333333333337
+          },
+          {
+            "interaction": "F5*F10",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F5*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F6*F7",
+            "main": null,
+            "projection": 0.3333333333333337
+          },
+          {
+            "interaction": "F6*F8",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F6*F9",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F6*F10",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F6*F11",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F7*F8",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F7*F9",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F7*F10",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F7*F11",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F8*F9",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F8*F10",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F8*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F9*F10",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F9*F11",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F10*F11",
+            "main": null,
+            "projection": 0.33333333333333365
+          }
+        ],
+        "partial": [],
+        "unestimable": [],
+        "estimable": []
+      },
+      "batch_id": null,
+      "replicates_only": false,
+      "confounding_reduced": false
+    },
+    "after_summary": {
+      "folded": true,
+      "base_runs": 12,
+      "added_runs": 12,
+      "total_runs": 24,
+      "folded_factors": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9",
+        "F10",
+        "F11"
+      ],
+      "before": {
+        "runs": 12,
+        "main_rank": 12,
+        "joint_rank": 12,
+        "joint_parameter_count": 67,
+        "joint_residual_df": 0,
+        "interaction_count": 55,
+        "complete": [
+          {
+            "interaction": "F1*F2",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F1*F3",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F1*F4",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F1*F5",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F1*F6",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F1*F7",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F1*F8",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F1*F9",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F1*F10",
+            "main": null,
+            "projection": 0.3333333333333337
+          },
+          {
+            "interaction": "F1*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F3",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F4",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F2*F5",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F6",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F7",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F2*F8",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F2*F9",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F2*F10",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F2*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F3*F4",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F3*F5",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F3*F6",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F3*F7",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F3*F8",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F3*F9",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F3*F10",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F3*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F4*F5",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F4*F6",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F4*F7",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F4*F8",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F4*F9",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F4*F10",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F4*F11",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F5*F6",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F5*F7",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F5*F8",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F5*F9",
+            "main": null,
+            "projection": 0.3333333333333337
+          },
+          {
+            "interaction": "F5*F10",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F5*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F6*F7",
+            "main": null,
+            "projection": 0.3333333333333337
+          },
+          {
+            "interaction": "F6*F8",
+            "main": null,
+            "projection": 0.3333333333333334
+          },
+          {
+            "interaction": "F6*F9",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F6*F10",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F6*F11",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F7*F8",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F7*F9",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F7*F10",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F7*F11",
+            "main": null,
+            "projection": 0.3333333333333335
+          },
+          {
+            "interaction": "F8*F9",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F8*F10",
+            "main": null,
+            "projection": 0.3333333333333336
+          },
+          {
+            "interaction": "F8*F11",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F9*F10",
+            "main": null,
+            "projection": 0.33333333333333354
+          },
+          {
+            "interaction": "F9*F11",
+            "main": null,
+            "projection": 0.33333333333333365
+          },
+          {
+            "interaction": "F10*F11",
+            "main": null,
+            "projection": 0.33333333333333365
+          }
+        ],
+        "partial": [],
+        "unestimable": [],
+        "estimable": []
+      },
+      "after": {
+        "runs": 24,
+        "main_rank": 12,
+        "joint_rank": 23,
+        "joint_parameter_count": 67,
+        "joint_residual_df": 1,
+        "interaction_count": 55,
+        "complete": [],
+        "partial": [],
+        "unestimable": [],
+        "estimable": [
+          "F1*F2",
+          "F1*F3",
+          "F1*F4",
+          "F1*F5",
+          "F1*F6",
+          "F1*F7",
+          "F1*F8",
+          "F1*F9",
+          "F1*F10",
+          "F1*F11",
+          "F2*F3",
+          "F2*F4",
+          "F2*F5",
+          "F2*F6",
+          "F2*F7",
+          "F2*F8",
+          "F2*F9",
+          "F2*F10",
+          "F2*F11",
+          "F3*F4",
+          "F3*F5",
+          "F3*F6",
+          "F3*F7",
+          "F3*F8",
+          "F3*F9",
+          "F3*F10",
+          "F3*F11",
+          "F4*F5",
+          "F4*F6",
+          "F4*F7",
+          "F4*F8",
+          "F4*F9",
+          "F4*F10",
+          "F4*F11",
+          "F5*F6",
+          "F5*F7",
+          "F5*F8",
+          "F5*F9",
+          "F5*F10",
+          "F5*F11",
+          "F6*F7",
+          "F6*F8",
+          "F6*F9",
+          "F6*F10",
+          "F6*F11",
+          "F7*F8",
+          "F7*F9",
+          "F7*F10",
+          "F7*F11",
+          "F8*F9",
+          "F8*F10",
+          "F8*F11",
+          "F9*F10",
+          "F9*F11",
+          "F10*F11"
+        ]
+      },
+      "batch_id": "FOLD1",
+      "replicates_only": false,
+      "confounding_reduced": true
+    },
+    "before_analysis": {
+      "terms": [
+        "截距",
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9",
+        "F10",
+        "F11"
+      ],
+      "n": 12,
+      "p": 12,
+      "rank": 12,
+      "df": 0,
+      "sse": 2.934562567422164e-28,
+      "sst": 137.12000000000003,
+      "ssr": 137.12000000000003,
+      "coefficients": [
+        20.0,
+        2.083333333333334,
+        -2.1166666666666676,
+        1.4333333333333338,
+        0.15000000000000147,
+        0.1500000000000016,
+        0.03333333333333355,
+        -0.43333333333333246,
+        -0.03333333333333316,
+        -0.0666666666666669,
+        -0.16666666666666616,
+        -0.5333333333333343
+      ],
+      "effects": [
+        null,
+        4.166666666666668,
+        -4.233333333333335,
+        2.8666666666666676,
+        0.30000000000000293,
+        0.3000000000000032,
+        0.0666666666666671,
+        -0.8666666666666649,
+        -0.06666666666666632,
+        -0.1333333333333338,
+        -0.3333333333333323,
+        -1.0666666666666687
+      ],
+      "inference": null,
+      "anova": null,
+      "pure_error_df": 0,
+      "pure_error_sse": null,
+      "lack_of_fit_df": null,
+      "lack_of_fit_sse": null,
+      "status": "模型饱和，残差自由度不足，常规推断不可用；Lenth PSE 依据效应稀疏假设，仅作探索",
+      "rows": [
+        {
+          "batch_id": "BASE",
+          "run_id": "R00008",
+          "source_run_id": null,
+          "standard_order": 8,
+          "run_order": 1,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": -1,
+            "F3": 1,
+            "F4": 1,
+            "F5": 1,
+            "F6": -1,
+            "F7": 1,
+            "F8": 1,
+            "F9": -1,
+            "F10": 1,
+            "F11": -1
+          },
+          "point_key": "-1,-1,1,1,1,-1,1,1,-1,1,-1",
+          "Y": 21.699999999999996,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 21.70000000000001,
+          "residual": -1.4210854715202004e-14
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00012",
+          "source_run_id": null,
+          "standard_order": 12,
+          "run_order": 2,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": -1,
+            "F3": -1,
+            "F4": -1,
+            "F5": -1,
+            "F6": -1,
+            "F7": -1,
+            "F8": -1,
+            "F9": -1,
+            "F10": -1,
+            "F11": -1
+          },
+          "point_key": "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1",
+          "Y": 19.5,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 19.499999999999993,
+          "residual": 7.105427357601002e-15
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00004",
+          "source_run_id": null,
+          "standard_order": 4,
+          "run_order": 3,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": -1,
+            "F3": 1,
+            "F4": 1,
+            "F5": -1,
+            "F6": 1,
+            "F7": -1,
+            "F8": -1,
+            "F9": -1,
+            "F10": 1,
+            "F11": 1
+          },
+          "point_key": "1,-1,1,1,-1,1,-1,-1,-1,1,1",
+          "Y": 25.5,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 25.5,
+          "residual": 0.0
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00011",
+          "source_run_id": null,
+          "standard_order": 11,
+          "run_order": 4,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": 1,
+            "F3": -1,
+            "F4": -1,
+            "F5": -1,
+            "F6": 1,
+            "F7": 1,
+            "F8": 1,
+            "F9": -1,
+            "F10": 1,
+            "F11": 1
+          },
+          "point_key": "-1,1,-1,-1,-1,1,1,1,-1,1,1",
+          "Y": 12.999999999999998,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 12.999999999999996,
+          "residual": 1.7763568394002505e-15
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00009",
+          "source_run_id": null,
+          "standard_order": 9,
+          "run_order": 5,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": -1,
+            "F3": -1,
+            "F4": 1,
+            "F5": 1,
+            "F6": 1,
+            "F7": -1,
+            "F8": 1,
+            "F9": 1,
+            "F10": -1,
+            "F11": 1
+          },
+          "point_key": "-1,-1,-1,1,1,1,-1,1,1,-1,1",
+          "Y": 18.9,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 18.900000000000002,
+          "residual": -3.552713678800501e-15
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00005",
+          "source_run_id": null,
+          "standard_order": 5,
+          "run_order": 6,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": 1,
+            "F3": -1,
+            "F4": 1,
+            "F5": 1,
+            "F6": -1,
+            "F7": 1,
+            "F8": -1,
+            "F9": -1,
+            "F10": -1,
+            "F11": 1
+          },
+          "point_key": "1,1,-1,1,1,-1,1,-1,-1,-1,1",
+          "Y": 18.1,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 18.1,
+          "residual": 0.0
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00010",
+          "source_run_id": null,
+          "standard_order": 10,
+          "run_order": 7,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": -1,
+            "F3": -1,
+            "F4": -1,
+            "F5": 1,
+            "F6": 1,
+            "F7": 1,
+            "F8": -1,
+            "F9": 1,
+            "F10": 1,
+            "F11": -1
+          },
+          "point_key": "1,-1,-1,-1,1,1,1,-1,1,1,-1",
+          "Y": 22.700000000000003,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 22.7,
+          "residual": 3.552713678800501e-15
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00002",
+          "source_run_id": null,
+          "standard_order": 2,
+          "run_order": 8,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": 1,
+            "F3": -1,
+            "F4": 1,
+            "F5": -1,
+            "F6": -1,
+            "F7": -1,
+            "F8": 1,
+            "F9": 1,
+            "F10": 1,
+            "F11": -1
+          },
+          "point_key": "1,1,-1,1,-1,-1,-1,1,1,1,-1",
+          "Y": 19.200000000000003,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 19.200000000000003,
+          "residual": 0.0
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00001",
+          "source_run_id": null,
+          "standard_order": 1,
+          "run_order": 9,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": -1,
+            "F3": 1,
+            "F4": -1,
+            "F5": -1,
+            "F6": -1,
+            "F7": 1,
+            "F8": 1,
+            "F9": 1,
+            "F10": -1,
+            "F11": 1
+          },
+          "point_key": "1,-1,1,-1,-1,-1,1,1,1,-1,1",
+          "Y": 24.4,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 24.4,
+          "residual": 0.0
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00007",
+          "source_run_id": null,
+          "standard_order": 7,
+          "run_order": 10,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": 1,
+            "F3": 1,
+            "F4": 1,
+            "F5": -1,
+            "F6": 1,
+            "F7": 1,
+            "F8": -1,
+            "F9": 1,
+            "F10": -1,
+            "F11": -1
+          },
+          "point_key": "-1,1,1,1,-1,1,1,-1,1,-1,-1",
+          "Y": 17.5,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 17.5,
+          "residual": 0.0
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00003",
+          "source_run_id": null,
+          "standard_order": 3,
+          "run_order": 11,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": 1,
+            "F3": 1,
+            "F4": -1,
+            "F5": 1,
+            "F6": -1,
+            "F7": -1,
+            "F8": -1,
+            "F9": 1,
+            "F10": 1,
+            "F11": 1
+          },
+          "point_key": "-1,1,1,-1,1,-1,-1,-1,1,1,1",
+          "Y": 16.9,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 16.899999999999995,
+          "residual": 3.552713678800501e-15
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00006",
+          "source_run_id": null,
+          "standard_order": 6,
+          "run_order": 12,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": 1,
+            "F3": 1,
+            "F4": -1,
+            "F5": 1,
+            "F6": 1,
+            "F7": -1,
+            "F8": 1,
+            "F9": -1,
+            "F10": -1,
+            "F11": -1
+          },
+          "point_key": "1,1,1,-1,1,1,-1,1,-1,-1,-1",
+          "Y": 22.6,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 22.6,
+          "residual": 0.0
+        }
+      ]
+    },
+    "after_analysis": {
+      "terms": [
+        "截距",
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9",
+        "F10",
+        "F11"
+      ],
+      "n": 24,
+      "p": 12,
+      "rank": 12,
+      "df": 12,
+      "sse": 15.360000000000019,
+      "sst": 256.31999999999994,
+      "ssr": 240.95999999999992,
+      "coefficients": [
+        20.000000000000004,
+        1.8000000000000007,
+        -2.200000000000002,
+        1.4000000000000004,
+        -2.220446049250313e-16,
+        8.881784197001252e-16,
+        -3.3306690738754696e-16,
+        1.0824674490095276e-15,
+        2.220446049250313e-16,
+        -4.996003610813204e-16,
+        6.661338147750939e-16,
+        -1.1102230246251565e-16
+      ],
+      "effects": [
+        null,
+        3.6000000000000014,
+        -4.400000000000004,
+        2.8000000000000007,
+        -4.440892098500626e-16,
+        1.7763568394002505e-15,
+        -6.661338147750939e-16,
+        2.1649348980190553e-15,
+        4.440892098500626e-16,
+        -9.992007221626409e-16,
+        1.3322676295501878e-15,
+        -2.220446049250313e-16
+      ],
+      "inference": {
+        "mse": 1.2800000000000016,
+        "se": [
+          0.23094010767585046,
+          0.23094010767585046,
+          0.2309401076758505,
+          0.2309401076758504,
+          0.2309401076758505,
+          0.23094010767585055,
+          0.23094010767585046,
+          0.23094010767585044,
+          0.23094010767585046,
+          0.23094010767585044,
+          0.23094010767585046,
+          0.23094010767585052
+        ],
+        "t": [
+          86.60254037844382,
+          7.794228634059945,
+          -9.526279441628827,
+          6.0621778264910695,
+          -9.614813431917813e-16,
+          3.8459253727671235e-15,
+          -1.442222014787672e-15,
+          4.687221548059934e-15,
+          9.614813431917813e-16,
+          -2.1633330221815083e-15,
+          2.884444029575344e-15,
+          -4.807406715958905e-16
+        ],
+        "p": [
+          3.7511424800360845e-18,
+          4.904468387681971e-06,
+          6.034672685696601e-07,
+          5.6525434306771046e-05,
+          0.9999999999999992,
+          0.999999999999997,
+          0.9999999999999989,
+          0.9999999999999963,
+          0.9999999999999992,
+          0.9999999999999983,
+          0.9999999999999978,
+          0.9999999999999996
+        ],
+        "ci_low": [
+          19.49682473051201,
+          1.2968247305120066,
+          -2.7031752694879962,
+          0.8968247305120064,
+          -0.5031752694879944,
+          -0.5031752694879934,
+          -0.5031752694879944,
+          -0.503175269487993,
+          -0.5031752694879938,
+          -0.5031752694879945,
+          -0.5031752694879934,
+          -0.5031752694879944
+        ],
+        "ci_high": [
+          20.503175269487997,
+          2.303175269487995,
+          -1.6968247305120077,
+          1.9031752694879942,
+          0.503175269487994,
+          0.5031752694879952,
+          0.5031752694879937,
+          0.5031752694879952,
+          0.5031752694879943,
+          0.5031752694879936,
+          0.5031752694879947,
+          0.5031752694879942
+        ],
+        "f": 17.11363636363634,
+        "model_p": 1.1538438197831611e-05
+      },
+      "anova": null,
+      "pure_error_df": 0,
+      "pure_error_sse": null,
+      "lack_of_fit_df": null,
+      "lack_of_fit_sse": null,
+      "status": "推断以模型充分、误差独立同方差且正态为前提",
+      "rows": [
+        {
+          "batch_id": "BASE",
+          "run_id": "R00008",
+          "source_run_id": null,
+          "standard_order": 8,
+          "run_order": 1,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": -1,
+            "F3": 1,
+            "F4": 1,
+            "F5": 1,
+            "F6": -1,
+            "F7": 1,
+            "F8": 1,
+            "F9": -1,
+            "F10": 1,
+            "F11": -1
+          },
+          "point_key": "-1,-1,1,1,1,-1,1,1,-1,1,-1",
+          "Y": 21.699999999999996,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 21.800000000000008,
+          "residual": -0.10000000000001208
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00012",
+          "source_run_id": null,
+          "standard_order": 12,
+          "run_order": 2,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": -1,
+            "F3": -1,
+            "F4": -1,
+            "F5": -1,
+            "F6": -1,
+            "F7": -1,
+            "F8": -1,
+            "F9": -1,
+            "F10": -1,
+            "F11": -1
+          },
+          "point_key": "-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1",
+          "Y": 19.5,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 19.000000000000004,
+          "residual": 0.49999999999999645
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00004",
+          "source_run_id": null,
+          "standard_order": 4,
+          "run_order": 3,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": -1,
+            "F3": 1,
+            "F4": 1,
+            "F5": -1,
+            "F6": 1,
+            "F7": -1,
+            "F8": -1,
+            "F9": -1,
+            "F10": 1,
+            "F11": 1
+          },
+          "point_key": "1,-1,1,1,-1,1,-1,-1,-1,1,1",
+          "Y": 25.5,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 25.400000000000006,
+          "residual": 0.09999999999999432
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00011",
+          "source_run_id": null,
+          "standard_order": 11,
+          "run_order": 4,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": 1,
+            "F3": -1,
+            "F4": -1,
+            "F5": -1,
+            "F6": 1,
+            "F7": 1,
+            "F8": 1,
+            "F9": -1,
+            "F10": 1,
+            "F11": 1
+          },
+          "point_key": "-1,1,-1,-1,-1,1,1,1,-1,1,1",
+          "Y": 12.999999999999998,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 14.6,
+          "residual": -1.6000000000000014
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00009",
+          "source_run_id": null,
+          "standard_order": 9,
+          "run_order": 5,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": -1,
+            "F3": -1,
+            "F4": 1,
+            "F5": 1,
+            "F6": 1,
+            "F7": -1,
+            "F8": 1,
+            "F9": 1,
+            "F10": -1,
+            "F11": 1
+          },
+          "point_key": "-1,-1,-1,1,1,1,-1,1,1,-1,1",
+          "Y": 18.9,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 19.0,
+          "residual": -0.10000000000000142
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00005",
+          "source_run_id": null,
+          "standard_order": 5,
+          "run_order": 6,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": 1,
+            "F3": -1,
+            "F4": 1,
+            "F5": 1,
+            "F6": -1,
+            "F7": 1,
+            "F8": -1,
+            "F9": -1,
+            "F10": -1,
+            "F11": 1
+          },
+          "point_key": "1,1,-1,1,1,-1,1,-1,-1,-1,1",
+          "Y": 18.1,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 18.200000000000003,
+          "residual": -0.10000000000000142
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00010",
+          "source_run_id": null,
+          "standard_order": 10,
+          "run_order": 7,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": -1,
+            "F3": -1,
+            "F4": -1,
+            "F5": 1,
+            "F6": 1,
+            "F7": 1,
+            "F8": -1,
+            "F9": 1,
+            "F10": 1,
+            "F11": -1
+          },
+          "point_key": "1,-1,-1,-1,1,1,1,-1,1,1,-1",
+          "Y": 22.700000000000003,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 22.60000000000001,
+          "residual": 0.09999999999999432
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00002",
+          "source_run_id": null,
+          "standard_order": 2,
+          "run_order": 8,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": 1,
+            "F3": -1,
+            "F4": 1,
+            "F5": -1,
+            "F6": -1,
+            "F7": -1,
+            "F8": 1,
+            "F9": 1,
+            "F10": 1,
+            "F11": -1
+          },
+          "point_key": "1,1,-1,1,-1,-1,-1,1,1,1,-1",
+          "Y": 19.200000000000003,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 18.200000000000003,
+          "residual": 1.0
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00001",
+          "source_run_id": null,
+          "standard_order": 1,
+          "run_order": 9,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": -1,
+            "F3": 1,
+            "F4": -1,
+            "F5": -1,
+            "F6": -1,
+            "F7": 1,
+            "F8": 1,
+            "F9": 1,
+            "F10": -1,
+            "F11": 1
+          },
+          "point_key": "1,-1,1,-1,-1,-1,1,1,1,-1,1",
+          "Y": 24.4,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 25.400000000000006,
+          "residual": -1.000000000000007
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00007",
+          "source_run_id": null,
+          "standard_order": 7,
+          "run_order": 10,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": 1,
+            "F3": 1,
+            "F4": 1,
+            "F5": -1,
+            "F6": 1,
+            "F7": 1,
+            "F8": -1,
+            "F9": 1,
+            "F10": -1,
+            "F11": -1
+          },
+          "point_key": "-1,1,1,1,-1,1,1,-1,1,-1,-1",
+          "Y": 17.5,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 17.4,
+          "residual": 0.10000000000000142
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00003",
+          "source_run_id": null,
+          "standard_order": 3,
+          "run_order": 11,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": 1,
+            "F3": 1,
+            "F4": -1,
+            "F5": 1,
+            "F6": -1,
+            "F7": -1,
+            "F8": -1,
+            "F9": 1,
+            "F10": 1,
+            "F11": 1
+          },
+          "point_key": "-1,1,1,-1,1,-1,-1,-1,1,1,1",
+          "Y": 16.9,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 17.400000000000002,
+          "residual": -0.5000000000000036
+        },
+        {
+          "batch_id": "BASE",
+          "run_id": "R00006",
+          "source_run_id": null,
+          "standard_order": 6,
+          "run_order": 12,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": 1,
+            "F3": 1,
+            "F4": -1,
+            "F5": 1,
+            "F6": 1,
+            "F7": -1,
+            "F8": 1,
+            "F9": -1,
+            "F10": -1,
+            "F11": -1
+          },
+          "point_key": "1,1,1,-1,1,1,-1,1,-1,-1,-1",
+          "Y": 22.6,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 21.000000000000004,
+          "residual": 1.5999999999999979
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00008",
+          "source_run_id": "R00008",
+          "standard_order": 20,
+          "run_order": 13,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": 1,
+            "F3": -1,
+            "F4": -1,
+            "F5": -1,
+            "F6": 1,
+            "F7": -1,
+            "F8": -1,
+            "F9": 1,
+            "F10": -1,
+            "F11": 1
+          },
+          "point_key": "1,1,-1,-1,-1,1,-1,-1,1,-1,1",
+          "Y": 18.1,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 18.2,
+          "residual": -0.09999999999999787
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00012",
+          "source_run_id": "R00012",
+          "standard_order": 24,
+          "run_order": 14,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": 1,
+            "F3": 1,
+            "F4": 1,
+            "F5": 1,
+            "F6": 1,
+            "F7": 1,
+            "F8": 1,
+            "F9": 1,
+            "F10": 1,
+            "F11": 1
+          },
+          "point_key": "1,1,1,1,1,1,1,1,1,1,1",
+          "Y": 21.5,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 21.000000000000004,
+          "residual": 0.49999999999999645
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00004",
+          "source_run_id": "R00004",
+          "standard_order": 16,
+          "run_order": 15,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": 1,
+            "F3": -1,
+            "F4": -1,
+            "F5": 1,
+            "F6": -1,
+            "F7": 1,
+            "F8": 1,
+            "F9": 1,
+            "F10": -1,
+            "F11": -1
+          },
+          "point_key": "-1,1,-1,-1,1,-1,1,1,1,-1,-1",
+          "Y": 14.700000000000001,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 14.600000000000001,
+          "residual": 0.09999999999999964
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00011",
+          "source_run_id": "R00011",
+          "standard_order": 23,
+          "run_order": 16,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": -1,
+            "F3": 1,
+            "F4": 1,
+            "F5": 1,
+            "F6": -1,
+            "F7": -1,
+            "F8": -1,
+            "F9": 1,
+            "F10": -1,
+            "F11": -1
+          },
+          "point_key": "1,-1,1,1,1,-1,-1,-1,1,-1,-1",
+          "Y": 23.799999999999997,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 25.400000000000006,
+          "residual": -1.6000000000000085
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00009",
+          "source_run_id": "R00009",
+          "standard_order": 21,
+          "run_order": 17,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": 1,
+            "F3": 1,
+            "F4": -1,
+            "F5": -1,
+            "F6": -1,
+            "F7": 1,
+            "F8": -1,
+            "F9": -1,
+            "F10": 1,
+            "F11": -1
+          },
+          "point_key": "1,1,1,-1,-1,-1,1,-1,-1,1,-1",
+          "Y": 20.9,
+          "matrix": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 21.000000000000007,
+          "residual": -0.10000000000000853
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00005",
+          "source_run_id": "R00005",
+          "standard_order": 17,
+          "run_order": 18,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": -1,
+            "F3": 1,
+            "F4": -1,
+            "F5": -1,
+            "F6": 1,
+            "F7": -1,
+            "F8": 1,
+            "F9": 1,
+            "F10": 1,
+            "F11": -1
+          },
+          "point_key": "-1,-1,1,-1,-1,1,-1,1,1,1,-1",
+          "Y": 21.699999999999996,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 21.800000000000004,
+          "residual": -0.10000000000000853
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00010",
+          "source_run_id": "R00010",
+          "standard_order": 22,
+          "run_order": 19,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": 1,
+            "F3": 1,
+            "F4": 1,
+            "F5": -1,
+            "F6": -1,
+            "F7": -1,
+            "F8": 1,
+            "F9": -1,
+            "F10": -1,
+            "F11": 1
+          },
+          "point_key": "-1,1,1,1,-1,-1,-1,1,-1,-1,1",
+          "Y": 17.5,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 17.4,
+          "residual": 0.10000000000000142
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00002",
+          "source_run_id": "R00002",
+          "standard_order": 14,
+          "run_order": 20,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": -1,
+            "F3": 1,
+            "F4": -1,
+            "F5": 1,
+            "F6": 1,
+            "F7": 1,
+            "F8": -1,
+            "F9": -1,
+            "F10": -1,
+            "F11": 1
+          },
+          "point_key": "-1,-1,1,-1,1,1,1,-1,-1,-1,1",
+          "Y": 22.799999999999997,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0
+          ],
+          "fit": 21.800000000000004,
+          "residual": 0.9999999999999929
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00001",
+          "source_run_id": "R00001",
+          "standard_order": 13,
+          "run_order": 21,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": 1,
+            "F3": -1,
+            "F4": 1,
+            "F5": 1,
+            "F6": 1,
+            "F7": -1,
+            "F8": -1,
+            "F9": -1,
+            "F10": 1,
+            "F11": -1
+          },
+          "point_key": "-1,1,-1,1,1,1,-1,-1,-1,1,-1",
+          "Y": 13.6,
+          "matrix": [
+            1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0
+          ],
+          "fit": 14.6,
+          "residual": -1.0
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00007",
+          "source_run_id": "R00007",
+          "standard_order": 19,
+          "run_order": 22,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": -1,
+            "F3": -1,
+            "F4": -1,
+            "F5": 1,
+            "F6": -1,
+            "F7": -1,
+            "F8": 1,
+            "F9": -1,
+            "F10": 1,
+            "F11": 1
+          },
+          "point_key": "1,-1,-1,-1,1,-1,-1,1,-1,1,1",
+          "Y": 22.700000000000003,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 22.60000000000001,
+          "residual": 0.09999999999999432
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00003",
+          "source_run_id": "R00003",
+          "standard_order": 15,
+          "run_order": 23,
+          "replicate": 1,
+          "settings": {
+            "F1": 1,
+            "F2": -1,
+            "F3": -1,
+            "F4": 1,
+            "F5": -1,
+            "F6": 1,
+            "F7": 1,
+            "F8": 1,
+            "F9": -1,
+            "F10": -1,
+            "F11": -1
+          },
+          "point_key": "1,-1,-1,1,-1,1,1,1,-1,-1,-1",
+          "Y": 22.1,
+          "matrix": [
+            1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0
+          ],
+          "fit": 22.600000000000005,
+          "residual": -0.5000000000000036
+        },
+        {
+          "batch_id": "FOLD1",
+          "run_id": "F00006",
+          "source_run_id": "R00006",
+          "standard_order": 18,
+          "run_order": 24,
+          "replicate": 1,
+          "settings": {
+            "F1": -1,
+            "F2": -1,
+            "F3": -1,
+            "F4": 1,
+            "F5": -1,
+            "F6": -1,
+            "F7": 1,
+            "F8": -1,
+            "F9": 1,
+            "F10": 1,
+            "F11": 1
+          },
+          "point_key": "-1,-1,-1,1,-1,-1,1,-1,1,1,1",
+          "Y": 20.6,
+          "matrix": [
+            1.0,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "fit": 19.000000000000004,
+          "residual": 1.5999999999999979
+        }
+      ]
+    }
+  }
+}
