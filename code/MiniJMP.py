@@ -148,6 +148,7 @@ class Minijmp(Worksheets, Minijmp_pre):
             '08表格转换为文本': {'cmd': lambda: self._call('showasText')},
             '09表格信息': {'cmd': lambda: self._call('showInfo')},
             '10sep': '',
+            '10列公式': {'cmd': lambda: self._call('calculator')},
             '11数值变换': {'cmd': lambda: self._call('transform')},
             '12分组聚合': {'cmd': lambda: self._call('aggregate')},
             '13交叉表': {'cmd': lambda: self._call('crosstab')},
@@ -158,10 +159,6 @@ class Minijmp(Worksheets, Minijmp_pre):
         }
         self.table_menu = self.createPulldown(self.menu, self.table_menu)
         self.menu.add_cascade(label='工具', menu=self.table_menu['var'])
-
-        self.calc_menu = {'01计算器': {'cmd': lambda: self._call('calculator')}}
-        self.calc_menu = self.createPulldown(self.menu, self.calc_menu)
-        self.menu.add_cascade(label='计算', menu=self.calc_menu['var'])
 
         from doe_dialog import CreateDOE, CreateGeneralFactorial, AnalyzeDOE
         from doe_foldover_dialog import FoldoverDOE

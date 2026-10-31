@@ -285,7 +285,7 @@ class CalculatorDialog:
         self.df = table.model.df
         self.labels = column_labels(self.df)
         self.main = Toplevel(table.winfo_toplevel())
-        self.main.title('计算器')
+        self.main.title('列公式')
         self.main.transient(table.winfo_toplevel())
         self.main.resizable(False, False)
         self.main.protocol('WM_DELETE_WINDOW', self.quit)

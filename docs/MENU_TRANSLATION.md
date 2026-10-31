@@ -14,13 +14,14 @@
 | View | 视图 |
 | Data | 数据 |
 | Tools | 工具 |
-| Calculator | 计算 |
 | Design of Experiments | 试验设计（DOE） |
 | Stats | 统计 |
 | Quality | 质量 |
 | Plots | 图形 |
 | Debug | 调试 |
 | Help | 帮助 |
+
+列计算入口为“工具 → 列公式”，位于“数值变换”之前。
 
 ## 试验设计（DOE）（Design of Experiments）
 
