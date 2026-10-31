@@ -1,0 +1,11 @@
+........................................................................ [ 76%]
+.......F..............                                                   [100%]
+================================== FAILURES ===================================
+__________ test_all_python_files_and_production_sites_are_classified __________
+tests\test_g12_inventory.py:187: in test_all_python_files_and_production_sites_are_classified
+    assert not differences, f'δ������ѱ仯�ı�������/���λ�ã�{differences}'
+E   AssertionError: δ������ѱ仯�ı�������/���λ�ã�{'doe_dialog.py::AnalyzeDOE.show_table': {'expected': ['construct:StatTable#1', 'emit:structured:print#1'], 'actual': ['construct:StatTable#1'], 'locations': [{'site': 'construct:StatTable#1', 'line': 1594}]}, 'doe_taguchi_analysis_dialog.py::NoiseResponseModelTaguchi._tab': {'expected': None, 'actual': ['construct:StatTable#1'], 'locations': [{'site': 'construct:StatTable#1', 'line': 741}]}}
+E   assert not {'doe_dialog.py::AnalyzeDOE.show_table': {'expected': ['construct:StatTable#1', 'emit:structured:print#1'], 'actual': ...{'expected': None, 'actual': ['construct:StatTable#1'], 'locations': [{'site': 'construct:StatTable#1', 'line': 741}]}}
+=========================== short test summary info ===========================
+FAILED tests/test_g12_inventory.py::test_all_python_files_and_production_sites_are_classified
+1 failed, 93 passed in 15.83s

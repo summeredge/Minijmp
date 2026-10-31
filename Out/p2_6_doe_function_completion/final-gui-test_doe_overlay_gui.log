@@ -1,0 +1,11 @@
+....                                                                     [100%]
+============================== warnings summary ===============================
+tests/test_doe_overlay_gui.py::test_overlay_draws_two_response_contours_and_feasible_region
+tests/test_doe_overlay_gui.py::test_overlay_reports_an_empty_feasible_region
+tests/test_doe_overlay_gui.py::test_overlay_invalidates_on_source_change_and_metadata_change
+tests/test_doe_overlay_gui.py::test_overlay_invalidates_on_source_change_and_metadata_change
+  C:\Users\shaoy\Documents\Minijmp\code\doe_overlay_dialog.py:248: UserWarning: The figure layout has changed to tight
+    viewer.fig.tight_layout()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+4 passed, 4 warnings in 4.13s

@@ -175,6 +175,58 @@ def test_d_optimal_tie_uses_first_configuration_in_b_then_z_order():
     assert _dsd_matrix_for_key('dsd5c2') == expected
 
 
+@pytest.mark.parametrize('continuous_count,categorical_count', MULTI_CASES)
+def test_multi_categorical_schur_reference_covers_every_supported_combination(
+        continuous_count, categorical_count):
+    """直接推导信息矩阵的 Schur 补，不重建生产候选运行矩阵。"""
+    m, c = continuous_count, categorical_count
+    base = np.asarray(MATRICES[f'dsd{m + c}'], dtype=int)
+    half = (len(base) - 1) // 2
+    conference = base[:half]
+    q = half - 1
+    # 固定 conference 列子集是输入；独立核验其数学性质，不能假设常量正确。
+    np.testing.assert_array_equal(base[half:-1], -conference)
+    np.testing.assert_array_equal(base[-1], 0)
+    np.testing.assert_array_equal(conference.T @ conference, q * np.eye(m + c))
+    assert np.count_nonzero(conference == 0, axis=0).tolist() == [1] * (m + c)
+    assert np.isin(conference, (-1, 0, 1)).all()
+    zero_rows = [int(np.flatnonzero(conference[:, m + j] == 0)[0]) for j in range(c)]
+    assert len(set(zero_rows)) == c
+
+    best, first_signs = Fraction(-1), None
+    for signs in product((-1, 1), repeat=2 * c):
+        b, z = signs[:c], signs[c:]
+        # A=2q I_m；B_ij=2 z_j C[r_j,i]；det(X'X)=n det(A) det(D-B'A^-1B)。
+        schur = []
+        for j in range(c):
+            row = []
+            for k in range(c):
+                category_gram = (2 * q + 4 if j == k else 2 * (
+                    z[j] * int(conference[zero_rows[j], m + k])
+                    + z[k] * int(conference[zero_rows[k], m + j]) + b[j] * b[k]))
+                projection = Fraction(2 * z[j] * z[k] * sum(
+                    int(conference[zero_rows[j], i]) * int(conference[zero_rows[k], i])
+                    for i in range(m)), q)
+                row.append(category_gram - projection)
+            schur.append(row)
+        determinant = (2 * half + 2) * (2 * q) ** m * _exact_determinant(schur)
+        if determinant > best:
+            best, first_signs = determinant, signs
+
+    actual = np.asarray(_dsd_matrix_for_key(f'dsd{m}c{c}'), dtype=int)
+    design = np.column_stack((np.ones(len(actual), dtype=int), actual))
+    actual_determinant = _exact_determinant((design.T @ design).tolist())
+    assert actual_determinant == best > 0
+    chosen_signs = tuple(int(value) for value in actual[-2, m:]) + tuple(
+        int(actual[zero_rows[j], m + j]) for j in range(c))
+    assert chosen_signs == first_signs
+
+    # 一次分类零位翻转会破坏折叠平衡；独立 oracle 必须拒绝此错误运行表。
+    wrong = design.copy()
+    wrong[zero_rows[0], m + 1] *= -1
+    assert _exact_determinant((wrong.T @ wrong).tolist()) != best
+
+
 def test_four_continuous_two_categorical_uses_the_legacy_matrix():
     spec = _spec(4, 2)
     frame, metadata = create_dsd(spec)

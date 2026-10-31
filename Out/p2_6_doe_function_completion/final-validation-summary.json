@@ -1,0 +1,388 @@
+{
+  "date": "2026-10-31",
+  "runs": [
+    {
+      "name": "nongui",
+      "tests": 1412,
+      "passed": 1412,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 13,
+      "xml": "final-nongui.xml",
+      "log": "final-nongui.log"
+    },
+    {
+      "name": "dsd-independent",
+      "tests": 26,
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 0,
+      "xml": "final-dsd-independent.xml",
+      "log": "final-dsd-independent.log"
+    },
+    {
+      "name": "test_doe_bbd_gui",
+      "tests": 10,
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 1,
+      "xml": "final-gui-test_doe_bbd_gui.xml",
+      "log": "final-gui-test_doe_bbd_gui.log"
+    },
+    {
+      "name": "test_doe_ccd_options_gui",
+      "tests": 13,
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 0,
+      "xml": "final-gui-test_doe_ccd_options_gui.xml",
+      "log": "final-gui-test_doe_ccd_options_gui.log"
+    },
+    {
+      "name": "test_doe_custom_gui",
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 30,
+      "xml": "final-gui-test_doe_custom_gui.xml",
+      "log": "final-gui-test_doe_custom_gui.log"
+    },
+    {
+      "name": "test_doe_foldover_gui",
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 0,
+      "xml": "final-gui-test_doe_foldover_gui.xml",
+      "log": "final-gui-test_doe_foldover_gui.log"
+    },
+    {
+      "name": "test_doe_fractional_gui",
+      "tests": 15,
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 1,
+      "xml": "final-gui-test_doe_fractional_gui.xml",
+      "log": "final-gui-test_doe_fractional_gui.log"
+    },
+    {
+      "name": "test_doe_general_factorial_gui",
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 1,
+      "xml": "final-gui-test_doe_general_factorial_gui.xml",
+      "log": "final-gui-test_doe_general_factorial_gui.log"
+    },
+    {
+      "name": "test_doe_gui",
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 3,
+      "xml": "final-gui-test_doe_gui.xml",
+      "log": "final-gui-test_doe_gui.log"
+    },
+    {
+      "name": "test_doe_mixture_gui",
+      "tests": 10,
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 7,
+      "xml": "final-gui-test_doe_mixture_gui.xml",
+      "log": "final-gui-test_doe_mixture_gui.log"
+    },
+    {
+      "name": "test_doe_optimal_gui",
+      "tests": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 0,
+      "xml": "final-gui-test_doe_optimal_gui.xml",
+      "log": "final-gui-test_doe_optimal_gui.log"
+    },
+    {
+      "name": "test_doe_optimal_improvement_gui",
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 0,
+      "xml": "final-gui-test_doe_optimal_improvement_gui.xml",
+      "log": "final-gui-test_doe_optimal_improvement_gui.log"
+    },
+    {
+      "name": "test_doe_optimize_gui",
+      "tests": 9,
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 0,
+      "xml": "final-gui-test_doe_optimize_gui.xml",
+      "log": "final-gui-test_doe_optimize_gui.log"
+    },
+    {
+      "name": "test_doe_overlay_gui",
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 4,
+      "xml": "final-gui-test_doe_overlay_gui.xml",
+      "log": "final-gui-test_doe_overlay_gui.log"
+    },
+    {
+      "name": "test_doe_p4a_gui",
+      "tests": 13,
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 0,
+      "xml": "final-gui-test_doe_p4a_gui.xml",
+      "log": "final-gui-test_doe_p4a_gui.log"
+    },
+    {
+      "name": "test_doe_predict_gui",
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 0,
+      "xml": "final-gui-test_doe_predict_gui.xml",
+      "log": "final-gui-test_doe_predict_gui.log"
+    },
+    {
+      "name": "test_doe_rsm_gui",
+      "tests": 12,
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 3,
+      "xml": "final-gui-test_doe_rsm_gui.xml",
+      "log": "final-gui-test_doe_rsm_gui.log"
+    },
+    {
+      "name": "test_doe_splitplot_gui",
+      "tests": 11,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 2,
+      "xml": "final-gui-test_doe_splitplot_gui.xml",
+      "log": "final-gui-test_doe_splitplot_gui.log"
+    },
+    {
+      "name": "test_doe_taguchi_gui",
+      "tests": 15,
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 2,
+      "xml": "final-gui-test_doe_taguchi_gui.xml",
+      "log": "final-gui-test_doe_taguchi_gui.log"
+    },
+    {
+      "name": "test_doe_taguchi_models_gui",
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 0,
+      "xml": "final-gui-test_doe_taguchi_models_gui.xml",
+      "log": "final-gui-test_doe_taguchi_models_gui.log"
+    },
+    {
+      "name": "screening-00",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 14,
+      "xml": "final-gui-screening-00.xml",
+      "log": "final-gui-screening-00.log"
+    },
+    {
+      "name": "screening-01",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 16,
+      "xml": "final-gui-screening-01.xml",
+      "log": "final-gui-screening-01.log"
+    },
+    {
+      "name": "screening-02",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 20,
+      "xml": "final-gui-screening-02.xml",
+      "log": "final-gui-screening-02.log"
+    },
+    {
+      "name": "screening-03",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 20,
+      "xml": "final-gui-screening-03.xml",
+      "log": "final-gui-screening-03.log"
+    },
+    {
+      "name": "screening-04",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 20,
+      "xml": "final-gui-screening-04.xml",
+      "log": "final-gui-screening-04.log"
+    },
+    {
+      "name": "screening-05",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 18,
+      "xml": "final-gui-screening-05.xml",
+      "log": "final-gui-screening-05.log"
+    },
+    {
+      "name": "screening-06",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 20,
+      "xml": "final-gui-screening-06.xml",
+      "log": "final-gui-screening-06.log"
+    },
+    {
+      "name": "screening-07",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 20,
+      "xml": "final-gui-screening-07.xml",
+      "log": "final-gui-screening-07.log"
+    },
+    {
+      "name": "screening-08",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 20,
+      "xml": "final-gui-screening-08.xml",
+      "log": "final-gui-screening-08.log"
+    },
+    {
+      "name": "screening-09",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 20,
+      "xml": "final-gui-screening-09.xml",
+      "log": "final-gui-screening-09.log"
+    },
+    {
+      "name": "screening-10",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 20,
+      "xml": "final-gui-screening-10.xml",
+      "log": "final-gui-screening-10.log"
+    },
+    {
+      "name": "screening-11",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 20,
+      "xml": "final-gui-screening-11.xml",
+      "log": "final-gui-screening-11.log"
+    },
+    {
+      "name": "screening-12",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 20,
+      "xml": "final-gui-screening-12.xml",
+      "log": "final-gui-screening-12.log"
+    },
+    {
+      "name": "screening-13",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 20,
+      "xml": "final-gui-screening-13.xml",
+      "log": "final-gui-screening-13.log"
+    },
+    {
+      "name": "screening-14",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 20,
+      "xml": "final-gui-screening-14.xml",
+      "log": "final-gui-screening-14.log"
+    },
+    {
+      "name": "screening-15",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 20,
+      "xml": "final-gui-screening-15.xml",
+      "log": "final-gui-screening-15.log"
+    },
+    {
+      "name": "related-initial",
+      "tests": 94,
+      "passed": 93,
+      "failed": 1,
+      "skipped": 0,
+      "warnings": 0,
+      "xml": "final-related.xml",
+      "log": "final-related.log"
+    },
+    {
+      "name": "inventory-fixed",
+      "tests": 15,
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "warnings": 0,
+      "xml": "final-inventory-fixed.xml",
+      "log": "final-inventory-fixed.log"
+    }
+  ],
+  "unique_passed": 2002,
+  "screening_unique": 320,
+  "initial_failure": "G12清单两个DOE生产位置未同步，已修复并15项通过"
+}

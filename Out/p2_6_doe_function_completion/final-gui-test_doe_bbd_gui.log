@@ -1,0 +1,8 @@
+..........                                                               [100%]
+============================== warnings summary ===============================
+tests/test_doe_bbd_gui.py::test_bbd_create_analyze_plot_and_project_roundtrip
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:2104: UserWarning: The figure layout has changed to tight
+    viewer.fig.tight_layout()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+10 passed, 1 warning in 53.10s

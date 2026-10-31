@@ -1,0 +1,18 @@
+....................                                                     [100%]
+============================== warnings summary ===============================
+tests/test_doe_screening_gui.py::test_dsd_large_configurations_gui_lifecycle[True-42]
+tests/test_doe_screening_gui.py::test_dsd_large_configurations_gui_lifecycle[True-43]
+tests/test_doe_screening_gui.py::test_dsd_large_configurations_gui_lifecycle[True-44]
+tests/test_doe_screening_gui.py::test_dsd_large_configurations_gui_lifecycle[True-45]
+tests/test_doe_screening_gui.py::test_dsd_large_configurations_gui_lifecycle[True-46]
+tests/test_doe_screening_gui.py::test_dsd_large_configurations_gui_lifecycle[True-47]
+tests/test_doe_screening_gui.py::test_dsd_large_configurations_gui_lifecycle[True-48]
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1932: UserWarning: The figure layout has changed to tight
+    viewer.fig.tight_layout()
+
+tests/test_doe_screening_gui.py: 11 warnings
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1745: UserWarning: The figure layout has changed to tight
+    viewer.fig.tight_layout()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+20 passed, 18 warnings in 73.91s (0:01:13)

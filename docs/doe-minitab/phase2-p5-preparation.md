@@ -1,10 +1,10 @@
-# DOE Phase 2 P2-5：Minitab 22 对照准备
+# DOE Phase 2 P2-5：自动化验收与有限产品对照
 
 日期：2026-10-30
 
-状态：准备材料完成；P2-5 产品运行与统计实现修改均未开始。
+状态更新（2026-10-31）：P2-5 已完成自动化功能验收和独立统计复算；历史为 1408 passed、69 warnings。P2-6.5 最终核定及当前测试见[最终报告](../../Out/p2_6_doe_function_completion/p2-6-final-acceptance.md)。功能覆盖、统计正确性、Minitab 产品输出一致性分别验收，不相互替代。
 
-## 基线与边界
+## 历史准备阶段的基线与边界
 
 - `main` HEAD：`512f03a1e4fb8554748633fec086024375e4e4de`（`Record P2-4A/P2-4BC integration status and verification`）；开始时工作区干净。
 - `.agent-memory/MEMORY.md` 与 `.agent-memory/logs/` 仅作只读保护，本任务没有修改。
@@ -17,11 +17,11 @@
 
 | 证据层 | Feature ID 数 | 当前判断 |
 |---|---:|---|
-| 有真实 Minitab 22 输出（范围有限） | 1 | `RSM-002` 有用户提供的 5 份 BBD 设计表，只覆盖 9/10 因子的五种配置。 |
-| 只有官方文档或数学参考 | 78 | 有官方帮助、目录或独立解析/文献参考；这些来源没有提供对应的 Minitab 22 数值导出。 |
+| 有真实 Minitab 22 输出（范围有限） | 4 | `RSM-002` 的五份 BBD；`SCR-001/SCR-003/FAC-012` 的 PB12、DSD-S01 与 PB12 Foldover。后者具有 22.6.0 版本文本，不能反推 BBD 的具体 build。 |
+| 只有官方文档或数学参考 | 75 | 有官方帮助、目录或独立解析/文献参考；这些来源没有提供对应的 Minitab 22 数值导出。 |
 | 无可复核参考基线 | 1 | `GEN-013`：官方文档审查未确认 DOE 自动异常值处理工作流，矩阵也标记 `not_verified`。 |
 
-因此，除 `RSM-002` 的有限 BBD 配置外，其余 **79 个 Feature ID 的 Minitab 22 产品输出状态均为 `REFERENCE_MISSING`**。逐项证据分类、官方 URL、现有测试/数学参考及范围备注见 [80 项证据清单](phase2-p5-feature-evidence.csv)。
+因此，已有产品文件只涉及上述 4 个 Feature ID，其余 **76 个 Feature ID 的 Minitab 22 产品输出状态仍为 `REFERENCE_MISSING`**。这 4 项也只在已取得配置及输出精度内比较，不代表完整 Feature parity。逐项证据分类、官方 URL、现有测试/数学参考及范围备注见 [80 项证据清单](phase2-p5-feature-evidence.csv)。
 
 ### 已有 Minitab 22 文件
 
@@ -35,17 +35,17 @@
 | `bbd10-unblocked.csv` | 10 | 1（无区组） | 170 | `32dfa3ac8b0610f9babcbe77e0a1e045fca8e6eafd77dd118189110bf423def9` |
 | `bbd10-block2.csv` | 10 | 2 | 170 | `f9406c49440c590f5be3f6fbe52a39ee4bb8273b436af4163a64646ffa727bcc` |
 
-已核对的点多重集和重映射区组多重集完全相同；标准序逐行差异分别为 60、116、123、120、163 行。此证据仅覆盖表中配置，不等于完整标准序一致，也不证明输出来源。其他 DOE 相关目录未发现额外 Minitab 22 导出；P2-4A、Taguchi、Mixture 联合模型与 Replace/Improve 均无产品文件。
+已核对的点多重集和重映射区组多重集完全相同；标准序逐行差异分别为 60、116、123、120、163 行。此证据仅覆盖表中配置，不等于完整标准序一致，也不证明输出来源。后续已取得 `Out/p5_office_round1/results/` 中的 Minitab 22.6.0 版本记录、DSD-S01 RTF/输入、PB12 原表及全因子折叠表；核对与哈希见 `Out/p5_office_round1/P5_round1_comparison.md`。本轮已复核这些原件哈希，未改写原始文件。Taguchi、Mixture 联合模型与 Improve 仍无对应产品输出。
 
 ## P2-5 优先对照案例
 
-每个待采集案例均已在 [案例登记表](phase2-p5-case-register.csv) 中标为 `REFERENCE_MISSING`，并列出输入 fixture、设计设置、随机种子、字段、容差与 Minitab 22 输出来源。
+[案例登记表](phase2-p5-case-register.csv) 将已有有限输出标为 `PARTIAL_REFERENCE`，其余待采集案例保留 `REFERENCE_MISSING`，并列出输入 fixture、设计设置、随机种子、字段、容差与 Minitab 22 输出来源。
 
 | 优先级 | 案例组 | 输入与设置概要 | 主要对照字段 | Minitab 22 输出状态 |
 |---|---|---|---|---|
 | P0 校准 | BBD-9/10 | 现有五份 9/10 因子 CSV；未随机化 | 点多重集、中心点、因子映射、区组映射；保留标准序差异 | `PARTIAL_REFERENCE` |
-| P1 | DSD Stepwise S01–S05 | 现有 6 因子 13 行与 4 连续+1 分类 14 行参考；显式 alpha、候选项、层级和区组设置 | 每步进入/移除项、F/p、SSE、秩/df，最终模型与系数 | `REFERENCE_MISSING` |
-| P1 | PB 全因子/单因子 Foldover | PB12、PB20 先做；再扩到 PB24–PB48；连续两水平、无中心点/区组、单重复 | 新旧行符号变换、追加数量、来源映射、响应列处理 | `REFERENCE_MISSING` |
+| P1 | DSD Stepwise S01–S05 | 现有 6 因子 13 行与 4 连续+1 分类 14 行参考；显式 alpha、候选项、层级和区组设置 | 每步进入/移除项、F/p、SSE、秩/df，最终模型与系数 | `REFERENCE_MISSING`（S01 仅显示精度已有有限对照） |
+| P1 | PB 全因子/单因子 Foldover | PB12、PB20 先做；再扩到 PB24–PB48；连续两水平、无中心点/区组、单重复 | 新旧行符号变换、追加数量、来源映射、响应列处理 | PB12全因子折叠为`PARTIAL_REFERENCE`；其他配置`REFERENCE_MISSING` |
 | P1 | Taguchi 混合阵列 | L8(4¹2⁴)、L16(4¹2¹²)、L18(2¹3⁷)；固定列身份 | 运行×列水平矩阵、官方列号映射、列频数/列对频数 | `REFERENCE_MISSING` |
 | P1 | Mixture 联合模型 | 3 组分、degree-2 lattice × 2 个两水平过程因子 × 总量 100/150/200；72 行、15 项 | 同一响应与项定义下的 rank/df、系数、拟合、SSE、预测 | `REFERENCE_MISSING` |
 | P1 | Mixture Replace/Improve C05 | 3 组分线性模型；2 个 Locked 点、1 个 Replaceable 点、4 个候选、selection seed 23 | 选中点、rank/logdet、Locked 身份与响应、候选映射 | `REFERENCE_MISSING` |
@@ -97,4 +97,4 @@ Mixture Replace/Improve 案例同时覆盖 `GEN-003`（D 最优候选选择）�
 - PB 输入/折叠点集：`tests/fixtures/doe_phase2_p4a_reference/pb_foldover_reference.json`，SHA-256 `9ee6b929929a70994c89e8e3d998bcb6def610da9524116dad9c1d4c078fe0ab`。
 - Taguchi、48 行噪声、72×15 Mixture 模型和 C05 D-optimal Replace：`tests/fixtures/doe_phase2_p4bc_reference/reference.json`，SHA-256 `f23cad153fd383bfef6be5b0bdb88d37009e338b89e19a3e92935464ba68ebd7`。
 
-这些是独立数学/官方矩阵核验值，不是 Minitab 22 产品输出；除 BBD 五份用户提供文件外，所有优先案例维持 `REFERENCE_MISSING`，直到取得并验证实际产品文件。
+这些是独立数学/官方矩阵核验值，不是 Minitab 22 产品输出；BBD 五份文件、DSD-S01 及 PB12 全因子折叠按实际范围为 `PARTIAL_REFERENCE`；其余优先案例维持 `REFERENCE_MISSING`。尚未取得的产品输出不阻止用独立数学参考核定本地功能，但不能宣称产品 parity。

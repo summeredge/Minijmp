@@ -1,5 +1,11 @@
 # DOE 开发合同
 
+## 当前阶段（2026-10-31）
+
+DOE Phase 2 P2-6.5 在约定支持范围内完成。P2-6A/B 的13项已从算法、GUI及工程恢复核定；DOE Schema v5与Mixture Schema 1/2保持兼容。80项为75 implemented、2 partial、1 unknown、2 excluded；不是Minitab全产品parity。新增Schur补独立参考覆盖26个多分类DSD组合，生产统计算法未改。完整测试、限制和Git收尾见 [最终验收](../Out/p2_6_doe_function_completion/p2-6-final-acceptance.md)。下一阶段为后续版本需求与范围规划，尚未启动。
+
+以下为各历史阶段的数据合同；其当时范围与schema说明不替代上述当前状态。
+
 ## 工作包 B：响应面扩展（schema v2）
 
 DOE schema 升到 v2，新增 box_behnken 设计类型、edge 点类型及 ccd_fraction、block_count 字段；读取仍接受 v1，旧工程在 validate_worksheet_metadata 时升级并按实际存储设计字典核对摘要。旧版软件不能读取 v2 工程，不做双向兼容承诺。

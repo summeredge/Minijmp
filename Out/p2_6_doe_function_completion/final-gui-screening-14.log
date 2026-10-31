@@ -1,0 +1,8 @@
+....................                                                     [100%]
+============================== warnings summary ===============================
+tests/test_doe_screening_gui.py: 20 warnings
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1745: UserWarning: The figure layout has changed to tight
+    viewer.fig.tight_layout()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+20 passed, 20 warnings in 46.93s

@@ -1,0 +1,8 @@
+...............                                                          [100%]
+============================== warnings summary ===============================
+tests/test_doe_fractional_gui.py::test_fractional_roundtrip_analysis_and_plot_are_alias_aware
+  C:\Users\shaoy\Documents\Minijmp\code\doe_dialog.py:1745: UserWarning: The figure layout has changed to tight
+    viewer.fig.tight_layout()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+15 passed, 1 warning in 11.00s
