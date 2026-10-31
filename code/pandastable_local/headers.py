@@ -569,6 +569,34 @@ class ColumnHeader(Canvas):
             label="重命名列",
             command=self.renameColumn)
         popupmenu.add_command(label="添加列", command=self.table.addColumn)
+        if hasattr(self.table, 'assign_column_formula'):
+            colclicked = self.table.get_col_clicked(event)
+
+            def for_clicked_column(command):
+                def invoke():
+                    self.table.currentcol = colclicked
+                    command()
+                return invoke
+
+            popupmenu.add_separator()
+            popupmenu.add_cascade(label='公式')
+            formula_menu = Menu(popupmenu, tearoff=0)
+            for label, command in (
+                    ('向列分配公式', self.table.assign_column_formula),
+                    ('编辑列公式', self.table.edit_column_formula),
+                    ('查看列公式', self.table.view_column_formula),
+                    ('删除列公式', self.table.delete_column_formula)):
+                formula_menu.add_command(
+                    label=label, command=for_clicked_column(command))
+            formula_menu.add_separator()
+            formula_menu.add_checkbutton(
+                label='自动计算所有公式', command=self.table.set_formula_auto,
+                variable=self.table._formula_auto_var())
+            formula_menu.add_command(
+                label='立即计算所有公式',
+                command=self.table.recalculate_formulas)
+            popupmenu.entryconfigure('公式', menu=formula_menu)
+            popupmenu.add_separator()
         #  popupmenu.add_command(
         #      label="Set Color",
         #      command=self.table.setColumnColors)
