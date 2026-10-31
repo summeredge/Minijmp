@@ -1,0 +1,476 @@
+﻿run,section,term,statistic,minitab_value,minijmp_value,absolute_error,relative_error,absolute_tolerance,relative_tolerance,minitab_value_source,minijmp_value_source,status
+1,design,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",D,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",E,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",F,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",G,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",Y,37.449999999999996,37.449999999999996,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",D,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",E,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",F,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",G,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,fit,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",fitted,36.816666666666656,36.81666666666667,1.4210854715202004e-14,3.859897161213764e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,fit,"(-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0)",residual,0.63333333333334,0.6333333333333258,1.4210854715202004e-14,2.2438191655581875e-14,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,design,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",D,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",E,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",F,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",G,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",Y,40.15,40.15,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",D,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",E,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",F,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",G,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,fit,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",fitted,39.88333333333332,39.883333333333326,7.105427357601002e-15,1.781553035754535e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,fit,"(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0)",residual,0.26666666666667993,0.2666666666666728,7.105427357601002e-15,2.6645352591002432e-14,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,design,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",D,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",E,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",F,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",G,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",Y,38.449999999999996,38.449999999999996,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",D,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",E,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",F,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",G,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,fit,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",fitted,37.816666666666656,37.81666666666666,7.105427357601002e-15,1.8789142417631567e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,fit,"(-1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0)",residual,0.63333333333334,0.6333333333333329,7.105427357601002e-15,1.1219095827790937e-14,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,design,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",D,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",E,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",F,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",G,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",Y,34.050000000000004,34.050000000000004,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",D,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",E,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",F,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",G,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,fit,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",fitted,34.04999999999999,34.050000000000004,1.4210854715202004e-14,4.1735256138625575e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,fit,"(-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0)",residual,1.4210854715202004e-14,0.0,1.4210854715202004e-14,1.0,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,design,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",D,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",E,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",F,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",G,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",Y,32.050000000000004,32.050000000000004,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",D,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",E,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",F,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",G,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,fit,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",fitted,33.583333333333336,33.58333333333333,7.105427357601002e-15,2.1157600072261045e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,fit,"(-1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0)",residual,-1.5333333333333314,-1.5333333333333243,7.105427357601002e-15,4.633974363652833e-15,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,design,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",D,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",E,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",F,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",G,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",Y,38.550000000000004,38.550000000000004,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",D,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",E,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",F,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",G,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,fit,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",fitted,38.54999999999999,38.550000000000004,1.4210854715202004e-14,3.686343635590663e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,fit,"(-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0)",residual,1.4210854715202004e-14,0.0,1.4210854715202004e-14,1.0,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,design,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",D,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",E,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",F,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",G,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",Y,41.65,41.65,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",D,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",E,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",F,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",G,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,fit,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",fitted,42.54999999999999,42.55,7.105427357601002e-15,1.669900671586605e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,fit,"(1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0)",residual,-0.8999999999999915,-0.8999999999999986,7.105427357601002e-15,7.89491928622341e-15,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,design,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",D,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",E,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",F,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",G,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",Y,44.25000000000001,44.25000000000001,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",D,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",E,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",F,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",G,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,fit,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",fitted,43.98333333333333,43.98333333333334,1.4210854715202004e-14,3.2309635578329685e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,fit,"(1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0)",residual,0.26666666666667993,0.2666666666666657,1.4210854715202004e-14,5.3290705182004863e-14,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,design,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",D,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",E,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",F,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",G,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",Y,49.65,49.65,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",D,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",E,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",F,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",G,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,fit,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",fitted,50.54999999999999,50.550000000000004,1.4210854715202004e-14,2.8112472235810104e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,fit,"(1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0)",residual,-0.8999999999999915,-0.9000000000000057,1.4210854715202004e-14,1.578983857244682e-14,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",D,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",E,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",F,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",G,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",Y,41.449999999999996,41.449999999999996,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",D,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",E,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",F,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",G,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,fit,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",fitted,41.449999999999996,41.449999999999996,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,fit,"(1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0)",residual,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",D,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",E,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",F,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",G,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",Y,37.949999999999996,37.949999999999996,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",D,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",E,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",F,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",G,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,fit,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",fitted,37.949999999999996,37.94999999999999,7.105427357601002e-15,1.8723128742031627e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,fit,"(1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0)",residual,0.0,7.105427357601002e-15,7.105427357601002e-15,,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,design,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",D,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",E,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",F,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",G,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 PBDESIGN worksheet storage (DIRECT),MiniJMP create_pb (NIST PB12 mapping),PASS
+1,design,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",Y,44.35,44.35,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",D,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",E,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",F,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",G,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN XMATRIX (DIRECT),MiniJMP screening main-effects matrix (DIRECT),PASS
+1,fit,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",fitted,42.81666666666667,42.81666666666667,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,fit,"(1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0)",residual,1.5333333333333314,1.5333333333333314,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,coefficient,截距,estimate,39.99999999999999,40.0,7.105427357601002e-15,1.7763568394002508e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,coefficient,A,estimate,3.216666666666667,3.216666666666666,8.881784197001252e-16,2.7611764343009074e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,coefficient,B,estimate,-1.9333333333333316,-1.9333333333333318,2.220446049250313e-16,1.1485065771984389e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,coefficient,C,estimate,1.2166666666666681,1.216666666666669,8.881784197001252e-16,7.300096600274994e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,coefficient,D,estimate,1.033333333333332,1.033333333333333,8.881784197001252e-16,8.595275029356061e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,coefficient,E,estimate,-0.9000000000000006,-0.9000000000000028,2.220446049250313e-15,2.4671622769447906e-15,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,coefficient,F,estimate,1.4000000000000015,1.4000000000000008,6.661338147750939e-16,4.758098676964952e-16,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,coefficient,G,estimate,-0.8499999999999993,-0.8499999999999993,0.0,0.0,1e-09,1e-09,Minitab 19 SCREEN COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_pb,PASS
+1,model_summary,model,rank,8.0,8.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,model_summary,model,model_df,7.0,7.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,model_summary,model,error_df,4.0,4.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,model_summary,model,total_df,11.0,11.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,model_summary,model,sse,7.266666666666654,7.266666666666634,2.042810365310288e-14,2.811206924738933e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,model_summary,model,sst,248.76999999999995,248.76999999999998,2.842170943040401e-14,1.142489425188086e-16,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,model_summary,model,ssr,241.5033333333333,241.50333333333336,5.684341886080802e-14,2.353732268463155e-16,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,model_summary,model,mse,1.8166666666666635,1.8166666666666584,5.10702591327572e-15,2.811206924738933e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,model_summary,model,s,1.3478377746103807,1.347837774610379,1.7763568394002505e-15,1.3179307427511013e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,model_summary,model,r2,0.9707896182551488,0.9707896182551488,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,model_summary,model,adjusted_r2,0.919671450201659,0.9196714502016592,2.220446049250313e-16,2.4143905399731934e-16,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,model_summary,model,model_f,18.991087811271328,18.991087811271385,5.684341886080802e-14,2.9931628680623073e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,model_summary,model,model_p,0.006397546372890166,0.006397546372890131,3.5561831257524545e-17,5.5586672115764704e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,A,effect,6.433333333333334,6.433333333333332,1.7763568394002505e-15,2.7611764343009074e-16,1e-09,1e-09,DERIVED: 2 × Minitab coded coefficient,MiniJMP analyze_pb effects,PASS
+1,main_effect,A,ss,124.1633333333333,124.16333333333331,1.4210854715202004e-14,1.1445290919382003e-16,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,A,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,A,ms,124.1633333333333,124.16333333333331,1.4210854715202004e-14,1.1445290919382003e-16,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,A,f,68.34678899082579,68.34678899082598,1.9895196601282805e-13,2.910918990496151e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,A,p,0.0011681471173387104,0.001168147117338704,6.288372600415926e-18,5.3832026010064444e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,A,se,0.38908725099762476,0.38908725099762415,6.106226635438361e-16,1.5693720675200528e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,A,t,8.26721168174771,8.267211681747721,1.0658141036401503e-14,1.2892062580098765e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,A,coefficient_p,0.0011681471173387104,0.001168147117338704,6.288372600415926e-18,5.3832026010064444e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,B,effect,-3.866666666666663,-3.8666666666666636,4.440892098500626e-16,1.1485065771984389e-16,1e-09,1e-09,DERIVED: 2 × Minitab coded coefficient,MiniJMP analyze_pb effects,PASS
+1,main_effect,B,ss,44.853333333333296,44.853333333333275,2.1316282072803006e-14,4.752441009096988e-16,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,B,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,B,ms,44.853333333333296,44.853333333333275,2.1316282072803006e-14,4.752441009096988e-16,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,B,f,24.689908256880756,24.689908256880813,5.684341886080802e-14,2.3022936444069812e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,B,p,0.007657506084746641,0.00765750608474661,3.122502256758253e-17,4.0777013066670845e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,B,se,0.38908725099762476,0.38908725099762415,6.106226635438361e-16,1.5693720675200528e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,B,t,-4.9688940677861835,-4.968894067786192,8.881784197001252e-15,1.7874770674993276e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,B,coefficient_p,0.007657506084746656,0.00765750608474661,4.683753385137379e-17,6.1165519600006145e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,C,effect,2.4333333333333362,2.433333333333338,1.7763568394002505e-15,7.300096600274994e-16,1e-09,1e-09,DERIVED: 2 × Minitab coded coefficient,MiniJMP analyze_pb effects,PASS
+1,main_effect,C,ss,17.763333333333392,17.763333333333403,1.0658141036401503e-14,6.000079397486283e-16,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,C,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,C,ms,17.763333333333392,17.763333333333403,1.0658141036401503e-14,6.000079397486283e-16,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,C,f,9.777981651376196,9.77798165137623,3.375077994860476e-14,3.4517123422761306e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,C,p,0.03528806252084319,0.03528806252084302,1.734723475976807e-16,4.9158932286298745e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,C,se,0.38908725099762476,0.38908725099762415,6.106226635438361e-16,1.5693720675200528e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,C,t,3.1269764392102775,3.1269764392102846,7.105427357601002e-15,2.272299614574483e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,C,coefficient_p,0.035288062520843246,0.03528806252084302,2.2898349882893854e-16,6.488979061791424e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,D,effect,2.066666666666664,2.066666666666666,1.7763568394002505e-15,8.595275029356061e-16,1e-09,1e-09,DERIVED: 2 × Minitab coded coefficient,MiniJMP analyze_pb effects,PASS
+1,main_effect,D,ss,12.813333333333286,12.813333333333322,3.552713678800501e-14,2.7726693643084134e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,D,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,D,ms,12.813333333333286,12.813333333333322,3.552713678800501e-14,2.7726693643084134e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,D,f,7.053211009174298,7.053211009174338,3.9968028886505635e-14,5.666643013305311e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,D,p,0.05663859232171199,0.056638592321711555,4.371503159461554e-16,7.718241185499538e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,D,se,0.38908725099762476,0.3890872509976242,5.551115123125783e-16,1.4267018795636843e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,D,t,2.655788208644339,2.6557882086443447,5.773159728050814e-15,2.173802756281441e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,D,coefficient_p,0.0566385923217119,0.056638592321711555,3.469446951953614e-16,6.125588242459961e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,E,effect,-1.8000000000000012,-1.8000000000000056,4.440892098500626e-15,2.4671622769447906e-15,1e-09,1e-09,DERIVED: 2 × Minitab coded coefficient,MiniJMP analyze_pb effects,PASS
+1,main_effect,E,ss,9.72000000000002,9.720000000000061,4.085620730620576e-14,4.203313508868897e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,E,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,E,ms,9.72000000000002,9.720000000000061,4.085620730620576e-14,4.203313508868897e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,E,f,5.350458715596351,5.350458715596388,3.730349362740526e-14,6.972017841884701e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,E,p,0.08175294003560811,0.08175294003560733,7.771561172376096e-16,9.506154970073411e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,E,se,0.38908725099762476,0.38908725099762415,6.106226635438361e-16,1.5693720675200528e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,E,t,-2.3131058591418476,-2.313105859141857,9.325873406851315e-15,4.031753830026255e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,E,coefficient_p,0.08175294003560815,0.08175294003560733,8.187894806610529e-16,1.0015413272041624e-14,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,F,effect,2.800000000000003,2.8000000000000016,1.3322676295501878e-15,4.758098676964952e-16,1e-09,1e-09,DERIVED: 2 × Minitab coded coefficient,MiniJMP analyze_pb effects,PASS
+1,main_effect,F,ss,23.52000000000003,23.520000000000028,3.552713678800501e-15,1.5105075164968096e-16,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,F,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,F,ms,23.52000000000003,23.520000000000028,3.552713678800501e-15,1.5105075164968096e-16,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,F,f,12.946788990825727,12.946788990825763,3.552713678800501e-14,2.7440886549691995e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,F,p,0.02279536007737689,0.022795360077376783,1.0755285551056204e-16,4.718190682028409e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,F,se,0.38908725099762476,0.38908725099762415,6.106226635438361e-16,1.5693720675200528e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,F,t,3.5981646697762093,3.598164669776213,3.552713678800501e-15,9.873682849043885e-16,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,F,coefficient_p,0.02279536007737686,0.022795360077376783,7.632783294297951e-17,3.3483933872459723e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,G,effect,-1.6999999999999986,-1.6999999999999986,0.0,0.0,1e-09,1e-09,DERIVED: 2 × Minitab coded coefficient,MiniJMP analyze_pb effects,PASS
+1,main_effect,G,ss,8.66999999999998,8.669999999999987,7.105427357601002e-15,8.195417944176491e-16,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,G,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,G,ms,8.66999999999998,8.669999999999987,7.105427357601002e-15,8.195417944176491e-16,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,G,f,4.772477064220181,4.772477064220198,1.7763568394002505e-14,3.722085649646817e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,G,p,0.09425876303785895,0.09425876303785848,4.718447854656915e-16,5.0058452950011185e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,G,se,0.38908725099762476,0.38908725099762415,6.106226635438361e-16,1.5693720675200528e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,G,t,-2.1845999780784084,-2.184599978078412,3.552713678800501e-15,1.6262536457248783e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,main_effect,G,coefficient_p,0.09425876303785882,0.09425876303785848,3.469446951953614e-16,3.680768599265533e-15,1e-09,1e-09,"DERIVED: Minitab SCREEN XMATRIX, coefficients, fits/residuals, fixed response and scipy.stats",MiniJMP analyze_pb,PASS
+1,alias_projection,截距,A*B,-6.409875621278547e-17,3.2049378106392736e-17,9.614813431917822e-17,1.5,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,A*C,0.0,3.2049378106392736e-17,3.2049378106392736e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,A*D,0.0,3.2049378106392736e-17,3.2049378106392736e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,A*E,0.0,-3.2049378106392736e-17,3.2049378106392736e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,A*F,-6.409875621278547e-17,-3.2049378106392736e-17,3.2049378106392736e-17,0.5,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,A*G,6.409875621278547e-17,-3.2049378106392736e-17,9.614813431917822e-17,1.5,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,B*C,0.0,-3.2049378106392736e-17,3.2049378106392736e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,B*D,0.0,-3.2049378106392736e-17,3.2049378106392736e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,B*E,0.0,3.2049378106392736e-17,3.2049378106392736e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,B*F,0.0,3.2049378106392736e-17,3.2049378106392736e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,B*G,-6.409875621278547e-17,1.6024689053196368e-17,8.012344526598184e-17,1.25,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,C*D,0.0,-3.2049378106392736e-17,3.2049378106392736e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,C*E,-6.409875621278547e-17,1.6024689053196368e-17,8.012344526598184e-17,1.25,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,C*F,-6.409875621278547e-17,3.2049378106392736e-17,9.614813431917822e-17,1.5,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,C*G,0.0,3.2049378106392736e-17,3.2049378106392736e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,D*E,0.0,3.2049378106392736e-17,3.2049378106392736e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,D*F,0.0,1.6024689053196368e-17,1.6024689053196368e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,D*G,0.0,3.2049378106392736e-17,3.2049378106392736e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,E*F,0.0,-3.2049378106392736e-17,3.2049378106392736e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,E*G,0.0,-3.2049378106392736e-17,3.2049378106392736e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,截距,F*G,-6.409875621278547e-17,-3.2049378106392736e-17,3.2049378106392736e-17,0.5,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,A*B,-1.6653345369377348e-16,3.0784716934717066e-17,1.9731817062849054e-16,1.1848560529545307,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,A*C,-1.1102230246251565e-16,-2.3589687741163986e-16,1.248745749491242e-16,1.1247701784178497,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,A*D,-1.1102230246251565e-16,-3.161413617142079e-17,7.940816629109487e-17,0.7152451762374985,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,A*E,1.6653345369377348e-16,5.552223145557467e-17,1.1101122223819881e-16,0.666600132141194,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,A*F,-2.220446049250313e-16,-3.3502613609090873e-17,1.8854199131594043e-16,0.8491176418341606,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,A*G,-2.7755575615628914e-17,6.403602215017002e-17,9.179159776579893e-17,3.3071408439503562,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,B*C,-0.3333333333333336,-0.3333333333333333,2.7755575615628914e-16,8.326672684688667e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,B*D,0.33333333333333354,0.3333333333333336,5.551115123125783e-17,1.6653345369377338e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,B*E,0.33333333333333354,0.3333333333333334,1.1102230246251565e-16,3.3306690738754676e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,B*F,-0.3333333333333334,-0.3333333333333333,1.1102230246251565e-16,3.3306690738754686e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,B*G,-0.33333333333333337,-0.3333333333333336,2.220446049250313e-16,6.661338147750938e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,C*D,-0.3333333333333333,-0.3333333333333334,1.1102230246251565e-16,3.3306690738754696e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,C*E,-0.3333333333333336,-0.3333333333333333,2.7755575615628914e-16,8.326672684688667e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,C*F,0.3333333333333335,0.33333333333333337,1.1102230246251565e-16,3.330669073875468e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,C*G,-0.3333333333333338,-0.3333333333333334,3.885780586188048e-16,1.1657341758564126e-15,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,D*E,-0.3333333333333334,-0.3333333333333333,1.1102230246251565e-16,3.3306690738754686e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,D*F,-0.33333333333333354,-0.33333333333333354,0.0,0.0,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,D*G,-0.33333333333333337,-0.3333333333333332,1.6653345369377348e-16,4.996003610813203e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,E*F,0.33333333333333326,0.3333333333333333,5.551115123125783e-17,1.6653345369377353e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,E*G,0.3333333333333332,0.3333333333333333,1.1102230246251565e-16,3.330669073875471e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,A,F*G,-0.3333333333333335,-0.3333333333333332,2.7755575615628914e-16,8.32667268468867e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,A*B,-1.3877787807814457e-17,7.980694518975975e-18,2.1858482326790432e-17,1.5750696457890874,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,A*C,-0.3333333333333335,-0.3333333333333333,1.6653345369377348e-16,4.996003610813202e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,A*D,0.3333333333333335,0.3333333333333334,5.551115123125783e-17,1.665334536937734e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,A*E,0.3333333333333335,0.3333333333333334,5.551115123125783e-17,1.665334536937734e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,A*F,-0.33333333333333337,-0.33333333333333354,1.6653345369377348e-16,4.996003610813203e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,A*G,-0.33333333333333337,-0.33333333333333354,1.6653345369377348e-16,4.996003610813203e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,B*C,-5.551115123125783e-17,-1.8341408825642426e-16,1.2790293702516643e-16,2.3040944781045263,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,B*D,1.1102230246251565e-16,5.0734616765001723e-17,6.028768569751393e-17,0.5430231976847066,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,B*E,4.440892098500626e-16,-1.2795883504222274e-16,5.720480448922853e-16,1.2881376809074585,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,B*F,-1.3877787807814457e-16,1.4231719423227768e-16,2.8109507231042225e-16,2.0255034606606404,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,B*G,0.0,1.6999476051968441e-16,1.6999476051968441e-16,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,C*D,-0.33333333333333326,-0.33333333333333326,0.0,0.0,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,C*E,0.33333333333333354,0.33333333333333337,1.6653345369377348e-16,4.996003610813201e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,C*F,0.33333333333333376,0.33333333333333337,3.885780586188048e-16,1.1657341758564128e-15,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,C*G,-0.33333333333333376,-0.33333333333333326,4.996003610813204e-16,1.4988010832439594e-15,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,D*E,-0.3333333333333333,-0.3333333333333333,0.0,0.0,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,D*F,-0.33333333333333326,-0.3333333333333334,1.6653345369377348e-16,4.996003610813205e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,D*G,0.3333333333333335,0.33333333333333326,2.220446049250313e-16,6.661338147750936e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,E*F,-0.3333333333333335,-0.33333333333333337,1.1102230246251565e-16,3.330669073875468e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,E*G,-0.33333333333333337,-0.3333333333333333,5.551115123125783e-17,1.6653345369377346e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,B,F*G,0.33333333333333326,0.3333333333333334,1.6653345369377348e-16,4.996003610813205e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,A*B,-0.33333333333333326,-0.3333333333333334,1.6653345369377348e-16,4.996003610813205e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,A*C,9.283804998487557e-17,1.3686181350582025e-16,4.402376352094468e-17,0.4741995714916102,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,A*D,-0.3333333333333335,-0.3333333333333333,1.6653345369377348e-16,4.996003610813202e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,A*E,-0.33333333333333337,-0.33333333333333326,1.1102230246251565e-16,3.330669073875469e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,A*F,0.33333333333333326,0.33333333333333326,0.0,0.0,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,A*G,-0.33333333333333315,-0.33333333333333326,1.1102230246251565e-16,3.3306690738754716e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,B*C,-1.6825665044869618e-17,-1.1369833349351123e-16,9.687266844864161e-17,5.757434739744772,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,B*D,-0.3333333333333333,-0.33333333333333337,5.551115123125783e-17,1.6653345369377348e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,B*E,0.3333333333333331,0.33333333333333337,2.7755575615628914e-16,8.32667268468868e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,B*F,0.33333333333333304,0.3333333333333333,2.7755575615628914e-16,8.326672684688682e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,B*G,-0.33333333333333337,-0.3333333333333334,5.551115123125783e-17,1.6653345369377346e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,C*D,-8.746185692742758e-17,-6.709447697395548e-17,2.0367379953472098e-17,0.23287157017912566,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,C*E,-1.5599723078198322e-16,7.923875233040397e-18,1.639211060150236e-16,1.0507949736884403,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,C*F,5.664706948545876e-17,-1.234313733218721e-16,1.8007844280733088e-16,3.17895425911762,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,C*G,-2.4302676130319974e-17,-1.629583295250679e-16,1.3865565339474792e-16,5.705365641677682,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,D*E,-0.33333333333333326,-0.33333333333333326,0.0,0.0,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,D*F,0.33333333333333315,0.33333333333333326,1.1102230246251565e-16,3.3306690738754716e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,D*G,0.3333333333333332,0.33333333333333326,5.551115123125783e-17,1.6653345369377356e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,E*F,-0.3333333333333333,-0.33333333333333337,5.551115123125783e-17,1.6653345369377348e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,E*G,-0.33333333333333315,-0.3333333333333335,3.3306690738754696e-16,9.992007221626415e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,C,F*G,-0.3333333333333334,-0.33333333333333337,5.551115123125783e-17,1.6653345369377343e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,A*B,0.3333333333333336,0.3333333333333333,2.7755575615628914e-16,8.326672684688667e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,A*C,-0.3333333333333334,-0.33333333333333326,1.6653345369377348e-16,4.996003610813203e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,A*D,9.71445146547012e-17,5.5115816370048665e-17,4.202869828465253e-17,0.4326409827054358,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,A*E,-0.33333333333333326,-0.3333333333333331,1.6653345369377348e-16,4.996003610813205e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,A*F,-0.3333333333333335,-0.3333333333333336,1.1102230246251565e-16,3.330669073875468e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,A*G,-0.3333333333333333,-0.3333333333333334,1.1102230246251565e-16,3.3306690738754696e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,B*C,-0.3333333333333333,-0.33333333333333326,5.551115123125783e-17,1.6653345369377348e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,B*D,4.163336342344337e-17,1.7613260721126733e-16,1.3449924378782396e-16,3.23056396909044,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,B*E,-0.3333333333333334,-0.3333333333333334,0.0,0.0,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,B*F,-0.3333333333333335,-0.3333333333333334,5.551115123125783e-17,1.665334536937734e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,B*G,0.3333333333333336,0.3333333333333334,1.6653345369377348e-16,4.9960036108132e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,C*D,0.0,-2.997063934207862e-17,2.997063934207862e-17,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,C*E,-0.3333333333333332,-0.3333333333333334,2.220446049250313e-16,6.661338147750942e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,C*F,0.3333333333333334,0.33333333333333354,1.1102230246251565e-16,3.3306690738754686e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,C*G,0.3333333333333335,0.33333333333333337,1.1102230246251565e-16,3.330669073875468e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,D*E,8.326672684688674e-17,-8.433818160760735e-17,1.676049084544941e-16,2.0128677420296683,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,D*F,-6.938893903907228e-17,-7.307093237902997e-17,3.6819933399576855e-18,0.053063116268205056,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,D*G,1.734723475976807e-16,-1.4155637394725954e-16,3.1502872154494025e-16,1.8160169381898197,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,E*F,-0.3333333333333333,-0.3333333333333332,1.1102230246251565e-16,3.3306690738754696e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,E*G,0.33333333333333326,0.3333333333333334,1.6653345369377348e-16,4.996003610813205e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,D,F*G,-0.3333333333333334,-0.3333333333333332,2.220446049250313e-16,6.661338147750937e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,A*B,0.3333333333333335,0.33333333333333337,1.1102230246251565e-16,3.330669073875468e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,A*C,-0.3333333333333337,-0.33333333333333337,3.3306690738754696e-16,9.992007221626397e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,A*D,-0.33333333333333354,-0.33333333333333326,2.7755575615628914e-16,8.326672684688669e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,A*E,7.632783294297951e-17,-2.900918309661647e-17,1.0533701603959598e-16,1.3800603525359838,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,A*F,0.33333333333333354,0.33333333333333326,2.7755575615628914e-16,8.326672684688669e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,A*G,0.33333333333333354,0.33333333333333337,1.6653345369377348e-16,4.996003610813201e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,B*C,0.33333333333333337,0.3333333333333333,5.551115123125783e-17,1.6653345369377346e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,B*D,-0.33333333333333354,-0.33333333333333315,3.885780586188048e-16,1.1657341758564136e-15,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,B*E,-9.71445146547012e-17,6.742671612098719e-17,1.645712307756884e-16,1.6940867053652438,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,B*F,-0.33333333333333387,-0.3333333333333334,4.440892098500626e-16,1.3322676295501857e-15,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,B*G,-0.3333333333333337,-0.33333333333333337,3.3306690738754696e-16,9.992007221626397e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,C*D,-0.33333333333333354,-0.3333333333333334,1.1102230246251565e-16,3.3306690738754676e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,C*E,-3.469446951953614e-18,-1.633283380780448e-17,1.2863386855850865e-17,3.7076188320468795,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,C*F,-0.33333333333333337,-0.33333333333333315,2.220446049250313e-16,6.661338147750938e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,C*G,-0.3333333333333335,-0.3333333333333332,2.7755575615628914e-16,8.32667268468867e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,D*E,6.245004513516506e-17,-4.593962136352375e-17,1.083896664986888e-16,1.7356219081042035,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,D*F,-0.33333333333333354,-0.3333333333333332,3.3306690738754696e-16,9.992007221626403e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,D*G,0.3333333333333336,0.3333333333333333,2.7755575615628914e-16,8.326672684688667e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,E*F,-4.7704895589362195e-17,2.2249740389504765e-16,2.7020229948440984e-16,5.664037121269012,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,E*G,2.181414771040835e-16,6.2455956282655e-17,1.5568552082142848e-16,0.7136905960673635,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,E,F*G,-0.3333333333333336,-0.33333333333333326,3.3306690738754696e-16,9.9920072216264e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,A*B,-0.33333333333333337,-0.3333333333333333,5.551115123125783e-17,1.6653345369377346e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,A*C,0.33333333333333315,0.33333333333333337,2.220446049250313e-16,6.661338147750943e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,A*D,-0.33333333333333354,-0.33333333333333354,0.0,0.0,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,A*E,0.33333333333333315,0.33333333333333315,0.0,0.0,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,A*F,5.551115123125783e-17,4.666863062838204e-17,8.842520602875787e-18,0.15929268996850932,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,A*G,-0.3333333333333336,-0.33333333333333326,3.3306690738754696e-16,9.9920072216264e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,B*C,0.3333333333333333,0.33333333333333315,1.6653345369377348e-16,4.996003610813204e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,B*D,-0.3333333333333334,-0.3333333333333334,0.0,0.0,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,B*E,-0.3333333333333335,-0.3333333333333334,5.551115123125783e-17,1.665334536937734e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,B*F,-6.938893903907228e-18,1.1990123757538607e-16,1.268401314792933e-16,18.27958940370464,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,B*G,0.3333333333333335,0.3333333333333332,2.7755575615628914e-16,8.32667268468867e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,C*D,0.33333333333333337,0.3333333333333334,5.551115123125783e-17,1.6653345369377346e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,C*E,-0.33333333333333337,-0.3333333333333333,5.551115123125783e-17,1.6653345369377346e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,C*F,8.326672684688674e-17,-8.070184770507718e-17,1.6396857455196392e-16,1.9691968300071896,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,C*G,-0.3333333333333331,-0.33333333333333315,5.551115123125783e-17,1.665334536937736e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,D*E,-0.33333333333333326,-0.3333333333333333,5.551115123125783e-17,1.6653345369377353e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,D*F,5.551115123125783e-17,2.5108075906354007e-17,3.040307532490382e-17,0.5476931148166159,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,D*G,-0.3333333333333333,-0.3333333333333334,1.1102230246251565e-16,3.3306690738754696e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,E*F,-1.5959455978986625e-16,6.0611708823696e-17,2.2020626861356226e-16,1.3797855572489548,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,E*G,-0.3333333333333335,-0.3333333333333333,1.6653345369377348e-16,4.996003610813202e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,F,F*G,-1.1102230246251565e-16,-1.1904998117099635e-16,8.0276787084807e-18,0.0723069016803275,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,A*B,-0.3333333333333336,-0.33333333333333315,4.440892098500626e-16,1.3322676295501869e-15,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,A*C,-0.3333333333333334,-0.33333333333333326,1.6653345369377348e-16,4.996003610813203e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,A*D,-0.3333333333333334,-0.3333333333333332,2.220446049250313e-16,6.661338147750937e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,A*E,0.3333333333333333,0.3333333333333332,1.1102230246251565e-16,3.3306690738754696e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,A*F,-0.3333333333333336,-0.3333333333333335,1.1102230246251565e-16,3.330669073875467e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,A*G,7.478188224824977e-17,1.4746876834102737e-17,6.003500541414703e-17,0.8028014755613098,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,B*C,-0.33333333333333376,-0.3333333333333335,2.7755575615628914e-16,8.326672684688663e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,B*D,0.3333333333333335,0.33333333333333354,5.551115123125783e-17,1.665334536937734e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,B*E,-0.3333333333333335,-0.3333333333333334,5.551115123125783e-17,1.665334536937734e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,B*F,0.33333333333333326,0.33333333333333337,1.1102230246251565e-16,3.3306690738754706e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,B*G,5.551115123125783e-17,5.0727360679850763e-17,4.783790551407064e-18,0.08617710937894141,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,C*D,0.33333333333333315,0.33333333333333337,2.220446049250313e-16,6.661338147750943e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,C*E,-0.3333333333333337,-0.33333333333333326,4.440892098500626e-16,1.3322676295501865e-15,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,C*F,-0.3333333333333336,-0.33333333333333326,3.3306690738754696e-16,9.9920072216264e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,C*G,0.0,2.1543057373987892e-16,2.1543057373987892e-16,,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,D*E,0.3333333333333334,0.33333333333333354,1.1102230246251565e-16,3.3306690738754686e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,D*F,-0.3333333333333335,-0.33333333333333337,1.1102230246251565e-16,3.330669073875468e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,D*G,-2.7755575615628914e-16,-1.2664403689232327e-16,1.5091171926396586e-16,0.5437167701144301,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,E*F,-0.3333333333333335,-0.33333333333333326,2.220446049250313e-16,6.661338147750936e-16,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,E*G,-1.6653345369377348e-16,2.549227687503085e-16,4.21456222444082e-16,2.5307601151361925,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,alias_projection,G,F*G,-1.1102230246251565e-16,4.288964862321509e-17,1.5391195108573075e-16,1.386315611115126,1e-09,1e-09,DERIVED: Minitab PBDESIGN matrix projection,MiniJMP analyze_pb actual-matrix projection,PASS
+1,effect_ranking,A,rank,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab effect magnitude, ties by factor ID","MiniJMP effect magnitude, ties by factor ID",PASS
+1,effect_ranking,B,rank,2.0,2.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab effect magnitude, ties by factor ID","MiniJMP effect magnitude, ties by factor ID",PASS
+1,effect_ranking,C,rank,4.0,4.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab effect magnitude, ties by factor ID","MiniJMP effect magnitude, ties by factor ID",PASS
+1,effect_ranking,D,rank,5.0,5.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab effect magnitude, ties by factor ID","MiniJMP effect magnitude, ties by factor ID",PASS
+1,effect_ranking,E,rank,6.0,6.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab effect magnitude, ties by factor ID","MiniJMP effect magnitude, ties by factor ID",PASS
+1,effect_ranking,F,rank,3.0,3.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab effect magnitude, ties by factor ID","MiniJMP effect magnitude, ties by factor ID",PASS
+1,effect_ranking,G,rank,7.0,7.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab effect magnitude, ties by factor ID","MiniJMP effect magnitude, ties by factor ID",PASS

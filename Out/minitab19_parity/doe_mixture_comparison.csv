@@ -1,0 +1,254 @@
+﻿run,section,term,statistic,minitab_value,minijmp_value,absolute_error,relative_error,absolute_tolerance,relative_tolerance,minitab_value_source,minijmp_value_source,status
+MIX-SL2,design,"(0.0, 0.0, 1.0) / rep 1",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 0.0, 1.0) / rep 1",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 0.0, 1.0) / rep 1",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 0.0, 1.0) / rep 1",Y,44.75,44.75,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.0, 1.0) / rep 1",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.0, 1.0) / rep 1",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.0, 1.0) / rep 1",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.0, 1.0) / rep 1",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.0, 1.0) / rep 1",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.0, 1.0) / rep 1",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,fit,"(0.0, 0.0, 1.0) / rep 1",fitted,44.99999999999999,45.00000000000004,4.973799150320701e-14,1.1052887000712672e-15,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,fit,"(0.0, 0.0, 1.0) / rep 1",residual,-0.2499999999999929,-0.25000000000004263,4.973799150320701e-14,1.989519660128337e-13,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,design,"(0.0, 0.0, 1.0) / rep 2",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 0.0, 1.0) / rep 2",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 0.0, 1.0) / rep 2",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 0.0, 1.0) / rep 2",Y,45.25,45.25,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.0, 1.0) / rep 2",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.0, 1.0) / rep 2",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.0, 1.0) / rep 2",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.0, 1.0) / rep 2",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.0, 1.0) / rep 2",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.0, 1.0) / rep 2",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,fit,"(0.0, 0.0, 1.0) / rep 2",fitted,44.99999999999999,45.00000000000004,4.973799150320701e-14,1.1052887000712672e-15,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,fit,"(0.0, 0.0, 1.0) / rep 2",residual,0.2500000000000071,0.24999999999995737,4.973799150320701e-14,1.989519660128224e-13,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,design,"(0.0, 0.5, 0.5) / rep 1",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 0.5, 0.5) / rep 1",B,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 0.5, 0.5) / rep 1",C,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 0.5, 0.5) / rep 1",Y,41.25,41.25,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.5, 0.5) / rep 1",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.5, 0.5) / rep 1",B,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.5, 0.5) / rep 1",C,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.5, 0.5) / rep 1",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.5, 0.5) / rep 1",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.5, 0.5) / rep 1",B*C,0.25,0.25,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,fit,"(0.0, 0.5, 0.5) / rep 1",fitted,41.49999999999999,41.50000000000005,5.684341886080802e-14,1.3697209364050127e-15,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,fit,"(0.0, 0.5, 0.5) / rep 1",residual,-0.2499999999999929,-0.25000000000004974,5.684341886080802e-14,2.273736754432385e-13,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,design,"(0.0, 0.5, 0.5) / rep 2",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 0.5, 0.5) / rep 2",B,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 0.5, 0.5) / rep 2",C,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 0.5, 0.5) / rep 2",Y,41.75,41.75,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.5, 0.5) / rep 2",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.5, 0.5) / rep 2",B,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.5, 0.5) / rep 2",C,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.5, 0.5) / rep 2",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.5, 0.5) / rep 2",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 0.5, 0.5) / rep 2",B*C,0.25,0.25,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,fit,"(0.0, 0.5, 0.5) / rep 2",fitted,41.49999999999999,41.50000000000005,5.684341886080802e-14,1.3697209364050127e-15,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,fit,"(0.0, 0.5, 0.5) / rep 2",residual,0.2500000000000071,0.24999999999995026,5.684341886080802e-14,2.273736754432256e-13,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,design,"(0.0, 1.0, 0.0) / rep 1",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 1.0, 0.0) / rep 1",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 1.0, 0.0) / rep 1",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 1.0, 0.0) / rep 1",Y,34.75,34.75,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 1.0, 0.0) / rep 1",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 1.0, 0.0) / rep 1",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 1.0, 0.0) / rep 1",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 1.0, 0.0) / rep 1",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 1.0, 0.0) / rep 1",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 1.0, 0.0) / rep 1",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,fit,"(0.0, 1.0, 0.0) / rep 1",fitted,35.00000000000001,35.00000000000006,4.973799150320701e-14,1.4210854715202e-15,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,fit,"(0.0, 1.0, 0.0) / rep 1",residual,-0.2500000000000071,-0.25000000000005684,4.973799150320701e-14,1.989519660128224e-13,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,design,"(0.0, 1.0, 0.0) / rep 2",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 1.0, 0.0) / rep 2",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 1.0, 0.0) / rep 2",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.0, 1.0, 0.0) / rep 2",Y,35.25,35.25,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 1.0, 0.0) / rep 2",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 1.0, 0.0) / rep 2",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 1.0, 0.0) / rep 2",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 1.0, 0.0) / rep 2",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 1.0, 0.0) / rep 2",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.0, 1.0, 0.0) / rep 2",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,fit,"(0.0, 1.0, 0.0) / rep 2",fitted,35.00000000000001,35.00000000000006,4.973799150320701e-14,1.4210854715202e-15,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,fit,"(0.0, 1.0, 0.0) / rep 2",residual,0.2499999999999929,0.24999999999994316,4.973799150320701e-14,1.989519660128337e-13,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,design,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 1",A,0.3333333333333333,0.3333333333333333,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 1",B,0.3333333333333333,0.3333333333333333,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 1",C,0.3333333333333333,0.3333333333333333,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 1",Y,44.19444444444444,44.19444444444444,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+MIX-SL2,model_matrix,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 1",A,0.3333333333333333,0.3333333333333333,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 1",B,0.3333333333333333,0.3333333333333333,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 1",C,0.3333333333333333,0.3333333333333333,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 1",A*B,0.1111111111111111,0.1111111111111111,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 1",A*C,0.1111111111111111,0.1111111111111111,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 1",B*C,0.1111111111111111,0.1111111111111111,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,fit,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 1",fitted,44.444444444444436,44.44444444444447,3.552713678800501e-14,7.993605777301128e-16,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,fit,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 1",residual,-0.2499999999999929,-0.2500000000000284,3.552713678800501e-14,1.4210854715202408e-13,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,design,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 2",A,0.3333333333333333,0.3333333333333333,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 2",B,0.3333333333333333,0.3333333333333333,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 2",C,0.3333333333333333,0.3333333333333333,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 2",Y,44.69444444444444,44.69444444444444,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+MIX-SL2,model_matrix,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 2",A,0.3333333333333333,0.3333333333333333,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 2",B,0.3333333333333333,0.3333333333333333,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 2",C,0.3333333333333333,0.3333333333333333,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 2",A*B,0.1111111111111111,0.1111111111111111,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 2",A*C,0.1111111111111111,0.1111111111111111,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 2",B*C,0.1111111111111111,0.1111111111111111,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,fit,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 2",fitted,44.444444444444436,44.44444444444447,3.552713678800501e-14,7.993605777301128e-16,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,fit,"(0.333333333333, 0.333333333333, 0.333333333333) / rep 2",residual,0.2500000000000071,0.24999999999997158,3.552713678800501e-14,1.42108547152016e-13,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,design,"(0.5, 0.0, 0.5) / rep 1",A,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.5, 0.0, 0.5) / rep 1",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.5, 0.0, 0.5) / rep 1",C,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.5, 0.0, 0.5) / rep 1",Y,45.25,45.25,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.0, 0.5) / rep 1",A,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.0, 0.5) / rep 1",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.0, 0.5) / rep 1",C,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.0, 0.5) / rep 1",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.0, 0.5) / rep 1",A*C,0.25,0.25,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.0, 0.5) / rep 1",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,fit,"(0.5, 0.0, 0.5) / rep 1",fitted,45.5,45.49999999999999,7.105427357601002e-15,1.5616323862859346e-16,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,fit,"(0.5, 0.0, 0.5) / rep 1",residual,-0.25,-0.2499999999999929,7.105427357601002e-15,2.842170943040401e-14,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,design,"(0.5, 0.0, 0.5) / rep 2",A,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.5, 0.0, 0.5) / rep 2",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.5, 0.0, 0.5) / rep 2",C,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.5, 0.0, 0.5) / rep 2",Y,45.75,45.75,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.0, 0.5) / rep 2",A,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.0, 0.5) / rep 2",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.0, 0.5) / rep 2",C,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.0, 0.5) / rep 2",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.0, 0.5) / rep 2",A*C,0.25,0.25,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.0, 0.5) / rep 2",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,fit,"(0.5, 0.0, 0.5) / rep 2",fitted,45.5,45.49999999999999,7.105427357601002e-15,1.5616323862859346e-16,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,fit,"(0.5, 0.0, 0.5) / rep 2",residual,0.25,0.2500000000000071,7.105427357601002e-15,2.842170943040401e-14,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,design,"(0.5, 0.5, 0.0) / rep 1",A,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.5, 0.5, 0.0) / rep 1",B,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.5, 0.5, 0.0) / rep 1",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.5, 0.5, 0.0) / rep 1",Y,45.25,45.25,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.5, 0.0) / rep 1",A,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.5, 0.0) / rep 1",B,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.5, 0.0) / rep 1",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.5, 0.0) / rep 1",A*B,0.25,0.25,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.5, 0.0) / rep 1",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.5, 0.0) / rep 1",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,fit,"(0.5, 0.5, 0.0) / rep 1",fitted,45.5,45.50000000000005,4.973799150320701e-14,1.0931426704001542e-15,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,fit,"(0.5, 0.5, 0.0) / rep 1",residual,-0.25,-0.25000000000004974,4.973799150320701e-14,1.9895196601282805e-13,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,design,"(0.5, 0.5, 0.0) / rep 2",A,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.5, 0.5, 0.0) / rep 2",B,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.5, 0.5, 0.0) / rep 2",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(0.5, 0.5, 0.0) / rep 2",Y,45.75,45.75,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.5, 0.0) / rep 2",A,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.5, 0.0) / rep 2",B,0.5,0.5,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.5, 0.0) / rep 2",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.5, 0.0) / rep 2",A*B,0.25,0.25,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.5, 0.0) / rep 2",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(0.5, 0.5, 0.0) / rep 2",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,fit,"(0.5, 0.5, 0.0) / rep 2",fitted,45.5,45.50000000000005,4.973799150320701e-14,1.0931426704001542e-15,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,fit,"(0.5, 0.5, 0.0) / rep 2",residual,0.25,0.24999999999995026,4.973799150320701e-14,1.9895196601282805e-13,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,design,"(1.0, 0.0, 0.0) / rep 1",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(1.0, 0.0, 0.0) / rep 1",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(1.0, 0.0, 0.0) / rep 1",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(1.0, 0.0, 0.0) / rep 1",Y,49.75,49.75,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+MIX-SL2,model_matrix,"(1.0, 0.0, 0.0) / rep 1",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(1.0, 0.0, 0.0) / rep 1",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(1.0, 0.0, 0.0) / rep 1",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(1.0, 0.0, 0.0) / rep 1",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(1.0, 0.0, 0.0) / rep 1",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(1.0, 0.0, 0.0) / rep 1",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,fit,"(1.0, 0.0, 0.0) / rep 1",fitted,49.999999999999986,50.0,1.4210854715202004e-14,2.842170943040402e-16,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,fit,"(1.0, 0.0, 0.0) / rep 1",residual,-0.2499999999999858,-0.25,1.4210854715202004e-14,5.684341886081125e-14,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,design,"(1.0, 0.0, 0.0) / rep 2",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(1.0, 0.0, 0.0) / rep 2",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(1.0, 0.0, 0.0) / rep 2",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 SCDESIGN worksheet storage (DIRECT),MiniJMP create_mixture_design (DIRECT),PASS
+MIX-SL2,design,"(1.0, 0.0, 0.0) / rep 2",Y,50.25,50.25,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+MIX-SL2,model_matrix,"(1.0, 0.0, 0.0) / rep 2",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(1.0, 0.0, 0.0) / rep 2",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(1.0, 0.0, 0.0) / rep 2",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(1.0, 0.0, 0.0) / rep 2",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(1.0, 0.0, 0.0) / rep 2",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,model_matrix,"(1.0, 0.0, 0.0) / rep 2",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 MIXREG XMATRIX (DIRECT),MiniJMP MixtureTermModel matrix (DIRECT),PASS
+MIX-SL2,fit,"(1.0, 0.0, 0.0) / rep 2",fitted,49.999999999999986,50.0,1.4210854715202004e-14,2.842170943040402e-16,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,fit,"(1.0, 0.0, 0.0) / rep 2",residual,0.2500000000000142,0.25,1.4210854715202004e-14,5.6843418860804784e-14,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,coefficient,A,estimate,49.99999999999998,50.0,2.1316282072803006e-14,4.263256414560603e-16,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,coefficient,B,estimate,35.00000000000001,35.00000000000006,4.973799150320701e-14,1.4210854715202e-15,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,coefficient,C,estimate,44.99999999999999,45.00000000000004,4.973799150320701e-14,1.1052887000712672e-15,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,coefficient,A*B,estimate,12.000000000000007,12.000000000000092,8.526512829121202e-14,7.105427357600998e-15,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,coefficient,A*C,estimate,-7.999999999999976,-8.000000000000114,1.376676550535194e-13,1.7208456881689977e-14,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,coefficient,B*C,estimate,5.9999999999999725,5.999999999999989,1.687538997430238e-14,2.812564995717076e-15,1e-09,1e-09,Minitab 19 MIXREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,rank,6.0,6.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,model_df,5.0,5.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,error_df,8.0,8.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,total_df,13.0,13.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,sse,0.875,0.875,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,sst,258.4517195767196,258.4517195767196,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,ssr,257.5767195767196,257.5767195767196,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,mse,0.109375,0.109375,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,s,0.33071891388307384,0.33071891388307384,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,r2,0.9966144547173722,0.9966144547173722,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,adjusted_r2,0.9944984889157299,0.9944984889157299,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,model_f,470.9974300831444,470.9974300831444,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,model_p,1.180646245849998e-09,1.180646245849998e-09,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,pure_error_df,7.0,7.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,pure_error_sse,0.875,0.875,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,lack_of_fit_df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,lack_of_fit_sse,0.0,0.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,lack_of_fit_f,0.0,0.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,model_summary,model,lack_of_fit_p,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,A,ss,5038.167938931295,5038.167938931296,9.094947017729282e-13,1.8052091807917222e-16,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,A,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,A,f,,,,,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,N/A
+MIX-SL2,term_anova,A,p,,,,,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,N/A
+MIX-SL2,term_anova,B,ss,2468.7022900763354,2468.702290076336,4.547473508864641e-13,1.8420501844813485e-16,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,B,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,B,f,,,,,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,N/A
+MIX-SL2,term_anova,B,p,,,,,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,N/A
+MIX-SL2,term_anova,C,ss,4080.9160305343503,4080.916030534351,9.094947017729282e-13,2.2286533096194095e-16,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,C,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,C,f,,,,,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,N/A
+MIX-SL2,term_anova,C,p,,,,,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,N/A
+MIX-SL2,term_anova,A*B,ss,13.734104046242747,13.734104046242733,1.4210854715202004e-14,1.0347129064519997e-15,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,A*B,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,A*B,f,125.56895127993369,125.56895127993356,1.2789769243681803e-13,1.0185455172886874e-15,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,A*B,p,3.6064109121426866e-06,3.6064109121427006e-06,1.3976043629695956e-20,3.8753331137721996e-15,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,A*C,ss,6.104046242774589,6.1040462427745545,3.4638958368304884e-14,5.674753596322654e-15,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,A*C,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,A*C,f,55.80842279108196,55.80842279108164,3.197442310920451e-13,5.729318534748833e-15,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,A*C,p,7.124262970419247e-05,7.124262970419387e-05,1.395910297075087e-18,1.959375029909853e-14,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,B*C,ss,3.4335260115606845,3.433526011560697,1.2434497875801753e-14,3.621495172582002e-15,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,B*C,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,B*C,f,31.3922378199834,31.392237819983514,1.1368683772161603e-13,3.621495172582002e-15,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,term_anova,B*C,p,0.0005085366792780214,0.0005085366792780153,6.071532165918825e-18,1.1939221718556639e-14,1e-09,1e-09,"DERIVED: Minitab MIXREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_mixture,PASS
+MIX-SL2,prediction,P1,fit,43.82,43.82000000000003,2.842170943040401e-14,6.48601310597992e-16,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P1,fit,43.82,43.82000000000003,2.842170943040401e-14,6.48601310597992e-16,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P1,se_fit,0.14818855719942917,0.1481885571994292,2.7755575615628914e-17,1.8729904751198852e-16,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P1,se_fit,0.148,0.1481885571994292,0.00018855719942920124,0.0012740351312783868,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P1,ci_low,43.478276574308175,43.478276574308204,2.842170943040401e-14,6.536990807772434e-16,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P1,ci_low,43.478,43.478276574308204,0.0002765743082022709,6.361247256135767e-06,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P1,ci_high,44.161723425691825,44.161723425691854,2.842170943040401e-14,6.435824335123027e-16,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P1,ci_high,44.162,44.161723425691854,0.0002765743081454275,6.262721528586284e-06,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P1,pi_low,42.98430063831514,42.98430063831517,2.842170943040401e-14,6.612113959827835e-16,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P1,pi_low,42.984,42.98430063831517,0.00030063831516713435,6.994191214571337e-06,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P1,pi_high,44.65569936168486,44.65569936168489,2.842170943040401e-14,6.364632026072395e-16,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P1,pi_high,44.656,44.65569936168489,0.00030063831511029093,6.73231626456223e-06,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P2,fit,41.87,41.87000000000004,4.263256414560601e-14,1.0182126617054218e-15,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P2,fit,41.87,41.87000000000004,4.263256414560601e-14,1.0182126617054218e-15,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P2,se_fit,0.15283888312558347,0.15283888312558347,0.0,0.0,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P2,se_fit,0.153,0.15283888312558347,0.0001611168744165281,0.0010530514667746935,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P2,ci_low,41.517552903492415,41.51755290349246,4.263256414560601e-14,1.0268563815575894e-15,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P2,ci_low,41.518,41.51755290349246,0.00044709650754271024,1.076873904192664e-05,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P2,ci_high,42.22244709650758,42.22244709650762,4.263256414560601e-14,1.0097132467988184e-15,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P2,ci_high,42.222,42.22244709650762,0.00044709650762086994,1.0589183544618208e-05,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P2,pi_low,41.02985865517132,41.02985865517136,4.263256414560601e-14,1.0390619305785177e-15,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P2,pi_low,41.03,41.02985865517136,0.00014134482864136544,3.4449141760020824e-06,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P2,pi_high,42.71014134482868,42.71014134482872,4.263256414560601e-14,9.981836351559615e-16,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P2,pi_high,42.71,42.71014134482872,0.00014134482871952514,3.3094083053037964e-06,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P3,fit,45.15999999999999,45.16000000000002,2.842170943040401e-14,6.29355833268468e-16,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P3,fit,45.16,45.16000000000002,2.1316282072803006e-14,4.720168749513509e-16,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P3,se_fit,0.15167904961104253,0.15167904961104248,5.551115123125783e-17,3.659777099975744e-16,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P3,se_fit,0.152,0.15167904961104248,0.00032095038895751937,0.0021115157168257854,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P3,ci_low,44.81022748437309,44.810227484373115,2.842170943040401e-14,6.342683584973021e-16,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P3,ci_low,44.81,44.810227484373115,0.00022748437311292946,5.07664300631398e-06,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P3,ci_high,45.50977251562689,45.50977251562692,2.842170943040401e-14,6.245188200104652e-16,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P3,ci_high,45.51,45.50977251562692,0.00022748437307740232,4.998557966983132e-06,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P3,pi_low,44.32097715398095,44.32097715398098,2.842170943040401e-14,6.412699190196248e-16,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P3,pi_low,44.321,44.32097715398098,2.2846019021471875e-05,5.154671379587978e-07,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction,P3,pi_high,45.99902284601903,45.99902284601906,2.842170943040401e-14,6.178763737122245e-16,1e-09,1e-09,DERIVED: Minitab MIXREG COEFFICIENTS/XMATRIX and residual variance,MiniJMP predict_mixture(confidence=.95),PASS
+MIX-SL2,prediction_display,P3,pi_high,45.999,45.99902284601906,2.2846019056999012e-05,4.966633852257442e-07,0.00051,0,DISPLAY: Minitab 19 MIXREG PREDICT (3 decimals),MiniJMP predict_mixture(confidence=.95),PASS

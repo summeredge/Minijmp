@@ -1,0 +1,27 @@
+# Native 2-factor split-plot: A hard, B easy, 3 blocks for WP/SP df 2/4
+SPDESIGN 2 1;
+  PLOTS 2 2;
+  WPREPLICATES 3;
+  RBLOCK;
+  RANDOMIZE 19;
+  LEVELS -1 1 -1 1;
+  DESIGN.
+
+# Split-plot analysis retains whole-plot and subplot error strata
+SPFACTORIAL;
+  RESPONSE <Y>;
+  FACTOR <A> <B>;
+  HTCHANGE <A>;
+  WPID <derived whole-plot ID>;
+  BLOCKS <block>;
+  TERMS <BLOCK> <A> <B> A*B;
+  INUNIT 0;
+  LEVELS -1 1 -1 1;
+  TANOVA;
+  TCOEFFICIENTS;
+  TSUMMARY;
+  FITS <Fit>;
+  RESIDUALS <Resid>;
+  WRESIDUALS <WPResid>;
+  COEFFICIENTS <Coef>;
+  XMATRIX <M>.
