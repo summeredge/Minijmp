@@ -1,0 +1,7 @@
+﻿stage,case_id,stage_status,case_status,comparison_count,raw_comparison_rows,PASS,FAIL,N/A,UNSUPPORTED,DIRECT,DERIVED,DISPLAY,max_absolute_error,max_error_section,max_error_term,max_error_statistic,max_error_run,rerun_exit_code,batch_replay,com_cleanup,com_pids_after_stage,minitab_version
+Taguchi,TAG-L8,PARTIAL,PARTIAL,254,302,228,0,25,1,189,38,20,1.1368683772161603e-13,anova,合计,SS,l8,0,SUCCESS,PASS,,19.1.0.1
+Taguchi,TAG-L9,PARTIAL,PARTIAL,246,300,245,0,0,1,207,32,23,0.003846153846141398,anova,P_C,f,l9,0,SUCCESS,PASS,,19.1.0.1
+Mixture,MIX-3COMP,PASS,PASS,253,253,247,0,6,0,174,61,18,0.00044709650762086994,prediction_display,P2,ci_high,MIX-SL2,0,SUCCESS,PASS,,19.1.0.1
+BBD,BBD-3FACT,PASS,PASS,356,356,356,0,0,0,268,88,0,2.667945864232024e-10,prediction,P3,pi_low,1,0,SUCCESS,PASS,,19.1.0.1
+PB,PB-12RUN,PASS,PASS,475,475,475,0,0,0,224,251,0,1.9895196601282805e-13,main_effect,A,f,1,0,SUCCESS,PASS,,19.1.0.1
+Split-Plot,SP-2FACT-3BLOCK,PASS,PASS,121,121,120,0,1,0,76,45,0,1.1368683772161603e-13,treatment_effect,B,f,1,0,SUCCESS,PASS,,19.1.0.1

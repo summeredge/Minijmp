@@ -1,0 +1,18 @@
+# Native Minitab 19 7-point simplex centroid design, 2 replicates
+SCDESIGN 3;
+  ALLREP 2;
+  PROPORTIONS;
+  DESIGN.
+
+# Native quadratic Scheffe fit, stored matrix/coefficient/fit/residual and displayed 95% prediction
+MIXREG <Y> = <A> <B> <C> <A>*<B> <A>*<C> <B>*<C>;
+  INUNIT 1;
+  LOWER 0 0 0;
+  BRIEF 3;
+  FITS <Fit>;
+  RESIDUALS <Resid>;
+  COEFFICIENTS <Coef>;
+  XMATRIX <M>;
+  PREDICT <P_A> <P_B> <P_C>;
+  CONFIDENCE 95;
+  CONFIDENCE 95.

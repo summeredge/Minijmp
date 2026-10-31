@@ -1,0 +1,357 @@
+﻿run,section,term,statistic,minitab_value,minijmp_value,absolute_error,relative_error,absolute_tolerance,relative_tolerance,minitab_value_source,minijmp_value_source,status
+1,design,"(-1.0, -1.0, 0.0) / center occurrence 0",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(-1.0, -1.0, 0.0) / center occurrence 0",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(-1.0, -1.0, 0.0) / center occurrence 0",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(-1.0, -1.0, 0.0) / center occurrence 0",Y,80.875,80.875,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 0.0) / center occurrence 0",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 0.0) / center occurrence 0",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 0.0) / center occurrence 0",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 0.0) / center occurrence 0",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 0.0) / center occurrence 0",A²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 0.0) / center occurrence 0",B²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 0.0) / center occurrence 0",C²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 0.0) / center occurrence 0",A*B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 0.0) / center occurrence 0",A*C,0.0,-0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, -1.0, 0.0) / center occurrence 0",B*C,0.0,-0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(-1.0, -1.0, 0.0) / center occurrence 0",fitted,80.88749999999999,80.88749999999996,2.842170943040401e-14,3.5137332011007895e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(-1.0, -1.0, 0.0) / center occurrence 0",residual,-0.012499999999988631,-0.01249999999996021,2.842170943040401e-14,2.2737367544343885e-12,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,design,"(-1.0, 0.0, -1.0) / center occurrence 0",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(-1.0, 0.0, -1.0) / center occurrence 0",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(-1.0, 0.0, -1.0) / center occurrence 0",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(-1.0, 0.0, -1.0) / center occurrence 0",Y,75.05,75.05,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, -1.0) / center occurrence 0",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, -1.0) / center occurrence 0",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, -1.0) / center occurrence 0",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, -1.0) / center occurrence 0",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, -1.0) / center occurrence 0",A²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, -1.0) / center occurrence 0",B²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, -1.0) / center occurrence 0",C²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, -1.0) / center occurrence 0",A*B,0.0,-0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, -1.0) / center occurrence 0",A*C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, -1.0) / center occurrence 0",B*C,0.0,-0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(-1.0, 0.0, -1.0) / center occurrence 0",fitted,75.04999999999997,75.04999999999997,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(-1.0, 0.0, -1.0) / center occurrence 0",residual,2.842170943040401e-14,2.842170943040401e-14,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,design,"(-1.0, 0.0, 1.0) / center occurrence 0",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(-1.0, 0.0, 1.0) / center occurrence 0",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(-1.0, 0.0, 1.0) / center occurrence 0",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(-1.0, 0.0, 1.0) / center occurrence 0",Y,80.55,80.55,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, 1.0) / center occurrence 0",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, 1.0) / center occurrence 0",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, 1.0) / center occurrence 0",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, 1.0) / center occurrence 0",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, 1.0) / center occurrence 0",A²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, 1.0) / center occurrence 0",B²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, 1.0) / center occurrence 0",C²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, 1.0) / center occurrence 0",A*B,0.0,-0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, 1.0) / center occurrence 0",A*C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 0.0, 1.0) / center occurrence 0",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(-1.0, 0.0, 1.0) / center occurrence 0",fitted,80.54999999999997,80.54999999999995,1.4210854715202004e-14,1.7642277734577292e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(-1.0, 0.0, 1.0) / center occurrence 0",residual,2.842170943040401e-14,4.263256414560601e-14,1.4210854715202004e-14,0.5,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,design,"(-1.0, 1.0, 0.0) / center occurrence 0",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(-1.0, 1.0, 0.0) / center occurrence 0",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(-1.0, 1.0, 0.0) / center occurrence 0",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(-1.0, 1.0, 0.0) / center occurrence 0",Y,71.92500000000001,71.92500000000001,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 0.0) / center occurrence 0",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 0.0) / center occurrence 0",A,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 0.0) / center occurrence 0",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 0.0) / center occurrence 0",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 0.0) / center occurrence 0",A²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 0.0) / center occurrence 0",B²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 0.0) / center occurrence 0",C²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 0.0) / center occurrence 0",A*B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 0.0) / center occurrence 0",A*C,0.0,-0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(-1.0, 1.0, 0.0) / center occurrence 0",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(-1.0, 1.0, 0.0) / center occurrence 0",fitted,71.9125,71.91249999999997,2.842170943040401e-14,3.952262740191762e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(-1.0, 1.0, 0.0) / center occurrence 0",residual,0.012500000000017053,0.012500000000045475,2.842170943040401e-14,2.2737367544292187e-12,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,design,"(0.0, -1.0, -1.0) / center occurrence 0",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, -1.0, -1.0) / center occurrence 0",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, -1.0, -1.0) / center occurrence 0",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, -1.0, -1.0) / center occurrence 0",Y,83.05,83.05,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, -1.0) / center occurrence 0",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, -1.0) / center occurrence 0",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, -1.0) / center occurrence 0",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, -1.0) / center occurrence 0",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, -1.0) / center occurrence 0",A²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, -1.0) / center occurrence 0",B²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, -1.0) / center occurrence 0",C²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, -1.0) / center occurrence 0",A*B,0.0,-0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, -1.0) / center occurrence 0",A*C,0.0,-0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, -1.0) / center occurrence 0",B*C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(0.0, -1.0, -1.0) / center occurrence 0",fitted,83.03749999999998,83.03749999999995,2.842170943040401e-14,3.4227559151472547e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(0.0, -1.0, -1.0) / center occurrence 0",residual,0.012500000000017053,0.012500000000045475,2.842170943040401e-14,2.2737367544292187e-12,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,design,"(0.0, -1.0, 1.0) / center occurrence 0",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, -1.0, 1.0) / center occurrence 0",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, -1.0, 1.0) / center occurrence 0",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, -1.0, 1.0) / center occurrence 0",Y,82.55,82.55,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, 1.0) / center occurrence 0",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, 1.0) / center occurrence 0",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, 1.0) / center occurrence 0",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, 1.0) / center occurrence 0",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, 1.0) / center occurrence 0",A²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, 1.0) / center occurrence 0",B²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, 1.0) / center occurrence 0",C²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, 1.0) / center occurrence 0",A*B,0.0,-0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, 1.0) / center occurrence 0",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, -1.0, 1.0) / center occurrence 0",B*C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(0.0, -1.0, 1.0) / center occurrence 0",fitted,82.53749999999998,82.53749999999995,2.842170943040401e-14,3.443490465594913e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(0.0, -1.0, 1.0) / center occurrence 0",residual,0.012500000000017053,0.012500000000045475,2.842170943040401e-14,2.2737367544292187e-12,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,design,"(0.0, 0.0, 0.0) / center occurrence 1",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 0.0, 0.0) / center occurrence 1",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 0.0, 0.0) / center occurrence 1",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 0.0, 0.0) / center occurrence 1",Y,79.8,79.8,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 1",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 1",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 1",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 1",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 1",A²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 1",B²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 1",C²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 1",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 1",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 1",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(0.0, 0.0, 0.0) / center occurrence 1",fitted,79.99999999999999,80.0,1.4210854715202004e-14,1.7763568394002508e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(0.0, 0.0, 0.0) / center occurrence 1",residual,-0.19999999999998863,-0.20000000000000284,1.4210854715202004e-14,7.105427357601406e-14,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,design,"(0.0, 0.0, 0.0) / center occurrence 2",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 0.0, 0.0) / center occurrence 2",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 0.0, 0.0) / center occurrence 2",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 0.0, 0.0) / center occurrence 2",Y,80.0,80.0,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 2",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 2",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 2",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 2",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 2",A²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 2",B²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 2",C²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 2",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 2",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 2",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(0.0, 0.0, 0.0) / center occurrence 2",fitted,79.99999999999999,80.0,1.4210854715202004e-14,1.7763568394002508e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(0.0, 0.0, 0.0) / center occurrence 2",residual,1.4210854715202004e-14,0.0,1.4210854715202004e-14,1.0,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,design,"(0.0, 0.0, 0.0) / center occurrence 3",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 0.0, 0.0) / center occurrence 3",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 0.0, 0.0) / center occurrence 3",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 0.0, 0.0) / center occurrence 3",Y,80.2,80.2,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 3",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 3",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 3",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 3",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 3",A²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 3",B²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 3",C²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 3",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 3",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 0.0, 0.0) / center occurrence 3",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(0.0, 0.0, 0.0) / center occurrence 3",fitted,79.99999999999999,80.0,1.4210854715202004e-14,1.7763568394002508e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(0.0, 0.0, 0.0) / center occurrence 3",residual,0.20000000000001705,0.20000000000000284,1.4210854715202004e-14,7.105427357600396e-14,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,design,"(0.0, 1.0, -1.0) / center occurrence 0",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 1.0, -1.0) / center occurrence 0",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 1.0, -1.0) / center occurrence 0",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 1.0, -1.0) / center occurrence 0",Y,72.55,72.55,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, -1.0) / center occurrence 0",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, -1.0) / center occurrence 0",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, -1.0) / center occurrence 0",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, -1.0) / center occurrence 0",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, -1.0) / center occurrence 0",A²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, -1.0) / center occurrence 0",B²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, -1.0) / center occurrence 0",C²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, -1.0) / center occurrence 0",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, -1.0) / center occurrence 0",A*C,0.0,-0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, -1.0) / center occurrence 0",B*C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(0.0, 1.0, -1.0) / center occurrence 0",fitted,72.56249999999999,72.56249999999994,4.263256414560601e-14,5.8752887711429485e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(0.0, 1.0, -1.0) / center occurrence 0",residual,-0.012499999999988631,-0.012499999999945999,4.263256414560601e-14,3.410605131651583e-12,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,design,"(0.0, 1.0, 1.0) / center occurrence 0",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 1.0, 1.0) / center occurrence 0",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 1.0, 1.0) / center occurrence 0",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(0.0, 1.0, 1.0) / center occurrence 0",Y,81.05,81.05,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, 1.0) / center occurrence 0",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, 1.0) / center occurrence 0",A,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, 1.0) / center occurrence 0",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, 1.0) / center occurrence 0",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, 1.0) / center occurrence 0",A²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, 1.0) / center occurrence 0",B²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, 1.0) / center occurrence 0",C²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, 1.0) / center occurrence 0",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, 1.0) / center occurrence 0",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(0.0, 1.0, 1.0) / center occurrence 0",B*C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(0.0, 1.0, 1.0) / center occurrence 0",fitted,81.06249999999999,81.06249999999996,2.842170943040401e-14,3.5061476552541575e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(0.0, 1.0, 1.0) / center occurrence 0",residual,-0.012499999999988631,-0.01249999999996021,2.842170943040401e-14,2.2737367544343885e-12,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,design,"(1.0, -1.0, 0.0) / center occurrence 0",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(1.0, -1.0, 0.0) / center occurrence 0",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(1.0, -1.0, 0.0) / center occurrence 0",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(1.0, -1.0, 0.0) / center occurrence 0",Y,85.875,85.875,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 0.0) / center occurrence 0",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 0.0) / center occurrence 0",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 0.0) / center occurrence 0",B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 0.0) / center occurrence 0",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 0.0) / center occurrence 0",A²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 0.0) / center occurrence 0",B²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 0.0) / center occurrence 0",C²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 0.0) / center occurrence 0",A*B,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 0.0) / center occurrence 0",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, -1.0, 0.0) / center occurrence 0",B*C,0.0,-0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(1.0, -1.0, 0.0) / center occurrence 0",fitted,85.88749999999999,85.88749999999996,2.842170943040401e-14,3.3091788013860005e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(1.0, -1.0, 0.0) / center occurrence 0",residual,-0.012499999999988631,-0.01249999999996021,2.842170943040401e-14,2.2737367544343885e-12,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,design,"(1.0, 0.0, -1.0) / center occurrence 0",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(1.0, 0.0, -1.0) / center occurrence 0",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(1.0, 0.0, -1.0) / center occurrence 0",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(1.0, 0.0, -1.0) / center occurrence 0",Y,84.55,84.55,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, -1.0) / center occurrence 0",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, -1.0) / center occurrence 0",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, -1.0) / center occurrence 0",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, -1.0) / center occurrence 0",C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, -1.0) / center occurrence 0",A²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, -1.0) / center occurrence 0",B²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, -1.0) / center occurrence 0",C²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, -1.0) / center occurrence 0",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, -1.0) / center occurrence 0",A*C,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, -1.0) / center occurrence 0",B*C,0.0,-0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(1.0, 0.0, -1.0) / center occurrence 0",fitted,84.54999999999997,84.54999999999995,1.4210854715202004e-14,1.6807634198937917e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(1.0, 0.0, -1.0) / center occurrence 0",residual,2.842170943040401e-14,4.263256414560601e-14,1.4210854715202004e-14,0.5,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,design,"(1.0, 0.0, 1.0) / center occurrence 0",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(1.0, 0.0, 1.0) / center occurrence 0",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(1.0, 0.0, 1.0) / center occurrence 0",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(1.0, 0.0, 1.0) / center occurrence 0",Y,87.05,87.05,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, 1.0) / center occurrence 0",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, 1.0) / center occurrence 0",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, 1.0) / center occurrence 0",B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, 1.0) / center occurrence 0",C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, 1.0) / center occurrence 0",A²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, 1.0) / center occurrence 0",B²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, 1.0) / center occurrence 0",C²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, 1.0) / center occurrence 0",A*B,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, 1.0) / center occurrence 0",A*C,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 0.0, 1.0) / center occurrence 0",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(1.0, 0.0, 1.0) / center occurrence 0",fitted,87.04999999999997,87.04999999999994,2.842170943040401e-14,3.264986723768411e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(1.0, 0.0, 1.0) / center occurrence 0",residual,2.842170943040401e-14,5.684341886080802e-14,2.842170943040401e-14,1.0,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,design,"(1.0, 1.0, 0.0) / center occurrence 0",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(1.0, 1.0, 0.0) / center occurrence 0",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(1.0, 1.0, 0.0) / center occurrence 0",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 BBDESIGN worksheet values (DIRECT),MiniJMP create_bbd coded design (DIRECT),PASS
+1,design,"(1.0, 1.0, 0.0) / center occurrence 0",Y,82.92500000000001,82.92500000000001,0.0,0.0,1e-09,1e-09,Fixed input CSV (shared DIRECT),Fixed input CSV (shared DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 0.0) / center occurrence 0",截距,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 0.0) / center occurrence 0",A,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 0.0) / center occurrence 0",B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 0.0) / center occurrence 0",C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 0.0) / center occurrence 0",A²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 0.0) / center occurrence 0",B²,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 0.0) / center occurrence 0",C²,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 0.0) / center occurrence 0",A*B,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 0.0) / center occurrence 0",A*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,model_matrix,"(1.0, 1.0, 0.0) / center occurrence 0",B*C,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG XMATRIX (DIRECT),MiniJMP TermModel matrix (DIRECT),PASS
+1,fit,"(1.0, 1.0, 0.0) / center occurrence 0",fitted,82.9125,82.91249999999997,2.842170943040401e-14,3.42791610799385e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,fit,"(1.0, 1.0, 0.0) / center occurrence 0",residual,0.012500000000017053,0.012500000000045475,2.842170943040401e-14,2.2737367544292187e-12,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,coefficient,截距,estimate,79.99999999999999,80.0,1.4210854715202004e-14,1.7763568394002508e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,coefficient,A,estimate,4.000000000000002,3.9999999999999933,8.43769498715119e-15,2.1094237467877966e-15,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,coefficient,B,estimate,-2.9874999999999976,-2.9874999999999967,8.881784197001252e-16,2.9729821579920533e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,coefficient,C,estimate,1.9999999999999993,1.9999999999999982,1.1102230246251565e-15,5.551115123125785e-16,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,coefficient,A²,estimate,1.2000000000000026,1.199999999999978,2.4646951146678475e-14,2.0539125955565352e-14,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,coefficient,B²,estimate,-0.7999999999999976,-0.8000000000000185,2.0872192862952943e-14,2.6090241078691258e-14,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,coefficient,C²,estimate,0.5999999999999944,0.599999999999973,2.142730437526552e-14,3.57121739587762e-14,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,coefficient,A*B,estimate,1.4999999999999998,1.500000000000002,2.220446049250313e-15,1.4802973661668757e-15,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,coefficient,A*C,estimate,-0.7500000000000006,-0.749999999999998,2.55351295663786e-15,3.4046839421838108e-15,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,coefficient,B*C,estimate,2.2500000000000004,2.2500000000000004,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG COEFFICIENTS/FITS/RESIDUALS (DIRECT),MiniJMP analyze_rsm,PASS
+1,model_summary,model,rank,10.0,10.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,model_df,9.0,9.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,error_df,5.0,5.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,total_df,14.0,14.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,sse,0.08125000000000285,0.08125000000000249,3.608224830031759e-16,4.440892098500471e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,sst,272.4758333333332,272.4758333333332,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,ssr,272.3945833333332,272.3945833333332,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,mse,0.01625000000000057,0.016250000000000497,7.28583859910259e-17,4.483592984062975e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,s,0.12747548783982185,0.12747548783982157,2.7755575615628914e-16,2.177326487309068e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,r2,0.9997018084172602,0.9997018084172602,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,adjusted_r2,0.9991650635683287,0.9991650635683287,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,model_f,1862.5270655269992,1862.5270655270076,8.412825991399586e-12,4.516887913797478e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,model_p,2.8577662401291488e-08,2.8577662401291207e-08,2.812414082680294e-22,9.841302074284406e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,pure_error_df,2.0,2.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,pure_error_sse,0.08000000000000228,0.08000000000000228,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,lack_of_fit_df,3.0,3.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,lack_of_fit_sse,0.00125000000000057,0.0012500000000002093,3.608224830031759e-16,2.8865798640240903e-13,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,lack_of_fit_f,0.01041666666667112,0.010416666666668113,3.0080105073437835e-15,2.887690087048797e-13,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,model_summary,model,lack_of_fit_p,0.998091773314011,0.9980917733140118,7.771561172376096e-16,7.786419425712544e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A,ss,128.0,128.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A,f,7876.923076922801,7876.923076922836,3.54702933691442e-11,4.503064587879793e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A,p,3.442086656849875e-09,3.442086656849832e-09,4.301339185275744e-23,1.249631288833454e-14,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,B,ss,71.40124999999988,71.40124999999986,1.4210854715202004e-14,1.990280942588824e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,B,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,B,f,4393.923076922915,4393.923076922934,1.9099388737231493e-11,4.3467735786141445e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,B,p,1.4794977971798798e-08,1.4794977971798654e-08,1.4392942658422682e-22,9.728262310263355e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,C,ss,31.999999999999993,31.999999999999936,5.684341886080802e-14,1.776356839400251e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,C,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,C,f,1969.2307692306997,1969.2307692307052,5.4569682106375694e-12,2.7711166694644886e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,C,p,1.0969890653838016e-07,1.0969890653837935e-07,8.07328277851755e-22,7.35949248107862e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A²,ss,5.3169230769231035,5.316923076923103,8.881784197001252e-16,1.6704744583480282e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A²,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A²,f,327.19526627217954,327.1952662721809,1.3642420526593924e-12,4.169504248036824e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A²,p,9.48787944040501e-06,9.487879440404913e-06,9.656175598699024e-20,1.0177380161026615e-14,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,B²,ss,2.3630769230769073,2.363076923076907,4.440892098500626e-16,1.8792837656415535e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,B²,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,B²,f,145.4201183431892,145.4201183431898,6.252776074688882e-13,4.2998012557880254e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,B²,p,6.92254037313338e-05,6.922540373133304e-05,7.589415207398531e-19,1.0963338309810826e-14,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,C²,ss,1.3292307692307448,1.3292307692307443,4.440892098500626e-16,3.3409489166961344e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,C²,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,C²,f,81.79881656804297,81.7988165680433,3.410605131648481e-13,4.169504248036922e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,C²,p,0.00027616559855890305,0.0002761655985589003,2.7647155398380363e-18,1.0011078694323158e-14,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A*B,ss,8.999999999999998,9.0,1.7763568394002505e-15,1.9737298215558342e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A*B,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A*B,f,553.8461538461344,553.8461538461369,2.5011104298755527e-12,4.515893831719906e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A*B,p,2.5790868926411e-06,2.5790868926410683e-06,3.176373552203626e-20,1.231588420408309e-14,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A*C,ss,2.2499999999999987,2.25,1.3322676295501878e-15,5.921189464667505e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A*C,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A*C,f,138.46153846153354,138.46153846153422,6.821210263296962e-13,4.9264296346035366e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,A*C,p,7.797381462950268e-05,7.797381462950172e-05,9.622294280808852e-19,1.2340417519047603e-14,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,B*C,ss,20.25,20.249999999999936,6.394884621840902e-14,3.157967714489334e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,B*C,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,B*C,f,1246.1538461538025,1246.1538461538041,1.5916157281026244e-12,1.2772224978601754e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,term_anova,B*C,p,3.432795458225284e-07,3.432795458225276e-07,8.470329472543003e-22,2.4674728149757186e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,Linear,ss,231.40124999999983,231.40124999999983,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,Linear,df,3.0,3.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,Linear,ms,77.13374999999995,77.13374999999995,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,Linear,f,4746.6923076921385,4746.692307692159,2.091837814077735e-11,4.406937881117462e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,Linear,p,4.701524097595196e-09,4.7015240975951496e-09,4.632211430296955e-23,9.85257404650187e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,Square,ss,9.493333333333315,9.493333333333316,1.7763568394002505e-15,1.8711624010536382e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,Square,df,3.0,3.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,Square,ms,3.164444444444438,3.1644444444444386,4.440892098500626e-16,1.4033718007902288e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,Square,f,194.73504273503553,194.73504273503642,8.810729923425242e-13,4.524470685747856e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,Square,p,1.3473127148700707e-05,1.347312714870054e-05,1.6601845766184287e-19,1.2322191858617841e-14,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,2-Way Interaction,ss,31.5,31.5,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,2-Way Interaction,df,3.0,3.0,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,2-Way Interaction,ms,10.5,10.5,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,2-Way Interaction,f,646.1538461538235,646.1538461538264,2.9558577807620168e-12,4.574541803560425e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,effect_group_anova,2-Way Interaction,p,6.833069050191941e-07,6.833069050191857e-07,8.470329472543003e-21,1.2396083531901484e-14,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats",MiniJMP analyze_rsm,PASS
+1,prediction,P1,fit,79.99999999999999,80.0,1.4210854715202004e-14,1.7763568394002508e-16,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P1,fit,79.99999999999999,80.0,1.4210854715202004e-14,1.7763568394002508e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P1,se_fit,0.07359800721939998,0.07359800721939987,1.1102230246251565e-16,1.508496040273912e-15,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P1,se_fit,0.0735980072194,0.07359800721939987,1.3877787807814457e-16,1.8856200503423893e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P1,ci_low,79.81081029961919,79.81081029950278,1.1641532182693481e-10,1.4586410210584e-12,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P1,ci_low,79.81081029950276,79.81081029950278,1.4210854715202004e-14,1.7805676526617774e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P1,ci_high,80.18918970038078,80.18918970049722,1.1644374353636522e-10,1.4521127345399812e-12,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P1,ci_high,80.18918970049721,80.18918970049722,1.4210854715202004e-14,1.7721658952134156e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P1,pi_low,79.62162059923841,79.62162059900557,2.3284485450858483e-10,2.9243923039518242e-12,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P1,pi_low,79.62162059900555,79.62162059900557,1.4210854715202004e-14,1.7847984766312948e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P1,pi_high,80.37837940076156,80.37837940099443,2.3287327621801523e-10,2.8972128817990183e-12,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P1,pi_high,80.37837940099442,80.37837940099443,1.4210854715202004e-14,1.7679946798014431e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P2,fit,83.33037499999999,83.33037499999999,0.0,0.0,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P2,fit,83.33037499999999,83.33037499999999,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P2,se_fit,0.06732767475385269,0.06732767475385257,1.249000902703301e-16,1.8551077358153224e-15,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P2,se_fit,0.0673276747538527,0.06732767475385257,1.3877787807814457e-16,2.06123081757258e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P2,ci_low,83.15730370234861,83.1573037022421,1.0651035609043902e-10,1.2808298411367424e-12,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P2,ci_low,83.1573037022421,83.1573037022421,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P2,ci_high,83.50344629765137,83.50344629775788,1.0651035609043902e-10,1.2755204822418779e-12,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P2,ci_high,83.50344629775788,83.50344629775788,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P2,pi_low,82.95979180790779,82.95979180767972,2.2807000732427696e-10,2.7491632073085452e-12,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P2,pi_low,82.95979180767972,82.95979180767972,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P2,pi_high,83.70095819209219,83.70095819232026,2.2807000732427696e-10,2.7248195510601017e-12,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P2,pi_high,83.70095819232026,83.70095819232026,0.0,0.0,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P3,fit,80.54999999999997,80.54999999999995,1.4210854715202004e-14,1.7642277734577292e-16,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P3,fit,80.54999999999998,80.54999999999995,2.842170943040401e-14,3.528455546915458e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P3,se_fit,0.11039701082909999,0.11039701082909982,1.6653345369377348e-16,1.5084960402739117e-15,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P3,se_fit,0.11039701082910001,0.11039701082909982,1.942890293094024e-16,1.75991204698623e-15,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P3,ci_low,80.26621544942878,80.26621544925412,1.7466561530454783e-10,2.1760788686317815e-12,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P3,ci_low,80.26621544925415,80.26621544925412,2.842170943040401e-14,3.540930548590865e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P3,ci_high,80.83378455057115,80.83378455074579,1.7463719359511742e-10,2.160448067179894e-12,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P3,ci_high,80.83378455074582,80.83378455074579,2.842170943040401e-14,3.516068137643788e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P3,pi_low,80.11651193864948,80.11651193838269,2.667945864232024e-10,3.3300824008352324e-12,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P3,pi_low,80.11651193838271,80.11651193838269,2.842170943040401e-14,3.547547034032514e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS
+1,prediction,P3,pi_high,80.98348806135046,80.98348806161722,2.66766164713772e-10,3.294080942916149e-12,1e-09,1e-09,Minitab 19 RSREG PREDICT storage (DIRECT),MiniJMP predict_point(confidence=.95),PASS
+1,prediction_derived,P3,pi_high,80.98348806161725,80.98348806161722,2.842170943040401e-14,3.5095684454563147e-16,1e-09,1e-09,"DERIVED: Minitab RSREG XMATRIX, COEFFICIENTS, FITS/RESIDUALS, fixed response and scipy.stats and coded-point t interval",MiniJMP analyze_rsm,PASS

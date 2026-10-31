@@ -1,0 +1,16 @@
+# Native Minitab 19 PBDESIGN: 12 runs, 7 two-level factors
+PBDESIGN 7 12;
+  LEVELS -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1;
+  DESIGN.
+
+# Fit only estimable main effects and retain the native model matrix
+SCREEN;
+  RESPONSE <Y>;
+  FACTOR <A> <B> <C> <D> <E> <F> <G>;
+  TERMS <A> <B> <C> <D> <E> <F> <G>;
+  LEVELS -1 1 -1 1 -1 1 -1 1 -1 1 -1 1 -1 1;
+  INUNIT 0;
+  FITS <Fit>;
+  RESIDUALS <Resid>;
+  COEFFICIENTS <Coef>;
+  XMATRIX <M>.

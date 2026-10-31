@@ -1,0 +1,621 @@
+﻿run,section,term,statistic,minitab_value,minijmp_value,absolute_error,relative_error,absolute_tolerance,relative_tolerance,minitab_value_source,minijmp_value_source,status
+l8,design,standard_order=1:A,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=1:B,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=1:C,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=1:D,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=2:A,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=2:B,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=2:C,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=2:D,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=3:A,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=3:B,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=3:C,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=3:D,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=4:A,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=4:B,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=4:C,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=4:D,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=5:A,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=5:B,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=5:C,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=5:D,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=6:A,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=6:B,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=6:C,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=6:D,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=7:A,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=7:B,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=7:C,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=7:D,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=8:A,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=8:B,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=8:C,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,design,standard_order=8:D,level_code,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, -1.0, 1.0)",smaller_sn,-30.10333465789175,-30.10333465789175,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, -1.0, 1.0)",mean,32.0,32.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, 1.0, -1.0)",smaller_sn,-33.06443624964749,-33.06443624964749,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, 1.0, -1.0)",mean,45.0,45.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, -1.0, -1.0)",smaller_sn,-31.59588747018615,-31.59588747018615,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, -1.0, -1.0)",mean,37.99999999999999,37.99999999999999,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, 1.0, 1.0)",smaller_sn,-33.06445354022701,-33.06445354022701,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, 1.0, 1.0)",mean,45.0,45.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, -1.0, -1.0)",smaller_sn,-31.126290166405436,-31.126290166405436,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, -1.0, -1.0)",mean,35.99999999999999,35.99999999999999,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, -1.0, 1.0)",smaller_sn,-33.25531879833897,-33.25531879833897,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, -1.0, 1.0)",mean,46.0,46.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, 1.0, -1.0)",smaller_sn,-29.827625748389487,-29.827625748389487,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, 1.0, -1.0)",mean,31.0,31.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, 1.0, 1.0)",smaller_sn,-33.44214349273906,-33.44214349273906,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, 1.0, 1.0)",mean,47.0,47.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,A=low,smaller_sn_mean,-31.03042602822842,-31.03042602822842,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A=low,mean_response,36.0,36.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A=high,smaller_sn_mean,-32.83944650272792,-32.83944650272792,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A=high,mean_response,44.0,44.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A,smaller_delta,1.8090204744994978,1.8090204744994978,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,A,smaller,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,response_table,B=low,smaller_sn_mean,-32.62762468865473,-32.62762468865473,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B=low,mean_response,43.0,43.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B=high,smaller_sn_mean,-31.24224784230161,-31.242247842301612,3.552713678800501e-15,1.1371504690485718e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B=high,mean_response,37.0,37.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B,smaller_delta,1.3853768463531182,1.3853768463531146,3.552713678800501e-15,2.5644384689643868e-15,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,B,smaller,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,response_table,C=low,smaller_sn_mean,-31.520207773205577,-31.520207773205577,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C=low,mean_response,38.0,38.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C=high,smaller_sn_mean,-32.34966475775076,-32.349664757750766,7.105427357601002e-15,2.1964454379387625e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C=high,mean_response,42.0,42.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C,smaller_delta,0.8294569845451818,0.8294569845451889,7.105427357601002e-15,8.566360269420286e-15,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,C,smaller,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,response_table,D=low,smaller_sn_mean,-31.403559908657137,-31.403559908657144,7.105427357601002e-15,2.262618435065453e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D=low,mean_response,37.5,37.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D=high,smaller_sn_mean,-32.4663126222992,-32.4663126222992,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D=high,mean_response,42.5,42.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D,smaller_delta,1.0627527136420625,1.0627527136420554,7.105427357601002e-15,6.685870820551135e-15,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,D,smaller,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,prediction,smaller,mean,27.0,27.00000000000003,2.842170943040401e-14,1.052655904829778e-15,1e-09,1e-09,Minitab OAPREDICT PFITS storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, -1.0, 1.0)",larger_sn,30.101990953401927,30.101990953401927,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, -1.0, 1.0)",mean,32.0,32.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, 1.0, -1.0)",larger_sn,33.06369098508079,33.06369098508079,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, 1.0, -1.0)",mean,45.0,45.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, -1.0, -1.0)",larger_sn,31.595023608501478,31.595023608501478,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, -1.0, -1.0)",mean,37.99999999999999,37.99999999999999,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, 1.0, 1.0)",larger_sn,33.06363891632234,33.06363891632234,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, 1.0, 1.0)",mean,45.0,45.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, -1.0, -1.0)",larger_sn,31.125327547551287,31.125327547551287,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, -1.0, -1.0)",mean,35.99999999999999,35.99999999999999,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, -1.0, 1.0)",larger_sn,33.25466902755803,33.25466902755803,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, -1.0, 1.0)",mean,46.0,46.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, 1.0, -1.0)",larger_sn,29.826054027453843,29.826054027453843,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, 1.0, -1.0)",mean,31.0,31.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, 1.0, 1.0)",larger_sn,33.441396784628225,33.441396784628225,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, 1.0, 1.0)",mean,47.0,47.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,A=low,larger_sn_mean,31.02925286118235,31.02925286118235,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A=low,mean_response,36.0,36.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A=high,larger_sn_mean,32.83869510144213,32.83869510144213,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A=high,mean_response,44.0,44.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A,larger_delta,1.8094422402597772,1.8094422402597772,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,A,larger,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,response_table,B=low,larger_sn_mean,32.62683161912811,32.62683161912811,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B=low,mean_response,43.0,43.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B=high,larger_sn_mean,31.24111634349637,31.24111634349637,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B=high,mean_response,37.0,37.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B,larger_delta,1.3857152756317426,1.3857152756317426,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,B,larger,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,response_table,C=low,larger_sn_mean,31.51925278425318,31.519252784253183,3.552713678800501e-15,1.1271566947092776e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C=low,mean_response,38.0,38.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C=high,larger_sn_mean,32.3486951783713,32.3486951783713,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C=high,mean_response,42.0,42.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C,larger_delta,0.8294423941181215,0.8294423941181179,3.552713678800501e-15,4.2832554786132095e-15,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,C,larger,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,response_table,D=low,larger_sn_mean,31.402524042146847,31.402524042146844,3.552713678800501e-15,1.131346535721852e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D=low,mean_response,37.5,37.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D=high,larger_sn_mean,32.46542392047763,32.46542392047763,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D=high,mean_response,42.5,42.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D,larger_delta,1.0628998783307857,1.0628998783307892,3.552713678800501e-15,3.342472561366555e-15,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,D,larger,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,prediction,larger,mean,50.0,50.00000000000003,2.842170943040401e-14,5.684341886080802e-16,1e-09,1e-09,Minitab OAPREDICT PFITS storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, -1.0, 1.0)",nominal_ii_sn,9.262129376085023,9.262129376085023,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, -1.0, 1.0)",mean,32.0,32.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, 1.0, -1.0)",nominal_ii_sn,8.858061654319302,8.858061654319304,1.7763568394002505e-15,2.005356147565395e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, 1.0, -1.0)",mean,45.0,45.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, -1.0, -1.0)",nominal_ii_sn,9.685915357483777,9.685915357483779,1.7763568394002505e-15,1.8339586645548753e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, -1.0, -1.0)",mean,37.99999999999999,37.99999999999999,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, 1.0, 1.0)",nominal_ii_sn,8.471958550411498,8.471958550411498,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, 1.0, 1.0)",mean,45.0,45.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, -1.0, -1.0)",nominal_ii_sn,9.685915357483777,9.685915357483779,1.7763568394002505e-15,1.8339586645548753e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, -1.0, -1.0)",mean,35.99999999999999,35.99999999999999,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, -1.0, 1.0)",nominal_ii_sn,9.262129376085023,9.262129376085023,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, -1.0, 1.0)",mean,46.0,46.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, 1.0, -1.0)",nominal_ii_sn,8.858061654319258,8.858061654319258,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, 1.0, -1.0)",mean,31.0,31.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, 1.0, 1.0)",nominal_ii_sn,8.471958550411498,8.471958550411498,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, 1.0, 1.0)",mean,47.0,47.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,A=low,nominal_ii_sn_mean,9.06951623457489,9.06951623457489,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A=low,mean_response,36.0,36.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A=high,nominal_ii_sn_mean,9.0695162345749,9.069516234574902,1.7763568394002505e-15,1.9586015322718154e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A=high,mean_response,44.0,44.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A,nominal_ii_delta,1.0658141036401503e-14,1.2434497875801753e-14,1.7763568394002505e-15,0.16666666666666666,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,A,nominal_ii,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,response_table,B=low,nominal_ii_sn_mean,9.0695162345749,9.0695162345749,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B=low,mean_response,43.0,43.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B=high,nominal_ii_sn_mean,9.06951623457489,9.06951623457489,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B=high,mean_response,37.0,37.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B,nominal_ii_delta,1.0658141036401503e-14,1.0658141036401503e-14,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,B,nominal_ii,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,response_table,C=low,nominal_ii_sn_mean,9.4740223667844,9.4740223667844,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C=low,mean_response,38.0,38.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C=high,nominal_ii_sn_mean,8.66501010236539,8.66501010236539,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C=high,mean_response,42.0,42.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C,nominal_ii_delta,0.8090122644190103,0.8090122644190103,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,C,nominal_ii,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,response_table,D=low,nominal_ii_sn_mean,9.271988505901529,9.271988505901529,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D=low,mean_response,37.5,37.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D=high,nominal_ii_sn_mean,8.86704396324826,8.86704396324826,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D=high,mean_response,42.5,42.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D,nominal_ii_delta,0.4049445426532685,0.4049445426532685,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,D,nominal_ii,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,prediction,nominal_ii,mean,41.0,41.00000000000003,2.842170943040401e-14,6.932124251318051e-16,1e-09,1e-09,Minitab OAPREDICT PFITS storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, -1.0, 1.0)",nominal_sn,39.36512894248314,39.365128942483146,7.105427357601002e-15,1.8050054828939662e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, -1.0, 1.0)",mean,32.0,32.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, 1.0, -1.0)",nominal_sn,41.92231192982618,41.92231192982618,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, 1.0, -1.0)",mean,45.0,45.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, -1.0, -1.0)",nominal_sn,41.28158728981998,41.28158728981998,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, -1.0, -1.0)",mean,37.99999999999999,37.99999999999999,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, 1.0, 1.0)",nominal_sn,41.53620882591837,41.53620882591837,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, 1.0, 1.0)",mean,45.0,45.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, -1.0, -1.0)",nominal_sn,40.81196537282952,40.811965372829526,7.105427357601002e-15,1.7410157272973246e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, -1.0, -1.0, -1.0)",mean,35.99999999999999,35.99999999999999,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, -1.0, 1.0)",nominal_sn,42.5172860097165,42.5172860097165,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, -1.0, -1.0, 1.0)",mean,46.0,46.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, 1.0, -1.0)",nominal_sn,38.68529553100471,38.68529553100471,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(-1.0, 1.0, 1.0, -1.0)",mean,31.0,31.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, 1.0, 1.0)",nominal_sn,41.91391570912585,41.91391570912585,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,"(1.0, 1.0, 1.0, 1.0)",mean,47.0,47.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l8,response_table,A=low,nominal_sn_mean,40.09964966805894,40.099649668058944,7.105427357601002e-15,1.7719425023457935e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A=low,mean_response,36.0,36.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A=high,nominal_sn_mean,41.90877523462213,41.90877523462213,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A=high,mean_response,44.0,44.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,A,nominal_delta,1.8091255665631891,1.809125566563182,7.105427357601002e-15,3.927547920899289e-15,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,A,nominal,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,response_table,B=low,nominal_sn_mean,41.69694303457264,41.69694303457264,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B=low,mean_response,43.0,43.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B=high,nominal_sn_mean,40.31148186810842,40.31148186810842,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B=high,mean_response,37.0,37.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,B,nominal_delta,1.3854611664642178,1.3854611664642178,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,B,nominal,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,response_table,C=low,nominal_sn_mean,40.993991903712285,40.993991903712285,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C=low,mean_response,38.0,38.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C=high,nominal_sn_mean,41.01443299896878,41.01443299896878,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C=high,mean_response,42.0,42.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,C,nominal_delta,0.02044109525649418,0.02044109525649418,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,C,nominal,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,response_table,D=low,nominal_sn_mean,40.6752900308701,40.6752900308701,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D=low,mean_response,37.5,37.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D=high,nominal_sn_mean,41.33313487181096,41.33313487181097,7.105427357601002e-15,1.719063259933588e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D=high,mean_response,42.5,42.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l8,response_table,D,nominal_delta,0.6578448409408608,0.6578448409408679,7.105427357601002e-15,1.0801068755724677e-14,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l8,best_levels,D,nominal,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l8,prediction,nominal,mean,50.0,50.00000000000003,2.842170943040401e-14,5.684341886080802e-16,1e-09,1e-09,Minitab OAPREDICT PFITS storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l8,sn_formula,standard_order=1,nominal_adjusted_S/N,40.811845292319646,40.811845292319646,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l8,sn_formula,standard_order=1,official_formula,40.811845292319646,40.811845292319646,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l8,sn_formula,standard_order=2,nominal_adjusted_S/N,41.53610718999063,41.53610718999063,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l8,sn_formula,standard_order=2,official_formula,41.53610718999063,41.53610718999063,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l8,sn_formula,standard_order=3,nominal_adjusted_S/N,39.36496138704025,39.36496138704025,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l8,sn_formula,standard_order=3,official_formula,39.36496138704025,39.36496138704025,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l8,sn_formula,standard_order=4,nominal_adjusted_S/N,38.68509958189216,38.68509958189216,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l8,sn_formula,standard_order=4,official_formula,38.68509958189216,38.68509958189216,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l8,sn_formula,standard_order=5,nominal_adjusted_S/N,41.92221893976935,41.92221893976935,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l8,sn_formula,standard_order=5,official_formula,41.92221893976935,41.92221893976935,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l8,sn_formula,standard_order=6,nominal_adjusted_S/N,42.51720492509201,42.51720492509201,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l8,sn_formula,standard_order=6,official_formula,42.51720492509201,42.51720492509201,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l8,sn_formula,standard_order=7,nominal_adjusted_S/N,41.91382253911541,41.91382253911541,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l8,sn_formula,standard_order=7,official_formula,41.91382253911541,41.91382253911541,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l8,sn_formula,standard_order=8,nominal_adjusted_S/N,41.281479516883486,41.281479516883486,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l8,sn_formula,standard_order=8,official_formula,41.281479516883486,41.281479516883486,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l8,response_table,A=low,nominal_adjusted_sn_mean,40.09950336281067,40.09950336281067,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l8,response_table,A=high,nominal_adjusted_sn_mean,41.908681480215066,41.908681480215066,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l8,response_table,A,nominal_adjusted_delta,1.809178117404393,1.809178117404393,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l8,best_levels,A,nominal_adjusted,1.0,1.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab adjusted SNRATIO response table (DIRECT inputs),MiniJMP adjusted nominal best level,PASS
+l8,response_table,B=low,nominal_adjusted_sn_mean,41.69684408679291,41.69684408679291,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l8,response_table,B=high,nominal_adjusted_sn_mean,40.31134075623282,40.31134075623283,7.105427357601002e-15,1.762637318507542e-16,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l8,response_table,B,nominal_adjusted_delta,1.3855033305600841,1.385503330560077,7.105427357601002e-15,5.128408716800891e-15,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l8,best_levels,B,nominal_adjusted,1.0,1.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab adjusted SNRATIO response table (DIRECT inputs),MiniJMP adjusted nominal best level,PASS
+l8,response_table,C=low,nominal_adjusted_sn_mean,40.993872780333845,40.99387278033385,7.105427357601002e-15,1.7332900932965078e-16,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l8,response_table,C=high,nominal_adjusted_sn_mean,41.014312062691886,41.014312062691886,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l8,response_table,C,nominal_adjusted_delta,0.0204392823580406,0.020439282358033495,7.105427357601002e-15,3.4763585301740306e-13,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l8,best_levels,C,nominal_adjusted,1.0,1.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab adjusted SNRATIO response table (DIRECT inputs),MiniJMP adjusted nominal best level,PASS
+l8,response_table,D=low,nominal_adjusted_sn_mean,40.67516083271616,40.67516083271616,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l8,response_table,D=high,nominal_adjusted_sn_mean,41.33302401030958,41.33302401030958,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l8,response_table,D,nominal_adjusted_delta,0.6578631775934198,0.6578631775934198,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l8,best_levels,D,nominal_adjusted,1.0,1.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab adjusted SNRATIO response table (DIRECT inputs),MiniJMP adjusted nominal best level,PASS
+l8,response_table,A,nominal_adjusted_rank,1.0,1.0,0.0,0.0,0.0,0.0,DERIVED: rank Minitab adjusted SNRATIO Delta (DIRECT inputs),MiniJMP adjusted nominal response table,PASS
+l8,response_table,B,nominal_adjusted_rank,2.0,2.0,0.0,0.0,0.0,0.0,DERIVED: rank Minitab adjusted SNRATIO Delta (DIRECT inputs),MiniJMP adjusted nominal response table,PASS
+l8,response_table,D,nominal_adjusted_rank,3.0,3.0,0.0,0.0,0.0,0.0,DERIVED: rank Minitab adjusted SNRATIO Delta (DIRECT inputs),MiniJMP adjusted nominal response table,PASS
+l8,response_table,C,nominal_adjusted_rank,4.0,4.0,0.0,0.0,0.0,0.0,DERIVED: rank Minitab adjusted SNRATIO Delta (DIRECT inputs),MiniJMP adjusted nominal response table,PASS
+l8,sn_formula,nominal_adjusted_native,command_support,,,,,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED returned per-combination SNRATIO via COM,MiniJMP adjusted nominal-I,PASS
+l8,prediction,OAPREDICT,95%_mean_CI_storage,,,,,1e-09,1e-09,"Minitab OAPREDICT CI probe: OAPREDICT C16 = C1 C2 C3 C4 C1*C2;
+  LEVELS 1.0 -1.0 1.0 1.0;
+  PFITS C19;
+  PSEFITS C20;
+  CLIMITS C21 C22;
+  PLIMITS C23 C24.
+* 错误 * 子命令 PSEF 失序，或者对于该命令无效。
+
+        * 其余子命令被忽略。
+        * 计算不可能完成。",MiniJMP predict_taguchi_model interval API,UNSUPPORTED
+l8,mean_model,treatment_coding,max_matrix_error,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab REGRESS XMATRIX (DIRECT),MiniJMP grouped mean-model matrix,PASS
+l8,mean_model,model,rank,6.0,6.0,0.0,0.0,1e-09,1e-09,Minitab REGRESS XMATRIX (DIRECT),MiniJMP grouped OLS,PASS
+l8,mean_model,model,error_df,2.0,2.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab XMATRIX rank,MiniJMP grouped OLS,PASS
+l8,mean_model,model,MSE,0.0,5.806016262426647e-28,5.806016262426647e-28,,1e-09,1e-09,DERIVED: Minitab REGRESS residuals / error df,MiniJMP grouped OLS,PASS
+l8,mean_model,standard_order=1,fit,36.00000000000001,35.99999999999998,2.842170943040401e-14,7.894919286223334e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=1,residual,0.0,1.4210854715202004e-14,1.4210854715202004e-14,,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=2,fit,45.00000000000001,44.99999999999999,1.4210854715202004e-14,3.157967714489334e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=2,residual,0.0,7.105427357601002e-15,7.105427357601002e-15,,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=3,fit,31.999999999999996,32.0,3.552713678800501e-15,1.1102230246251568e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=3,residual,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=4,fit,30.999999999999996,31.0,3.552713678800501e-15,1.146036670580807e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=4,residual,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=5,fit,45.0,45.0,0.0,0.0,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=5,residual,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=6,fit,46.0,45.99999999999999,7.105427357601002e-15,1.544658121217609e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=6,residual,0.0,7.105427357601002e-15,7.105427357601002e-15,,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=7,fit,47.0,47.00000000000003,2.842170943040401e-14,6.047172219234895e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=7,residual,0.0,-2.842170943040401e-14,2.842170943040401e-14,,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=8,fit,38.0,38.0,0.0,0.0,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,mean_model,standard_order=8,residual,0.0,-7.105427357601002e-15,7.105427357601002e-15,,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l8,prediction,observed,mean,36.00000000000001,35.99999999999998,2.842170943040401e-14,7.894919286223334e-16,1e-09,1e-09,Minitab REGRESS/PREDICT PFITS (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l8,prediction,observed,se_fit,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,prediction,observed,95%_mean_CI_low,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,prediction,observed,95%_mean_CI_high,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,prediction,observed,95%_single_observation_PI_low,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,prediction,observed,95%_single_observation_PI_high,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,prediction,estimable_non_design,mean,41.00000000000001,40.999999999999986,2.1316282072803006e-14,5.199093188488537e-16,1e-09,1e-09,Minitab REGRESS/PREDICT PFITS (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l8,prediction,estimable_non_design,se_fit,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,prediction,estimable_non_design,95%_mean_CI_low,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,prediction,estimable_non_design,95%_mean_CI_high,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,prediction,estimable_non_design,95%_single_observation_PI_low,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,prediction,estimable_non_design,95%_single_observation_PI_high,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,prediction,best_snr,mean,50.0,50.0,0.0,0.0,1e-09,1e-09,Minitab REGRESS/PREDICT PFITS (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l8,prediction,best_snr,se_fit,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,prediction,best_snr,95%_mean_CI_low,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,prediction,best_snr,95%_mean_CI_high,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,prediction,best_snr,95%_single_observation_PI_low,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,prediction,best_snr,95%_single_observation_PI_high,,,,,1e-09,1e-09,Minitab REGRESS/PREDICT output exists; MiniJMP interval unavailable: 残差方差为零或数值上不可辨。,MiniJMP predict_taguchi_model,N/A
+l8,model_coefficients,截距,estimate,35.99999999999999,35.99999999999998,1.4210854715202004e-14,3.9474596431116685e-16,0.0030000000009999996,0.0,DISPLAY: Minitab ROBUST AMEANS effect-coded coefficient transformed to MiniJMP basis,MiniJMP predict_taguchi_model on treatment means (DIRECT),PASS
+l8,model_coefficients,A=high,estimate,4.999999999999998,5.000000000000011,1.2434497875801753e-14,2.4868995751603517e-15,0.002000000001000001,0.0,DISPLAY: Minitab ROBUST AMEANS effect-coded coefficient transformed to MiniJMP basis,MiniJMP predict_taguchi_model on treatment means (DIRECT),PASS
+l8,model_coefficients,B=high,estimate,-9.000000000000002,-8.99999999999999,1.2434497875801753e-14,1.3816108750890835e-15,0.002000000001000001,0.0,DISPLAY: Minitab ROBUST AMEANS effect-coded coefficient transformed to MiniJMP basis,MiniJMP predict_taguchi_model on treatment means (DIRECT),PASS
+l8,model_coefficients,C=high,estimate,4.000000000000005,4.00000000000001,4.440892098500626e-15,1.1102230246251552e-15,0.001000000001000001,0.0,DISPLAY: Minitab ROBUST AMEANS effect-coded coefficient transformed to MiniJMP basis,MiniJMP predict_taguchi_model on treatment means (DIRECT),PASS
+l8,model_coefficients,D=high,estimate,5.000000000000003,5.000000000000009,6.217248937900877e-15,1.2434497875801747e-15,0.0010000000010000007,0.0,DISPLAY: Minitab ROBUST AMEANS effect-coded coefficient transformed to MiniJMP basis,MiniJMP predict_taguchi_model on treatment means (DIRECT),PASS
+l8,model_coefficients,A=high × B=high,estimate,6.000000000000004,6.000000000000001,3.552713678800501e-15,5.921189464667497e-16,0.002000000001000001,0.0,DISPLAY: Minitab ROBUST AMEANS effect-coded coefficient transformed to MiniJMP basis,MiniJMP predict_taguchi_model on treatment means (DIRECT),PASS
+l8,anova,P_A,df,1.0,1.0,0.0,0.0,0.0,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l8,anova,P_A,Adj SS,128.0,128.0,0.0,0.0,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l8,anova,P_A,f,,1.6762321986488984e+29,,,1e-09,1e-09,Minitab reports '*' when the mean-model error variance is unavailable,MiniJMP mean-model inference,N/A
+l8,anova,P_A,p,,5.965760595733903e-30,,,1e-09,1e-09,Minitab reports '*' when the mean-model error variance is unavailable,MiniJMP mean-model inference,N/A
+l8,anova,P_B,df,1.0,1.0,0.0,0.0,0.0,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l8,anova,P_B,Adj SS,72.0,72.00000000000004,4.263256414560601e-14,5.921189464667501e-16,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l8,anova,P_B,f,,9.428806117400059e+28,,,1e-09,1e-09,Minitab reports '*' when the mean-model error variance is unavailable,MiniJMP mean-model inference,N/A
+l8,anova,P_B,p,,1.0605796614638044e-29,,,1e-09,1e-09,Minitab reports '*' when the mean-model error variance is unavailable,MiniJMP mean-model inference,N/A
+l8,anova,P_C,df,1.0,1.0,0.0,0.0,0.0,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l8,anova,P_C,Adj SS,32.0,32.000000000000085,8.526512829121202e-14,2.6645352591003757e-15,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l8,anova,P_C,f,,4.1905804966222575e+28,,,1e-09,1e-09,Minitab reports '*' when the mean-model error variance is unavailable,MiniJMP mean-model inference,N/A
+l8,anova,P_C,p,,2.3863042382935548e-29,,,1e-09,1e-09,Minitab reports '*' when the mean-model error variance is unavailable,MiniJMP mean-model inference,N/A
+l8,anova,P_D,df,1.0,1.0,0.0,0.0,0.0,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l8,anova,P_D,Adj SS,50.0,50.000000000000085,8.526512829121202e-14,1.7053025658242404e-15,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l8,anova,P_D,f,,6.54778202597227e+28,,,1e-09,1e-09,Minitab reports '*' when the mean-model error variance is unavailable,MiniJMP mean-model inference,N/A
+l8,anova,P_D,p,,1.5272347125078766e-29,,,1e-09,1e-09,Minitab reports '*' when the mean-model error variance is unavailable,MiniJMP mean-model inference,N/A
+l8,anova,P_A*P_B,df,1.0,1.0,0.0,0.0,0.0,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l8,anova,P_A*P_B,Adj SS,18.0,17.999999999999957,4.263256414560601e-14,2.3684757858670005e-15,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l8,anova,P_A*P_B,f,,2.3572015293500077e+28,,,1e-09,1e-09,Minitab reports '*' when the mean-model error variance is unavailable,MiniJMP mean-model inference,N/A
+l8,anova,P_A*P_B,p,,4.2423186458552303e-29,,,1e-09,1e-09,Minitab reports '*' when the mean-model error variance is unavailable,MiniJMP mean-model inference,N/A
+l8,anova,残差误差,df,2.0,2.0,0.0,0.0,0.0,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l8,anova,残差误差,SS,0.0,1.5272347125078789e-27,1.5272347125078789e-27,,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l8,anova,合计,df,7.0,7.0,0.0,0.0,0.0,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l8,anova,合计,SS,300.0,300.0000000000001,1.1368683772161603e-13,3.789561257387201e-16,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,design,standard_order=1:A,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=1:B,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=1:C,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=2:A,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=2:B,level_code,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=2:C,level_code,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=3:A,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=3:B,level_code,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=3:C,level_code,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=4:A,level_code,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=4:B,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=4:C,level_code,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=5:A,level_code,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=5:B,level_code,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=5:C,level_code,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=6:A,level_code,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=6:B,level_code,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=6:C,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=7:A,level_code,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=7:B,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=7:C,level_code,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=8:A,level_code,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=8:B,level_code,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=8:C,level_code,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=9:A,level_code,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=9:B,level_code,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,design,standard_order=9:C,level_code,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab OADESIGN factor column (DIRECT),fixed input / MiniJMP array (DIRECT),PASS
+l9,response_table,"(2.0, 3.0, 1.0)",smaller_sn,-33.89223100237387,-33.89223100237387,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 3.0, 1.0)",mean,49.5,49.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 3.0, 3.0)",smaller_sn,-34.15153544880056,-34.15153544880056,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 3.0, 3.0)",mean,51.0,51.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 3.0, 2.0)",smaller_sn,-35.34323140443146,-35.34323140443146,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 3.0, 2.0)",mean,58.5,58.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 1.0, 3.0)",smaller_sn,-35.84794462685197,-35.84794462685197,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 1.0, 3.0)",mean,62.0,62.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 2.0, 1.0)",smaller_sn,-34.96388503609105,-34.96388503609105,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 2.0, 1.0)",mean,56.0,56.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 1.0, 1.0)",smaller_sn,-34.32018197634028,-34.32018197634028,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 1.0, 1.0)",mean,52.0,52.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 2.0, 2.0)",smaller_sn,-34.15152318366224,-34.15152318366224,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 2.0, 2.0)",mean,51.0,51.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 2.0, 3.0)",smaller_sn,-35.268661875687314,-35.268661875687314,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 2.0, 3.0)",mean,58.0,58.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 1.0, 2.0)",smaller_sn,-35.11759290937042,-35.11759290937042,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, smaller)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 1.0, 2.0)",mean,57.0,57.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,A=low,smaller_sn_mean,-34.20774686960103,-34.20774686960103,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=low,mean_response,51.333333333333336,51.333333333333336,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=mid,smaller_sn_mean,-34.7594952624772,-34.7594952624772,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=mid,mean_response,54.833333333333336,54.833333333333336,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=high,smaller_sn_mean,-35.38502035579149,-35.38502035579149,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=high,mean_response,58.833333333333336,58.833333333333336,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A,smaller_delta,1.1772734861904581,1.1772734861904581,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l9,best_levels,A,smaller,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l9,response_table,B=low,smaller_sn_mean,-35.095239837520886,-35.09523983752089,7.105427357601002e-15,2.024612850773134e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=low,mean_response,57.0,57.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=mid,smaller_sn_mean,-34.79469003181354,-34.79469003181354,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=mid,mean_response,55.0,55.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=high,smaller_sn_mean,-34.4623326185353,-34.4623326185353,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=high,mean_response,53.0,53.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B,smaller_delta,0.6329072189855864,0.6329072189855935,7.105427357601002e-15,1.1226649253565898e-14,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l9,best_levels,B,smaller,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l9,response_table,C=low,smaller_sn_mean,-34.3920993382684,-34.3920993382684,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=low,mean_response,52.5,52.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=mid,smaller_sn_mean,-34.87078249915471,-34.87078249915471,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=mid,mean_response,55.5,55.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=high,smaller_sn_mean,-35.089380650446614,-35.089380650446614,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, smaller) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=high,mean_response,57.0,57.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C,smaller_delta,0.6972813121782124,0.6972813121782124,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l9,best_levels,C,smaller,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l9,prediction,smaller,mean,46.833333333333336,46.83333333333333,7.105427357601002e-15,1.517173101267118e-16,1e-09,1e-09,Minitab OAPREDICT PFITS storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,response_table,"(2.0, 3.0, 1.0)",larger_sn,33.89172213887991,33.89172213887991,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 3.0, 1.0)",mean,49.5,49.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 3.0, 3.0)",larger_sn,34.15100692747578,34.15100692747578,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 3.0, 3.0)",mean,51.0,51.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 3.0, 2.0)",larger_sn,35.34277441976658,35.34277441976657,7.105427357601002e-15,2.0104328180945139e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 3.0, 2.0)",mean,58.5,58.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 1.0, 3.0)",larger_sn,35.847500653668114,35.847500653668114,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 1.0, 3.0)",mean,62.0,62.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 2.0, 1.0)",larger_sn,34.96338630653212,34.96338630653212,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 2.0, 1.0)",mean,56.0,56.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 1.0, 1.0)",larger_sn,34.31972089939694,34.31972089939694,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 1.0, 1.0)",mean,52.0,52.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 2.0, 2.0)",larger_sn,34.15104383446447,34.15104383446447,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 2.0, 2.0)",mean,51.0,51.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 2.0, 3.0)",larger_sn,35.26825330606955,35.26825330606955,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 2.0, 3.0)",mean,58.0,58.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 1.0, 2.0)",larger_sn,35.117209223701735,35.117209223701735,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, larger)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 1.0, 2.0)",mean,57.0,57.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,A=low,larger_sn_mean,34.20725722044573,34.20725722044573,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=low,mean_response,51.333333333333336,51.333333333333336,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=mid,larger_sn_mean,34.75906155621707,34.75906155621707,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=mid,mean_response,54.833333333333336,54.833333333333336,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=high,larger_sn_mean,35.384553793322276,35.384553793322276,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=high,mean_response,58.833333333333336,58.833333333333336,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A,larger_delta,1.1772965728765428,1.1772965728765428,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l9,best_levels,A,larger,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l9,response_table,B=low,larger_sn_mean,35.09481025892226,35.09481025892226,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=low,mean_response,57.0,57.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=mid,larger_sn_mean,34.794227815688714,34.794227815688714,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=mid,mean_response,55.0,55.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=high,larger_sn_mean,34.46183449537409,34.461834495374084,7.105427357601002e-15,2.0618250483893373e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=high,mean_response,53.0,53.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B,larger_delta,0.632975763548167,0.6329757635481741,7.105427357601002e-15,1.1225433526508644e-14,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l9,best_levels,B,larger,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l9,response_table,C=low,larger_sn_mean,34.391609781602995,34.391609781602995,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=low,mean_response,52.5,52.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=mid,larger_sn_mean,34.87034249264426,34.870342492644255,7.105427357601002e-15,2.037670653535984e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=mid,mean_response,55.5,55.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=high,larger_sn_mean,35.088920295737815,35.088920295737815,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, larger) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=high,mean_response,57.0,57.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C,larger_delta,0.6973105141348199,0.6973105141348199,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l9,best_levels,C,larger,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l9,prediction,larger,mean,62.83333333333333,62.83333333333334,1.4210854715202004e-14,2.2616744904830775e-16,1e-09,1e-09,Minitab OAPREDICT PFITS storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,response_table,"(2.0, 3.0, 1.0)",nominal_ii_sn,9.685915357483777,9.685915357483779,1.7763568394002505e-15,1.8339586645548753e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 3.0, 1.0)",mean,49.5,49.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 3.0, 3.0)",nominal_ii_sn,9.262129376085023,9.262129376085023,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 3.0, 3.0)",mean,51.0,51.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 3.0, 2.0)",nominal_ii_sn,8.70155490408011,8.70155490408011,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 3.0, 2.0)",mean,58.5,58.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 1.0, 3.0)",nominal_ii_sn,8.322198122560517,8.322198122560515,1.7763568394002505e-15,2.1344803539160555e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 1.0, 3.0)",mean,62.0,62.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 2.0, 1.0)",nominal_ii_sn,8.70155490408011,8.70155490408011,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 2.0, 1.0)",mean,56.0,56.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 1.0, 1.0)",nominal_ii_sn,9.685915357483777,9.685915357483779,1.7763568394002505e-15,1.8339586645548753e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 1.0, 1.0)",mean,52.0,52.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 2.0, 2.0)",nominal_ii_sn,9.685915357483777,9.685915357483779,1.7763568394002505e-15,1.8339586645548753e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 2.0, 2.0)",mean,51.0,51.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 2.0, 3.0)",nominal_ii_sn,9.262129376085023,9.262129376085023,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 2.0, 3.0)",mean,58.0,58.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 1.0, 2.0)",nominal_ii_sn,9.685915357483777,9.685915357483779,1.7763568394002505e-15,1.8339586645548753e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal_ii)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 1.0, 2.0)",mean,57.0,57.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,A=low,nominal_ii_sn_mean,9.544653363684192,9.544653363684192,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=low,mean_response,51.333333333333336,51.333333333333336,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=mid,nominal_ii_sn_mean,9.544653363684192,9.544653363684192,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=mid,mean_response,54.833333333333336,54.833333333333336,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=high,nominal_ii_sn_mean,8.57510264357358,8.57510264357358,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=high,mean_response,58.833333333333336,58.833333333333336,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A,nominal_ii_delta,0.9695507201106128,0.9695507201106128,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l9,best_levels,A,nominal_ii,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l9,response_table,B=low,nominal_ii_sn_mean,9.231342945842691,9.231342945842691,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=low,mean_response,57.0,57.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=mid,nominal_ii_sn_mean,9.216533212549637,9.216533212549637,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=mid,mean_response,55.0,55.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=high,nominal_ii_sn_mean,9.216533212549637,9.216533212549637,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=high,mean_response,53.0,53.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B,nominal_ii_delta,0.01480973329305435,0.01480973329305435,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l9,best_levels,B,nominal_ii,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l9,response_table,C=low,nominal_ii_sn_mean,9.357795206349222,9.357795206349223,1.7763568394002505e-15,1.8982642815211433e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=low,mean_response,52.5,52.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=mid,nominal_ii_sn_mean,9.357795206349222,9.357795206349223,1.7763568394002505e-15,1.8982642815211433e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=mid,mean_response,55.5,55.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=high,nominal_ii_sn_mean,8.948818958243521,8.94881895824352,1.7763568394002505e-15,1.985018188086034e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal_ii) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=high,mean_response,57.0,57.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C,nominal_ii_delta,0.40897624810570044,0.408976248105704,3.552713678800501e-15,8.686845984958758e-15,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l9,best_levels,C,nominal_ii,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l9,prediction,nominal_ii,mean,50.833333333333336,50.83333333333333,7.105427357601002e-15,1.3977889883805248e-16,1e-09,1e-09,Minitab OAPREDICT PFITS storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,response_table,"(2.0, 3.0, 1.0)",nominal_sn,43.57801933615515,43.57801933615515,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 3.0, 1.0)",mean,49.5,49.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 3.0, 3.0)",nominal_sn,43.41353289804375,43.41353289804375,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 3.0, 3.0)",mean,51.0,51.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 3.0, 2.0)",nominal_sn,44.044672225723716,44.044672225723716,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 3.0, 2.0)",mean,58.5,58.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 1.0, 3.0)",nominal_sn,44.1700319125256,44.1700319125256,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 1.0, 3.0)",mean,62.0,62.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 2.0, 1.0)",nominal_sn,43.66531544420412,43.66531544420412,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(3.0, 2.0, 1.0)",mean,56.0,56.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 1.0, 1.0)",nominal_sn,44.00598223017976,44.00598223017976,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 1.0, 1.0)",mean,52.0,52.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 2.0, 2.0)",nominal_sn,43.837318879442506,43.837318879442506,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(1.0, 2.0, 2.0)",mean,51.0,51.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 2.0, 3.0)",nominal_sn,44.53068924734377,44.53068924734377,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 2.0, 3.0)",mean,58.0,58.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 1.0, 2.0)",nominal_sn,44.80341247093361,44.80341247093361,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO storage (DIRECT, nominal)",MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,"(2.0, 1.0, 2.0)",mean,57.0,57.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS storage (DIRECT),MiniJMP analyze_static (DIRECT),PASS
+l9,response_table,A=low,nominal_sn_mean,43.752278002555336,43.752278002555336,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=low,mean_response,51.333333333333336,51.333333333333336,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=mid,nominal_sn_mean,44.30404035147751,44.30404035147751,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=mid,mean_response,54.833333333333336,54.833333333333336,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=high,nominal_sn_mean,43.960006527484474,43.960006527484474,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A=high,mean_response,58.833333333333336,58.833333333333336,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,A,nominal_delta,0.5517623489221748,0.5517623489221748,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l9,best_levels,A,nominal,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l9,response_table,B=low,nominal_sn_mean,44.32647553787965,44.32647553787965,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=low,mean_response,57.0,57.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=mid,nominal_sn_mean,44.0111078569968,44.011107856996794,7.105427357601002e-15,1.6144622809060678e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=mid,mean_response,55.0,55.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=high,nominal_sn_mean,43.67874148664087,43.67874148664087,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B=high,mean_response,53.0,53.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,B,nominal_delta,0.6477340512387855,0.6477340512387855,0.0,0.0,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l9,best_levels,B,nominal,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l9,response_table,C=low,nominal_sn_mean,43.74977233684634,43.74977233684635,7.105427357601002e-15,1.624106133145924e-16,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=low,mean_response,52.5,52.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=mid,nominal_sn_mean,44.228467858699936,44.228467858699936,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=mid,mean_response,55.5,55.5,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=high,nominal_sn_mean,44.038084685971036,44.038084685971036,0.0,0.0,1e-09,1e-09,"Minitab ROBUST SNRATIO (DIRECT, nominal) aggregated by level",MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C=high,mean_response,57.0,57.0,0.0,0.0,1e-09,1e-09,Minitab ROBUST MEANS (DIRECT) aggregated by level,MiniJMP analyze_static response table (DIRECT),PASS
+l9,response_table,C,nominal_delta,0.4786955218535951,0.478695521853588,7.105427357601002e-15,1.484331278071604e-14,1e-09,1e-09,DERIVED: Minitab ROBUST SNRATIO storage aggregated by level,MiniJMP response table (DIRECT),PASS
+l9,best_levels,C,nominal,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab level S/N maximum (DIRECT),MiniJMP analyze_static best level (DIRECT),PASS
+l9,prediction,nominal,mean,57.333333333333336,57.33333333333334,7.105427357601002e-15,1.2393187251629654e-16,1e-09,1e-09,Minitab OAPREDICT PFITS storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,sn_formula,standard_order=1,nominal_adjusted_S/N,44.0059246772136,44.0059246772136,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l9,sn_formula,standard_order=1,official_formula,44.0059246772136,44.0059246772136,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l9,sn_formula,standard_order=2,nominal_adjusted_S/N,43.83725904735434,43.83725904735434,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l9,sn_formula,standard_order=2,official_formula,43.83725904735434,43.83725904735434,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l9,sn_formula,standard_order=3,nominal_adjusted_S/N,43.41346693311996,43.41346693311996,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l9,sn_formula,standard_order=3,official_formula,43.41346693311996,43.41346693311996,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l9,sn_formula,standard_order=4,nominal_adjusted_S/N,44.803364572180904,44.803364572180904,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l9,sn_formula,standard_order=4,official_formula,44.803364572180904,44.803364572180904,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l9,sn_formula,standard_order=5,nominal_adjusted_S/N,44.530638244231035,44.530638244231035,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l9,sn_formula,standard_order=5,official_formula,44.530638244231035,44.530638244231035,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l9,sn_formula,standard_order=6,nominal_adjusted_S/N,43.577955822910674,43.577955822910674,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l9,sn_formula,standard_order=6,official_formula,43.577955822910674,43.577955822910674,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l9,sn_formula,standard_order=7,nominal_adjusted_S/N,44.169976493021366,44.169976493021366,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l9,sn_formula,standard_order=7,official_formula,44.169976493021366,44.169976493021366,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l9,sn_formula,standard_order=8,nominal_adjusted_S/N,43.665253194882254,43.665253194882254,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l9,sn_formula,standard_order=8,official_formula,43.665253194882254,43.665253194882254,0.0,0.0,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l9,sn_formula,standard_order=9,nominal_adjusted_S/N,44.044615183205984,44.04461518320598,7.105427357601002e-15,1.6132340646059885e-16,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),MiniJMP analyze_static(adjusted=True),PASS
+l9,sn_formula,standard_order=9,official_formula,44.044615183205984,44.04461518320598,7.105427357601002e-15,1.6132340646059885e-16,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED SNRATIO storage (DIRECT),DERIVED: official adjusted nominal-I formula with sample variance,PASS
+l9,response_table,A=low,nominal_adjusted_sn_mean,43.75221688589596,43.75221688589596,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l9,response_table,A=mid,nominal_adjusted_sn_mean,44.30398621310754,44.30398621310754,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l9,response_table,A=high,nominal_adjusted_sn_mean,43.95994829036987,43.95994829036986,1.4210854715202004e-14,3.2326823092089753e-16,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l9,response_table,A,nominal_adjusted_delta,0.5517693272115807,0.5517693272115807,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l9,best_levels,A,nominal_adjusted,1.0,1.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab adjusted SNRATIO response table (DIRECT inputs),MiniJMP adjusted nominal best level,PASS
+l9,response_table,B=low,nominal_adjusted_sn_mean,44.32642191413862,44.32642191413862,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l9,response_table,B=mid,nominal_adjusted_sn_mean,44.01105016215587,44.011050162155875,7.105427357601002e-15,1.6144643973323778e-16,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l9,response_table,B=high,nominal_adjusted_sn_mean,43.678679313078874,43.678679313078874,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l9,response_table,B,nominal_adjusted_delta,0.6477426010597469,0.6477426010597469,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l9,best_levels,B,nominal_adjusted,1.0,1.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab adjusted SNRATIO response table (DIRECT inputs),MiniJMP adjusted nominal best level,PASS
+l9,response_table,C=low,nominal_adjusted_sn_mean,43.74971123166885,43.74971123166885,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l9,response_table,C=mid,nominal_adjusted_sn_mean,44.228412934247075,44.228412934247075,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l9,response_table,C=high,nominal_adjusted_sn_mean,44.03802722345745,44.038027223457455,7.105427357601002e-15,1.6134753996918827e-16,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l9,response_table,C,nominal_adjusted_delta,0.47870170257822764,0.47870170257822764,0.0,0.0,1e-09,1e-09,DERIVED: aggregate Minitab adjusted SNRATIO (DIRECT),MiniJMP adjusted nominal response table,PASS
+l9,best_levels,C,nominal_adjusted,1.0,1.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab adjusted SNRATIO response table (DIRECT inputs),MiniJMP adjusted nominal best level,PASS
+l9,response_table,B,nominal_adjusted_rank,1.0,1.0,0.0,0.0,0.0,0.0,DERIVED: rank Minitab adjusted SNRATIO Delta (DIRECT inputs),MiniJMP adjusted nominal response table,PASS
+l9,response_table,A,nominal_adjusted_rank,2.0,2.0,0.0,0.0,0.0,0.0,DERIVED: rank Minitab adjusted SNRATIO Delta (DIRECT inputs),MiniJMP adjusted nominal response table,PASS
+l9,response_table,C,nominal_adjusted_rank,3.0,3.0,0.0,0.0,0.0,0.0,DERIVED: rank Minitab adjusted SNRATIO Delta (DIRECT inputs),MiniJMP adjusted nominal response table,PASS
+l9,sn_formula,nominal_adjusted_native,command_support,,,,,1e-09,1e-09,Minitab ROBUST NOMTWO ADJUSTED returned per-combination SNRATIO via COM,MiniJMP adjusted nominal-I,PASS
+l9,prediction,OAPREDICT,95%_mean_CI_storage,,,,,1e-09,1e-09,"Minitab OAPREDICT CI probe: OAPREDICT C15 = C1 C2 C3;
+  LEVELS 2.0 1.0 2.0;
+  PFITS C18;
+  PSEFITS C19;
+  CLIMITS C20 C21;
+  PLIMITS C22 C23.
+* 错误 * 子命令 PSEF 失序，或者对于该命令无效。
+
+        * 其余子命令被忽略。
+        * 计算不可能完成。",MiniJMP predict_taguchi_model interval API,UNSUPPORTED
+l9,mean_model,treatment_coding,max_matrix_error,0.0,0.0,0.0,0.0,1e-09,1e-09,Minitab REGRESS XMATRIX (DIRECT),MiniJMP grouped mean-model matrix,PASS
+l9,mean_model,model,rank,7.0,7.0,0.0,0.0,1e-09,1e-09,Minitab REGRESS XMATRIX (DIRECT),MiniJMP grouped OLS,PASS
+l9,mean_model,model,error_df,2.0,2.0,0.0,0.0,1e-09,1e-09,DERIVED: Minitab XMATRIX rank,MiniJMP grouped OLS,PASS
+l9,mean_model,model,MSE,3.2499999999999996,3.25,4.440892098500626e-16,1.3664283380001927e-16,1e-09,1e-09,DERIVED: Minitab REGRESS residuals / error df,MiniJMP grouped OLS,PASS
+l9,mean_model,standard_order=1,fit,50.833333333333336,50.83333333333332,1.4210854715202004e-14,2.7955779767610497e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=1,residual,1.1666666666666643,1.1666666666666785,1.4210854715202004e-14,1.2180732613030313e-14,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=2,fit,51.833333333333336,51.833333333333314,2.1316282072803006e-14,4.1124659947529913e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=2,residual,-0.8333333333333357,-0.8333333333333144,2.1316282072803006e-14,2.5579538487363535e-14,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=3,fit,51.333333333333336,51.333333333333314,2.1316282072803006e-14,4.152522481714871e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=3,residual,-0.3333333333333357,-0.3333333333333144,2.1316282072803006e-14,6.394884621840856e-14,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=4,fit,57.333333333333336,57.333333333333314,2.1316282072803006e-14,3.717956175488896e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=4,residual,-0.3333333333333357,-0.3333333333333144,2.1316282072803006e-14,6.394884621840856e-14,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=5,fit,56.833333333333336,56.833333333333314,2.1316282072803006e-14,3.750665467355367e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=5,residual,1.1666666666666643,1.1666666666666856,2.1316282072803006e-14,1.827109891954547e-14,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=6,fit,50.333333333333336,50.33333333333332,1.4210854715202004e-14,2.823348618914305e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=6,residual,-0.8333333333333357,-0.8333333333333215,1.4210854715202004e-14,1.7053025658242356e-14,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=7,fit,62.833333333333336,62.83333333333331,2.842170943040401e-14,4.523348980966155e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=7,residual,-0.8333333333333357,-0.8333333333333073,2.842170943040401e-14,3.410605131648471e-14,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=8,fit,56.333333333333336,56.333333333333314,2.1316282072803006e-14,3.7839553975389947e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=8,residual,-0.3333333333333357,-0.3333333333333144,2.1316282072803006e-14,6.394884621840856e-14,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=9,fit,57.333333333333336,57.33333333333331,2.842170943040401e-14,4.957274900651862e-16,1e-09,1e-09,Minitab REGRESS FITS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,mean_model,standard_order=9,residual,1.1666666666666643,1.1666666666666927,2.842170943040401e-14,2.4361465226060627e-14,1e-09,1e-09,Minitab REGRESS RESIDUALS (DIRECT),MiniJMP grouped OLS (DIRECT),PASS
+l9,prediction,observed,mean,50.833333333333336,50.83333333333332,1.4210854715202004e-14,2.7955779767610497e-16,1e-09,1e-09,Minitab REGRESS/PREDICT PFITS (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,observed,se_fit,1.5898986690282422,1.5898986690282415,6.661338147750939e-16,4.189787863538749e-16,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,observed,95%_mean_CI_low,43.992551485067025,43.992551485098694,3.1668889732827665e-11,7.198693566018205e-13,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,observed,95%_mean_CI_high,57.674115181599646,57.67411518156795,3.169731144225807e-11,5.495933720431099e-13,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,observed,95%_single_observation_PI_low,40.49104330832908,40.491043308376966,4.788347496287315e-11,1.1825695524378705e-12,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,observed,95%_single_observation_PI_high,61.17562335833759,61.17562335828968,4.7911896672303556e-11,7.831860803715648e-13,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,estimable_non_design,mean,53.833333333333336,53.833333333333314,2.1316282072803006e-14,3.959680880396843e-16,1e-09,1e-09,Minitab REGRESS/PREDICT PFITS (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,estimable_non_design,se_fit,1.5898986690282424,1.5898986690282437,1.3322676295501878e-15,8.379575727077496e-16,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,estimable_non_design,95%_mean_CI_low,46.992551485067025,46.99255148509868,3.1654678878112463e-11,6.736105590727814e-13,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,estimable_non_design,95%_mean_CI_high,60.674115181599646,60.67411518156795,3.169731144225807e-11,5.224190142268571e-13,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,estimable_non_design,95%_single_observation_PI_low,43.49104330832908,43.49104330837695,4.786926410815795e-11,1.100669481961827e-12,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,estimable_non_design,95%_single_observation_PI_high,64.17562335833759,64.17562335828968,4.7904791244945955e-11,7.46463980216598e-13,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,best_snr,mean,57.333333333333336,57.333333333333314,2.1316282072803006e-14,3.717956175488896e-16,1e-09,1e-09,Minitab REGRESS/PREDICT PFITS (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,best_snr,se_fit,1.5898986690282424,1.5898986690282404,1.9984014443252818e-15,1.2569363590616244e-15,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,best_snr,95%_mean_CI_low,50.492551485067025,50.492551485098694,3.1668889732827665e-11,6.271992363506054e-13,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,best_snr,95%_mean_CI_high,64.17411518159965,64.17411518156794,3.170441686961567e-11,4.940374601176603e-13,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,best_snr,95%_single_observation_PI_low,46.99104330832908,46.99104330837696,4.787636953551555e-11,1.0188403185981093e-12,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,prediction,best_snr,95%_single_observation_PI_high,67.67562335833759,67.67562335828967,4.7919002099661157e-11,7.080688691396822e-13,1e-09,1e-09,Minitab REGRESS/PREDICT storage (DIRECT),MiniJMP predict_taguchi_model (DIRECT),PASS
+l9,model_coefficients,截距,estimate,50.83329999999999,50.83333333333332,3.3333333334439885e-05,6.557381349320208e-07,0.00020000000099999995,0.0,DISPLAY: Minitab ROBUST AMEANS effect-coded coefficient transformed to MiniJMP basis,MiniJMP predict_taguchi_model on treatment means (DIRECT),PASS
+l9,model_coefficients,A=mid,estimate,3.499999999999998,3.4999999999999982,4.440892098500626e-16,1.2688263138573227e-16,0.00010000000100000008,0.0,DISPLAY: Minitab ROBUST AMEANS effect-coded coefficient transformed to MiniJMP basis,MiniJMP predict_taguchi_model on treatment means (DIRECT),PASS
+l9,model_coefficients,A=high,estimate,7.500099999999997,7.4999999999999964,0.00010000000000065512,1.3333155558013247e-05,0.00015000000100000006,0.0,DISPLAY: Minitab ROBUST AMEANS effect-coded coefficient transformed to MiniJMP basis,MiniJMP predict_taguchi_model on treatment means (DIRECT),PASS
+l9,model_coefficients,B=mid,estimate,-2.000000000000005,-2.000000000000001,3.9968028886505635e-15,1.998401444325277e-15,0.00010000000100000004,0.0,DISPLAY: Minitab ROBUST AMEANS effect-coded coefficient transformed to MiniJMP basis,MiniJMP predict_taguchi_model on treatment means (DIRECT),PASS
+l9,model_coefficients,B=high,estimate,-4.000000000000003,-4.0,2.6645352591003757e-15,6.661338147750935e-16,0.00015000000100000004,0.0,DISPLAY: Minitab ROBUST AMEANS effect-coded coefficient transformed to MiniJMP basis,MiniJMP predict_taguchi_model on treatment means (DIRECT),PASS
+l9,model_coefficients,C=mid,estimate,2.9999999999999947,2.9999999999999942,4.440892098500626e-16,1.480297366166878e-16,0.0001000000010000001,0.0,DISPLAY: Minitab ROBUST AMEANS effect-coded coefficient transformed to MiniJMP basis,MiniJMP predict_taguchi_model on treatment means (DIRECT),PASS
+l9,model_coefficients,C=high,estimate,4.499999999999996,4.499999999999996,0.0,0.0,0.00015000000100000012,0.0,DISPLAY: Minitab ROBUST AMEANS effect-coded coefficient transformed to MiniJMP basis,MiniJMP predict_taguchi_model on treatment means (DIRECT),PASS
+l9,anova,P_A,df,2.0,2.0,0.0,0.0,0.0,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,P_A,Adj SS,84.5,84.50000000000001,1.4210854715202004e-14,1.6817579544617755e-16,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,P_A,f,13.0,13.000000000000036,3.552713678800501e-14,2.7328566760003855e-15,0.005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,P_A,p,0.071,0.07142857142857124,0.0004285714285712505,0.006036217303820431,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,P_B,df,2.0,2.0,0.0,0.0,0.0,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,P_B,Adj SS,24.0,24.000000000000068,6.750155989720952e-14,2.812564995717063e-15,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,P_B,f,3.69,3.6923076923077125,0.00230769230771255,0.0006253908692987941,0.005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,P_B,p,0.213,0.21311475409835973,0.00011475409835973172,0.0005387516354916982,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,P_C,df,2.0,2.0,0.0,0.0,0.0,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,P_C,Adj SS,31.5,31.499999999999996,3.552713678800501e-15,1.1278456123176193e-16,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,P_C,f,4.85,4.846153846153858,0.003846153846141398,0.0007930214115755461,0.005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,P_C,p,0.171,0.171052631578947,5.263157894699888e-05,0.0003077870113859583,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,残差误差,df,2.0,2.0,0.0,0.0,0.0,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,残差误差,SS,6.5,6.499999999999983,1.687538997430238e-14,2.596213842200366e-15,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,合计,df,8.0,8.0,0.0,0.0,0.0,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS
+l9,anova,合计,SS,146.5,146.5,0.0,0.0,0.0005,0.0,DISPLAY: Minitab ROBUST AMEANS ANOVA,DERIVED: MiniJMP mean-model matrix,PASS

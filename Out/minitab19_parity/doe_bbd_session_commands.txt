@@ -1,0 +1,28 @@
+# Native 3-factor BBD, 12 edge points and 3 centers
+BBDESIGN 3;
+  CENTER 3;
+  DESIGN.
+
+# Full quadratic coded response surface, independent of row order
+RSREG;
+  RESPONSE <Y>;
+  FACTORS <A> <B> <C>;
+  TERMS <A> <B> <C> <A>*<A> <B>*<B> <C>*<C> <A>*<B> <A>*<C> <B>*<C>;
+  LEVELS -1 1 -1 1 -1 1;
+  INUNIT 0;
+  CONFIDENCE 95;
+  FITS <Fit>;
+  RESIDUALS <Resid>;
+  COEFFICIENTS <Coef>;
+  XMATRIX <M>.
+
+# Native prediction at 3 points with SE Fit and 95% intervals
+PREDICT <Y>;
+  KPREDICTORS 0 0 0;
+  KPREDICTORS 0.5 -0.25 0.4;
+  KPREDICTORS -1 0 1;
+  CONFIDENCE 95;
+  PFITS <PredFit>;
+  PSEFITS <PredSE>;
+  CLIMITS <CILow> <CIHigh>;
+  PLIMITS <PILow> <PIHigh>.
