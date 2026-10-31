@@ -177,6 +177,7 @@ def test_row_column_header_menus_copy_and_paste_multiple_targets(table, monkeypa
     assert '复制整行' in menu_labels(rowmenu) and '粘贴整行' in menu_labels(rowmenu)
     invoke(rowmenu, '复制整行')
     assert written[-1].splitlines() == ['a0\tb0\tc0', 'a2\tb2\tc2']
+
     monkeypatch.setattr(table, 'clipboard_get', lambda: 'r0\ts0\tt0\nr2\ts2\tt2')
     invoke(rowmenu, '粘贴整行')
     assert table.model.df.iloc[[0, 2]].values.tolist() == [
@@ -187,6 +188,59 @@ def test_row_column_header_menus_copy_and_paste_multiple_targets(table, monkeypa
     invoke(rowmenu, '复制行')
     assert len(table.model.df) == before_rows + 2
     assert written[-1].splitlines() == ['a0\tb0\tc0', 'a2\tb2\tc2']
+
+
+def test_column_header_formula_menu_targets_clicked_column(table, monkeypatch):
+    table.multiplecollist = [0, 2]
+    table.currentcol = 0
+    table.formulas_auto = False
+    calls = []
+    for method in ('assign_column_formula', 'edit_column_formula',
+                   'view_column_formula', 'delete_column_formula',
+                   'recalculate_formulas'):
+        monkeypatch.setattr(
+            table, method,
+            lambda method=method: calls.append((method, table.currentcol)))
+    monkeypatch.setattr(table, 'refresh_formulas', lambda force: None)
+    monkeypatch.setattr(table, 'redraw', lambda: None)
+    monkeypatch.setattr(table, 'tableChanged', lambda: None)
+
+    table.colheader.handle_right_click(cell_event(table, 0, 2))
+    menu = table.colheader.rightmenu
+    assert menu_labels(menu) == [
+        '按 0,2 升序排序全表 ↓', '按 0,2 降序排序全表 ↑',
+        '复制整列', '粘贴整列', '删除列', '重命名列', '添加列', '公式',
+        '设置对齐方式', '填充数据', '设置数据类型']
+    assert table.multiplecollist == [0, 2]
+    assert table.currentcol == 0
+
+    formula_menu = menu.nametowidget(menu.entrycget('公式', 'menu'))
+    formula_labels = [
+        formula_menu.entrycget(index, 'label')
+        for index in range(formula_menu.index('end') + 1)
+        if formula_menu.type(index) in ('command', 'checkbutton')]
+    assert formula_labels == [
+        '向列分配公式', '编辑列公式', '查看列公式', '删除列公式',
+        '自动计算所有公式', '立即计算所有公式']
+    assert [formula_menu.type(index)
+            for index in range(formula_menu.index('end') + 1)] == [
+                'command', 'command', 'command', 'command', 'separator',
+                'checkbutton', 'command']
+    assert not table._formula_auto_var().get()
+
+    for label in formula_labels[:4]:
+        invoke(formula_menu, label)
+    assert calls[:4] == [
+        ('assign_column_formula', 2), ('edit_column_formula', 2),
+        ('view_column_formula', 2), ('delete_column_formula', 2)]
+
+    auto_index = next(
+        index for index in range(formula_menu.index('end') + 1)
+        if formula_menu.type(index) == 'checkbutton')
+    formula_menu.invoke(auto_index)
+    assert table.formulas_auto and table._formula_auto_var().get()
+    invoke(formula_menu, '立即计算所有公式')
+    assert calls[-1] == ('recalculate_formulas', 2)
 
 
 def test_keyboard_copy_paste_respects_row_and_column_headers(table, monkeypatch):
