@@ -1,0 +1,20 @@
+# 由本机 Minitab 19.1.0.1 COM ExecuteCommand 实际运行
+
+# Native 2² full factorial design, two replicates, coded levels -1/+1
+FFDESIGN 2 4;
+  REPS 2;
+  LEVELS -1 1 -1 1;
+  DESIGN.
+
+# Native DOE factorial analysis of the same fixed response data
+FFACTORIAL;
+  RESPONSE C7;
+  FACTOR C5 C6;
+  TERMS C5 C6 C5*C6;
+  LEVELS -1 1 -1 1;
+  INUNIT 0;
+  FITS C8;
+  RESIDUALS C9;
+  COEFFICIENTS C10;
+  XMATRIX M1;
+  TEXPAND.

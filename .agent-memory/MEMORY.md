@@ -12,6 +12,14 @@
 - 正式矩阵、P2-5证据分层、路线图、开发记录、DOE帮助和索引均更新。最终入口：`Out/p2_6_doe_function_completion/p2-6-final-acceptance.md`、`p2-6-final-feature-audit.csv`、`p2-6-final-statistical-review.md`；精确批次/节点见`final-validation-summary.json`、`final-gui-manifest.json`，提交后状态见`final-git-state.log`。
 - 历史P2-5 1408 passed/69 warnings独立保留；原件见`Out/p5_automated_validation/`及`Out/p5_office_round1/`。有限Minitab输出只涉及SCR-001/003、FAC-012、RSM-002，其余76项无对应产品输出；DSD-S01仅RTF显示精度，BBD有标准序差异。不是全产品parity。
 - 下一阶段：后续版本需求与范围规划，尚未启动；不自动扩展高级DOE、采集产品输出或发布。项目记忆按规则独立更新，未纳入本次Git提交。过程见`logs/2026-10-31.md`。
+## Minitab 19 对标（2026-10-31，当前）
+
+- **工作约定（用户明确要求）**：涉及 Minitab 命令语言/子命令时，先查官方 session commands 文档，不要凭记忆猜语法。入口：`https://support.minitab.com/zh-cn/minitab/media/pdfs/notranslate/session_commands.pdf`；下载后用 `.venv` 的 `pypdf` 抽全文再 `rg` 定位。已实测：`CCDESIGN 2; ALPHA 1; CENTER 5; DESIGN.`；`RSREG` 必带 `LEVELS`/`INUNIT`；`PREDICT <response>` 必带 `KPREDICTORS` 或 `CPREDICTORS`；SE Fit 存储项是 `PSEFITS`（不是 `SEFITS`）。
+- 面心 CCD 二次响应面对标完成，脚本 `Out/minitab19_parity/verify_doe_ccd.py`。13 次运行（4 因子 + 4 轴 + 5 中心，alpha=1，无区组），两次独立 COM 会话：比较 CSV 897 行 = 883 PASS / 14 N/A / 0 FAIL，最大绝对误差 `2.55e-11`；运行后无 `Mtb.exe` 残留。
+- Minitab 侧 DIRECT 全精度：`M1`(13×6)、`C10` 系数、`C8` 拟合、`C9` 残差、`C11`–`C16` 预测/SE Fit/两区间。ANOVA 逐行 SS/F/P 与 S/R²/调整R²/SSE/SST/MSE 属 DERIVED（由上述量与固定 Y 重建，P 用 `scipy.stats.f.sf`），报告已标注。
+- 口径要点：Model SS = SST − SSE；线性/交互/平方组 Adj SS 须同时移除该组全部列再重拟合；`analyze_rsm` 的 ANOVA 行是逐项 Adj SS，不能相加当 Model SS。MiniJMP `A²`/`B²` 对应 Minitab `A*A`/`B*B`。
+- 未改 `code/` 生产算法，未更新正式 DOE 功能矩阵，未提交推送。
+
 
 ## 以下为历史阶段记录（不代表当前状态）
 
@@ -34,7 +42,9 @@
 - 独立参考 SHA-256 8c4ccc639a44954582290a3e49cb85695b25a46f29a5fd0c575b8efb74e3f32f，fixture 与最终分析静态复核均 CLEAR。平衡正交矩阵以稳定直接投影求系数；六因子 `1e15*A` 保留误差 SS 128/1920，另覆盖零方差、单位缩放及 `+1e14` 偏移。
 - `.venv` Python 3.11.9：核心/跨模块 222 passed；Split-Plot Tk 10 passed/2 tight_layout warnings；共享最优 GUI 6 passed；Help/Menu/G12 94 passed。全量 pytest 未运行。
 - P3-REV-01 追加顺序修复在最终快照验证：DOE/Schema/持久化/通用增补 164 passed；真实 Tk Split-Plot 与修改设计 GUI 16 passed、2 条 tight_layout warnings；py_compile 与 diff check 通过。旧 v1/v2 前缀按 seed 重建，使用 v5 现有 lineage；每个设计仅允许一次追加批次。
-- 矩阵保持 80 项（58 implemented、19 partial、2 unknown、1 excluded），Split-Plot 相关行仍 partial。Minitab 22 parity 未验证；全量 pytest 未运行。工程 commit 后工作树只留 MEMORY.md 和当日日志本地修改。
+- 矩阵保持 80 项（58 implemented、19 partial、2 unknown、1 excluded），Split-Plot 相关行仍 partial。Minitab 22 parity 未验证；全量 pytest 未运行。
+- Minitab 19.1.0.1 COM 自动化 smoke（2026-10-31）：系统 Python 3.11.9/pywin32 连续两次连接到指定 `Mtb.exe`，执行 `DESCRIBE C1.` 并经 `Output.Text`/`OutputDocument.Text` 读取正确统计量；每次退出后无残留进程。只证明自动化链路，不代表 DOE parity。证据见 `Out/minitab19_parity/` 及当日日志。
+- 首个 Minitab 19 × MiniJMP DOE 数值对标（2026-10-31）：按请求将 pywin32 312 安装到项目 `.venv`（未改 requirements）；用 Minitab 原生 `FFDESIGN`/`FFACTORIAL` 与 MiniJMP 生产入口对比重复 2² 全因子。两次独立 COM 运行均通过，比较 CSV 356 PASS/10 N/A/0 FAIL，最大绝对误差约 `1.71e-13`；N/A 是 Error/Total 未定义的 F/P/MS。此结论只覆盖本案例，不更新 DOE 功能矩阵。证据见 `Out/minitab19_parity/doe_2x2_acceptance_report.md` 与当日日志。
 - 交接与方法证据：docs/doe-minitab/phase2-p3-closeout.md、phase2-p3-acceptance.md；过程见 logs/2026-10-29.md。
 
 ## DOE Phase 2 P2-2B 历史（2026-10-29）
@@ -203,4 +213,3 @@ pandas 3 兼容性定向修复已完成：`core_orig.py` 的 `getRowsFromMask()`
 - 只读调查 Minitab Statistical Software 官方在线帮助及 MiniJMP 源码/测试；产品版本未由官方页面注明。已新增 docs/doe-minitab/README.md、feature-matrix.csv、acceptance.md、roadmap.md、sources.md。
 - Review 修正后矩阵 80 项（10 implemented、13 partial、52 missing、4 unknown、1 excluded），66 个唯一验收号；原 001–063 稳定，新增 TAG-010/011、FAC-019 与 ACC-064–066。P0 与 Level 1 完全一致；已实现 P0 项复用 DOE-0～4 基线，不重复安排开发，FAC-009 的 ACC-012 保留为回归验收。
 - Review 修正官方定义：General Full Factorial 的数值水平仍是分类水平；Taguchi 覆盖 4/5/mixed-level 与四类静态 S/N、adjusted 公式及独立数值参考；D-optimality 与 distance-based 按设计家族限定；不要求无官方承诺的全局最优保证。B/D/E 完成 Level 1 ANOVA、诊断和 schema 前置验收，H 保留最终跨类别验收。
-- 最终自动检查：项目 .venv Python 3.11.9 下验证 CSV 80×20 结构、状态计数、66 个连续且一一映射的验收编号、P0/Level 1、A–H 路线映射、UTF-8/Markdown 本地链接/尾随空白；`git diff --check` 通过。未跑 pytest、未改产品代码/schema/菜单/测试/CHANGELOG_DEV；待用户最终审查。详见当日日志。

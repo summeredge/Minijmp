@@ -1,0 +1,367 @@
+﻿run,section,term,statistic,minitab_value,minijmp_value,absolute_error,relative_error,absolute_tolerance,relative_tolerance,minitab_value_source,status
+1,model_matrix,run_id=1:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=1:A,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=1:B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=1:A*B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,input,run_id=1,Y,52.0,52.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+1,run_statistics,run_id=1,fit,53.0,53.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,run_statistics,run_id=1,residual,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,model_matrix,run_id=2:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=2:A,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=2:B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=2:A*B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,input,run_id=2,Y,50.0,50.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+1,run_statistics,run_id=2,fit,51.0,51.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,run_statistics,run_id=2,residual,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,model_matrix,run_id=3:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=3:A,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=3:B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=3:A*B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,input,run_id=3,Y,40.0,40.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+1,run_statistics,run_id=3,fit,41.0,41.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,run_statistics,run_id=3,residual,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,model_matrix,run_id=4:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=4:A,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=4:B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=4:A*B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,input,run_id=4,Y,54.0,54.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+1,run_statistics,run_id=4,fit,55.0,55.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,run_statistics,run_id=4,residual,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,model_matrix,run_id=5:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=5:A,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=5:B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=5:A*B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,input,run_id=5,Y,54.0,54.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+1,run_statistics,run_id=5,fit,53.0,53.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,run_statistics,run_id=5,residual,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,model_matrix,run_id=6:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=6:A,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=6:B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=6:A*B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,input,run_id=6,Y,52.0,52.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+1,run_statistics,run_id=6,fit,51.0,51.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,run_statistics,run_id=6,residual,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,model_matrix,run_id=7:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=7:A,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=7:B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=7:A*B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,input,run_id=7,Y,42.0,42.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+1,run_statistics,run_id=7,fit,41.0,41.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,run_statistics,run_id=7,residual,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,model_matrix,run_id=8:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=8:A,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=8:B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,model_matrix,run_id=8:A*B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+1,input,run_id=8,Y,56.0,56.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+1,run_statistics,run_id=8,fit,55.0,55.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,run_statistics,run_id=8,residual,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+1,model,model,rank,4.0,4.0,0.0,0.0,1e-09,1e-09,rank of Minitab XMATRIX M1 / MiniJMP result rank,PASS
+1,coefficient,Intercept,estimate,50.0,50.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage COEFFICIENTS C10 (full precision),PASS
+1,coefficient,A,estimate,3.0000000000000004,2.9999999999999996,8.881784197001252e-16,2.96059473233375e-16,1e-09,1e-09,Minitab FFACTORIAL storage COEFFICIENTS C10 (full precision),PASS
+1,coefficient,B,estimate,-1.9999999999999998,-1.9999999999999993,4.440892098500626e-16,2.2204460492503136e-16,1e-09,1e-09,Minitab FFACTORIAL storage COEFFICIENTS C10 (full precision),PASS
+1,coefficient,A*B,estimate,3.9999999999999982,4.000000000000001,2.6645352591003757e-15,6.661338147750942e-16,1e-09,1e-09,Minitab FFACTORIAL storage COEFFICIENTS C10 (full precision),PASS
+1,anova,Model,df,3.0,3.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,Model,ss,231.99999999999991,232.0,8.526512829121202e-14,3.6752210470350024e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,Model,ms,77.3333333333333,77.33333333333333,2.842170943040401e-14,3.6752210470350024e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,Model,f,38.66666666666665,38.666666666666664,1.4210854715202004e-14,3.6752210470350024e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,Model,p,0.0020600385460723203,0.0020600385460723186,1.734723475976807e-18,8.420830179533482e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,A,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,A,ss,72.00000000000003,71.99999999999999,4.263256414560601e-14,5.921189464667499e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,A,ms,72.00000000000003,71.99999999999999,4.263256414560601e-14,5.921189464667499e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,A,f,36.000000000000014,35.99999999999999,2.1316282072803006e-14,5.921189464667499e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,A,p,0.0038825370469605077,0.0038825370469605116,3.903127820947816e-18,1.0053034327137787e-15,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,B,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,B,ss,31.999999999999993,31.99999999999998,1.4210854715202004e-14,4.440892098500627e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,B,ms,31.999999999999993,31.99999999999998,1.4210854715202004e-14,4.440892098500627e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,B,f,15.999999999999996,15.99999999999999,7.105427357601002e-15,4.440892098500627e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,B,p,0.01613008990009254,0.016130089900092546,6.938893903907228e-18,4.3018321329178825e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,A*B,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,A*B,ss,127.99999999999989,128.00000000000006,1.7053025658242404e-13,1.332267629550189e-15,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,A*B,ms,127.99999999999989,128.00000000000006,1.7053025658242404e-13,1.332267629550189e-15,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,A*B,f,63.99999999999994,64.00000000000003,8.526512829121202e-14,1.332267629550189e-15,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,A*B,p,0.0013238969092171703,0.001323896909217167,3.2526065174565133e-18,2.456842745693698e-15,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,残差,df,4.0,4.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,残差,ss,8.0,8.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,残差,ms,2.0,2.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,残差,f,,,,,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",N/A
+1,anova,残差,p,,,,,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",N/A
+1,anova,总计,df,7.0,7.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,总计,ss,240.0,240.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,anova,总计,ms,,,,,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",N/A
+1,anova,总计,f,,,,,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",N/A
+1,anova,总计,p,,,,,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",N/A
+1,model_summary,model,r2,0.9666666666666667,0.9666666666666667,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,model_summary,model,adjusted_r2,0.9416666666666667,0.9416666666666667,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,model_summary,model,sse,8.0,8.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,model_summary,model,sst,240.0,240.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,model_summary,model,ssr,231.99999999999991,232.0,8.526512829121202e-14,3.6752210470350024e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,model_summary,model,mse,2.0,2.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+1,model_summary,model,S,1.4142135623730951,1.4142135623730951,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,model_matrix,run_id=1:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=1:A,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=1:B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=1:A*B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,input,run_id=1,Y,52.0,52.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+2,run_statistics,run_id=1,fit,53.0,53.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,run_statistics,run_id=1,residual,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,model_matrix,run_id=2:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=2:A,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=2:B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=2:A*B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,input,run_id=2,Y,50.0,50.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+2,run_statistics,run_id=2,fit,51.0,51.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,run_statistics,run_id=2,residual,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,model_matrix,run_id=3:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=3:A,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=3:B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=3:A*B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,input,run_id=3,Y,40.0,40.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+2,run_statistics,run_id=3,fit,41.0,41.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,run_statistics,run_id=3,residual,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,model_matrix,run_id=4:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=4:A,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=4:B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=4:A*B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,input,run_id=4,Y,54.0,54.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+2,run_statistics,run_id=4,fit,55.0,55.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,run_statistics,run_id=4,residual,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,model_matrix,run_id=5:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=5:A,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=5:B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=5:A*B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,input,run_id=5,Y,54.0,54.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+2,run_statistics,run_id=5,fit,53.0,53.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,run_statistics,run_id=5,residual,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,model_matrix,run_id=6:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=6:A,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=6:B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=6:A*B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,input,run_id=6,Y,52.0,52.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+2,run_statistics,run_id=6,fit,51.0,51.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,run_statistics,run_id=6,residual,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,model_matrix,run_id=7:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=7:A,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=7:B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=7:A*B,X,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,input,run_id=7,Y,42.0,42.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+2,run_statistics,run_id=7,fit,41.0,41.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,run_statistics,run_id=7,residual,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,model_matrix,run_id=8:Intercept,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=8:A,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=8:B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,model_matrix,run_id=8:A*B,X,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage XMATRIX M1 (full precision),PASS
+2,input,run_id=8,Y,56.0,56.0,0.0,0.0,1e-09,1e-09,fixed CSV input,PASS
+2,run_statistics,run_id=8,fit,55.0,55.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,run_statistics,run_id=8,residual,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL FITS C8 / RESIDUALS C9 (full precision),PASS
+2,model,model,rank,4.0,4.0,0.0,0.0,1e-09,1e-09,rank of Minitab XMATRIX M1 / MiniJMP result rank,PASS
+2,coefficient,Intercept,estimate,50.0,50.0,0.0,0.0,1e-09,1e-09,Minitab FFACTORIAL storage COEFFICIENTS C10 (full precision),PASS
+2,coefficient,A,estimate,3.0000000000000004,2.9999999999999996,8.881784197001252e-16,2.96059473233375e-16,1e-09,1e-09,Minitab FFACTORIAL storage COEFFICIENTS C10 (full precision),PASS
+2,coefficient,B,estimate,-1.9999999999999998,-1.9999999999999993,4.440892098500626e-16,2.2204460492503136e-16,1e-09,1e-09,Minitab FFACTORIAL storage COEFFICIENTS C10 (full precision),PASS
+2,coefficient,A*B,estimate,3.9999999999999982,4.000000000000001,2.6645352591003757e-15,6.661338147750942e-16,1e-09,1e-09,Minitab FFACTORIAL storage COEFFICIENTS C10 (full precision),PASS
+2,anova,Model,df,3.0,3.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,Model,ss,231.99999999999991,232.0,8.526512829121202e-14,3.6752210470350024e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,Model,ms,77.3333333333333,77.33333333333333,2.842170943040401e-14,3.6752210470350024e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,Model,f,38.66666666666665,38.666666666666664,1.4210854715202004e-14,3.6752210470350024e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,Model,p,0.0020600385460723203,0.0020600385460723186,1.734723475976807e-18,8.420830179533482e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,A,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,A,ss,72.00000000000003,71.99999999999999,4.263256414560601e-14,5.921189464667499e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,A,ms,72.00000000000003,71.99999999999999,4.263256414560601e-14,5.921189464667499e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,A,f,36.000000000000014,35.99999999999999,2.1316282072803006e-14,5.921189464667499e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,A,p,0.0038825370469605077,0.0038825370469605116,3.903127820947816e-18,1.0053034327137787e-15,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,B,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,B,ss,31.999999999999993,31.99999999999998,1.4210854715202004e-14,4.440892098500627e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,B,ms,31.999999999999993,31.99999999999998,1.4210854715202004e-14,4.440892098500627e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,B,f,15.999999999999996,15.99999999999999,7.105427357601002e-15,4.440892098500627e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,B,p,0.01613008990009254,0.016130089900092546,6.938893903907228e-18,4.3018321329178825e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,A*B,df,1.0,1.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,A*B,ss,127.99999999999989,128.00000000000006,1.7053025658242404e-13,1.332267629550189e-15,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,A*B,ms,127.99999999999989,128.00000000000006,1.7053025658242404e-13,1.332267629550189e-15,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,A*B,f,63.99999999999994,64.00000000000003,8.526512829121202e-14,1.332267629550189e-15,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,A*B,p,0.0013238969092171703,0.001323896909217167,3.2526065174565133e-18,2.456842745693698e-15,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,残差,df,4.0,4.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,残差,ss,8.0,8.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,残差,ms,2.0,2.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,残差,f,,,,,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",N/A
+2,anova,残差,p,,,,,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",N/A
+2,anova,总计,df,7.0,7.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,总计,ss,240.0,240.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,anova,总计,ms,,,,,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",N/A
+2,anova,总计,f,,,,,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",N/A
+2,anova,总计,p,,,,,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",N/A
+2,model_summary,model,r2,0.9666666666666667,0.9666666666666667,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,model_summary,model,adjusted_r2,0.9416666666666667,0.9416666666666667,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,model_summary,model,sse,8.0,8.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,model_summary,model,sst,240.0,240.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,model_summary,model,ssr,231.99999999999991,232.0,8.526512829121202e-14,3.6752210470350024e-16,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,model_summary,model,mse,2.0,2.0,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+2,model_summary,model,S,1.4142135623730951,1.4142135623730951,0.0,0.0,1e-09,1e-09,"derived from exact Minitab M1, C10, C8/C9 and fixed Y; P via scipy.stats.f.sf; native rounded table retained",PASS
+run1_vs_run2,repeatability_Minitab,S,value,1.4142135623730951,1.4142135623730951,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,adjusted_r2,value,0.9416666666666667,0.9416666666666667,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:A*B:df,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:A*B:f,value,63.99999999999994,63.99999999999994,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:A*B:ms,value,127.99999999999989,127.99999999999989,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:A*B:p,value,0.0013238969092171703,0.0013238969092171703,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:A*B:ss,value,127.99999999999989,127.99999999999989,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:A:df,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:A:f,value,36.000000000000014,36.000000000000014,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:A:ms,value,72.00000000000003,72.00000000000003,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:A:p,value,0.0038825370469605077,0.0038825370469605077,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:A:ss,value,72.00000000000003,72.00000000000003,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:B:df,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:B:f,value,15.999999999999996,15.999999999999996,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:B:ms,value,31.999999999999993,31.999999999999993,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:B:p,value,0.01613008990009254,0.01613008990009254,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:B:ss,value,31.999999999999993,31.999999999999993,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:Model:df,value,3.0,3.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:Model:f,value,38.66666666666665,38.66666666666665,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:Model:ms,value,77.3333333333333,77.3333333333333,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:Model:p,value,0.0020600385460723203,0.0020600385460723203,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:Model:ss,value,231.99999999999991,231.99999999999991,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:总计:df,value,7.0,7.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:总计:ss,value,240.0,240.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:残差:df,value,4.0,4.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:残差:ms,value,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,anova:残差:ss,value,8.0,8.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,coefficient:A,value,3.0000000000000004,3.0000000000000004,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,coefficient:A*B,value,3.9999999999999982,3.9999999999999982,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,coefficient:B,value,-1.9999999999999998,-1.9999999999999998,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,coefficient:Intercept,value,50.0,50.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,fit:1,value,53.0,53.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,fit:2,value,51.0,51.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,fit:3,value,41.0,41.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,fit:4,value,55.0,55.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,fit:5,value,53.0,53.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,fit:6,value,51.0,51.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,fit:7,value,41.0,41.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,fit:8,value,55.0,55.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:1:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:1:1,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:1:2,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:1:3,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:2:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:2:1,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:2:2,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:2:3,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:3:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:3:1,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:3:2,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:3:3,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:4:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:4:1,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:4:2,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:4:3,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:5:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:5:1,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:5:2,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:5:3,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:6:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:6:1,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:6:2,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:6:3,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:7:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:7:1,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:7:2,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:7:3,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:8:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:8:1,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:8:2,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,matrix:8:3,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,mse,value,2.0,2.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,r2,value,0.9666666666666667,0.9666666666666667,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,rank,value,4.0,4.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,residual:1,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,residual:2,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,residual:3,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,residual:4,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,residual:5,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,residual:6,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,residual:7,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,residual:8,value,1.0,1.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,sse,value,8.0,8.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,ssr,value,231.99999999999991,231.99999999999991,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_Minitab,sst,value,240.0,240.0,0.0,0.0,1e-09,1e-09,Minitab sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,S,value,1.4142135623730951,1.4142135623730951,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,adjusted_r2,value,0.9416666666666667,0.9416666666666667,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:A*B:df,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:A*B:f,value,64.00000000000003,64.00000000000003,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:A*B:ms,value,128.00000000000006,128.00000000000006,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:A*B:p,value,0.001323896909217167,0.001323896909217167,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:A*B:ss,value,128.00000000000006,128.00000000000006,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:A:df,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:A:f,value,35.99999999999999,35.99999999999999,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:A:ms,value,71.99999999999999,71.99999999999999,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:A:p,value,0.0038825370469605116,0.0038825370469605116,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:A:ss,value,71.99999999999999,71.99999999999999,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:B:df,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:B:f,value,15.99999999999999,15.99999999999999,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:B:ms,value,31.99999999999998,31.99999999999998,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:B:p,value,0.016130089900092546,0.016130089900092546,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:B:ss,value,31.99999999999998,31.99999999999998,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:Model:df,value,3.0,3.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:Model:f,value,38.666666666666664,38.666666666666664,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:Model:ms,value,77.33333333333333,77.33333333333333,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:Model:p,value,0.0020600385460723186,0.0020600385460723186,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:Model:ss,value,232.0,232.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:总计:df,value,7.0,7.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:总计:ss,value,240.0,240.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:残差:df,value,4.0,4.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:残差:ms,value,2.0,2.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,anova:残差:ss,value,8.0,8.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,coefficient:A,value,2.9999999999999996,2.9999999999999996,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,coefficient:A*B,value,4.000000000000001,4.000000000000001,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,coefficient:B,value,-1.9999999999999993,-1.9999999999999993,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,coefficient:Intercept,value,50.0,50.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,fit:1,value,53.0,53.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,fit:2,value,51.0,51.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,fit:3,value,41.0,41.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,fit:4,value,55.0,55.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,fit:5,value,53.0,53.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,fit:6,value,51.0,51.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,fit:7,value,41.0,41.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,fit:8,value,55.0,55.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:1:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:1:1,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:1:2,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:1:3,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:2:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:2:1,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:2:2,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:2:3,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:3:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:3:1,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:3:2,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:3:3,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:4:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:4:1,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:4:2,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:4:3,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:5:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:5:1,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:5:2,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:5:3,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:6:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:6:1,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:6:2,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:6:3,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:7:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:7:1,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:7:2,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:7:3,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:8:0,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:8:1,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:8:2,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,matrix:8:3,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,mse,value,2.0,2.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,r2,value,0.9666666666666667,0.9666666666666667,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,rank,value,4.0,4.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,residual:1,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,residual:2,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,residual:3,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,residual:4,value,-1.0,-1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,residual:5,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,residual:6,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,residual:7,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,residual:8,value,1.0,1.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,sse,value,8.0,8.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,ssr,value,232.0,232.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
+run1_vs_run2,repeatability_MiniJMP,sst,value,240.0,240.0,0.0,0.0,1e-09,1e-09,MiniJMP sequential clean-process rerun,PASS
