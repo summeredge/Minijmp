@@ -11,6 +11,7 @@
 - 正规与 PB Foldover 587 项：584 PASS/0 FAIL/3 N/A；单因子 REG 折叠使全模型秩 4→8，PB12 全折叠使 55 个主效应混杂交互变为可单独估计项。未改 `code/`、正式矩阵或冻结基线。
 - Binary Logistic 初始对标（修复前）两案例 195 项：177 PASS/16 FAIL/2 N/A。`BFFACTORIAL` 与 `BRSREG` 均可运行；2² 饱和案 MiniJMP SE 与 Minitab inverse-X'WX 有 5.92e-7 相对差异，BBD 案 4 个 Wald z 超默认容差。第一阶段终点 Fisher 诊断归因其中 12 项，见 `Out/minitab19_parity/supplemental/binary/fisher_diagnosis/acceptance.md`。
 - Binary Logistic 终点 Fisher 修复已完成：`fit_grouped_binomial()` 用最终拟合概率与 trials 求协方差，并统一 SE/Wald z/p 及 `covariance_array`。原16项现为12 PASS/4 FAIL；完整唯一对比189 PASS/4 FAIL/2 N/A。定向测试72 passed。修复后证据在 `Out/minitab19_parity/supplemental/binary/fisher_diagnosis/repair_acceptance.md` 与 `repaired_comparison.csv`；未启动 Minitab/COM，冻结原始比较未改。
+- Binary Logistic 第三阶段 M2 离线溯源已完成：按 point_key+occurrence 复核 BIN-RSM 14×10、rank10、M1/FITS/beta/M2/SE；终点 Fisher 与 M2 最大差 1.535865375851264e-10（A*C 方差）。四种双精度求解最大两两差 5.204170427930421e-17；离线 Newton 前态更接近 M2 但未重现，不能归因 Minitab 权重时点。4 项 z FAIL 和 1e-9 容差保留，不改生产算法。证据在 `Out/minitab19_parity/supplemental/binary/fisher_diagnosis/m2_investigation/`。
 - Optimal 三案例 18 项全 PASS：D-opt 4 角点选 3、Distance 9 点选 4、固定父设计增补 1 点；独立穷举验证 D-opt det(X'X)=16 与最大最小平方距离 4，增补 det 16→64。Minitab 19.1.0.1 `OPTDES K`+`FACMODEL` 实测 D-opt，候选列形式实测 Distance-based；DIRECT/DERIVED/DISPLAY=7/11/0。证据在 `Out/minitab19_parity/supplemental/optimal/`。
 - Dynamic Taguchi 与控制×噪声稳健两案共 57 项全 PASS；Minitab 来源 DIRECT/DERIVED/DISPLAY=31/26/0。动态案 12 行、4 个控制组合，斜率8/20/20/32，`NOREF` 与 MiniJMP自由截距定义一致；稳健案 16 行、L4控制×L4噪声，Minitab `ROBUST LOWER` 的均值/SD/SN及推荐设置通过。证据在 `Out/minitab19_parity/supplemental/taguchi_dynamic/`。
 - Mixture v2 固定72行联合案例已执行：MiniJMP API 实得 72×15、rank15、df57、SSE=12.000000000008034、指定点预测28.000000000000011；与冻结15列矩阵最大绝对误差0。Minitab 19.1.0.1 的 SLDESIGN 拒绝多总量+过程变量（常数和TOTAL列两种形式均实测），单总量T=150的24行子集通过；同子集MIXREG无AMOUNT项矩阵24×12、rank12，投影误差6.66e-16，但PROC+AMOUNT命令报错，不能代表72行15项模型。等价15列REGRESS比较190 PASS/0 FAIL/17 N/A/1 UNSUPPORTED，最大误差2.27e-13；直接PREDICT/PFITS未存储，系数点积预测通过。证据在 `Out/minitab19_parity/supplemental/mixture_extended/`。
@@ -28,7 +29,7 @@
 - 历史Tk整文件聚合`0x80000003`本轮分组未重现；未强制整文件聚合，不宣称根因已修复。没有可见桌面鼠标键盘/高DPI/像素人工抽检，测试字体与布局警告保留。
 - 正式矩阵、P2-5证据分层、路线图、开发记录、DOE帮助和索引均更新。最终入口：`Out/p2_6_doe_function_completion/p2-6-final-acceptance.md`、`p2-6-final-feature-audit.csv`、`p2-6-final-statistical-review.md`；精确批次/节点见`final-validation-summary.json`、`final-gui-manifest.json`，提交后状态见`final-git-state.log`。
 - 历史P2-5 1408 passed/69 warnings独立保留；原件见`Out/p5_automated_validation/`及`Out/p5_office_round1/`。有限Minitab输出只涉及SCR-001/003、FAC-012、RSM-002，其余76项无对应产品输出；DSD-S01仅RTF显示精度，BBD有标准序差异。不是全产品parity。
-- 下一步：可基于现有 M2/FITS/X 归档独立调查 BIN-RSM 的 Minitab XPWXINVERSE 差异；根因仍未知。后续版本需求与范围规划尚未启动；不自动扩展高级 DOE、采集产品输出或发布。项目记忆按规则独立更新，未纳入 Git 提交。过程见 `logs/2026-10-31.md`。
+- Binary Logistic M2 调查已完成；若后续需要唯一归因，再获取可验证的 Minitab 原生迭代/权重证据。此阶段结束，不自动进入第四阶段归档/提交。后续版本需求与范围规划尚未启动；不自动扩展高级 DOE、采集产品输出或发布。项目记忆按规则独立更新，未纳入 Git 提交。过程见 `logs/2026-10-31.md`。
 ## Minitab 19 对标（2026-10-31，当前）
 
 - **工作约定（用户明确要求）**：涉及 Minitab 命令语言/子命令时，先查官方 session commands 文档，不要凭记忆猜语法。入口：`https://support.minitab.com/zh-cn/minitab/media/pdfs/notranslate/session_commands.pdf`；下载后用 `.venv` 的 `pypdf` 抽全文再 `rg` 定位。已实测：`CCDESIGN 2; ALPHA 1; CENTER 5; DESIGN.`；`RSREG` 必带 `LEVELS`/`INUNIT`；`PREDICT <response>` 必带 `KPREDICTORS` 或 `CPREDICTORS`；SE Fit 存储项是 `PSEFITS`（不是 `SEFITS`）。
@@ -238,6 +239,11 @@ pandas 3 兼容性定向修复已完成：`core_orig.py` 的 `getRowsFromMask()`
 - 验证：`tests/test_worksheet_formulas.py` 27 项（新增数值列名保存/加载/重算）及上下文剪贴板、表格、工作表、工作表右键菜单共 207 项通过。
 
 ## DOE Minitab 功能对标工作包 A（2026-10-27）
+
+## Supplemental 修复后统一归档（2026-10-31）
+
+- 新增 `Out/minitab19_parity/supplemental/supplemental_postrepair_acceptance.md`、逐案例 `supplemental_postrepair_summary.csv`、逐项 `supplemental_postrepair_comparisons.csv` 及生成脚本。按稳定键读取七项原始比较并替换 Binary 原16项修复值：2941 原始行、2935 唯一项、6个重复键一致无冲突；修复后 2903 PASS、4 FAIL、23 N/A、5 UNSUPPORTED，Binary 189/4/2。
+- 四个剩余 FAIL 为 BIN-RSM 的 A、A²、B²、A*C Wald z；原始快照、冻结八案和 M2 证据未改。生成脚本用项目 `.venv` 运行通过；待提交范围为本轮归档和 M2 证据目录。
 
 - 基线：main HEAD fd76b69b59f98d11751074a2d68e1b396f11773a；开始时工作区干净。DOE-0～DOE-4 APPROVE 未变。
 - 只读调查 Minitab Statistical Software 官方在线帮助及 MiniJMP 源码/测试；产品版本未由官方页面注明。已新增 docs/doe-minitab/README.md、feature-matrix.csv、acceptance.md、roadmap.md、sources.md。
