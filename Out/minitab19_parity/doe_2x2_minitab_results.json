@@ -1,0 +1,718 @@
+{
+  "1": {
+    "run": 1,
+    "version": "19.1.0.1",
+    "clsid": "{6265486C-4A08-4B4E-9713-C2CD85F1F515}",
+    "python_executable": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+    "pywin32_version": "312",
+    "pythoncom_module": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\pywin32_system32\\pythoncom311.dll",
+    "win32com_module": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\win32com\\__init__.py",
+    "local_server": "\"D:\\Program\\Minitab 19\\Mtb.exe\" /19_1",
+    "app_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+    "process_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+    "native_commands": [
+      "FFDESIGN 2 4;\n  REPS 2;\n  LEVELS -1 1 -1 1;\n  DESIGN.",
+      "FFACTORIAL;\n  RESPONSE C7;\n  FACTOR C5 C6;\n  TERMS C5 C6 C5*C6;\n  LEVELS -1 1 -1 1;\n  INUNIT 0;\n  FITS C8;\n  RESIDUALS C9;\n  COEFFICIENTS C10;\n  XMATRIX M1;\n  TEXPAND."
+    ],
+    "factor_columns": {
+      "A": [
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "B": [
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "data_rows": [
+      {
+        "run_id": 1,
+        "replicate": 1,
+        "A": -1,
+        "B": -1,
+        "Y": 52.0,
+        "design_A": -1,
+        "design_B": -1
+      },
+      {
+        "run_id": 2,
+        "replicate": 1,
+        "A": 1,
+        "B": -1,
+        "Y": 50.0,
+        "design_A": 1,
+        "design_B": -1
+      },
+      {
+        "run_id": 3,
+        "replicate": 1,
+        "A": -1,
+        "B": 1,
+        "Y": 40.0,
+        "design_A": -1,
+        "design_B": 1
+      },
+      {
+        "run_id": 4,
+        "replicate": 1,
+        "A": 1,
+        "B": 1,
+        "Y": 54.0,
+        "design_A": 1,
+        "design_B": 1
+      },
+      {
+        "run_id": 5,
+        "replicate": 2,
+        "A": -1,
+        "B": -1,
+        "Y": 54.0,
+        "design_A": -1,
+        "design_B": -1
+      },
+      {
+        "run_id": 6,
+        "replicate": 2,
+        "A": 1,
+        "B": -1,
+        "Y": 52.0,
+        "design_A": 1,
+        "design_B": -1
+      },
+      {
+        "run_id": 7,
+        "replicate": 2,
+        "A": -1,
+        "B": 1,
+        "Y": 42.0,
+        "design_A": -1,
+        "design_B": 1
+      },
+      {
+        "run_id": 8,
+        "replicate": 2,
+        "A": 1,
+        "B": 1,
+        "Y": 56.0,
+        "design_A": 1,
+        "design_B": 1
+      }
+    ],
+    "coefficients": {
+      "Intercept": 50.0,
+      "A": 3.0000000000000004,
+      "B": -1.9999999999999998,
+      "A*B": 3.9999999999999982
+    },
+    "model_matrix": [
+      [
+        1.0,
+        -1.0,
+        -1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        -1.0,
+        -1.0
+      ],
+      [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        -1.0,
+        -1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        -1.0,
+        -1.0
+      ],
+      [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    ],
+    "rank": 4,
+    "rows": [
+      {
+        "run_id": 1,
+        "replicate": 1,
+        "A": -1,
+        "B": -1,
+        "Y": 52.0,
+        "design_A": -1,
+        "design_B": -1,
+        "fit": 53.0,
+        "residual": -1.0,
+        "matrix": [
+          1.0,
+          -1.0,
+          -1.0,
+          1.0
+        ]
+      },
+      {
+        "run_id": 2,
+        "replicate": 1,
+        "A": 1,
+        "B": -1,
+        "Y": 50.0,
+        "design_A": 1,
+        "design_B": -1,
+        "fit": 51.0,
+        "residual": -1.0,
+        "matrix": [
+          1.0,
+          1.0,
+          -1.0,
+          -1.0
+        ]
+      },
+      {
+        "run_id": 3,
+        "replicate": 1,
+        "A": -1,
+        "B": 1,
+        "Y": 40.0,
+        "design_A": -1,
+        "design_B": 1,
+        "fit": 41.0,
+        "residual": -1.0,
+        "matrix": [
+          1.0,
+          -1.0,
+          1.0,
+          -1.0
+        ]
+      },
+      {
+        "run_id": 4,
+        "replicate": 1,
+        "A": 1,
+        "B": 1,
+        "Y": 54.0,
+        "design_A": 1,
+        "design_B": 1,
+        "fit": 55.0,
+        "residual": -1.0,
+        "matrix": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      {
+        "run_id": 5,
+        "replicate": 2,
+        "A": -1,
+        "B": -1,
+        "Y": 54.0,
+        "design_A": -1,
+        "design_B": -1,
+        "fit": 53.0,
+        "residual": 1.0,
+        "matrix": [
+          1.0,
+          -1.0,
+          -1.0,
+          1.0
+        ]
+      },
+      {
+        "run_id": 6,
+        "replicate": 2,
+        "A": 1,
+        "B": -1,
+        "Y": 52.0,
+        "design_A": 1,
+        "design_B": -1,
+        "fit": 51.0,
+        "residual": 1.0,
+        "matrix": [
+          1.0,
+          1.0,
+          -1.0,
+          -1.0
+        ]
+      },
+      {
+        "run_id": 7,
+        "replicate": 2,
+        "A": -1,
+        "B": 1,
+        "Y": 42.0,
+        "design_A": -1,
+        "design_B": 1,
+        "fit": 41.0,
+        "residual": 1.0,
+        "matrix": [
+          1.0,
+          -1.0,
+          1.0,
+          -1.0
+        ]
+      },
+      {
+        "run_id": 8,
+        "replicate": 2,
+        "A": 1,
+        "B": 1,
+        "Y": 56.0,
+        "design_A": 1,
+        "design_B": 1,
+        "fit": 55.0,
+        "residual": 1.0,
+        "matrix": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "anova": {
+      "A": {
+        "df": 1.0,
+        "ss": 72.00000000000003,
+        "ms": 72.00000000000003,
+        "f": 36.000000000000014,
+        "p": 0.0038825370469605077
+      },
+      "B": {
+        "df": 1.0,
+        "ss": 31.999999999999993,
+        "ms": 31.999999999999993,
+        "f": 15.999999999999996,
+        "p": 0.01613008990009254
+      },
+      "A*B": {
+        "df": 1.0,
+        "ss": 127.99999999999989,
+        "ms": 127.99999999999989,
+        "f": 63.99999999999994,
+        "p": 0.0013238969092171703
+      },
+      "Model": {
+        "df": 3.0,
+        "ss": 231.99999999999991,
+        "ms": 77.3333333333333,
+        "f": 38.66666666666665,
+        "p": 0.0020600385460723203
+      },
+      "残差": {
+        "df": 4.0,
+        "ss": 8.0,
+        "ms": 2.0,
+        "f": null,
+        "p": null
+      },
+      "总计": {
+        "df": 7.0,
+        "ss": 240.0,
+        "ms": null,
+        "f": null,
+        "p": null
+      }
+    },
+    "r2": 0.9666666666666667,
+    "adjusted_r2": 0.9416666666666667,
+    "sse": 8.0,
+    "sst": 240.0,
+    "ssr": 231.99999999999991,
+    "mse": 2.0,
+    "s": 1.4142135623730951
+  },
+  "2": {
+    "run": 2,
+    "version": "19.1.0.1",
+    "clsid": "{6265486C-4A08-4B4E-9713-C2CD85F1F515}",
+    "python_executable": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+    "pywin32_version": "312",
+    "pythoncom_module": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\pywin32_system32\\pythoncom311.dll",
+    "win32com_module": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\win32com\\__init__.py",
+    "local_server": "\"D:\\Program\\Minitab 19\\Mtb.exe\" /19_1",
+    "app_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+    "process_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+    "native_commands": [
+      "FFDESIGN 2 4;\n  REPS 2;\n  LEVELS -1 1 -1 1;\n  DESIGN.",
+      "FFACTORIAL;\n  RESPONSE C7;\n  FACTOR C5 C6;\n  TERMS C5 C6 C5*C6;\n  LEVELS -1 1 -1 1;\n  INUNIT 0;\n  FITS C8;\n  RESIDUALS C9;\n  COEFFICIENTS C10;\n  XMATRIX M1;\n  TEXPAND."
+    ],
+    "factor_columns": {
+      "A": [
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0,
+        -1.0,
+        1.0
+      ],
+      "B": [
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "data_rows": [
+      {
+        "run_id": 1,
+        "replicate": 1,
+        "A": -1,
+        "B": -1,
+        "Y": 52.0,
+        "design_A": -1,
+        "design_B": -1
+      },
+      {
+        "run_id": 2,
+        "replicate": 1,
+        "A": 1,
+        "B": -1,
+        "Y": 50.0,
+        "design_A": 1,
+        "design_B": -1
+      },
+      {
+        "run_id": 3,
+        "replicate": 1,
+        "A": -1,
+        "B": 1,
+        "Y": 40.0,
+        "design_A": -1,
+        "design_B": 1
+      },
+      {
+        "run_id": 4,
+        "replicate": 1,
+        "A": 1,
+        "B": 1,
+        "Y": 54.0,
+        "design_A": 1,
+        "design_B": 1
+      },
+      {
+        "run_id": 5,
+        "replicate": 2,
+        "A": -1,
+        "B": -1,
+        "Y": 54.0,
+        "design_A": -1,
+        "design_B": -1
+      },
+      {
+        "run_id": 6,
+        "replicate": 2,
+        "A": 1,
+        "B": -1,
+        "Y": 52.0,
+        "design_A": 1,
+        "design_B": -1
+      },
+      {
+        "run_id": 7,
+        "replicate": 2,
+        "A": -1,
+        "B": 1,
+        "Y": 42.0,
+        "design_A": -1,
+        "design_B": 1
+      },
+      {
+        "run_id": 8,
+        "replicate": 2,
+        "A": 1,
+        "B": 1,
+        "Y": 56.0,
+        "design_A": 1,
+        "design_B": 1
+      }
+    ],
+    "coefficients": {
+      "Intercept": 50.0,
+      "A": 3.0000000000000004,
+      "B": -1.9999999999999998,
+      "A*B": 3.9999999999999982
+    },
+    "model_matrix": [
+      [
+        1.0,
+        -1.0,
+        -1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        -1.0,
+        -1.0
+      ],
+      [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      [
+        1.0,
+        -1.0,
+        -1.0,
+        1.0
+      ],
+      [
+        1.0,
+        1.0,
+        -1.0,
+        -1.0
+      ],
+      [
+        1.0,
+        -1.0,
+        1.0,
+        -1.0
+      ],
+      [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    ],
+    "rank": 4,
+    "rows": [
+      {
+        "run_id": 1,
+        "replicate": 1,
+        "A": -1,
+        "B": -1,
+        "Y": 52.0,
+        "design_A": -1,
+        "design_B": -1,
+        "fit": 53.0,
+        "residual": -1.0,
+        "matrix": [
+          1.0,
+          -1.0,
+          -1.0,
+          1.0
+        ]
+      },
+      {
+        "run_id": 2,
+        "replicate": 1,
+        "A": 1,
+        "B": -1,
+        "Y": 50.0,
+        "design_A": 1,
+        "design_B": -1,
+        "fit": 51.0,
+        "residual": -1.0,
+        "matrix": [
+          1.0,
+          1.0,
+          -1.0,
+          -1.0
+        ]
+      },
+      {
+        "run_id": 3,
+        "replicate": 1,
+        "A": -1,
+        "B": 1,
+        "Y": 40.0,
+        "design_A": -1,
+        "design_B": 1,
+        "fit": 41.0,
+        "residual": -1.0,
+        "matrix": [
+          1.0,
+          -1.0,
+          1.0,
+          -1.0
+        ]
+      },
+      {
+        "run_id": 4,
+        "replicate": 1,
+        "A": 1,
+        "B": 1,
+        "Y": 54.0,
+        "design_A": 1,
+        "design_B": 1,
+        "fit": 55.0,
+        "residual": -1.0,
+        "matrix": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      {
+        "run_id": 5,
+        "replicate": 2,
+        "A": -1,
+        "B": -1,
+        "Y": 54.0,
+        "design_A": -1,
+        "design_B": -1,
+        "fit": 53.0,
+        "residual": 1.0,
+        "matrix": [
+          1.0,
+          -1.0,
+          -1.0,
+          1.0
+        ]
+      },
+      {
+        "run_id": 6,
+        "replicate": 2,
+        "A": 1,
+        "B": -1,
+        "Y": 52.0,
+        "design_A": 1,
+        "design_B": -1,
+        "fit": 51.0,
+        "residual": 1.0,
+        "matrix": [
+          1.0,
+          1.0,
+          -1.0,
+          -1.0
+        ]
+      },
+      {
+        "run_id": 7,
+        "replicate": 2,
+        "A": -1,
+        "B": 1,
+        "Y": 42.0,
+        "design_A": -1,
+        "design_B": 1,
+        "fit": 41.0,
+        "residual": 1.0,
+        "matrix": [
+          1.0,
+          -1.0,
+          1.0,
+          -1.0
+        ]
+      },
+      {
+        "run_id": 8,
+        "replicate": 2,
+        "A": 1,
+        "B": 1,
+        "Y": 56.0,
+        "design_A": 1,
+        "design_B": 1,
+        "fit": 55.0,
+        "residual": 1.0,
+        "matrix": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "anova": {
+      "A": {
+        "df": 1.0,
+        "ss": 72.00000000000003,
+        "ms": 72.00000000000003,
+        "f": 36.000000000000014,
+        "p": 0.0038825370469605077
+      },
+      "B": {
+        "df": 1.0,
+        "ss": 31.999999999999993,
+        "ms": 31.999999999999993,
+        "f": 15.999999999999996,
+        "p": 0.01613008990009254
+      },
+      "A*B": {
+        "df": 1.0,
+        "ss": 127.99999999999989,
+        "ms": 127.99999999999989,
+        "f": 63.99999999999994,
+        "p": 0.0013238969092171703
+      },
+      "Model": {
+        "df": 3.0,
+        "ss": 231.99999999999991,
+        "ms": 77.3333333333333,
+        "f": 38.66666666666665,
+        "p": 0.0020600385460723203
+      },
+      "残差": {
+        "df": 4.0,
+        "ss": 8.0,
+        "ms": 2.0,
+        "f": null,
+        "p": null
+      },
+      "总计": {
+        "df": 7.0,
+        "ss": 240.0,
+        "ms": null,
+        "f": null,
+        "p": null
+      }
+    },
+    "r2": 0.9666666666666667,
+    "adjusted_r2": 0.9416666666666667,
+    "sse": 8.0,
+    "sst": 240.0,
+    "ssr": 231.99999999999991,
+    "mse": 2.0,
+    "s": 1.4142135623730951
+  }
+}

@@ -1,0 +1,39 @@
+=== Minitab 19 COM 自动化验证 ===
+Python: C:\Users\shaoy\AppData\Local\Programs\Python\Python311\python.exe
+Python 版本: 3.11.9 (64-bit)
+pywin32: C:\Users\shaoy\AppData\Local\Programs\Python\Python311\Lib\site-packages\win32com\__init__.py; pythoncom=C:\Users\shaoy\AppData\Local\Programs\Python\Python311\Lib\site-packages\pywin32_system32\pythoncom311.dll
+ProgID: Mtb.Application; CLSID: {6265486C-4A08-4B4E-9713-C2CD85F1F515}
+COM LocalServer32: D:\Program\Minitab 19\Mtb.exe
+Minitab: Minitab 19 Statistical Software 19.1.0.1
+启动前运行中的 Mtb.exe PID: 无
+COM AppPath: D:\Program\Minitab 19\Mtb.exe
+COM 窗口句柄/PID: 9837496/41588
+COM 进程映像: D:\Program\Minitab 19\Mtb.exe
+ActiveProject: '无标题'; ActiveWorksheet: '工作表 1'
+访问 ActiveWorksheet.Columns ...
+新工作表初始 Columns.Count=0; 新建一列 ...
+列对象已创建: 'C1'; 设置列名 ...
+设置数据 ...
+回读数据 ...
+写入并回读 C1: (1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
+ExecuteCommand: DESCRIBE C1.
+命令对象: '描述性统计量: ParityProbe'; Outputs.Count=1
+OutputDocument.Text: available; Output.Text 项数=1
+--- Minitab OutputDocument.Text / Output.Text ---
+描述性统计量: ParityProbe
+ 
+
+统计量
+
+变量           N  N*     均值  均值标准误    标准差    最小值  下四分位数    中位数  上四分位数    最大值
+ParityProbe  6   0  3.500  0.764  1.871  1.000  1.750  3.500  5.250  6.000
+
+
+统计量
+
+变量           N  N*     均值  均值标准误    标准差    最小值  下四分位数    中位数  上四分位数    最大值
+ParityProbe  6   0  3.500  0.764  1.871  1.000  1.750  3.500  5.250  6.000
+提取并核对的统计结果: {'N': 6.0, 'Mean': 3.5, 'StDev': 1.871, 'Minimum': 1.0, 'Maximum': 6.0}
+独立 Python 参考: {'N': (6.0, 1e-09), 'Mean': (3.5, 0.005), 'StDev': (1.8708286933869707, 0.005), 'Minimum': (1.0, 1e-09), 'Maximum': (6.0, 1e-09)}
+PASS: COM 连接、统计命令、非空输出及统计值核对均通过。
+已释放独立测试项目的 COM 引用。

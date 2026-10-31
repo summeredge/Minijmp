@@ -1,0 +1,14 @@
+standard_order,run_id,point_type,A,B,Y
+1,R00001,factorial,-1,-1,11.45
+2,R00002,factorial,1,-1,12.60
+3,R00003,factorial,-1,1,2.56
+4,R00004,factorial,1,1,9.41
+5,R00005,axial,-1,0,6.08
+6,R00006,axial,1,0,9.88
+7,R00007,axial,0,-1,14.04
+8,R00008,axial,0,1,7.93
+9,R00009,center,0,0,10.10
+10,R00010,center,0,0,9.94
+11,R00011,center,0,0,10.06
+12,R00012,center,0,0,9.98
+13,R00013,center,0,0,10.12

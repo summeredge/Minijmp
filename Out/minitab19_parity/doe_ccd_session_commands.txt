@@ -1,0 +1,32 @@
+# 由本机 Minitab 19.1.0.1 COM ExecuteCommand 实际运行
+# 依据 Minitab 官方 session commands 文档（RSREG / CCDESIGN / PREDICT）
+
+# Native face-centered CCD: alpha=1, 2 factors, 5 center points
+CCDESIGN 2;
+  ALPHA 1;
+  CENTER 5;
+  DESIGN.
+
+# Native RSM least-squares fit, coded units, explicit quadratic terms
+RSREG;
+  RESPONSE C7;
+  FACTORS C5 C6;
+  TERMS C5 C6 C5*C6 C5*C5 C6*C6;
+  LEVELS -1 1 -1 1;
+  INUNIT 0;
+  CONFIDENCE 95;
+  FITS C8;
+  RESIDUALS C9;
+  COEFFICIENTS C10;
+  XMATRIX M1.
+
+# Native prediction at 3 points with SE Fit and 95% intervals
+PREDICT C7;
+  KPREDICTORS 0 0;
+  KPREDICTORS 1 0;
+  KPREDICTORS 0.5 0.5;
+  CONFIDENCE 95;
+  PFITS C11;
+  PSEFITS C12;
+  CLIMITS C13 C14;
+  PLIMITS C15 C16.
