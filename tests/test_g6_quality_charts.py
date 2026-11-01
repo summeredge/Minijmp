@@ -1,4 +1,6 @@
 """G6 quality charts: presentation, unchanged plot data and reused GUI paths."""
+import ast
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -17,9 +19,23 @@ import ctrlchart_dialog as controls
 import grr_plot as grr
 import qc_dialog as quality
 
+ROOT = Path(__file__).resolve().parents[1]
+
 
 def var(value):
     return SimpleNamespace(get=lambda: value)
+
+
+def test_main_example_passes_spec_limits_by_keyword():
+    # 示例曾把规格限按 (target, usl, lsl) 位置传入，与公开签名不符。
+    tree = ast.parse((ROOT / 'code' / 'cpk_plot.py').read_text(encoding='utf-8'))
+    example = next(n for n in tree.body if isinstance(n, ast.If)
+                   and ast.unparse(n.test) == "__name__ == '__main__'")
+    calls = [n for n in ast.walk(example) if isinstance(n, ast.Call)
+             and ast.unparse(n.func) == 'cpk_plot']
+    assert len(calls) == 1
+    assert not calls[0].args[1:]
+    assert [kw.arg for kw in calls[0].keywords[:3]] == ['usl', 'target', 'lsl']
 
 
 @pytest.fixture(autouse=True)
