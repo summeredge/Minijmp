@@ -14,7 +14,6 @@
 | View | 视图 |
 | Data | 数据 |
 | Tools | 工具 |
-| Design of Experiments | 试验设计（DOE） |
 | Stats | 统计 |
 | Quality | 质量 |
 | Plots | 图形 |
@@ -24,6 +23,8 @@
 列计算入口为“工具 → 列公式”，位于“数值变换”之前。
 
 ## 试验设计（DOE）（Design of Experiments）
+
+入口位于“统计 → 试验设计（DOE）”。
 
 | 英文原文 | 中文译名 |
 | --- | --- |
@@ -141,6 +142,7 @@
 | Find Duplicates | 查找重复项 |
 | Table to Text | 表格转换为文本 |
 | Table Info | 表格信息 |
+| Calculator | 列公式 |
 | Transform Values | 数值变换 |
 | Group-Aggregate | 分组聚合 |
 | Cross Tabulation | 交叉表 |

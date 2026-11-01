@@ -227,7 +227,6 @@ class Minijmp(Worksheets, Minijmp_pre):
             '39因子设计变异性分析': {
                 'cmd': lambda: AnalyzeVariabilityDOE(self)},
         })
-        self.menu.add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
 
         self.stats_menu = {
             '01描述性统计': {'cmd': self.describe},
@@ -263,6 +262,7 @@ class Minijmp(Worksheets, Minijmp_pre):
             '43比率卡方检验': {'cmd': self.chi2prop},
             '06sep': '', '24sep': '', '33sep': '', '40sep': ''}
         self.stats_menu = self.createPulldown(self.menu, self.stats_menu)
+        self.stats_menu['var'].add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
         self.menu.add_cascade(label='统计', menu=self.stats_menu['var'])
 
         self.quality_menu = {
