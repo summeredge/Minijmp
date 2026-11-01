@@ -117,11 +117,17 @@ def JMP_ANOVA_t_test(data, labels, print_out=False, print_port=print,
     k = len(keys)
     ns = [len(dict_data[key]) for key in keys]
     N = sum(ns)
-    df = N - 1
+    if k < 2 or any(n == 0 for n in ns):
+        raise ValueError("逐对比较至少需要两个非空组。")
+    df_error = N - k
+    if df_error <= 0:
+        raise ValueError("逐对比较需要正的残差自由度 N-k。")
     means = [(stat.mean(dict_data[keys[i]]), i) for i in range(k)]
 
-    pooled_variance = sum([stat.stdev(l)**2 * (len(l) - 1)
-                           for l in dict_data.values()]) / (N - k)
+    pooled_variance = sum(sum((v - means[i][0])**2 for v in dict_data[key])
+                          for i, key in enumerate(keys)) / df_error
+    if not np.isfinite(pooled_variance) or pooled_variance <= 0:
+        raise ValueError("逐对比较无法计算有限且为正的标准误。")
 
     def t_test_anova(l1, l2, print_out=False):
         u1 = stat.mean(l1)
@@ -134,7 +140,7 @@ def JMP_ANOVA_t_test(data, labels, print_out=False, print_port=print,
         SE = (pooled_variance * (1 / n1 + 1 / n2))**.5
         t = (u1 - u2) / SE
         t = t if t > 0 else -t
-        p = (1 - t_test.cdf(t, df)) * 2
+        p = t_test.sf(t, df_error) * 2
         if print_out:
             print("SE=%.3f t=%.3f p=%.3f" % (SE, t, p))
         return {"t": t, "p": p, "SE": SE}
@@ -200,7 +206,7 @@ def JMP_ANOVA_t_test(data, labels, print_out=False, print_port=print,
         print = print_port
         print("\n---- 均值逐对比较（合并方差 t 检验）----")
         print("显著性水平 alpha = %s；自由度 = %d；合并方差 = %s" %
-              (format_stat(alpha), df, format_stat(pooled_variance)))
+              (format_stat(alpha), df_error, format_stat(pooled_variance)))
         print("各对比较 H0：两组总体均值相等；H1：两组总体均值不同（双侧）。")
         print("所有组共用合并方差；以下 p 值未作多重比较校正，不控制整组比较的错误率。")
         values = []

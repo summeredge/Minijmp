@@ -55,7 +55,7 @@ def xBar_R(data,
     if sigma is None:
         if pooled:
             sp = (sum(sum((i - stat.mean(l))**2 for i in l) for l in data) / sum(_-1 for _ in n))**.5
-            sigma = sp / c4_values(sum(_-1 for _ in n))
+            sigma = sp / c4_values(sum(_-1 for _ in n) + 1)
         else:
             sigma = sum(Ctrl_Cht_Const['d2'][_] * r / Ctrl_Cht_Const['d3'][_]**2 for r, _ in zip(R, n)) / sum((Ctrl_Cht_Const['d2'][_] / Ctrl_Cht_Const['d3'][_])**2 for _ in n)
 
@@ -91,7 +91,7 @@ def xBar_S(data,  # , print_out=True, max_xlabels=25,xLabels=None):
     if sigma is None:
         if pooled:
             sp = (sum(sum((i - stat.mean(l))**2 for i in l) for l in data) / sum(_-1 for _ in n))**.5
-            sigma = sp / c4_values(sum(_-1 for _ in n))
+            sigma = sp / c4_values(sum(_-1 for _ in n) + 1)
         else:
             h = [c4_values(_)**2 / (1 - c4_values(_)**2) for _ in n]
             sigma = sum(hi * si / c4_values(ni) for hi, si, ni in zip(h, S, n)) / sum(h)

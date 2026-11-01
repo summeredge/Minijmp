@@ -383,7 +383,12 @@ def test_f08_grr_all_decisions_reports_and_variance_clamps(
     y = np.random.default_rng(81).normal(size=len(part)).tolist()
     if unbalanced:
         y, part, ops = y[:-1], part[:-1], ops[:-1]
-        monkeypatch.setattr(old.GRR, 'two_way_anova', corrected_additive_old)
+        spy = Mock(side_effect=AssertionError('无效 GRR 设计不应进入 ANOVA'))
+        monkeypatch.setattr(GRR, 'two_way_anova', spy)
+        with pytest.raises(ValueError, match='重复次数一致'):
+            GRR.grr_master(y=y, part=part, op=ops, mode=mode, inter=inter, print_out=True)
+        spy.assert_not_called()
+        return
     same_call(GRR.grr_master, old.GRR.grr_master, y=y, part=part, op=ops,
               mode=mode, inter=inter, print_out=True)
 

@@ -99,20 +99,20 @@ def test_pairwise_p_values_letter_order_and_contract(monkeypatch, alpha, groups,
     assert type(result['keys']) is list and result['keys'] == LABELS
     assert type(result['groups']) is list and result['groups'] == groups
     assert all(type(g) is list and all(type(i) is int for i in g) for g in result['groups'])
-    # 现有算法的 df 是 N-1=9；保留它，不替换成 ANOVA 的误差 df=7。
+    # 合并方差和双侧 t 检验共用误差自由度 N-k=7。
     expected = np.ones((3, 3))
     for i in range(1, 3):
         for j in range(i):
             se = np.sqrt((15 / 7) * (1 / len(DATA[i]) + 1 / len(DATA[j])))
             expected[i, j] = expected[j, i] = 2 * stats.t.sf(
-                abs(np.mean(DATA[i]) - np.mean(DATA[j])) / se, 9)
+                abs(np.mean(DATA[i]) - np.mean(DATA[j])) / se, 7)
     np.testing.assert_allclose(result['p'], expected, rtol=1e-10)
     assert capsys.readouterr().out == ''
     if not print_out:
         assert not lines and not tables
         return
     assert tables[0].field_names == ['组别 1', '组别 2', 'p 值']
-    assert tables[0].rows == [[LABELS[1], LABELS[0], '0.129'],
+    assert tables[0].rows == [[LABELS[1], LABELS[0], '0.138'],
         [LABELS[2], LABELS[0], '0.000'], [LABELS[2], LABELS[1], '0.000']]
     assert tables[1].field_names == ['字母分组', '组别', '均值']
     assert [row[1:] for row in tables[1].rows] == [
@@ -120,7 +120,7 @@ def test_pairwise_p_values_letter_order_and_contract(monkeypatch, alpha, groups,
     assert [row[0].strip() for row in tables[1].rows] == (
         ['A', 'B', 'B'] if alpha == .05 else ['A', 'B', 'C'])
     text = '\n'.join(lines)
-    assert '自由度 = 9' in text and '合并方差 = 2.143' in text
+    assert '自由度 = 7' in text and '合并方差 = 2.143' in text
     assert '未作多重比较校正' in text and '不代表总体均值相等' in text
     assert 'H1：两组总体均值不同（双侧）' in text
     assert '舍入结果，不代表概率严格为零' in text
@@ -133,7 +133,7 @@ def test_unbalanced_letter_grouping_does_not_override_significant_pair(monkeypat
         ['A', 'B', 'C'], print_out=True, print_port=lines.append)
     # 原分组算法可令显著不同的 B/C 共用字母；只约束说明，不修改算法。
     assert result['groups'] == [[0, 1, 2]]
-    assert result['p'][1, 2] == pytest.approx(2 * stats.t.sf(1 / np.sqrt((1922 / 199) * .02), 201))
+    assert result['p'][1, 2] == pytest.approx(2 * stats.t.sf(1 / np.sqrt((1922 / 199) * .02), 199))
     assert result['p'][1, 2] < .05
     assert tables[0].rows[-1] == ['C', 'B', '0.024']
     assert [row[0].strip() for row in tables[1].rows] == ['A', 'A', 'A']
