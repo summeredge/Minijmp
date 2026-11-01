@@ -114,13 +114,14 @@ def test_replicate_adds_full_repeats_with_empty_responses():
     frame, metadata = source()
     result, result_metadata = replicate(frame, metadata, count=1)
     design = restore_design_result(result, result_metadata)
-    assert len(design.runs) == 2 * len(restore_design_result(frame, metadata).runs)
+    assert len(design.runs) == 12
     assert sorted({run.replicate for run in design.runs}) == [1, 2, 3]
     columns = metadata["column_map"]
-    original = frame[columns["responses"]["Y"]].tolist()
-    values = result[columns["responses"]["Y"]].tolist()
-    assert values[:len(original)] == original
-    assert all(value is None or pd.isna(value) for value in values[len(original):])
+    run_id, response = columns['run_id'], columns['responses']['Y']
+    values = result.set_index(run_id)[response]
+    for key, value in zip(frame[run_id], frame[response]):
+        assert values[key] == value
+    assert values.loc[~values.index.isin(frame[run_id])].isna().all()
     assert sorted(result[columns["standard_order"]]) == list(
         range(1, len(result) + 1))
     assert len(set(result[columns["run_id"]])) == len(result)
@@ -133,6 +134,167 @@ def test_replicate_rejects_bad_count_and_keeps_source_untouched():
         replicate(frame, metadata, count=0)
     with pytest.raises(ValueError, match="10000"):
         replicate(frame, metadata, count=10000)
+    pd.testing.assert_frame_equal(frame, original)
+
+
+def family_source(family, blocked=False):
+    """复用已有家族样例；测试必须进入家族分析而非仅恢复元数据。"""
+    from doe_bbd import create_bbd
+    from doe_ccd import create_ccd
+    from doe_fractional import create_fractional
+    from doe_general_factorial import create_general_factorial
+    from doe_pb import create_pb
+    from test_doe_bbd import spec as bbd_spec
+    from test_doe_ccd_options import spec as ccd_spec
+    from test_doe_fractional import spec as fractional_spec
+    from test_doe_general_factorial import spec as general_spec
+    from test_doe_pb import pb_spec
+
+    if family == 'full':
+        spec = DesignSpec('repeat-full', (FactorSpec('A', 'A', -1, 1),
+                                           FactorSpec('B', 'B', -1, 1)),
+                          ('Y',), seed=13, design_type='two_level_full',
+                          block_count=2 if blocked else None,
+                          randomization_unit='block' if blocked else 'run')
+        return create_factorial(spec, replicates=2, center_points=2, measured=True)
+    if family == 'fractional':
+        spec = fractional_spec(generators=('D=ABC',),
+                               block_count=2 if blocked else None,
+                               randomization_unit='block' if blocked else 'run')
+        return create_fractional(spec, replicates=2, center_points=2, measured=True)
+    if family == 'general':
+        return create_general_factorial(general_spec(blocks=2 if blocked else None),
+                                         replicates=2, measured=True)
+    if family == 'pb':
+        return create_pb(pb_spec(12), 12, replicates=2, measured=True,
+                         center_points=1, block_replicates=blocked)
+    if family == 'ccd':
+        spec = (ccd_spec(5, blocks=2) if blocked else ccd_spec(2, centers=3, alpha=1))
+        return create_ccd(spec, measured=True)
+    return create_bbd(bbd_spec(6 if blocked else 3, blocks=2 if blocked else None),
+                       measured=True)
+
+
+def analyze_family(family, frame, metadata):
+    from doe_analysis import analyze_factorial
+    from doe_fractional_analysis import analyze_fractional
+    from doe_general_factorial_analysis import analyze_general_factorial
+    from doe_rsm import analyze_rsm
+    from doe_screening_analysis import analyze_pb
+
+    if family == 'full':
+        return analyze_factorial(frame, metadata, 'Y', order=1)
+    if family == 'fractional':
+        return analyze_fractional(frame, metadata, 'Y', order=1)
+    if family == 'general':
+        return analyze_general_factorial(frame, metadata, 'Y', order=1)
+    if family == 'pb':
+        return analyze_pb(frame, metadata, 'Y')
+    return analyze_rsm(frame, metadata, 'Y')
+
+
+@pytest.mark.parametrize('family', ['full', 'fractional', 'general', 'pb', 'ccd', 'bbd'])
+@pytest.mark.parametrize('blocked', [False, True])
+def test_family_replicate_keeps_observations_and_passes_actual_analysis(family, blocked):
+    frame, metadata = family_source(family, blocked)
+    columns = metadata['column_map']
+    response = columns['responses']['Y']
+    frame[response] = pd.array(np.arange(len(frame)) + 0.25, dtype='Float64')
+    for factor_id, column in columns['measured_levels'].items():
+        frame[column] = frame[columns['factors'][factor_id]].copy()
+    original = frame.copy(deep=True)
+    modified, updated = replicate(frame, metadata, count=1)
+    design = restore_design_result(modified, updated)
+    assert design.spec.design_id == metadata['design']['design_id']
+    assert sorted(modified[response].dropna()) == sorted(frame[response])
+    assert modified[response].isna().sum() == len(modified) - len(frame)
+    for column in columns['measured_levels'].values():
+        assert sorted(modified[column].dropna()) == sorted(frame[column])
+    # 通过唯一响应值查回每个原设计点，防止中心点或区组错配。
+    for _, row in frame.iterrows():
+        current = modified.loc[modified[response] == row[response]].iloc[0]
+        for column in [*columns['factors'].values(), columns['point_type'], columns['replicate']]:
+            assert current[column] == row[column]
+        if columns.get('block'):
+            assert current[columns['block']] == row[columns['block']]
+    for factor in design.spec.factors:
+        coded = f'编码_{factor.factor_id}'
+        if coded in modified:
+            assert modified[coded].notna().all()
+    modified[response] = modified[response].fillna(3.5)
+    result = analyze_family(family, modified, updated)
+    assert result['n'] == len(modified)
+    assert len(result['fitted']) == len(result['residuals']) == len(modified)
+    pd.testing.assert_frame_equal(frame, original)
+
+
+@pytest.mark.parametrize('family', ['full', 'fractional', 'general', 'pb', 'ccd', 'bbd'])
+def test_family_standard_renumber_then_analysis_and_strict_random_check(family):
+    frame, metadata = family_source(family)
+    response = metadata['column_map']['responses']['Y']
+    frame[response] = np.arange(len(frame), dtype=float)
+    frame, metadata = rerandomize(frame, metadata, 47)
+    assert analyze_family(family, frame, metadata)['n'] == len(frame)
+    modified, updated = renumber(frame, metadata)
+    assert modified['运行序'].tolist() == modified['标准序'].tolist()
+    result = analyze_family(family, modified, updated)
+    assert result['n'] == len(modified)
+    assert dict(zip(frame['运行ID'], frame[response])) == dict(zip(modified['运行ID'], modified[response]))
+    if family in ('full', 'fractional', 'general'):
+        damaged = modified.copy(deep=True)
+        damaged.loc[[0, 1], '运行序'] = damaged.loc[[1, 0], '运行序'].to_numpy()
+        rebound = worksheet_metadata(damaged, result['design'].spec, updated['column_map'])
+        with pytest.raises(ValueError, match='seed'):
+            analyze_family(family, damaged, rebound)
+
+
+def test_replicate_integer_observations_keep_exact_values_and_numeric_dtype():
+    frame, metadata = source()
+    frame['响应_Y'] = np.arange(len(frame), dtype=np.int64) + 2**53 + 1
+    modified, updated = replicate(frame, metadata, count=1)
+    assert modified['响应_Y'].dtype == pd.Int64Dtype()
+    values = modified.set_index('运行ID')['响应_Y']
+    for key, value in zip(frame['运行ID'], frame['响应_Y']):
+        assert values[key] == value
+    restore_design_result(modified, updated)
+
+
+def test_dsd_repeat_rebuilds_digest_and_rejects_unequal_blocks():
+    from doe_dsd import create_dsd
+    from doe_screening_analysis import analyze_dsd
+    from test_doe_dsd import dsd_spec
+
+    frame, metadata = create_dsd(dsd_spec('dsd6', 6))
+    frame['响应_Y'] = np.arange(len(frame), dtype=float)
+    modified, updated = replicate(frame, metadata, count=1)
+    assert modified['响应_Y'].notna().sum() == len(frame)
+    modified['响应_Y'] = modified['响应_Y'].fillna(1.)
+    assert analyze_dsd(modified, updated, 'Y')['n'] == len(modified)
+    blocked, metadata = create_dsd(dsd_spec('dsd6', 6), replicates=2, blocks=2)
+    original = blocked.copy(deep=True)
+    with pytest.raises(ValueError, match='区组数必须均分完整重复'):
+        replicate(blocked, metadata, count=1)
+    pd.testing.assert_frame_equal(blocked, original)
+
+
+def test_confounded_replicate_and_blocked_bbd_renumber_reject_without_change():
+    from dataclasses import replace
+
+    frame, metadata = family_source('full')
+    spec = replace(restore_design_result(frame, metadata).spec,
+                   block_count=2, confounded_block_generators=(('A', 'B'),),
+                   randomization_unit='confounded_block', construction_version='v2')
+    frame, metadata = create_factorial(spec)
+    original = frame.copy(deep=True)
+    assert modify_summary(frame, metadata)['can_replicate'] is False
+    with pytest.raises(ValueError, match='不支持完整重复'):
+        replicate(frame, metadata, count=1)
+    pd.testing.assert_frame_equal(frame, original)
+    frame, metadata = family_source('bbd', blocked=True)
+    original = frame.copy(deep=True)
+    assert modify_summary(frame, metadata)['can_renumber'] is False
+    with pytest.raises(ValueError, match='不支持按标准序重编号'):
+        renumber(frame, metadata)
     pd.testing.assert_frame_equal(frame, original)
 
 

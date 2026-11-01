@@ -302,8 +302,10 @@ def validate_fractional_design(frame, metadata):
             raise ValueError("没有声明区组的部分因子设计不得包含区组")
         expected_ids_order = randomized_run_order(expected_ids, spec.seed)
     expected_run_orders = {run_id: order for order, run_id in enumerate(expected_ids_order, 1)}
+    standard_ordered = all(run.run_order == run.standard_order for run in result.runs)
     if any(run.run_id != f"R{run.standard_order:05d}" or
-           run.run_order != expected_run_orders.get(run.run_id)
+           (not standard_ordered and
+            run.run_order != expected_run_orders.get(run.run_id))
            for run in base_runs):
         raise ValueError("原始运行 ID 或随机运行序与设计 seed 不一致")
     if lineage is not None:
@@ -325,7 +327,8 @@ def validate_fractional_design(frame, metadata):
         }
         if any(run.run_id != f"F{run.standard_order - base_count:05d}"
                or run.batch_id != lineage["batch_id"]
-               or run.run_order != expected_new_order.get(run.run_id)
+               or (not standard_ordered and
+                   run.run_order != expected_new_order.get(run.run_id))
                for run in additions_by_order):
             raise ValueError("Foldover 新增运行 ID、批次或随机顺序无效")
         if lineage["parent_design_id"] == spec.design_id:

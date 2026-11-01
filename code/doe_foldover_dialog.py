@@ -135,7 +135,7 @@ class FoldoverDOE:
         table = self.sources.get(self.source.get())
         design = None if table is None else table.doe_metadata['design']
         if design and design.get('design_type') == 'plackett_burman':
-            count = len(table.model.df)
+            count = len(self.app._full_frame(table))
             self.limits.set(f'来源设计：Plackett–Burman，{count} 次运行。'
                             '仅支持连续两水平因子、无中心点、无区组、单批次、一次折叠。')
         else:

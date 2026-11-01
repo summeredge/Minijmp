@@ -331,23 +331,103 @@ def test_corrupt_splitplot_project_does_not_replace_live_workbook(
     error.assert_called_once()
 
 
-def test_stale_doe_inputs_block_save_without_overwriting_existing_project(
-        workbook, tmp_path, monkeypatch):
+@pytest.mark.parametrize('damage', ['setting', 'column', 'row'])
+def test_stale_doe_inputs_save_as_plain_without_affecting_valid_sheet(
+        workbook, tmp_path, monkeypatch, damage):
     app, error = workbook
     frame, spec, columns = _source()
     table = app.addSheet("DOE", frame, {"doe": worksheet_metadata(frame, spec, columns)})
+    app.addSheet('有效DOE', frame.copy(deep=True),
+                 {'doe': worksheet_metadata(frame, spec, columns)})
     target = tmp_path / "existing.dexpl"
     target.write_bytes(b"existing project")
-    table.model.df.iloc[0, table.model.df.columns.get_loc("1")] = 20
+    if damage == 'setting':
+        table.model.df.iloc[0, table.model.df.columns.get_loc("1")] = 20
+    elif damage == 'column':
+        table.model.df['用户备注'] = '保留'
+    else:
+        table.model.df = table.model.df.iloc[:-1].copy()
+    expected = table.model.df.copy(deep=True)
 
     from worksheets import messagebox
     prompt = Mock(return_value=None)
     monkeypatch.setattr(messagebox, "askyesnocancel", prompt)
+    warning = Mock()
+    monkeypatch.setattr(messagebox, 'showwarning', warning)
     assert app._confirm_discard() is False
     prompt.assert_called_once()
+    assert app._save_project(target)
+    warning.assert_called_once()
+    assert 'DOE' in warning.call_args.args[1]
+    assert table.doe_metadata is None
+    assert app.load_file(target)
+    assert_frame_equal(app.sheets['DOE'].model.df, expected)
+    assert app.sheets['DOE'].doe_metadata is None
+    restore_design_result(app.sheets['有效DOE'].model.df,
+                          app.sheets['有效DOE'].doe_metadata)
+    error.assert_not_called()
+
+
+def test_failed_save_keeps_invalid_doe_metadata_and_existing_file(
+        workbook, tmp_path, monkeypatch):
+    app, error = workbook
+    frame, spec, columns = _source()
+    metadata = worksheet_metadata(frame, spec, columns)
+    table = app.addSheet('DOE', frame, {'doe': metadata})
+    table.model.df['备注'] = '保留'
+    target = tmp_path / 'existing.dexpl'
+    target.write_bytes(b'existing project')
+    monkeypatch.setattr('worksheets.os.replace', Mock(side_effect=OSError('write failed')))
     assert not app._save_project(target)
-    assert target.read_bytes() == b"existing project"
+    assert target.read_bytes() == b'existing project'
+    assert table.doe_metadata == metadata
     error.assert_called_once()
+
+
+@pytest.mark.parametrize('operation', ['renumber', 'replicate'])
+def test_modified_factorial_analysis_save_reopen_reanalysis(workbook, tmp_path, operation):
+    from doe_analysis import analyze_factorial
+    from doe_factorial import create_factorial
+    from doe_modify import renumber, replicate
+    import numpy as np
+
+    app, error = workbook
+    spec = DesignSpec('modify-roundtrip',
+                      (FactorSpec('A', 'A', -1, 1), FactorSpec('B', 'B', -1, 1)),
+                      ('Y',), seed=17, design_type='two_level_full')
+    frame, metadata = create_factorial(spec, replicates=2)
+    frame['响应_Y'] = 10 + 2 * frame['设定_A'].astype(float) - frame['设定_B'].astype(float)
+    original = dict(zip(frame['运行ID'], frame['响应_Y']))
+    if operation == 'renumber':
+        frame, metadata = renumber(frame, metadata)
+    else:
+        frame, metadata = replicate(frame, metadata, count=1)
+    for run_id, value in original.items():
+        assert frame.loc[frame['运行ID'] == run_id, '响应_Y'].iloc[0] == value
+    # 新重复尚未录入，Type III 可分析已有有效响应。
+    first = analyze_factorial(frame, metadata, 'Y', ss_type='III')
+    frame['响应_Y'] = frame['响应_Y'].fillna(
+        10 + 2 * frame['设定_A'].astype(float) - frame['设定_B'].astype(float))
+    # 填写、修改和清空响应均不能改变设计指纹。
+    frame.loc[0, '响应_Y'] += 0.5
+    frame.loc[1, '响应_Y'] = np.nan
+    validate_worksheet_metadata(frame, metadata)
+    before = analyze_factorial(frame, metadata, 'Y', ss_type='III')
+    assert first['n'] == 8
+    app.addSheet('修改后的DOE', frame, {'doe': metadata})
+    target = tmp_path / f'{operation}.dexpl'
+    assert app._save_project(target)
+    assert app.load_file(target)
+    restored = app.sheets['修改后的DOE']
+    after = analyze_factorial(restored.model.df, restored.doe_metadata, 'Y', ss_type='III')
+    assert after['n'] == before['n']
+    assert after['design'].spec.design_id == spec.design_id
+    np.testing.assert_allclose(np.asarray(after['coefficients'], dtype=float),
+                               np.asarray(before['coefficients'], dtype=float))
+    np.testing.assert_allclose(after['fitted'], before['fitted'])
+    np.testing.assert_allclose(after['residuals'], before['residuals'])
+    assert restored.doe_metadata['worksheet']['input_fingerprint'] == metadata['worksheet']['input_fingerprint']
+    error.assert_not_called()
 
 
 def test_loaded_doe_metadata_is_a_safe_copy(workbook):
