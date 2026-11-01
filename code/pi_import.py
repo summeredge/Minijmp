@@ -133,6 +133,7 @@ class PIImportDialog(tk.Toplevel):
         # Both layouts are supported; discover the two files independently.
         default_exe = (root / 'PIReader.exe' if (root / 'PIReader.exe').is_file()
                        else root / 'PIReader' / 'PIReader.exe')
+        self._default_exe = default_exe
         default_config = (root / 'config.txt' if (root / 'config.txt').is_file()
                           else root / 'PIReader' / 'config.txt')
         try:
@@ -264,6 +265,12 @@ class PIImportDialog(tk.Toplevel):
         return dict(config_path=normalize_pi_path(self.config.get()),
                     executable_path=normalize_pi_path(self.exe.get()))
 
+    def confirm_executable(self, path):
+        if os.path.normcase(os.path.realpath(path)) == os.path.normcase(os.path.realpath(self._default_exe)):
+            return True
+        return messagebox.askokcancel(
+            '确认运行程序', f'即将运行自定义 PIReader 程序：\n{path}\n请确认程序来源可信。', parent=self)
+
     def toggle_tag(self, event):
         item = self.results.identify_row(event.y) if event.type != tk.EventType.KeyPress else self.results.focus()
         if item:
@@ -285,6 +292,8 @@ class PIImportDialog(tk.Toplevel):
     def search(self):
         if not self.busy:
             mask, paths = self.mask.get(), self.paths()
+            if not self.confirm_executable(paths['executable_path']):
+                return
             self.run('search', lambda: pi_reader.search_pi_tags(mask, **paths))
 
     def query(self):
@@ -295,6 +304,8 @@ class PIImportDialog(tk.Toplevel):
             start = pi_reader._format_time(self.start.get(), '开始时间')
             end = pi_reader._format_time(self.end.get(), '结束时间')
             interval, paths = self.interval.get(), self.paths()
+            if not self.confirm_executable(paths['executable_path']):
+                return
             size = query_size(tags, start, end, interval)
             if size is None or size > 1_000_000:
                 text = ('无法估算该 PI 时间表达式的数据量。' if size is None else f'预计约 {size:,} 个数据点。')

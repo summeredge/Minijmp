@@ -9,6 +9,7 @@ $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path -LiteralPath $RepoRoot).Path
 $blocked = 0
 $warnings = 0
+$sourceBundle = Test-Path -LiteralPath (Join-Path $root 'SOURCE-BUNDLE-INFO.txt') -PathType Leaf
 
 function Add-Result([string]$Level, [string]$Message) {
     Write-Output ("{0}: {1}" -f $Level, $Message)
@@ -22,7 +23,9 @@ function Invoke-Git([string[]]$Arguments) {
 }
 
 $inside = $null
-if (!(Get-Command git -ErrorAction SilentlyContinue)) {
+if ($sourceBundle -and !(Test-Path -LiteralPath (Join-Path $root '.git'))) {
+    Add-Result 'PASS' '识别到源码包；该包不含 .git，跳过分支与 origin/main 检查。'
+} elseif (!(Get-Command git -ErrorAction SilentlyContinue)) {
     Add-Result 'BLOCKED' '未找到 git 命令，无法核对工作区与发布基准。'
 } else {
     $inside = Invoke-Git @('rev-parse', '--is-inside-work-tree')
@@ -94,13 +97,15 @@ if (!$GitOnly) {
     if ($missing) { $missing | ForEach-Object { Add-Result 'BLOCKED' "缺少构建输入：$_" } }
     else { Add-Result 'PASS' '入口、运行资源、许可证与发布脚本均已存在。' }
 
-    # PIReader ships beside the EXE; config.txt ships verbatim per the office decision.
-    foreach ($item in @('PIReader/PIReader.exe', 'PIReader/config.txt')) {
-        if (!(Test-Path -LiteralPath (Join-Path $root $item))) {
-            Add-Result 'BLOCKED' "PI 随包文件缺失：$item"
-        }
+    # The release generates clean runtime files from these source templates.
+    $piInputs = @('PIReader/PIReader.exe', 'PIReader/config.example.txt',
+        'PIReader/tags.example.txt')
+    $missingPi = @($piInputs | Where-Object { !(Test-Path -LiteralPath (Join-Path $root $_)) })
+    if ($missingPi) {
+        $missingPi | ForEach-Object { Add-Result 'BLOCKED' "PI 随包模板缺失：$_" }
+    } else {
+        Add-Result 'PASS' 'PIReader 程序与干净配置模板均存在；本机配置不会进入运行包。'
     }
-    Add-Result 'PASS' 'PIReader 随包文件存在；config.txt 按原样发布。'
 
     # The source bundle is built from disk, so untracked sources are included by
     # design. Tracked build inputs are listed only to document ownership.

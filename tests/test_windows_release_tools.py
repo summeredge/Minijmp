@@ -26,7 +26,7 @@ def test_make_zip_writes_chinese_names_without_caches_and_refuses_overwrite(tmp_
     (source / 'help' / 'pages').mkdir(parents=True)
     (source / 'help' / 'pages' / '操作说明.html').write_text('中文帮助', encoding='utf-8')
     (source / 'PIReader').mkdir()
-    (source / 'PIReader' / 'config.txt').write_text('Server=172.31.0.10\n', encoding='utf-8')
+    (source / 'PIReader' / 'config.txt').write_text('Server=192.0.2.1\n', encoding='utf-8')
     (source / '__pycache__').mkdir()
     (source / '__pycache__' / 'stale.pyc').write_bytes(b'\0')
     (source / 'PIReader' / 'obj').mkdir()
@@ -67,6 +67,23 @@ def test_stable_sha256_requires_three_equal_content_reads(tmp_path):
     assert sleeps == [15, 15]
 
 
+def test_manifest_covers_current_files_but_not_itself(tmp_path):
+    source = tmp_path / 'source'
+    source.mkdir()
+    (source / 'SOURCE-BUNDLE-INFO.txt').write_text('bundle', encoding='utf-8')
+    (source / 'THIRD-PARTY-NOTICES.txt').write_text('notices', encoding='utf-8')
+    manifest = source / 'SOURCE-MANIFEST.txt'
+
+    assert make_zip.write_manifest(source, manifest) == 2
+    first = manifest.read_text(encoding='utf-8')
+    assert 'SOURCE-BUNDLE-INFO.txt' in first
+    assert 'THIRD-PARTY-NOTICES.txt' in first
+    assert 'SOURCE-MANIFEST.txt' not in first
+
+    assert make_zip.write_manifest(source, manifest) == 2
+    assert manifest.read_text(encoding='utf-8') == first
+
+
 def test_dlp_container_and_source_layout_rules(tmp_path):
     encrypted = tmp_path / 'doc.xlsx'
     encrypted.write_bytes(b'%TSD-Header-###% rest')
@@ -100,11 +117,11 @@ def test_source_stage_excludes_local_configs_and_temporary_outputs(tmp_path):
     for name in make_zip.SOURCE_DIRS:
         (repo / name).mkdir(parents=True, exist_ok=True)
 
-    keep = ('code/app.py', 'PIReader/Program.cs', 'docs/accepted.png',
-            'tests/fixtures/kept.csv')
+    keep = ('code/app.py', 'PIReader/Program.cs', 'PIReader/config.example.txt',
+            'PIReader/tags.example.txt', 'docs/accepted.png', 'tests/fixtures/kept.csv')
     exclude = (
         'code/.env.local', 'code/local_settings.py', 'code/backup.bak',
-        'code/output.orig', 'code/.temp.swp', 'PIReader/config.txt',
+        'code/output.orig', 'code/.temp.swp', 'PIReader/config.txt', 'PIReader/tags.txt',
         'PIReader/OSIsoft.PISDK.dll', 'PIReader/OSIsoft.PISDKCommon.dll',
         'PIReader/OSIsoft.PITimeServer.dll', 'docs/run.log', 'tests/result.tmp',
         'docs/draft-chart.png', 'docs/chart.draft.png', 'docs/chart_draft.png',
@@ -143,14 +160,149 @@ def test_smoke_launch_ignores_placeholder_tk_window(monkeypatch):
 
     class Alive:
         returncode = None
+        pid = 123
 
         def poll(self):
             return None
 
     seen = iter([['tk'], ['tk', '未命名项目 — 工作表1 - Minijmp']])
     found, _elapsed, _all = smoke_launch.wait_for_window(
-        Alive(), 90, titles=lambda: next(seen), sleep=lambda _seconds: None)
+        Alive(), 90, titles=lambda _pid: next(seen), sleep=lambda _seconds: None)
     assert found == ['未命名项目 — 工作表1 - Minijmp']
+
+
+def test_smoke_launch_uses_pointer_sized_win32_signatures(monkeypatch):
+    import ctypes
+    from ctypes import wintypes
+    from types import SimpleNamespace
+
+    class ApiFunction:
+        def __init__(self, function):
+            self.function = function
+
+        def __call__(self, *args):
+            return self.function(*args)
+
+    handle = 0x1_0000_1234
+    unrelated_handle = 0x2_0000_5678
+    process_id = 0x1234
+    titles = {handle: 'MiniJMP smoke', unrelated_handle: 'MiniJMP unrelated'}
+    owners = {handle: process_id, unrelated_handle: process_id + 1}
+    user32 = SimpleNamespace()
+    user32.EnumWindows = ApiFunction(
+        lambda callback, _param: (callback(handle, 0), callback(unrelated_handle, 0))[-1])
+    user32.GetWindowTextLengthW = ApiFunction(lambda hwnd: len(titles[hwnd]))
+    user32.GetWindowTextW = ApiFunction(
+        lambda hwnd, buffer, _size: (setattr(buffer, 'value', titles[hwnd]), len(titles[hwnd]))[1])
+    user32.IsWindowVisible = ApiFunction(lambda _hwnd: True)
+    user32.GetWindowThreadProcessId = ApiFunction(
+        lambda hwnd, owner: (setattr(owner._obj, 'value', owners[hwnd]), 1)[1])
+    monkeypatch.setattr(ctypes, 'WinDLL', lambda *_args, **_kwargs: user32)
+    monkeypatch.setattr(smoke_launch, 'process_tree', lambda pid: {pid})
+
+    assert smoke_launch.window_titles(process_id) == ['MiniJMP smoke']
+    assert user32.EnumWindows.argtypes[0]._restype_ is wintypes.BOOL
+    assert user32.EnumWindows.argtypes[0]._argtypes_ == (wintypes.HWND, wintypes.LPARAM)
+    assert user32.GetWindowTextLengthW.argtypes == (wintypes.HWND,)
+    assert user32.GetWindowTextW.argtypes == (wintypes.HWND, wintypes.LPWSTR, ctypes.c_int)
+    assert user32.IsWindowVisible.argtypes == (wintypes.HWND,)
+    assert user32.GetWindowThreadProcessId.argtypes == (
+        wintypes.HWND, ctypes.POINTER(wintypes.DWORD))
+
+
+def test_smoke_launch_fails_if_process_exits_before_window(monkeypatch):
+    class Exited:
+        pid = 123
+        returncode = 7
+
+        def poll(self):
+            return self.returncode
+
+    with pytest.raises(RuntimeError, match='exited with code 7'):
+        smoke_launch.wait_for_window(
+            Exited(), 90, titles=lambda _pid: pytest.fail('window scan after exit'))
+
+    process = subprocess.Popen([sys._base_executable, '-c', 'raise SystemExit(7)'])
+    assert process.wait(timeout=10) == 7
+    with pytest.raises(RuntimeError, match='exited with code 7'):
+        smoke_launch.wait_for_window(process, 10)
+
+
+def test_smoke_launch_scans_windows_for_started_process(monkeypatch):
+    class Alive:
+        pid = 456
+        returncode = None
+
+        def poll(self):
+            return None
+
+    pids = []
+    found, _elapsed, _seen = smoke_launch.wait_for_window(
+        Alive(), 90, titles=lambda pid: (pids.append(pid), ['MiniJMP smoke'])[1],
+        sleep=lambda _seconds: None)
+    assert found == ['MiniJMP smoke']
+    assert pids == [456]
+
+
+@pytest.mark.skipif(sys.platform != 'win32', reason='Windows windows')
+def test_smoke_launch_real_owned_and_unrelated_windows(tk_root):
+    tk_root.title('MiniJMP unrelated')
+    tk_root.deiconify()
+    tk_root.update()
+    process = subprocess.Popen([sys.executable, '-c',
+        "import tkinter as tk; w=tk.Tk(); w.title('MiniJMP child'); w.mainloop()"])
+    try:
+        found, _, _ = smoke_launch.wait_for_window(process, 20)
+        assert found == ['MiniJMP child']
+        assert 'MiniJMP unrelated' not in smoke_launch.window_titles(process.pid)
+    finally:
+        subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'],
+                       capture_output=True, check=False)
+        process.wait(timeout=10)
+        tk_root.withdraw()
+
+
+@pytest.mark.skipif(sys.platform != 'win32', reason='Windows windows')
+def test_smoke_launch_real_unrelated_window_cannot_pass(tk_root):
+    tk_root.title('MiniJMP unrelated')
+    tk_root.deiconify()
+    tk_root.update()
+    process = subprocess.Popen([sys._base_executable, '-c', 'import time; time.sleep(10)'])
+    try:
+        found, _, _ = smoke_launch.wait_for_window(process, 2)
+        assert found == []
+    finally:
+        process.terminate()
+        process.wait(timeout=10)
+        tk_root.withdraw()
+
+
+def test_release_uses_only_clean_pireader_templates():
+    script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
+    precheck = (ROOT / 'tools' / 'check_windows_release_ready.ps1').read_text(encoding='utf-8')
+
+    assert "'PIReader\\config.example.txt', 'PIReader\\tags.example.txt'" in script
+    assert "Copy-Item -LiteralPath (Join-Path $piSource 'PIReader.exe')" in script
+    assert "Join-Path $piSource 'config.example.txt'" in script
+    assert "Join-Path $piSource 'tags.example.txt'" in script
+    assert 'Get-ChildItem -LiteralPath $piSource' not in script
+    assert "'PIReader/config.example.txt'" in precheck
+    assert "'PIReader/tags.example.txt'" in precheck
+    assert script.index('SOURCE-CODE.txt') < script.index("'manifest' $releaseDir")
+    assert script.index("'SOURCE-BUNDLE-INFO.txt'") < script.index("'manifest' $sourceStage")
+    assert script.index('write_third_party_notices.py') < script.index("'manifest' $sourceStage")
+
+
+def test_source_bundle_precheck_does_not_require_git(tmp_path):
+    (tmp_path / 'SOURCE-BUNDLE-INFO.txt').write_text(
+        'MiniJMP corresponding source\n', encoding='utf-8')
+    result = subprocess.run(
+        ['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+         str(TOOLS / 'check_windows_release_ready.ps1'), '-RepoRoot', str(tmp_path),
+         '-GitOnly'], capture_output=True, text=True, encoding='utf-8',
+        errors='replace', timeout=120)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert '源码包' in result.stdout
 
 
 def test_python_version_gate_accepts_311_and_newer(tmp_path):
