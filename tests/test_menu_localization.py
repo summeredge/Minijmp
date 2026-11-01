@@ -11,7 +11,7 @@ from modified_table import MTable
 from pandastable_local.data import TableModel
 
 
-CASCADES = ['文件', '工作表', '编辑', '视图', '数据', '工具', '试验设计（DOE）',
+CASCADES = ['文件', '工作表', '编辑', '视图', '数据', '工具',
             '统计', '质量', '图形', '调试', '帮助']
 
 
@@ -75,11 +75,11 @@ def is_chinese_label(text):
 
 
 def pulldown(app, cascade_label):
-    menubar = app.menu
+    menubar = pulldown(app, '统计') if cascade_label == '试验设计（DOE）' else app.menu
     for i, kind, label in read_menu(menubar):
         if kind == 'cascade' and label == cascade_label:
             return menubar.nametowidget(menubar.entrycget(i, 'menu'))
-    raise AssertionError('缺少一级菜单 ' + cascade_label)
+    raise AssertionError('缺少菜单 ' + cascade_label)
 
 
 def test_menu_bar_shows_only_chinese_top_level_menus(app):
@@ -92,7 +92,7 @@ def test_menu_bar_shows_only_chinese_top_level_menus(app):
 
 
 def test_every_pulldown_entry_is_chinese(app):
-    for cascade in CASCADES:
+    for cascade in EXPECTED_LAYOUT:
         menu = pulldown(app, cascade)
         for index, kind, label in read_menu(menu):
             if kind != 'command':
@@ -137,7 +137,7 @@ EXPECTED_LAYOUT = {
             '单样本标准差检验', '单比率检验', '双样本 t 检验', '配对 t 检验',
             '双比率检验', '多样本标准差检验', 'sep', '单因子方差分析',
             '双因子方差分析', '试验设计功效与样本量', 'sep',
-            '列联表与卡方检验', '比率卡方检验'],
+            '列联表与卡方检验', '比率卡方检验', '试验设计（DOE）'],
     '质量': ['量具 R&R 研究（交叉）', '量具 R&R 研究（嵌套）', 'sep',
             '过程能力分析 (Cpk)', '含子组的 Cpk', '正态过程能力（完整）', '非正态过程能力',
             'Box-Cox / Johnson 变换', '正态能力 Sixpack', '非正态能力 Sixpack', 'sep', '容差区间', 'sep',
@@ -418,7 +418,7 @@ def test_translation_inventory_matches_live_menus(app):
     from pathlib import Path
 
     inventory = (Path(__file__).resolve().parents[1] / 'docs/MENU_TRANSLATION.md').read_text(encoding='utf-8')
-    for cascade in CASCADES:
+    for cascade in EXPECTED_LAYOUT:
         section = inventory.split('## ' + cascade + '（', 1)[1].split('\n## ', 1)[0]
         translated = [line.split('|')[2].strip() for line in section.splitlines()
                       if line.startswith('| ') and not line.startswith(('| 英文原文', '| ---'))]
