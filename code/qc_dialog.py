@@ -340,9 +340,9 @@ class CpkDialog(Dialogs):
         self.app.print(f"分析变量：{self.xvar.get()}。")
         cpk_plot(
             data,
-            lsl,
-            tgt,
-            usl,
+            lsl=lsl,
+            target=tgt,
+            usl=usl,
             print_out=True,
             print_port=self.app.print,
             xlabel=self.xlabel.get() if self.xlabel.get() != "" else self.xvar.get(),
@@ -498,6 +498,9 @@ class CpkSubDialog(Dialogs):
         lsl, tgt, usl = self.lsl.get(), self.target.get(), self.usl.get()
         if lsl < tgt < usl:
             pass
+        elif tgt == 0 and lsl < usl:
+            self.error('未指定目标值，将使用规格下限与规格上限的平均值。')
+            tgt = (lsl + usl) / 2
         else:
             self.error('规格限输入有误。')
             return
@@ -508,9 +511,9 @@ class CpkSubDialog(Dialogs):
         self.app.print(f"分析变量：{self.xvar.get()}。")
         cpk_plot(
             data,
-            lsl,
-            tgt,
-            usl,
+            lsl=lsl,
+            target=tgt,
+            usl=usl,
             print_out=True,
             print_port=self.app.print,
             xlabel=self.xlabel.get() if self.xlabel.get() != "" else self.xvar.get(),
