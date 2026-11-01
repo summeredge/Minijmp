@@ -22,9 +22,9 @@ MiniJMP v0.1.0-beta.4 — Windows x64
 - 工作文件请保存到您有权限访问的位置。
 
 PI 数据
-- 包内 PIReader 文件夹与 MiniJMP.exe 同级，包含 PIReader.exe 和 config.txt。
+- 包内 PIReader 文件夹与 MiniJMP.exe 同级，包含 PIReader.exe、脱敏的 config.txt 和 tags.txt；请自行填写连接配置。
 - PIReader 依赖 .NET Framework 4.8 与 OSIsoft PI SDK；目标机仍需安装 PIPC/PI SDK 运行时并具备服务器访问权限。
-- 本包不验证 PI 连接；运行 PI 导入前请确认所在内网与授权。
+- 本包不包含 OSIsoft SDK 程序集，也不验证 PI 连接；运行 PI 导入前请确认运行时、所在内网与授权。可在导入窗口选择自定义程序和配置路径。
 
 许可与源码
 - 本程序依据 GNU GPL version 3 或更高版本授权，完整条款见 LICENSE。

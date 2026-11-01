@@ -17,13 +17,14 @@ DLP_HEADER = b'%TSD-Header-'
 # Corresponding-source inputs; the release ships the whole tree of these paths.
 SOURCE_DIRS = ('code', 'help', 'icon', 'sample_data', 'user_config', 'packaging',
                'PIReader', 'tests', 'tools', 'docs')
-SOURCE_FILES = ('LICENSE', 'README.md', 'CHANGES', 'AGENTS.md', 'CODING_STANDARDS.md',
+SOURCE_FILES = ('.gitignore', 'LICENSE', 'README.md', 'CHANGES', 'AGENTS.md', 'CODING_STANDARDS.md',
                 'CONTRIBUTING.md', 'requirements.txt', 'start.py', 'setup_env.bat',
                 'win_start.bat', 'win_start_no_cmd_win.vbs', 'PACKAGING.md')
 SOURCE_SKIP_SUFFIXES = {'.log', '.tmp', '.bak', '.orig', '.swp'}
 SOURCE_SKIP_NAMES = {'.DS_Store', 'Thumbs.db', 'local_settings.py'}
 SOURCE_SKIP_PATHS = {
     'PIReader/config.txt',
+    'PIReader/tags.txt',
     'PIReader/OSIsoft.PISDK.dll',
     'PIReader/OSIsoft.PISDKCommon.dll',
     'PIReader/OSIsoft.PITimeServer.dll',
@@ -123,11 +124,13 @@ def find_encrypted_containers(root):
 def write_manifest(root, destination):
     """Record the exact build inputs with content digests."""
     root = Path(root)
+    destination = Path(destination)
+    manifest_path = destination.resolve()
     lines = ['SHA256  RELATIVE-PATH']
-    files = package_files(root)
+    files = [path for path in package_files(root) if path.resolve() != manifest_path]
     for path in files:
         lines.append(f'{sha256_file(path)}  {path.relative_to(root).as_posix()}')
-    Path(destination).write_text('\n'.join(lines) + '\n', encoding='utf-8')
+    destination.write_text('\n'.join(lines) + '\n', encoding='utf-8')
     return len(files)
 
 

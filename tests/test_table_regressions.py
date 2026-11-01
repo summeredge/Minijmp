@@ -275,6 +275,62 @@ def test_real_filter_query_edit_toggle_and_close(table):
     assert not table.filtered
 
 
+def test_filter_rejects_calls_and_keeps_previous_filter(table, monkeypatch):
+    from pandastable_local import dialogs
+    errors = []
+    monkeypatch.setattr(dialogs.messagebox, 'showerror', lambda *args, **kwargs: errors.append(args))
+    replace(table, pd.DataFrame({'x': [1, 2, 3], 'y value': [4, 3, 2]}))
+    table.queryBar()
+    query = table.qframe
+    try:
+        query.queryvar.set('(x + 1 >= 3) & (`y value` < 4)')
+        query.query()
+        assert table.model.df.x.tolist() == [2, 3]
+        for expression in ('x.to_numpy()', '__import__("os").getcwd()', 'x + 1'):
+            query.queryvar.set(expression)
+            query.query()
+            assert table.filtered and table.model.df.x.tolist() == [2, 3]
+        assert len(errors) == 3
+    finally:
+        query.close()
+
+
+def test_eval_uses_local_columns_without_mutating_module(table, monkeypatch):
+    import sys
+    import weakref
+    references = []
+    def evaluate(expression, local_dict, global_dict):
+        assert global_dict == {}
+        references.extend(weakref.ref(value) for value in local_dict.values())
+        return local_dict['pd'] + local_dict['np'] + local_dict['Table']
+    monkeypatch.setitem(sys.modules, 'numexpr', SimpleNamespace(evaluate=evaluate))
+    before = (core_orig.pd, core_orig.np, core_orig.Table)
+    df = pd.DataFrame({'pd': [1, 2], 'np': [3, 4], 'Table': [5, 6]})
+    for _ in range(3):
+        assert table._eval(df, 'pd + np + Table').tolist() == [9, 12]
+    assert (core_orig.pd, core_orig.np, core_orig.Table) == before
+    assert all(reference() is None for reference in references)
+
+
+def test_eval_with_real_numexpr_does_not_keep_columns(table, monkeypatch):
+    import weakref
+    numexpr = pytest.importorskip('numexpr')
+    real_evaluate = numexpr.evaluate
+    references = []
+    def evaluate(expression, local_dict, global_dict):
+        references.extend(weakref.ref(value) for value in local_dict.values())
+        return real_evaluate(expression, local_dict=local_dict, global_dict=global_dict)
+    monkeypatch.setattr(numexpr, 'evaluate', evaluate)
+    before = (core_orig.pd, core_orig.np, core_orig.Table)
+    ordinary = pd.DataFrame({'x': [1, 2], 'y': [3, 4]})
+    assert table._eval(ordinary, 'x * 2 + y').tolist() == [5, 8]
+    special = pd.DataFrame({'pd': [1, 2], 'np': [3, 4], 'Table': [5, 6]})
+    for _ in range(3):
+        assert table._eval(special, 'pd + np + Table').tolist() == [9, 12]
+    assert (core_orig.pd, core_orig.np, core_orig.Table) == before
+    assert all(reference() is None for reference in references)
+
+
 def test_sort_columns_uses_row_position_after_sorting(table):
     replace(table, pd.DataFrame({'a': [2, 9], 'b': [1, 8], 'text': ['x', 'y']},
                                 index=[100, 50]))

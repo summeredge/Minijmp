@@ -13,8 +13,9 @@ beta.4 已在干净提交 0d9f573 上完成本机构建、ZIP 校验及 EXE 冒�
 - 正式 pandas 版本为 **3.0.6**；Python 3.11 发布环境须匹配完整锁文件。
 - 项目解释器：**.venv\Scripts\python.exe**（64 位）。
 - PyInstaller 6.22.3。
-- 分支 main 且 HEAD == origin/main；工作区可以脏，构建取磁盘内容并记录在 BUILD-INFO.txt。
-- **PIReader\PIReader.exe** 与 **PIReader\config.txt** 必须存在。
+- Git 工作区须为 main 且 HEAD == origin/main；源码 ZIP 无 `.git` 时使用包内 SOURCE-BUNDLE-INFO.txt。工作区可以脏，构建取磁盘内容并记录在 BUILD-INFO.txt。
+- **PIReader\PIReader.exe**、**PIReader\config.example.txt** 和 **PIReader\tags.example.txt** 必须存在。
+- 源码包不含 OSIsoft PI SDK 程序集；重新构建 PIReader 需要 .NET Framework 4.8 构建工具和按其许可自行提供的 PI SDK。
 - **packaging\windows\requirements-py311.lock** 保留原名，它是 Python 3.11 的产物。
 
 只读预检查（不构建、不删除、不安装）：
@@ -84,7 +85,7 @@ PIReader 必须与 MiniJMP.exe 同级：frozen onedir 的程序模块在 _intern
 
 预检查用 tools/release_metadata.py 分别核对这三层，不要求彼此字符串相同。
 
-对应源码 ZIP 保留 MiniJMP 与 PIReader 源码及构建材料。`tools/make_zip.py stage-source` 会排除本机 `PIReader/config.txt`、被 Git 忽略的 OSIsoft SDK DLL、测试/临时日志、草稿截图和版本化构建日志；这些排除仅作用于源码暂存，本机运行包仍使用授权的 PIReader 配置与依赖。
+对应源码 ZIP 保留 MiniJMP 与 PIReader 源码及构建材料。`tools/make_zip.py stage-source` 排除本机 `PIReader/config.txt`、`tags.txt`、OSIsoft SDK DLL 和临时文件。运行包只包含 PIReader 可执行文件及脱敏配置模板；目标环境需自行安装 PI SDK 并填写连接配置。
 
 ---
 
@@ -98,7 +99,7 @@ PIReader 必须与 MiniJMP.exe 同级：frozen onedir 的程序模块在 _intern
 
 预期：两次 rehash 与 SHA256SUMS 三行一致；CRC=ok；ENTRY-SHA256 等于
 dist\MiniJMP-V0.1-beta4\MiniJMP.exe 的摘要；PIReader 条目与该目录实际文件数一致
-（exe、两个 .cs、csproj、build.bat、config.txt、tags.txt，以及组织授权的 OSIsoft DLL）。
+（PIReader.exe、脱敏的 config.txt 和 tags.txt；不包含 OSIsoft SDK DLL）。
 
 build-inputs-V0.1-beta4.txt 是打包瞬间的运行包文件清单与摘要；
 SHA256SUMS.txt 是沉降复验后的最终交付值。

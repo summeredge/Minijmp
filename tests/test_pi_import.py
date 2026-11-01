@@ -24,7 +24,28 @@ def isolated_pi_settings(monkeypatch):
     stored = {}
     monkeypatch.setattr(pi_import, 'load_pi_paths', lambda: dict(stored))
     monkeypatch.setattr(pi_import, 'save_pi_paths', lambda paths: stored.update(paths))
+    monkeypatch.setattr(pi_import.messagebox, 'askokcancel', lambda *args, **kwargs: True)
     return stored
+
+
+@pytest.mark.parametrize('action', ['search', 'query'])
+def test_custom_executable_requires_confirmation(tk_root, tmp_path, monkeypatch, action):
+    window = PIImportDialog(tk_root)
+    try:
+        window.exe.set(str(tmp_path / 'custom.exe'))
+        window.tags.insert('1.0', 'example')
+        run = Mock()
+        confirm = Mock(return_value=False)
+        monkeypatch.setattr(window, 'run', run)
+        monkeypatch.setattr(pi_import.messagebox, 'askokcancel', confirm)
+        getattr(window, action)()
+        confirm.assert_called_once()
+        run.assert_not_called()
+        confirm.return_value = True
+        getattr(window, action)()
+        run.assert_called_once()
+    finally:
+        window.cancel()
 
 
 def test_paths_browse_autosaves_and_reopens(tk_root, tmp_path, monkeypatch, isolated_pi_settings):
