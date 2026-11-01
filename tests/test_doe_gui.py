@@ -1,9 +1,68 @@
 from unittest.mock import Mock
 
 import numpy as np
+import pandas as pd
+import pytest
 
 from doe_dialog import AnalyzeDOE, CreateDOE
 from test_csv_import import csv_app
+
+
+@pytest.mark.parametrize('missing', [None, np.nan])
+def test_missing_response_plot_and_filtered_full_design(csv_app, monkeypatch, missing):
+    from doe_core import DesignSpec, FactorSpec
+    from doe_factorial import create_factorial
+    from statsmodels.formula.api import ols
+
+    app, error = csv_app
+    monkeypatch.setattr('doe_dialog.messagebox.showerror', error)
+    spec = DesignSpec('missing-filter',
+                      (FactorSpec('A', 'A', -1, 1), FactorSpec('B', 'B', -1, 1)),
+                      ('Y',), seed=7, design_type='two_level_full')
+    frame, metadata = create_factorial(spec, replicates=2)
+    frame['响应_Y'] = np.array([10., 14., 9., 18., 13., 20., 11., 15.])
+    frame.loc[0, '响应_Y'] = missing
+    table = app.addSheet('缺失响应', frame, {'doe': metadata})
+    table.dataframe = table.model.df
+    table.model.df = frame.iloc[:3].copy()
+    displayed = table.model.df.copy(deep=True)
+    table.filtered = True
+    dialog = AnalyzeDOE(app)
+    dialog.ss_type.set('Type III')
+    dialog.analyze()
+    result = dialog.result
+    assert result is not None and result['n'] == 7
+    assert len(result['design'].runs) == 8
+    observed = result['observed_runs']
+    assert len(observed) == len(result['fitted']) == len(result['residuals']) == 7
+    fit_tab = next(tab for tab in dialog.tabs.tabs()
+                   if dialog.tabs.tab(tab, 'text') == '拟合与残差')
+    fit_table = dialog.tabs.nametowidget(fit_tab).winfo_children()[0].table
+    assert [row[0] for row in fit_table.values] == list(range(2, 9))
+    reference_frame = frame.rename(columns={'响应_Y': 'Y', '设定_A': 'A', '设定_B': 'B'})
+    reference = ols('Y ~ A * B', data=reference_frame).fit()
+    np.testing.assert_allclose(result['fitted'], reference.fittedvalues, atol=1e-12)
+    np.testing.assert_allclose(result['residuals'], reference.resid, atol=1e-12)
+    dialog.plot()
+    error.assert_not_called()
+    axis = next(ax for ax in table.pf.fig.axes if ax.get_title() == '残差与实际运行顺序')
+    points = np.asarray(axis.collections[0].get_offsets(), dtype=float)
+    ordered = np.argsort([run.run_order for run in observed], kind='stable')
+    np.testing.assert_array_equal(points[:, 0], [observed[i].run_order for i in ordered])
+    np.testing.assert_allclose(points[:, 1], result['residuals'][ordered])
+    assert table.filtered is True
+    pd.testing.assert_frame_equal(table.model.df, displayed)
+    # 快照仍须检查完整数据，不能因变更发生在隐藏行而漏检。
+    table.dataframe.loc[7, '响应_Y'] += 1
+    dialog.plot()
+    assert '工作表已更改' in error.call_args.args[1]
+    error.reset_mock()
+    table.dataframe['响应_Y'] = np.nan
+    dialog.analyze()
+    assert dialog.result is None
+    assert '至少需要一个非缺失响应' in error.call_args.args[1]
+    assert table.filtered is True
+    dialog.main.destroy()
 
 
 def test_doe_create_analyze_save_load_and_source_binding(csv_app, tmp_path, monkeypatch):

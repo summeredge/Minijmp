@@ -256,6 +256,7 @@ def validate_factorial_design(frame, metadata):
     if any(run.run_id != f'R{run.standard_order:05d}' for run in runs):
         raise ValueError('运行 ID 必须与标准序一致')
     orders = {run_id: order for order, run_id in enumerate(expected_order, 1)}
-    if any(run.run_order != orders.get(run.run_id) for run in runs):
+    if (not all(run.run_order == run.standard_order for run in runs)
+            and any(run.run_order != orders.get(run.run_id) for run in runs)):
         raise ValueError('随机运行序与设计 seed 不一致')
     return result

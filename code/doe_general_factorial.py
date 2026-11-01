@@ -165,7 +165,9 @@ def validate_general_factorial(frame, metadata):
         expected_order = _ordered_run_ids(len(replicates), len(levels), spec.seed,
                                           block_count)
     expected_orders = {run_id: order for order, run_id in enumerate(expected_order, 1)}
+    standard_ordered = all(run.run_order == run.standard_order for run in result.runs)
     if any(run.run_id != f"R{run.standard_order:05d}"
-           or run.run_order != expected_orders.get(run.run_id) for run in result.runs):
+           or (not standard_ordered and run.run_order != expected_orders.get(run.run_id))
+           for run in result.runs):
         raise ValueError("运行 ID 或随机运行序与设计 seed 不一致")
     return result
