@@ -1,4 +1,4 @@
-"""Verify the three intentional version identifiers stay aligned."""
+"""Verify the intentional display, product and file version identifiers stay aligned."""
 
 import re
 import sys
@@ -13,9 +13,9 @@ def read(root, name):
     return (Path(root) / name).read_text(encoding='utf-8', errors='replace')
 
 
-def _assignment(text):
+def _assignment(text, name='releaseVersion'):
     for line in text.splitlines():
-        if line.startswith('$releaseVersion = '):
+        if line.startswith(f'${name} = '):
             return line.split('=', 1)[1].strip().strip(chr(39))
     return None
 
@@ -29,9 +29,9 @@ def _between(text, start, end):
     return text[begin:stop].strip() if stop >= 0 else None
 
 
-def _first_line_starting(text, prefix):
+def _first_product_version(text):
     for line in text.splitlines():
-        if line.startswith(prefix):
+        if PRODUCT.fullmatch(line.strip()):
             return line.strip()
     return ''
 
@@ -43,14 +43,15 @@ def identifiers(root=ROOT):
     readme = read(root, 'README.md')
     return {
         'release': _assignment(read(root, 'tools/build_windows_release.ps1')),
+        'product:build': _assignment(read(root, 'tools/build_windows_release.ps1'), 'productVersion'),
         'product:version_info': _between(info, "'ProductVersion', '", chr(39)),
         'product:fileversion': _between(info, "'FileVersion', '", chr(39)),
         'numeric:filevers': _between(info, 'filevers=(', ')'),
         'numeric:prodvers': _between(info, 'prodvers=(', ')'),
         'product:USAGE': read(root, 'packaging/windows/USAGE.txt').split()[1],
-        'product:README': _between(readme, '当前版本标识：** ' + chr(96), chr(96)),
-        'product:about': 'v' + _between(about, '版本 v', chr(39)),
-        'product:CHANGES': _first_line_starting(read(root, 'CHANGES'), 'v0.'),
+        'product:README': _between(readme, '产品版本标识：** ' + chr(96), chr(96)),
+        'display:about': _between(about, '版本 ', chr(39)),
+        'product:CHANGES': _first_product_version(read(root, 'CHANGES')),
     }
 
 
@@ -59,6 +60,7 @@ def expected(groups):
     numbers = ', '.join(groups)
     return {
         'release': f'V{major}.{minor}-beta{beta}',
+        'display:about': f'V{major}.{minor} beta{beta}',
         'product:fileversion': f'{major}.{minor}.{patch}.{beta}',
         'numeric:filevers': numbers,
         'numeric:prodvers': numbers,
@@ -71,7 +73,7 @@ def check(root=ROOT):
     if not match:
         return [('BLOCKED', 'version_info.txt ProductVersion is not vX.Y.Z-beta.N.')]
     wanted = expected(match.groups())
-    for name in ('product:USAGE', 'product:README', 'product:about', 'product:CHANGES'):
+    for name in ('product:USAGE', 'product:README', 'product:build', 'product:CHANGES'):
         wanted[name] = found['product:version_info']
 
     problems = []

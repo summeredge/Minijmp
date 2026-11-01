@@ -14,8 +14,8 @@ $versionInfo = Join-Path $root 'packaging\windows\version_info.txt'
 $entry = Join-Path $root 'packaging\windows_entrypoint.py'
 $makeZip = Join-Path $root 'tools\make_zip.py'
 $smoke = Join-Path $root 'tools\smoke_launch.py'
-$releaseVersion = 'V0.1-beta4'
-$productVersion = 'v0.1.0-beta.4'
+$releaseVersion = 'V1.0-beta1'
+$productVersion = 'v1.0.0-beta.1'
 
 if (!(Test-Path -LiteralPath $python -PathType Leaf)) {
     throw "Project Python environment not found: $python"

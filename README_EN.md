@@ -6,7 +6,7 @@
 
 MiniJMP is a desktop statistical analysis application written in Python. It provides a spreadsheet workspace, statistical tests, regression analysis, process-quality tools, and data visualization. The original project drew on selected features of Minitab Express and JMP. This derivative primarily extends advanced statistics, the Chinese interface, plotting, industrial PI data import, and the Windows user experience.
 
-**Current version label:** `v0.1.0-beta.4`. This README reflects the repository source as of **October 2026**. Some screenshots may come from the original project; the current application is the authoritative reference for the interface.
+**Current version: V1.0 beta1; product version label:** `v1.0.0-beta.1`. This README reflects the repository source as of **November 2026**. Some screenshots may come from the original project; the current application is the authoritative reference for the interface.
 
 ## Original Projects, Copyright, and License
 

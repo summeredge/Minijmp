@@ -331,14 +331,14 @@ def test_python_version_gate_accepts_311_and_newer(tmp_path):
 def test_version_identifiers_and_build_info_agree():
     levels = release_metadata.check()
     assert [level for level, _ in levels] == ['PASS'], levels
-    assert 'V0.1-beta4' in levels[0][1] and '0.1.0.4' in levels[0][1]
+    assert 'V1.0-beta1' in levels[0][1] and '1.0.0.1' in levels[0][1]
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
-    assert '$productVersion = ' + "'v0.1.0-beta.4'" in script
+    assert '$productVersion = ' + "'v1.0.0-beta.1'" in script
     assert 'Release name: $releaseVersion' in script
     assert 'PIReader: bundled beside MiniJMP.exe' in script
     assert 'PI SDK/PIPC runtime and PI Server connectivity' in script
     version_info = (ROOT / 'packaging' / 'windows' / 'version_info.txt').read_text(encoding='utf-8')
-    assert "StringStruct('Comments', 'Windows beta release 3')" in version_info
+    assert "StringStruct('Comments', 'MiniJMP V1.0 beta1 source baseline')" in version_info
 
 
 def test_pireader_paths_resolve_beside_frozen_exe(monkeypatch, tmp_path, tk_root):
@@ -380,3 +380,26 @@ def test_powershell_scripts_parse_and_avoid_bulk_deletion():
         text = script.read_text(encoding='utf-8')
         assert 'Remove-Item -Recurse -Force (Join-Path $root' not in text
         assert '-Confirm:$false' not in text
+
+
+@pytest.mark.parametrize('latest', ['v1.0.0-beta.1', 'v2.3.4-beta.12'])
+def test_changes_reads_latest_version_across_major_versions(monkeypatch, latest):
+    original_read = release_metadata.read
+
+    def read(root, name):
+        if name == 'CHANGES':
+            return f'CHANGES\n{latest}\nnotes\nv0.1.0-beta.4\n'
+        return original_read(root, name)
+
+    monkeypatch.setattr(release_metadata, 'read', read)
+    assert release_metadata.identifiers()['product:CHANGES'] == latest
+    levels = release_metadata.check()
+    assert levels[0][0] == ('PASS' if latest == 'v1.0.0-beta.1' else 'BLOCKED')
+
+
+def test_version_check_rejects_build_product_drift(monkeypatch):
+    found = release_metadata.identifiers()
+    found['product:build'] = 'v0.1.0-beta.4'
+    monkeypatch.setattr(release_metadata, 'identifiers', lambda root: found)
+    assert any(level == 'BLOCKED' and 'product:build' in message
+               for level, message in release_metadata.check())
