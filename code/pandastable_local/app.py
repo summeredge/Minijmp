@@ -24,6 +24,7 @@ import time
 import platform
 import os
 import re
+import json
 from . import plugin
 from .dialogs import MultipleValDialog
 from . import images, util, dialogs, plotting, config
@@ -458,21 +459,46 @@ class DataExplore(Frame):
     def saveAppOptions(self):
         """Save global app options to config dir"""
 
-        appfile = os.path.join(self.configpath, 'app.p')
-        file = open(appfile, 'wb')
-        pickle.dump(self.appoptions, file, protocol=2)
-        file.close()
+        appfile = os.path.join(self.configpath, 'app.json')
+        with open(appfile, 'w', encoding='utf-8') as file:
+            json.dump(self.appoptions, file, ensure_ascii=False, indent=2)
         return
 
     def loadAppOptions(self):
         """Load global app options if present"""
 
-        appfile = os.path.join(self.configpath, 'app.p')
+        appfile = os.path.join(self.configpath, 'app.json')
+        legacyfile = os.path.join(self.configpath, 'app.p')
+        migrated = False
         if os.path.exists(appfile):
-            self.appoptions = pickle.load(open(appfile, 'rb'))
+            try:
+                with open(appfile, encoding='utf-8') as file:
+                    self.appoptions = json.load(file)
+            except (OSError, ValueError):
+                self.appoptions = {}
         else:
             self.appoptions = {}
-            self.appoptions['recent'] = []
+            if os.path.exists(legacyfile):
+                if messagebox.askyesno(
+                        '迁移旧配置',
+                        '旧配置 app.p 使用 pickle，读取可能执行其中的代码。'
+                        '仅在确认文件来源可信时迁移。是否继续？',
+                        parent=self.main):
+                    try:
+                        with open(legacyfile, 'rb') as file:
+                            self.appoptions = pickle.load(file)
+                        migrated = True
+                    except Exception as error:
+                        messagebox.showerror('迁移旧配置失败', str(error), parent=self.main)
+        if not isinstance(self.appoptions, dict):
+            self.appoptions = {}
+        recent = self.appoptions.get('recent', [])
+        if not isinstance(recent, list) or not all(isinstance(path, str) for path in recent):
+            recent = []
+        self.appoptions['recent'] = recent
+        if migrated:
+            self.appoptions = {'recent': recent}
+            self.saveAppOptions()
         return
 
     def newProject(self, data=None, df=None):
@@ -511,12 +537,6 @@ class DataExplore(Frame):
     def loadProject(self, filename=None, asksave=False):
         """Open project file"""
 
-        w = True
-        if asksave:
-            w = self.closeProject()
-        if w is None:
-            return
-
         if filename is None:
             filename = filedialog.askopenfilename(
                 defaultextension='.dexpl"', initialdir=self.defaultsavedir, filetypes=[
@@ -530,6 +550,13 @@ class DataExplore(Frame):
         ext = os.path.splitext(filename)[1]
         if ext != '.dexpl':
             print('does not appear to be a project file')
+            return
+        if not messagebox.askyesno(
+                '可信文件',
+                '工程文件使用 pickle，仅打开您信任的文件。继续打开？',
+                parent=self.main):
+            return
+        if asksave and self.closeProject() is None:
             return
         if os.path.isfile(filename):
             # new format uses pickle
@@ -729,6 +756,11 @@ class DataExplore(Frame):
     def load_pickle(self, filename):
         """Load a pickle file"""
 
+        if not messagebox.askyesno(
+                '可信文件',
+                '此文件使用 pickle，仅打开您信任的文件。继续打开？',
+                parent=self.main):
+            return
         df = pd.read_pickle(filename)
         name = os.path.splitext(os.path.basename(filename))[0]
         self.load_dataframe(df, name)

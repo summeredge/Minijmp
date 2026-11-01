@@ -356,6 +356,7 @@ def test_project_real_save_and_load_chinese_mixed_roundtrip(tmp_path, mixed_fram
     assert_frame_equal(saved["中文工作表"]["table"], mixed_frame)
     assert saved["中文工作表"]["meta"] == metadata
     loaded = SimpleNamespace(newProject=Mock(), main=Mock(), addRecent=Mock())
+    monkeypatch.setattr('pandastable_local.app.messagebox.askyesno', lambda *a, **k: True)
     DataExplore.loadProject(loaded, str(filename))
     restored = loaded.newProject.call_args.args[0]
     assert_frame_equal(restored["中文工作表"]["table"], mixed_frame)

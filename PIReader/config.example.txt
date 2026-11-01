@@ -1,0 +1,5 @@
+Server=
+User=
+Password=
+Interval=5m
+BlockDays=7

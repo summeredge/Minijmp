@@ -35,23 +35,35 @@ if ($LASTEXITCODE -ne 0) {
     throw 'Version identifiers disagree; fix them before building.'
 }
 
-$head = (git -C $root rev-parse HEAD).Trim()
-$branch = (git -C $root branch --show-current).Trim()
-$originMain = (git -C $root rev-parse origin/main).Trim()
-if ($branch -ne 'main') { throw "Release builds must run on main; branch is '$branch'." }
-if ($head -ne $originMain) {
-    throw 'HEAD differs from origin/main. Fetch and reconcile before building.'
-}
+$sourceBundleInfo = Join-Path $root 'SOURCE-BUNDLE-INFO.txt'
+if (Test-Path -LiteralPath $sourceBundleInfo -PathType Leaf) {
+    $headLine = Get-Content -LiteralPath $sourceBundleInfo |
+        Where-Object { $_ -match '^Base Git HEAD: ([0-9a-f]{40})$' } | Select-Object -First 1
+    if (!$headLine) { throw 'SOURCE-BUNDLE-INFO.txt has no valid Base Git HEAD.' }
+    $head = [regex]::Match($headLine, '^Base Git HEAD: ([0-9a-f]{40})$').Groups[1].Value
+    $branch = 'source bundle'
+    $originMain = 'not included in source bundle'
+    $dirty = @()
+    Write-Warning 'Building from the corresponding source ZIP; Git metadata is not included.'
+} else {
+    $head = (git -C $root rev-parse HEAD).Trim()
+    $branch = (git -C $root branch --show-current).Trim()
+    $originMain = (git -C $root rev-parse origin/main).Trim()
+    if ($branch -ne 'main') { throw "Release builds must run on main; branch is '$branch'." }
+    if ($head -ne $originMain) {
+        throw 'HEAD differs from origin/main. Fetch and reconcile before building.'
+    }
 
-# Uncommitted work is allowed; it is recorded instead of being discarded.
-$dirty = @(git -C $root status --porcelain --untracked-files=normal)
-if ($dirty.Count) {
-    Write-Warning "Working tree has $($dirty.Count) uncommitted or untracked entries; the build uses the files on disk and BUILD-INFO records this state."
-    $dirty | Select-Object -First 10 | ForEach-Object { Write-Warning "  $_" }
+    # Uncommitted work is allowed; it is recorded instead of being discarded.
+    $dirty = @(git -C $root status --porcelain --untracked-files=normal)
+    if ($dirty.Count) {
+        Write-Warning "Working tree has $($dirty.Count) uncommitted or untracked entries; the build uses the files on disk and BUILD-INFO records this state."
+        $dirty | Select-Object -First 10 | ForEach-Object { Write-Warning "  $_" }
+    }
 }
 
 $required = @(
-    'PIReader\PIReader.exe', 'PIReader\config.txt', 'LICENSE',
+    'PIReader\PIReader.exe', 'PIReader\config.example.txt', 'PIReader\tags.example.txt', 'LICENSE',
     'packaging\windows\USAGE.txt', 'packaging\windows\version_info.txt',
     'icon\icon_big.ico', 'code\help.json', 'help', 'user_config\default.conf'
 )
@@ -59,6 +71,11 @@ foreach ($item in $required) {
     if (!(Test-Path -LiteralPath (Join-Path $root $item))) {
         throw "Required build input is missing: $item"
     }
+}
+$template = (Get-Content -LiteralPath (Join-Path $root 'PIReader\config.example.txt') -Raw).Replace("`r`n", "`n").Trim()
+if ($template -cne "Server=`nUser=`nPassword=`nInterval=5m`nBlockDays=7" -or
+    [IO.File]::ReadAllText((Join-Path $root 'PIReader\tags.example.txt')).Trim()) {
+    throw 'PIReader templates are not the clean release templates.'
 }
 
 $distRoot = Join-Path $root 'dist'
@@ -142,20 +159,13 @@ Copy-Item -LiteralPath (Join-Path $root 'LICENSE') -Destination (Join-Path $rele
 Copy-Item -LiteralPath (Join-Path $root 'packaging\windows\USAGE.txt') -Destination (Join-Path $releaseDir 'README.txt')
 
 # PIReader sits beside the EXE: frozen modules live in _internal, so the app
-# root resolves to the EXE directory. config.txt ships verbatim.
+# root resolves to the EXE directory. Local config and tags files never ship.
 $piTarget = Join-Path $releaseDir 'PIReader'
 $piSource = Join-Path $root 'PIReader'
-$piFiles = @(Get-ChildItem -LiteralPath $piSource -File -Recurse | Where-Object {
-    $_.FullName.Substring($piSource.Length).TrimStart('\') -notmatch '^(obj|bin|\.vs)\\'
-})
-foreach ($file in $piFiles) {
-    $relative = $file.FullName.Substring($piSource.Length).TrimStart('\')
-    $destination = Join-Path $piTarget $relative
-    New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
-    Copy-Item -LiteralPath $file.FullName -Destination $destination
-}
-$piDlls = @($piFiles | Where-Object { $_.Extension -eq '.dll' }).Count
-
+New-Item -ItemType Directory -Path $piTarget -Force | Out-Null
+Copy-Item -LiteralPath (Join-Path $piSource 'PIReader.exe') -Destination $piTarget
+Copy-Item -LiteralPath (Join-Path $piSource 'config.example.txt') -Destination (Join-Path $piTarget 'config.txt')
+Copy-Item -LiteralPath (Join-Path $piSource 'tags.example.txt') -Destination (Join-Path $piTarget 'tags.txt')
 & $python (Join-Path $root 'tools\write_third_party_notices.py') $releaseDir
 if ($LASTEXITCODE -ne 0) { throw 'Generating third-party notices failed.' }
 
@@ -163,7 +173,9 @@ $os = Get-CimInstance Win32_OperatingSystem
 $pythonVersion = (@(& $python -c "import sys; print('.'.join(map(str, sys.version_info[:3])))") -join '').Trim()
 $pyinstallerVersion = (@(& $python -m PyInstaller --version) -join '').Trim()
 $coreVersions = & $python -c "import importlib.metadata as m; names=['numpy','scipy','pandas','matplotlib','seaborn','statsmodels','openpyxl','xlrd','Pillow','prettytable']; print('; '.join(n+' '+m.version(n) for n in names))"
-$treeState = if ($dirty.Count) {
+$treeState = if ($branch -eq 'source bundle') {
+    'Built from the corresponding source ZIP; Git metadata is not included, so changes after extraction are not measured.'
+} elseif ($dirty.Count) {
     "$($dirty.Count) uncommitted or untracked entries were present; the build used the files on disk, not a clean checkout."
 } else {
     'Working tree was clean; build inputs matched Git HEAD.'
@@ -179,11 +191,18 @@ $buildInfo = @(
     "PyInstaller: $pyinstallerVersion (onedir, windowed, noupx, _internal)",
     "Windows: $($os.Caption), version $($os.Version), build $($os.BuildNumber), $($os.OSArchitecture)",
     "Core dependencies: $coreVersions",
-    "PIReader: bundled beside MiniJMP.exe with $($piFiles.Count) files, including config.txt as shipped; $piDlls bundled OSIsoft DLLs.",
+    'PIReader: bundled beside MiniJMP.exe with 3 files; config.txt and tags.txt copied from clean example templates; OSIsoft SDK assemblies are not bundled.',
     'PI SDK/PIPC runtime and PI Server connectivity are target-machine prerequisites; this build did not verify them.',
     'Defender, TsdEncrypt/DLP and non-admin execution on office machines were not verified by this build.'
 ) -join $nl
 Set-Content -LiteralPath (Join-Path $releaseDir 'BUILD-INFO.txt') -Value $buildInfo -Encoding utf8
+@(
+    "Corresponding source archive: MiniJMP-$releaseVersion-source.zip",
+    "Base Git HEAD: $head",
+    'Repository: https://github.com/summeredge/Minijmp',
+    'The source ZIP contains the corresponding source files and build scripts; it omits .git and OSIsoft PI SDK assemblies.',
+    'Build prerequisites for PIReader are listed in PACKAGING.md and SOURCE-BUNDLE-INFO.txt.'
+) -join $nl | Set-Content -LiteralPath (Join-Path $releaseDir 'SOURCE-CODE.txt') -Encoding utf8
 
 # Stage the sources actually used from disk, in TEMP so DLP-synced folders
 # cannot rewrite them mid-archive.
@@ -194,11 +213,6 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Staging corresponding sources failed.' }
     Write-Output $staged
 
-    & $python $makeZip 'manifest' $sourceStage (Join-Path $sourceStage 'SOURCE-MANIFEST.txt')
-    if ($LASTEXITCODE -ne 0) { throw 'Writing the source manifest failed.' }
-    & $python $makeZip 'manifest' $releaseDir $manifestPath
-    if ($LASTEXITCODE -ne 0) { throw 'Writing the runtime manifest failed.' }
-
     $sourceInfo = @(
         "MiniJMP $productVersion corresponding source",
         "Release name: $releaseVersion",
@@ -206,7 +220,8 @@ try {
         "Release branch: $branch",
         "Working tree: $treeState",
         'This archive holds the on-disk sources and build inputs used for the adjacent binary, including the PIReader project sources and tools/make_zip.py.',
-        'SOURCE-MANIFEST.txt lists every file with its SHA256 at packaging time.',
+        'SOURCE-MANIFEST.txt lists every staged file except the manifest itself, with its SHA256 at packaging time.',
+        'The source ZIP omits .git and OSIsoft PI SDK assemblies; the corresponding SDK and .NET Framework 4.8 build tools must be supplied under their applicable licenses to rebuild PIReader.',
         'Repository origin: https://github.com/summeredge/Minijmp'
     ) -join $nl
     Set-Content -LiteralPath (Join-Path $sourceStage 'SOURCE-BUNDLE-INFO.txt') -Value $sourceInfo -Encoding utf8
@@ -215,6 +230,11 @@ try {
 
     & $python $makeZip 'scan' $sourceStage
     if ($LASTEXITCODE -ne 0) { throw 'Encrypted (DLP) files found in the staged sources.' }
+
+    & $python $makeZip 'manifest' $sourceStage (Join-Path $sourceStage 'SOURCE-MANIFEST.txt')
+    if ($LASTEXITCODE -ne 0) { throw 'Writing the source manifest failed.' }
+    & $python $makeZip 'manifest' $releaseDir $manifestPath
+    if ($LASTEXITCODE -ne 0) { throw 'Writing the runtime manifest failed.' }
 
     & $python $makeZip 'make' $releaseDir $releaseZip
     if ($LASTEXITCODE -ne 0) { throw 'Creating the runtime archive failed.' }
