@@ -109,7 +109,7 @@ def test_real_launcher_with_chinese_path_and_unrelated_cwd(tmp_path, returncode)
 
 @pytest.mark.skipif(os.name != 'nt', reason='Windows launchers')
 @pytest.mark.parametrize('launcher', ['win_start.bat', 'win_start_no_cmd_win.vbs'])
-@pytest.mark.parametrize('returncode', [0, 7])
+@pytest.mark.parametrize('returncode', [0, 1, 7, 9009])
 def test_windows_launchers_resolve_their_directory_and_propagate_exit_code(tmp_path, launcher, returncode, request):
     project = tmp_path / '中文 project'
     project.mkdir()
@@ -126,8 +126,17 @@ def test_windows_launchers_resolve_their_directory_and_propagate_exit_code(tmp_p
         command = ['cscript.exe', '//nologo', str(project / launcher)]
     else:
         command = ['cmd.exe', '/d', '/c', str(project / launcher)]
-    result = subprocess.run(command, cwd=tmp_path, capture_output=True, timeout=20)
-    assert result.returncode == returncode, result.stderr
+    process = subprocess.Popen(command, cwd=tmp_path, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        if launcher.endswith('.vbs') and returncode:
+            message = dismiss_startup_message(process)
+            assert str(returncode) in message and 'win_start.bat' in message
+        _stdout, stderr = process.communicate(timeout=20)
+        assert process.returncode == returncode, stderr
+    finally:
+        if process.poll() is None:
+            process.kill()
+            process.wait()
 
 
 def test_windows_launchers_do_not_update_code_or_request_elevation():
@@ -135,6 +144,63 @@ def test_windows_launchers_do_not_update_code_or_request_elevation():
         'start.py', 'win_start.bat', 'win_start_no_cmd_win.vbs'])
     assert 'git pull' not in text
     assert 'runas' not in text
+
+
+@pytest.mark.skipif(os.name != 'nt', reason='Windows launcher')
+def test_missing_environment_batch_exits_without_waiting(tmp_path):
+    launcher = tmp_path / 'win_start.bat'
+    shutil.copyfile(ROOT / launcher.name, launcher)
+    result = subprocess.run(['cmd.exe', '/d', '/c', str(launcher)],
+                            capture_output=True, timeout=10)
+    assert result.returncode != 0
+    assert b'virtual environment not found' in result.stdout
+
+
+@pytest.mark.skipif(os.name != 'nt', reason='Windows launcher')
+def test_hidden_launcher_reports_missing_environment(tmp_path):
+    launcher = tmp_path / 'win_start_no_cmd_win.vbs'
+    shutil.copyfile(ROOT / launcher.name, launcher)
+    process = subprocess.Popen(['cscript.exe', '//nologo', str(launcher)])
+    try:
+        assert 'setup_env.bat' in dismiss_startup_message(process)
+        assert process.wait(timeout=5) == 1
+    finally:
+        if process.poll() is None:
+            process.kill()
+            process.wait()
+
+
+def dismiss_startup_message(process):
+    import ctypes
+    import time
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    user32.FindWindowW.restype = wintypes.HWND
+    callback_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    user32.EnumChildWindows.argtypes = (wintypes.HWND, callback_type, wintypes.LPARAM)
+    user32.GetWindowTextW.argtypes = (wintypes.HWND, wintypes.LPWSTR, ctypes.c_int)
+    user32.GetWindowThreadProcessId.argtypes = (wintypes.HWND, ctypes.POINTER(wintypes.DWORD))
+    user32.PostMessageW.argtypes = (wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM)
+    deadline = time.monotonic() + 15
+    while time.monotonic() < deadline and process.poll() is None:
+        handle = user32.FindWindowW(None, 'MiniJMP startup error')
+        if handle:
+            pid = wintypes.DWORD()
+            user32.GetWindowThreadProcessId(handle, ctypes.byref(pid))
+            if pid.value == process.pid:
+                texts = []
+                def collect(child, _):
+                    buffer = ctypes.create_unicode_buffer(2048)
+                    user32.GetWindowTextW(child, buffer, len(buffer))
+                    texts.append(buffer.value)
+                    return True
+                callback = callback_type(collect)
+                user32.EnumChildWindows(handle, callback, 0)
+                user32.PostMessageW(handle, 0x0010, 0, 0)
+                return ' '.join(texts)
+        time.sleep(0.05)
+    pytest.fail('启动错误提示未出现')
 
 
 def test_main_icon_uses_embedded_resource(monkeypatch, tmp_path):

@@ -2155,11 +2155,9 @@ class Table(Canvas):
     def _eval(self, df, ex):
         """Evaluate an expression using numexpr"""
 
-        # uses assignments to globals() - check this is ok
         import numexpr as ne
-        for c in df:
-            globals()[c] = df[c].to_numpy()
-        a = ne.evaluate(ex)
+        columns = {c: df[c].to_numpy() for c in df}
+        a = ne.evaluate(ex, local_dict=columns, global_dict={})
         return a
 
     def evalFunction(self, evt=None):
@@ -4126,12 +4124,19 @@ class Table(Canvas):
             filename = filedialog.askopenfilename(
                 parent=self.master, defaultextension='.mpk', initialdir=self.currentdir, filetypes=[
                     ("pickle", "*.pickle"), ("All files", "*.*")])
+        if not filename:
+            return
         if not os.path.exists(filename):
             print('file does not exist')
             return
         if filename:
             #prog_bar = Progress(self.master, row=0, column=0, columnspan=2)
             filetype = os.path.splitext(filename)[1]
+            if filetype != '.mpk' and not messagebox.askyesno(
+                    '可信文件',
+                    '此文件使用 pickle，仅打开您信任的文件。继续打开？',
+                    parent=self.master):
+                return
             model = TableModel()
             model.load(filename, filetype)
             self.updateModel(model)

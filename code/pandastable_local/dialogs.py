@@ -21,6 +21,8 @@
 
 from __future__ import absolute_import, division, print_function
 import sys,os,types
+import ast
+import tokenize
 import platform
 from datetime import datetime
 try:
@@ -1549,18 +1551,28 @@ class QueryDialog(Frame):
 
         table = self.table
         s = self.queryvar.get()
-        if table.filtered == True:
-            table.model.df = table.dataframe
-            table.filtered = False
-        df = table.model.df
+        df = table.dataframe if table.filtered else table.model.df
         mask = None
 
         #string query first
         if s!='':
             try:
-                mask = df.eval(s)
-            except:
+                from pandas.core.computation.parsing import tokenize_string
+                tree = ast.parse(tokenize.untokenize(tokenize_string(s)), mode='eval')
+                allowed = (ast.Expression, ast.Name, ast.Load, ast.Constant,
+                           ast.BinOp, ast.UnaryOp, ast.BoolOp, ast.Compare,
+                           ast.Add, ast.Sub, ast.Mult, ast.Div, ast.FloorDiv,
+                           ast.Mod, ast.Pow, ast.BitAnd, ast.BitOr, ast.BitXor,
+                           ast.Invert, ast.UAdd, ast.USub, ast.Not, ast.And, ast.Or,
+                           ast.Eq, ast.NotEq, ast.Lt, ast.LtE, ast.Gt, ast.GtE)
+                if any(not isinstance(node, allowed) for node in ast.walk(tree)):
+                    raise ValueError('仅支持列比较、算术运算和布尔筛选。')
                 mask = df.eval(s, engine='python')
+                if not isinstance(mask, pd.Series) or not pd.api.types.is_bool_dtype(mask):
+                    raise ValueError('筛选表达式必须返回布尔列。')
+            except Exception as error:
+                messagebox.showerror('筛选表达式错误', str(error), parent=self)
+                return
         #add any filters from widgets
         if len(self.filters)>0:
             mask = self.applyFilter(df, mask)
@@ -1568,6 +1580,9 @@ class QueryDialog(Frame):
             table.showAll()
             self.queryresultvar.set('')
             return
+        if table.filtered:
+            table.model.df = table.dataframe
+            table.filtered = False
         #apply the final mask
         self.filtdf = filtdf = df[mask]
         self.queryresultvar.set('%s rows found' %len(filtdf))

@@ -175,6 +175,8 @@ working_draft
 # redistributed only inside internal packages, never in the public repository.
 PIReader/obj/
 PIReader/bin/
+PIReader/config.txt
+PIReader/tags.txt
 PIReader/OSIsoft.PISDK.dll
 PIReader/OSIsoft.PISDKCommon.dll
 PIReader/OSIsoft.PITimeServer.dll

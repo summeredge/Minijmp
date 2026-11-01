@@ -12,26 +12,83 @@ def is_app_window(title):
     return 'minijmp' in title.lower() and title.lower() != 'tk'
 
 
-def window_titles():
+def process_tree(process_id):
+    import ctypes
+    from ctypes import wintypes
+
+    class ProcessEntry(ctypes.Structure):
+        _fields_ = [('dwSize', wintypes.DWORD), ('cntUsage', wintypes.DWORD),
+                    ('th32ProcessID', wintypes.DWORD), ('th32DefaultHeapID', ctypes.c_size_t),
+                    ('th32ModuleID', wintypes.DWORD), ('cntThreads', wintypes.DWORD),
+                    ('th32ParentProcessID', wintypes.DWORD), ('pcPriClassBase', wintypes.LONG),
+                    ('dwFlags', wintypes.DWORD), ('szExeFile', wintypes.WCHAR * 260)]
+
+    kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel.CreateToolhelp32Snapshot.argtypes = (wintypes.DWORD, wintypes.DWORD)
+    kernel.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+    kernel.Process32FirstW.argtypes = kernel.Process32NextW.argtypes = (
+        wintypes.HANDLE, ctypes.POINTER(ProcessEntry))
+    kernel.CloseHandle.argtypes = (wintypes.HANDLE,)
+    snapshot = kernel.CreateToolhelp32Snapshot(2, 0)
+    if snapshot == ctypes.c_void_p(-1).value:
+        raise ctypes.WinError(ctypes.get_last_error())
+    parents = {}
+    try:
+        entry = ProcessEntry()
+        entry.dwSize = ctypes.sizeof(entry)
+        more = kernel.Process32FirstW(snapshot, ctypes.byref(entry))
+        while more:
+            parents[entry.th32ProcessID] = entry.th32ParentProcessID
+            more = kernel.Process32NextW(snapshot, ctypes.byref(entry))
+    finally:
+        kernel.CloseHandle(snapshot)
+    result = {process_id}
+    while True:
+        children = {pid for pid, parent in parents.items() if parent in result}
+        if children <= result:
+            return result
+        result.update(children)
+
+
+def window_titles(process_id):
     if sys.platform != 'win32':
         raise RuntimeError('smoke_launch.py requires Windows')
     import ctypes
     from ctypes import wintypes
 
-    user32 = ctypes.windll.user32
+    user32 = ctypes.WinDLL('user32', use_last_error=True)
     titles = []
+    process_ids = process_tree(process_id)
 
-    callback_type = ctypes.WINFUNCTYPE(ctypes.c_bool, wintypes.HWND, wintypes.LPARAM)
+    callback_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    user32.EnumWindows.argtypes = (callback_type, wintypes.LPARAM)
+    user32.EnumWindows.restype = wintypes.BOOL
+    user32.GetWindowTextLengthW.argtypes = (wintypes.HWND,)
+    user32.GetWindowTextLengthW.restype = ctypes.c_int
+    user32.GetWindowTextW.argtypes = (wintypes.HWND, wintypes.LPWSTR, ctypes.c_int)
+    user32.GetWindowTextW.restype = ctypes.c_int
+    user32.IsWindowVisible.argtypes = (wintypes.HWND,)
+    user32.IsWindowVisible.restype = wintypes.BOOL
+    user32.GetWindowThreadProcessId.argtypes = (
+        wintypes.HWND, ctypes.POINTER(wintypes.DWORD))
+    user32.GetWindowThreadProcessId.restype = wintypes.DWORD
 
     def collect(hwnd, _):
-        length = user32.GetWindowTextLengthW(hwnd)
-        if length and user32.IsWindowVisible(hwnd):
+        if user32.IsWindowVisible(hwnd):
+            owner = wintypes.DWORD()
+            user32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
+            if owner.value not in process_ids:
+                return True
+            length = user32.GetWindowTextLengthW(hwnd)
+            if not length:
+                return True
             buffer = ctypes.create_unicode_buffer(length + 1)
             user32.GetWindowTextW(hwnd, buffer, length + 1)
             titles.append(buffer.value)
         return True
 
-    user32.EnumWindows(callback_type(collect), 0)
+    callback = callback_type(collect)
+    user32.EnumWindows(callback, 0)
     return titles
 
 
@@ -39,13 +96,16 @@ def wait_for_window(process, timeout, titles=window_titles, sleep=time.sleep):
     started = time.monotonic()
     seen = []
     while time.monotonic() - started < timeout:
-        seen = titles()
-        found = [title for title in seen if is_app_window(title)]
-        if found:
-            return found, time.monotonic() - started, seen
         if process.poll() is not None:
             raise RuntimeError(
                 f'Process exited with code {process.returncode} before showing a window')
+        seen = titles(process.pid)
+        found = [title for title in seen if is_app_window(title)]
+        if found:
+            if process.poll() is not None:
+                raise RuntimeError(
+                    f'Process exited with code {process.returncode} before showing a window')
+            return found, time.monotonic() - started, seen
         sleep(1)
     return [], time.monotonic() - started, seen
 
@@ -68,7 +128,11 @@ def main(argv=None):
         print(f'ERROR: {error}', file=sys.stderr)
         return 1
     finally:
-        process.terminate()
+        if process.poll() is None:
+            subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+            if process.poll() is None:
+                process.terminate()
         try:
             process.wait(10)
         except subprocess.TimeoutExpired:
