@@ -485,9 +485,7 @@ class TableModel(object):
         """Transpose dataframe"""
 
         df = self.df
-        rows = df.index
         df = df.transpose()
-        df.reset_index()
         if util.check_multiindex(df.columns) != 1:
             try:
                 df.columns = df.columns.astype(str)

@@ -12,6 +12,30 @@ def read_source_baseline(revision, path):
     return (ROOT / revision / f'{path}.txt').read_text(encoding='utf-8')
 
 
+def normalize_spec_calls(tree):
+    """把 Cpk 规格限参数的关键字传递还原为基线的位置顺序，其余语句保持不变。"""
+    order = {'cpk_plot': ('data', 'lsl', 'target', 'usl'),
+             'cpk': ('data', 'target', 'usl', 'lsl')}
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Name):
+            continue
+        names = order.get(node.func.id)
+        if names is None:
+            continue
+        keywords = {kw.arg: kw.value for kw in node.keywords if kw.arg in names}
+        node.args = list(node.args) + [keywords.pop(name) for name in names[len(node.args):]
+                                       if name in keywords]
+        node.keywords = [kw for kw in node.keywords if kw.arg not in names]
+    return tree
+
+
+def strip_main_guard(tree):
+    """去掉模块级示例调用；示例不参与共享实现比较。"""
+    tree.body = [n for n in tree.body if not (
+        isinstance(n, ast.If) and ast.unparse(n.test) == "__name__ == '__main__'")]
+    return tree
+
+
 def normalize_p2_legacy(tree, module, baseline):
     """仅接管 REVIEW-018/019 的精确函数；含报告在内的任何后续变动均拒绝。"""
     name = {'cpk.py': 'cpk', 'qc_dialog.py': 'CpkSubDialog.apply'}[module]
@@ -26,7 +50,7 @@ def normalize_p2_legacy(tree, module, baseline):
     assert hashlib.sha256(ast.dump(node).encode()).hexdigest() == hashes[key], key
     before = next(n for n in original.body if isinstance(n, ast.FunctionDef) and n.name == name)
     owner.body[owner.body.index(node)] = copy.deepcopy(before)
-    return tree
+    return normalize_spec_calls(tree)
 
 
 def normalize_p1_numeric(tree, module, baseline):

@@ -428,6 +428,53 @@ def test_original_analysis_code_is_unchanged():
                 node.value = self.texts.get(node.value, node.value)
             return node
 
+    class ProportionValidationHook(ast.NodeTransformer):
+        """移除第四批新增的比例输入校验；独立测试保护其行为。"""
+        guards = {
+            'Prop1SDialog': [
+                "if not 0 < p0 < 1:\n    self.error('假设比例 p0 必须大于 0 且小于 1。')\n    return",
+                "N, events = integer_count(ttl_cnt), integer_count(event_cnt)",
+                "if N is None or events is None or N < 1 or not 0 <= events <= N:\n"
+                "    self.error('试验次数必须为正整数，事件数必须是不超过试验次数的非负整数。')\n"
+                "    return"],
+            'Prop2SDialog': [
+                "counts = [(integer_count(ttl_cnt), integer_count(event_cnt)),\n"
+                "          (integer_count(ttl_cnt2), integer_count(event_cnt2))]",
+                "if any(n is None or e is None or n < 1 or not 0 <= e <= n for n, e in counts):\n"
+                "    self.error('试验次数必须为正整数，事件数必须是不超过试验次数的非负整数。')\n"
+                "    return"]}
+
+        def visit_ClassDef(self, node):
+            guards = self.guards.get(node.name)
+            if guards is None:
+                return node
+            method = next(m for m in node.body
+                          if isinstance(m, ast.FunctionDef) and m.name == 'apply')
+            for source in guards:
+                expected = ast.dump(ast.parse(source).body[0])
+                matches = [i for i, child in enumerate(method.body)
+                           if ast.dump(child) == expected]
+                assert len(matches) == 1, source
+                del method.body[matches[0]]
+            if node.name == 'Prop2SDialog':
+                method.body.remove(next(child for child in method.body
+                                        if isinstance(child, ast.Assign)
+                                        and ast.unparse(child.targets[0]) == '((n1, e1), (n2, e2))'))
+                tests = [child.test for child in method.body if isinstance(child, ast.If)
+                         and ast.unparse(child.test) == 'len(self.yvar.get()) > 0']
+                assert len(tests) == 1
+                tests[0].left.args[0] = ast.parse('self.xvar.get()', mode='eval').body
+            for call in ast.walk(method):
+                if isinstance(call, ast.Call) and ast.unparse(call.func) in (
+                        'prop_test_1sample', 'prop_2sample'):
+                    for kw in call.keywords:
+                        source = {'N': 'ttl_cnt', 'events': 'event_cnt', 'n1': 'ttl_cnt',
+                                  'e1': 'event_cnt', 'n2': 'ttl_cnt2',
+                                  'e2': 'event_cnt2'}.get(kw.arg)
+                        if source:
+                            kw.value = ast.parse(f'int({source})', mode='eval').body
+            return node
+
     paths = sorted({Path(getattr(MiniJMP, cls).__module__.replace('.', '/')) for _, cls, _ in CALLS})
     for path in paths:
         file = 'code/' + str(path).replace('\\','/') + '.py'
@@ -485,6 +532,10 @@ def test_original_analysis_code_is_unchanged():
             assert current.count(new_plot) == 1
             current = current.replace(new_plot, old_plot)
         pearson_switch = PearsonSwitchHook()
+        proportion_validation = ProportionValidationHook()
+        if file == 'code/sample_test_dialog.py':
+            # 第四批输入校验由 test_review_proportions 独立覆盖。
+            current = ast.unparse(proportion_validation.visit(ast.parse(current)))
         if file == 'code/fit_dialog.py':
             # REVIEW-017：Pearson 报告独立于椭圆显示，当前已由运行时测试保护。
             current = ast.unparse(pearson_switch.visit(ast.parse(current)))

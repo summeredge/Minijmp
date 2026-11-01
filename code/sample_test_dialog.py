@@ -7,7 +7,7 @@ from dialog import Dialogs, addListBox
 from utilities import number_list, get_number, event_count, number_2lists
 from t_test import t_test_1sample, z_test_1sample, t_test_2samples, paired_t_test
 from chi_sq import var_1sample, multi_pop_var_test
-from proportion_test import prop_test_1sample, prop_2sample
+from proportion_test import prop_test_1sample, prop_2sample, integer_count
 
 
 class Mean1SampleDialog(Dialogs):
@@ -537,7 +537,15 @@ class Prop1SDialog(Dialogs):
         if p0 is None:
             return
 
-        prop_test_1sample(N=int(ttl_cnt), events=int(event_cnt),
+        if not 0 < p0 < 1:
+            self.error('假设比例 p0 必须大于 0 且小于 1。')
+            return
+        N, events = integer_count(ttl_cnt), integer_count(event_cnt)
+        if N is None or events is None or N < 1 or not 0 <= events <= N:
+            self.error('试验次数必须为正整数，事件数必须是不超过试验次数的非负整数。')
+            return
+
+        prop_test_1sample(N=N, events=events,
                           p0=p0, alpha=alpha, print_out=True,
                           print_port=self.app.print)
         return
@@ -615,7 +623,7 @@ class Prop2SDialog(Dialogs):
             x = list(self.df[self.xvar.get()])
         else:
             x = None
-        if len(self.xvar.get()) > 0:
+        if len(self.yvar.get()) > 0:
             y = list(self.df[self.yvar.get()])
         else:
             y = None
@@ -637,8 +645,14 @@ class Prop2SDialog(Dialogs):
                 return
             ttl_cnt2, event_cnt2 = event_count(y, event_name2)
 
-        prop_2sample(n1=int(ttl_cnt), e1=int(event_cnt),
-                     n2=int(ttl_cnt2), e2=int(event_cnt2),
+        counts = [(integer_count(ttl_cnt), integer_count(event_cnt)),
+                  (integer_count(ttl_cnt2), integer_count(event_cnt2))]
+        if any(n is None or e is None or n < 1 or not 0 <= e <= n for n, e in counts):
+            self.error('试验次数必须为正整数，事件数必须是不超过试验次数的非负整数。')
+            return
+
+        (n1, e1), (n2, e2) = counts
+        prop_2sample(n1=n1, e1=e1, n2=n2, e2=e2,
                      alpha=alpha, print_out=True,
                      print_port=self.app.print)
         return

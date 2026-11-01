@@ -20,7 +20,8 @@ import txt_output
 from cpk_plot import cpk_plot
 from utilities import format_stat
 from test_g1_text_output import viewer
-from source_baselines import read_source_baseline, normalize_p1_numeric, normalize_p2_legacy
+from source_baselines import (read_source_baseline, normalize_p1_numeric, normalize_p2_legacy,
+                              normalize_spec_calls, strip_main_guard)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -388,6 +389,78 @@ def test_capability_plot_keeps_return_and_curve_data(originals, subgroup):
         norm.pdf(axis.lines[1].get_xdata(), result['mean'], result['Within Sigma']))
 
 
+def test_capability_spec_limits_keep_their_meaning(monkeypatch):
+    data = [11., 12., 13., 14., 15., 16., 17., 18., 19.]
+    result = cpk.cpk(data, target=12, usl=20, lsl=10, print_out=False)
+    mean, std = np.mean(data), np.std(data, ddof=1)
+    assert (result['LSL'], result['Target'], result['USL']) == (10, 12, 20)
+    assert result['Overall']['cpl'] == pytest.approx((mean - 10) / 3 / std)
+    assert result['Overall']['cpu'] == pytest.approx((20 - mean) / 3 / std)
+    assert result['Overall']['cpm'] == pytest.approx(
+        min(12 - 10, 20 - 12) / 3 / std / (1 + ((12 - mean) / std) ** 2) ** .5)
+
+    axis = Figure().add_subplot(111)
+    plotted = cpk_plot(data, lsl=10, target=12, usl=20, ax=axis, print_out=False)
+    equal_capability_result(plotted, result)
+
+    dialog, _, _ = dialog_for(pd.DataFrame({'长度': data}))
+    dialog.lsl, dialog.target, dialog.usl = variable(10.), variable(12.), variable(20.)
+    recorded = {}
+    real = qc_dialog.cpk_plot
+
+    def capture(*args, **kwargs):
+        recorded['result'] = real(*args, **kwargs)
+    monkeypatch.setattr(qc_dialog, 'cpk_plot', capture)
+    qc_dialog.CpkDialog.apply(dialog)
+    dialog.error.assert_not_called()
+    for key in ('LSL', 'Target', 'USL', 'mean', 'Overall Sigma'):
+        assert recorded['result'][key] == pytest.approx(result[key])
+    for key, value in result['Overall'].items():
+        assert recorded['result']['Overall'][key] == pytest.approx(value)
+
+    with pytest.raises(ValueError, match='LSL'):
+        cpk.cpk(data, target=12, usl=10, lsl=20, print_out=False)
+
+    # 未填目标值时沿用规格中点。
+    dialog.target = variable(0.)
+    dialog.error.reset_mock()
+    qc_dialog.CpkDialog.apply(dialog)
+    assert recorded['result']['Target'] == pytest.approx(15.)
+
+
+@pytest.mark.parametrize('subgroup', ['Use Subgrp Size', 'Use Subgrp ID Col.'])
+def test_subgroup_capability_defaults_target_to_spec_midpoint(subgroup):
+    dialog, _, figures = dialog_for(pd.DataFrame({'长度': Y, '部件': PART}))
+    dialog.mvar = variable(subgroup)
+    dialog.target = variable(0.)
+    dialog.lsl, dialog.usl = variable(10.), variable(20.)
+    recorded = {}
+    real = qc_dialog.cpk_plot
+
+    def capture(*args, **kwargs):
+        recorded['result'] = real(*args, **kwargs)
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(qc_dialog, 'cpk_plot', capture)
+        qc_dialog.CpkSubDialog.apply(dialog)
+    assert recorded['result']['Target'] == pytest.approx(15.)
+    assert (recorded['result']['LSL'], recorded['result']['USL']) == (10., 20.)
+
+    # 显式有效目标值保持原值。
+    dialog.target = variable(14.)
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(qc_dialog, 'cpk_plot', capture)
+        qc_dialog.CpkSubDialog.apply(dialog)
+    assert recorded['result']['Target'] == pytest.approx(14.)
+
+    # 规格限颠倒仍拒绝，不进入绘图。
+    dialog.target, dialog.lsl, dialog.usl = variable(12.), variable(20.), variable(10.)
+    dialog.error.reset_mock()
+    dialog.app.showPlotViewer.reset_mock()
+    qc_dialog.CpkSubDialog.apply(dialog)
+    dialog.error.assert_called_once()
+    dialog.app.showPlotViewer.assert_not_called()
+
+
 @pytest.mark.parametrize('kind', ['capability', 'aiag', 'emp', 'xbar', 'nested', 'tolerance'])
 def test_report_tables_align_in_actual_font_and_save(viewer, monkeypatch, tmp_path, kind):
     module = cpk if kind == 'capability' else ti if kind == 'tolerance' else GRR
@@ -588,6 +661,13 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
                 owner.body = [n for n in owner.body if not (
                     isinstance(n, ast.FunctionDef) and n.name in {'find', 'replace'})]
             assert ast.dump(trees[0]) == ast.dump(trees[1])
+            continue
+        if name == 'cpk_plot.py':
+            # 仅放行规格限参数的关键字化与示例调用；图形与返回值由 G6 测试保护。
+            current = strip_main_guard(normalize_spec_calls(
+                ast.parse((ROOT / 'code' / name).read_text(encoding='utf-8'))))
+            assert ast.dump(current) == ast.dump(strip_main_guard(
+                normalize_spec_calls(ast.parse(old))))
             continue
         assert (ROOT / 'code' / name).read_text(encoding='utf-8') == old.replace('\r\n', '\n')
 

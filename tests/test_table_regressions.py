@@ -217,6 +217,24 @@ def test_delete_selected_columns_and_rows_then_select(table):
     table.handle_left_release(SimpleNamespace(x=5, y=5))
 
 
+def test_rowcolors_follow_column_deletion_and_transpose(tk_root):
+    frame = tk.Frame(tk_root)
+    table = OriginalTable(frame)
+    table.show()
+    try:
+        replace(table, pd.DataFrame({'a': [1, 2], 'b': [3, 4]}))
+        table.setRowColors(rows=[0, 1], clr='#ff0000', cols='all')
+        table.setSelectedCol(0)
+        table.deleteColumn(ask=False)
+        assert list(table.rowcolors.columns) == ['b']
+
+        table.model.transpose()
+        assert list(table.model.df.columns) == ['0', '1']
+        assert list(table.model.df.index) == ['b']
+    finally:
+        frame.destroy()
+
+
 def test_redraw_missing_objects_without_future_warning(table):
     df = pd.DataFrame({'x': pd.Series([1, None], dtype=object),
                        'y': pd.Series([True, None], dtype=object)})

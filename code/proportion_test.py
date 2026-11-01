@@ -10,16 +10,26 @@ from chi_sq import chi_square
 from blakerCI import binom_blaker_p, binom_blaker_limits
 
 
+def integer_count(value):
+    """返回整数计数；10 与 10.0 可用，10.5 或非数值返回 None。"""
+    try:
+        if float(value).is_integer():
+            return int(value)
+    except (TypeError, ValueError, OverflowError):
+        pass
+    return None
+
+
 def prop_2sample(n1=None, n2=None, e1=None,
                  e2=None, alpha=0.05, print_out=False,
                  print_port=print):
 
-    if None in [n1, n2, e1, e2] or n1 * n2 == 0:
+    if None in [n1, n2, e1, e2]:
         return
-    n1 = int(n1)
-    n2 = int(n2)
-    e1 = int(e1)
-    e2 = int(e2)
+    n1, n2, e1, e2 = (integer_count(v) for v in (n1, n2, e1, e2))
+    if None in (n1, n2, e1, e2) or n1 <= 0 or n2 <= 0 or \
+            not 0 <= e1 <= n1 or not 0 <= e2 <= n2:
+        raise ValueError('样本量必须为正整数，事件数必须为不超过样本量的非负整数。')
     p1, p2 = e1 / n1, e2 / n2
     p0 = (e1 + e2) / (n1 + n2)
     SE_pooled = (p0 * (1 - p0) * (1 / n1 + 1 / n2))**.5
@@ -162,8 +172,13 @@ def p_likelihood_ratio(n, p0, x):
     return float(min(1.0, np.sum(probabilities[log_lr >= threshold - tolerance])))
 
 
-def prop_test_1sample(events=1, N=1, p0=1, print_port=print,
+def prop_test_1sample(events=1, N=1, p0=.5, print_port=print,
                       print_out=False, alpha=.05):
+    if not 0 < p0 < 1:
+        raise ValueError('参考比例 p0 必须大于 0 且小于 1，正态近似与二项检验在该边界无定义。')
+    N, events = integer_count(N), integer_count(events)
+    if N is None or events is None or N <= 0 or not 0 <= events <= N:
+        raise ValueError('样本量必须为正整数，事件数必须为不超过样本量的非负整数。')
     p = events / N
     Z = (p - p0) / (p0 * (1 - p0) / N)**.5
     p_norm = (1 - norm.cdf(abs(Z))) * 2

@@ -1071,7 +1071,7 @@ class Table(Canvas):
         # check columns
         cols = list(rc.columns.difference(df.columns))
         if len(cols) > 0:
-            rc.drop(cols, 1, inplace=True)
+            rc.drop(columns=cols, inplace=True)
         cols = list(df.columns.difference(rc.columns))
         if len(cols) > 0:
             for col in cols:
