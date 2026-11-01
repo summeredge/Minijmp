@@ -154,6 +154,38 @@ def test_mr_zero_lower_limit_has_no_duplicate_auxiliary_annotation():
 
 
 @pytest.mark.parametrize('kind', ['P', 'NP', 'C', 'U'])
+@pytest.mark.parametrize('figure_arg', ['none', 'matching', 'different'])
+def test_attribute_charts_use_supplied_axes_without_show(kind, figure_arg, monkeypatch):
+    fig, ax = plt.subplots()
+    other = plt.figure() if figure_arg == 'different' else fig
+    show = Mock()
+    monkeypatch.setattr(plt, 'show', show)
+    monkeypatch.setattr(plt, 'subplots', Mock(side_effect=AssertionError('unexpected figure')))
+    options = {'ax': ax, 'fig': None if figure_arg == 'none' else other}
+    if kind in ('P', 'NP'):
+        cc.p_np_plot([.1, .2, .1], n=10, NP=kind == 'NP', **options)
+    else:
+        cc.cu_plot([1, 2, 1], n=1, C=kind == 'C', **options)
+    assert ax.figure is fig and len(ax.lines) == 4
+    show.assert_not_called()
+    plt.close(fig)
+    if other is not fig:
+        plt.close(other)
+
+
+@pytest.mark.parametrize('kind', ['P', 'NP', 'C', 'U'])
+def test_attribute_charts_show_standalone(kind, monkeypatch):
+    show = Mock()
+    monkeypatch.setattr(plt, 'show', show)
+    if kind in ('P', 'NP'):
+        cc.p_np_plot([.1, .2, .1], n=10, NP=kind == 'NP')
+    else:
+        cc.cu_plot([1, 2, 1], n=1, C=kind == 'C')
+    show.assert_called_once_with()
+    plt.close(plt.gcf())
+
+
+@pytest.mark.parametrize('kind', ['P', 'NP', 'C', 'U'])
 @pytest.mark.parametrize('overrides', [False, True])
 def test_attribute_charts_preserve_step_coordinates_and_have_named_limits(kind, overrides):
     fig, ax = plt.subplots()
