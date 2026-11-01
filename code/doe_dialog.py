@@ -1021,7 +1021,7 @@ class AnalyzeDOE:
             if self.owner.getCurrentTable() is not self.source:
                 raise ValueError('来源工作表已切换，请切回后重新分析。')
             self.owner._finish_edit()
-            frame = self.source.model.df.copy(deep=True)
+            frame = self.owner._full_frame(self.source).copy(deep=True)
             if self.rsm and not self.custom:
                 from doe_rsm import analyze_rsm
                 terms = None
@@ -1546,8 +1546,9 @@ class AnalyzeDOE:
                           ('已计算' if curvature['f'] is not None else '区组效应未调整或纯误差不可估计')])
         self.show_table('失拟与曲率', ['检验', '平方和', '自由度', 'F', 'p', '状态'], tests)
         observed_runs = result.get('observed_runs', result['design'].runs)
+        source_rows = {run.run_id: i + 1 for i, run in enumerate(result['design'].runs)}
         self.show_table('拟合与残差', ['来源行号', '运行ID', '运行序', '响应', '拟合值', '残差'],
-                        [[i+1, run.run_id, run.run_order, run.responses[result['response']],
+                        [[source_rows[run.run_id], run.run_id, run.run_order, run.responses[result['response']],
                           result['fitted'][i], result['residuals'][i]]
                          for i, run in enumerate(observed_runs)])
         self.result = result
@@ -1657,10 +1658,11 @@ class AnalyzeDOE:
                 raise ValueError('来源工作表已切换，请切回后查看分析快照。')
             if self.result is None:
                 raise ValueError('请先分析。')
-            if not hasattr(self, 'analysis_frame') or not self.source.model.df.equals(self.analysis_frame):
+            frame = self.owner._full_frame(self.source)
+            if not hasattr(self, 'analysis_frame') or not frame.equals(self.analysis_frame):
                 raise ValueError('工作表已更改，请重新分析。')
             from doe_core import restore_design_result
-            current = restore_design_result(self.source.model.df, self.source.doe_metadata)
+            current = restore_design_result(frame, self.source.doe_metadata)
             if current.spec.to_dict() != self.result['design'].spec.to_dict():
                 raise ValueError('设计定义已更改，请重新分析。')
             r = self.result
@@ -1691,9 +1693,12 @@ class AnalyzeDOE:
                 from chart_style import font_families
                 font = font_manager.FontProperties(family=font_families('Microsoft YaHei'))
                 axes = viewer.fig.subplots(2, 3)
-                factorial = np.array([run.point_type == 'factorial' for run in r['design'].runs])
+                factorial = np.array([run.point_type == 'factorial' and
+                                      run.responses[r['response']] is not None
+                                      for run in r['design'].runs])
                 coded = r['coded'][factorial]
-                y = np.array([run.responses[r['response']] for run in r['design'].runs])[factorial]
+                y = np.array([run.responses[r['response']] for run in r['design'].runs],
+                             dtype=float)[factorial]
                 for i, factor in enumerate(factors):
                     if self.pb and len(factors) > 10 and i not in (first_index, second_index):
                         continue
@@ -1770,7 +1775,7 @@ class AnalyzeDOE:
             axes[1].set_ylabel('残差')
         axes[1].set_title('残差正态概率图')
 
-        runs = result['design'].runs
+        runs = result.get('observed_runs', result['design'].runs)
         run_order = np.asarray([run.run_order for run in runs])
         order = np.argsort(run_order, kind='stable')
         axes[2].scatter(run_order[order], residuals[order])

@@ -285,7 +285,7 @@ class AnalyzeTaguchi:
             if self.result is None:
                 raise ValueError('请先分析。')
             self.owner._finish_edit()
-            if not self.source.model.df.equals(self.analysis_frame):
+            if not self.owner._full_frame(self.source).equals(self.analysis_frame):
                 raise ValueError('工作表已更改，请重新分析。')
             result = self.result
             viewer = self.app.showPlotViewer(deferred=True, figsize=(11, 7))
