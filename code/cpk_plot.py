@@ -19,8 +19,9 @@ def cpk_plot(data, usl, target, lsl, print_out=False,
     # Add y axis on the right side
     ax2 = ax1.twinx()
 
-    res = cpk(data, target, usl, lsl, print_out=print_out, within=show_within,
-              use_range=use_range, alpha=alpha, print_port=print_port)
+    res = cpk(data, target=target, usl=usl, lsl=lsl, print_out=print_out,
+              within=show_within, use_range=use_range, alpha=alpha,
+              print_port=print_port)
     # Use density=True when creating the histogram to ensure
     # the y-axis represents probability density, which is
     # necessary for a proper comparison with the normal distribution curve
@@ -147,5 +148,5 @@ if __name__ == "__main__":
     usl = 22
     lsl = 18
 
-    cpk_plot(data, target, usl, lsl, print_out=False, filename="ddd")
+    cpk_plot(data, usl=usl, target=target, lsl=lsl, print_out=False, filename="ddd")
     #  cpk(data, target, usl, lsl, alpha=0.1)

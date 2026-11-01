@@ -143,6 +143,8 @@ def nonconformance(data, t, lsl, usl, u, sw, so, print_out=True,
 
 def cpk(data, target, usl, lsl, print_port=print, within=True,
         print_out=True, use_range=False, alpha=0.05):
+    if not lsl < usl:
+        raise ValueError('规格下限 LSL 必须小于规格上限 USL。')
     if len(data) < 1:
         raise ValueError('过程能力分析至少需要两个观测值。')
     if hasattr(data[0], '__len__') and not isinstance(data[0], (str, bytes)):
@@ -186,7 +188,6 @@ def cpk(data, target, usl, lsl, print_port=print, within=True,
     mean = stat.mean(flat_list)
     stability = std_overall / std_within
     N = len(flat_list)
-    lsl, target, usl = sorted([usl, target, lsl])
 
     res = {"LSL": lsl, "USL": usl, "Target": target, "mean": mean,
            "Within Sigma": std_within, "Overall Sigma": std_overall,
@@ -220,29 +221,29 @@ def cpk(data, target, usl, lsl, print_port=print, within=True,
         print("* 表示不适用或未提供；数值单位与输入测量值一致，能力指数及标准差比无量纲。")
 
     if within:
-        res["Within"] = cpk_calc(mean, std_within, target,
-                                 usl, lsl, df_sub, N, alpha=alpha,
+        res["Within"] = cpk_calc(mean, std_within, T=target, usl=usl, lsl=lsl,
+                                 df=df_sub, N=N, alpha=alpha,
                                  print_port=print_port,
                                  name="Within", print_out=print_out)
     res["Overall"] = cpk_calc(
         mean,
         std_overall,
-        target,
-        usl,
-        lsl,
-        N - 1,
-        N, print_port=print_port,
+        T=target,
+        usl=usl,
+        lsl=lsl,
+        df=N - 1,
+        N=N, print_port=print_port,
         alpha=alpha,
         name="Overall (AKA Ppk in JMP)",
         print_out=print_out)
     res["nonconformance"] = nonconformance(
         flat_list,
-        target,
-        lsl,
-        usl,
-        mean,
-        std_within,
-        std_overall,
+        t=target,
+        lsl=lsl,
+        usl=usl,
+        u=mean,
+        sw=std_within,
+        so=std_overall,
         within=within,
         print_port=print_port,
         print_out=print_out)

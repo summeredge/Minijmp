@@ -338,7 +338,7 @@ def test_print_out_false_is_silent_and_does_not_build_tables(monkeypatch, capsys
     (chi2_test_stdev, '(data_list, s0, print_out=False, alpha=0.05, print_port=<built-in function print>)'),
     (chi2_var_1sample, '(data=None, sample_n=None, sample_std=None, print_port=<built-in function print>, print_out=False, alpha=0.05, s0=None)'),
     (var_1sample, '(data=None, sample_n=None, sample_std=None, print_port=<built-in function print>, print_out=False, alpha=0.05, s0=None)'),
-    (prop_test_1sample, '(events=1, N=1, p0=1, print_port=<built-in function print>, print_out=False, alpha=0.05)'),
+    (prop_test_1sample, '(events=1, N=1, p0=0.5, print_port=<built-in function print>, print_out=False, alpha=0.05)'),
     (prop_2sample, '(n1=None, n2=None, e1=None, e2=None, alpha=0.05, print_out=False, print_port=<built-in function print>)')])
 def test_signatures_and_defaults_preserved(function, signature):
     assert str(inspect.signature(function)) == signature

@@ -307,6 +307,12 @@ def test_plot_dialog_and_statistical_dependencies_unchanged():
                 # G16 verifies the optimized cell SSE numerically and counts cell means.
                 branch.body = branch.body[:1]
             assert ast.dump(trees[0]) == ast.dump(trees[1])
+        elif name == 'cpk_plot.py':
+            # 第四批仅把规格限改为关键字传递并修正示例；曲线与返回值由 G6 测试保护。
+            from source_baselines import normalize_spec_calls, strip_main_guard
+            trees = [strip_main_guard(normalize_spec_calls(ast.parse(source)))
+                     for source in (before, current)]
+            assert ast.dump(trees[0]) == ast.dump(trees[1])
         else:
             assert current == before.replace('\r\n', '\n')
 

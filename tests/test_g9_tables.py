@@ -182,6 +182,29 @@ def computation_hash(module):
             formula = 'dfn * F / (dfd + dfn * F)'
             changes.append(('prop_test_1sample', f'{name} = {endpoint} else {formula}',
                             ast.parse(f'{name} = {formula}').body))
+        # 第四批只新增输入校验并保留原拒绝路径；数值与报告由独立参考接管。
+        changes.append(('prop_2sample', 'if None in [n1, n2, e1, e2]:\n    return',
+                        ast.parse('if None in [n1, n2, e1, e2] or n1 * n2 == 0:\n'
+                                  '    return').body))
+        count_message = '样本量必须为正整数，事件数必须为不超过样本量的非负整数。'
+        # 整数校验由 test_review_proportions 独立覆盖，其余语句仍参与冻结比较。
+        helper = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
+                      and n.name == 'integer_count')
+        tree.body.remove(helper)
+        changes.append(('prop_2sample',
+                        'n1, n2, e1, e2 = (integer_count(v) for v in (n1, n2, e1, e2))',
+                        ast.parse('n1 = int(n1)\nn2 = int(n2)\ne1 = int(e1)\ne2 = int(e2)').body))
+        for guard in ('if None in (n1, n2, e1, e2) or n1 <= 0 or n2 <= 0 or \\\n'
+                      f"        not 0 <= e1 <= n1 or not 0 <= e2 <= n2:\n    raise ValueError('{count_message}')",
+                      'N, events = integer_count(N), integer_count(events)',
+                      'if not 0 < p0 < 1:\n'
+                      "    raise ValueError('参考比例 p0 必须大于 0 且小于 1，"
+                      "正态近似与二项检验在该边界无定义。')",
+                      'if N is None or events is None or N <= 0 or not 0 <= events <= N:\n'
+                      f"    raise ValueError('{count_message}')"):
+            owner = ('prop_2sample' if guard.startswith(('n1,', 'if None in'))
+                     else 'prop_test_1sample')
+            changes.append((owner, guard, []))
         for owner, known, original in changes:
             body = tree.body if owner is None else next(
                 n.body for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == owner)
@@ -189,6 +212,11 @@ def computation_hash(module):
             matches = [i for i, node in enumerate(body) if ast.dump(node) == expected]
             assert len(matches) == 1, f'Unexpected REVIEW proportion AST: {known}'
             body[matches[0]:matches[0] + 1] = original
+        # 默认 p0=1 会直接除零；签名恢复为冻结基线，默认值由专项测试保护。
+        signature = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
+                         and n.name == 'prop_test_1sample')
+        assert ast.unparse(signature.args.defaults[2]) == '0.5'
+        signature.args.defaults[2] = ast.Constant(1)
     if module == 'chi2_dialog':
         # 此 Dialog 的报告没有 print_out 分支；由固定 TXT 和原有路由测试验证。
         return None
