@@ -189,6 +189,11 @@ def test_master_screening_total_ss_and_original_interaction_decision(monkeypatch
     tables = capture_tables(monkeypatch, GRR)
     lines = []
     args = dict(y=y, part=PART[:len(y)], op=OP[:len(y)], print_out=True)
+    if len(y) != len(Y):
+        with pytest.raises(ValueError, match='两次重复'):
+            GRR.grr_master(**args, print_port=lines.append)
+        assert not lines and not tables
+        return
     actual = GRR.grr_master(**args, print_port=lines.append)
     equal_result(actual, originals['GRR'].grr_master(**args, print_port=lambda s: None))
     assert tables[0].rows[-1][2] == format_stat(sum((value - sum(y) / len(y))**2 for value in y))
@@ -480,7 +485,8 @@ def test_original_computations_signatures_and_defaults_are_unchanged(originals, 
         # 原函数由固定基线编译，逐函数取 AST，保留所有非报告计算和保护逻辑。
         old = next(n for n in old_tree.body if isinstance(n, ast.FunctionDef) and n.name == name)
         new = next(n for n in new_tree.body if isinstance(n, ast.FunctionDef) and n.name == name)
-        if not optimized:
+        if not optimized and not (module is GRR and name in {'GRR_xbar', 'grr_simple', 'grr_no_op'}):
+            # 第二批维度校验及 EV 常数由 test_statistical_batch2 接管；有效输入数值对照仍保留。
             assert ast.dump(ComputationOnly().visit(new)) == ast.dump(ComputationOnly().visit(old)), name
         # G16's frozen numerical/report comparisons and fit counts cover these four bodies.
 
@@ -515,6 +521,11 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
             current.body = [node for node in current.body if not (
                 isinstance(node, ast.ImportFrom) and node.module == 'stat_table')]
             original = ast.parse(old)
+            if name == 'one_way_ANOVA.py':
+                # 仅解除已修复的逐对比较冻结，其他 ANOVA 计算保持守卫。
+                for tree in (current, original):
+                    tree.body = [n for n in tree.body if not (
+                        isinstance(n, ast.FunctionDef) and n.name == 'JMP_ANOVA_t_test')]
             if name == 'two_way_anova.py':
                 for tree in (current, original):
                     function = next(n for n in tree.body if isinstance(n, ast.FunctionDef)
@@ -536,7 +547,7 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
             for tree in (current, original):
                 # G17 数字清洗有独立冻结数据及热点守卫，保留其余共享函数保护。
                 tree.body = [n for n in tree.body if not (
-                    isinstance(n, ast.FunctionDef) and n.name == 'number_2Dlist')]
+                    isinstance(n, ast.FunctionDef) and n.name in {'number_2Dlist', 'd2_2D'})]
             current.body = [node for node in current.body if not (
                 isinstance(node, ast.ImportFrom) and node.module == 'stat_table')]
             for tree in (current, original):

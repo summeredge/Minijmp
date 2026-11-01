@@ -12,6 +12,25 @@ from one_way_ANOVA import one_way_anova
 from utilities import grouping_by_labels
 
 
+def _repeat_counts(y, part, op=None):
+    if y is None or part is None or not len(y) or len(y) != len(part) or (op is not None and len(op) != len(y)):
+        raise ValueError("GRR 测量值、零件和操作者必须具有相同的非零长度。")
+    counts = Counter(zip([0] * len(y) if op is None else op, part))
+    parts = len(set(part))
+    operators = 1 if op is None else len(set(op))
+    if parts < 2:
+        raise ValueError("GRR 至少需要两个零件水平。")
+    if op is not None and operators < 2:
+        raise ValueError("交叉型 GRR 显式使用操作者因子时至少需要两个操作者水平。")
+    if min(counts.values()) < 2:
+        raise ValueError("GRR 每个操作者-零件组合至少需要两次重复测量。")
+    if len(counts) != parts * operators:
+        raise ValueError("交叉型 GRR 需要完整设计，不能缺少操作者-零件组合。")
+    if len(set(counts.values())) != 1:
+        raise ValueError("GRR 平衡设计要求所有组合的重复次数一致。")
+    return counts
+
+
 def _grr_design(y, part, op, print_port):
     counts = Counter(zip(op if op is not None else [0] * len(y), part))
     repeats = sorted(set(counts.values()))
@@ -76,14 +95,14 @@ def _grr_tables(components, total, print_port, hist_std=None, spec_gap=None, stu
 def GRR_xbar(data, op_key="Operator", pt_key="Part", y_key="Y",
              hist_std=None, use_hist=False, spec_gap=None,
              print_out=True, has_op_col=True, print_port=print):
+    counts = _repeat_counts(data[y_key], data[pt_key], data[op_key] if has_op_col else None)
+    n = next(iter(counts.values()))
 
     def EV_stdev(d, op_key="Operator", pt_key="Part", y_key="Y"):
         ranges = []
-        n = 0
         for op in d[op_key].unique():
             for part in d[pt_key].unique():
                 tmp = d[(d[op_key] == op) & (d[pt_key] == part)]
-                n = len(tmp)
                 if len(tmp) > 0:
                     ranges.append(max(tmp[y_key] - min(tmp[y_key])))
 
@@ -166,6 +185,7 @@ def grr_xbar_r(y=None, op=None, part=None,
 
 
 def grr_inter(y, op, part, *, _anova=None):
+    _repeat_counts(y, part, op)
     res = _anova
     if res is None:
         res = two_way_anova(y, factor_listA=part, factor_listB=op,
@@ -182,6 +202,7 @@ def grr_inter(y, op, part, *, _anova=None):
 
 
 def grr_simple(y, op, part):
+    _repeat_counts(y, part, op)
     res = two_way_anova(y, factor_listA=part, factor_listB=op,
                         interaction=False, print_out=False)
 
@@ -195,6 +216,7 @@ def grr_simple(y, op, part):
 
 
 def grr_no_op(y, part):
+    _repeat_counts(y, part)
     data = grouping_by_labels(y, part)
     part_list = list(set(part))
     res = one_way_anova(data, part_list, print_out=False)
@@ -351,6 +373,7 @@ def grr_anova_AIAG(y=None, op=None, part=None, inter=True,
 def grr_master(y=None, op=None, part=None, mode="aiag", alpha=0.05,
                hist_std=None, use_hist=False, spec_gap=None,
                inter="auto", print_out=False, print_port=print):
+    _repeat_counts(y, part, op)
     mode = mode.upper()
     if "XBAR" in mode:
         return grr_xbar_r(y=y, op=op, part=part,

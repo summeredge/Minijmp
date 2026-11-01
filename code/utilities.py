@@ -309,6 +309,10 @@ def scale_factor_f(n):
 
 
 def d2_2D(n, k):
+    """n >= 2、k >= 1 的整数维度；超出表格上限时沿用末列/末行。"""
+    if (isinstance(n, (bool, np.bool_)) or not isinstance(n, (int, np.integer)) or n < 2
+            or isinstance(k, (bool, np.bool_)) or not isinstance(k, (int, np.integer)) or k < 1):
+        raise ValueError("d2 需要整数维度 n >= 2 且 k >= 1。")
     # https://andrewmilivojevich.com/d2-values-for-the-distribution-of-the-average-range/
     data = [
         [1.414, 1.912, 2.239, 2.481, 2.673, 2.830, 2.963, 3.078, 3.179, 3.263, 3.330, 3.424, 3.491, 3.533],
