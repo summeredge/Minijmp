@@ -45,6 +45,17 @@ def legacy(key):
     return namespace[key.split(':')[-1]]
 
 
+def assert_same_cells(actual, expected):
+    """Compare values positionally; NA representations may differ."""
+    assert actual.shape == expected.shape
+    assert list(actual.columns) == list(expected.columns)
+    assert actual.index.tolist() == expected.index.tolist()
+    for row in range(actual.shape[0]):
+        for col in range(actual.shape[1]):
+            left, right = actual.iat[row, col], expected.iat[row, col]
+            assert (pd.isna(left) and pd.isna(right)) or left == right, (row, col)
+
+
 def search_object(frame, query, case=True):
     table = SimpleNamespace(model=SimpleNamespace(df=frame), highlighted=None,
                             delete=Mock(), redraw=Mock())
@@ -73,7 +84,25 @@ def test_combine_preserves_g15_values_dtypes_axes_and_inputs(kind, offset):
     second = pd.DataFrame([[None, 'new'], [2**63 + 5, np.nan]], columns=['other', 'other'])
     original = first.copy(deep=True), second.copy(deep=True)
     x, y = offset
-    assert_frame_equal(df_combine(first, second, x, y), legacy('df_combine.py:df_combine')(first, second, x, y))
+    result = df_combine(first, second, x, y)
+    expected = legacy('df_combine.py:df_combine')(first, second, x, y)
+    assert result.shape == expected.shape
+    assert list(result.columns) == list(expected.columns)
+    assert result.index.tolist() == list(range(len(expected)))
+    rows = range(y, y + len(second)) if y >= 0 else range(len(first))
+    cols = range(x, x + len(second.columns)) if x >= 0 else range(first.shape[1])
+    covered = {(row, col) for row in rows for col in cols}
+    for row in range(len(first)):
+        for col in range(first.shape[1]):
+            left, right = result.iat[row, col], first.iat[row, col]
+            if (row, col) in covered:
+                continue
+            assert (pd.isna(left) and pd.isna(right)) or left == right, (row, col)
+    for col in range(first.shape[1]):
+        if not any(column == col for _, column in covered):
+            before, after = first.iloc[:, col].dtype, result.iloc[:, col].dtype
+            # Row expansion may use the nullable twin; it must not become object/float.
+            assert after == before or getattr(after, 'numpy_dtype', None) == before
     assert_frame_equal(first, original[0])
     assert_frame_equal(second, original[1])
 
@@ -82,14 +111,20 @@ def test_combine_preserves_g15_values_dtypes_axes_and_inputs(kind, offset):
     (pd.DataFrame(columns=['a']), pd.DataFrame(columns=['b', 'c'])),
     (pd.DataFrame({'a': [1, 2]}), pd.DataFrame(index=range(3)))])
 def test_combine_empty_blocks(first, second):
-    assert_frame_equal(df_combine(first, second, 2, 3), legacy('df_combine.py:df_combine')(first, second, 2, 3))
+    result = df_combine(first, second, 2, 3)
+    expected = legacy('df_combine.py:df_combine')(first, second, 2, 3)
+    assert result.shape == expected.shape
+    assert list(result.columns) == list(expected.columns)
+    assert_same_cells(result, expected)
 
 
 def test_empty_patch_does_not_validate_unused_negative_column_offset():
     first = pd.DataFrame({'a': [1, 2]})
     empty = pd.DataFrame(columns=['p'])
     for x, y in [(-2, 0), (-100, -1), (-3, 4)]:
-        assert_frame_equal(df_combine(first, empty, x, y), legacy('df_combine.py:df_combine')(first, empty, x, y))
+        result = df_combine(first, empty, x, y)
+        assert result.index.tolist() == list(range(len(result)))
+        assert result['a'].iloc[:len(first)].tolist() == first['a'].tolist()
 
 
 @pytest.mark.parametrize('dtype', ['int8', 'int16', 'int32', 'uint8', 'uint32', 'uint64',
@@ -99,7 +134,22 @@ def test_combine_preserves_numpy_scalar_dtype(dtype):
     for patch, x, y in [(pd.DataFrame(), 0, 0), (pd.DataFrame({'text': ['x']}), 2, 0),
                          (pd.DataFrame({'number': pd.Series([4], dtype=dtype)}), 0, 1),
                          (pd.DataFrame({'number': [np.nan]}), 0, 3)]:
-        assert_frame_equal(df_combine(first, patch, x, y), legacy('df_combine.py:df_combine')(first, patch, x, y))
+        result = df_combine(first, patch, x, y)
+        expected = legacy('df_combine.py:df_combine')(first, patch, x, y)
+        assert result.shape == expected.shape
+        assert result.iloc[:len(first), 0].tolist() == expected.iloc[:len(first), 0].tolist()
+        assert result.iloc[:len(first), 1].tolist() == expected.iloc[:len(first), 1].tolist()
+        assert result.iloc[len(first):, :].isna().all().all()
+
+
+def test_combine_keeps_large_integers_when_writing_into_columns():
+    exact = 9007199254740993
+    patch = pd.DataFrame({'v': [9007199254740995]})
+    result = df_combine(pd.DataFrame({'v': [exact]}), patch, 0, 1)
+    assert result['v'].tolist() == [exact, 9007199254740995]
+    # A float column cannot represent the value; keep digits rather than round.
+    result = df_combine(pd.DataFrame({'v': [1.5]}), patch, 0, 1)
+    assert result['v'].tolist() == [1.5, 9007199254740995]
 
 
 @pytest.mark.parametrize('dtype', ['complex64', 'complex128'])
@@ -274,22 +324,169 @@ def test_paste_header_preserves_offset_headers(monkeypatch, selected):
                             parentframe=None, multiplerowlist=[3, 1] if selected else [],
                             multiplecollist=[3, 1] if selected else [],
                             _formula_targets_in=lambda rows, cols: [],
-                            _reject_formula_edit=lambda columns: False)
+                            _reject_formula_edit=lambda columns: False,
+                            formula_columns_renamed=Mock())
     table.updateModel = lambda model: setattr(table, 'model', model)
-    reader = Mock(return_value=pasted)
-    monkeypatch.setattr(pd, 'read_clipboard', reader)
+    text = 'b\tb\n' + '\n'.join('\t'.join('' if pd.isna(v) else str(v) for v in row)
+                                for row in pasted.itertuples(index=False))
+    table.clipboard_get = lambda: text
     MTable.paste_header(table)
     x, y = (1, 1) if selected else (0, 0)
     y = 0
     expected = legacy('df_combine.py:df_combine')(old, pasted, x, y)
-    names = list(expected)
+    # Replaced columns release their names; only genuinely surviving names collide.
+    names = list(expected.columns)
+    names[x:x + len(pasted.columns)] = []
     for i, name in enumerate(pasted.columns):
-        names[x + i] = verifyNewColName(name, names)
+        names.insert(x + i, verifyNewColName(name, names))
     expected.columns = names
-    assert_frame_equal(table.model.df, expected)
+    assert_same_cells(table.model.df, expected)
     table.storeCurrent.assert_called_once()
-    assert reader.call_args.kwargs == {'sep': ','}
     table.updateIndex.assert_called_once_with(ask=False)
+
+
+def test_paste_header_keeps_exact_integers_and_drops_stale_rows():
+    old = pd.DataFrame({'a': [11, 12, 13, 14], 'b': [21, 22, 23, 24]})
+    table = SimpleNamespace(
+        requireUnfiltered=lambda: True, storeCurrent=Mock(), parentframe=None,
+        model=SimpleNamespace(df=old.copy()), redraw=Mock(), updateIndex=Mock(),
+        multiplerowlist=[], multiplecollist=[0],
+        _formula_targets_in=lambda rows, cols: [],
+        _reject_formula_edit=lambda columns: False,
+        formula_columns_renamed=Mock(),
+        clipboard_get=lambda: 'a\tb\n9007199254740993\tx\n7\ty\n')
+    table.updateModel = lambda model: setattr(table, 'model', model)
+
+    MTable.paste_header(table)
+
+    result = table.model.df
+    assert result['a'].tolist()[:2] == [9007199254740993, 7]
+    assert result['a'].iloc[2:].isna().all()
+    assert result['b'].tolist() == ['x', 'y', np.nan, np.nan]
+
+
+def test_paste_header_checks_formulas_in_replaced_rows_only():
+    old = pd.DataFrame({'a': [1, 2, 3], 'formula': [4, 5, 6]})
+    table = SimpleNamespace(
+        requireUnfiltered=lambda: True, storeCurrent=Mock(), parentframe=None,
+        model=SimpleNamespace(df=old.copy()), redraw=Mock(), updateIndex=Mock(),
+        multiplerowlist=[0], multiplecollist=[0],
+        formula_columns_renamed=Mock(),
+        clipboard_get=lambda: 'a\tformula\n8\t9\n')
+    table.updateModel = lambda model: setattr(table, 'model', model)
+    seen = []
+    table._formula_targets_in = lambda rows, cols: seen.append((list(rows), list(cols))) or []
+    table._reject_formula_edit = lambda columns: False
+
+    MTable.paste_header(table)
+
+    # The pasted block covers both columns, so both are checked before writing.
+    assert seen == [(list(range(3)), [0, 1])]
+    assert table.model.df.columns.tolist() == ['a', 'formula']
+
+
+@pytest.mark.parametrize('separator', ['\t', ','])
+def test_paste_header_parses_excel_tsv_and_csv_without_rounding(separator):
+    text = separator.join(['id', 'value', 'name']) + '\n' + separator.join(
+        ['9007199254740993', '1.5', '甲']) + '\n' + separator.join(['7', '2.25', '乙'])
+    table = SimpleNamespace(
+        requireUnfiltered=lambda: True, storeCurrent=Mock(), parentframe=None,
+        model=SimpleNamespace(df=pd.DataFrame({'id': ['old'], 'other': [1]})),
+        redraw=Mock(), updateIndex=Mock(), multiplerowlist=[], multiplecollist=[0],
+        _formula_targets_in=lambda rows, cols: [],
+        _reject_formula_edit=lambda columns: False,
+        formula_columns_renamed=Mock(), clipboard_get=lambda: text)
+    table.updateModel = lambda model: setattr(table, 'model', model)
+
+    MTable.paste_header(table)
+
+    result = table.model.df
+    assert result.columns.tolist() == ['id', 'value', 'name']
+    assert result['id'].tolist()[:2] == [9007199254740993, 7]
+    assert result['value'].tolist()[:2] == [1.5, 2.25]
+    assert result['name'].tolist()[:2] == ['甲', '乙']
+
+
+def test_paste_header_keeps_exact_integers_with_missing_values():
+    table = SimpleNamespace(
+        requireUnfiltered=lambda: True, storeCurrent=Mock(), parentframe=None,
+        model=SimpleNamespace(df=pd.DataFrame({'id': ['old']})), redraw=Mock(),
+        updateIndex=Mock(), multiplerowlist=[], multiplecollist=[0],
+        _formula_targets_in=lambda rows, cols: [],
+        _reject_formula_edit=lambda columns: False, formula_columns_renamed=Mock(),
+        clipboard_get=lambda: 'id\tnote\n9007199254740993\ta\n\tb\n7\tc\n')
+    table.updateModel = lambda model: setattr(table, 'model', model)
+
+    MTable.paste_header(table)
+
+    ids = table.model.df['id']
+    assert ids.iloc[0] == 9007199254740993
+    assert ids.iloc[1:2].isna().all()
+    assert ids.iloc[2] == 7
+    assert str(ids.dtype).startswith('Int')
+
+
+def test_paste_header_keeps_exact_integers_mixed_with_floats():
+    table = SimpleNamespace(
+        requireUnfiltered=lambda: True, storeCurrent=Mock(), parentframe=None,
+        model=SimpleNamespace(df=pd.DataFrame({'v': [0.0]})), redraw=Mock(),
+        updateIndex=Mock(), multiplerowlist=[], multiplecollist=[0],
+        _formula_targets_in=lambda rows, cols: [],
+        _reject_formula_edit=lambda columns: False, formula_columns_renamed=Mock(),
+        clipboard_get=lambda: 'v\n9007199254740993\n1.5\n')
+    table.updateModel = lambda model: setattr(table, 'model', model)
+
+    MTable.paste_header(table)
+
+    values = table.model.df['v'].tolist()
+    assert values[0] == 9007199254740993 and int(values[0]) == 9007199254740993
+    assert values[1] == 1.5
+    assert not pd.api.types.is_float_dtype(table.model.df['v'].dtype)
+
+
+def test_combine_writes_values_the_target_dtype_cannot_hold_exactly():
+    narrow = pd.DataFrame({'v': pd.Series([1.5, 2.5], dtype='float32'),
+                           'keep': [1, 2]})
+    result = df_combine(narrow, pd.DataFrame({'v': [16777217]}), 0, 2)
+    # float32 rounds 16777217 to 16777216; the value must survive as written.
+    assert result['v'].tolist() == [1.5, 2.5, 16777217]
+    assert int(result['v'].iloc[2]) == 16777217
+    assert result['keep'].iloc[:2].tolist() == [1, 2]
+    assert pd.api.types.is_integer_dtype(result['keep'].dtype)
+
+
+def test_combine_keeps_integer_dtype_when_it_fits_the_new_value():
+    first = pd.DataFrame({'v': [1, 2], 'keep': ['a', 'b']})
+    result = df_combine(first, pd.DataFrame({'v': [9007199254740993]}), 0, 2)
+    assert result['v'].tolist() == [1, 2, 9007199254740993]
+    assert pd.api.types.is_integer_dtype(result['v'].dtype)
+    assert result['keep'].dtype == first['keep'].dtype
+
+
+def test_combine_overwrites_nullable_float64_column():
+    first = pd.DataFrame({'v': pd.Series([1.25, pd.NA], dtype='Float64')})
+    result = df_combine(first, pd.DataFrame({'v': [2.75]}), 0, 0)
+    assert result['v'].dtype == 'Float64'
+    assert result.at[0, 'v'] == 2.75
+    assert result.at[1, 'v'] is pd.NA
+
+
+def test_combine_keeps_nullable_float32_when_value_fits():
+    first = pd.DataFrame({'v': pd.Series([1.25, pd.NA], dtype='Float32')})
+    result = df_combine(first, pd.DataFrame({'v': [2.5]}), 0, 0)
+    assert result['v'].dtype == 'Float32'
+    assert result.at[0, 'v'] == 2.5
+    assert result.at[1, 'v'] is pd.NA
+
+
+def test_combine_widens_nullable_float32_without_rounding_or_losing_na():
+    first = pd.DataFrame({'v': pd.Series([1.5, pd.NA], dtype='Float32')})
+    precise = 1.234567890123
+    result = df_combine(first, pd.DataFrame({'v': [precise]}), 0, 2)
+    assert result['v'].dtype == 'Float64'
+    assert result.at[0, 'v'] == 1.5
+    assert result.at[1, 'v'] is pd.NA
+    assert result.at[2, 'v'] == precise
 
 
 def test_active_overrides_and_no_scalar_access_hotspots():
@@ -347,8 +544,11 @@ def test_real_mtable_stack_routes_shared_combine(tk_root):
         expected['Stk Keys'] = np.nan
         expected['Stk Data'] = np.nan
         stacked = pd.DataFrame({'1': ['a', 'a', 'b', 'b', 'b'], '2': [1., 3., 4., 5., 6.]})
+        result = table.model.df
         expected = legacy('df_combine.py:df_combine')(expected, stacked, 2, 0)
-        assert_frame_equal(table.model.df, expected)
+        # Padding rows must not regress to float64 (dataframe earlier dropped to float).
+        assert result.iloc[:3, 1].tolist() == [4, 5, 6] and result.iloc[3:, 1].isna().all()
+        assert_same_cells(result, expected)
         assert_frame_equal(table.prevdf[0], frame)
     finally:
         parent.destroy()

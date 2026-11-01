@@ -10,11 +10,12 @@ import numpy as np
 from pandastable_local.core import Table
 from pandastable_local.data import TableModel
 from pandastable_local.data_orig import _prepare_cell_updates, _commit_cell_updates
+from pandastable_local import csv_import
 from pandastable_local.dialogs import MultipleValDialog, applyStyle, filedialog
 ############## Own Module ###############
 #  from modified_header import MColumnHeader as ColumnHeader
 #  from modified_header import RowHeader
-from df_combine import df_combine
+from df_combine import df_combine, _infer
 from utilities import grouping_by_labels, verifyNewColName, filter_voids, is_void
 from dialog import findRepDialog
 from worksheet_formulas import (CalculatorDialog, FormulaError, cycle_message,
@@ -862,32 +863,65 @@ class MTable(Table):
         """Paste a new table from the clipboard"""
         if not self.requireUnfiltered():
             return
-        if self._reject_formula_edit(self._formula_targets_in(
-                self.multiplerowlist, self.multiplecollist)):
-            return
-
-        self.storeCurrent()
         try:
-            df = pd.read_clipboard(sep=',')
+            text = self.clipboard_get().lstrip('\ufeff')
+            delimiter = '\t' if '\t' in text else ','
+            rows = csv_import.read_records(text, delimiter)
         except Exception as e:
             messagebox.showwarning('Could not paste data', str(e), parent=self.parentframe)
             return
-        if len(df) == 0:
+        if len(rows) < 2:
+            messagebox.showwarning('Could not paste data', '剪贴板内容没有数据行。',
+                                   parent=self.parentframe)
             return
 
         try:
             ins_x = min(self.multiplecollist)
         except BaseException:
             ins_x = 0
+        def parse_cell(value):
+            if value == '':
+                return np.nan
+            if csv_import.NUMBER.fullmatch(value):
+                if '.' not in value and 'e' not in value.lower():
+                    return int(value)
+                if csv_import._safe_number(value):
+                    return float(value)
+            return value
+
+        # Build column by column; one row-wise constructor would float up large ints.
+        df = pd.concat([_infer([parse_cell(value) for value in column])
+                        for column in zip(*rows[1:])], axis=1)
+        df.columns = rows[0]
+        old_width = len(self.model.df.columns)
+        target_cols = [col for col in range(ins_x, ins_x + len(df.columns))
+                       if col < old_width]
+        if self._reject_formula_edit(self._formula_targets_in(
+                range(len(self.model.df)), target_cols)):
+            return
+
+        self.storeCurrent()
         new_df = df_combine(
             self.model.df, df,
             ins_y=0,  # min(self.multiplerowlist),
             ins_x=ins_x)
+        # Rows below the pasted block must not keep values from the replaced columns.
+        stale_rows = range(len(df), len(self.model.df))
+        if stale_rows and target_cols:
+            new_df = new_df.copy()
+            _commit_cell_updates(new_df, _prepare_cell_updates(new_df, {
+                col: (stale_rows, [np.nan] * len(stale_rows)) for col in target_cols}))
         col_names = new_df.columns.tolist()
         df2_cols = df.columns.tolist()
+        # Replaced columns release their names, so a pasted header can reuse one.
+        released = set(range(ins_x, min(ins_x + len(df2_cols), old_width)))
         for x in range(len(df2_cols)):
             xx = ins_x + x
-            col_names[xx] = verifyNewColName(df2_cols[x], col_names)
+            name = col_names[xx] if df2_cols[x] == '' else df2_cols[x]
+            col_names[xx] = verifyNewColName(name, [
+                other for i, other in enumerate(col_names) if i not in released])
+            released.discard(xx)
+        self.formula_columns_renamed(dict(zip(self.model.df.columns, col_names)))
         new_df.columns = col_names
         model = TableModel(new_df)
         self.updateModel(model)
