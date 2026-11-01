@@ -593,7 +593,8 @@ def p_np_plot(p=None, n=1,
         lcl_ys.append(lcl)
         lcl_ys.append(lcl)
 
-    if None in [ax, fig]:
+    standalone = ax is None
+    if standalone:
         fig, ax = plt.subplots(1, figsize=(15, 15), layout='constrained')
 
     ax.plot(p, linestyle='-', marker='o', color='black')
@@ -632,7 +633,8 @@ def p_np_plot(p=None, n=1,
         ax.set(xlabel=xlabel)
     ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1), frameon=False)
     style_axes(ax)
-    plt.show()
+    if standalone:
+        plt.show()
 
     if print_out:
         name = 'NP 图（不合格品数）' if NP else 'P 图（不合格比例）'
@@ -679,7 +681,8 @@ def cu_plot(c=None, n=1,
         lcl_ys.append(lcl)
         lcl_ys.append(lcl)
 
-    if None in [ax, fig]:
+    standalone = ax is None
+    if standalone:
         fig, ax = plt.subplots(1, figsize=(15, 15), layout='constrained')
 
     ax.plot(c, linestyle='-', marker='o', color='black')
@@ -716,7 +719,8 @@ def cu_plot(c=None, n=1,
 
     ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1), frameon=False)
     style_axes(ax)
-    plt.show()
+    if standalone:
+        plt.show()
 
     if print_out:
         name = 'C 图（缺陷数）' if C else 'U 图（单位缺陷数）'

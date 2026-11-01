@@ -1,5 +1,7 @@
 # MiniJMP 工作记忆
 
+- 2026-11-01：P/NP/C/U 控制图嵌入已有 Axes 时不再调用 `plt.show()`，泊松分布无 Axes 也返回结果；相关绘图及报告定向测试分别 29、19 项通过。通用绘图器动画入口可达，后台线程操作 Tk/Canvas 的问题未修复，视频导出与停止生命周期需一并处理。
+
 ## 当前阶段：Minitab 19 对标收尾；Binary Logistic 终点 Fisher 修复完成（2026-10-31）
 
 - 八案本地提交 `244ecf6d9ba48741194cb695acce0a51e6da7cb3`（54 文件），未推送。Minitab 19.1.0.1：2²、CCD、Mixture、BBD、PB、Split-Plot PASS；Taguchi L8/L9 PARTIAL。离线结果 3070 条明细、2605 个唯一比较：2559 PASS、0 FAIL、44 N/A、2 UNSUPPORTED。

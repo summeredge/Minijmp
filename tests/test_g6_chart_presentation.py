@@ -224,6 +224,20 @@ def test_probability_plot_paths_keep_existing_values_and_semantics(name):
     fig.canvas.draw()
 
 
+@pytest.mark.parametrize('query', [{'x': 3}, {'pvalue': .05}])
+def test_poisson_returns_same_results_and_report_without_axes(query):
+    fig, ax = plt.subplots()
+    with_plot, without_plot = [], []
+    plotted = poisson(5, ax=ax, print_out=True, print_port=with_plot.append, **query)
+    result = poisson(5, ax=None, print_out=True, print_port=without_plot.append, **query)
+    assert result == plotted
+    assert result['mean'] == pytest.approx(5)
+    assert result['left_acc_p'] == pytest.approx(stats.poisson.cdf(query.get('x', result.get('x_left')), 5))
+    assert with_plot == without_plot
+    assert ax.patches
+    plt.close(fig)
+
+
 @pytest.mark.skipif(not CJK_FONTS, reason="需要已安装的中文字体")
 @pytest.mark.parametrize("extension", ["png", "jpg", "tif", "pdf", "eps", "svg"])
 def test_existing_viewer_export_formats_keep_names_dpi_and_complete_text(extension, tmp_path):

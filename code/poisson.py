@@ -135,7 +135,7 @@ def poisson(mu, x=None, pvalue=None, print_out=False, print_port=print, ax=None,
         ax.legend(loc='best', frameon=True)
         style_axes(ax)
 
-        return res
+    return res
 
 
 if __name__ == "__main__":
