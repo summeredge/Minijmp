@@ -436,17 +436,41 @@ class Worksheets:
             if Path(filename).suffix.lower() != '.dexpl':
                 raise ValueError('项目请保存为 .dexpl；单表请使用“导出当前表”。')
             self._finish_edit()
+            data = self._payload(validate_doe=False)
+            downgraded = {}
+            for name, table in self.sheets.items():
+                doe = getattr(table, 'doe_metadata', None)
+                if doe is not None:
+                    try:
+                        validate_worksheet_metadata(self._full_frame(table), doe)
+                    except ValueError as error:
+                        downgraded[name] = str(error)
+                        for key in ('doe', 'mixture', 'mixture_model'):
+                            data[name]['meta'].pop(key, None)
+                        continue
+                data[name]['meta'] = self.saveMeta(table)
             fd, temporary = tempfile.mkstemp(dir=Path(filename).resolve().parent, suffix='.tmp')
             with os.fdopen(fd, 'wb') as raw:
                 with gzip.GzipFile(fileobj=raw, mode='wb') as stream:
-                    pickle.dump(self._payload(), stream, protocol=pickle.HIGHEST_PROTOCOL)
+                    pickle.dump(data, stream, protocol=pickle.HIGHEST_PROTOCOL)
                 raw.flush()
                 os.fsync(raw.fileno())
             os.replace(temporary, filename)
+            for name in downgraded:
+                table = self.sheets[name]
+                table.doe_metadata = None
+                table.mixture_metadata = None
+                table.mixture_model = None
             self.filename = os.fspath(filename)
             self.defaultsavedir = os.path.dirname(os.path.abspath(filename))
             self._saved_state = self._state()
             self.update_title()
+            if downgraded:
+                messagebox.showwarning(
+                    'DOE 工作表已按普通工作表保存',
+                    '以下工作表的设计定义已失效，已保留全部数据并按普通工作表保存：\n'
+                    + '\n'.join(f'{name}：{reason}' for name, reason in downgraded.items()),
+                    parent=self.main)
             return True
         except Exception as error:
             messagebox.showerror('保存失败', str(error), parent=self.main)

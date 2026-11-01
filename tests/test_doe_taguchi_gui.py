@@ -46,6 +46,30 @@ def fill_static(table):
         table.model.setValueAt(str(10 + 5 * a + 2 * b + jitter), index, response)
 
 
+def test_taguchi_filtered_analysis_and_plot_use_full_sheet(csv_app, monkeypatch):
+    import pandas as pd
+
+    app, error = csv_app
+    monkeypatch.setattr('doe_taguchi_analysis_dialog.messagebox.showerror', error)
+    create = CreateTaguchi(app)
+    configure_static(create)
+    assert create.create()
+    table = app.getCurrentTable()
+    fill_static(table)
+    table.dataframe = table.model.df
+    table.model.df = table.dataframe.iloc[:4].copy()
+    displayed = table.model.df.copy(deep=True)
+    table.filtered = True
+    dialog = AnalyzeTaguchi(app)
+    dialog.analyze()
+    assert dialog.result['n_observations'] == 18
+    dialog.plot()
+    error.assert_not_called()
+    assert table.pf is not None and table.filtered is True
+    pd.testing.assert_frame_equal(table.model.df, displayed)
+    dialog.main.destroy()
+
+
 def test_taguchi_static_menu_preview_analysis_best_save_reopen_copy(
         csv_app, tmp_path, monkeypatch):
     app, error = csv_app
