@@ -1,5 +1,14 @@
 # MiniJMP 工作记忆
 
+## V1.0 beta2 源码基线与 Windows 内部构建（2026-11-02）
+
+- 冻结 Commit `d7ffca83ce52006048fb61de249e349165579336`（父提交 `9485e848a09c87ffd3b4056289db18be34a2b65a`）；本地 annotated Tag `v1.0.0-beta.2` 指向同一提交，未推送。构建开始时工作区干净，`origin/main` 为其祖先。
+- 项目 `.venv` Python 3.11.9 x64、PyInstaller 6.22.3；定向回归 70 passed，版本、预检查、PowerShell 语法、Git 快进/分叉门禁通过。未修改生产统计算法或历史 DOE 基线。
+- Minitab 19.1.0.1 三阶段固定案例：第二阶段 10 案/909 项；最终 896 PASS、0 FAIL、13 METHOD_DIFF。phase3 离线复核两次与存档 SHA 一致；完整范围和限制见 `Out/statistics_minitab19_parity/beta2_baseline.md`。
+- 本地 beta2 运行目录/ZIP/源码 ZIP 已构建；ZIP CRC、SHA256SUMS、源码排除、TsdEncrypt 扫描和目录/解压版启动冒烟通过。目录版 2,175 文件/224,411,168 bytes；完整文件名、摘要和大小见发布目录、`BUILD-INFO.txt`、`docs/release/build-inputs-V1.0-beta2.txt`。
+- 三份 PI SDK DLL 均为 OSIsoft 文件版本 1.4.7.516、程序集版本 1.4.0.0、x86，构建目录和 ZIP 摘要匹配源文件。其再分发许可未确认；只作获准内部验证，正式对外分发受阻。完整 PI SDK/PIPC 运行时、PI Server 连接、办公终端 Defender/DLP、普通权限现场验收均 NOT VERIFIED。
+- beta1 Tag 与发布产物未变；beta2 BUILD-INFO、构建日志和运行输入清单为构建后本地生成文件，尚未纳入源码 Commit。实际 About 对话框实屏检查因 UI 自动化恢复失败未完成；源标签为 V1.0 beta2，主窗口启动已观察通过。
+
 ## 统计功能 Minitab 19 自动对标第一阶段（2026-11-02）
 
 - 第一阶段完成，脚本与证据在 `Out/statistics_minitab19_parity/`。菜单矩阵共 90 项（统计30、DOE 35、质量25）；既有独立验证证据为30项有、44项部分、16项未找到；独立数值参考为30项有、41项部分、19项未找到。
