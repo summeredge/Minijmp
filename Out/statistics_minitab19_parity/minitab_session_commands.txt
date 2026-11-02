@@ -1,0 +1,64 @@
+本机 Minitab 19.1.0.1 的实际 Session 命令；由 verify_statistics_minitab19.py 生成
+
+===== descriptive =====
+STATS C1;
+  N C20;
+  MEAN C21;
+  STDEV C22.
+
+===== normality =====
+NORMTEST C2;
+  SPVALUE C25.
+
+===== pearson =====
+CORRELATION C3 C4;
+  PEARSON;
+  NODEFAULT;
+  SCORRELATION M1;
+  SPVALUES M2.
+
+===== one_sample_t =====
+ONET C5;
+  TEST 10;
+  CONFIDENCE 95;
+  SPVALUE C26;
+  SCONF C27 C28.
+
+===== two_sample_t =====
+TWOSAMPLE 95 C7 C6;
+  TEST 0;
+  SPVALUE C29;
+  SCONF C30 C31.
+
+===== paired_t =====
+PAIR C8 C9;
+  TEST 0;
+  CONFIDENCE 95;
+  SPVALUE C32;
+  SCONF C33 C34.
+
+===== one_way_anova =====
+ONEWAY;
+  RESPONSE C10;
+  CATEGORICAL C11;
+  CONFIDENCE 95;
+  TANOVA.
+
+===== ols_linear =====
+REGRESS;
+  RESPONSE C12;
+  CONTINUOUS C13;
+  TERMS C13;
+  CONSTANT;
+  UNSTANDARDIZED;
+  CONFIDENCE 95;
+  TCOEFFICIENTS;
+  TANOVA;
+  COEFFICIENTS C40;
+  SPVALUE C41;
+  SS C42;
+  SRSQ C43;
+  XPXINV M3.
+
+===== descriptive_display =====
+DESCRIBE C1.

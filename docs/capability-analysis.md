@@ -46,6 +46,10 @@
 
 Weibull、Lognormal、Gamma 均采用 SciPy 对应连续分布、`floc=0` 固定位置参数的极大似然估计，数据严格为正。分别报告 shape/scale（Lognormal 的 shape 为对数标准差，scale=exp(对数均值)）、支持域、拟合诊断和收敛异常。不能自动平移负值，也不能用三参数自由位置估计冒充本方法。支持域外规格的 CDF/SF 可合法等于 0/1；这与支持域外观测导致模型无效不同。
 
+与本机 Minitab 19.1.0.1 的 CAP-04 固定 80 点对比中，MiniJMP 对数标准差 MLE（分母 `n`）为 `0.2177093992`；Minitab `NNCAPA` 直接存储的 `SSCALE=0.2190829737` 与对数样本标准差（分母 `n−1`）吻合。对数均值相同；使用同一 ISO 百分位指数定义时，仅参数估计不同就使 Ppk 从 `1.077209` 变为 `1.068013`，预计总 PPM 从 `770.0816` 变为 `824.3477`。因此，两个软件的 Lognormal 结果不能仅因指数名称相同就视为同口径；MiniJMP 保持 MLE，并应将该本机结果标为 `METHOD_DIFF`。[CAP-04 固定输入](../Out/statistics_minitab19_parity/phase2/case_inputs.json)、[Minitab 原始存储](../Out/statistics_minitab19_parity/phase2/minitab_raw_outputs.txt)。
+
+此结论限于该 Minitab 19.1.0.1 案例：Minitab 当前在线 NNCAPA 方法页说明通用参数估计采用 MLE/Newton–Raphson，而另一分布参数说明页将 Lognormal 列为使用非 MLE 估计的例外；两页功能范围并不完全相同。这里以本机 NNCAPA `SSCALE` 原始存储及固定数据的独立计算为依据，不把观察结果推广到其他版本或分析入口。[NNCAPA 方法说明](https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-analysis/nonnormal-capability-analysis/methods-and-formulas/methods/)、[Lognormal 参数说明](https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/quality-tools/how-to/individual-distribution-identification/interpret-the-results/all-statistics-and-graphs/distribution-parameters/)。
+
 令 `a=Phi(−K/2)`，`qL=F⁻¹(a)`、`qM=F⁻¹(0.5)`、`qU=F⁻¹(1−a)`。本阶段主指数为百分位法：
 
 `Pp=(USL−LSL)/(qU−qL)`；`Ppl=(qM−LSL)/(qM−qL)`；`Ppu=(USL−qM)/(qU−qM)`；`Ppk=min(已定义侧)`。

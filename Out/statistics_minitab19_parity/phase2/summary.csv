@@ -1,0 +1,11 @@
+﻿case_id,feature,指标数,PASS,FAIL,METHOD_DIFF,UNSUPPORTED,NOT_RUN,Minitab命令成功运行次数,案例状态,备注
+CAP-01,正态过程能力,7,4,0,3,0,0,2/2,METHOD_DIFF,MiniJMP MRbar/d2(2); Minitab CAPA AMR RSPAN 2; overall sample SD
+CAP-02,正态过程能力,6,6,0,0,0,0,2/2,PASS,MiniJMP pooled sp/c4(df+1); Minitab CAPA POOLED; fixed subgroup size 5
+CAP-03,正态过程能力,4,1,1,2,0,0,2/2,FAIL,one-sided USL; individual MR(2); expected overall upper PPM
+SPC-01,I-MR 控制图,298,298,0,0,0,0,2/2,PASS,original order; MR(2)/d2(2); 3 sigma
+SPC-02,I-MR 控制图,308,308,0,0,0,0,2/2,PASS,original order; limits include outlier; TEST 1 is one point beyond 3 sigma
+SPC-03,Xbar-R 控制图,120,120,0,0,0,0,2/2,PASS,original order; Xbar-R constants; 3 sigma
+SPC-04,Xbar-S 控制图,120,120,0,0,0,0,2/2,PASS,original order; Xbar-S constants; 3 sigma
+CAP-04,非正态过程能力,12,4,0,8,0,0,2/2,METHOD_DIFF,"2-parameter Lognormal, fixed location=0; ISOINDEX"
+CAP-05,非正态过程能力,12,3,9,0,0,0,2/2,FAIL,"2-parameter Weibull, location fixed=0, MLE, ISOINDEX; MiniJMP SciPy fit uses Nelder-Mead xatol=fatol=1e-8; Minitab NNCAPA uses Newton-Raphson"
+GRR-01,交叉型 GRR,22,22,0,0,0,0,2/2,PASS,"MiniJMP AIAG ANOVA, auto interaction alpha=.05; Minitab GAGERR ANOVA PVALUE .05；MiniJMP ANOVA 交互方差=0.0144416666667；Minitab 交互项筛选/方差分量见 minitab_raw_outputs.txt"

@@ -1,0 +1,9 @@
+﻿case_id,功能名称,比较指标数,PASS,FAIL,METHOD_DIFF,UNSUPPORTED,NOT_RUN,功能状态,备注
+descriptive,描述性统计,5,5,0,0,0,0,PASS,
+normality,正态性检验,2,1,0,0,1,0,UNSUPPORTED,UNSUPPORTED: NORMTEST COM exposes only the graph title; Minitab 19 documents no AD-statistic storage column.
+pearson,Pearson 相关分析,2,2,0,0,0,0,PASS,
+one_sample_t,单样本均值 t 检验,5,5,0,0,0,0,PASS,
+two_sample_t,双样本 t 检验,5,3,0,2,0,0,METHOD_DIFF,Minitab 19 将 Welch-Satterthwaite 自由度截为整数；MiniJMP 保留小数自由度。; Minitab p 值吻合整数截断后的自由度；MiniJMP 用小数自由度，故 p 值不同。
+paired_t,配对 t 检验,4,4,0,0,0,0,PASS,
+one_way_anova,单因子方差分析,10,10,0,0,0,0,PASS,
+ols_linear,OLS 线性回归,10,10,0,0,0,0,PASS,
