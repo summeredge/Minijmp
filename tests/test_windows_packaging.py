@@ -83,24 +83,37 @@ def test_release_archives_identify_commit_and_preserve_existing_artifacts():
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
     assert "MiniJMP-$releaseVersion" in script
     assert "MiniJMP-$releaseVersion-source" in script
-    assert 'Existing build output must be removed before rebuilding' in script
+    assert 'Existing beta2 output is preserved' in script
+    assert 'windows-pkg-$releaseVersion' in script
+    assert "-Filter 'MiniJMP-V*'" not in script
+    assert 'merge-base --is-ancestor origin/main HEAD' in script
     assert '$python $makeZip ' in script
     assert 'Compress-Archive' not in script
     assert "Base Git HEAD: $head" in script
     assert 'Working tree: $treeState' in script
 
 
-def test_release_script_warns_about_dirty_worktree_and_records_it():
+def test_release_script_requires_a_clean_frozen_commit():
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
 
     assert 'git -C $root status --porcelain --untracked-files=normal' in script
-    assert 'Write-Warning "Working tree has' in script
-    assert 'Refusing to build from a dirty working tree' not in script
-    # BUILD-INFO must never claim a clean checkout when the tree was dirty.
-    assert 'not a clean checkout' in script
+    assert 'Refusing to build from a dirty working tree' in script
     assert 'build inputs matched Git HEAD' in script
+    assert 'origin/main is not an ancestor of HEAD' in script
     dirty_check = script.index('git -C $root status --porcelain --untracked-files=normal')
     assert dirty_check < script.index('New-Item -ItemType Directory -Path $distRoot')
+
+
+def test_release_copies_and_hash_checks_all_required_pi_sdk_dlls():
+    script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
+    precheck = (ROOT / 'tools' / 'check_windows_release_ready.ps1').read_text(encoding='utf-8')
+    for name in ('OSIsoft.PISDK.dll', 'OSIsoft.PISDKCommon.dll', 'OSIsoft.PITimeServer.dll'):
+        assert name in script
+        assert f"PIReader/{name}" in precheck
+    assert '$sourceFile.Length -ne $targetFile.Length -or $sourceHash -ne $targetHash' in script
+    assert '($piDllInfo -join $nl)' in script
+    assert 'redistribution rights are unconfirmed' in script
+    assert 'PI SDK assemblies are not bundled' not in script
 
 
 def test_release_precheck_reports_clean_and_dirty_worktrees(tmp_path):
@@ -131,15 +144,41 @@ def test_release_precheck_reports_clean_and_dirty_worktrees(tmp_path):
 
     (repo / 'untracked.txt').write_text('draft\n', encoding='utf-8')
     untracked = precheck()
-    assert untracked.returncode == 0
-    assert 'WARNING: Git' in untracked.stdout
-    assert 'RESULT: PASS' in untracked.stdout
+    assert untracked.returncode == 1
+    assert 'BLOCKED: Git 工作区有' in untracked.stdout
+    assert '冻结 Commit' in untracked.stdout
 
     (repo / 'untracked.txt').unlink()
     readme.write_text('release precheck\nedited\n', encoding='utf-8')
     modified = precheck()
-    assert modified.returncode == 0
-    assert 'RESULT: PASS' in modified.stdout
+    assert modified.returncode == 1
+    assert 'RESULT: BLOCKED' in modified.stdout
+
+    subprocess.run(['git', '-C', str(repo), 'restore', 'README.md'], check=True)
+    (repo / 'ahead.txt').write_text('local frozen commit\n', encoding='utf-8')
+    subprocess.run(['git', '-C', str(repo), 'add', '-A'], check=True, capture_output=True)
+    subprocess.run(['git', '-C', str(repo), 'commit', '-m', 'local freeze'], check=True,
+                   capture_output=True)
+    ahead = precheck()
+    assert ahead.returncode == 0, ahead.stdout
+    assert '允许从本地冻结 Commit 构建' in ahead.stdout
+
+    client = tmp_path / 'remote-client'
+    subprocess.run(['git', 'clone', '--branch', 'main', str(remote), str(client)],
+                   check=True, capture_output=True)
+    for key, value in (('user.name', 'Remote'), ('user.email', 'remote@example.com')):
+        subprocess.run(['git', '-C', str(client), 'config', key, value], check=True,
+                       capture_output=True)
+    (client / 'remote.txt').write_text('remote-only commit\n', encoding='utf-8')
+    subprocess.run(['git', '-C', str(client), 'add', '-A'], check=True, capture_output=True)
+    subprocess.run(['git', '-C', str(client), 'commit', '-m', 'remote advance'], check=True,
+                   capture_output=True)
+    subprocess.run(['git', '-C', str(client), 'push', 'origin', 'main'], check=True,
+                   capture_output=True)
+    subprocess.run(['git', '-C', str(repo), 'fetch', 'origin'], check=True, capture_output=True)
+    diverged = precheck()
+    assert diverged.returncode == 1
+    assert '不是 origin/main' in diverged.stdout
 
 
 def test_frozen_resources_and_user_writable_paths(tmp_path):

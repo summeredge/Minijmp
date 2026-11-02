@@ -331,14 +331,19 @@ def test_python_version_gate_accepts_311_and_newer(tmp_path):
 def test_version_identifiers_and_build_info_agree():
     levels = release_metadata.check()
     assert [level for level, _ in levels] == ['PASS'], levels
-    assert 'V1.0-beta1' in levels[0][1] and '1.0.0.1' in levels[0][1]
+    assert 'V1.0-beta2' in levels[0][1] and '1.0.0.2' in levels[0][1]
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
-    assert '$productVersion = ' + "'v1.0.0-beta.1'" in script
+    assert '$releaseVersion = ' + "'V1.0-beta2'" in script
+    assert '$productVersion = ' + "'v1.0.0-beta.2'" in script
     assert 'Release name: $releaseVersion' in script
-    assert 'PIReader: bundled beside MiniJMP.exe' in script
-    assert 'PI SDK/PIPC runtime and PI Server connectivity' in script
+    assert 'PIReader: bundled beside MiniJMP.exe with PIReader.exe, three PI SDK DLLs' in script
+    assert 'PI SDK/PIPC runtime' in script
     version_info = (ROOT / 'packaging' / 'windows' / 'version_info.txt').read_text(encoding='utf-8')
-    assert "StringStruct('Comments', 'MiniJMP V1.0 beta1 source baseline')" in version_info
+    assert "StringStruct('Comments', 'MiniJMP V1.0 beta2 source baseline')" in version_info
+    usage = (ROOT / 'packaging' / 'windows' / 'USAGE.txt').read_text(encoding='utf-8')
+    assert all(name in usage for name in ('OSIsoft.PISDK.dll', 'OSIsoft.PISDKCommon.dll',
+                                          'OSIsoft.PITimeServer.dll'))
+    assert '不得对外分发' in usage
 
 
 def test_pireader_paths_resolve_beside_frozen_exe(monkeypatch, tmp_path, tk_root):
@@ -382,7 +387,7 @@ def test_powershell_scripts_parse_and_avoid_bulk_deletion():
         assert '-Confirm:$false' not in text
 
 
-@pytest.mark.parametrize('latest', ['v1.0.0-beta.1', 'v2.3.4-beta.12'])
+@pytest.mark.parametrize('latest', ['v1.0.0-beta.2', 'v2.3.4-beta.12'])
 def test_changes_reads_latest_version_across_major_versions(monkeypatch, latest):
     original_read = release_metadata.read
 
@@ -394,7 +399,7 @@ def test_changes_reads_latest_version_across_major_versions(monkeypatch, latest)
     monkeypatch.setattr(release_metadata, 'read', read)
     assert release_metadata.identifiers()['product:CHANGES'] == latest
     levels = release_metadata.check()
-    assert levels[0][0] == ('PASS' if latest == 'v1.0.0-beta.1' else 'BLOCKED')
+    assert levels[0][0] == ('PASS' if latest == 'v1.0.0-beta.2' else 'BLOCKED')
 
 
 def test_version_check_rejects_build_product_drift(monkeypatch):

@@ -1,0 +1,16 @@
+PI SDK THIRD-PARTY NOTICE
+=========================
+
+The Windows runtime package contains these OSIsoft PI SDK assemblies beside PIReader.exe:
+
+- OSIsoft.PISDK.dll
+- OSIsoft.PISDKCommon.dll
+- OSIsoft.PITimeServer.dll
+
+These are proprietary third-party files. They are not part of MiniJMP and are not licensed under MiniJMP's GNU GPL version 3 or later. Their redistribution authorization for this package has not been confirmed. The included copies are for authorized internal validation only; do not distribute this package outside that authorization until the rights holder has confirmed the applicable written permission.
+
+These three assemblies do not install or register the complete PI SDK/PIPC runtime. A target system still needs the appropriate PI SDK/PIPC runtime and PI access rights. This package does not establish PI Server connectivity.
+
+License references reviewed:
+- AVEVA PI Developers Club Agreement: https://www.aveva.com/content/dam/aveva/documents/legal/compliance/PI_Developers_Club_Agreement_EULA.pdf
+- AVEVA Community, “Redistributing the PI SDK”: https://community.aveva.com/pi-square-community/pi-system-retired-products/f/retired_products/90272/redistributing-the-pi-sdk

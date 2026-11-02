@@ -1,0 +1,19 @@
+Minitab 19 phase 3 offline repeatability check
+Date: 2026-11-02 (Asia/Shanghai)
+Environment: project .venv, Python 3.11.9; no Minitab COM was started.
+Minitab reference data retained from the two phase 2 runs: 19.1.0.1.
+
+The phase 3 verifier was run twice against copied, unchanged phase 2 inputs. Both runs produced byte-identical files, and each output also matched the committed phase 3 result:
+
+Input SHA256:
+- phase2/case_inputs.json: 1AF9160CA26161392566D493AC535ACF404A34CAA757033EECF721226CFBA5C6
+- phase2/comparison.csv: 289458C8507CDA957C0ED312548A4778F0AEFD5DE70081D76F7A7A8F48B2226B
+- phase2/minitab_raw_outputs.txt: 3AC26F962E826FB398FF3AB2689EC73BAF3C82E752248BBD40011B3A9B8B2F0A
+- phase3/verify_statistics_minitab19_phase3.py: 1BA2964A69B6A81D1A362CF39B8E8BB52E7033C06395E7AF8BAA1AE7D4679A56
+
+Identical output SHA256 for both runs (also matches the checked-in phase 3 files):
+- comparison.csv: 0629875EBA473195A4786FF62E49D8EF11B847E384D90559826E4887514C5987
+- summary.csv: 50F0DB8478A09E1769E71A207ECB5514613BBFEACE326345B7779FED37513E57
+- verification.csv: 0D0EEBFB30EE62316B20F51DC1822DE358530A8DE69EE4F6FE67EF4A81952234
+
+Final status across 909 metrics: 896 PASS, 0 FAIL, 13 METHOD_DIFF, 0 UNSUPPORTED, 0 NOT_RUN. The independent-reference verification contains 98 rows.
