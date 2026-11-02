@@ -36,11 +36,10 @@ if ($inside -and $inside.Ok -and $inside.Lines -contains 'true') {
     if ($branch -ne 'main') { Add-Result 'BLOCKED' "发布分支必须是 main，当前为 '$branch'。" }
     else { Add-Result 'PASS' '发布分支为 main。' }
 
-    # Uncommitted work is allowed for office distribution; it is recorded, not discarded.
     $dirty = (Invoke-Git @('status', '--porcelain', '--untracked-files=normal')).Lines
     if ($dirty.Count) {
-        Add-Result 'WARNING' ("Git 工作区有 {0} 项未提交或未跟踪变更；构建取磁盘当前内容并在 BUILD-INFO 记录该状态。" -f $dirty.Count)
-        $dirty | Select-Object -First 10 | ForEach-Object { Add-Result 'WARNING' "工作区变更：$_" }
+        Add-Result 'BLOCKED' ("Git 工作区有 {0} 项未提交或未跟踪变更；发布包必须与冻结 Commit 完全一致。" -f $dirty.Count)
+        $dirty | Select-Object -First 10 | ForEach-Object { Add-Result 'BLOCKED' "工作区变更：$_" }
     } else {
         Add-Result 'PASS' 'Git 工作区干净，无已暂存、未暂存或未跟踪变更。'
     }
@@ -48,9 +47,11 @@ if ($inside -and $inside.Ok -and $inside.Lines -contains 'true') {
     $head = (Invoke-Git @('rev-parse', 'HEAD')).Lines -join ''
     $origin = Invoke-Git @('rev-parse', 'origin/main')
     if (!$origin.Ok) { Add-Result 'BLOCKED' 'origin/main 不可用，请先 git fetch origin。' }
-    elseif ($origin.Lines[0] -ne $head) {
-        Add-Result 'BLOCKED' "HEAD $head 与发布基准 origin/main $($origin.Lines[0]) 不一致。"
-    } else { Add-Result 'PASS' "HEAD 与 origin/main 一致：$head" }
+    else {
+        $ancestor = Invoke-Git @('merge-base', '--is-ancestor', 'origin/main', 'HEAD')
+        if (!$ancestor.Ok) { Add-Result 'BLOCKED' "HEAD $head 不是 origin/main $($origin.Lines[0]) 的快进后继；分支存在分叉或远端领先。" }
+        else { Add-Result 'PASS' "origin/main $($origin.Lines[0]) 是 HEAD $head 的祖先；允许从本地冻结 Commit 构建。" }
+    }
 } elseif ($inside) {
     Add-Result 'BLOCKED' "不是 Git 工作区：$root"
 }
@@ -84,6 +85,7 @@ if (!$GitOnly) {
     $runtimeInputs = @(
         'packaging/windows_entrypoint.py', 'packaging/windows/requirements-py311.lock',
         'packaging/windows/version_info.txt', 'packaging/windows/USAGE.txt',
+        'packaging/windows/PI-SDK-NOTICE.txt',
         'packaging/windows/licenses/Carbon-Icons-Apache-2.0.txt',
         'packaging/windows/licenses/Tabler-Icons-MIT.txt',
         'icon/icon_big.ico', 'code/help.json', 'help', 'user_config/default.conf',
@@ -98,14 +100,16 @@ if (!$GitOnly) {
     else { Add-Result 'PASS' '入口、运行资源、许可证与发布脚本均已存在。' }
 
     # The release generates clean runtime files from these source templates.
-    $piInputs = @('PIReader/PIReader.exe', 'PIReader/config.example.txt',
-        'PIReader/tags.example.txt')
+    $piInputs = @('PIReader/PIReader.exe', 'PIReader/OSIsoft.PISDK.dll',
+        'PIReader/OSIsoft.PISDKCommon.dll', 'PIReader/OSIsoft.PITimeServer.dll',
+        'PIReader/config.example.txt', 'PIReader/tags.example.txt')
     $missingPi = @($piInputs | Where-Object { !(Test-Path -LiteralPath (Join-Path $root $_)) })
     if ($missingPi) {
         $missingPi | ForEach-Object { Add-Result 'BLOCKED' "PI 随包模板缺失：$_" }
     } else {
-        Add-Result 'PASS' 'PIReader 程序与干净配置模板均存在；本机配置不会进入运行包。'
+        Add-Result 'PASS' 'PIReader、三份 PI SDK DLL 与干净配置模板均存在；本机配置不会进入运行包。'
     }
+    Add-Result 'WARNING' 'PI SDK DLL 再分发授权尚未确认；构建产物仅供授权的内部验证，正式对外分发受阻。'
 
     # The source bundle is built from disk, so untracked sources are included by
     # design. Tracked build inputs are listed only to document ownership.

@@ -3,7 +3,7 @@
 唯一构建入口是 **tools/build_windows_release.ps1**，本文是复制即用的操作卡。
 所有命令都在仓库根目录执行；脚本按自身位置解析项目根，不依赖盘符。
 
-当前版本 V1.0 beta1（`v1.0.0-beta.1`）仅封存源码基线，未构建本版 EXE/ZIP。后续 Windows 发布须先同步远端，满足 HEAD == origin/main 门禁，再重新构建运行包与对应源码包；下文产物名是后续构建预期，不代表已生成。
+当前构建目标为 V1.0 beta2（`v1.0.0-beta.2`）。beta1 的 Tag、源码及发布产物保留原样；beta2 只检查自己的输出路径，可从 `origin/main` 快进领先且工作区干净的本地 `main` 冻结 Commit 构建。
 
 beta.4 已在干净提交 0d9f573 上完成本机构建、ZIP 校验及 EXE 冒烟；办公终端验收仍待完成。详见 docs/release/v0.1.0-beta.4-release.md。
 
@@ -15,9 +15,10 @@ beta.4 已在干净提交 0d9f573 上完成本机构建、ZIP 校验及 EXE 冒�
 - 正式 pandas 版本为 **3.0.6**；Python 3.11 发布环境须匹配完整锁文件。
 - 项目解释器：**.venv\Scripts\python.exe**（64 位）。
 - PyInstaller 6.22.3。
-- Git 工作区须为 main 且 HEAD == origin/main；源码 ZIP 无 `.git` 时使用包内 SOURCE-BUNDLE-INFO.txt。工作区可以脏，构建取磁盘内容并记录在 BUILD-INFO.txt。
-- **PIReader\PIReader.exe**、**PIReader\config.example.txt** 和 **PIReader\tags.example.txt** 必须存在。
-- 源码包不含 OSIsoft PI SDK 程序集；重新构建 PIReader 需要 .NET Framework 4.8 构建工具和按其许可自行提供的 PI SDK。
+- Git 工作区须为 `main`，`origin/main` 必须是 HEAD 的祖先，且工作区干净；源码 ZIP 无 `.git` 时使用包内 SOURCE-BUNDLE-INFO.txt。
+- **PIReader\PIReader.exe**、三个 `OSIsoft.*.dll` 和干净的 `config.example.txt`、`tags.example.txt` 必须存在。
+- 三个 PI SDK DLL 只随 Windows 运行包，源码 ZIP 继续排除；重新构建 PIReader 需要 .NET Framework 4.8 构建工具和按其许可自行提供的 PI SDK。DLL 的再分发授权尚未确认，因此本次产物仅用于获准的内部验证，正式对外分发受阻。
+- 三个 DLL 不替代完整 PI SDK/PIPC 运行时，不自动安装或注册系统组件；目标机仍需满足对应运行时和 PI Server 访问许可。
 - **packaging\windows\requirements-py311.lock** 保留原名，它是 Python 3.11 的产物。
 
 只读预检查（不构建、不删除、不安装）：
@@ -28,21 +29,13 @@ beta.4 已在干净提交 0d9f573 上完成本机构建、ZIP 校验及 EXE 冒�
 
 ---
 
-## A. 清场（重建前必做，需人工执行）
+## A. beta2 输出检查
 
-构建脚本发现 dist\MiniJMP-V*、build\windows-pkg 或上一次的日志与清单仍在时，
-直接报错 Existing build output must be removed before rebuilding，不会自己删。
-PowerShell 一次批量删除上千文件会被企业沙箱拦截，所以清场交给 Python：
+beta2 只检查 `dist\MiniJMP-V1.0-beta2*`、beta2 日志/清单和
+`build\windows-pkg-V1.0-beta2`。若这些目标已存在，脚本拒绝覆盖；不会清理旧版本。
+beta1 目录、ZIP、源码 ZIP、SHA256SUMS 和旧构建临时目录无需删除。
 
-    $python = (Resolve-Path ".venv\Scripts\python.exe").Path
-    & $python -c "import glob, os, shutil
-    targets = glob.glob('dist/MiniJMP-V*') + glob.glob('build/windows-pkg') + glob.glob('docs/release/pyinstaller-build-V*.txt') + glob.glob('docs/release/build-inputs-V*.txt')
-    for t in targets:
-        shutil.rmtree(t) if os.path.isdir(t) else os.remove(t)
-        print('cleared', t)
-    print('cleared:', len(targets))"
-
-首次构建（dist 为空）可跳过。
+如果 beta2 先前失败留下目标文件，先保留日志和证据。脚本会拒绝覆盖；只有在审阅并将原 beta2 输出移到独立留档位置后，才可另行重建。不得把 beta1 产物纳入清理。
 
 ---
 
@@ -60,18 +53,20 @@ PyInstaller 的普通 INFO 走 stderr，脚本已把它包在 Continue 作用域
 
 产物（均在 dist\）：
 
-    MiniJMP-V1.0-beta1.zip                        运行包（整目录，解压即用）
-    MiniJMP-V1.0-beta1-source.zip                 对应源码包（GPLv3 要求）
-    MiniJMP-V1.0-beta1-SHA256SUMS.txt             三个产物的校验值
-    MiniJMP-V1.0-beta1\                           未压缩运行目录
-    docs\release\pyinstaller-build-V1.0-beta1.txt 构建日志
-    docs\release\build-inputs-V1.0-beta1.txt      运行包输入清单与摘要
+    MiniJMP-V1.0-beta2.zip                        运行包（整目录，解压即用）
+    MiniJMP-V1.0-beta2-source.zip                 对应源码包（GPLv3 要求）
+    MiniJMP-V1.0-beta2-SHA256SUMS.txt             三个产物的校验值
+    MiniJMP-V1.0-beta2\                           未压缩运行目录
+    docs\release\pyinstaller-build-V1.0-beta2.txt 构建日志
+    docs\release\build-inputs-V1.0-beta2.txt      运行包输入清单与摘要
 
 运行包根目录：MiniJMP.exe、_internal\、PIReader\、README.txt、LICENSE、
 THIRD-PARTY-NOTICES.txt、THIRD-PARTY-LICENSES\、BUILD-INFO.txt、SOURCE-CODE.txt。
 
 PIReader 必须与 MiniJMP.exe 同级：frozen onedir 的程序模块在 _internal 内，
 代码显式以 sys.executable 所在目录作为应用根，不会去 _internal\PIReader 查找。
+运行包包含 PIReader.exe、三个 PI SDK DLL 和脱敏配置模板；BUILD-INFO 与
+build-inputs 清单记录 DLL 版本、大小及 SHA-256。DLL 不属于 MiniJMP 的 GPL 许可。
 
 ---
 
@@ -81,10 +76,10 @@ PIReader 必须与 MiniJMP.exe 同级：frozen onedir 的程序模块在 _intern
 
 | 用途 | 位置 | 值 |
 |---|---|---|
-| 用户展示 | 关于窗口、README | V1.0 beta1 |
-| 发布文件名 | tools\build_windows_release.ps1 的 $releaseVersion | V1.0-beta1 |
-| 产品版本 | version_info.txt 的 ProductVersion、USAGE.txt、README.md、CHANGES | v1.0.0-beta.1 |
-| EXE 四段数值 | version_info.txt 的 filevers / prodvers / FileVersion | 1.0.0.1 |
+| 用户展示 | 关于窗口、README | V1.0 beta2 |
+| 发布文件名 | tools\build_windows_release.ps1 的 $releaseVersion | V1.0-beta2 |
+| 产品版本 | version_info.txt 的 ProductVersion、USAGE.txt、README.md、CHANGES | v1.0.0-beta.2 |
+| EXE 四段数值 | version_info.txt 的 filevers / prodvers / FileVersion | 1.0.0.2 |
 
 预检查用 tools/release_metadata.py 分别核对这些标识，不要求彼此字符串相同。
 
@@ -95,16 +90,16 @@ PIReader 必须与 MiniJMP.exe 同级：frozen onedir 的程序模块在 _intern
 ## D. 校验值与结构复核
 
     $python = (Resolve-Path ".venv\Scripts\python.exe").Path
-    Get-Content .\dist\MiniJMP-V1.0-beta1-SHA256SUMS.txt
-    & $python .\tools\make_zip.py rehash .\dist\MiniJMP-V1.0-beta1.zip --interval 15 --attempts 3
-    & $python .\tools\make_zip.py rehash .\dist\MiniJMP-V1.0-beta1-source.zip --interval 15 --attempts 3
-    & $python .\tools\make_zip.py inspect .\dist\MiniJMP-V1.0-beta1.zip --entry MiniJMP-V1.0-beta1/MiniJMP.exe
+    Get-Content .\dist\MiniJMP-V1.0-beta2-SHA256SUMS.txt
+    & $python .\tools\make_zip.py rehash .\dist\MiniJMP-V1.0-beta2.zip --interval 15 --attempts 3
+    & $python .\tools\make_zip.py rehash .\dist\MiniJMP-V1.0-beta2-source.zip --interval 15 --attempts 3
+    & $python .\tools\make_zip.py inspect .\dist\MiniJMP-V1.0-beta2.zip --entry MiniJMP-V1.0-beta2/MiniJMP.exe
 
 预期：两次 rehash 与 SHA256SUMS 三行一致；CRC=ok；ENTRY-SHA256 等于
-dist\MiniJMP-V1.0-beta1\MiniJMP.exe 的摘要；PIReader 条目与该目录实际文件数一致
-（PIReader.exe、脱敏的 config.txt 和 tags.txt；不包含 OSIsoft SDK DLL）。
+dist\MiniJMP-V1.0-beta2\MiniJMP.exe 的摘要；运行 ZIP 中三个 PI SDK DLL 的摘要
+与源文件及运行目录一致，PIReader 目录含程序、DLL 和两份脱敏模板配置。
 
-build-inputs-V1.0-beta1.txt 是打包瞬间的运行包文件清单与摘要；
+build-inputs-V1.0-beta2.txt 是打包瞬间的运行包文件清单与摘要；
 SHA256SUMS.txt 是沉降复验后的最终交付值。
 
 ---
@@ -112,15 +107,15 @@ SHA256SUMS.txt 是沉降复验后的最终交付值。
 ## E. 冒烟
 
     $python = (Resolve-Path ".venv\Scripts\python.exe").Path
-    & $python .\tools\smoke_launch.py .\dist\MiniJMP-V1.0-beta1\MiniJMP.exe 90
+    & $python .\tools\smoke_launch.py .\dist\MiniJMP-V1.0-beta2\MiniJMP.exe 90
 
 ZIP 解压版（解压到 %TEMP%，公司目录里的文件可能被透明加密改写）：
 
     $python = (Resolve-Path ".venv\Scripts\python.exe").Path
     $dest = Join-Path $env:TEMP 'mjmp-unzip'
     Remove-Item -LiteralPath $dest -Recurse -Force -ErrorAction SilentlyContinue
-    & $python -m zipfile -e .\dist\MiniJMP-V1.0-beta1.zip $dest
-    & $python .\tools\smoke_launch.py (Join-Path $dest 'MiniJMP-V1.0-beta1\MiniJMP.exe') 90
+    & $python -m zipfile -e .\dist\MiniJMP-V1.0-beta2.zip $dest
+    & $python .\tools\smoke_launch.py (Join-Path $dest 'MiniJMP-V1.0-beta2\MiniJMP.exe') 90
 
 通过标准：打印 window after Ns: ['未命名项目 — 工作表1 - Minijmp']，退出码 0。
 裸 tk 占位标题不算成功。冷启动 8–28 秒属正常，等满 90 秒再判失败。
