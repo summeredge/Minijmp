@@ -1,0 +1,11 @@
+{
+  "version": "19.1.0.1",
+  "clsid": "{6265486C-4A08-4B4E-9713-C2CD85F1F515}",
+  "registered_server": "\"D:\\Program\\Minitab 19\\Mtb.exe\" /19_1",
+  "app_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+  "process_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+  "process_id": 42260,
+  "project_name": "无标题",
+  "worksheet_name": "工作表 1",
+  "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe"
+}

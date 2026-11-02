@@ -1,0 +1,16 @@
+MiniJMP × Minitab 19 phase 2 repeatability check
+case_inputs.json SHA256: 1af9160ca26161392566d493ac535acf404a34caa757033eecf721226cfba5c6
+Planned cases: 10; fixed order: CAP-01, CAP-02, CAP-03, SPC-01, SPC-02, SPC-03, SPC-04, CAP-04, CAP-05, GRR-01
+Minitab COM worker exit codes: [0, 0]
+Minitab versions: ['19.1.0.1', '19.1.0.1']
+Production calculation hashes identical: True
+Production run 1 SHA256: 99c1a6d886893bb19414d603e915892b40cefa5cae007219cc4dada242487d00
+Production run 2 SHA256: 99c1a6d886893bb19414d603e915892b40cefa5cae007219cc4dada242487d00
+Comparison rows identical: True
+Comparison run 1 SHA256: 78aefe827be8dd009a1c9a15e0923431cef86667cc2bf4278acf23982836f98b
+Comparison run 2 SHA256: 78aefe827be8dd009a1c9a15e0923431cef86667cc2bf4278acf23982836f98b
+All 10 commands attempted and inputs read back in both independent COM projects: True
+Minitab direct stored values identical: True
+Minitab result run 1 SHA256: a75a79bd16acffcabc4cc473274f5632f0b3d5246d665aecbdd33f5bb87aa1b1
+Minitab result run 2 SHA256: a75a79bd16acffcabc4cc473274f5632f0b3d5246d665aecbdd33f5bb87aa1b1
+PASS: fixed inputs, complete run attempts, production results, Minitab storage, and comparisons repeat.

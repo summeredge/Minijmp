@@ -1,0 +1,11 @@
+﻿case_id,feature,metric_count,phase2_PASS,phase2_FAIL,phase2_METHOD_DIFF,phase2_UNSUPPORTED,phase2_NOT_RUN,phase3_PASS,phase3_FAIL,phase3_METHOD_DIFF,phase3_UNSUPPORTED,phase3_NOT_RUN,final_case_status
+CAP-01,正态过程能力,7,4,0,3,0,0,4,0,3,0,0,METHOD_DIFF
+CAP-02,正态过程能力,6,6,0,0,0,0,6,0,0,0,0,PASS
+CAP-03,正态过程能力,4,1,1,2,0,0,2,0,2,0,0,METHOD_DIFF
+SPC-01,I-MR 控制图,298,298,0,0,0,0,298,0,0,0,0,PASS
+SPC-02,I-MR 控制图,308,308,0,0,0,0,308,0,0,0,0,PASS
+SPC-03,Xbar-R 控制图,120,120,0,0,0,0,120,0,0,0,0,PASS
+SPC-04,Xbar-S 控制图,120,120,0,0,0,0,120,0,0,0,0,PASS
+CAP-04,非正态过程能力,12,4,0,8,0,0,4,0,8,0,0,METHOD_DIFF
+CAP-05,非正态过程能力,12,3,9,0,0,0,12,0,0,0,0,PASS
+GRR-01,交叉型 GRR,22,22,0,0,0,0,22,0,0,0,0,PASS

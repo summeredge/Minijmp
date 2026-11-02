@@ -1,0 +1,455 @@
+===== descriptive — 实际 Session 命令 =====
+STATS C1;
+  N C20;
+  MEAN C21;
+  STDEV C22.
+===== OutputDocument.Text / Output.Text 原始结果 =====
+OutputDocument.Text:
+
+===== COM 执行状态 =====
+Commands.Count: 0 -> 1
+LastError: (empty)
+
+===== normality — 实际 Session 命令 =====
+NORMTEST C2;
+  SPVALUE C25.
+===== OutputDocument.Text / Output.Text 原始结果 =====
+OutputDocument.Text:
+Normality 的概率图
+ 
+
+Normality 的概率图
+
+
+
+
+Output.Text[1]:
+Normality 的概率图
+
+===== COM 执行状态 =====
+Commands.Count: 1 -> 2
+LastError: (empty)
+
+===== pearson — 实际 Session 命令 =====
+CORRELATION C3 C4;
+  PEARSON;
+  NODEFAULT;
+  SCORRELATION M1;
+  SPVALUES M2.
+===== OutputDocument.Text / Output.Text 原始结果 =====
+OutputDocument.Text:
+
+===== COM 执行状态 =====
+Commands.Count: 2 -> 3
+LastError: (empty)
+
+===== one_sample_t — 实际 Session 命令 =====
+ONET C5;
+  TEST 10;
+  CONFIDENCE 95;
+  SPVALUE C26;
+  SCONF C27 C28.
+===== OutputDocument.Text / Output.Text 原始结果 =====
+OutputDocument.Text:
+单样本 T: OneT
+ 
+
+描述性统计量
+
+ N      均值    标准差  均值标准误    μ 的 95% 置信区间
+10  11.010  0.900  0.285  (10.366, 11.654)
+
+μ: OneT 的均值
+
+
+检验
+
+原假设   H₀: μ = 10
+备择假设  H₁: μ ≠ 10
+
+ T 值    P 值
+3.55  0.006
+
+
+
+Output.Text[1]:
+描述性统计量
+
+ N      均值    标准差  均值标准误    μ 的 95% 置信区间
+10  11.010  0.900  0.285  (10.366, 11.654)
+
+μ: OneT 的均值
+
+
+Output.Text[2]:
+检验
+
+原假设   H₀: μ = 10
+备择假设  H₁: μ ≠ 10
+
+ T 值    P 值
+3.55  0.006
+
+===== COM 执行状态 =====
+Commands.Count: 3 -> 4
+LastError: (empty)
+
+===== two_sample_t — 实际 Session 命令 =====
+TWOSAMPLE 95 C7 C6;
+  TEST 0;
+  SPVALUE C29;
+  SCONF C30 C31.
+===== OutputDocument.Text / Output.Text 原始结果 =====
+OutputDocument.Text:
+双样本 T 检验和置信区间: Sample2, Sample1
+ 
+
+方法
+
+μ₁: Sample2 的均值
+µ₂: Sample1 的均值
+差值: μ₁ - µ₂
+
+未针对此分析假定等方差。
+
+
+描述性统计量
+
+样本       N     均值   标准差  均值标准误
+Sample2  7  10.43  1.72   0.65
+Sample1  8  13.13  2.03   0.72
+
+
+差值的估计值
+
+    差值    差值的 95% 置信区间
+-2.696  (-4.806, -0.587)
+
+
+检验
+
+原假设   H₀: μ₁ - µ₂ = 0
+备择假设  H₁: μ₁ - µ₂ ≠ 0
+
+  T 值  自由度    P 值
+-2.79   12  0.016
+
+
+
+Output.Text[1]:
+方法
+
+μ₁: Sample2 的均值
+µ₂: Sample1 的均值
+差值: μ₁ - µ₂
+
+未针对此分析假定等方差。
+
+
+Output.Text[2]:
+描述性统计量
+
+样本       N     均值   标准差  均值标准误
+Sample2  7  10.43  1.72   0.65
+Sample1  8  13.13  2.03   0.72
+
+
+Output.Text[3]:
+差值的估计值
+
+    差值    差值的 95% 置信区间
+-2.696  (-4.806, -0.587)
+
+
+Output.Text[4]:
+检验
+
+原假设   H₀: μ₁ - µ₂ = 0
+备择假设  H₁: μ₁ - µ₂ ≠ 0
+
+  T 值  自由度    P 值
+-2.79   12  0.016
+
+===== COM 执行状态 =====
+Commands.Count: 4 -> 5
+LastError: (empty)
+
+===== paired_t — 实际 Session 命令 =====
+PAIR C8 C9;
+  TEST 0;
+  CONFIDENCE 95;
+  SPVALUE C32;
+  SCONF C33 C34.
+===== OutputDocument.Text / Output.Text 原始结果 =====
+OutputDocument.Text:
+配对 T 检验和置信区间: Before, After
+ 
+
+描述性统计量
+
+样本      N      均值   标准差  均值标准误
+Before  8  100.25  3.11   1.10
+After   8   98.25  2.05   0.73
+
+
+配对差值的估计值
+
+                    μ_差 的 95% 置信
+   均值    标准差  均值标准误      区间
+2.000  2.000  0.707(0.328, 3.672)
+
+μ_差: (Before - After) 的均值
+
+
+检验
+
+原假设   H₀: μ_差 = 0
+备择假设  H₁: μ_差 ≠ 0
+
+ T 值    P 值
+2.83  0.025
+
+
+
+Output.Text[1]:
+描述性统计量
+
+样本      N      均值   标准差  均值标准误
+Before  8  100.25  3.11   1.10
+After   8   98.25  2.05   0.73
+
+
+Output.Text[2]:
+配对差值的估计值
+
+                    μ_差 的 95% 置信
+   均值    标准差  均值标准误      区间
+2.000  2.000  0.707(0.328, 3.672)
+
+μ_差: (Before - After) 的均值
+
+
+Output.Text[3]:
+检验
+
+原假设   H₀: μ_差 = 0
+备择假设  H₁: μ_差 ≠ 0
+
+ T 值    P 值
+2.83  0.025
+
+===== COM 执行状态 =====
+Commands.Count: 5 -> 6
+LastError: (empty)
+
+===== one_way_anova — 实际 Session 命令 =====
+ONEWAY;
+  RESPONSE C10;
+  CATEGORICAL C11;
+  CONFIDENCE 95;
+  TANOVA.
+===== OutputDocument.Text / Output.Text 原始结果 =====
+OutputDocument.Text:
+单因子方差分析: AnovaY 与 Group
+ 
+
+方法
+
+原假设    所有均值都相等
+备择假设   并非所有的均值都相等
+显著性水平  α = 0.05
+
+已针对此分析假定了相等方差。
+
+
+因子信息
+
+因子     水平数  值
+Group    3  A, B, C
+
+
+方差分析
+
+来源     自由度  Adj SS  Adj MS    F 值    P 值
+Group    2  160.00  80.000  32.00  0.000
+误差      12   30.00   2.500
+合计      14  190.00
+
+
+模型汇总
+
+      S    R-sq  R-sq（调整）  R-sq（预测）
+1.58114  84.21%    81.58%    75.33%
+
+
+均值
+
+Group  N      均值    标准差      95% 置信区间
+A      5   8.000  1.581  ( 6.459,  9.541)
+B      5  12.000  1.581  (10.459, 13.541)
+C      5  16.000  1.581  (14.459, 17.541)
+
+合并标准差 = 1.58114
+
+
+AnovaY 与 Group 的区间图
+
+
+
+
+Output.Text[1]:
+方法
+
+原假设    所有均值都相等
+备择假设   并非所有的均值都相等
+显著性水平  α = 0.05
+
+已针对此分析假定了相等方差。
+
+
+Output.Text[2]:
+因子信息
+
+因子     水平数  值
+Group    3  A, B, C
+
+
+Output.Text[3]:
+方差分析
+
+来源     自由度  Adj SS  Adj MS    F 值    P 值
+Group    2  160.00  80.000  32.00  0.000
+误差      12   30.00   2.500
+合计      14  190.00
+
+
+Output.Text[4]:
+模型汇总
+
+      S    R-sq  R-sq（调整）  R-sq（预测）
+1.58114  84.21%    81.58%    75.33%
+
+
+Output.Text[5]:
+均值
+
+Group  N      均值    标准差      95% 置信区间
+A      5   8.000  1.581  ( 6.459,  9.541)
+B      5  12.000  1.581  (10.459, 13.541)
+C      5  16.000  1.581  (14.459, 17.541)
+
+合并标准差 = 1.58114
+
+
+Output.Text[6]:
+AnovaY 与 Group 的区间图
+
+===== COM 执行状态 =====
+Commands.Count: 6 -> 7
+LastError: (empty)
+
+===== ols_linear — 实际 Session 命令 =====
+REGRESS;
+  RESPONSE C12;
+  CONTINUOUS C13;
+  TERMS C13;
+  CONSTANT;
+  UNSTANDARDIZED;
+  CONFIDENCE 95;
+  TCOEFFICIENTS;
+  TANOVA;
+  COEFFICIENTS C40;
+  SPVALUE C41;
+  SS C42;
+  SRSQ C43;
+  XPXINV M3.
+===== OutputDocument.Text / Output.Text 原始结果 =====
+OutputDocument.Text:
+回归分析: RegY 与 RegX
+ 
+
+回归方程
+
+RegY = 5.686 + 2.2021 RegX
+
+
+系数
+
+项         系数   系数标准误    T 值    P 值  方差膨胀因子
+常量     5.686   0.376  15.11  0.000
+RegX  2.2021  0.0511  43.06  0.000    1.00
+
+
+模型汇总
+
+       S    R-sq  R-sq（调整）  R-sq（预测）
+0.611504  99.46%    99.41%    99.23%
+
+
+方差分析
+
+来源      自由度   Adj SS   Adj MS      F 值    P 值
+回归        1  693.441  693.441  1854.43  0.000
+  RegX    1  693.441  693.441  1854.43  0.000
+误差       10    3.739    0.374
+合计       11  697.180
+
+
+
+Output.Text[1]:
+回归方程
+
+RegY = 5.686 + 2.2021 RegX
+
+
+Output.Text[2]:
+系数
+
+项         系数   系数标准误    T 值    P 值  方差膨胀因子
+常量     5.686   0.376  15.11  0.000
+RegX  2.2021  0.0511  43.06  0.000    1.00
+
+
+Output.Text[3]:
+模型汇总
+
+       S    R-sq  R-sq（调整）  R-sq（预测）
+0.611504  99.46%    99.41%    99.23%
+
+
+Output.Text[4]:
+方差分析
+
+来源      自由度   Adj SS   Adj MS      F 值    P 值
+回归        1  693.441  693.441  1854.43  0.000
+  RegX    1  693.441  693.441  1854.43  0.000
+误差       10    3.739    0.374
+合计       11  697.180
+
+===== COM 执行状态 =====
+Commands.Count: 7 -> 8
+LastError: (empty)
+
+===== descriptive_display — 实际 Session 命令 =====
+DESCRIBE C1.
+===== OutputDocument.Text / Output.Text 原始结果 =====
+OutputDocument.Text:
+描述性统计量: Desc
+ 
+
+统计量
+
+变量     N  N*     均值  均值标准误    标准差    最小值  下四分位数    中位数   上四分位数     最大值
+Desc  12   0  9.267  0.311  1.079  7.600  8.325  9.300  10.050  11.200
+
+
+
+Output.Text[1]:
+统计量
+
+变量     N  N*     均值  均值标准误    标准差    最小值  下四分位数    中位数   上四分位数     最大值
+Desc  12   0  9.267  0.311  1.079  7.600  8.325  9.300  10.050  11.200
+
+===== COM 执行状态 =====
+Commands.Count: 8 -> 9
+LastError: (empty)

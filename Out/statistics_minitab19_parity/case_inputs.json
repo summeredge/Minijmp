@@ -1,0 +1,58 @@
+{
+  "options": {
+    "alpha": 0.05,
+    "confidence": 0.95,
+    "missing_values": "无缺失值；所有输入均为有限数值",
+    "two_sample_variance": "Welch 不等方差；Minitab 19 省略 POOLED 时的默认方法",
+    "one_way_anova": "传统等方差单因子方差分析；省略 WELCH",
+    "normality_test": "Anderson-Darling；Minitab 19 NORMTEST 默认方法",
+    "ols": "包含截距、一个未标准化连续预测变量的普通最小二乘回归"
+  },
+  "cases": {
+    "descriptive": {
+      "feature": "描述性统计",
+      "values": [8.2, 9.1, 7.6, 10.4, 9.8, 8.7, 11.2, 9.5, 7.9, 10.1, 8.8, 9.9]
+    },
+    "normality": {
+      "feature": "正态性检验",
+      "values": [0.4, 0.8, 1.0, 1.2, 1.5, 1.8, 2.1, 2.5, 3.0, 3.8, 4.5, 6.0]
+    },
+    "pearson": {
+      "feature": "Pearson 相关分析",
+      "x": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      "y": [2.4, 1.3, 4.1, 3.0, 5.4, 4.8, 7.2, 6.9, 9.1, 8.7]
+    },
+    "one_sample_t": {
+      "feature": "单样本均值 t 检验",
+      "values": [10.2, 11.4, 9.8, 12.1, 10.9, 11.7, 9.9, 12.4, 10.6, 11.1],
+      "mu0": 10.0
+    },
+    "two_sample_t": {
+      "feature": "双样本 t 检验",
+      "sample1": [12, 15, 14, 10, 13, 16, 11, 14],
+      "sample2": [9, 11, 10, 8, 13, 10, 12],
+      "difference": "mu2 - mu1",
+      "null_difference": 0.0
+    },
+    "paired_t": {
+      "feature": "配对 t 检验",
+      "sample1": [101, 98, 103, 97, 105, 100, 96, 102],
+      "sample2": [98, 97, 101, 99, 101, 97, 95, 98],
+      "difference": "sample1 - sample2",
+      "null_difference": 0.0
+    },
+    "one_way_anova": {
+      "feature": "单因子方差分析",
+      "groups": {
+        "A": [8, 9, 6, 7, 10],
+        "B": [12, 13, 10, 11, 14],
+        "C": [15, 17, 14, 16, 18]
+      }
+    },
+    "ols_linear": {
+      "feature": "OLS 线性回归",
+      "x": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      "y": [8.4, 10.9, 12.1, 14.3, 16.2, 18.0, 21.1, 22.4, 26.2, 27.6, 30.1, 32.7]
+    }
+  }
+}

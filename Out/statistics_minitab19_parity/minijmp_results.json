@@ -1,0 +1,387 @@
+{
+  "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+  "options": {
+    "alpha": 0.05,
+    "confidence": 0.95,
+    "missing_values": "无缺失值；所有输入均为有限数值",
+    "two_sample_variance": "Welch 不等方差；Minitab 19 省略 POOLED 时的默认方法",
+    "one_way_anova": "传统等方差单因子方差分析；省略 WELCH",
+    "normality_test": "Anderson-Darling；Minitab 19 NORMTEST 默认方法",
+    "ols": "包含截距、一个未标准化连续预测变量的普通最小二乘回归"
+  },
+  "case_inputs": {
+    "descriptive": {
+      "feature": "描述性统计",
+      "values": [
+        8.2,
+        9.1,
+        7.6,
+        10.4,
+        9.8,
+        8.7,
+        11.2,
+        9.5,
+        7.9,
+        10.1,
+        8.8,
+        9.9
+      ]
+    },
+    "normality": {
+      "feature": "正态性检验",
+      "values": [
+        0.4,
+        0.8,
+        1.0,
+        1.2,
+        1.5,
+        1.8,
+        2.1,
+        2.5,
+        3.0,
+        3.8,
+        4.5,
+        6.0
+      ]
+    },
+    "pearson": {
+      "feature": "Pearson 相关分析",
+      "x": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "y": [
+        2.4,
+        1.3,
+        4.1,
+        3.0,
+        5.4,
+        4.8,
+        7.2,
+        6.9,
+        9.1,
+        8.7
+      ]
+    },
+    "one_sample_t": {
+      "feature": "单样本均值 t 检验",
+      "values": [
+        10.2,
+        11.4,
+        9.8,
+        12.1,
+        10.9,
+        11.7,
+        9.9,
+        12.4,
+        10.6,
+        11.1
+      ],
+      "mu0": 10.0
+    },
+    "two_sample_t": {
+      "feature": "双样本 t 检验",
+      "sample1": [
+        12,
+        15,
+        14,
+        10,
+        13,
+        16,
+        11,
+        14
+      ],
+      "sample2": [
+        9,
+        11,
+        10,
+        8,
+        13,
+        10,
+        12
+      ],
+      "difference": "mu2 - mu1",
+      "null_difference": 0.0
+    },
+    "paired_t": {
+      "feature": "配对 t 检验",
+      "sample1": [
+        101,
+        98,
+        103,
+        97,
+        105,
+        100,
+        96,
+        102
+      ],
+      "sample2": [
+        98,
+        97,
+        101,
+        99,
+        101,
+        97,
+        95,
+        98
+      ],
+      "difference": "sample1 - sample2",
+      "null_difference": 0.0
+    },
+    "one_way_anova": {
+      "feature": "单因子方差分析",
+      "groups": {
+        "A": [
+          8,
+          9,
+          6,
+          7,
+          10
+        ],
+        "B": [
+          12,
+          13,
+          10,
+          11,
+          14
+        ],
+        "C": [
+          15,
+          17,
+          14,
+          16,
+          18
+        ]
+      }
+    },
+    "ols_linear": {
+      "feature": "OLS 线性回归",
+      "x": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "y": [
+        8.4,
+        10.9,
+        12.1,
+        14.3,
+        16.2,
+        18.0,
+        21.1,
+        22.4,
+        26.2,
+        27.6,
+        30.1,
+        32.7
+      ]
+    }
+  },
+  "results": {
+    "descriptive": {
+      "N": {
+        "value": 12,
+        "source": "describe.describe：有效样本数 N"
+      },
+      "Mean": {
+        "value": 9.266666666666666,
+        "source": "describe.describe：均值"
+      },
+      "StDev": {
+        "value": 1.0790006599823858,
+        "source": "describe.describe：样本标准差"
+      },
+      "Minimum": {
+        "value": 7.6,
+        "source": "describe.describe：最小值"
+      },
+      "Maximum": {
+        "value": 11.2,
+        "source": "describe.describe：最大值"
+      }
+    },
+    "normality": {
+      "AD": {
+        "value": 0.3752079854752228,
+        "source": "utilities.norm_test → statsmodels.normal_ad：调整 AD 统计量"
+      },
+      "p": {
+        "value": 0.35378519656897095,
+        "source": "utilities.norm_test → statsmodels.normal_ad：AD p 值"
+      }
+    },
+    "pearson": {
+      "r": {
+        "value": 0.9479618885152749,
+        "source": "utilities.pearson_correlation：Pearson r"
+      },
+      "p": {
+        "value": 3.0121920975606824e-05,
+        "source": "utilities.pearson_correlation：双侧 t 检验 p 值"
+      }
+    },
+    "one_sample_t": {
+      "t": {
+        "value": 3.549021688551474,
+        "source": "t_test.t_test_1sample：t 值"
+      },
+      "df": {
+        "value": 9,
+        "source": "t_test.t_test_1sample：自由度"
+      },
+      "p": {
+        "value": 0.006225429493760037,
+        "source": "t_test.t_test_1sample：双侧 p 值"
+      },
+      "CI lower": {
+        "value": 10.366222943958629,
+        "source": "t_test.t_test_1sample：95% 区间下限"
+      },
+      "CI upper": {
+        "value": 11.65377705604137,
+        "source": "t_test.t_test_1sample：95% 区间上限"
+      }
+    },
+    "two_sample_t": {
+      "Mean difference (mu2-mu1)": {
+        "value": -2.696428571428571,
+        "source": "t_test.t_test_2samples：95% 区间中点（mu2−mu1）"
+      },
+      "SE difference": {
+        "value": 0.9681909457761901,
+        "source": "t_test.t_test_2samples：由 95% 区间宽度和自由度推导"
+      },
+      "t": {
+        "value": -2.7850173389783857,
+        "source": "t_test.t_test_2samples：Welch t 值"
+      },
+      "df": {
+        "value": 12.992964037069028,
+        "source": "t_test.t_test_2samples：Welch-Satterthwaite 自由度"
+      },
+      "p": {
+        "value": 0.01547348682145322,
+        "source": "t_test.t_test_2samples：双侧 Welch p 值"
+      }
+    },
+    "paired_t": {
+      "Mean difference (sample1-sample2)": {
+        "value": 2,
+        "source": "t_test.paired_t_test：配对差值均值"
+      },
+      "t": {
+        "value": 2.8284271247461903,
+        "source": "t_test.paired_t_test：t 值"
+      },
+      "df": {
+        "value": 7,
+        "source": "t_test.paired_t_test：自由度"
+      },
+      "p": {
+        "value": 0.025463561683239266,
+        "source": "t_test.paired_t_test：双侧 p 值"
+      }
+    },
+    "one_way_anova": {
+      "Between SS": {
+        "value": 160.0,
+        "source": "one_way_ANOVA.one_way_anova：组间均方 × 自由度"
+      },
+      "Between df": {
+        "value": 2,
+        "source": "one_way_ANOVA.one_way_anova：组间自由度"
+      },
+      "Between MS": {
+        "value": 80.0,
+        "source": "one_way_ANOVA.one_way_anova：组间均方"
+      },
+      "F": {
+        "value": 32.0,
+        "source": "one_way_ANOVA.one_way_anova：F 值"
+      },
+      "p": {
+        "value": 1.5495511711205445e-05,
+        "source": "one_way_ANOVA.one_way_anova：F 分布上尾 p 值"
+      },
+      "Error SS": {
+        "value": 30.0,
+        "source": "one_way_ANOVA.one_way_anova：误差均方 × 自由度"
+      },
+      "Error df": {
+        "value": 12,
+        "source": "one_way_ANOVA.one_way_anova：误差自由度"
+      },
+      "Error MS": {
+        "value": 2.5,
+        "source": "one_way_ANOVA.one_way_anova：误差均方"
+      },
+      "Total SS": {
+        "value": 190.0,
+        "source": "one_way_ANOVA.one_way_anova：组间平方和 + 误差平方和"
+      },
+      "Total df": {
+        "value": 14,
+        "source": "one_way_ANOVA.one_way_anova：总自由度"
+      }
+    },
+    "ols_linear": {
+      "Intercept coefficient": {
+        "value": 5.686363636363634,
+        "source": "linear_fit.linear_fit：截距"
+      },
+      "Intercept SE": {
+        "value": 0.3763546557040312,
+        "source": "linear_fit.linear_fit：截距标准误"
+      },
+      "Intercept t": {
+        "value": 15.109056179274273,
+        "source": "linear_fit.linear_fit：截距 t 绝对值"
+      },
+      "Intercept p": {
+        "value": 3.2611157108064504e-08,
+        "source": "linear_fit.linear_fit：截距双侧 p 值"
+      },
+      "X coefficient": {
+        "value": 2.2020979020979023,
+        "source": "linear_fit.linear_fit：斜率"
+      },
+      "X SE": {
+        "value": 0.05113652800164851,
+        "source": "linear_fit.linear_fit：斜率标准误"
+      },
+      "X t": {
+        "value": 43.06310944745628,
+        "source": "linear_fit.linear_fit：斜率 t 绝对值"
+      },
+      "X p": {
+        "value": 1.0946799022804043e-12,
+        "source": "linear_fit.linear_fit：斜率双侧 p 值"
+      },
+      "R2": {
+        "value": 0.9946364344511165,
+        "source": "linear_fit.linear_fit：R²"
+      },
+      "Residual standard deviation": {
+        "value": 0.6115039353406188,
+        "source": "linear_fit.linear_fit：残差标准差"
+      }
+    }
+  }
+}
