@@ -1,0 +1,401 @@
+{
+  "version": "19.1.0.1",
+  "clsid": "{6265486C-4A08-4B4E-9713-C2CD85F1F515}",
+  "registered_server": "\"D:\\Program\\Minitab 19\\Mtb.exe\" /19_1",
+  "app_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+  "process_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+  "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+  "loaded_inputs": {
+    "1": {
+      "name": "normal_ties",
+      "values": [
+        59.0,
+        61.0,
+        55.0,
+        66.0,
+        52.0,
+        60.0,
+        61.0,
+        51.0,
+        60.0,
+        61.0,
+        56.0,
+        65.0,
+        63.0,
+        58.0,
+        59.0,
+        61.0,
+        62.0,
+        65.0,
+        63.0,
+        62.0,
+        63.0,
+        64.0,
+        65.0,
+        64.0,
+        68.0,
+        64.0,
+        69.0,
+        62.0,
+        64.0,
+        67.0,
+        65.0,
+        66.0,
+        62.0,
+        66.0,
+        65.0,
+        60.0,
+        68.0,
+        62.0,
+        68.0,
+        70.0
+      ],
+      "effective_n": 40
+    },
+    "2": {
+      "name": "right_skew_ties_missing",
+      "values": [
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        2.0,
+        12.0,
+        3.0,
+        12.0,
+        3.0,
+        2.0,
+        null,
+        40.0,
+        3.0,
+        2.0
+      ],
+      "effective_n": 13
+    },
+    "3": {
+      "name": "nonpositive_boundary",
+      "values": [
+        -3.0,
+        -1.0,
+        0.0,
+        0.5,
+        1.0,
+        2.0,
+        3.0,
+        4.0
+      ],
+      "effective_n": 8
+    }
+  },
+  "commands": [
+    {
+      "case_id": "input_normal_ties",
+      "command": "SET C1\n59 61 55 66 52 60 61 51 60 61 56 65 63 58 59 61 62 65 63 62 63 64 65 64 68 64 69 62 64 67 65 66 62 66 65 60 68 62 68 70\nEND"
+    },
+    {
+      "case_id": "input_right_skew_ties_missing",
+      "command": "SET C2\n1 2 3 4 2 12 3 12 3 2 * 40 3 2\nEND"
+    },
+    {
+      "case_id": "input_nonpositive_boundary",
+      "command": "SET C3\n-3 -1 0 0.5 1 2 3 4\nEND"
+    },
+    {
+      "case_id": "normal_ties_normal_parameters",
+      "command": "DCAPA C1 1;\n  NORMAL;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI."
+    },
+    {
+      "case_id": "normal_ties_positive_distribution_fit",
+      "command": "DCAPA C1 1;\n  LNORMAL;\n  GAMMA;\n  EXPONENTIAL;\n  WEIBULL;\n  RFITTESTS;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI."
+    },
+    {
+      "case_id": "right_skew_ties_missing_normal_parameters",
+      "command": "DCAPA C2 1;\n  NORMAL;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI."
+    },
+    {
+      "case_id": "right_skew_ties_missing_positive_distribution_fit",
+      "command": "DCAPA C2 1;\n  LNORMAL;\n  GAMMA;\n  EXPONENTIAL;\n  WEIBULL;\n  RFITTESTS;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI."
+    },
+    {
+      "case_id": "nonpositive_boundary_normal_parameters",
+      "command": "DCAPA C3 1;\n  NORMAL;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI."
+    },
+    {
+      "case_id": "input_P6_X_normal",
+      "command": "SET C10\n1.2\nEND"
+    },
+    {
+      "case_id": "input_P6_P_normal",
+      "command": "SET C11\n0.10000000000000001 0.90000000000000002 0.050000000000000003 0.94999999999999996\nEND"
+    },
+    {
+      "case_id": "normal_pdf",
+      "command": "PDF C10 C30;\n  NORMAL 0.4 1.5."
+    },
+    {
+      "case_id": "normal_cdf",
+      "command": "CDF C10 C31;\n  NORMAL 0.4 1.5."
+    },
+    {
+      "case_id": "normal_invcdf",
+      "command": "INVCDF C11 C32;\n  NORMAL 0.4 1.5."
+    },
+    {
+      "case_id": "input_P6_X_lognormal",
+      "command": "SET C10\n1.3\nEND"
+    },
+    {
+      "case_id": "input_P6_P_lognormal",
+      "command": "SET C11\n0.10000000000000001 0.90000000000000002 0.050000000000000003 0.94999999999999996\nEND"
+    },
+    {
+      "case_id": "lognormal_pdf",
+      "command": "PDF C10 C33;\n  LNORMAL 0 0.5 0."
+    },
+    {
+      "case_id": "lognormal_cdf",
+      "command": "CDF C10 C34;\n  LNORMAL 0 0.5 0."
+    },
+    {
+      "case_id": "lognormal_invcdf",
+      "command": "INVCDF C11 C35;\n  LNORMAL 0 0.5 0."
+    },
+    {
+      "case_id": "input_P6_X_student_t",
+      "command": "SET C10\n0.75\nEND"
+    },
+    {
+      "case_id": "input_P6_P_student_t",
+      "command": "SET C11\n0.10000000000000001 0.90000000000000002 0.050000000000000003 0.94999999999999996\nEND"
+    },
+    {
+      "case_id": "student_t_pdf",
+      "command": "PDF C10 C36;\n  T 5."
+    },
+    {
+      "case_id": "student_t_cdf",
+      "command": "CDF C10 C37;\n  T 5."
+    },
+    {
+      "case_id": "student_t_invcdf",
+      "command": "INVCDF C11 C38;\n  T 5."
+    },
+    {
+      "case_id": "categorical_gof",
+      "command": "TCHISQUARE;\n  OBSERVED 18 25 57;\n  PROPORTIONS 0.20000000000000001 0.29999999999999999 0.5;\n  RTABLE."
+    }
+  ],
+  "outputs": {
+    "normal_ties_normal_parameters": {
+      "executed": true,
+      "command_count": [
+        3,
+        4
+      ],
+      "command": "DCAPA C1 1;\n  NORMAL;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\nnormal_ties 的分布识别\r\n \r\n\r\nnormal_ties 的分布 ID 图\r\n\r\n\r\n\r\n分布参数的极大似然估计\r\n\r\n分布         位置  形状       尺度  阈值\r\n正态*  62.55000      4.24234\r\n\r\n* 尺度:调整后的极大似然估计\r\n\r\n\r\n百分位数表\r\n\r\n分布  百分比     百分位数      标准误  95.0% 置信区间\r\n正态    5  55.5720  1.03448  53.5  57.6\r\n\r\n\r\n百分位数表\r\n\r\n分布  百分比   百分位数       标准误  95.0% 置信区间\r\n正态   50  62.55  0.670773  61.2  63.9\r\n\r\n\r\n百分位数表\r\n\r\n分布  百分比     百分位数      标准误  95.0% 置信区间\r\n正态   95  69.5280  1.03448  67.5  71.6\r\n\r\n\n\nOutput.Text[1]:\nnormal_ties 的分布 ID 图\r\n\n\nOutput.Text[2]:\n分布参数的极大似然估计\r\n\r\n分布         位置  形状       尺度  阈值\r\n正态*  62.55000      4.24234\r\n\r\n* 尺度:调整后的极大似然估计\r\n\n\nOutput.Text[3]:\n百分位数表\r\n\r\n分布  百分比     百分位数      标准误  95.0% 置信区间\r\n正态    5  55.5720  1.03448  53.5  57.6\r\n\n\nOutput.Text[4]:\n百分位数表\r\n\r\n分布  百分比   百分位数       标准误  95.0% 置信区间\r\n正态   50  62.55  0.670773  61.2  63.9\r\n\n\nOutput.Text[5]:\n百分位数表\r\n\r\n分布  百分比     百分位数      标准误  95.0% 置信区间\r\n正态   95  69.5280  1.03448  67.5  71.6\r\n",
+      "stored": {}
+    },
+    "normal_ties_positive_distribution_fit": {
+      "executed": true,
+      "command_count": [
+        4,
+        5
+      ],
+      "command": "DCAPA C1 1;\n  LNORMAL;\n  GAMMA;\n  EXPONENTIAL;\n  WEIBULL;\n  RFITTESTS;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\nnormal_ties 的分布识别\r\n \r\n\r\nnormal_ties 的分布 ID 图\r\n\r\n\r\n\r\n拟合优度检验\r\n\r\n分布           AD       P\r\n对数正态      0.735   0.051\r\nGamma     0.652   0.091\r\n指数       16.090  <0.003\r\nWeibull   0.254  >0.250\r\n\r\n\r\n分布参数的极大似然估计\r\n\r\n分布            位置         形状        尺度  阈值\r\n对数正态*    4.13363              0.07002\r\nGamma             214.02062   0.29226\r\n指数                           62.55000\r\nWeibull            18.21874  64.39609\r\n\r\n* 尺度:调整后的极大似然估计\r\n\r\n\r\n百分位数表\r\n\r\n分布       百分比     百分位数      标准误  95.0% 置信区间\r\n对数正态       5  55.6147  0.94964  53.8  57.5\r\nGamma      5  55.6873  0.95945  53.8  57.6\r\n指数         5   3.2084  0.50729   2.4   4.4\r\nWeibull    5  54.7087  1.33838  52.1  57.4\r\n\r\n\r\n百分位数表\r\n\r\n分布       百分比     百分位数      标准误  95.0% 置信区间\r\n对数正态      50  62.4039  0.69093  61.1  63.8\r\nGamma     50  62.4526  0.67533  61.1  63.8\r\n指数        50  43.3564  6.85524  31.8  59.1\r\nWeibull   50  63.1136  0.64329  61.9  64.4\r\n\r\n\r\n百分位数表\r\n\r\n分布       百分比     百分位数      标准误   95.0% 置信区间\r\n对数正态      95   70.022   1.1956   67.7   72.4\r\nGamma     95   69.745   1.1149   67.6   72.0\r\n指数        95  187.383  29.6279  137.4  255.5\r\nWeibull   95   68.393   0.6689   67.1   69.7\r\n\r\n\n\nOutput.Text[1]:\nnormal_ties 的分布 ID 图\r\n\n\nOutput.Text[2]:\n拟合优度检验\r\n\r\n分布           AD       P\r\n对数正态      0.735   0.051\r\nGamma     0.652   0.091\r\n指数       16.090  <0.003\r\nWeibull   0.254  >0.250\r\n\n\nOutput.Text[3]:\n分布参数的极大似然估计\r\n\r\n分布            位置         形状        尺度  阈值\r\n对数正态*    4.13363              0.07002\r\nGamma             214.02062   0.29226\r\n指数                           62.55000\r\nWeibull            18.21874  64.39609\r\n\r\n* 尺度:调整后的极大似然估计\r\n\n\nOutput.Text[4]:\n百分位数表\r\n\r\n分布       百分比     百分位数      标准误  95.0% 置信区间\r\n对数正态       5  55.6147  0.94964  53.8  57.5\r\nGamma      5  55.6873  0.95945  53.8  57.6\r\n指数         5   3.2084  0.50729   2.4   4.4\r\nWeibull    5  54.7087  1.33838  52.1  57.4\r\n\n\nOutput.Text[5]:\n百分位数表\r\n\r\n分布       百分比     百分位数      标准误  95.0% 置信区间\r\n对数正态      50  62.4039  0.69093  61.1  63.8\r\nGamma     50  62.4526  0.67533  61.1  63.8\r\n指数        50  43.3564  6.85524  31.8  59.1\r\nWeibull   50  63.1136  0.64329  61.9  64.4\r\n\n\nOutput.Text[6]:\n百分位数表\r\n\r\n分布       百分比     百分位数      标准误   95.0% 置信区间\r\n对数正态      95   70.022   1.1956   67.7   72.4\r\nGamma     95   69.745   1.1149   67.6   72.0\r\n指数        95  187.383  29.6279  137.4  255.5\r\nWeibull   95   68.393   0.6689   67.1   69.7\r\n",
+      "stored": {}
+    },
+    "right_skew_ties_missing_normal_parameters": {
+      "executed": true,
+      "command_count": [
+        5,
+        6
+      ],
+      "command": "DCAPA C2 1;\n  NORMAL;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\nright_skew_ties_missing 的分布识别\r\n \r\n\r\nright_skew_ties_missing 的分布 ID 图\r\n\r\n\r\n\r\n分布参数的极大似然估计\r\n\r\n分布        位置  形状        尺度  阈值\r\n正态*  6.84615      10.59753\r\n\r\n* 尺度:调整后的极大似然估计\r\n\r\n\r\n百分位数表\r\n\r\n分布  百分比      百分位数      标准误   95.0% 置信区间\r\n正态    5  -10.5852  4.58536  -19.6  -1.6\r\n\r\n\r\n百分位数表\r\n\r\n                           95.0% 置信区\r\n分布  百分比     百分位数      标准误      间\r\n正态   50  6.84615  2.93923  1.1  12.6\r\n\r\n\r\n百分位数表\r\n\r\n分布  百分比     百分位数      标准误  95.0% 置信区间\r\n正态   95  24.2775  4.58536  15.3  33.3\r\n\r\n\n\nOutput.Text[1]:\nright_skew_ties_missing 的分布 ID 图\r\n\n\nOutput.Text[2]:\n分布参数的极大似然估计\r\n\r\n分布        位置  形状        尺度  阈值\r\n正态*  6.84615      10.59753\r\n\r\n* 尺度:调整后的极大似然估计\r\n\n\nOutput.Text[3]:\n百分位数表\r\n\r\n分布  百分比      百分位数      标准误   95.0% 置信区间\r\n正态    5  -10.5852  4.58536  -19.6  -1.6\r\n\n\nOutput.Text[4]:\n百分位数表\r\n\r\n                           95.0% 置信区\r\n分布  百分比     百分位数      标准误      间\r\n正态   50  6.84615  2.93923  1.1  12.6\r\n\n\nOutput.Text[5]:\n百分位数表\r\n\r\n分布  百分比     百分位数      标准误  95.0% 置信区间\r\n正态   95  24.2775  4.58536  15.3  33.3\r\n",
+      "stored": {}
+    },
+    "right_skew_ties_missing_positive_distribution_fit": {
+      "executed": true,
+      "command_count": [
+        6,
+        7
+      ],
+      "command": "DCAPA C2 1;\n  LNORMAL;\n  GAMMA;\n  EXPONENTIAL;\n  WEIBULL;\n  RFITTESTS;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\nright_skew_ties_missing 的分布识别\r\n \r\n\r\nright_skew_ties_missing 的分布 ID 图\r\n\r\n\r\n\r\n拟合优度检验\r\n\r\n分布          AD       P\r\n对数正态     0.960   0.010\r\nGamma    1.489  <0.005\r\n指数       1.533   0.025\r\nWeibull  1.295  <0.010\r\n\r\n\r\n分布参数的极大似然估计\r\n\r\n分布            位置       形状       尺度  阈值\r\n对数正态*    1.32400           0.99331\r\nGamma             0.96643  7.08395\r\n指数                         6.84615\r\nWeibull           0.88816  6.34607\r\n\r\n* 尺度:调整后的极大似然估计\r\n\r\n\r\n百分位数表\r\n\r\n                                  95.0% 置信\r\n分布       百分比      百分位数       标准误     区间\r\n对数正态       5  0.733557  0.315274  0.3  1.7\r\nGamma      5  0.321990  0.300743  0.1  2.0\r\n指数         5  0.351162  0.097395  0.2  0.6\r\nWeibull    5  0.223937  0.183371  0.0  1.1\r\n\r\n\r\n百分位数表\r\n\r\n                                95.0% 置信\r\n分布       百分比     百分位数      标准误     区间\r\n对数正态      50  3.75843  1.03543  2.2  6.4\r\nGamma     50  4.68032  1.47817  2.5  8.7\r\n指数        50  4.74539  1.31614  2.8  8.2\r\nWeibull   50  4.20035  1.54562  2.0  8.6\r\n\r\n\r\n百分位数表\r\n\r\n分布       百分比     百分位数      标准误  95.0% 置信区间\r\n对数正态      95  19.2566  8.27626   8.3  44.7\r\nGamma     95  20.7587  6.38150  11.4  37.9\r\n指数        95  20.5092  5.68824  11.9  35.3\r\nWeibull   95  21.8280  7.31388  11.3  42.1\r\n\r\n\n\nOutput.Text[1]:\nright_skew_ties_missing 的分布 ID 图\r\n\n\nOutput.Text[2]:\n拟合优度检验\r\n\r\n分布          AD       P\r\n对数正态     0.960   0.010\r\nGamma    1.489  <0.005\r\n指数       1.533   0.025\r\nWeibull  1.295  <0.010\r\n\n\nOutput.Text[3]:\n分布参数的极大似然估计\r\n\r\n分布            位置       形状       尺度  阈值\r\n对数正态*    1.32400           0.99331\r\nGamma             0.96643  7.08395\r\n指数                         6.84615\r\nWeibull           0.88816  6.34607\r\n\r\n* 尺度:调整后的极大似然估计\r\n\n\nOutput.Text[4]:\n百分位数表\r\n\r\n                                  95.0% 置信\r\n分布       百分比      百分位数       标准误     区间\r\n对数正态       5  0.733557  0.315274  0.3  1.7\r\nGamma      5  0.321990  0.300743  0.1  2.0\r\n指数         5  0.351162  0.097395  0.2  0.6\r\nWeibull    5  0.223937  0.183371  0.0  1.1\r\n\n\nOutput.Text[5]:\n百分位数表\r\n\r\n                                95.0% 置信\r\n分布       百分比     百分位数      标准误     区间\r\n对数正态      50  3.75843  1.03543  2.2  6.4\r\nGamma     50  4.68032  1.47817  2.5  8.7\r\n指数        50  4.74539  1.31614  2.8  8.2\r\nWeibull   50  4.20035  1.54562  2.0  8.6\r\n\n\nOutput.Text[6]:\n百分位数表\r\n\r\n分布       百分比     百分位数      标准误  95.0% 置信区间\r\n对数正态      95  19.2566  8.27626   8.3  44.7\r\nGamma     95  20.7587  6.38150  11.4  37.9\r\n指数        95  20.5092  5.68824  11.9  35.3\r\nWeibull   95  21.8280  7.31388  11.3  42.1\r\n",
+      "stored": {}
+    },
+    "nonpositive_boundary_normal_parameters": {
+      "executed": true,
+      "command_count": [
+        7,
+        8
+      ],
+      "command": "DCAPA C3 1;\n  NORMAL;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\nnonpositive_boundary 的分布识别\r\n \r\n\r\nnonpositive_boundary 的分布 ID 图\r\n\r\n\r\n\r\n分布参数的极大似然估计\r\n\r\n分布        位置  形状       尺度  阈值\r\n正态*  0.81250      2.23507\r\n\r\n* 尺度:调整后的极大似然估计\r\n\r\n\r\n百分位数表\r\n\r\n分布  百分比      百分位数      标准误  95.0% 置信区间\r\n正态    5  -2.86386  1.24627  -5.3  -0.4\r\n\r\n\r\n百分位数表\r\n\r\n                           95.0% 置信区\r\n分布  百分比    百分位数       标准误      间\r\n正态   50  0.8125  0.790216  -0.7  2.4\r\n\r\n\r\n百分位数表\r\n\r\n                           95.0% 置信\r\n分布  百分比     百分位数      标准误     区间\r\n正态   95  4.48886  1.24627  2.0  6.9\r\n\r\n\n\nOutput.Text[1]:\nnonpositive_boundary 的分布 ID 图\r\n\n\nOutput.Text[2]:\n分布参数的极大似然估计\r\n\r\n分布        位置  形状       尺度  阈值\r\n正态*  0.81250      2.23507\r\n\r\n* 尺度:调整后的极大似然估计\r\n\n\nOutput.Text[3]:\n百分位数表\r\n\r\n分布  百分比      百分位数      标准误  95.0% 置信区间\r\n正态    5  -2.86386  1.24627  -5.3  -0.4\r\n\n\nOutput.Text[4]:\n百分位数表\r\n\r\n                           95.0% 置信区\r\n分布  百分比    百分位数       标准误      间\r\n正态   50  0.8125  0.790216  -0.7  2.4\r\n\n\nOutput.Text[5]:\n百分位数表\r\n\r\n                           95.0% 置信\r\n分布  百分比     百分位数      标准误     区间\r\n正态   95  4.48886  1.24627  2.0  6.9\r\n",
+      "stored": {}
+    },
+    "normal_pdf": {
+      "executed": true,
+      "command_count": [
+        10,
+        11
+      ],
+      "command": "PDF C10 C30;\n  NORMAL 0.4 1.5.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n",
+      "stored": {
+        "pdf": [
+          0.23070259545128194
+        ]
+      }
+    },
+    "normal_cdf": {
+      "executed": true,
+      "command_count": [
+        11,
+        12
+      ],
+      "command": "CDF C10 C31;\n  NORMAL 0.4 1.5.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n",
+      "stored": {
+        "cdf": [
+          0.703098571395916
+        ]
+      }
+    },
+    "normal_invcdf": {
+      "executed": true,
+      "command_count": [
+        12,
+        13
+      ],
+      "command": "INVCDF C11 C32;\n  NORMAL 0.4 1.5.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n",
+      "stored": {
+        "invcdf": [
+          -1.5223273483493154,
+          2.3223273483493156,
+          -2.067280440388282,
+          2.8672804403882823
+        ]
+      }
+    },
+    "lognormal_pdf": {
+      "executed": true,
+      "command_count": [
+        15,
+        16
+      ],
+      "command": "PDF C10 C33;\n  LNORMAL 0 0.5 0.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n",
+      "stored": {
+        "pdf": [
+          0.5348196821268515
+        ]
+      }
+    },
+    "lognormal_cdf": {
+      "executed": true,
+      "command_count": [
+        16,
+        17
+      ],
+      "command": "CDF C10 C34;\n  LNORMAL 0 0.5 0.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n",
+      "stored": {
+        "cdf": [
+          0.7001140390089098
+        ]
+      }
+    },
+    "lognormal_invcdf": {
+      "executed": true,
+      "command_count": [
+        17,
+        18
+      ],
+      "command": "INVCDF C11 C35;\n  LNORMAL 0 0.5 0.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n",
+      "stored": {
+        "invcdf": [
+          0.5268835182903436,
+          1.897952707355218,
+          0.43936410493319344,
+          2.276016608484785
+        ]
+      }
+    },
+    "student_t_pdf": {
+      "executed": true,
+      "command_count": [
+        20,
+        21
+      ],
+      "command": "PDF C10 C36;\n  T 5.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n",
+      "stored": {
+        "pdf": [
+          0.27569811607193634
+        ]
+      }
+    },
+    "student_t_cdf": {
+      "executed": true,
+      "command_count": [
+        21,
+        22
+      ],
+      "command": "CDF C10 C37;\n  T 5.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n",
+      "stored": {
+        "cdf": [
+          0.7564878759612311
+        ]
+      }
+    },
+    "student_t_invcdf": {
+      "executed": true,
+      "command_count": [
+        22,
+        23
+      ],
+      "command": "INVCDF C11 C38;\n  T 5.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n",
+      "stored": {
+        "invcdf": [
+          -1.4758840493422427,
+          1.4758840493422432,
+          -2.015048373314801,
+          2.0150483733148
+        ]
+      }
+    },
+    "categorical_gof": {
+      "executed": true,
+      "command_count": [
+        23,
+        24
+      ],
+      "command": "TCHISQUARE;\n  OBSERVED 18 25 57;\n  PROPORTIONS 0.20000000000000001 0.29999999999999999 0.5;\n  RTABLE.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n观测计数的卡方拟合优度检验\r\n \r\n\r\n实测和预期值计数\r\n\r\n类别  观测  检验比率  期望    对卡方的贡献\r\n1   18   0.2  20  0.200000\r\n2   25   0.3  30  0.833333\r\n3   57   0.5  50  0.980000\r\n\r\n\r\n卡方检验\r\n\r\n  N  自由度       卡方    P 值\r\n100    2  2.01333  0.365\r\n\r\n\n\nOutput.Text[1]:\n实测和预期值计数\r\n\r\n类别  观测  检验比率  期望    对卡方的贡献\r\n1   18   0.2  20  0.200000\r\n2   25   0.3  30  0.833333\r\n3   57   0.5  50  0.980000\r\n\n\nOutput.Text[2]:\n卡方检验\r\n\r\n  N  自由度       卡方    P 值\r\n100    2  2.01333  0.365\r\n",
+      "stored": {}
+    }
+  },
+  "session_commands": "SET C1\n59 61 55 66 52 60 61 51 60 61 56 65 63 58 59 61 62 65 63 62 63 64 65 64 68 64 69 62 64 67 65 66 62 66 65 60 68 62 68 70\nEND\n\nSET C2\n1 2 3 4 2 12 3 12 3 2 * 40 3 2\nEND\n\nSET C3\n-3 -1 0 0.5 1 2 3 4\nEND\n\nDCAPA C1 1;\n  NORMAL;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI.\n\nDCAPA C1 1;\n  LNORMAL;\n  GAMMA;\n  EXPONENTIAL;\n  WEIBULL;\n  RFITTESTS;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI.\n\nDCAPA C2 1;\n  NORMAL;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI.\n\nDCAPA C2 1;\n  LNORMAL;\n  GAMMA;\n  EXPONENTIAL;\n  WEIBULL;\n  RFITTESTS;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI.\n\nDCAPA C3 1;\n  NORMAL;\n  RESTIMATE;\n  RPTILE 5 50 95;\n  CONFIDENCE 95;\n  NOCI.\n\nSET C10\n1.2\nEND\n\nSET C11\n0.10000000000000001 0.90000000000000002 0.050000000000000003 0.94999999999999996\nEND\n\nPDF C10 C30;\n  NORMAL 0.4 1.5.\n\nCDF C10 C31;\n  NORMAL 0.4 1.5.\n\nINVCDF C11 C32;\n  NORMAL 0.4 1.5.\n\nSET C10\n1.3\nEND\n\nSET C11\n0.10000000000000001 0.90000000000000002 0.050000000000000003 0.94999999999999996\nEND\n\nPDF C10 C33;\n  LNORMAL 0 0.5 0.\n\nCDF C10 C34;\n  LNORMAL 0 0.5 0.\n\nINVCDF C11 C35;\n  LNORMAL 0 0.5 0.\n\nSET C10\n0.75\nEND\n\nSET C11\n0.10000000000000001 0.90000000000000002 0.050000000000000003 0.94999999999999996\nEND\n\nPDF C10 C36;\n  T 5.\n\nCDF C10 C37;\n  T 5.\n\nINVCDF C11 C38;\n  T 5.\n\nTCHISQUARE;\n  OBSERVED 18 25 57;\n  PROPORTIONS 0.20000000000000001 0.29999999999999999 0.5;\n  RTABLE.\n"
+}

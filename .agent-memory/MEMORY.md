@@ -12,7 +12,11 @@
 - phase1 的 8 个统计案例为 40 PASS、2 METHOD_DIFF、1 UNSUPPORTED；90 项菜单矩阵范围和原生参考入口保留在 `Out/statistics_minitab19_parity/`。
 - phase2 的过程能力/SPC/GRR 共10案/909项（886 PASS、10 FAIL、13 METHOD_DIFF）；phase3 独立复核最终为896 PASS、0 FAIL、13 METHOD_DIFF，哈希稳定。CAP-05/CAP-03 经独立数值复核，CAP-04 ddof 差异保留 METHOD_DIFF；未改生产算法，详见各 phase 工件。
 
-## 统计功能 Minitab 19 对标第四至五阶段（2026-11-03）
+## 统计功能 Minitab 19 对标第四至六阶段（2026-11-03）
+
+- phase6 P1 覆盖 3 个拟合样本（正值、并列/缺失、含负值/零）、3 个概率分布参数配置及 1 个分类卡方 GOF 配置，共 7 配置/109 项：85 PASS、12 METHOD_DIFF、12 UNSUPPORTED、0 FAIL/NOT_RUN。Minitab 19.1.0.1 COM 重复完整执行后 phase6 文件哈希一致；phase4/phase5 29 个文件哈希未变。
+- phase6 拟合对比包括 Normal、Lognormal、Gamma、Exponential、Weibull 参数、AD/显示 p 范围和 P5/P50/P95；正态 AD 沿用 phase5 未重复。Lognormal 无偏估计与 MiniJMP MLE、AD p 校准差异保留 METHOD_DIFF；Weibull MLE 用独立 score 方程核验。Normal/Lognormal/t 概率工具 21 项全 PASS，最大绝对误差 4.86e-10；比率卡方 Pearson χ²/df/p 按原生显示精度通过，LR 原生字段缺失。
+- 90 项矩阵行数不变，仅更新 06分布拟合、43比率卡方检验为部分验证。拟合参数 CI、拟合百分位 95% CI、Student's t 拟合、KS、三参数分布及与 Minitab 不同名的 AICc/BIC/-2LL 均按实际接口与原生字段记录缺口。未改生产 code、开发 CHANGELOG 或 phase4/phase5；定向 test_g3_distribution_reports.py + test_g3_chi_square_reports.py 66 passed，概率入口专项 3 passed。证据见 Out/statistics_minitab19_parity/phase6/。
 
 - phase4 历史保持 14 案/257 指标：223 PASS、6 METHOD_DIFF、19 UNSUPPORTED、9 NOT_RUN；未改其 14 个文件。phase5 新增/复验 103 项，并复核 4 项 phase4 Logistic/Poisson 截距字段：合计 107 条记录、94 PASS、6 METHOD_DIFF、7 UNSUPPORTED、0 FAIL/NOT_RUN。
 - phase5 包状态（共享项不重复计总数）：P0-A 3 配置/9 项（5 PASS、4 UNSUPPORTED）；P0-B 6 配置/44 项（38 PASS、6 METHOD_DIFF）；P0-C 4 配置/69 项（62 PASS、4 METHOD_DIFF、3 UNSUPPORTED）。四条 Logistic/Poisson 原命令成功，系数表与 COM 存储无截距 z/p，phase4 保留原值，phase5 归类为原生字段缺失。
