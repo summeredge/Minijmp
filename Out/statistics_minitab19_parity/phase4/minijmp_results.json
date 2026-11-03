@@ -1,0 +1,1592 @@
+{
+  "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+  "case_inputs": {
+    "reference_version": "Minitab 19.1.0.1",
+    "reference_source": "独立 Minitab COM 会话的 OutputDocument.Text；版本、应用路径和进程映像均回读核验",
+    "missing_values": "所有固定案例均为完整数据；本轮未取得 Minitab 原生缺失值案例，不将缺失值处理记为已验收",
+    "alpha": 0.1,
+    "cases": {
+      "one_sample_t": {
+        "feature": "单样本均值 t 检验",
+        "values": [
+          9.2,
+          10.1,
+          11.2,
+          12.4,
+          9.8,
+          10.6,
+          11.8
+        ],
+        "mu0": 10.5,
+        "alternatives": [
+          "双侧",
+          "右侧 H1: mu > mu0"
+        ],
+        "confidence": 0.9
+      },
+      "paired_t": {
+        "feature": "配对 t 检验",
+        "sample1": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "sample2": [
+          9.6,
+          10.9,
+          11.6,
+          12.5,
+          13.8,
+          14.3
+        ],
+        "difference": "sample1 - sample2",
+        "null_difference": 0,
+        "alternatives": [
+          "双侧",
+          "右侧 H1: mean difference > 0"
+        ],
+        "confidence": 0.9
+      },
+      "two_sample_pooled_t": {
+        "feature": "双样本合并方差 t 检验",
+        "sample1": [
+          12,
+          15,
+          14,
+          10,
+          13,
+          16,
+          11,
+          14
+        ],
+        "sample2": [
+          9,
+          11,
+          10,
+          8,
+          13,
+          10,
+          12
+        ],
+        "difference": "sample1 - sample2",
+        "null_difference": 0,
+        "variance_method": "合并方差（POOLED）",
+        "alternatives": [
+          "双侧",
+          "右侧 H1: mean difference > 0"
+        ],
+        "confidence": 0.9
+      },
+      "one_variance": {
+        "feature": "单样本标准差检验",
+        "values": [
+          5,
+          7,
+          8,
+          9,
+          10,
+          12,
+          14,
+          15
+        ],
+        "sigma0": 3,
+        "method": "正态总体卡方法；Minitab 同时显示 Bonett 方法，本轮对齐卡方行",
+        "confidence": 0.9
+      },
+      "one_proportion": {
+        "feature": "单比率检验",
+        "trials": 20,
+        "events": 12,
+        "p0": 0.5,
+        "methods": [
+          "Minitab 19 默认精确法",
+          "正态近似 USEZ",
+          "正态近似右侧检验"
+        ],
+        "confidence": 0.9
+      },
+      "two_proportion": {
+        "feature": "双比率检验",
+        "n1": 20,
+        "events1": 12,
+        "n2": 20,
+        "events2": 9,
+        "methods": [
+          "默认正态近似",
+          "合并正态近似 POOLED",
+          "Fisher 精确",
+          "右侧备择"
+        ],
+        "difference": "p1 - p2",
+        "confidence": 0.9
+      },
+      "multi_variance": {
+        "feature": "多样本标准差检验",
+        "groups": {
+          "A": [
+            5,
+            7,
+            8,
+            9,
+            10,
+            12,
+            14,
+            15
+          ],
+          "B": [
+            7,
+            8,
+            9,
+            11,
+            13,
+            14,
+            16,
+            17
+          ],
+          "C": [
+            4,
+            6,
+            7,
+            8,
+            10,
+            11,
+            13,
+            14
+          ]
+        },
+        "comparison": "Minitab Levene median-centered versus MiniJMP Brown-Forsythe; mean-centered Levene retained as a distinct method"
+      },
+      "one_way_anova": {
+        "feature": "单因子 ANOVA 及 Fisher LSD 两两比较",
+        "groups": {
+          "A": [
+            8,
+            9,
+            7,
+            10
+          ],
+          "B": [
+            12,
+            13,
+            10,
+            11,
+            14
+          ],
+          "C": [
+            15,
+            17,
+            14,
+            16,
+            18,
+            20
+          ]
+        },
+        "method": "传统等方差单因子 ANOVA；Fisher LSD；无家族错误率校正",
+        "confidence": 0.95
+      },
+      "two_way_anova": {
+        "feature": "不平衡双因子 ANOVA（含交互）",
+        "response": [
+          10,
+          11,
+          9,
+          12,
+          11,
+          13,
+          10,
+          13,
+          14,
+          15,
+          13,
+          16,
+          16,
+          17,
+          18,
+          19,
+          16,
+          20
+        ],
+        "factor_a": [
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "B",
+          "B",
+          "B",
+          "B",
+          "B",
+          "B",
+          "B",
+          "B",
+          "B",
+          "B",
+          "B"
+        ],
+        "factor_b": [
+          "X",
+          "X",
+          "X",
+          "Y",
+          "Y",
+          "Y",
+          "Y",
+          "X",
+          "X",
+          "X",
+          "X",
+          "X",
+          "Y",
+          "Y",
+          "Y",
+          "Y",
+          "Y",
+          "Y"
+        ],
+        "model_terms": [
+          "A",
+          "B",
+          "A*B"
+        ],
+        "sum_squares": "Type III adjusted sums of squares; effect coding; fixed effects"
+      },
+      "ols_multiple": {
+        "feature": "多元线性 OLS",
+        "y": [
+          8.1,
+          10,
+          11.8,
+          13.2,
+          14.7,
+          17.6,
+          18.8,
+          21.1,
+          22.7,
+          24.8,
+          26.9,
+          29.2
+        ],
+        "x1": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "x2": [
+          2,
+          1,
+          4,
+          2,
+          5,
+          3,
+          6,
+          4,
+          7,
+          5,
+          8,
+          6
+        ],
+        "prediction": {
+          "x1": 7,
+          "x2": 5
+        },
+        "terms": [
+          "x1",
+          "x2"
+        ],
+        "intercept": true,
+        "confidence": 0.95
+      },
+      "ols_categorical": {
+        "feature": "分类自变量编码 OLS",
+        "y": [
+          10,
+          11,
+          9,
+          12,
+          13,
+          15,
+          16,
+          14,
+          15,
+          17,
+          19,
+          18,
+          20,
+          21,
+          22
+        ],
+        "group": [
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "B",
+          "B",
+          "B",
+          "B",
+          "B",
+          "C",
+          "C",
+          "C",
+          "C",
+          "C"
+        ],
+        "categorical": [
+          "group"
+        ],
+        "coding": "binary/dummy; reference group=A",
+        "intercept": true,
+        "confidence": 0.95
+      },
+      "binary_logistic": {
+        "feature": "完整回归分析中的 Binary Logistic（非 DOE）",
+        "x": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5
+        ],
+        "y": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "event": 1,
+        "link": "logit"
+      },
+      "poisson": {
+        "feature": "泊松回归",
+        "x": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          2,
+          2,
+          2,
+          2,
+          3,
+          3,
+          3,
+          3,
+          4,
+          4,
+          4,
+          4,
+          5,
+          5,
+          5,
+          5
+        ],
+        "y": [
+          0,
+          1,
+          0,
+          1,
+          1,
+          2,
+          1,
+          2,
+          1,
+          2,
+          3,
+          2,
+          2,
+          3,
+          2,
+          3,
+          3,
+          4,
+          2,
+          4,
+          4,
+          3,
+          5,
+          4
+        ],
+        "link": "log"
+      },
+      "rank_correlation": {
+        "feature": "相关分析中的 Spearman rho 与 Kendall tau-b",
+        "x": [
+          1,
+          1,
+          2,
+          2,
+          3,
+          3,
+          4,
+          4,
+          5,
+          5,
+          6,
+          6
+        ],
+        "y": [
+          1,
+          2,
+          1,
+          3,
+          2,
+          3,
+          4,
+          3,
+          5,
+          4,
+          6,
+          5
+        ],
+        "methods": [
+          "Spearman 平均秩，双侧检验",
+          "Kendall tau-b 双侧检验；数值类别按有序类别处理",
+          "Hoeffding D 仅核对 MiniJMP 输出，Minitab 19 无原生方法"
+        ],
+        "missing_values": "无缺失；两列各 12 行",
+        "reference_sources": "Minitab 19 Session Commands，第 161-163 页、975-977 页；Kendall 方法：https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/tables/how-to/cross-tabulation-and-chi-square/methods-and-formulas/measures-of-concordance-for-ordinal-categories/"
+      }
+    }
+  },
+  "results": {
+    "one_sample_t.n": {
+      "value": 7.0,
+      "source": "t_test.t_test_1sample"
+    },
+    "one_sample_t.mean": {
+      "value": 10.728571428571428,
+      "source": "t_test.t_test_1sample"
+    },
+    "one_sample_t.stdev": {
+      "value": 1.1382944635349355,
+      "source": "t_test.t_test_1sample"
+    },
+    "one_sample_t.mean_se": {
+      "value": 0.43023486703930286,
+      "source": "t_test.t_test_1sample"
+    },
+    "one_sample_t.t": {
+      "value": 0.5312712801367335,
+      "source": "t_test.t_test_1sample"
+    },
+    "one_sample_t.df": {
+      "value": 6.0,
+      "source": "t_test.t_test_1sample"
+    },
+    "one_sample_t.p_two": {
+      "value": 0.6143139361356131,
+      "source": "t_test.t_test_1sample"
+    },
+    "one_sample_t.p_right": {
+      "value": 0.30715696806780657,
+      "source": "t_test.t_test_1sample"
+    },
+    "one_sample_t.ci_low": {
+      "value": 9.892547518950531,
+      "source": "t_test.t_test_1sample"
+    },
+    "one_sample_t.ci_high": {
+      "value": 11.564595338192325,
+      "source": "t_test.t_test_1sample"
+    },
+    "one_sample_t.right_bound": {
+      "value": 10.10913830608091,
+      "source": "t_test.t_test_1sample"
+    },
+    "paired_t.n": {
+      "value": 6.0,
+      "source": "t_test.paired_t_test"
+    },
+    "paired_t.mean_difference": {
+      "value": 0.38333333333333314,
+      "source": "t_test.paired_t_test"
+    },
+    "paired_t.stdev_difference": {
+      "value": 0.2136976056643281,
+      "source": "t_test.paired_t_test"
+    },
+    "paired_t.se_difference": {
+      "value": 0.08724168218868268,
+      "source": "t_test.paired_t_test"
+    },
+    "paired_t.t": {
+      "value": 4.39392413943,
+      "source": "t_test.paired_t_test"
+    },
+    "paired_t.df": {
+      "value": 5.0,
+      "source": "t_test.paired_t_test"
+    },
+    "paired_t.p_two": {
+      "value": 0.0070618903808659095,
+      "source": "t_test.paired_t_test"
+    },
+    "paired_t.p_right": {
+      "value": 0.0035309451904329547,
+      "source": "t_test.paired_t_test"
+    },
+    "paired_t.ci_low": {
+      "value": 0.2075371235521915,
+      "source": "t_test.paired_t_test"
+    },
+    "paired_t.ci_high": {
+      "value": 0.5591295431144747,
+      "source": "t_test.paired_t_test"
+    },
+    "paired_t.right_bound": {
+      "value": 0.2545747261957073,
+      "source": "t_test.paired_t_test"
+    },
+    "two_sample_pooled_t.n1": {
+      "value": 8.0,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "two_sample_pooled_t.n2": {
+      "value": 7.0,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "two_sample_pooled_t.mean1": {
+      "value": 13.125,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "two_sample_pooled_t.mean2": {
+      "value": 10.428571428571429,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "two_sample_pooled_t.stdev1": {
+      "value": 2.03100960115899,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "two_sample_pooled_t.stdev2": {
+      "value": 1.7182493859684491,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "two_sample_pooled_t.difference": {
+      "value": 2.696428571428571,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "two_sample_pooled_t.pooled_sd": {
+      "value": 1.8930903857954615,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "two_sample_pooled_t.se_difference": {
+      "value": 0.9797673569696838,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "two_sample_pooled_t.t": {
+      "value": 2.752111051921895,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "two_sample_pooled_t.df": {
+      "value": 13.0,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "two_sample_pooled_t.p_two": {
+      "value": 0.016471272003919513,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "two_sample_pooled_t.p_right": {
+      "value": 0.008235636001959756,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "two_sample_pooled_t.ci_low": {
+      "value": 0.9613258386732386,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "two_sample_pooled_t.ci_high": {
+      "value": 4.4315313041839035,
+      "source": "t_test.t_test_2samples(pooled=True); contrast sample1 - sample2"
+    },
+    "one_variance.n": {
+      "value": 8.0,
+      "source": "chi_sq.var_1sample menu entry; chi-square and Bonett methods"
+    },
+    "one_variance.stdev": {
+      "value": 3.4641016151377544,
+      "source": "chi_sq.var_1sample menu entry; chi-square and Bonett methods"
+    },
+    "one_variance.chi_square": {
+      "value": 9.333333333333332,
+      "source": "chi_sq.var_1sample menu entry; chi-square and Bonett methods"
+    },
+    "one_variance.variance": {
+      "value": 11.999999999999998,
+      "source": "chi_sq.var_1sample menu entry; chi-square and Bonett methods"
+    },
+    "one_variance.df": {
+      "value": 7.0,
+      "source": "chi_sq.var_1sample menu entry; chi-square and Bonett methods"
+    },
+    "one_variance.p_two": {
+      "value": 0.45920329838758867,
+      "source": "chi_sq.var_1sample menu entry; chi-square and Bonett methods"
+    },
+    "one_variance.p_right": {
+      "value": 0.22960164919379433,
+      "source": "chi_sq.var_1sample menu entry; chi-square and Bonett methods"
+    },
+    "one_variance.chi_ci_low": {
+      "value": 2.4436372190201663,
+      "source": "chi_sq.var_1sample menu entry; chi-square and Bonett methods"
+    },
+    "one_variance.chi_ci_high": {
+      "value": 6.225512752160098,
+      "source": "chi_sq.var_1sample menu entry; chi-square and Bonett methods"
+    },
+    "one_variance.chi_right_lower": {
+      "value": 2.643875197256091,
+      "source": "chi_sq.var_1sample menu entry; chi-square and Bonett methods"
+    },
+    "one_variance.bonett_p": {
+      "value": 0.40664096633911134,
+      "source": "chi_sq.var_1sample menu entry; chi-square and Bonett methods"
+    },
+    "one_variance.bonett_ci_low": {
+      "value": 2.4927840680450783,
+      "source": "chi_sq.var_1sample menu entry; chi-square and Bonett methods"
+    },
+    "one_variance.bonett_ci_high": {
+      "value": 6.059838011016726,
+      "source": "chi_sq.var_1sample menu entry; chi-square and Bonett methods"
+    },
+    "one_variance.bonett_right_lower": {
+      "value": 2.7248538893300784,
+      "source": "chi_sq.var_1sample menu entry; chi-square and Bonett methods"
+    },
+    "one_proportion.trials": {
+      "value": 20.0,
+      "source": "proportion_test.prop_test_1sample"
+    },
+    "one_proportion.events": {
+      "value": 12.0,
+      "source": "proportion_test.prop_test_1sample"
+    },
+    "one_proportion.sample_p": {
+      "value": 0.6,
+      "source": "proportion_test.prop_test_1sample"
+    },
+    "one_proportion.z_normal": {
+      "value": 0.8944271909999157,
+      "source": "proportion_test.prop_test_1sample"
+    },
+    "one_proportion.p_normal_right": {
+      "value": 0.18554668476134872,
+      "source": "proportion_test.prop_test_1sample"
+    },
+    "one_proportion.ci_normal_right_lower": {
+      "value": 0.45961305978903233,
+      "source": "proportion_test.prop_test_1sample"
+    },
+    "one_proportion.p_default_exact": {
+      "value": 0.5034446716308596,
+      "source": "proportion_test.prop_test_1sample"
+    },
+    "one_proportion.ci_default_low": {
+      "value": 0.39358488675696957,
+      "source": "proportion_test.prop_test_1sample"
+    },
+    "one_proportion.ci_default_high": {
+      "value": 0.7829314106299259,
+      "source": "proportion_test.prop_test_1sample"
+    },
+    "one_proportion.p_normal": {
+      "value": 0.37109336952269745,
+      "source": "proportion_test.prop_test_1sample"
+    },
+    "one_proportion.ci_normal_low": {
+      "value": 0.41981531294489816,
+      "source": "proportion_test.prop_test_1sample"
+    },
+    "one_proportion.ci_normal_high": {
+      "value": 0.7801846870551017,
+      "source": "proportion_test.prop_test_1sample"
+    },
+    "two_proportion.n1": {
+      "value": 20.0,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.n2": {
+      "value": 20.0,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.events1": {
+      "value": 12.0,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.events2": {
+      "value": 9.0,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.p1": {
+      "value": 0.6,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.p2": {
+      "value": 0.45,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.difference": {
+      "value": 0.14999999999999997,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.z_default_normal": {
+      "value": 0.9607689228305226,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.z_pooled": {
+      "value": 0.9498713802919551,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.p_default_normal": {
+      "value": 0.33666836761003904,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.p_pooled": {
+      "value": 0.3421776106130454,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.p_fisher": {
+      "value": 0.527253984167463,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.p_unpooled_right": {
+      "value": 0.16833418380501952,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.p_pooled_right": {
+      "value": 0.1710888053065227,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.p_fisher_right": {
+      "value": 0.2636269920837315,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.ci_default_low": {
+      "value": -0.10680269019925737,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.ci_default_high": {
+      "value": 0.4068026901992572,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.ci_right_lower": {
+      "value": -0.0500821740417591,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "two_proportion.ci_pooled_right_lower": {
+      "value": -0.05237764693216135,
+      "source": "proportion_test.prop_2sample; unpooled Wald CI uses the report formula"
+    },
+    "multi_variance.F_mean_centered": {
+      "value": 0.10040983606557378,
+      "source": "chi_sq.multi_pop_var_test"
+    },
+    "multi_variance.p_mean_centered": {
+      "value": 0.9048982492579128,
+      "source": "chi_sq.multi_pop_var_test"
+    },
+    "multi_variance.F_median_centered": {
+      "value": 0.09683794466403163,
+      "source": "chi_sq.multi_pop_var_test"
+    },
+    "multi_variance.p_median_centered": {
+      "value": 0.908106043120722,
+      "source": "chi_sq.multi_pop_var_test"
+    },
+    "multi_variance.n_A": {
+      "value": 8.0,
+      "source": "chi_sq.multi_pop_var_test input group size"
+    },
+    "multi_variance.stdev_A": {
+      "value": 3.4641016151377544,
+      "source": "chi_sq.multi_pop_var_test sample standard deviation"
+    },
+    "multi_variance.n_B": {
+      "value": 8.0,
+      "source": "chi_sq.multi_pop_var_test input group size"
+    },
+    "multi_variance.stdev_B": {
+      "value": 3.720119045714225,
+      "source": "chi_sq.multi_pop_var_test sample standard deviation"
+    },
+    "multi_variance.n_C": {
+      "value": 8.0,
+      "source": "chi_sq.multi_pop_var_test input group size"
+    },
+    "multi_variance.stdev_C": {
+      "value": 3.48209706929603,
+      "source": "chi_sq.multi_pop_var_test sample standard deviation"
+    },
+    "one_way_anova.N": {
+      "value": 15.0,
+      "source": "one_way_ANOVA.one_way_anova; traditional equal-variance model"
+    },
+    "one_way_anova.df_between": {
+      "value": 2.0,
+      "source": "one_way_ANOVA.one_way_anova; traditional equal-variance model"
+    },
+    "one_way_anova.df_error": {
+      "value": 12.0,
+      "source": "one_way_ANOVA.one_way_anova; traditional equal-variance model"
+    },
+    "one_way_anova.df_total": {
+      "value": 14.0,
+      "source": "one_way_ANOVA.one_way_anova; traditional equal-variance model"
+    },
+    "one_way_anova.SS_between": {
+      "value": 166.60000000000005,
+      "source": "one_way_ANOVA.one_way_anova; traditional equal-variance model"
+    },
+    "one_way_anova.MS_between": {
+      "value": 83.30000000000003,
+      "source": "one_way_ANOVA.one_way_anova; traditional equal-variance model"
+    },
+    "one_way_anova.SS_error": {
+      "value": 38.333333333333336,
+      "source": "one_way_ANOVA.one_way_anova; traditional equal-variance model"
+    },
+    "one_way_anova.MS_error": {
+      "value": 3.1944444444444446,
+      "source": "one_way_ANOVA.one_way_anova; traditional equal-variance model"
+    },
+    "one_way_anova.F": {
+      "value": 26.076521739130442,
+      "source": "one_way_ANOVA.one_way_anova; traditional equal-variance model"
+    },
+    "one_way_anova.p": {
+      "value": 4.283353218714758e-05,
+      "source": "one_way_ANOVA.one_way_anova; traditional equal-variance model"
+    },
+    "one_way_anova.SS_total": {
+      "value": 204.9333333333334,
+      "source": "one_way_ANOVA.one_way_anova; total SS from between + error SS"
+    },
+    "one_way_anova.R2_percent": {
+      "value": 81.29472999349382,
+      "source": "one_way_ANOVA.one_way_anova SS; derived model summary"
+    },
+    "one_way_anova.R2_adjusted_percent": {
+      "value": 78.17718499240947,
+      "source": "one_way_ANOVA.one_way_anova SS and DF; derived model summary"
+    },
+    "one_way_anova.n_A": {
+      "value": 4.0,
+      "source": "one_way_ANOVA.one_way_anova input group size"
+    },
+    "one_way_anova.mean_A": {
+      "value": 8.5,
+      "source": "one_way_ANOVA.one_way_anova group mean"
+    },
+    "one_way_anova.stdev_A": {
+      "value": 1.2909944487358056,
+      "source": "one_way_ANOVA.one_way_anova sample standard deviation"
+    },
+    "one_way_anova.n_B": {
+      "value": 5.0,
+      "source": "one_way_ANOVA.one_way_anova input group size"
+    },
+    "one_way_anova.mean_B": {
+      "value": 12.0,
+      "source": "one_way_ANOVA.one_way_anova group mean"
+    },
+    "one_way_anova.stdev_B": {
+      "value": 1.5811388300841898,
+      "source": "one_way_ANOVA.one_way_anova sample standard deviation"
+    },
+    "one_way_anova.n_C": {
+      "value": 6.0,
+      "source": "one_way_ANOVA.one_way_anova input group size"
+    },
+    "one_way_anova.mean_C": {
+      "value": 16.666666666666668,
+      "source": "one_way_ANOVA.one_way_anova group mean"
+    },
+    "one_way_anova.stdev_C": {
+      "value": 2.160246899469287,
+      "source": "one_way_ANOVA.one_way_anova sample standard deviation"
+    },
+    "one_way_anova.ci_low_A": {
+      "value": 6.552902953413047,
+      "source": "one_way_ANOVA.one_way_anova group mean CI"
+    },
+    "one_way_anova.ci_high_A": {
+      "value": 10.447097046586954,
+      "source": "one_way_ANOVA.one_way_anova group mean CI"
+    },
+    "one_way_anova.ci_low_B": {
+      "value": 10.258463458017,
+      "source": "one_way_ANOVA.one_way_anova group mean CI"
+    },
+    "one_way_anova.ci_high_B": {
+      "value": 13.741536541983002,
+      "source": "one_way_ANOVA.one_way_anova group mean CI"
+    },
+    "one_way_anova.ci_low_C": {
+      "value": 15.076868585393946,
+      "source": "one_way_ANOVA.one_way_anova group mean CI"
+    },
+    "one_way_anova.ci_high_C": {
+      "value": 18.25646474793939,
+      "source": "one_way_ANOVA.one_way_anova group mean CI"
+    },
+    "one_way_anova.fisher_p_A_B": {
+      "value": 0.012859374602294707,
+      "source": "one_way_ANOVA.JMP_ANOVA_t_test; pooled Fisher LSD, unadjusted pairwise p"
+    },
+    "one_way_anova.fisher_p_A_C": {
+      "value": 1.2851891049800406e-05,
+      "source": "one_way_ANOVA.JMP_ANOVA_t_test; pooled Fisher LSD, unadjusted pairwise p"
+    },
+    "one_way_anova.fisher_p_B_C": {
+      "value": 0.0010103626179590887,
+      "source": "one_way_ANOVA.JMP_ANOVA_t_test; pooled Fisher LSD, unadjusted pairwise p"
+    },
+    "two_way_anova.N": {
+      "value": 18.0,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.SSA": {
+      "value": 113.12397660818714,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.SSB": {
+      "value": 25.9660818713453,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.SSAB": {
+      "value": 4.071345029239796,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.SSE": {
+      "value": 27.133333333333333,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.SST": {
+      "value": 180.94444444444449,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.MSE": {
+      "value": 1.938095238095238,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.dfA": {
+      "value": 1.0,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.dfB": {
+      "value": 1.0,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.dfAB": {
+      "value": 1.0,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.dfE": {
+      "value": 14.0,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.df_total": {
+      "value": 17.0,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.MSA": {
+      "value": 113.12397660818714,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.MSB": {
+      "value": 25.9660818713453,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.MSAB": {
+      "value": 4.071345029239796,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.F_A": {
+      "value": 58.368636579162896,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.F_B": {
+      "value": 13.397732660890695,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.F_AB": {
+      "value": 2.100693995430853,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.p_A": {
+      "value": 2.331019594681294e-06,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.p_B": {
+      "value": 0.0025718616099208447,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.p_AB": {
+      "value": 0.1692616536763082,
+      "source": "two_way_anova.two_way_anova; Type III adjusted SS"
+    },
+    "two_way_anova.R2_percent": {
+      "value": 85.00460546515198,
+      "source": "two_way_anova.two_way_anova; Type III SS and total SS"
+    },
+    "two_way_anova.R2_adjusted_percent": {
+      "value": 81.79130663625598,
+      "source": "two_way_anova.two_way_anova; Type III SS and model DF"
+    },
+    "ols_multiple.Intercept_estimate": {
+      "value": 6.0588439306358275,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.Intercept_se": {
+      "value": 0.24323298095462323,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.Intercept_t": {
+      "value": 24.909631526351873,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.Intercept_p": {
+      "value": 1.300103014107266e-09,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.Intercept_ci_low": {
+      "value": 5.508612700526972,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.Intercept_ci_high": {
+      "value": 6.609075160744683,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.x1_estimate": {
+      "value": 1.96092485549133,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.x1_se": {
+      "value": 0.05108053953563271,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.x1_t": {
+      "value": 38.38888299375597,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.x1_p": {
+      "value": 2.742861876576805e-11,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.x1_ci_low": {
+      "value": 1.8453726470983465,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.x1_ci_high": {
+      "value": 2.0764770638843135,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.x2_estimate": {
+      "value": -0.1275144508670527,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.x2_se": {
+      "value": 0.08560389240270043,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.x2_t": {
+      "value": -1.489587065354404,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.x2_p": {
+      "value": 0.17051713403752378,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.x2_ci_low": {
+      "value": -0.32116390923401306,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.x2_ci_high": {
+      "value": 0.06613500749990767,
+      "source": "advanced_regression.fit_regression coefficient table"
+    },
+    "ols_multiple.N": {
+      "value": 12.0,
+      "source": "advanced_regression.fit_regression model summary"
+    },
+    "ols_multiple.df_error": {
+      "value": 9.0,
+      "source": "advanced_regression.fit_regression model summary"
+    },
+    "ols_multiple.S": {
+      "value": 0.3543907542240794,
+      "source": "advanced_regression.fit_regression model summary"
+    },
+    "ols_multiple.R2": {
+      "value": 0.9978139573330153,
+      "source": "advanced_regression.fit_regression model summary"
+    },
+    "ols_multiple.R2_adjusted": {
+      "value": 0.9973281700736853,
+      "source": "advanced_regression.fit_regression model summary"
+    },
+    "ols_multiple.SSE": {
+      "value": 1.1303352601156065,
+      "source": "advanced_regression.fit_regression model summary"
+    },
+    "ols_multiple.R2_percent": {
+      "value": 99.78139573330152,
+      "source": "advanced_regression.fit_regression model summary; displayed percent"
+    },
+    "ols_multiple.R2_adjusted_percent": {
+      "value": 99.73281700736854,
+      "source": "advanced_regression.fit_regression model summary; displayed percent"
+    },
+    "ols_multiple.regression_SS": {
+      "value": 515.938831406551,
+      "source": "advanced_regression.fit_regression ANOVA table"
+    },
+    "ols_multiple.regression_df": {
+      "value": 2.0,
+      "source": "advanced_regression.fit_regression ANOVA table"
+    },
+    "ols_multiple.regression_MS": {
+      "value": 257.9694157032755,
+      "source": "advanced_regression.fit_regression ANOVA table"
+    },
+    "ols_multiple.model_F": {
+      "value": 2054.014258647493,
+      "source": "advanced_regression.fit_regression ANOVA table"
+    },
+    "ols_multiple.model_p": {
+      "value": 1.0677359219348175e-12,
+      "source": "advanced_regression.fit_regression ANOVA table"
+    },
+    "ols_multiple.residual_SS": {
+      "value": 1.1303352601156065,
+      "source": "advanced_regression.fit_regression ANOVA table"
+    },
+    "ols_multiple.residual_df": {
+      "value": 9.0,
+      "source": "advanced_regression.fit_regression ANOVA table"
+    },
+    "ols_multiple.residual_MS": {
+      "value": 0.12559280667951186,
+      "source": "advanced_regression.fit_regression ANOVA table"
+    },
+    "ols_multiple.total_SS": {
+      "value": 517.0691666666667,
+      "source": "advanced_regression.fit_regression ANOVA table"
+    },
+    "ols_multiple.total_df": {
+      "value": 11.0,
+      "source": "advanced_regression.fit_regression ANOVA table"
+    },
+    "ols_multiple.prediction": {
+      "value": 19.147745664739876,
+      "source": "advanced_regression.fit_regression.predict; 95% t-based intervals"
+    },
+    "ols_multiple.prediction_ci_low": {
+      "value": 18.904793967726174,
+      "source": "advanced_regression.fit_regression.predict; 95% t-based intervals"
+    },
+    "ols_multiple.prediction_ci_high": {
+      "value": 19.390697361753578,
+      "source": "advanced_regression.fit_regression.predict; 95% t-based intervals"
+    },
+    "ols_multiple.prediction_pi_low": {
+      "value": 18.310053293993764,
+      "source": "advanced_regression.fit_regression.predict; 95% t-based intervals"
+    },
+    "ols_multiple.prediction_pi_high": {
+      "value": 19.985438035485988,
+      "source": "advanced_regression.fit_regression.predict; 95% t-based intervals"
+    },
+    "ols_multiple.fit_row1": {
+      "value": 7.764739884393052,
+      "source": "advanced_regression.fit_regression observations table; source row 1"
+    },
+    "ols_multiple.residual_row1": {
+      "value": 0.3352601156069479,
+      "source": "advanced_regression.fit_regression observations table; source row 1"
+    },
+    "ols_multiple.standardized_residual_row1": {
+      "value": 1.1296659565454097,
+      "source": "advanced_regression.fit_regression observations table; source row 1"
+    },
+    "ols_multiple.leverage_row1": {
+      "value": 0.2987079224753492,
+      "source": "advanced_regression.fit_regression observations table; source row 1"
+    },
+    "ols_multiple.cook_row1": {
+      "value": 0.18118683390905438,
+      "source": "advanced_regression.fit_regression observations table; source row 1"
+    },
+    "ols_categorical.Intercept_estimate": {
+      "value": 11.000000000000004,
+      "source": "advanced_regression.fit_regression; reference category is first observed level A"
+    },
+    "ols_categorical.Intercept_se": {
+      "value": 0.6480740698407863,
+      "source": "advanced_regression.fit_regression; reference category is first observed level A"
+    },
+    "ols_categorical.Intercept_t": {
+      "value": 16.97336849583011,
+      "source": "advanced_regression.fit_regression; reference category is first observed level A"
+    },
+    "ols_categorical.Intercept_p": {
+      "value": 9.384742288669516e-10,
+      "source": "advanced_regression.fit_regression; reference category is first observed level A"
+    },
+    "ols_categorical.group['B']_estimate": {
+      "value": 4.399999999999999,
+      "source": "advanced_regression.fit_regression; reference category is first observed level A"
+    },
+    "ols_categorical.group['B']_se": {
+      "value": 0.9165151389911677,
+      "source": "advanced_regression.fit_regression; reference category is first observed level A"
+    },
+    "ols_categorical.group['B']_t": {
+      "value": 4.800793585191832,
+      "source": "advanced_regression.fit_regression; reference category is first observed level A"
+    },
+    "ols_categorical.group['B']_p": {
+      "value": 0.0004329515785987477,
+      "source": "advanced_regression.fit_regression; reference category is first observed level A"
+    },
+    "ols_categorical.group['C']_estimate": {
+      "value": 9.000000000000002,
+      "source": "advanced_regression.fit_regression; reference category is first observed level A"
+    },
+    "ols_categorical.group['C']_se": {
+      "value": 0.9165151389911683,
+      "source": "advanced_regression.fit_regression; reference category is first observed level A"
+    },
+    "ols_categorical.group['C']_t": {
+      "value": 9.819805060619656,
+      "source": "advanced_regression.fit_regression; reference category is first observed level A"
+    },
+    "ols_categorical.group['C']_p": {
+      "value": 4.357288281747557e-07,
+      "source": "advanced_regression.fit_regression; reference category is first observed level A"
+    },
+    "ols_categorical.N": {
+      "value": 15.0,
+      "source": "advanced_regression.fit_regression categorical model summary"
+    },
+    "ols_categorical.df_error": {
+      "value": 12.0,
+      "source": "advanced_regression.fit_regression categorical model summary"
+    },
+    "ols_categorical.R2": {
+      "value": 0.889344262295082,
+      "source": "advanced_regression.fit_regression categorical model summary"
+    },
+    "ols_categorical.R2_adjusted": {
+      "value": 0.8709016393442623,
+      "source": "advanced_regression.fit_regression categorical model summary"
+    },
+    "ols_categorical.R2_percent": {
+      "value": 88.9344262295082,
+      "source": "advanced_regression.fit_regression categorical model summary; displayed percent"
+    },
+    "ols_categorical.R2_adjusted_percent": {
+      "value": 87.09016393442623,
+      "source": "advanced_regression.fit_regression categorical model summary; displayed percent"
+    },
+    "ols_categorical.SS": {
+      "value": 202.53333333333336,
+      "source": "advanced_regression.fit_regression categorical ANOVA table"
+    },
+    "ols_categorical.df": {
+      "value": 2.0,
+      "source": "advanced_regression.fit_regression categorical ANOVA table"
+    },
+    "ols_categorical.MS": {
+      "value": 101.26666666666668,
+      "source": "advanced_regression.fit_regression categorical ANOVA table"
+    },
+    "ols_categorical.model_F": {
+      "value": 48.22222222222223,
+      "source": "advanced_regression.fit_regression categorical ANOVA table"
+    },
+    "ols_categorical.model_p": {
+      "value": 1.8358771941273922e-06,
+      "source": "advanced_regression.fit_regression categorical ANOVA table"
+    },
+    "binary_logistic.Intercept_estimate": {
+      "value": -1.4202824768967048,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "binary_logistic.Intercept_se": {
+      "value": 0.7012462516269127,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "binary_logistic.Intercept_statistic": {
+      "value": -2.025369081975991,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "binary_logistic.Intercept_p": {
+      "value": 0.04282947975969351,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "binary_logistic.x_estimate": {
+      "value": 0.6862626504572428,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "binary_logistic.x_se": {
+      "value": 0.2545945829727011,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "binary_logistic.x_statistic": {
+      "value": 2.695511595118374,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "binary_logistic.x_p": {
+      "value": 0.0070280631673886075,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "binary_logistic.x_wald_chi_square": {
+      "value": 7.2657827594176005,
+      "source": "advanced_regression.fit_regression generalized coefficient Wald statistic squared"
+    },
+    "binary_logistic.x_odds_ratio": {
+      "value": 1.9862782279681486,
+      "source": "advanced_regression.fit_regression coefficient/CI exponentiated to odds ratio"
+    },
+    "binary_logistic.x_odds_ratio_ci_low": {
+      "value": 1.2059485517707407,
+      "source": "advanced_regression.fit_regression coefficient/CI exponentiated to odds ratio"
+    },
+    "binary_logistic.x_odds_ratio_ci_high": {
+      "value": 3.271533593292393,
+      "source": "advanced_regression.fit_regression coefficient/CI exponentiated to odds ratio"
+    },
+    "binary_logistic.N": {
+      "value": 36.0,
+      "source": "advanced_regression.fit_regression generalized model summary"
+    },
+    "binary_logistic.df_error": {
+      "value": 34.0,
+      "source": "advanced_regression.fit_regression generalized model summary"
+    },
+    "binary_logistic.log_likelihood": {
+      "value": -20.024831253377208,
+      "source": "advanced_regression.fit_regression generalized model summary"
+    },
+    "binary_logistic.AIC": {
+      "value": 44.049662506754416,
+      "source": "advanced_regression.fit_regression generalized model summary"
+    },
+    "binary_logistic.BIC": {
+      "value": 47.216700383666634,
+      "source": "advanced_regression.fit_regression generalized model summary"
+    },
+    "binary_logistic.deviance_R2": {
+      "value": 0.19028176901156912,
+      "source": "advanced_regression.fit_regression generalized model summary"
+    },
+    "binary_logistic.deviance_R2_percent": {
+      "value": 19.02817690115691,
+      "source": "advanced_regression.fit_regression generalized summary; displayed percent"
+    },
+    "binary_logistic.pearson_chi-square_statistic": {
+      "value": 36.570667157420964,
+      "source": "advanced_regression.fit_regression diagnostics"
+    },
+    "binary_logistic.likelihood_ratio_statistic": {
+      "value": 9.411571011311992,
+      "source": "advanced_regression.fit_regression diagnostics"
+    },
+    "binary_logistic.likelihood_ratio_p": {
+      "value": 0.0021562040631383107,
+      "source": "advanced_regression.fit_regression diagnostics"
+    },
+    "poisson.Intercept_estimate": {
+      "value": -0.06943840738086463,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "poisson.Intercept_se": {
+      "value": 0.3170615536600103,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "poisson.Intercept_statistic": {
+      "value": -0.21900607809209321,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "poisson.Intercept_p": {
+      "value": 0.8266453130667081,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "poisson.x_estimate": {
+      "value": 0.30627176163303793,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "poisson.x_se": {
+      "value": 0.0857762006050148,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "poisson.x_statistic": {
+      "value": 3.570591370016127,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "poisson.x_p": {
+      "value": 0.00035617618104813074,
+      "source": "advanced_regression.fit_regression generalized coefficients"
+    },
+    "poisson.x_wald_chi_square": {
+      "value": 12.749122731633642,
+      "source": "advanced_regression.fit_regression generalized coefficient Wald statistic squared"
+    },
+    "poisson.N": {
+      "value": 24.0,
+      "source": "advanced_regression.fit_regression generalized model summary"
+    },
+    "poisson.df_error": {
+      "value": 22.0,
+      "source": "advanced_regression.fit_regression generalized model summary"
+    },
+    "poisson.log_likelihood": {
+      "value": -33.7756429397175,
+      "source": "advanced_regression.fit_regression generalized model summary"
+    },
+    "poisson.AIC": {
+      "value": 71.551285879435,
+      "source": "advanced_regression.fit_regression generalized model summary"
+    },
+    "poisson.BIC": {
+      "value": 73.9073935401309,
+      "source": "advanced_regression.fit_regression generalized model summary"
+    },
+    "poisson.deviance_statistic": {
+      "value": 7.752504926866822,
+      "source": "advanced_regression.fit_regression diagnostics"
+    },
+    "poisson.deviance_p": {
+      "value": 0.9977570505805283,
+      "source": "advanced_regression.fit_regression diagnostics"
+    },
+    "poisson.pearson_statistic": {
+      "value": 6.078286202691127,
+      "source": "advanced_regression.fit_regression diagnostics"
+    },
+    "poisson.pearson_p": {
+      "value": 0.9996744674944421,
+      "source": "advanced_regression.fit_regression diagnostics"
+    },
+    "rank_correlation.spearman_N": {
+      "value": 12.0,
+      "source": "nonpara_cor.spearman"
+    },
+    "rank_correlation.spearman_coefficient": {
+      "value": 0.9104001130704705,
+      "source": "nonpara_cor.spearman"
+    },
+    "rank_correlation.spearman_p": {
+      "value": 3.906647548409938e-05,
+      "source": "nonpara_cor.spearman"
+    },
+    "rank_correlation.kendall_N": {
+      "value": 12.0,
+      "source": "nonpara_cor.kendall"
+    },
+    "rank_correlation.kendall_coefficient": {
+      "value": 0.8235584906796976,
+      "source": "nonpara_cor.kendall"
+    },
+    "rank_correlation.kendall_p": {
+      "value": 0.000524391448522065,
+      "source": "nonpara_cor.kendall"
+    },
+    "rank_correlation.hoeffding_N": {
+      "value": 12.0,
+      "source": "nonpara_cor.hoeffding"
+    },
+    "rank_correlation.hoeffding_coefficient": {
+      "value": 0.41919191919191917,
+      "source": "nonpara_cor.hoeffding"
+    },
+    "rank_correlation.hoeffding_p": {
+      "value": 2.2531621486180453e-05,
+      "source": "nonpara_cor.hoeffding"
+    }
+  }
+}

@@ -2,46 +2,32 @@
 
 ## V1.0 beta2 源码基线与 Windows 内部构建（2026-11-02）
 
-- 冻结 Commit `d7ffca83ce52006048fb61de249e349165579336`（父提交 `9485e848a09c87ffd3b4056289db18be34a2b65a`）；本地 annotated Tag `v1.0.0-beta.2` 指向同一提交，未推送。构建开始时工作区干净，`origin/main` 为其祖先。
-- 项目 `.venv` Python 3.11.9 x64、PyInstaller 6.22.3；定向回归 70 passed，版本、预检查、PowerShell 语法、Git 快进/分叉门禁通过。未修改生产统计算法或历史 DOE 基线。
-- Minitab 19.1.0.1 三阶段固定案例：第二阶段 10 案/909 项；最终 896 PASS、0 FAIL、13 METHOD_DIFF。phase3 离线复核两次与存档 SHA 一致；完整范围和限制见 `Out/statistics_minitab19_parity/beta2_baseline.md`。
-- 本地 beta2 运行目录/ZIP/源码 ZIP 已构建；ZIP CRC、SHA256SUMS、源码排除、TsdEncrypt 扫描和目录/解压版启动冒烟通过。目录版 2,175 文件/224,411,168 bytes；完整文件名、摘要和大小见发布目录、`BUILD-INFO.txt`、`docs/release/build-inputs-V1.0-beta2.txt`。
-- 三份 PI SDK DLL 均为 OSIsoft 文件版本 1.4.7.516、程序集版本 1.4.0.0、x86，构建目录和 ZIP 摘要匹配源文件。其再分发许可未确认；只作获准内部验证，正式对外分发受阻。完整 PI SDK/PIPC 运行时、PI Server 连接、办公终端 Defender/DLP、普通权限现场验收均 NOT VERIFIED。
-- beta1 Tag 与发布产物未变；beta2 BUILD-INFO、构建日志和运行输入清单为构建后本地生成文件，尚未纳入源码 Commit。实际 About 对话框实屏检查因 UI 自动化恢复失败未完成；源标签为 V1.0 beta2，主窗口启动已观察通过。
+- 冻结 Commit `d7ffca83ce52006048fb61de249e349165579336`（父提交 `9485e848a09c87ffd3b4056289db18be34a2b65a`）；本地 `v1.0.0-beta.2` tag 指向该提交，未推送。项目 `.venv` 为 Python 3.11.9 x64、PyInstaller 6.22.3；定向回归 70 passed。
+- Minitab 19.1.0.1 阶段 2/3 最终 909 项为 896 PASS、0 FAIL、13 METHOD_DIFF；发布基线与限制见 `Out/statistics_minitab19_parity/beta2_baseline.md`。
+- beta2 运行目录及应用/源码 ZIP 已构建，CRC、SHA256SUMS、源码排除和启动冒烟通过；规格见 `BUILD-INFO.txt`、`docs/release/build-inputs-V1.0-beta2.txt`。未修改生产统计算法或 DOE 基线。
+- PI SDK DLL 摘要匹配，但再分发许可未确认；完整 PI runtime/Server、办公终端 Defender/DLP 与普通权限现场验收仍 NOT VERIFIED。About 实屏检查未完成，构建后清单/日志尚未入源码提交。
 
-## 统计功能 Minitab 19 自动对标第一阶段（2026-11-02）
+## 统计功能 Minitab 19 自动对标阶段 1–3（2026-11-02）
 
-- 第一阶段完成，脚本与证据在 `Out/statistics_minitab19_parity/`。菜单矩阵共 90 项（统计30、DOE 35、质量25）；既有独立验证证据为30项有、44项部分、16项未找到；独立数值参考为30项有、41项部分、19项未找到。
-- 本机 COM、注册服务器与进程映像均确认使用 `D:\Program\Minitab 19\Mtb.exe`，版本 `19.1.0.1`；每次新建隔离项目，运行后无残留 Mtb 进程。`.venv` Python 3.11.9；没有改 `code/` 生产算法或旧 DOE 基线。
-- 八个固定案例：描述统计、正态性、Pearson、单样本/双样本/配对 t、单因子 ANOVA、OLS。40 指标 PASS、0 FAIL、2 METHOD_DIFF、1 UNSUPPORTED、0 NOT_RUN；6 个功能全项通过，双样本 t 的 df/p 因 Minitab 19 Welch 自由度取整而不同，正态性 AD 统计量无法从稳定的 Session/COM 输出取得（p 值可比）。该取整定义有官方方法说明：https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/basic-statistics/how-to/2-sample-t/methods-and-formulas/methods-and-formulas/。
-- 同一脚本和固定输入连续运行两次；`case_inputs.json`、`feature_matrix.csv`、`comparison.csv`、`summary.csv` 的 SHA-256 完全一致，见 `repeatability_check.txt`。定向脚本运行及 `py_compile` 通过；未运行 pytest。后续优先处理 AD 统计量获取路径、明确 Welch 方法差异的产品口径，并扩展其余高优先级功能。
+- phase1 的 8 个统计案例为 40 PASS、2 METHOD_DIFF、1 UNSUPPORTED；90 项菜单矩阵范围和原生参考入口保留在 `Out/statistics_minitab19_parity/`。
+- phase2 的过程能力/SPC/GRR 共10案/909项（886 PASS、10 FAIL、13 METHOD_DIFF）；phase3 独立复核最终为896 PASS、0 FAIL、13 METHOD_DIFF，哈希稳定。CAP-05/CAP-03 经独立数值复核，CAP-04 ddof 差异保留 METHOD_DIFF；未改生产算法，详见各 phase 工件。
 
-## 统计功能 Minitab 19 自动对标第二阶段（2026-11-02）
+## 统计功能 Minitab 19 对标第四至五阶段（2026-11-03）
 
-- 新增 `Out/statistics_minitab19_parity/phase2/`，复用第一阶段 COM 版本/路径核验、Session 输出提取和进程检查；固定 10 案输入，在独立项目中各运行两次，Minitab 19.1.0.1 的 10/10 命令均 2/2 成功。
-- 909 项：886 PASS、10 FAIL、13 METHOD_DIFF、0 UNSUPPORTED、0 NOT_RUN；固定输入、MiniJMP 结果、Minitab 存储结果和逐项比较两轮哈希一致。数据、命令、原始输出、比较、汇总和重复性文件均在 phase2 目录。
-- CAP-01/03 的单值组内 σ 与 Cp/Cpk、Cpu 受常数表 d2(2)=1.128 与 MiniJMP 精确 2/√π 区别影响；CAP-04 实测 Minitab `SSCALE` 与对数样本 ddof=1 一致，MiniJMP 使用 ddof=0 MLE，相关指数/预计 PPM 为 METHOD_DIFF。CAP-05 两边用两参数 Weibull MLE 但求解器不同；本固定样本似然差 2.84e-14，仍有 1e-8 量级参数差并超过严格容差，保持 FAIL，未认定生产缺陷。
-- CAP-02、四个 SPC 案、GRR 全 PASS；没有修改 `code/`、第一阶段或 DOE 基线，未运行 pytest、未提交/推送。第三阶段优先明确 Lognormal 参数口径，再对 Weibull 求解器误差用独立参考评估容差。
-
-## 统计功能 Minitab 19 对标第三阶段（2026-11-02）
-
-- 新增 `Out/statistics_minitab19_parity/phase3/` 离线复核脚本及 verification/comparison/summary CSV；读取 phase2 固定输入、比较和 Minitab 原始存储，不启动 COM、不覆盖 phase2。
-- 对 CAP-05 用标准库一维单调 shape score 二分求根；参考 shape `1.786337931356245`、scale `2.823786383261901`、log-likelihood `-137.67436730466378`。MiniJMP 梯度每观测约 `(-7.35e-9,-9.81e-9)`，Minitab 参数的似然差 `2.84e-14`；9 项原 FAIL 按逐类容差复判为数值等价。
-- CAP-03 独立 `erfc` 上尾参考 `14702.389062089542 PPM`；Minitab 原生差 `1.02e-6 PPM`、相对 `6.96e-11`，仅放宽此指标的数值判限。CAP-04 ddof=0/1 复算解释 8 项 METHOD_DIFF；保留该状态，并在 `docs/capability-analysis.md` 加入版本及案例限定说明。
-- 最终 909 项为 896 PASS、0 FAIL、13 METHOD_DIFF、0 UNSUPPORTED、0 NOT_RUN；三个 phase3 CSV 连续执行两次哈希一致。`.venv` Python 3.11.9 语法/输出一致性及 `git diff --check` 通过；未运行 pytest、未改生产算法、未提交/推送。未发现需单独修复的生产算法缺陷。
-
+- phase4 历史保持 14 案/257 指标：223 PASS、6 METHOD_DIFF、19 UNSUPPORTED、9 NOT_RUN；未改其 14 个文件。phase5 新增/复验 103 项，并复核 4 项 phase4 Logistic/Poisson 截距字段：合计 107 条记录、94 PASS、6 METHOD_DIFF、7 UNSUPPORTED、0 FAIL/NOT_RUN。
+- phase5 包状态（共享项不重复计总数）：P0-A 3 配置/9 项（5 PASS、4 UNSUPPORTED）；P0-B 6 配置/44 项（38 PASS、6 METHOD_DIFF）；P0-C 4 配置/69 项（62 PASS、4 METHOD_DIFF、3 UNSUPPORTED）。四条 Logistic/Poisson 原命令成功，系数表与 COM 存储无截距 z/p，phase4 保留原值，phase5 归类为原生字段缺失。
+- OLS `PREDICT C16` 成功；x1=7、x2=5、95% 预测值 19.1477456647399，均值 CI (18.9047939678488, 19.3906973616310)，个体 PI (18.3100532944165, 19.9854380350633)，五项 PASS。修复仅属对标脚本。
+- 缺失值案例保留 0 为合法值；单样本 N=6，配对完整 N=5，Welch N=6/8，两种秩相关缺失配置的有效配对 N 均为 8，单因子 ANOVA N=11（组 N=3/4/4），Type III 双因子 N=14。Spearman 系数/p 可比；Kendall 两项 XTABS p 为 METHOD_DIFF。
+- MiniJMP 正态性菜单输出 Shapiro-Wilk 与 Anderson-Darling。缺失值案例 AD p 按 Minitab 显示精度通过，AD 统计量无稳定 COM 字段；Minitab 19 NORMTEST 默认 AD，备选 RJTEST/KSTEST，Ryan-Joiner 仅与 Shapiro-Wilk 相似，故 MiniJMP Shapiro W/p 无同名原生参考，记 UNSUPPORTED。
+- Welch 新案例 df/p/CI 上下限 4 项因 Minitab 19 截断 Welch df、MiniJMP 保留分数 df 而 METHOD_DIFF。单因子 ANOVA 核对 S、R²、调整 R²、各组均值/95% CI 与 Fisher LSD 三对 p；双因子核对 Type III 表、S、R²及调整 R²。MiniJMP 双因子入口无拟合值/预测值接口。
+- phase5 最终完整执行后重复运行，结果文件哈希一致（忽略 COM PID），phase4 14 个文件不变；90 项矩阵已更新。定向 4 文件测试 204 passed、1 项既有不平衡 GRR 用例失败、3 warnings；未改 `code/`，未运行全量 pytest，未进入 P1/DOE。详细证据见 `Out/statistics_minitab19_parity/phase5/` 与当日日志。
 ## V1.0 beta1 Windows 发布执行（2026-11-01）
 
-- 基线/HEAD/tag/origin/main为`afc2d1c9b91a9642b9cbc2aa8bb0123560ae0a76`，构建开始工作区干净；未改冻结代码、版本或tag，未推送发布。
-- 预检查PASS；Windows11 x64、项目`.venv` Python3.11.9、PyInstaller6.22.3；指定发布回归179 passed。
-- `dist/MiniJMP-V1.0-beta1/`和运行/源码ZIP及SHA256SUMS已生成；版本、DLP沉降复验、CRC、源码973项摘要、脱敏配置和许可通过。
-- 正式脚本退出1：目录冒烟通过；解压版遇WinError1455/页面文件不足，同时见Tk iconphoto异常。结束额外实例后独立解压版冒烟3秒通过；不能记为正式全程成功。
-- GUI完成CSV导入、CSV/Excel导出读回及工程保存；剩余人工抽样未验收（桌面捕获不可用），企业现场/PI Server仍NOT VERIFIED。
-- 完整发布验收暂不判PASS。恢复入口与日志：`C:/Users/shaoy/Documents/MiniJMP-ReleaseEvidence/v1.0.0-beta.1-20261101/acceptance-status.txt`。下一步在资源正常、桌面可交互时补齐正式全程及GUI验收；重建前必须归档保留当前产物，不覆盖删除。
+- 基线 commit/tag `afc2d1c9b91a9642b9cbc2aa8bb0123560ae0a76`；未改冻结代码、版本/tag 或推送。Windows11 x64、项目 Python3.11.9、PyInstaller6.22.3；指定发布回归179 passed。
+- 发布目录及运行/源码 ZIP、SHA256SUMS 已生成；版本、DLP/CRC、源码摘要、配置脱敏和许可检查通过。正式脚本遇 WinError1455，后续独立解压版3秒冒烟通过，但正式全程仍未验收。
+- GUI 已实测 CSV/Excel 导入导出及工程保存；人工抽样、企业 PI Server/现场仍 NOT VERIFIED。恢复入口：`C:/Users/shaoy/Documents/MiniJMP-ReleaseEvidence/v1.0.0-beta.1-20261101/acceptance-status.txt`。2026-11-01 图表嵌入 Axes/无 Axes 泊松定向测试29/19通过；绘图器后台 Tk 生命周期仍待处理。
 
-- 2026-11-01：P/NP/C/U 控制图嵌入已有 Axes 时不再调用 `plt.show()`，泊松分布无 Axes 也返回结果；相关绘图及报告定向测试分别 29、19 项通过。通用绘图器动画入口可达，后台线程操作 Tk/Canvas 的问题未修复，视频导出与停止生命周期需一并处理。
-
-## 当前阶段：Minitab 19 对标收尾；Binary Logistic 终点 Fisher 修复完成（2026-10-31）
+## Binary Logistic 终点 Fisher 修复（2026-10-31；历史）
 
 - 八案本地提交 `244ecf6d9ba48741194cb695acce0a51e6da7cb3`（54 文件），未推送。Minitab 19.1.0.1：2²、CCD、Mixture、BBD、PB、Split-Plot PASS；Taguchi L8/L9 PARTIAL。离线结果 3070 条明细、2605 个唯一比较：2559 PASS、0 FAIL、44 N/A、2 UNSUPPORTED。
 - 验收入口 `Out/minitab19_parity/reference_baseline_acceptance.md`、`reference_baseline_manifest.csv`、`reference_baseline_offline_results.csv`；manifest 固定逐案原始行数/状态计数及证据 SHA-256。离线复验重算至临时 CSV 并核对归档哈希，不覆盖固定结果；COM 未启动。
@@ -71,7 +57,7 @@
 - 正式矩阵、P2-5证据分层、路线图、开发记录、DOE帮助和索引均更新。最终入口：`Out/p2_6_doe_function_completion/p2-6-final-acceptance.md`、`p2-6-final-feature-audit.csv`、`p2-6-final-statistical-review.md`；精确批次/节点见`final-validation-summary.json`、`final-gui-manifest.json`，提交后状态见`final-git-state.log`。
 - 历史P2-5 1408 passed/69 warnings独立保留；原件见`Out/p5_automated_validation/`及`Out/p5_office_round1/`。有限Minitab输出只涉及SCR-001/003、FAC-012、RSM-002，其余76项无对应产品输出；DSD-S01仅RTF显示精度，BBD有标准序差异。不是全产品parity。
 - Binary Logistic M2 调查已完成；若后续需要唯一归因，再获取可验证的 Minitab 原生迭代/权重证据。此阶段结束，不自动进入第四阶段归档/提交。后续版本需求与范围规划尚未启动；不自动扩展高级 DOE、采集产品输出或发布。项目记忆按规则独立更新，未纳入 Git 提交。过程见 `logs/2026-10-31.md`。
-## Minitab 19 对标（2026-10-31，当前）
+## Minitab 19 DOE 对标（2026-10-31；历史状态）
 
 - **工作约定（用户明确要求）**：涉及 Minitab 命令语言/子命令时，先查官方 session commands 文档，不要凭记忆猜语法。入口：`https://support.minitab.com/zh-cn/minitab/media/pdfs/notranslate/session_commands.pdf`；下载后用 `.venv` 的 `pypdf` 抽全文再 `rg` 定位。已实测：`CCDESIGN 2; ALPHA 1; CENTER 5; DESIGN.`；`RSREG` 必带 `LEVELS`/`INUNIT`；`PREDICT <response>` 必带 `KPREDICTORS` 或 `CPREDICTORS`；SE Fit 存储项是 `PSEFITS`（不是 `SEFITS`）。
 - 面心 CCD 二次响应面对标完成，脚本 `Out/minitab19_parity/verify_doe_ccd.py`。13 次运行（4 因子 + 4 轴 + 5 中心，alpha=1，无区组），两次独立 COM 会话：比较 CSV 897 行 = 883 PASS / 14 N/A / 0 FAIL，最大绝对误差 `2.55e-11`；运行后无 `Mtb.exe` 残留。
@@ -162,7 +148,7 @@
 ## 工作包 B/C 收尾（2026-10-28，细节见当日日志归档）
 
 - B/C 限定范围、Minitab 22 导出差异、PB/DSD 参考与 Tk 中断边界见 logs/2026-10-28.md；本地测试不等同产品 parity 或独立 APPROVE。
-## 当前状态（2026-10-27）
+## 旧状态基线（2026-10-27）
 
 DOE-3 已实现 CCD 和二次响应面：支持 2–5 因子 CCF/旋转 CCC、越界预览确认、编码与设定矩阵校验、纯误差/失拟/曲率和图形，工程可保存、重开、复制。DOE-1 含中心点时禁用模型 t/F 推断的前置修复已完成。CCD 允许十进制/指数文本按最近 binary64 保存；纯整数文本保持精确整数，无法无损转 binary64 的端点拒绝；中心和 CCC 轴点采用有界舍入，轴点必须仍在 low/high 外且反算编码误差不超过 1e-8。DOE schema v1 与 DOE-0/1/2 语义未变。DOE-4 已实现：完整 CCD 上单响应最大化/最小化/逼近目标，多响应期望函数权重优化；默认编码 bounds 为 [-1,1]，可收紧或固定。GUI 每次从当前表快照重拟合，候选含编码/实际水平、预测、期望、可行与 solver 状态；确定性多起点 L-BFGS-B 不保证全局最优，零期望/数值下溢/评价上限会明示。优化不写回响应、设定或 `.dexpl` schema v1。当前验收按范围合计 456 passed、14 warnings、0 failed、0 skipped；全量 pytest 未运行，DOE-3 之前的全量历史曾两次于 Tk `Menu.add` 原生 `0x80000003` 中断且无 summary。见 `docs/doe-development.md`、`docs/doe3-closeout-report.md` 与 `logs/2026-10-27.md`。
 

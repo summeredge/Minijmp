@@ -1,0 +1,921 @@
+===== ols_multiple =====
+REGRESS;
+  RESPONSE C16;
+  CONTINUOUS C17 C18;
+  TERMS C17 C18;
+  CONSTANT;
+  UNSTANDARDIZED;
+  CONFIDENCE 95;
+  TCOEFFICIENTS;
+  TANOVA;
+  TSUMMARY;
+  TDIAGNOSTICS 1;
+  RESIDUALS C93;
+  SRESIDUALS C94;
+  HI C95;
+  COOK C96;
+  FITS C97.
+OutputDocument.Text:
+回归分析: OLS_Y 与 OLS_X1, OLS_X2
+ 
+
+回归方程
+
+OLS_Y = 6.059 + 1.9609 OLS_X1 - 0.1275 OLS_X2
+
+
+系数
+
+项            系数   系数标准误    T 值    P 值  方差膨胀因子
+常量        6.059   0.243  24.91  0.000
+OLS_X1   1.9609  0.0511  38.39  0.000    2.97
+OLS_X2  -0.1275  0.0856  -1.49  0.171    2.97
+
+
+模型汇总
+
+       S    R-sq  R-sq（调整）  R-sq（预测）
+0.354391  99.78%    99.73%    99.60%
+
+
+方差分析
+
+来源        自由度   Adj SS   Adj MS      F 值    P 值
+回归          2  515.939  257.969  2054.01  0.000
+  OLS_X1    1  185.087  185.087  1473.71  0.000
+  OLS_X2    1    0.279    0.279     2.22  0.171
+误差          9    1.130    0.126
+合计         11  517.069
+
+
+所有观测值的拟合和诊断
+
+观测值   OLS_Y     拟合值      残差  标准化残差
+  1   8.100   7.765   0.335   1.13
+  2  10.000   9.853   0.147   0.50
+  3  11.800  11.432   0.368   1.21
+  4  13.200  13.648  -0.448  -1.42
+  5  14.700  15.226  -0.526  -1.66
+  6  17.600  17.442   0.158   0.49
+  7  18.800  19.020  -0.220  -0.69
+  8  21.100  21.236  -0.136  -0.42
+  9  22.700  22.815  -0.115  -0.37
+ 10  24.800  25.031  -0.231  -0.75
+ 11  26.900  26.609   0.291   1.01
+ 12  29.200  28.825   0.375   1.33
+
+
+
+Output.Text[1]:
+回归方程
+
+OLS_Y = 6.059 + 1.9609 OLS_X1 - 0.1275 OLS_X2
+
+
+Output.Text[2]:
+系数
+
+项            系数   系数标准误    T 值    P 值  方差膨胀因子
+常量        6.059   0.243  24.91  0.000
+OLS_X1   1.9609  0.0511  38.39  0.000    2.97
+OLS_X2  -0.1275  0.0856  -1.49  0.171    2.97
+
+
+Output.Text[3]:
+模型汇总
+
+       S    R-sq  R-sq（调整）  R-sq（预测）
+0.354391  99.78%    99.73%    99.60%
+
+
+Output.Text[4]:
+方差分析
+
+来源        自由度   Adj SS   Adj MS      F 值    P 值
+回归          2  515.939  257.969  2054.01  0.000
+  OLS_X1    1  185.087  185.087  1473.71  0.000
+  OLS_X2    1    0.279    0.279     2.22  0.171
+误差          9    1.130    0.126
+合计         11  517.069
+
+
+Output.Text[5]:
+所有观测值的拟合和诊断
+
+观测值   OLS_Y     拟合值      残差  标准化残差
+  1   8.100   7.765   0.335   1.13
+  2  10.000   9.853   0.147   0.50
+  3  11.800  11.432   0.368   1.21
+  4  13.200  13.648  -0.448  -1.42
+  5  14.700  15.226  -0.526  -1.66
+  6  17.600  17.442   0.158   0.49
+  7  18.800  19.020  -0.220  -0.69
+  8  21.100  21.236  -0.136  -0.42
+  9  22.700  22.815  -0.115  -0.37
+ 10  24.800  25.031  -0.231  -0.75
+ 11  26.900  26.609   0.291   1.01
+ 12  29.200  28.825   0.375   1.33
+
+LastError: 
+
+===== ols_prediction =====
+PREDICT C16;
+  CPREDICTORS C25 C26;
+  CONFIDENCE 95;
+  TPREDICTION;
+  PFITS C114;
+  PSEFITS C115;
+  CLIMITS C116 C117;
+  PLIMITS C118 C119.
+OutputDocument.Text:
+OLS_Y 的预测
+ 
+
+回归方程
+
+OLS_Y = 6.059 + 1.9609 OLS_X1 - 0.1275 OLS_X2
+
+
+设置
+
+变量      设置
+OLS_X1   7
+OLS_X2   5
+
+
+预测
+
+    拟合值    拟合值标准误       95% 置信区间            95% 预测区间
+19.1477  0.107398  (18.9048, 19.3907)  (18.3101, 19.9854)
+
+
+
+Output.Text[1]:
+回归方程
+
+OLS_Y = 6.059 + 1.9609 OLS_X1 - 0.1275 OLS_X2
+
+
+Output.Text[2]:
+设置
+
+变量      设置
+OLS_X1   7
+OLS_X2   5
+
+
+Output.Text[3]:
+预测
+
+    拟合值    拟合值标准误       95% 置信区间            95% 预测区间
+19.1477  0.107398  (18.9048, 19.3907)  (18.3101, 19.9854)
+
+LastError: 
+
+===== one_sample_t_missing =====
+ONET C31;
+  TEST 8;
+  ALTERNATIVE 1;
+  CONFIDENCE 90;
+  SPVALUE C70;
+  SCONF C71 C72.
+OutputDocument.Text:
+单样本 T: OneT
+ 
+
+描述性统计量
+
+                         μ 的
+N    均值   标准差  均值标准误  90% 下限
+6  8.33  4.32   1.76    5.73
+
+μ: OneT 的均值
+
+
+检验
+
+原假设   H₀: μ = 8
+备择假设  H₁: μ > 8
+
+ T 值    P 值
+0.19  0.429
+
+
+
+Output.Text[1]:
+描述性统计量
+
+                         μ 的
+N    均值   标准差  均值标准误  90% 下限
+6  8.33  4.32   1.76    5.73
+
+μ: OneT 的均值
+
+
+Output.Text[2]:
+检验
+
+原假设   H₀: μ = 8
+备择假设  H₁: μ > 8
+
+ T 值    P 值
+0.19  0.429
+
+LastError: 
+
+===== paired_t_one_side_missing =====
+PAIR C32 C33;
+  TEST 0;
+  CONFIDENCE 95;
+  SPVALUE C73;
+  SCONF C74 C75.
+OutputDocument.Text:
+配对 T 检验和置信区间: PairBefore, PairAfter
+ 
+
+描述性统计量
+
+样本          N    均值   标准差  均值标准误
+PairBefore  5  9.60  5.59   2.50
+PairAfter   5  9.00  4.74   2.12
+
+
+配对差值的估计值
+
+                    μ_差 的 95% 置信区
+   均值    标准差  均值标准误       间
+0.600  0.894  0.400(-0.511, 1.711)
+
+μ_差: (PairBefore - PairAfter) 的均值
+
+
+检验
+
+原假设   H₀: μ_差 = 0
+备择假设  H₁: μ_差 ≠ 0
+
+ T 值    P 值
+1.50  0.208
+
+
+
+Output.Text[1]:
+描述性统计量
+
+样本          N    均值   标准差  均值标准误
+PairBefore  5  9.60  5.59   2.50
+PairAfter   5  9.00  4.74   2.12
+
+
+Output.Text[2]:
+配对差值的估计值
+
+                    μ_差 的 95% 置信区
+   均值    标准差  均值标准误       间
+0.600  0.894  0.400(-0.511, 1.711)
+
+μ_差: (PairBefore - PairAfter) 的均值
+
+
+Output.Text[3]:
+检验
+
+原假设   H₀: μ_差 = 0
+备择假设  H₁: μ_差 ≠ 0
+
+ T 值    P 值
+1.50  0.208
+
+LastError: 
+
+===== welch_t_different_missing =====
+TWOSAMPLE 95 C35 C34;
+  TEST 0;
+  SPVALUE C76;
+  SCONF C77 C78.
+OutputDocument.Text:
+双样本 T 检验和置信区间: Welch2, Welch1
+ 
+
+方法
+
+μ₁: Welch2 的均值
+µ₂: Welch1 的均值
+差值: μ₁ - µ₂
+
+未针对此分析假定等方差。
+
+
+描述性统计量
+
+样本      N     均值   标准差  均值标准误
+Welch2  8  11.25  5.34    1.9
+Welch1  6   5.00  3.35    1.4
+
+
+差值的估计值
+
+       差值的 95% 置信区
+  差值        间
+6.25  (1.12, 11.38)
+
+
+检验
+
+原假设   H₀: μ₁ - µ₂ = 0
+备择假设  H₁: μ₁ - µ₂ ≠ 0
+
+ T 值  自由度    P 值
+2.68   11  0.021
+
+
+
+Output.Text[1]:
+方法
+
+μ₁: Welch2 的均值
+µ₂: Welch1 的均值
+差值: μ₁ - µ₂
+
+未针对此分析假定等方差。
+
+
+Output.Text[2]:
+描述性统计量
+
+样本      N     均值   标准差  均值标准误
+Welch2  8  11.25  5.34    1.9
+Welch1  6   5.00  3.35    1.4
+
+
+Output.Text[3]:
+差值的估计值
+
+       差值的 95% 置信区
+  差值        间
+6.25  (1.12, 11.38)
+
+
+Output.Text[4]:
+检验
+
+原假设   H₀: μ₁ - µ₂ = 0
+备择假设  H₁: μ₁ - µ₂ ≠ 0
+
+ T 值  自由度    P 值
+2.68   11  0.021
+
+LastError: 
+
+===== spearman_rank_one_missing =====
+CORRELATION C36 C37;
+  SPEARMAN;
+  SCORRELATION M5;
+  SPVALUES M6.
+OutputDocument.Text:
+相关: Rank1X, Rank1Y
+ 
+
+Rank1X, Rank1Y 的矩阵图
+
+
+
+方法
+
+相关类型    Spearman
+已使用的行数  9
+
+
+相关
+
+        Rank1X
+Rank1Y   0.907
+
+
+
+Output.Text[1]:
+Rank1X, Rank1Y 的矩阵图
+
+
+Output.Text[2]:
+方法
+
+相关类型    Spearman
+已使用的行数  9
+
+
+Output.Text[3]:
+相关
+
+        Rank1X
+Rank1Y   0.907
+
+LastError: 
+
+===== kendall_rank_one_missing =====
+XTABS C36 C37;
+  COUNTS;
+  CONCORDANT.
+OutputDocument.Text:
+列表统计量: Rank1X, Rank1Y
+ 
+
+行: Rank1X   列: Rank1Y
+
+      0  1  3  5  8  全部
+
+0     1  0  0  0  0   1
+1     0  0  2  0  0   2
+3     0  1  0  0  0   1
+5     0  0  0  1  0   1
+6     0  0  0  0  1   1
+7     0  0  0  0  2   2
+全部    1  1  2  1  3   8
+
+单元格内容
+      计数
+
+
+顺序类别的一致性量度
+
+配对   数量  度量结果综述
+一致   22  Somer 的 D（与 Rank1X 相关）     0.833333
+不一致   2  Somer 的 D（与 Rank1Y 相关）     0.769231
+结     4  Goodman 和 Kruskal 的 Gamma  0.833333
+合计   28  Kendall 的 Tau-b            0.800641
+
+
+一致性检验
+
+P 值
+0.0024667
+
+
+
+Output.Text[1]:
+行: Rank1X   列: Rank1Y
+
+      0  1  3  5  8  全部
+
+0     1  0  0  0  0   1
+1     0  0  2  0  0   2
+3     0  1  0  0  0   1
+5     0  0  0  1  0   1
+6     0  0  0  0  1   1
+7     0  0  0  0  2   2
+全部    1  1  2  1  3   8
+
+单元格内容
+      计数
+
+
+Output.Text[2]:
+顺序类别的一致性量度
+
+配对   数量  度量结果综述
+一致   22  Somer 的 D（与 Rank1X 相关）     0.833333
+不一致   2  Somer 的 D（与 Rank1Y 相关）     0.769231
+结     4  Goodman 和 Kruskal 的 Gamma  0.833333
+合计   28  Kendall 的 Tau-b            0.800641
+
+
+Output.Text[3]:
+一致性检验
+
+P 值
+0.0024667
+
+LastError: 
+
+===== spearman_rank_different_missing =====
+CORRELATION C38 C39;
+  SPEARMAN;
+  SCORRELATION M7;
+  SPVALUES M8.
+OutputDocument.Text:
+相关: Rank2X, Rank2Y
+ 
+
+Rank2X, Rank2Y 的矩阵图
+
+
+
+方法
+
+相关类型    Spearman
+已使用的行数  10
+
+
+相关
+
+        Rank2X
+Rank2Y   0.976
+
+
+
+Output.Text[1]:
+Rank2X, Rank2Y 的矩阵图
+
+
+Output.Text[2]:
+方法
+
+相关类型    Spearman
+已使用的行数  10
+
+
+Output.Text[3]:
+相关
+
+        Rank2X
+Rank2Y   0.976
+
+LastError: 
+
+===== kendall_rank_different_missing =====
+XTABS C38 C39;
+  COUNTS;
+  CONCORDANT.
+OutputDocument.Text:
+列表统计量: Rank2X, Rank2Y
+ 
+
+行: Rank2X   列: Rank2Y
+
+      1  2  4  5  6  8  9  全部
+
+0     1  0  0  0  0  0  0   1
+1     0  1  0  0  0  0  0   1
+3     0  1  0  0  0  0  0   1
+4     0  0  1  0  0  0  0   1
+6     0  0  0  0  1  0  0   1
+7     0  0  0  0  1  1  0   2
+8     0  0  0  0  0  0  1   1
+全部    1  2  1  0  2  1  1   8
+
+单元格内容
+      计数
+
+
+顺序类别的一致性量度
+
+配对   数量  度量结果综述
+一致   25  Somer 的 D（与 Rank2X 相关）     0.96154
+不一致   0  Somer 的 D（与 Rank2Y 相关）     0.92593
+结     3  Goodman 和 Kruskal 的 Gamma  1.00000
+合计   28  Kendall 的 Tau-b            0.94356
+
+
+一致性检验
+
+P 值
+0.0003035
+
+
+
+Output.Text[1]:
+行: Rank2X   列: Rank2Y
+
+      1  2  4  5  6  8  9  全部
+
+0     1  0  0  0  0  0  0   1
+1     0  1  0  0  0  0  0   1
+3     0  1  0  0  0  0  0   1
+4     0  0  1  0  0  0  0   1
+6     0  0  0  0  1  0  0   1
+7     0  0  0  0  1  1  0   2
+8     0  0  0  0  0  0  1   1
+全部    1  2  1  0  2  1  1   8
+
+单元格内容
+      计数
+
+
+Output.Text[2]:
+顺序类别的一致性量度
+
+配对   数量  度量结果综述
+一致   25  Somer 的 D（与 Rank2X 相关）     0.96154
+不一致   0  Somer 的 D（与 Rank2Y 相关）     0.92593
+结     3  Goodman 和 Kruskal 的 Gamma  1.00000
+合计   28  Kendall 的 Tau-b            0.94356
+
+
+Output.Text[3]:
+一致性检验
+
+P 值
+0.0003035
+
+LastError: 
+
+===== normality_missing =====
+NORMTEST C40;
+  SPVALUE C79.
+OutputDocument.Text:
+NormalityY 的概率图
+ 
+
+NormalityY 的概率图
+
+
+
+
+Output.Text[1]:
+NormalityY 的概率图
+
+LastError: 
+
+===== one_way_anova_missing =====
+ONEWAY;
+  RESPONSE C41;
+  CATEGORICAL C42;
+  CONFIDENCE 95;
+  FISHER;
+  TANOVA;
+  TMEANS;
+  TMTEST.
+OutputDocument.Text:
+单因子方差分析: OneWayY 与 OneWayGroup
+ 
+
+方法
+
+原假设    所有均值都相等
+备择假设   并非所有的均值都相等
+显著性水平  α = 0.05
+未使用的行  2
+
+已针对此分析假定了相等方差。
+
+
+因子信息
+
+因子           水平数  值
+OneWayGroup    3  A, B, C
+
+
+方差分析
+
+来源           自由度  Adj SS  Adj MS    F 值    P 值
+OneWayGroup    2  105.16  52.580  26.71  0.000
+误差             8   15.75   1.969
+合计            10  120.91
+
+
+模型汇总
+
+      S    R-sq  R-sq（调整）  R-sq（预测）
+1.40312  86.97%    83.72%    76.06%
+
+
+均值
+
+OneWayGroup  N     均值    标准差      95% 置信区间
+A            3  1.000  1.000  (-0.868,  2.868)
+B            4  4.500  1.291  ( 2.882,  6.118)
+C            4  8.750  1.708  ( 7.132, 10.368)
+
+合并标准差 = 1.40312
+
+
+Fisher 配对比较
+ 
+
+使用 Fisher LSD 方法和 95% 置信度对信息进行分组
+
+OneWayGroup  N     均值     分组
+C            4  8.750  A
+B            4  4.500     B
+A            3  1.000        C
+
+不共享字母的均值之间具有显著差异。
+
+
+均值差值的 Fisher 单个检验
+
+水平的差值   均值差值  差值标准误     95% 置信区间      T 值  调整的 P 值
+B - A   3.50   1.07  ( 1.03,  5.97)  3.27    0.011
+C - A   7.75   1.07  ( 5.28, 10.22)  7.23    0.000
+C - B  4.250  0.992  (1.962, 6.538)  4.28    0.003
+
+同时置信水平 = 88.77%
+
+ 
+OneWayY 与 OneWayGroup 的区间图
+
+
+
+
+Output.Text[1]:
+方法
+
+原假设    所有均值都相等
+备择假设   并非所有的均值都相等
+显著性水平  α = 0.05
+未使用的行  2
+
+已针对此分析假定了相等方差。
+
+
+Output.Text[2]:
+因子信息
+
+因子           水平数  值
+OneWayGroup    3  A, B, C
+
+
+Output.Text[3]:
+方差分析
+
+来源           自由度  Adj SS  Adj MS    F 值    P 值
+OneWayGroup    2  105.16  52.580  26.71  0.000
+误差             8   15.75   1.969
+合计            10  120.91
+
+
+Output.Text[4]:
+模型汇总
+
+      S    R-sq  R-sq（调整）  R-sq（预测）
+1.40312  86.97%    83.72%    76.06%
+
+
+Output.Text[5]:
+均值
+
+OneWayGroup  N     均值    标准差      95% 置信区间
+A            3  1.000  1.000  (-0.868,  2.868)
+B            4  4.500  1.291  ( 2.882,  6.118)
+C            4  8.750  1.708  ( 7.132, 10.368)
+
+合并标准差 = 1.40312
+
+
+Output.Text[6]:
+Fisher 配对比较
+ 
+
+使用 Fisher LSD 方法和 95% 置信度对信息进行分组
+
+OneWayGroup  N     均值     分组
+C            4  8.750  A
+B            4  4.500     B
+A            3  1.000        C
+
+不共享字母的均值之间具有显著差异。
+
+
+均值差值的 Fisher 单个检验
+
+水平的差值   均值差值  差值标准误     95% 置信区间      T 值  调整的 P 值
+B - A   3.50   1.07  ( 1.03,  5.97)  3.27    0.011
+C - A   7.75   1.07  ( 5.28, 10.22)  7.23    0.000
+C - B  4.250  0.992  (1.962, 6.538)  4.28    0.003
+
+同时置信水平 = 88.77%
+
+ 
+
+Output.Text[7]:
+使用 Fisher LSD 方法和 95% 置信度对信息进行分组
+
+OneWayGroup  N     均值     分组
+C            4  8.750  A
+B            4  4.500     B
+A            3  1.000        C
+
+不共享字母的均值之间具有显著差异。
+
+
+Output.Text[8]:
+均值差值的 Fisher 单个检验
+
+水平的差值   均值差值  差值标准误     95% 置信区间      T 值  调整的 P 值
+B - A   3.50   1.07  ( 1.03,  5.97)  3.27    0.011
+C - A   7.75   1.07  ( 5.28, 10.22)  7.23    0.000
+C - B  4.250  0.992  (1.962, 6.538)  4.28    0.003
+
+同时置信水平 = 88.77%
+
+
+Output.Text[9]:
+OneWayY 与 OneWayGroup 的区间图
+
+LastError: 
+
+===== two_way_anova_missing =====
+GLM;
+  RESPONSE C43;
+  CATEGORICAL C44 C45;
+  TERMS C44 C45 C44*C45;
+  EFFECT;
+  TANOVA;
+  TSUMMARY.
+OutputDocument.Text:
+一般线性模型: TwoWayY 与 FactorA, FactorB
+ 
+
+方法
+
+因子编码   (-1, 0, +1)
+未使用的行  2
+
+
+因子信息
+
+因子       类型  水平数  值
+FactorA  固定    2  A, B
+FactorB  固定    2  X, Y
+
+
+方差分析
+
+来源                 自由度   Adj SS  Adj MS    F 值    P 值
+  FactorA            1   90.054  90.054  50.73  0.000
+  FactorB            1   23.625  23.625  13.31  0.004
+  FactorA*FactorB    1    1.339   1.339   0.75  0.405
+误差                  10   17.750   1.775
+合计                  13  134.929
+
+
+模型汇总
+
+      S    R-sq  R-sq（调整）  R-sq（预测）
+1.33229  86.84%    82.90%    75.21%
+
+
+系数
+
+项                    系数  系数标准误    T 值    P 值  方差膨胀因子
+常量                4.563  0.360  12.68  0.000
+FactorA
+  A              -2.562  0.360  -7.12  0.000    1.00
+FactorB
+  X              -1.313  0.360  -3.65  0.004    1.02
+FactorA*FactorB
+  A X             0.312  0.360   0.87  0.405    1.02
+
+
+回归方程
+
+TwoWayY = 4.563 - 2.562 FactorA_A + 2.562 FactorA_B - 1.313 FactorB_X + 1.313 FactorB_Y
+          + 0.312 FactorA*FactorB_A X - 0.312 FactorA*FactorB_A Y - 0.312 FactorA*FactorB_B X
+          + 0.312 FactorA*FactorB_B Y
+
+
+
+Output.Text[1]:
+方法
+
+因子编码   (-1, 0, +1)
+未使用的行  2
+
+
+Output.Text[2]:
+因子信息
+
+因子       类型  水平数  值
+FactorA  固定    2  A, B
+FactorB  固定    2  X, Y
+
+
+Output.Text[3]:
+方差分析
+
+来源                 自由度   Adj SS  Adj MS    F 值    P 值
+  FactorA            1   90.054  90.054  50.73  0.000
+  FactorB            1   23.625  23.625  13.31  0.004
+  FactorA*FactorB    1    1.339   1.339   0.75  0.405
+误差                  10   17.750   1.775
+合计                  13  134.929
+
+
+Output.Text[4]:
+模型汇总
+
+      S    R-sq  R-sq（调整）  R-sq（预测）
+1.33229  86.84%    82.90%    75.21%
+
+
+Output.Text[5]:
+系数
+
+项                    系数  系数标准误    T 值    P 值  方差膨胀因子
+常量                4.563  0.360  12.68  0.000
+FactorA
+  A              -2.562  0.360  -7.12  0.000    1.00
+FactorB
+  X              -1.313  0.360  -3.65  0.004    1.02
+FactorA*FactorB
+  A X             0.312  0.360   0.87  0.405    1.02
+
+
+Output.Text[6]:
+回归方程
+
+TwoWayY = 4.563 - 2.562 FactorA_A + 2.562 FactorA_B - 1.313 FactorB_X + 1.313 FactorB_Y
+          + 0.312 FactorA*FactorB_A X - 0.312 FactorA*FactorB_A Y - 0.312 FactorA*FactorB_B X
+          + 0.312 FactorA*FactorB_B Y
+
+LastError: 

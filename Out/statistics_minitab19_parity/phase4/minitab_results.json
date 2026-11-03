@@ -1,0 +1,1073 @@
+{
+  "version": "19.1.0.1",
+  "clsid": "{6265486C-4A08-4B4E-9713-C2CD85F1F515}",
+  "registered_server": "\"D:\\Program\\Minitab 19\\Mtb.exe\" /19_1",
+  "app_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+  "process_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+  "process_id": 13764,
+  "project_name": "无标题",
+  "worksheet_name": "工作表 1",
+  "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+  "loaded_inputs": {
+    "1": {
+      "name": "OneSampleT",
+      "values": [
+        9.2,
+        10.1,
+        11.2,
+        12.4,
+        9.8,
+        10.6,
+        11.8
+      ]
+    },
+    "2": {
+      "name": "PairedA",
+      "values": [
+        10.0,
+        11.0,
+        12.0,
+        13.0,
+        14.0,
+        15.0
+      ]
+    },
+    "3": {
+      "name": "PairedB",
+      "values": [
+        9.6,
+        10.9,
+        11.6,
+        12.5,
+        13.8,
+        14.3
+      ]
+    },
+    "4": {
+      "name": "TwoSample1",
+      "values": [
+        12.0,
+        15.0,
+        14.0,
+        10.0,
+        13.0,
+        16.0,
+        11.0,
+        14.0
+      ]
+    },
+    "5": {
+      "name": "TwoSample2",
+      "values": [
+        9.0,
+        11.0,
+        10.0,
+        8.0,
+        13.0,
+        10.0,
+        12.0
+      ]
+    },
+    "6": {
+      "name": "OneVariance",
+      "values": [
+        5.0,
+        7.0,
+        8.0,
+        9.0,
+        10.0,
+        12.0,
+        14.0,
+        15.0
+      ]
+    },
+    "9": {
+      "name": "VarianceY",
+      "values": [
+        5.0,
+        7.0,
+        8.0,
+        9.0,
+        10.0,
+        12.0,
+        14.0,
+        15.0,
+        7.0,
+        8.0,
+        9.0,
+        11.0,
+        13.0,
+        14.0,
+        16.0,
+        17.0,
+        4.0,
+        6.0,
+        7.0,
+        8.0,
+        10.0,
+        11.0,
+        13.0,
+        14.0
+      ]
+    },
+    "10": {
+      "name": "VarianceGroup",
+      "values": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "C",
+        "C",
+        "C",
+        "C",
+        "C",
+        "C",
+        "C",
+        "C"
+      ]
+    },
+    "11": {
+      "name": "OneWayY",
+      "values": [
+        8.0,
+        9.0,
+        7.0,
+        10.0,
+        12.0,
+        13.0,
+        10.0,
+        11.0,
+        14.0,
+        15.0,
+        17.0,
+        14.0,
+        16.0,
+        18.0,
+        20.0
+      ]
+    },
+    "12": {
+      "name": "OneWayGroup",
+      "values": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "C",
+        "C",
+        "C",
+        "C",
+        "C",
+        "C"
+      ]
+    },
+    "13": {
+      "name": "TwoWayY",
+      "values": [
+        10.0,
+        11.0,
+        9.0,
+        12.0,
+        11.0,
+        13.0,
+        10.0,
+        13.0,
+        14.0,
+        15.0,
+        13.0,
+        16.0,
+        16.0,
+        17.0,
+        18.0,
+        19.0,
+        16.0,
+        20.0
+      ]
+    },
+    "14": {
+      "name": "FactorA",
+      "values": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ]
+    },
+    "15": {
+      "name": "FactorB",
+      "values": [
+        "X",
+        "X",
+        "X",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y"
+      ]
+    },
+    "16": {
+      "name": "OLS_Y",
+      "values": [
+        8.1,
+        10.0,
+        11.8,
+        13.2,
+        14.7,
+        17.6,
+        18.8,
+        21.1,
+        22.7,
+        24.8,
+        26.9,
+        29.2
+      ]
+    },
+    "17": {
+      "name": "OLS_X1",
+      "values": [
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0,
+        9.0,
+        10.0,
+        11.0,
+        12.0
+      ]
+    },
+    "18": {
+      "name": "OLS_X2",
+      "values": [
+        2.0,
+        1.0,
+        4.0,
+        2.0,
+        5.0,
+        3.0,
+        6.0,
+        4.0,
+        7.0,
+        5.0,
+        8.0,
+        6.0
+      ]
+    },
+    "21": {
+      "name": "LogitY",
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "22": {
+      "name": "LogitX",
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        5.0,
+        5.0,
+        5.0,
+        5.0,
+        5.0,
+        5.0
+      ]
+    },
+    "23": {
+      "name": "PoissonY",
+      "values": [
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        2.0,
+        1.0,
+        2.0,
+        1.0,
+        2.0,
+        3.0,
+        2.0,
+        2.0,
+        3.0,
+        2.0,
+        3.0,
+        3.0,
+        4.0,
+        2.0,
+        4.0,
+        4.0,
+        3.0,
+        5.0,
+        4.0
+      ]
+    },
+    "24": {
+      "name": "PoissonX",
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        2.0,
+        2.0,
+        2.0,
+        2.0,
+        3.0,
+        3.0,
+        3.0,
+        3.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        5.0,
+        5.0,
+        5.0,
+        5.0
+      ]
+    },
+    "25": {
+      "name": "PredictX1",
+      "values": [
+        7.0
+      ]
+    },
+    "26": {
+      "name": "PredictX2",
+      "values": [
+        5.0
+      ]
+    },
+    "27": {
+      "name": "CategoricalOLS_Y",
+      "values": [
+        10.0,
+        11.0,
+        9.0,
+        12.0,
+        13.0,
+        15.0,
+        16.0,
+        14.0,
+        15.0,
+        17.0,
+        19.0,
+        18.0,
+        20.0,
+        21.0,
+        22.0
+      ]
+    },
+    "28": {
+      "name": "CategoricalOLS_Group",
+      "values": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "C",
+        "C",
+        "C",
+        "C",
+        "C"
+      ]
+    },
+    "29": {
+      "name": "RankX",
+      "values": [
+        1.0,
+        1.0,
+        2.0,
+        2.0,
+        3.0,
+        3.0,
+        4.0,
+        4.0,
+        5.0,
+        5.0,
+        6.0,
+        6.0
+      ]
+    },
+    "30": {
+      "name": "RankY",
+      "values": [
+        1.0,
+        2.0,
+        1.0,
+        3.0,
+        2.0,
+        3.0,
+        4.0,
+        3.0,
+        5.0,
+        4.0,
+        6.0,
+        5.0
+      ]
+    }
+  },
+  "outputs": {
+    "one_sample_t_two_sided": {
+      "executed": true,
+      "command_count": [
+        0,
+        1
+      ],
+      "command": "ONET C1;\n  TEST 10.5;\n  CONFIDENCE 90;\n  SPVALUE C61;\n  SCONF C62 C63.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n单样本 T: OneSampleT\r\n \r\n\r\n描述性统计量\r\n\r\nN      均值    标准差  均值标准误    μ 的 90% 置信区间\r\n7  10.729  1.138  0.430  (9.893, 11.565)\r\n\r\nμ: OneSampleT 的均值\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: μ = 10.5\r\n备择假设  H₁: μ ≠ 10.5\r\n\r\n T 值    P 值\r\n0.53  0.614\r\n\r\n\n\nOutput.Text[1]:\n描述性统计量\r\n\r\nN      均值    标准差  均值标准误    μ 的 90% 置信区间\r\n7  10.729  1.138  0.430  (9.893, 11.565)\r\n\r\nμ: OneSampleT 的均值\r\n\n\nOutput.Text[2]:\n检验\r\n\r\n原假设   H₀: μ = 10.5\r\n备择假设  H₁: μ ≠ 10.5\r\n\r\n T 值    P 值\r\n0.53  0.614\r\n",
+      "stored": {
+        "p": [
+          0.6143139361356119
+        ],
+        "ci_low": [
+          9.892547519004529
+        ],
+        "ci_high": [
+          11.56459533813833
+        ]
+      }
+    },
+    "one_sample_t_right": {
+      "executed": true,
+      "command_count": [
+        1,
+        2
+      ],
+      "command": "ONET C1;\n  TEST 10.5;\n  ALTERNATIVE 1;\n  CONFIDENCE 90;\n  SPVALUE C64;\n  SCONF C65 C66.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n单样本 T: OneSampleT\r\n \r\n\r\n描述性统计量\r\n\r\nN      均值    标准差  均值标准误  μ 的 90% 下限\r\n7  10.729  1.138  0.430      10.109\r\n\r\nμ: OneSampleT 的均值\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: μ = 10.5\r\n备择假设  H₁: μ > 10.5\r\n\r\n T 值    P 值\r\n0.53  0.307\r\n\r\n\n\nOutput.Text[1]:\n描述性统计量\r\n\r\nN      均值    标准差  均值标准误  μ 的 90% 下限\r\n7  10.729  1.138  0.430      10.109\r\n\r\nμ: OneSampleT 的均值\r\n\n\nOutput.Text[2]:\n检验\r\n\r\n原假设   H₀: μ = 10.5\r\n备择假设  H₁: μ > 10.5\r\n\r\n T 值    P 值\r\n0.53  0.307\r\n",
+      "stored": {
+        "p": [
+          0.30715696806780596
+        ],
+        "bound_low": [
+          10.109138306078028
+        ],
+        "bound_high": [
+          11.34800455106483
+        ]
+      }
+    },
+    "paired_t_two_sided": {
+      "executed": true,
+      "command_count": [
+        2,
+        3
+      ],
+      "command": "PAIR C2 C3;\n  TEST 0;\n  CONFIDENCE 90;\n  SPVALUE C67;\n  SCONF C68 C69.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n配对 T 检验和置信区间: PairedA, PairedB\r\n \r\n\r\n描述性统计量\r\n\r\n样本       N      均值    标准差  均值标准误\r\nPairedA  6  12.500  1.871  0.764\r\nPairedB  6  12.117  1.779  0.726\r\n\r\n\r\n配对差值的估计值\r\n\r\n    均值     标准差   均值标准误 μ_差 的 90% 置信区间\r\n0.3833  0.2137  0.0872(0.2075, 0.5591)\r\n\r\nμ_差: (PairedA - PairedB) 的均值\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: μ_差 = 0\r\n备择假设  H₁: μ_差 ≠ 0\r\n\r\n T 值    P 值\r\n4.39  0.007\r\n\r\n\n\nOutput.Text[1]:\n描述性统计量\r\n\r\n样本       N      均值    标准差  均值标准误\r\nPairedA  6  12.500  1.871  0.764\r\nPairedB  6  12.117  1.779  0.726\r\n\n\nOutput.Text[2]:\n配对差值的估计值\r\n\r\n    均值     标准差   均值标准误 μ_差 的 90% 置信区间\r\n0.3833  0.2137  0.0872(0.2075, 0.5591)\r\n\r\nμ_差: (PairedA - PairedB) 的均值\r\n\n\nOutput.Text[3]:\n检验\r\n\r\n原假设   H₀: μ_差 = 0\r\n备择假设  H₁: μ_差 ≠ 0\r\n\r\n T 值    P 值\r\n4.39  0.007\r\n",
+      "stored": {
+        "p": [
+          0.00706189038095449
+        ],
+        "ci_low": [
+          0.20753712355378132
+        ],
+        "ci_high": [
+          0.559129543112885
+        ]
+      }
+    },
+    "paired_t_right": {
+      "executed": true,
+      "command_count": [
+        3,
+        4
+      ],
+      "command": "PAIR C2 C3;\n  TEST 0;\n  ALTERNATIVE 1;\n  CONFIDENCE 90;\n  SPVALUE C70;\n  SCONF C71 C72.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n配对 T 检验和置信区间: PairedA, PairedB\r\n \r\n\r\n描述性统计量\r\n\r\n样本       N      均值    标准差  均值标准误\r\nPairedA  6  12.500  1.871  0.764\r\nPairedB  6  12.117  1.779  0.726\r\n\r\n\r\n配对差值的估计值\r\n\r\n                       μ_差 的\r\n    均值     标准差   均值标准误90% 下限\r\n0.3833  0.2137  0.08720.2546\r\n\r\nμ_差: (PairedA - PairedB) 的均值\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: μ_差 = 0\r\n备择假设  H₁: μ_差 > 0\r\n\r\n T 值    P 值\r\n4.39  0.004\r\n\r\n\n\nOutput.Text[1]:\n描述性统计量\r\n\r\n样本       N      均值    标准差  均值标准误\r\nPairedA  6  12.500  1.871  0.764\r\nPairedB  6  12.117  1.779  0.726\r\n\n\nOutput.Text[2]:\n配对差值的估计值\r\n\r\n                       μ_差 的\r\n    均值     标准差   均值标准误90% 下限\r\n0.3833  0.2137  0.08720.2546\r\n\r\nμ_差: (PairedA - PairedB) 的均值\r\n\n\nOutput.Text[3]:\n检验\r\n\r\n原假设   H₀: μ_差 = 0\r\n备择假设  H₁: μ_差 > 0\r\n\r\n T 值    P 值\r\n4.39  0.004\r\n",
+      "stored": {
+        "p": [
+          0.003530945190477245
+        ],
+        "bound_low": [
+          0.2545747261532711
+        ],
+        "bound_high": [
+          0.5120919405133952
+        ]
+      }
+    },
+    "pooled_t_two_sided": {
+      "executed": true,
+      "command_count": [
+        4,
+        5
+      ],
+      "command": "TWOSAMPLE 90 C4 C5;\n  TEST 0;\n  POOLED;\n  SPVALUE C73;\n  SCONF C74 C75.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n双样本 T 检验和置信区间: TwoSample1, TwoSample2\r\n \r\n\r\n方法\r\n\r\nμ₁: TwoSample1 的均值\r\nµ₂: TwoSample2 的均值\r\n差值: μ₁ - µ₂\r\n\r\n已针对此分析假定了等方差。\r\n\r\n\r\n描述性统计量\r\n\r\n样本          N     均值   标准差  均值标准误\r\nTwoSample1  8  13.13  2.03   0.72\r\nTwoSample2  7  10.43  1.72   0.65\r\n\r\n\r\n差值的估计值\r\n\r\n   差值  合并标准差   差值的 90% 置信区间\r\n2.696  1.893  (0.961, 4.432)\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: μ₁ - µ₂ = 0\r\n备择假设  H₁: μ₁ - µ₂ ≠ 0\r\n\r\n T 值  自由度    P 值\r\n2.75   13  0.016\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\nμ₁: TwoSample1 的均值\r\nµ₂: TwoSample2 的均值\r\n差值: μ₁ - µ₂\r\n\r\n已针对此分析假定了等方差。\r\n\n\nOutput.Text[2]:\n描述性统计量\r\n\r\n样本          N     均值   标准差  均值标准误\r\nTwoSample1  8  13.13  2.03   0.72\r\nTwoSample2  7  10.43  1.72   0.65\r\n\n\nOutput.Text[3]:\n差值的估计值\r\n\r\n   差值  合并标准差   差值的 90% 置信区间\r\n2.696  1.893  (0.961, 4.432)\r\n\n\nOutput.Text[4]:\n检验\r\n\r\n原假设   H₀: μ₁ - µ₂ = 0\r\n备择假设  H₁: μ₁ - µ₂ ≠ 0\r\n\r\n T 值  自由度    P 值\r\n2.75   13  0.016\r\n",
+      "stored": {
+        "p": [
+          0.016471272003255506
+        ],
+        "ci_low": [
+          0.9613258387553298
+        ],
+        "ci_high": [
+          4.431531304101813
+        ]
+      }
+    },
+    "pooled_t_right": {
+      "executed": true,
+      "command_count": [
+        5,
+        6
+      ],
+      "command": "TWOSAMPLE 90 C4 C5;\n  TEST 0;\n  POOLED;\n  ALTERNATIVE 1;\n  SPVALUE C76;\n  SCONF C77 C78.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n双样本 T 检验和置信区间: TwoSample1, TwoSample2\r\n \r\n\r\n方法\r\n\r\nμ₁: TwoSample1 的均值\r\nµ₂: TwoSample2 的均值\r\n差值: μ₁ - µ₂\r\n\r\n已针对此分析假定了等方差。\r\n\r\n\r\n描述性统计量\r\n\r\n样本          N     均值   标准差  均值标准误\r\nTwoSample1  8  13.13  2.03   0.72\r\nTwoSample2  7  10.43  1.72   0.65\r\n\r\n\r\n差值的估计值\r\n\r\n                 差值的\r\n   差值  合并标准差  90% 下限\r\n2.696  1.893   1.374\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: μ₁ - µ₂ = 0\r\n备择假设  H₁: μ₁ - µ₂ > 0\r\n\r\n T 值  自由度    P 值\r\n2.75   13  0.008\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\nμ₁: TwoSample1 的均值\r\nµ₂: TwoSample2 的均值\r\n差值: μ₁ - µ₂\r\n\r\n已针对此分析假定了等方差。\r\n\n\nOutput.Text[2]:\n描述性统计量\r\n\r\n样本          N     均值   标准差  均值标准误\r\nTwoSample1  8  13.13  2.03   0.72\r\nTwoSample2  7  10.43  1.72   0.65\r\n\n\nOutput.Text[3]:\n差值的估计值\r\n\r\n                 差值的\r\n   差值  合并标准差  90% 下限\r\n2.696  1.893   1.374\r\n\n\nOutput.Text[4]:\n检验\r\n\r\n原假设   H₀: μ₁ - µ₂ = 0\r\n备择假设  H₁: μ₁ - µ₂ > 0\r\n\r\n T 值  自由度    P 值\r\n2.75   13  0.008\r\n",
+      "stored": {
+        "p": [
+          0.008235636001627753
+        ],
+        "bound_low": [
+          1.3735748163566486
+        ],
+        "bound_high": [
+          4.019282326500494
+        ]
+      }
+    },
+    "one_variance_two_sided": {
+      "executed": true,
+      "command_count": [
+        6,
+        7
+      ],
+      "command": "ONEV C6;\n  STEST 3;\n  CONFIDENCE 90.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n单方差检验和置信区间: OneVariance\r\n \r\n\r\n方法\r\n\r\nσ: OneVariance 的标准差\r\nBonett 方法对任何连续分布有效。\r\n卡方方法仅对正态分布有效。\r\n\r\n\r\n描述性统计量\r\n\r\n                 使用 Bonett\r\n                 的 σ 的 90%     使用卡方的 σ 的\r\nN   标准差    方差      置信区间        90% 置信区间\r\n8  3.46  12.0  (2.49, 6.06)  (2.44, 6.23)\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: σ = 3\r\n备择假设  H₁: σ ≠ 3\r\n\r\n方法      检验统计量  自由度    P 值\r\nBonett      —    —  0.407\r\n卡方       9.33    7  0.459\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\nσ: OneVariance 的标准差\r\nBonett 方法对任何连续分布有效。\r\n卡方方法仅对正态分布有效。\r\n\n\nOutput.Text[2]:\n描述性统计量\r\n\r\n                 使用 Bonett\r\n                 的 σ 的 90%     使用卡方的 σ 的\r\nN   标准差    方差      置信区间        90% 置信区间\r\n8  3.46  12.0  (2.49, 6.06)  (2.44, 6.23)\r\n\n\nOutput.Text[3]:\n检验\r\n\r\n原假设   H₀: σ = 3\r\n备择假设  H₁: σ ≠ 3\r\n\r\n方法      检验统计量  自由度    P 值\r\nBonett      —    —  0.407\r\n卡方       9.33    7  0.459\r\n"
+    },
+    "one_variance_right": {
+      "executed": true,
+      "command_count": [
+        7,
+        8
+      ],
+      "command": "ONEV C6;\n  STEST 3;\n  ALTERNATIVE 1;\n  CONFIDENCE 90.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n单方差检验和置信区间: OneVariance\r\n \r\n\r\n方法\r\n\r\nσ: OneVariance 的标准差\r\nBonett 方法对任何连续分布有效。\r\n卡方方法仅对正态分布有效。\r\n\r\n\r\n描述性统计量\r\n\r\n                   使用\r\n               Bonett\r\n                的 σ 的   使用卡方的 σ\r\nN   标准差    方差  90% 下限  的 90% 下限\r\n8  3.46  12.0    2.72      2.64\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: σ = 3\r\n备择假设  H₁: σ > 3\r\n\r\n方法      检验统计量  自由度    P 值\r\nBonett      —    —  0.203\r\n卡方       9.33    7  0.230\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\nσ: OneVariance 的标准差\r\nBonett 方法对任何连续分布有效。\r\n卡方方法仅对正态分布有效。\r\n\n\nOutput.Text[2]:\n描述性统计量\r\n\r\n                   使用\r\n               Bonett\r\n                的 σ 的   使用卡方的 σ\r\nN   标准差    方差  90% 下限  的 90% 下限\r\n8  3.46  12.0    2.72      2.64\r\n\n\nOutput.Text[3]:\n检验\r\n\r\n原假设   H₀: σ = 3\r\n备择假设  H₁: σ > 3\r\n\r\n方法      检验统计量  自由度    P 值\r\nBonett      —    —  0.203\r\n卡方       9.33    7  0.230\r\n"
+    },
+    "one_proportion_default": {
+      "executed": true,
+      "command_count": [
+        8,
+        9
+      ],
+      "command": "PONE 20 12;\n  TEST 0.5;\n  CONFIDENCE 90;\n  SPVALUE C79;\n  SCONF C80 C81.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n单比率检验和置信区间\r\n \r\n\r\n方法\r\n\r\np: 事件比率\r\n此分析使用精确方法。\r\n\r\n\r\n描述性统计量\r\n\r\n N  事件      样本 p      p 的 90% 置信区间\r\n20  12  0.600000  (0.393585, 0.782931)\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: p = 0.5\r\n备择假设  H₁: p ≠ 0.5\r\n\r\n  P 值\r\n0.503\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\np: 事件比率\r\n此分析使用精确方法。\r\n\n\nOutput.Text[2]:\n描述性统计量\r\n\r\n N  事件      样本 p      p 的 90% 置信区间\r\n20  12  0.600000  (0.393585, 0.782931)\r\n\n\nOutput.Text[3]:\n检验\r\n\r\n原假设   H₀: p = 0.5\r\n备择假设  H₁: p ≠ 0.5\r\n\r\n  P 值\r\n0.503\r\n",
+      "stored": {
+        "p": [
+          0.5034446716308586
+        ],
+        "ci_low": [
+          0.39358488675696957
+        ],
+        "ci_high": [
+          0.7829314105692192
+        ]
+      }
+    },
+    "one_proportion_normal": {
+      "executed": true,
+      "command_count": [
+        9,
+        10
+      ],
+      "command": "PONE 20 12;\n  TEST 0.5;\n  CONFIDENCE 90;\n  USEZ;\n  SPVALUE C82;\n  SCONF C83 C84.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n单比率检验和置信区间\r\n \r\n\r\n方法\r\n\r\np: 事件比率\r\n此分析使用正态近似方法。\r\n\r\n\r\n描述性统计量\r\n\r\n N  事件      样本 p      p 的 90% 置信区间\r\n20  12  0.600000  (0.419815, 0.780185)\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: p = 0.5\r\n备择假设  H₁: p ≠ 0.5\r\n\r\n Z 值    P 值\r\n0.89  0.371\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\np: 事件比率\r\n此分析使用正态近似方法。\r\n\n\nOutput.Text[2]:\n描述性统计量\r\n\r\n N  事件      样本 p      p 的 90% 置信区间\r\n20  12  0.600000  (0.419815, 0.780185)\r\n\n\nOutput.Text[3]:\n检验\r\n\r\n原假设   H₀: p = 0.5\r\n备择假设  H₁: p ≠ 0.5\r\n\r\n Z 值    P 值\r\n0.89  0.371\r\n",
+      "stored": {
+        "p": [
+          0.37109336952364835
+        ],
+        "ci_low": [
+          0.419815312947741
+        ],
+        "ci_high": [
+          0.780184687052259
+        ]
+      }
+    },
+    "one_proportion_normal_right": {
+      "executed": true,
+      "command_count": [
+        10,
+        11
+      ],
+      "command": "PONE 20 12;\n  TEST 0.5;\n  ALTERNATIVE 1;\n  CONFIDENCE 90;\n  USEZ;\n  SPVALUE C103;\n  SCONF C104 C105.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n单比率检验和置信区间\r\n \r\n\r\n方法\r\n\r\np: 事件比率\r\n此分析使用正态近似方法。\r\n\r\n\r\n描述性统计量\r\n\r\n N  事件      样本 p  p 的 90% 下限\r\n20  12  0.600000    0.459613\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: p = 0.5\r\n备择假设  H₁: p > 0.5\r\n\r\n Z 值    P 值\r\n0.89  0.186\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\np: 事件比率\r\n此分析使用正态近似方法。\r\n\n\nOutput.Text[2]:\n描述性统计量\r\n\r\n N  事件      样本 p  p 的 90% 下限\r\n20  12  0.600000    0.459613\r\n\n\nOutput.Text[3]:\n检验\r\n\r\n原假设   H₀: p = 0.5\r\n备择假设  H₁: p > 0.5\r\n\r\n Z 值    P 值\r\n0.89  0.186\r\n",
+      "stored": {
+        "p": [
+          0.18554668476182418
+        ],
+        "bound_low": [
+          0.4596130597866651
+        ],
+        "bound_high": [
+          0.7403869402133348
+        ]
+      }
+    },
+    "two_proportion_default": {
+      "executed": true,
+      "command_count": [
+        11,
+        12
+      ],
+      "command": "PTWO 20 12 20 9;\n  TEST 0;\n  CONFIDENCE 90;\n  SPVALUE C85;\n  SFISHER C86;\n  SCONFC C87 C88.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n双比率检验和置信区间\r\n \r\n\r\n方法\r\n\r\np₁: 样本 1 = 事件的比率\r\np₂: 样本 2 = 事件的比率\r\n差值: p₁ - p₂\r\n\r\n\r\n描述性统计量\r\n\r\n样本     N  事件      样本 p\r\n样本 1  20  12  0.600000\r\n样本 2  20   9  0.450000\r\n\r\n\r\n差值的估计值\r\n\r\n  差值       差值的 90% 置信区间\r\n0.15  (-0.106803, 0.406803)\r\n\r\n基于正态近似的 CI\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: p₁ - p₂ = 0\r\n备择假设  H₁: p₁ - p₂ ≠ 0\r\n\r\n方法            Z 值    P 值\r\n正态近似         0.96  0.337\r\nFisher 精确检验        0.527\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\np₁: 样本 1 = 事件的比率\r\np₂: 样本 2 = 事件的比率\r\n差值: p₁ - p₂\r\n\n\nOutput.Text[2]:\n描述性统计量\r\n\r\n样本     N  事件      样本 p\r\n样本 1  20  12  0.600000\r\n样本 2  20   9  0.450000\r\n\n\nOutput.Text[3]:\n差值的估计值\r\n\r\n  差值       差值的 90% 置信区间\r\n0.15  (-0.106803, 0.406803)\r\n\r\n基于正态近似的 CI\r\n\n\nOutput.Text[4]:\n检验\r\n\r\n原假设   H₀: p₁ - p₂ = 0\r\n备择假设  H₁: p₁ - p₂ ≠ 0\r\n\r\n方法            Z 值    P 值\r\n正态近似         0.96  0.337\r\nFisher 精确检验        0.527\r\n",
+      "stored": {
+        "p": [
+          0.33666836761428826
+        ],
+        "p_fisher": [
+          0.5272539841674626
+        ],
+        "ci_low": [
+          -0.10680269019520572
+        ],
+        "ci_high": [
+          0.40680269019520565
+        ]
+      }
+    },
+    "two_proportion_pooled": {
+      "executed": true,
+      "command_count": [
+        12,
+        13
+      ],
+      "command": "PTWO 20 12 20 9;\n  TEST 0;\n  CONFIDENCE 90;\n  POOLED;\n  SPVALUE C89;\n  SFISHER C90;\n  SCONFC C91 C92.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n双比率检验和置信区间\r\n \r\n\r\n方法\r\n\r\np₁: 样本 1 = 事件的比率\r\np₂: 样本 2 = 事件的比率\r\n差值: p₁ - p₂\r\n\r\n\r\n描述性统计量\r\n\r\n样本     N  事件      样本 p\r\n样本 1  20  12  0.600000\r\n样本 2  20   9  0.450000\r\n\r\n\r\n差值的估计值\r\n\r\n  差值       差值的 90% 置信区间\r\n0.15  (-0.106803, 0.406803)\r\n\r\n基于正态近似的 CI\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: p₁ - p₂ = 0\r\n备择假设  H₁: p₁ - p₂ ≠ 0\r\n\r\n方法            Z 值    P 值\r\n正态近似         0.95  0.342\r\nFisher 精确检验        0.527\r\n\r\n基于正态近似的检验使用合并的比率估计值 (0.525)。\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\np₁: 样本 1 = 事件的比率\r\np₂: 样本 2 = 事件的比率\r\n差值: p₁ - p₂\r\n\n\nOutput.Text[2]:\n描述性统计量\r\n\r\n样本     N  事件      样本 p\r\n样本 1  20  12  0.600000\r\n样本 2  20   9  0.450000\r\n\n\nOutput.Text[3]:\n差值的估计值\r\n\r\n  差值       差值的 90% 置信区间\r\n0.15  (-0.106803, 0.406803)\r\n\r\n基于正态近似的 CI\r\n\n\nOutput.Text[4]:\n检验\r\n\r\n原假设   H₀: p₁ - p₂ = 0\r\n备择假设  H₁: p₁ - p₂ ≠ 0\r\n\r\n方法            Z 值    P 值\r\n正态近似         0.95  0.342\r\nFisher 精确检验        0.527\r\n\r\n基于正态近似的检验使用合并的比率估计值 (0.525)。\r\n",
+      "stored": {
+        "p": [
+          0.3421776106163927
+        ],
+        "p_fisher": [
+          0.5272539841674626
+        ],
+        "ci_low": [
+          -0.10680269019520572
+        ],
+        "ci_high": [
+          0.40680269019520565
+        ]
+      }
+    },
+    "two_proportion_right": {
+      "executed": true,
+      "command_count": [
+        13,
+        14
+      ],
+      "command": "PTWO 20 12 20 9;\n  TEST 0;\n  ALTERNATIVE 1;\n  CONFIDENCE 90;\n  SPVALUE C106;\n  SFISHER C107;\n  SCONFC C108 C109.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n双比率检验和置信区间\r\n \r\n\r\n方法\r\n\r\np₁: 样本 1 = 事件的比率\r\np₂: 样本 2 = 事件的比率\r\n差值: p₁ - p₂\r\n\r\n\r\n描述性统计量\r\n\r\n样本     N  事件      样本 p\r\n样本 1  20  12  0.600000\r\n样本 2  20   9  0.450000\r\n\r\n\r\n差值的估计值\r\n\r\n  差值  差值的 90% 下限\r\n0.15   -0.050082\r\n\r\n基于正态近似的 CI\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: p₁ - p₂ = 0\r\n备择假设  H₁: p₁ - p₂ > 0\r\n\r\n方法            Z 值    P 值\r\n正态近似         0.96  0.168\r\nFisher 精确检验        0.264\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\np₁: 样本 1 = 事件的比率\r\np₂: 样本 2 = 事件的比率\r\n差值: p₁ - p₂\r\n\n\nOutput.Text[2]:\n描述性统计量\r\n\r\n样本     N  事件      样本 p\r\n样本 1  20  12  0.600000\r\n样本 2  20   9  0.450000\r\n\n\nOutput.Text[3]:\n差值的估计值\r\n\r\n  差值  差值的 90% 下限\r\n0.15   -0.050082\r\n\r\n基于正态近似的 CI\r\n\n\nOutput.Text[4]:\n检验\r\n\r\n原假设   H₀: p₁ - p₂ = 0\r\n备择假设  H₁: p₁ - p₂ > 0\r\n\r\n方法            Z 值    P 值\r\n正态近似         0.96  0.168\r\nFisher 精确检验        0.264\r\n",
+      "stored": {
+        "p": [
+          0.16833418380714413
+        ],
+        "p_fisher": [
+          0.26362699208373125
+        ],
+        "ci_low": [
+          -0.05008217404513299
+        ],
+        "ci_high": [
+          0.3500821740451329
+        ]
+      }
+    },
+    "two_proportion_pooled_right": {
+      "executed": true,
+      "command_count": [
+        14,
+        15
+      ],
+      "command": "PTWO 20 12 20 9;\n  TEST 0;\n  POOLED;\n  ALTERNATIVE 1;\n  CONFIDENCE 90;\n  SPVALUE C110;\n  SFISHER C111;\n  SCONFC C112 C113.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n双比率检验和置信区间\r\n \r\n\r\n方法\r\n\r\np₁: 样本 1 = 事件的比率\r\np₂: 样本 2 = 事件的比率\r\n差值: p₁ - p₂\r\n\r\n\r\n描述性统计量\r\n\r\n样本     N  事件      样本 p\r\n样本 1  20  12  0.600000\r\n样本 2  20   9  0.450000\r\n\r\n\r\n差值的估计值\r\n\r\n  差值  差值的 90% 下限\r\n0.15   -0.050082\r\n\r\n基于正态近似的 CI\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: p₁ - p₂ = 0\r\n备择假设  H₁: p₁ - p₂ > 0\r\n\r\n方法            Z 值    P 值\r\n正态近似         0.95  0.171\r\nFisher 精确检验        0.264\r\n\r\n基于正态近似的检验使用合并的比率估计值 (0.525)。\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\np₁: 样本 1 = 事件的比率\r\np₂: 样本 2 = 事件的比率\r\n差值: p₁ - p₂\r\n\n\nOutput.Text[2]:\n描述性统计量\r\n\r\n样本     N  事件      样本 p\r\n样本 1  20  12  0.600000\r\n样本 2  20   9  0.450000\r\n\n\nOutput.Text[3]:\n差值的估计值\r\n\r\n  差值  差值的 90% 下限\r\n0.15   -0.050082\r\n\r\n基于正态近似的 CI\r\n\n\nOutput.Text[4]:\n检验\r\n\r\n原假设   H₀: p₁ - p₂ = 0\r\n备择假设  H₁: p₁ - p₂ > 0\r\n\r\n方法            Z 值    P 值\r\n正态近似         0.95  0.171\r\nFisher 精确检验        0.264\r\n\r\n基于正态近似的检验使用合并的比率估计值 (0.525)。\r\n",
+      "stored": {
+        "p": [
+          0.17108880530819634
+        ],
+        "p_fisher": [
+          0.26362699208373125
+        ],
+        "ci_low": [
+          -0.05008217404513299
+        ],
+        "ci_high": [
+          0.3500821740451329
+        ]
+      }
+    },
+    "multi_variance": {
+      "executed": true,
+      "command_count": [
+        15,
+        16
+      ],
+      "command": "VARTEST C9 C10.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n等方差检验: VarianceY 与 VarianceGroup\r\n \r\n\r\n方法\r\n\r\n原假设    所有方差都相等\r\n备择假设   至少有一个方差不同\r\n显著性水平  α = 0.05\r\n\r\n\r\n95% Bonferroni 标准差置信区间\r\n\r\nVarianceGroup  N      标准差         置信区间\r\n            A  8  3.46410  (1.98865, 8.61111)\r\n            B  8  3.72012  (2.34825, 8.41017)\r\n            C  8  3.48210  (2.06587, 8.37558)\r\n\r\n单组置信水平 = 98.3333%\r\n\r\n\r\n检验\r\n\r\n方法      检验统计量    P 值\r\n多重比较        —  0.966\r\nLevene   0.10  0.908\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\n原假设    所有方差都相等\r\n备择假设   至少有一个方差不同\r\n显著性水平  α = 0.05\r\n\n\nOutput.Text[2]:\n95% Bonferroni 标准差置信区间\r\n\r\nVarianceGroup  N      标准差         置信区间\r\n            A  8  3.46410  (1.98865, 8.61111)\r\n            B  8  3.72012  (2.34825, 8.41017)\r\n            C  8  3.48210  (2.06587, 8.37558)\r\n\r\n单组置信水平 = 98.3333%\r\n\n\nOutput.Text[3]:\n检验\r\n\r\n方法      检验统计量    P 值\r\n多重比较        —  0.966\r\nLevene   0.10  0.908\r\n"
+    },
+    "one_way_anova_fisher": {
+      "executed": true,
+      "command_count": [
+        16,
+        17
+      ],
+      "command": "ONEWAY;\n  RESPONSE C11;\n  CATEGORICAL C12;\n  CONFIDENCE 95;\n  FISHER;\n  TANOVA;\n  TMEANS;\n  TMTEST.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n单因子方差分析: OneWayY 与 OneWayGroup\r\n \r\n\r\n方法\r\n\r\n原假设    所有均值都相等\r\n备择假设   并非所有的均值都相等\r\n显著性水平  α = 0.05\r\n\r\n已针对此分析假定了相等方差。\r\n\r\n\r\n因子信息\r\n\r\n因子           水平数  值\r\nOneWayGroup    3  A, B, C\r\n\r\n\r\n方差分析\r\n\r\n来源           自由度  Adj SS  Adj MS    F 值    P 值\r\nOneWayGroup    2  166.60  83.300  26.08  0.000\r\n误差            12   38.33   3.194\r\n合计            14  204.93\r\n\r\n\r\n模型汇总\r\n\r\n      S    R-sq  R-sq（调整）  R-sq（预测）\r\n1.78730  81.29%    78.18%    71.64%\r\n\r\n\r\n均值\r\n\r\nOneWayGroup  N      均值    标准差      95% 置信区间\r\nA            4   8.500  1.291  ( 6.553, 10.447)\r\nB            5  12.000  1.581  (10.258, 13.742)\r\nC            6  16.667  2.160  (15.077, 18.256)\r\n\r\n合并标准差 = 1.78730\r\n\r\n\r\nFisher 配对比较\r\n \r\n\r\n使用 Fisher LSD 方法和 95% 置信度对信息进行分组\r\n\r\nOneWayGroup  N      均值     分组\r\nC            6  16.667  A\r\nB            5  12.000     B\r\nA            4   8.500        C\r\n\r\n不共享字母的均值之间具有显著差异。\r\n\r\n\r\n均值差值的 Fisher 单个检验\r\n\r\n水平的差值  均值差值  差值标准误     95% 置信区间     T 值  调整的 P 值\r\nB - A  3.50   1.20  (0.89,  6.11)  2.92    0.013\r\nC - A  8.17   1.15  (5.65, 10.68)  7.08    0.000\r\nC - B  4.67   1.08  (2.31,  7.02)  4.31    0.001\r\n\r\n同时置信水平 = 88.44%\r\n\r\n \r\nOneWayY 与 OneWayGroup 的区间图\r\n\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\n原假设    所有均值都相等\r\n备择假设   并非所有的均值都相等\r\n显著性水平  α = 0.05\r\n\r\n已针对此分析假定了相等方差。\r\n\n\nOutput.Text[2]:\n因子信息\r\n\r\n因子           水平数  值\r\nOneWayGroup    3  A, B, C\r\n\n\nOutput.Text[3]:\n方差分析\r\n\r\n来源           自由度  Adj SS  Adj MS    F 值    P 值\r\nOneWayGroup    2  166.60  83.300  26.08  0.000\r\n误差            12   38.33   3.194\r\n合计            14  204.93\r\n\n\nOutput.Text[4]:\n模型汇总\r\n\r\n      S    R-sq  R-sq（调整）  R-sq（预测）\r\n1.78730  81.29%    78.18%    71.64%\r\n\n\nOutput.Text[5]:\n均值\r\n\r\nOneWayGroup  N      均值    标准差      95% 置信区间\r\nA            4   8.500  1.291  ( 6.553, 10.447)\r\nB            5  12.000  1.581  (10.258, 13.742)\r\nC            6  16.667  2.160  (15.077, 18.256)\r\n\r\n合并标准差 = 1.78730\r\n\n\nOutput.Text[6]:\nFisher 配对比较\r\n \r\n\r\n使用 Fisher LSD 方法和 95% 置信度对信息进行分组\r\n\r\nOneWayGroup  N      均值     分组\r\nC            6  16.667  A\r\nB            5  12.000     B\r\nA            4   8.500        C\r\n\r\n不共享字母的均值之间具有显著差异。\r\n\r\n\r\n均值差值的 Fisher 单个检验\r\n\r\n水平的差值  均值差值  差值标准误     95% 置信区间     T 值  调整的 P 值\r\nB - A  3.50   1.20  (0.89,  6.11)  2.92    0.013\r\nC - A  8.17   1.15  (5.65, 10.68)  7.08    0.000\r\nC - B  4.67   1.08  (2.31,  7.02)  4.31    0.001\r\n\r\n同时置信水平 = 88.44%\r\n\r\n \n\nOutput.Text[7]:\n使用 Fisher LSD 方法和 95% 置信度对信息进行分组\r\n\r\nOneWayGroup  N      均值     分组\r\nC            6  16.667  A\r\nB            5  12.000     B\r\nA            4   8.500        C\r\n\r\n不共享字母的均值之间具有显著差异。\r\n\n\nOutput.Text[8]:\n均值差值的 Fisher 单个检验\r\n\r\n水平的差值  均值差值  差值标准误     95% 置信区间     T 值  调整的 P 值\r\nB - A  3.50   1.20  (0.89,  6.11)  2.92    0.013\r\nC - A  8.17   1.15  (5.65, 10.68)  7.08    0.000\r\nC - B  4.67   1.08  (2.31,  7.02)  4.31    0.001\r\n\r\n同时置信水平 = 88.44%\r\n\n\nOutput.Text[9]:\nOneWayY 与 OneWayGroup 的区间图\r\n"
+    },
+    "two_way_anova_type3": {
+      "executed": true,
+      "command_count": [
+        17,
+        18
+      ],
+      "command": "GLM;\n  RESPONSE C13;\n  CATEGORICAL C14 C15;\n  TERMS C14 C15 C14*C15;\n  EFFECT;\n  TANOVA;\n  TSUMMARY.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n一般线性模型: TwoWayY 与 FactorA, FactorB\r\n \r\n\r\n方法\r\n\r\n因子编码  (-1, 0, +1)\r\n\r\n\r\n因子信息\r\n\r\n因子       类型  水平数  值\r\nFactorA  固定    2  A, B\r\nFactorB  固定    2  X, Y\r\n\r\n\r\n方差分析\r\n\r\n来源                 自由度   Adj SS   Adj MS    F 值    P 值\r\n  FactorA            1  113.124  113.124  58.37  0.000\r\n  FactorB            1   25.966   25.966  13.40  0.003\r\n  FactorA*FactorB    1    4.071    4.071   2.10  0.169\r\n误差                  14   27.133    1.938\r\n合计                  17  180.944\r\n\r\n\r\n模型汇总\r\n\r\n      S    R-sq  R-sq（调整）  R-sq（预测）\r\n1.39215  85.00%    81.79%    76.12%\r\n\r\n\r\n系数\r\n\r\n项                    系数  系数标准误    T 值    P 值  方差膨胀因子\r\n常量               13.342  0.339  39.33  0.000\r\nFactorA\r\n  A              -2.592  0.339  -7.64  0.000    1.02\r\nFactorB\r\n  X              -1.242  0.339  -3.66  0.003    1.06\r\nFactorA*FactorB\r\n  A X             0.492  0.339   1.45  0.169    1.07\r\n\r\n\r\n回归方程\r\n\r\nTwoWayY = 13.342 - 2.592 FactorA_A + 2.592 FactorA_B - 1.242 FactorB_X + 1.242 FactorB_Y\r\n          + 0.492 FactorA*FactorB_A X - 0.492 FactorA*FactorB_A Y - 0.492 FactorA*FactorB_B X\r\n          + 0.492 FactorA*FactorB_B Y\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\n因子编码  (-1, 0, +1)\r\n\n\nOutput.Text[2]:\n因子信息\r\n\r\n因子       类型  水平数  值\r\nFactorA  固定    2  A, B\r\nFactorB  固定    2  X, Y\r\n\n\nOutput.Text[3]:\n方差分析\r\n\r\n来源                 自由度   Adj SS   Adj MS    F 值    P 值\r\n  FactorA            1  113.124  113.124  58.37  0.000\r\n  FactorB            1   25.966   25.966  13.40  0.003\r\n  FactorA*FactorB    1    4.071    4.071   2.10  0.169\r\n误差                  14   27.133    1.938\r\n合计                  17  180.944\r\n\n\nOutput.Text[4]:\n模型汇总\r\n\r\n      S    R-sq  R-sq（调整）  R-sq（预测）\r\n1.39215  85.00%    81.79%    76.12%\r\n\n\nOutput.Text[5]:\n系数\r\n\r\n项                    系数  系数标准误    T 值    P 值  方差膨胀因子\r\n常量               13.342  0.339  39.33  0.000\r\nFactorA\r\n  A              -2.592  0.339  -7.64  0.000    1.02\r\nFactorB\r\n  X              -1.242  0.339  -3.66  0.003    1.06\r\nFactorA*FactorB\r\n  A X             0.492  0.339   1.45  0.169    1.07\r\n\n\nOutput.Text[6]:\n回归方程\r\n\r\nTwoWayY = 13.342 - 2.592 FactorA_A + 2.592 FactorA_B - 1.242 FactorB_X + 1.242 FactorB_Y\r\n          + 0.492 FactorA*FactorB_A X - 0.492 FactorA*FactorB_A Y - 0.492 FactorA*FactorB_B X\r\n          + 0.492 FactorA*FactorB_B Y\r\n"
+    },
+    "ols_multiple": {
+      "executed": true,
+      "command_count": [
+        18,
+        19
+      ],
+      "command": "REGRESS;\n  RESPONSE C16;\n  CONTINUOUS C17 C18;\n  TERMS C17 C18;\n  CONSTANT;\n  UNSTANDARDIZED;\n  CONFIDENCE 95;\n  TCOEFFICIENTS;\n  TANOVA;\n  TSUMMARY;\n  TDIAGNOSTICS 1;\n  RESIDUALS C93;\n  SRESIDUALS C94;\n  HI C95;\n  COOK C96;\n  FITS C97.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n回归分析: OLS_Y 与 OLS_X1, OLS_X2\r\n \r\n\r\n回归方程\r\n\r\nOLS_Y = 6.059 + 1.9609 OLS_X1 - 0.1275 OLS_X2\r\n\r\n\r\n系数\r\n\r\n项            系数   系数标准误    T 值    P 值  方差膨胀因子\r\n常量        6.059   0.243  24.91  0.000\r\nOLS_X1   1.9609  0.0511  38.39  0.000    2.97\r\nOLS_X2  -0.1275  0.0856  -1.49  0.171    2.97\r\n\r\n\r\n模型汇总\r\n\r\n       S    R-sq  R-sq（调整）  R-sq（预测）\r\n0.354391  99.78%    99.73%    99.60%\r\n\r\n\r\n方差分析\r\n\r\n来源        自由度   Adj SS   Adj MS      F 值    P 值\r\n回归          2  515.939  257.969  2054.01  0.000\r\n  OLS_X1    1  185.087  185.087  1473.71  0.000\r\n  OLS_X2    1    0.279    0.279     2.22  0.171\r\n误差          9    1.130    0.126\r\n合计         11  517.069\r\n\r\n\r\n所有观测值的拟合和诊断\r\n\r\n观测值   OLS_Y     拟合值      残差  标准化残差\r\n  1   8.100   7.765   0.335   1.13\r\n  2  10.000   9.853   0.147   0.50\r\n  3  11.800  11.432   0.368   1.21\r\n  4  13.200  13.648  -0.448  -1.42\r\n  5  14.700  15.226  -0.526  -1.66\r\n  6  17.600  17.442   0.158   0.49\r\n  7  18.800  19.020  -0.220  -0.69\r\n  8  21.100  21.236  -0.136  -0.42\r\n  9  22.700  22.815  -0.115  -0.37\r\n 10  24.800  25.031  -0.231  -0.75\r\n 11  26.900  26.609   0.291   1.01\r\n 12  29.200  28.825   0.375   1.33\r\n\r\n\n\nOutput.Text[1]:\n回归方程\r\n\r\nOLS_Y = 6.059 + 1.9609 OLS_X1 - 0.1275 OLS_X2\r\n\n\nOutput.Text[2]:\n系数\r\n\r\n项            系数   系数标准误    T 值    P 值  方差膨胀因子\r\n常量        6.059   0.243  24.91  0.000\r\nOLS_X1   1.9609  0.0511  38.39  0.000    2.97\r\nOLS_X2  -0.1275  0.0856  -1.49  0.171    2.97\r\n\n\nOutput.Text[3]:\n模型汇总\r\n\r\n       S    R-sq  R-sq（调整）  R-sq（预测）\r\n0.354391  99.78%    99.73%    99.60%\r\n\n\nOutput.Text[4]:\n方差分析\r\n\r\n来源        自由度   Adj SS   Adj MS      F 值    P 值\r\n回归          2  515.939  257.969  2054.01  0.000\r\n  OLS_X1    1  185.087  185.087  1473.71  0.000\r\n  OLS_X2    1    0.279    0.279     2.22  0.171\r\n误差          9    1.130    0.126\r\n合计         11  517.069\r\n\n\nOutput.Text[5]:\n所有观测值的拟合和诊断\r\n\r\n观测值   OLS_Y     拟合值      残差  标准化残差\r\n  1   8.100   7.765   0.335   1.13\r\n  2  10.000   9.853   0.147   0.50\r\n  3  11.800  11.432   0.368   1.21\r\n  4  13.200  13.648  -0.448  -1.42\r\n  5  14.700  15.226  -0.526  -1.66\r\n  6  17.600  17.442   0.158   0.49\r\n  7  18.800  19.020  -0.220  -0.69\r\n  8  21.100  21.236  -0.136  -0.42\r\n  9  22.700  22.815  -0.115  -0.37\r\n 10  24.800  25.031  -0.231  -0.75\r\n 11  26.900  26.609   0.291   1.01\r\n 12  29.200  28.825   0.375   1.33\r\n",
+      "stored": {
+        "residual": [
+          0.3352601156069337,
+          0.14682080924855256,
+          0.36843930635837907,
+          -0.4475144508670539,
+          -0.5258959537572281,
+          0.15815028901734252,
+          -0.2202312138728324,
+          -0.13618497109826322,
+          -0.11456647398843955,
+          -0.23052023121386966,
+          0.291098265895954,
+          0.3751445086705196
+        ],
+        "standardized_residual": [
+          1.1296659565452616,
+          0.49989300309494883,
+          1.2128685939111168,
+          -1.4218888319170504,
+          -1.6586414142817028,
+          0.4884976154274363,
+          -0.6904425489264157,
+          -0.42324532972310036,
+          -0.3699202725537565,
+          -0.7470689697811498,
+          1.0100807848502416,
+          1.3275256456293871
+        ],
+        "leverage": [
+          0.2987079224753485,
+          0.31315878952737164,
+          0.2652499149948997,
+          0.21128867732063927,
+          0.19955797347840865,
+          0.16545392723563415,
+          0.18990139408364493,
+          0.1756545392723564,
+          0.23628017681060853,
+          0.24189051343080592,
+          0.33869432165929947,
+          0.3641618497109827
+        ],
+        "cooks_distance": [
+          0.18118683390900625,
+          0.03797878983405394,
+          0.17701980368942485,
+          0.18053781430639362,
+          0.2286245993703059,
+          0.01576995317354094,
+          0.03724981393718518,
+          0.012723694148078717,
+          0.014111989150280621,
+          0.059359064293574425,
+          0.17417933492299129,
+          0.33644373759889223
+        ],
+        "fit": [
+          7.764739884393066,
+          9.853179190751447,
+          11.431560693641622,
+          13.647514450867053,
+          15.225895953757227,
+          17.44184971098266,
+          19.020231213872833,
+          21.236184971098265,
+          22.81456647398844,
+          25.03052023121387,
+          26.608901734104045,
+          28.82485549132948
+        ]
+      }
+    },
+    "ols_categorical": {
+      "executed": true,
+      "command_count": [
+        19,
+        20
+      ],
+      "command": "REGRESS;\n  RESPONSE C27;\n  CATEGORICAL C28;\n  TERMS C28;\n  CONSTANT;\n  UNSTANDARDIZED;\n  BINARY;\n  REFERENCE C28 \"A\";\n  CONFIDENCE 95;\n  TCOEFFICIENTS;\n  TANOVA;\n  TSUMMARY.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n回归分析: CategoricalOLS_Y 与 CategoricalOLS_Group\r\n \r\n\r\n方法\r\n\r\n类别预测变量编码  (1, 0)\r\n\r\n\r\n回归方程\r\n\r\nCategoricalOLS_Y = 11.000 + 0.0 CategoricalOLS_Group_A + 4.400 CategoricalOLS_Group_B\r\n                   + 9.000 CategoricalOLS_Group_C\r\n\r\n\r\n系数\r\n\r\n项                         系数  系数标准误    T 值    P 值  方差膨胀因子\r\n常量                    11.000  0.648  16.97  0.000\r\nCategoricalOLS_Group\r\n  B                    4.400  0.917   4.80  0.000    1.33\r\n  C                    9.000  0.917   9.82  0.000    1.33\r\n\r\n\r\n模型汇总\r\n\r\n      S    R-sq  R-sq（调整）  R-sq（预测）\r\n1.44914  88.93%    87.09%    82.71%\r\n\r\n\r\n方差分析\r\n\r\n来源                      自由度  Adj SS   Adj MS    F 值    P 值\r\n回归                        2  202.53  101.267  48.22  0.000\r\n  CategoricalOLS_Group    2  202.53  101.267  48.22  0.000\r\n误差                       12   25.20    2.100\r\n合计                       14  227.73\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\n类别预测变量编码  (1, 0)\r\n\n\nOutput.Text[2]:\n回归方程\r\n\r\nCategoricalOLS_Y = 11.000 + 0.0 CategoricalOLS_Group_A + 4.400 CategoricalOLS_Group_B\r\n                   + 9.000 CategoricalOLS_Group_C\r\n\n\nOutput.Text[3]:\n系数\r\n\r\n项                         系数  系数标准误    T 值    P 值  方差膨胀因子\r\n常量                    11.000  0.648  16.97  0.000\r\nCategoricalOLS_Group\r\n  B                    4.400  0.917   4.80  0.000    1.33\r\n  C                    9.000  0.917   9.82  0.000    1.33\r\n\n\nOutput.Text[4]:\n模型汇总\r\n\r\n      S    R-sq  R-sq（调整）  R-sq（预测）\r\n1.44914  88.93%    87.09%    82.71%\r\n\n\nOutput.Text[5]:\n方差分析\r\n\r\n来源                      自由度  Adj SS   Adj MS    F 值    P 值\r\n回归                        2  202.53  101.267  48.22  0.000\r\n  CategoricalOLS_Group    2  202.53  101.267  48.22  0.000\r\n误差                       12   25.20    2.100\r\n合计                       14  227.73\r\n"
+    },
+    "ols_prediction": {
+      "executed": false,
+      "command_count": [
+        20,
+        20
+      ],
+      "command": "PREDICT \"multiple_regression|1\";\n  CPREDICTORS C25 C26;\n  CONFIDENCE 95;\n  TPREDICTION;\n  PFITS C114;\n  PSEFITS C115;\n  CLIMITS C116 C117;\n  PLIMITS C118 C119.",
+      "last_error": "PREDICT \"multiple_regression|1\";\r\n  CPREDICTORS C25 C26;\r\n  CONFIDENCE 95;\r\n  TPREDICTION;\r\n  PFITS C114;\r\n  PSEFITS C115;\r\n  CLIMITS C116 C117;\r\n  PLIMITS C118 C119.\r\n* 错误 * 变元为常量或矩阵，但应为列。",
+      "output": "",
+      "stored": {},
+      "storage_errors": {
+        "fit": "C114: com_error: (-2147352567, '发生意外。', (0, 'Mtb.Application.1', 'IColumn: 指定的对象中不存在数据', None, 0, -2147467259), None)",
+        "se_fit": "C115: com_error: (-2147352567, '发生意外。', (0, 'Mtb.Application.1', 'IColumn: 指定的对象中不存在数据', None, 0, -2147467259), None)",
+        "ci_low": "C116: com_error: (-2147352567, '发生意外。', (0, 'Mtb.Application.1', 'IColumn: 指定的对象中不存在数据', None, 0, -2147467259), None)",
+        "ci_high": "C117: com_error: (-2147352567, '发生意外。', (0, 'Mtb.Application.1', 'IColumn: 指定的对象中不存在数据', None, 0, -2147467259), None)",
+        "pi_low": "C118: com_error: (-2147352567, '发生意外。', (0, 'Mtb.Application.1', 'IColumn: 指定的对象中不存在数据', None, 0, -2147467259), None)",
+        "pi_high": "C119: com_error: (-2147352567, '发生意外。', (0, 'Mtb.Application.1', 'IColumn: 指定的对象中不存在数据', None, 0, -2147467259), None)"
+      }
+    },
+    "binary_logistic": {
+      "executed": true,
+      "command_count": [
+        20,
+        21
+      ],
+      "command": "GZLM;\n  BINOMIAL;\n  LOGIT;\n  RESPONSE C21;\n  CONTINUOUS C22;\n  TERMS C22;\n  TCOEFFICIENTS;\n  TSUMMARY;\n  TDEVIANCE;\n  COEFFICIENTS C120;\n  SECOEFFICIENTS C121.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n二值 Logistic 回归: LogitY 与 LogitX\r\n \r\n\r\n方法\r\n\r\n链接函数    Logit\r\n已使用的行数  36\r\n\r\n\r\n响应信息\r\n\r\n变量      值   计数\r\nLogitY  1   20  （事件）\r\n        0   16\r\n        合计  36\r\n\r\n\r\n回归方程\r\n\r\nP(1)  =  exp(Y')/(1 + exp(Y'))\r\n\r\nY' = -1.420 + 0.686 LogitX\r\n\r\n\r\n系数\r\n\r\n项           系数  系数标准误  方差膨胀因子\r\n常量      -1.420  0.701\r\nLogitX   0.686  0.255    1.00\r\n\r\n\r\n连续预测变量的优势比\r\n\r\n           优势比      95% 置信区间\r\nLogitX  1.9863  (1.2060, 3.2714)\r\n\r\n\r\n模型汇总\r\n\r\n         偏差 R-Sq\r\n偏差 R-Sq     (调整)    AIC   AICc    BIC\r\n 19.03%   17.01%  44.05  44.41  47.22\r\n\r\n\r\n拟合优度检验\r\n\r\n检验               自由度     卡方    P 值\r\n偏差                34  40.05  0.219\r\nPearson           34  36.57  0.350\r\nHosmer-Lemeshow    4   0.24  0.993\r\n\r\n\r\n方差分析\r\n\r\n                 Wald 检验\r\n来源        自由度    卡方    P 值\r\n回归          1  7.27  0.007\r\n  LogitX    1  7.27  0.007\r\n\r\n\r\n异常观测值的拟合和诊断\r\n\r\n观测值  观测到的概率     拟合值       残差  标准化残差\r\n 31  0.0000  0.8820  -2.0672  -2.14  R\r\n\r\nR  残差大\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\n链接函数    Logit\r\n已使用的行数  36\r\n\n\nOutput.Text[2]:\n响应信息\r\n\r\n变量      值   计数\r\nLogitY  1   20  （事件）\r\n        0   16\r\n        合计  36\r\n\n\nOutput.Text[3]:\n回归方程\r\n\r\nP(1)  =  exp(Y')/(1 + exp(Y'))\r\n\r\nY' = -1.420 + 0.686 LogitX\r\n\n\nOutput.Text[4]:\n系数\r\n\r\n项           系数  系数标准误  方差膨胀因子\r\n常量      -1.420  0.701\r\nLogitX   0.686  0.255    1.00\r\n\n\nOutput.Text[5]:\n连续预测变量的优势比\r\n\r\n           优势比      95% 置信区间\r\nLogitX  1.9863  (1.2060, 3.2714)\r\n\n\nOutput.Text[6]:\n模型汇总\r\n\r\n         偏差 R-Sq\r\n偏差 R-Sq     (调整)    AIC   AICc    BIC\r\n 19.03%   17.01%  44.05  44.41  47.22\r\n\n\nOutput.Text[7]:\n拟合优度检验\r\n\r\n检验               自由度     卡方    P 值\r\n偏差                34  40.05  0.219\r\nPearson           34  36.57  0.350\r\nHosmer-Lemeshow    4   0.24  0.993\r\n\n\nOutput.Text[8]:\n方差分析\r\n\r\n                 Wald 检验\r\n来源        自由度    卡方    P 值\r\n回归          1  7.27  0.007\r\n  LogitX    1  7.27  0.007\r\n\n\nOutput.Text[9]:\n异常观测值的拟合和诊断\r\n\r\n观测值  观测到的概率     拟合值       残差  标准化残差\r\n 31  0.0000  0.8820  -2.0672  -2.14  R\r\n\r\nR  残差大\r\n",
+      "stored": {
+        "coefficients": [
+          -1.420282439233489,
+          0.686262637983267
+        ],
+        "se_coefficients": [
+          0.7011857548054665,
+          0.254573769843644
+        ]
+      }
+    },
+    "poisson": {
+      "executed": true,
+      "command_count": [
+        21,
+        22
+      ],
+      "command": "GZLM;\n  POISSON;\n  LOG;\n  RESPONSE C23;\n  CONTINUOUS C24;\n  TERMS C24;\n  TCOEFFICIENTS;\n  TSUMMARY;\n  TDEVIANCE;\n  COEFFICIENTS C122;\n  SECOEFFICIENTS C123.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\nPoisson 回归分析: PoissonY 与 PoissonX\r\n \r\n\r\n方法\r\n\r\n链接函数    自然对数\r\n已使用的行数  24\r\n\r\n\r\n回归方程\r\n\r\nPoissonY  =  exp(Y')\r\n\r\nY' = -0.069 + 0.3063 PoissonX\r\n\r\n\r\n系数\r\n\r\n项             系数   系数标准误  方差膨胀因子\r\n常量        -0.069   0.317\r\nPoissonX  0.3063  0.0858    1.00\r\n\r\n\r\n模型汇总\r\n\r\n         偏差 R-Sq\r\n偏差 R-Sq     (调整)    AIC   AICc    BIC\r\n 64.11%   59.48%  71.55  72.12  73.91\r\n\r\n\r\n拟合优度检验\r\n\r\n检验       自由度       估计       均值    卡方    P 值\r\n偏差        22  7.75250  0.35239  7.75  0.998\r\nPearson   22  6.07829  0.27629  6.08  1.000\r\n\r\n\r\n方差分析\r\n\r\n                    Wald 检验\r\n来源          自由度     卡方    P 值\r\n回归            1  12.75  0.000\r\n  PoissonX    1  12.75  0.000\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\n链接函数    自然对数\r\n已使用的行数  24\r\n\n\nOutput.Text[2]:\n回归方程\r\n\r\nPoissonY  =  exp(Y')\r\n\r\nY' = -0.069 + 0.3063 PoissonX\r\n\n\nOutput.Text[3]:\n系数\r\n\r\n项             系数   系数标准误  方差膨胀因子\r\n常量        -0.069   0.317\r\nPoissonX  0.3063  0.0858    1.00\r\n\n\nOutput.Text[4]:\n模型汇总\r\n\r\n         偏差 R-Sq\r\n偏差 R-Sq     (调整)    AIC   AICc    BIC\r\n 64.11%   59.48%  71.55  72.12  73.91\r\n\n\nOutput.Text[5]:\n拟合优度检验\r\n\r\n检验       自由度       估计       均值    卡方    P 值\r\n偏差        22  7.75250  0.35239  7.75  0.998\r\nPearson   22  6.07829  0.27629  6.08  1.000\r\n\n\nOutput.Text[6]:\n方差分析\r\n\r\n                    Wald 检验\r\n来源          自由度     卡方    P 值\r\n回归            1  12.75  0.000\r\n  PoissonX    1  12.75  0.000\r\n",
+      "stored": {
+        "coefficients": [
+          -0.06943840738086438,
+          0.3062717616330378
+        ],
+        "se_coefficients": [
+          0.3170615536600103,
+          0.08577620060501483
+        ]
+      }
+    },
+    "spearman_correlation": {
+      "executed": true,
+      "command_count": [
+        22,
+        23
+      ],
+      "command": "CORRELATION C29 C30;\n  SPEARMAN;\n  NODEFAULT;\n  SCORRELATION M3;\n  SPVALUES M4.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n",
+      "stored": {
+        "SCORRELATION M3[2,1]": [
+          0.9104001130704705
+        ],
+        "SPVALUES M4[2,1]": [
+          3.90664754828911e-05
+        ]
+      },
+      "matrix_storage": {
+        "SCORRELATION M3[2,1]": {
+          "name": "M3",
+          "row": 2,
+          "column": 1,
+          "rows": 2,
+          "columns": 2,
+          "values": [
+            1.0,
+            0.9104001130704705,
+            0.9104001130704705,
+            1.0
+          ]
+        },
+        "SPVALUES M4[2,1]": {
+          "name": "M4",
+          "row": 2,
+          "column": 1,
+          "rows": 2,
+          "columns": 2,
+          "values": [
+            1.23456e+30,
+            3.90664754828911e-05,
+            3.90664754828911e-05,
+            1.23456e+30
+          ]
+        }
+      }
+    },
+    "kendall_association": {
+      "executed": true,
+      "command_count": [
+        23,
+        24
+      ],
+      "command": "XTABS C29 C30;\n  COUNTS;\n  CONCORDANT.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n列表统计量: RankX, RankY\r\n \r\n\r\n行: RankX   列: RankY\r\n\r\n      1  2  3  4  5  6  全部\r\n\r\n1     1  1  0  0  0  0   2\r\n2     1  0  1  0  0  0   2\r\n3     0  1  1  0  0  0   2\r\n4     0  0  1  1  0  0   2\r\n5     0  0  0  1  1  0   2\r\n6     0  0  0  0  1  1   2\r\n全部    2  2  3  2  2  1  12\r\n\r\n单元格内容\r\n      计数\r\n\r\n\r\n顺序类别的一致性量度\r\n\r\n配对   数量  度量结果综述\r\n一致   51  Somer 的 D（与 RankX 相关）      0.830508\r\n不一致   2  Somer 的 D（与 RankY 相关）      0.816667\r\n结    13  Goodman 和 Kruskal 的 Gamma  0.924528\r\n合计   66  Kendall 的 Tau-b            0.823558\r\n\r\n\r\n一致性检验\r\n\r\nP 值\r\n0.0001309\r\n\r\n\n\nOutput.Text[1]:\n行: RankX   列: RankY\r\n\r\n      1  2  3  4  5  6  全部\r\n\r\n1     1  1  0  0  0  0   2\r\n2     1  0  1  0  0  0   2\r\n3     0  1  1  0  0  0   2\r\n4     0  0  1  1  0  0   2\r\n5     0  0  0  1  1  0   2\r\n6     0  0  0  0  1  1   2\r\n全部    2  2  3  2  2  1  12\r\n\r\n单元格内容\r\n      计数\r\n\n\nOutput.Text[2]:\n顺序类别的一致性量度\r\n\r\n配对   数量  度量结果综述\r\n一致   51  Somer 的 D（与 RankX 相关）      0.830508\r\n不一致   2  Somer 的 D（与 RankY 相关）      0.816667\r\n结    13  Goodman 和 Kruskal 的 Gamma  0.924528\r\n合计   66  Kendall 的 Tau-b            0.823558\r\n\n\nOutput.Text[3]:\n一致性检验\r\n\r\nP 值\r\n0.0001309\r\n"
+    }
+  }
+}

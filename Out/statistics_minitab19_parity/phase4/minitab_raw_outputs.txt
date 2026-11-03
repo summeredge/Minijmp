@@ -1,0 +1,2006 @@
+===== one_sample_t_two_sided =====
+ONET C1;
+  TEST 10.5;
+  CONFIDENCE 90;
+  SPVALUE C61;
+  SCONF C62 C63.
+Commands.Count: [0, 1]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+单样本 T: OneSampleT
+ 
+
+描述性统计量
+
+N      均值    标准差  均值标准误    μ 的 90% 置信区间
+7  10.729  1.138  0.430  (9.893, 11.565)
+
+μ: OneSampleT 的均值
+
+
+检验
+
+原假设   H₀: μ = 10.5
+备择假设  H₁: μ ≠ 10.5
+
+ T 值    P 值
+0.53  0.614
+
+
+
+Output.Text[1]:
+描述性统计量
+
+N      均值    标准差  均值标准误    μ 的 90% 置信区间
+7  10.729  1.138  0.430  (9.893, 11.565)
+
+μ: OneSampleT 的均值
+
+
+Output.Text[2]:
+检验
+
+原假设   H₀: μ = 10.5
+备择假设  H₁: μ ≠ 10.5
+
+ T 值    P 值
+0.53  0.614
+
+
+===== one_sample_t_right =====
+ONET C1;
+  TEST 10.5;
+  ALTERNATIVE 1;
+  CONFIDENCE 90;
+  SPVALUE C64;
+  SCONF C65 C66.
+Commands.Count: [1, 2]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+单样本 T: OneSampleT
+ 
+
+描述性统计量
+
+N      均值    标准差  均值标准误  μ 的 90% 下限
+7  10.729  1.138  0.430      10.109
+
+μ: OneSampleT 的均值
+
+
+检验
+
+原假设   H₀: μ = 10.5
+备择假设  H₁: μ > 10.5
+
+ T 值    P 值
+0.53  0.307
+
+
+
+Output.Text[1]:
+描述性统计量
+
+N      均值    标准差  均值标准误  μ 的 90% 下限
+7  10.729  1.138  0.430      10.109
+
+μ: OneSampleT 的均值
+
+
+Output.Text[2]:
+检验
+
+原假设   H₀: μ = 10.5
+备择假设  H₁: μ > 10.5
+
+ T 值    P 值
+0.53  0.307
+
+
+===== paired_t_two_sided =====
+PAIR C2 C3;
+  TEST 0;
+  CONFIDENCE 90;
+  SPVALUE C67;
+  SCONF C68 C69.
+Commands.Count: [2, 3]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+配对 T 检验和置信区间: PairedA, PairedB
+ 
+
+描述性统计量
+
+样本       N      均值    标准差  均值标准误
+PairedA  6  12.500  1.871  0.764
+PairedB  6  12.117  1.779  0.726
+
+
+配对差值的估计值
+
+    均值     标准差   均值标准误 μ_差 的 90% 置信区间
+0.3833  0.2137  0.0872(0.2075, 0.5591)
+
+μ_差: (PairedA - PairedB) 的均值
+
+
+检验
+
+原假设   H₀: μ_差 = 0
+备择假设  H₁: μ_差 ≠ 0
+
+ T 值    P 值
+4.39  0.007
+
+
+
+Output.Text[1]:
+描述性统计量
+
+样本       N      均值    标准差  均值标准误
+PairedA  6  12.500  1.871  0.764
+PairedB  6  12.117  1.779  0.726
+
+
+Output.Text[2]:
+配对差值的估计值
+
+    均值     标准差   均值标准误 μ_差 的 90% 置信区间
+0.3833  0.2137  0.0872(0.2075, 0.5591)
+
+μ_差: (PairedA - PairedB) 的均值
+
+
+Output.Text[3]:
+检验
+
+原假设   H₀: μ_差 = 0
+备择假设  H₁: μ_差 ≠ 0
+
+ T 值    P 值
+4.39  0.007
+
+
+===== paired_t_right =====
+PAIR C2 C3;
+  TEST 0;
+  ALTERNATIVE 1;
+  CONFIDENCE 90;
+  SPVALUE C70;
+  SCONF C71 C72.
+Commands.Count: [3, 4]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+配对 T 检验和置信区间: PairedA, PairedB
+ 
+
+描述性统计量
+
+样本       N      均值    标准差  均值标准误
+PairedA  6  12.500  1.871  0.764
+PairedB  6  12.117  1.779  0.726
+
+
+配对差值的估计值
+
+                       μ_差 的
+    均值     标准差   均值标准误90% 下限
+0.3833  0.2137  0.08720.2546
+
+μ_差: (PairedA - PairedB) 的均值
+
+
+检验
+
+原假设   H₀: μ_差 = 0
+备择假设  H₁: μ_差 > 0
+
+ T 值    P 值
+4.39  0.004
+
+
+
+Output.Text[1]:
+描述性统计量
+
+样本       N      均值    标准差  均值标准误
+PairedA  6  12.500  1.871  0.764
+PairedB  6  12.117  1.779  0.726
+
+
+Output.Text[2]:
+配对差值的估计值
+
+                       μ_差 的
+    均值     标准差   均值标准误90% 下限
+0.3833  0.2137  0.08720.2546
+
+μ_差: (PairedA - PairedB) 的均值
+
+
+Output.Text[3]:
+检验
+
+原假设   H₀: μ_差 = 0
+备择假设  H₁: μ_差 > 0
+
+ T 值    P 值
+4.39  0.004
+
+
+===== pooled_t_two_sided =====
+TWOSAMPLE 90 C4 C5;
+  TEST 0;
+  POOLED;
+  SPVALUE C73;
+  SCONF C74 C75.
+Commands.Count: [4, 5]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+双样本 T 检验和置信区间: TwoSample1, TwoSample2
+ 
+
+方法
+
+μ₁: TwoSample1 的均值
+µ₂: TwoSample2 的均值
+差值: μ₁ - µ₂
+
+已针对此分析假定了等方差。
+
+
+描述性统计量
+
+样本          N     均值   标准差  均值标准误
+TwoSample1  8  13.13  2.03   0.72
+TwoSample2  7  10.43  1.72   0.65
+
+
+差值的估计值
+
+   差值  合并标准差   差值的 90% 置信区间
+2.696  1.893  (0.961, 4.432)
+
+
+检验
+
+原假设   H₀: μ₁ - µ₂ = 0
+备择假设  H₁: μ₁ - µ₂ ≠ 0
+
+ T 值  自由度    P 值
+2.75   13  0.016
+
+
+
+Output.Text[1]:
+方法
+
+μ₁: TwoSample1 的均值
+µ₂: TwoSample2 的均值
+差值: μ₁ - µ₂
+
+已针对此分析假定了等方差。
+
+
+Output.Text[2]:
+描述性统计量
+
+样本          N     均值   标准差  均值标准误
+TwoSample1  8  13.13  2.03   0.72
+TwoSample2  7  10.43  1.72   0.65
+
+
+Output.Text[3]:
+差值的估计值
+
+   差值  合并标准差   差值的 90% 置信区间
+2.696  1.893  (0.961, 4.432)
+
+
+Output.Text[4]:
+检验
+
+原假设   H₀: μ₁ - µ₂ = 0
+备择假设  H₁: μ₁ - µ₂ ≠ 0
+
+ T 值  自由度    P 值
+2.75   13  0.016
+
+
+===== pooled_t_right =====
+TWOSAMPLE 90 C4 C5;
+  TEST 0;
+  POOLED;
+  ALTERNATIVE 1;
+  SPVALUE C76;
+  SCONF C77 C78.
+Commands.Count: [5, 6]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+双样本 T 检验和置信区间: TwoSample1, TwoSample2
+ 
+
+方法
+
+μ₁: TwoSample1 的均值
+µ₂: TwoSample2 的均值
+差值: μ₁ - µ₂
+
+已针对此分析假定了等方差。
+
+
+描述性统计量
+
+样本          N     均值   标准差  均值标准误
+TwoSample1  8  13.13  2.03   0.72
+TwoSample2  7  10.43  1.72   0.65
+
+
+差值的估计值
+
+                 差值的
+   差值  合并标准差  90% 下限
+2.696  1.893   1.374
+
+
+检验
+
+原假设   H₀: μ₁ - µ₂ = 0
+备择假设  H₁: μ₁ - µ₂ > 0
+
+ T 值  自由度    P 值
+2.75   13  0.008
+
+
+
+Output.Text[1]:
+方法
+
+μ₁: TwoSample1 的均值
+µ₂: TwoSample2 的均值
+差值: μ₁ - µ₂
+
+已针对此分析假定了等方差。
+
+
+Output.Text[2]:
+描述性统计量
+
+样本          N     均值   标准差  均值标准误
+TwoSample1  8  13.13  2.03   0.72
+TwoSample2  7  10.43  1.72   0.65
+
+
+Output.Text[3]:
+差值的估计值
+
+                 差值的
+   差值  合并标准差  90% 下限
+2.696  1.893   1.374
+
+
+Output.Text[4]:
+检验
+
+原假设   H₀: μ₁ - µ₂ = 0
+备择假设  H₁: μ₁ - µ₂ > 0
+
+ T 值  自由度    P 值
+2.75   13  0.008
+
+
+===== one_variance_two_sided =====
+ONEV C6;
+  STEST 3;
+  CONFIDENCE 90.
+Commands.Count: [6, 7]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+单方差检验和置信区间: OneVariance
+ 
+
+方法
+
+σ: OneVariance 的标准差
+Bonett 方法对任何连续分布有效。
+卡方方法仅对正态分布有效。
+
+
+描述性统计量
+
+                 使用 Bonett
+                 的 σ 的 90%     使用卡方的 σ 的
+N   标准差    方差      置信区间        90% 置信区间
+8  3.46  12.0  (2.49, 6.06)  (2.44, 6.23)
+
+
+检验
+
+原假设   H₀: σ = 3
+备择假设  H₁: σ ≠ 3
+
+方法      检验统计量  自由度    P 值
+Bonett      —    —  0.407
+卡方       9.33    7  0.459
+
+
+
+Output.Text[1]:
+方法
+
+σ: OneVariance 的标准差
+Bonett 方法对任何连续分布有效。
+卡方方法仅对正态分布有效。
+
+
+Output.Text[2]:
+描述性统计量
+
+                 使用 Bonett
+                 的 σ 的 90%     使用卡方的 σ 的
+N   标准差    方差      置信区间        90% 置信区间
+8  3.46  12.0  (2.49, 6.06)  (2.44, 6.23)
+
+
+Output.Text[3]:
+检验
+
+原假设   H₀: σ = 3
+备择假设  H₁: σ ≠ 3
+
+方法      检验统计量  自由度    P 值
+Bonett      —    —  0.407
+卡方       9.33    7  0.459
+
+
+===== one_variance_right =====
+ONEV C6;
+  STEST 3;
+  ALTERNATIVE 1;
+  CONFIDENCE 90.
+Commands.Count: [7, 8]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+单方差检验和置信区间: OneVariance
+ 
+
+方法
+
+σ: OneVariance 的标准差
+Bonett 方法对任何连续分布有效。
+卡方方法仅对正态分布有效。
+
+
+描述性统计量
+
+                   使用
+               Bonett
+                的 σ 的   使用卡方的 σ
+N   标准差    方差  90% 下限  的 90% 下限
+8  3.46  12.0    2.72      2.64
+
+
+检验
+
+原假设   H₀: σ = 3
+备择假设  H₁: σ > 3
+
+方法      检验统计量  自由度    P 值
+Bonett      —    —  0.203
+卡方       9.33    7  0.230
+
+
+
+Output.Text[1]:
+方法
+
+σ: OneVariance 的标准差
+Bonett 方法对任何连续分布有效。
+卡方方法仅对正态分布有效。
+
+
+Output.Text[2]:
+描述性统计量
+
+                   使用
+               Bonett
+                的 σ 的   使用卡方的 σ
+N   标准差    方差  90% 下限  的 90% 下限
+8  3.46  12.0    2.72      2.64
+
+
+Output.Text[3]:
+检验
+
+原假设   H₀: σ = 3
+备择假设  H₁: σ > 3
+
+方法      检验统计量  自由度    P 值
+Bonett      —    —  0.203
+卡方       9.33    7  0.230
+
+
+===== one_proportion_default =====
+PONE 20 12;
+  TEST 0.5;
+  CONFIDENCE 90;
+  SPVALUE C79;
+  SCONF C80 C81.
+Commands.Count: [8, 9]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+单比率检验和置信区间
+ 
+
+方法
+
+p: 事件比率
+此分析使用精确方法。
+
+
+描述性统计量
+
+ N  事件      样本 p      p 的 90% 置信区间
+20  12  0.600000  (0.393585, 0.782931)
+
+
+检验
+
+原假设   H₀: p = 0.5
+备择假设  H₁: p ≠ 0.5
+
+  P 值
+0.503
+
+
+
+Output.Text[1]:
+方法
+
+p: 事件比率
+此分析使用精确方法。
+
+
+Output.Text[2]:
+描述性统计量
+
+ N  事件      样本 p      p 的 90% 置信区间
+20  12  0.600000  (0.393585, 0.782931)
+
+
+Output.Text[3]:
+检验
+
+原假设   H₀: p = 0.5
+备择假设  H₁: p ≠ 0.5
+
+  P 值
+0.503
+
+
+===== one_proportion_normal =====
+PONE 20 12;
+  TEST 0.5;
+  CONFIDENCE 90;
+  USEZ;
+  SPVALUE C82;
+  SCONF C83 C84.
+Commands.Count: [9, 10]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+单比率检验和置信区间
+ 
+
+方法
+
+p: 事件比率
+此分析使用正态近似方法。
+
+
+描述性统计量
+
+ N  事件      样本 p      p 的 90% 置信区间
+20  12  0.600000  (0.419815, 0.780185)
+
+
+检验
+
+原假设   H₀: p = 0.5
+备择假设  H₁: p ≠ 0.5
+
+ Z 值    P 值
+0.89  0.371
+
+
+
+Output.Text[1]:
+方法
+
+p: 事件比率
+此分析使用正态近似方法。
+
+
+Output.Text[2]:
+描述性统计量
+
+ N  事件      样本 p      p 的 90% 置信区间
+20  12  0.600000  (0.419815, 0.780185)
+
+
+Output.Text[3]:
+检验
+
+原假设   H₀: p = 0.5
+备择假设  H₁: p ≠ 0.5
+
+ Z 值    P 值
+0.89  0.371
+
+
+===== one_proportion_normal_right =====
+PONE 20 12;
+  TEST 0.5;
+  ALTERNATIVE 1;
+  CONFIDENCE 90;
+  USEZ;
+  SPVALUE C103;
+  SCONF C104 C105.
+Commands.Count: [10, 11]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+单比率检验和置信区间
+ 
+
+方法
+
+p: 事件比率
+此分析使用正态近似方法。
+
+
+描述性统计量
+
+ N  事件      样本 p  p 的 90% 下限
+20  12  0.600000    0.459613
+
+
+检验
+
+原假设   H₀: p = 0.5
+备择假设  H₁: p > 0.5
+
+ Z 值    P 值
+0.89  0.186
+
+
+
+Output.Text[1]:
+方法
+
+p: 事件比率
+此分析使用正态近似方法。
+
+
+Output.Text[2]:
+描述性统计量
+
+ N  事件      样本 p  p 的 90% 下限
+20  12  0.600000    0.459613
+
+
+Output.Text[3]:
+检验
+
+原假设   H₀: p = 0.5
+备择假设  H₁: p > 0.5
+
+ Z 值    P 值
+0.89  0.186
+
+
+===== two_proportion_default =====
+PTWO 20 12 20 9;
+  TEST 0;
+  CONFIDENCE 90;
+  SPVALUE C85;
+  SFISHER C86;
+  SCONFC C87 C88.
+Commands.Count: [11, 12]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+双比率检验和置信区间
+ 
+
+方法
+
+p₁: 样本 1 = 事件的比率
+p₂: 样本 2 = 事件的比率
+差值: p₁ - p₂
+
+
+描述性统计量
+
+样本     N  事件      样本 p
+样本 1  20  12  0.600000
+样本 2  20   9  0.450000
+
+
+差值的估计值
+
+  差值       差值的 90% 置信区间
+0.15  (-0.106803, 0.406803)
+
+基于正态近似的 CI
+
+
+检验
+
+原假设   H₀: p₁ - p₂ = 0
+备择假设  H₁: p₁ - p₂ ≠ 0
+
+方法            Z 值    P 值
+正态近似         0.96  0.337
+Fisher 精确检验        0.527
+
+
+
+Output.Text[1]:
+方法
+
+p₁: 样本 1 = 事件的比率
+p₂: 样本 2 = 事件的比率
+差值: p₁ - p₂
+
+
+Output.Text[2]:
+描述性统计量
+
+样本     N  事件      样本 p
+样本 1  20  12  0.600000
+样本 2  20   9  0.450000
+
+
+Output.Text[3]:
+差值的估计值
+
+  差值       差值的 90% 置信区间
+0.15  (-0.106803, 0.406803)
+
+基于正态近似的 CI
+
+
+Output.Text[4]:
+检验
+
+原假设   H₀: p₁ - p₂ = 0
+备择假设  H₁: p₁ - p₂ ≠ 0
+
+方法            Z 值    P 值
+正态近似         0.96  0.337
+Fisher 精确检验        0.527
+
+
+===== two_proportion_pooled =====
+PTWO 20 12 20 9;
+  TEST 0;
+  CONFIDENCE 90;
+  POOLED;
+  SPVALUE C89;
+  SFISHER C90;
+  SCONFC C91 C92.
+Commands.Count: [12, 13]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+双比率检验和置信区间
+ 
+
+方法
+
+p₁: 样本 1 = 事件的比率
+p₂: 样本 2 = 事件的比率
+差值: p₁ - p₂
+
+
+描述性统计量
+
+样本     N  事件      样本 p
+样本 1  20  12  0.600000
+样本 2  20   9  0.450000
+
+
+差值的估计值
+
+  差值       差值的 90% 置信区间
+0.15  (-0.106803, 0.406803)
+
+基于正态近似的 CI
+
+
+检验
+
+原假设   H₀: p₁ - p₂ = 0
+备择假设  H₁: p₁ - p₂ ≠ 0
+
+方法            Z 值    P 值
+正态近似         0.95  0.342
+Fisher 精确检验        0.527
+
+基于正态近似的检验使用合并的比率估计值 (0.525)。
+
+
+
+Output.Text[1]:
+方法
+
+p₁: 样本 1 = 事件的比率
+p₂: 样本 2 = 事件的比率
+差值: p₁ - p₂
+
+
+Output.Text[2]:
+描述性统计量
+
+样本     N  事件      样本 p
+样本 1  20  12  0.600000
+样本 2  20   9  0.450000
+
+
+Output.Text[3]:
+差值的估计值
+
+  差值       差值的 90% 置信区间
+0.15  (-0.106803, 0.406803)
+
+基于正态近似的 CI
+
+
+Output.Text[4]:
+检验
+
+原假设   H₀: p₁ - p₂ = 0
+备择假设  H₁: p₁ - p₂ ≠ 0
+
+方法            Z 值    P 值
+正态近似         0.95  0.342
+Fisher 精确检验        0.527
+
+基于正态近似的检验使用合并的比率估计值 (0.525)。
+
+
+===== two_proportion_right =====
+PTWO 20 12 20 9;
+  TEST 0;
+  ALTERNATIVE 1;
+  CONFIDENCE 90;
+  SPVALUE C106;
+  SFISHER C107;
+  SCONFC C108 C109.
+Commands.Count: [13, 14]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+双比率检验和置信区间
+ 
+
+方法
+
+p₁: 样本 1 = 事件的比率
+p₂: 样本 2 = 事件的比率
+差值: p₁ - p₂
+
+
+描述性统计量
+
+样本     N  事件      样本 p
+样本 1  20  12  0.600000
+样本 2  20   9  0.450000
+
+
+差值的估计值
+
+  差值  差值的 90% 下限
+0.15   -0.050082
+
+基于正态近似的 CI
+
+
+检验
+
+原假设   H₀: p₁ - p₂ = 0
+备择假设  H₁: p₁ - p₂ > 0
+
+方法            Z 值    P 值
+正态近似         0.96  0.168
+Fisher 精确检验        0.264
+
+
+
+Output.Text[1]:
+方法
+
+p₁: 样本 1 = 事件的比率
+p₂: 样本 2 = 事件的比率
+差值: p₁ - p₂
+
+
+Output.Text[2]:
+描述性统计量
+
+样本     N  事件      样本 p
+样本 1  20  12  0.600000
+样本 2  20   9  0.450000
+
+
+Output.Text[3]:
+差值的估计值
+
+  差值  差值的 90% 下限
+0.15   -0.050082
+
+基于正态近似的 CI
+
+
+Output.Text[4]:
+检验
+
+原假设   H₀: p₁ - p₂ = 0
+备择假设  H₁: p₁ - p₂ > 0
+
+方法            Z 值    P 值
+正态近似         0.96  0.168
+Fisher 精确检验        0.264
+
+
+===== two_proportion_pooled_right =====
+PTWO 20 12 20 9;
+  TEST 0;
+  POOLED;
+  ALTERNATIVE 1;
+  CONFIDENCE 90;
+  SPVALUE C110;
+  SFISHER C111;
+  SCONFC C112 C113.
+Commands.Count: [14, 15]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+双比率检验和置信区间
+ 
+
+方法
+
+p₁: 样本 1 = 事件的比率
+p₂: 样本 2 = 事件的比率
+差值: p₁ - p₂
+
+
+描述性统计量
+
+样本     N  事件      样本 p
+样本 1  20  12  0.600000
+样本 2  20   9  0.450000
+
+
+差值的估计值
+
+  差值  差值的 90% 下限
+0.15   -0.050082
+
+基于正态近似的 CI
+
+
+检验
+
+原假设   H₀: p₁ - p₂ = 0
+备择假设  H₁: p₁ - p₂ > 0
+
+方法            Z 值    P 值
+正态近似         0.95  0.171
+Fisher 精确检验        0.264
+
+基于正态近似的检验使用合并的比率估计值 (0.525)。
+
+
+
+Output.Text[1]:
+方法
+
+p₁: 样本 1 = 事件的比率
+p₂: 样本 2 = 事件的比率
+差值: p₁ - p₂
+
+
+Output.Text[2]:
+描述性统计量
+
+样本     N  事件      样本 p
+样本 1  20  12  0.600000
+样本 2  20   9  0.450000
+
+
+Output.Text[3]:
+差值的估计值
+
+  差值  差值的 90% 下限
+0.15   -0.050082
+
+基于正态近似的 CI
+
+
+Output.Text[4]:
+检验
+
+原假设   H₀: p₁ - p₂ = 0
+备择假设  H₁: p₁ - p₂ > 0
+
+方法            Z 值    P 值
+正态近似         0.95  0.171
+Fisher 精确检验        0.264
+
+基于正态近似的检验使用合并的比率估计值 (0.525)。
+
+
+===== multi_variance =====
+VARTEST C9 C10.
+Commands.Count: [15, 16]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+等方差检验: VarianceY 与 VarianceGroup
+ 
+
+方法
+
+原假设    所有方差都相等
+备择假设   至少有一个方差不同
+显著性水平  α = 0.05
+
+
+95% Bonferroni 标准差置信区间
+
+VarianceGroup  N      标准差         置信区间
+            A  8  3.46410  (1.98865, 8.61111)
+            B  8  3.72012  (2.34825, 8.41017)
+            C  8  3.48210  (2.06587, 8.37558)
+
+单组置信水平 = 98.3333%
+
+
+检验
+
+方法      检验统计量    P 值
+多重比较        —  0.966
+Levene   0.10  0.908
+
+
+
+Output.Text[1]:
+方法
+
+原假设    所有方差都相等
+备择假设   至少有一个方差不同
+显著性水平  α = 0.05
+
+
+Output.Text[2]:
+95% Bonferroni 标准差置信区间
+
+VarianceGroup  N      标准差         置信区间
+            A  8  3.46410  (1.98865, 8.61111)
+            B  8  3.72012  (2.34825, 8.41017)
+            C  8  3.48210  (2.06587, 8.37558)
+
+单组置信水平 = 98.3333%
+
+
+Output.Text[3]:
+检验
+
+方法      检验统计量    P 值
+多重比较        —  0.966
+Levene   0.10  0.908
+
+
+===== one_way_anova_fisher =====
+ONEWAY;
+  RESPONSE C11;
+  CATEGORICAL C12;
+  CONFIDENCE 95;
+  FISHER;
+  TANOVA;
+  TMEANS;
+  TMTEST.
+Commands.Count: [16, 17]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+单因子方差分析: OneWayY 与 OneWayGroup
+ 
+
+方法
+
+原假设    所有均值都相等
+备择假设   并非所有的均值都相等
+显著性水平  α = 0.05
+
+已针对此分析假定了相等方差。
+
+
+因子信息
+
+因子           水平数  值
+OneWayGroup    3  A, B, C
+
+
+方差分析
+
+来源           自由度  Adj SS  Adj MS    F 值    P 值
+OneWayGroup    2  166.60  83.300  26.08  0.000
+误差            12   38.33   3.194
+合计            14  204.93
+
+
+模型汇总
+
+      S    R-sq  R-sq（调整）  R-sq（预测）
+1.78730  81.29%    78.18%    71.64%
+
+
+均值
+
+OneWayGroup  N      均值    标准差      95% 置信区间
+A            4   8.500  1.291  ( 6.553, 10.447)
+B            5  12.000  1.581  (10.258, 13.742)
+C            6  16.667  2.160  (15.077, 18.256)
+
+合并标准差 = 1.78730
+
+
+Fisher 配对比较
+ 
+
+使用 Fisher LSD 方法和 95% 置信度对信息进行分组
+
+OneWayGroup  N      均值     分组
+C            6  16.667  A
+B            5  12.000     B
+A            4   8.500        C
+
+不共享字母的均值之间具有显著差异。
+
+
+均值差值的 Fisher 单个检验
+
+水平的差值  均值差值  差值标准误     95% 置信区间     T 值  调整的 P 值
+B - A  3.50   1.20  (0.89,  6.11)  2.92    0.013
+C - A  8.17   1.15  (5.65, 10.68)  7.08    0.000
+C - B  4.67   1.08  (2.31,  7.02)  4.31    0.001
+
+同时置信水平 = 88.44%
+
+ 
+OneWayY 与 OneWayGroup 的区间图
+
+
+
+
+Output.Text[1]:
+方法
+
+原假设    所有均值都相等
+备择假设   并非所有的均值都相等
+显著性水平  α = 0.05
+
+已针对此分析假定了相等方差。
+
+
+Output.Text[2]:
+因子信息
+
+因子           水平数  值
+OneWayGroup    3  A, B, C
+
+
+Output.Text[3]:
+方差分析
+
+来源           自由度  Adj SS  Adj MS    F 值    P 值
+OneWayGroup    2  166.60  83.300  26.08  0.000
+误差            12   38.33   3.194
+合计            14  204.93
+
+
+Output.Text[4]:
+模型汇总
+
+      S    R-sq  R-sq（调整）  R-sq（预测）
+1.78730  81.29%    78.18%    71.64%
+
+
+Output.Text[5]:
+均值
+
+OneWayGroup  N      均值    标准差      95% 置信区间
+A            4   8.500  1.291  ( 6.553, 10.447)
+B            5  12.000  1.581  (10.258, 13.742)
+C            6  16.667  2.160  (15.077, 18.256)
+
+合并标准差 = 1.78730
+
+
+Output.Text[6]:
+Fisher 配对比较
+ 
+
+使用 Fisher LSD 方法和 95% 置信度对信息进行分组
+
+OneWayGroup  N      均值     分组
+C            6  16.667  A
+B            5  12.000     B
+A            4   8.500        C
+
+不共享字母的均值之间具有显著差异。
+
+
+均值差值的 Fisher 单个检验
+
+水平的差值  均值差值  差值标准误     95% 置信区间     T 值  调整的 P 值
+B - A  3.50   1.20  (0.89,  6.11)  2.92    0.013
+C - A  8.17   1.15  (5.65, 10.68)  7.08    0.000
+C - B  4.67   1.08  (2.31,  7.02)  4.31    0.001
+
+同时置信水平 = 88.44%
+
+ 
+
+Output.Text[7]:
+使用 Fisher LSD 方法和 95% 置信度对信息进行分组
+
+OneWayGroup  N      均值     分组
+C            6  16.667  A
+B            5  12.000     B
+A            4   8.500        C
+
+不共享字母的均值之间具有显著差异。
+
+
+Output.Text[8]:
+均值差值的 Fisher 单个检验
+
+水平的差值  均值差值  差值标准误     95% 置信区间     T 值  调整的 P 值
+B - A  3.50   1.20  (0.89,  6.11)  2.92    0.013
+C - A  8.17   1.15  (5.65, 10.68)  7.08    0.000
+C - B  4.67   1.08  (2.31,  7.02)  4.31    0.001
+
+同时置信水平 = 88.44%
+
+
+Output.Text[9]:
+OneWayY 与 OneWayGroup 的区间图
+
+
+===== two_way_anova_type3 =====
+GLM;
+  RESPONSE C13;
+  CATEGORICAL C14 C15;
+  TERMS C14 C15 C14*C15;
+  EFFECT;
+  TANOVA;
+  TSUMMARY.
+Commands.Count: [17, 18]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+一般线性模型: TwoWayY 与 FactorA, FactorB
+ 
+
+方法
+
+因子编码  (-1, 0, +1)
+
+
+因子信息
+
+因子       类型  水平数  值
+FactorA  固定    2  A, B
+FactorB  固定    2  X, Y
+
+
+方差分析
+
+来源                 自由度   Adj SS   Adj MS    F 值    P 值
+  FactorA            1  113.124  113.124  58.37  0.000
+  FactorB            1   25.966   25.966  13.40  0.003
+  FactorA*FactorB    1    4.071    4.071   2.10  0.169
+误差                  14   27.133    1.938
+合计                  17  180.944
+
+
+模型汇总
+
+      S    R-sq  R-sq（调整）  R-sq（预测）
+1.39215  85.00%    81.79%    76.12%
+
+
+系数
+
+项                    系数  系数标准误    T 值    P 值  方差膨胀因子
+常量               13.342  0.339  39.33  0.000
+FactorA
+  A              -2.592  0.339  -7.64  0.000    1.02
+FactorB
+  X              -1.242  0.339  -3.66  0.003    1.06
+FactorA*FactorB
+  A X             0.492  0.339   1.45  0.169    1.07
+
+
+回归方程
+
+TwoWayY = 13.342 - 2.592 FactorA_A + 2.592 FactorA_B - 1.242 FactorB_X + 1.242 FactorB_Y
+          + 0.492 FactorA*FactorB_A X - 0.492 FactorA*FactorB_A Y - 0.492 FactorA*FactorB_B X
+          + 0.492 FactorA*FactorB_B Y
+
+
+
+Output.Text[1]:
+方法
+
+因子编码  (-1, 0, +1)
+
+
+Output.Text[2]:
+因子信息
+
+因子       类型  水平数  值
+FactorA  固定    2  A, B
+FactorB  固定    2  X, Y
+
+
+Output.Text[3]:
+方差分析
+
+来源                 自由度   Adj SS   Adj MS    F 值    P 值
+  FactorA            1  113.124  113.124  58.37  0.000
+  FactorB            1   25.966   25.966  13.40  0.003
+  FactorA*FactorB    1    4.071    4.071   2.10  0.169
+误差                  14   27.133    1.938
+合计                  17  180.944
+
+
+Output.Text[4]:
+模型汇总
+
+      S    R-sq  R-sq（调整）  R-sq（预测）
+1.39215  85.00%    81.79%    76.12%
+
+
+Output.Text[5]:
+系数
+
+项                    系数  系数标准误    T 值    P 值  方差膨胀因子
+常量               13.342  0.339  39.33  0.000
+FactorA
+  A              -2.592  0.339  -7.64  0.000    1.02
+FactorB
+  X              -1.242  0.339  -3.66  0.003    1.06
+FactorA*FactorB
+  A X             0.492  0.339   1.45  0.169    1.07
+
+
+Output.Text[6]:
+回归方程
+
+TwoWayY = 13.342 - 2.592 FactorA_A + 2.592 FactorA_B - 1.242 FactorB_X + 1.242 FactorB_Y
+          + 0.492 FactorA*FactorB_A X - 0.492 FactorA*FactorB_A Y - 0.492 FactorA*FactorB_B X
+          + 0.492 FactorA*FactorB_B Y
+
+
+===== ols_multiple =====
+REGRESS;
+  RESPONSE C16;
+  CONTINUOUS C17 C18;
+  TERMS C17 C18;
+  CONSTANT;
+  UNSTANDARDIZED;
+  CONFIDENCE 95;
+  TCOEFFICIENTS;
+  TANOVA;
+  TSUMMARY;
+  TDIAGNOSTICS 1;
+  RESIDUALS C93;
+  SRESIDUALS C94;
+  HI C95;
+  COOK C96;
+  FITS C97.
+Commands.Count: [18, 19]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+回归分析: OLS_Y 与 OLS_X1, OLS_X2
+ 
+
+回归方程
+
+OLS_Y = 6.059 + 1.9609 OLS_X1 - 0.1275 OLS_X2
+
+
+系数
+
+项            系数   系数标准误    T 值    P 值  方差膨胀因子
+常量        6.059   0.243  24.91  0.000
+OLS_X1   1.9609  0.0511  38.39  0.000    2.97
+OLS_X2  -0.1275  0.0856  -1.49  0.171    2.97
+
+
+模型汇总
+
+       S    R-sq  R-sq（调整）  R-sq（预测）
+0.354391  99.78%    99.73%    99.60%
+
+
+方差分析
+
+来源        自由度   Adj SS   Adj MS      F 值    P 值
+回归          2  515.939  257.969  2054.01  0.000
+  OLS_X1    1  185.087  185.087  1473.71  0.000
+  OLS_X2    1    0.279    0.279     2.22  0.171
+误差          9    1.130    0.126
+合计         11  517.069
+
+
+所有观测值的拟合和诊断
+
+观测值   OLS_Y     拟合值      残差  标准化残差
+  1   8.100   7.765   0.335   1.13
+  2  10.000   9.853   0.147   0.50
+  3  11.800  11.432   0.368   1.21
+  4  13.200  13.648  -0.448  -1.42
+  5  14.700  15.226  -0.526  -1.66
+  6  17.600  17.442   0.158   0.49
+  7  18.800  19.020  -0.220  -0.69
+  8  21.100  21.236  -0.136  -0.42
+  9  22.700  22.815  -0.115  -0.37
+ 10  24.800  25.031  -0.231  -0.75
+ 11  26.900  26.609   0.291   1.01
+ 12  29.200  28.825   0.375   1.33
+
+
+
+Output.Text[1]:
+回归方程
+
+OLS_Y = 6.059 + 1.9609 OLS_X1 - 0.1275 OLS_X2
+
+
+Output.Text[2]:
+系数
+
+项            系数   系数标准误    T 值    P 值  方差膨胀因子
+常量        6.059   0.243  24.91  0.000
+OLS_X1   1.9609  0.0511  38.39  0.000    2.97
+OLS_X2  -0.1275  0.0856  -1.49  0.171    2.97
+
+
+Output.Text[3]:
+模型汇总
+
+       S    R-sq  R-sq（调整）  R-sq（预测）
+0.354391  99.78%    99.73%    99.60%
+
+
+Output.Text[4]:
+方差分析
+
+来源        自由度   Adj SS   Adj MS      F 值    P 值
+回归          2  515.939  257.969  2054.01  0.000
+  OLS_X1    1  185.087  185.087  1473.71  0.000
+  OLS_X2    1    0.279    0.279     2.22  0.171
+误差          9    1.130    0.126
+合计         11  517.069
+
+
+Output.Text[5]:
+所有观测值的拟合和诊断
+
+观测值   OLS_Y     拟合值      残差  标准化残差
+  1   8.100   7.765   0.335   1.13
+  2  10.000   9.853   0.147   0.50
+  3  11.800  11.432   0.368   1.21
+  4  13.200  13.648  -0.448  -1.42
+  5  14.700  15.226  -0.526  -1.66
+  6  17.600  17.442   0.158   0.49
+  7  18.800  19.020  -0.220  -0.69
+  8  21.100  21.236  -0.136  -0.42
+  9  22.700  22.815  -0.115  -0.37
+ 10  24.800  25.031  -0.231  -0.75
+ 11  26.900  26.609   0.291   1.01
+ 12  29.200  28.825   0.375   1.33
+
+
+===== ols_categorical =====
+REGRESS;
+  RESPONSE C27;
+  CATEGORICAL C28;
+  TERMS C28;
+  CONSTANT;
+  UNSTANDARDIZED;
+  BINARY;
+  REFERENCE C28 "A";
+  CONFIDENCE 95;
+  TCOEFFICIENTS;
+  TANOVA;
+  TSUMMARY.
+Commands.Count: [19, 20]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+回归分析: CategoricalOLS_Y 与 CategoricalOLS_Group
+ 
+
+方法
+
+类别预测变量编码  (1, 0)
+
+
+回归方程
+
+CategoricalOLS_Y = 11.000 + 0.0 CategoricalOLS_Group_A + 4.400 CategoricalOLS_Group_B
+                   + 9.000 CategoricalOLS_Group_C
+
+
+系数
+
+项                         系数  系数标准误    T 值    P 值  方差膨胀因子
+常量                    11.000  0.648  16.97  0.000
+CategoricalOLS_Group
+  B                    4.400  0.917   4.80  0.000    1.33
+  C                    9.000  0.917   9.82  0.000    1.33
+
+
+模型汇总
+
+      S    R-sq  R-sq（调整）  R-sq（预测）
+1.44914  88.93%    87.09%    82.71%
+
+
+方差分析
+
+来源                      自由度  Adj SS   Adj MS    F 值    P 值
+回归                        2  202.53  101.267  48.22  0.000
+  CategoricalOLS_Group    2  202.53  101.267  48.22  0.000
+误差                       12   25.20    2.100
+合计                       14  227.73
+
+
+
+Output.Text[1]:
+方法
+
+类别预测变量编码  (1, 0)
+
+
+Output.Text[2]:
+回归方程
+
+CategoricalOLS_Y = 11.000 + 0.0 CategoricalOLS_Group_A + 4.400 CategoricalOLS_Group_B
+                   + 9.000 CategoricalOLS_Group_C
+
+
+Output.Text[3]:
+系数
+
+项                         系数  系数标准误    T 值    P 值  方差膨胀因子
+常量                    11.000  0.648  16.97  0.000
+CategoricalOLS_Group
+  B                    4.400  0.917   4.80  0.000    1.33
+  C                    9.000  0.917   9.82  0.000    1.33
+
+
+Output.Text[4]:
+模型汇总
+
+      S    R-sq  R-sq（调整）  R-sq（预测）
+1.44914  88.93%    87.09%    82.71%
+
+
+Output.Text[5]:
+方差分析
+
+来源                      自由度  Adj SS   Adj MS    F 值    P 值
+回归                        2  202.53  101.267  48.22  0.000
+  CategoricalOLS_Group    2  202.53  101.267  48.22  0.000
+误差                       12   25.20    2.100
+合计                       14  227.73
+
+
+===== ols_prediction =====
+PREDICT "multiple_regression|1";
+  CPREDICTORS C25 C26;
+  CONFIDENCE 95;
+  TPREDICTION;
+  PFITS C114;
+  PSEFITS C115;
+  CLIMITS C116 C117;
+  PLIMITS C118 C119.
+Commands.Count: [20, 20]
+LastError: PREDICT "multiple_regression|1";
+  CPREDICTORS C25 C26;
+  CONFIDENCE 95;
+  TPREDICTION;
+  PFITS C114;
+  PSEFITS C115;
+  CLIMITS C116 C117;
+  PLIMITS C118 C119.
+* 错误 * 变元为常量或矩阵，但应为列。
+===== OutputDocument.Text / Output.Text =====
+(empty)
+
+===== binary_logistic =====
+GZLM;
+  BINOMIAL;
+  LOGIT;
+  RESPONSE C21;
+  CONTINUOUS C22;
+  TERMS C22;
+  TCOEFFICIENTS;
+  TSUMMARY;
+  TDEVIANCE;
+  COEFFICIENTS C120;
+  SECOEFFICIENTS C121.
+Commands.Count: [20, 21]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+二值 Logistic 回归: LogitY 与 LogitX
+ 
+
+方法
+
+链接函数    Logit
+已使用的行数  36
+
+
+响应信息
+
+变量      值   计数
+LogitY  1   20  （事件）
+        0   16
+        合计  36
+
+
+回归方程
+
+P(1)  =  exp(Y')/(1 + exp(Y'))
+
+Y' = -1.420 + 0.686 LogitX
+
+
+系数
+
+项           系数  系数标准误  方差膨胀因子
+常量      -1.420  0.701
+LogitX   0.686  0.255    1.00
+
+
+连续预测变量的优势比
+
+           优势比      95% 置信区间
+LogitX  1.9863  (1.2060, 3.2714)
+
+
+模型汇总
+
+         偏差 R-Sq
+偏差 R-Sq     (调整)    AIC   AICc    BIC
+ 19.03%   17.01%  44.05  44.41  47.22
+
+
+拟合优度检验
+
+检验               自由度     卡方    P 值
+偏差                34  40.05  0.219
+Pearson           34  36.57  0.350
+Hosmer-Lemeshow    4   0.24  0.993
+
+
+方差分析
+
+                 Wald 检验
+来源        自由度    卡方    P 值
+回归          1  7.27  0.007
+  LogitX    1  7.27  0.007
+
+
+异常观测值的拟合和诊断
+
+观测值  观测到的概率     拟合值       残差  标准化残差
+ 31  0.0000  0.8820  -2.0672  -2.14  R
+
+R  残差大
+
+
+
+Output.Text[1]:
+方法
+
+链接函数    Logit
+已使用的行数  36
+
+
+Output.Text[2]:
+响应信息
+
+变量      值   计数
+LogitY  1   20  （事件）
+        0   16
+        合计  36
+
+
+Output.Text[3]:
+回归方程
+
+P(1)  =  exp(Y')/(1 + exp(Y'))
+
+Y' = -1.420 + 0.686 LogitX
+
+
+Output.Text[4]:
+系数
+
+项           系数  系数标准误  方差膨胀因子
+常量      -1.420  0.701
+LogitX   0.686  0.255    1.00
+
+
+Output.Text[5]:
+连续预测变量的优势比
+
+           优势比      95% 置信区间
+LogitX  1.9863  (1.2060, 3.2714)
+
+
+Output.Text[6]:
+模型汇总
+
+         偏差 R-Sq
+偏差 R-Sq     (调整)    AIC   AICc    BIC
+ 19.03%   17.01%  44.05  44.41  47.22
+
+
+Output.Text[7]:
+拟合优度检验
+
+检验               自由度     卡方    P 值
+偏差                34  40.05  0.219
+Pearson           34  36.57  0.350
+Hosmer-Lemeshow    4   0.24  0.993
+
+
+Output.Text[8]:
+方差分析
+
+                 Wald 检验
+来源        自由度    卡方    P 值
+回归          1  7.27  0.007
+  LogitX    1  7.27  0.007
+
+
+Output.Text[9]:
+异常观测值的拟合和诊断
+
+观测值  观测到的概率     拟合值       残差  标准化残差
+ 31  0.0000  0.8820  -2.0672  -2.14  R
+
+R  残差大
+
+
+===== poisson =====
+GZLM;
+  POISSON;
+  LOG;
+  RESPONSE C23;
+  CONTINUOUS C24;
+  TERMS C24;
+  TCOEFFICIENTS;
+  TSUMMARY;
+  TDEVIANCE;
+  COEFFICIENTS C122;
+  SECOEFFICIENTS C123.
+Commands.Count: [21, 22]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+Poisson 回归分析: PoissonY 与 PoissonX
+ 
+
+方法
+
+链接函数    自然对数
+已使用的行数  24
+
+
+回归方程
+
+PoissonY  =  exp(Y')
+
+Y' = -0.069 + 0.3063 PoissonX
+
+
+系数
+
+项             系数   系数标准误  方差膨胀因子
+常量        -0.069   0.317
+PoissonX  0.3063  0.0858    1.00
+
+
+模型汇总
+
+         偏差 R-Sq
+偏差 R-Sq     (调整)    AIC   AICc    BIC
+ 64.11%   59.48%  71.55  72.12  73.91
+
+
+拟合优度检验
+
+检验       自由度       估计       均值    卡方    P 值
+偏差        22  7.75250  0.35239  7.75  0.998
+Pearson   22  6.07829  0.27629  6.08  1.000
+
+
+方差分析
+
+                    Wald 检验
+来源          自由度     卡方    P 值
+回归            1  12.75  0.000
+  PoissonX    1  12.75  0.000
+
+
+
+Output.Text[1]:
+方法
+
+链接函数    自然对数
+已使用的行数  24
+
+
+Output.Text[2]:
+回归方程
+
+PoissonY  =  exp(Y')
+
+Y' = -0.069 + 0.3063 PoissonX
+
+
+Output.Text[3]:
+系数
+
+项             系数   系数标准误  方差膨胀因子
+常量        -0.069   0.317
+PoissonX  0.3063  0.0858    1.00
+
+
+Output.Text[4]:
+模型汇总
+
+         偏差 R-Sq
+偏差 R-Sq     (调整)    AIC   AICc    BIC
+ 64.11%   59.48%  71.55  72.12  73.91
+
+
+Output.Text[5]:
+拟合优度检验
+
+检验       自由度       估计       均值    卡方    P 值
+偏差        22  7.75250  0.35239  7.75  0.998
+Pearson   22  6.07829  0.27629  6.08  1.000
+
+
+Output.Text[6]:
+方差分析
+
+                    Wald 检验
+来源          自由度     卡方    P 值
+回归            1  12.75  0.000
+  PoissonX    1  12.75  0.000
+
+
+===== spearman_correlation =====
+CORRELATION C29 C30;
+  SPEARMAN;
+  NODEFAULT;
+  SCORRELATION M3;
+  SPVALUES M4.
+Commands.Count: [22, 23]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+
+
+===== kendall_association =====
+XTABS C29 C30;
+  COUNTS;
+  CONCORDANT.
+Commands.Count: [23, 24]
+LastError: 
+===== OutputDocument.Text / Output.Text =====
+OutputDocument.Text:
+列表统计量: RankX, RankY
+ 
+
+行: RankX   列: RankY
+
+      1  2  3  4  5  6  全部
+
+1     1  1  0  0  0  0   2
+2     1  0  1  0  0  0   2
+3     0  1  1  0  0  0   2
+4     0  0  1  1  0  0   2
+5     0  0  0  1  1  0   2
+6     0  0  0  0  1  1   2
+全部    2  2  3  2  2  1  12
+
+单元格内容
+      计数
+
+
+顺序类别的一致性量度
+
+配对   数量  度量结果综述
+一致   51  Somer 的 D（与 RankX 相关）      0.830508
+不一致   2  Somer 的 D（与 RankY 相关）      0.816667
+结    13  Goodman 和 Kruskal 的 Gamma  0.924528
+合计   66  Kendall 的 Tau-b            0.823558
+
+
+一致性检验
+
+P 值
+0.0001309
+
+
+
+Output.Text[1]:
+行: RankX   列: RankY
+
+      1  2  3  4  5  6  全部
+
+1     1  1  0  0  0  0   2
+2     1  0  1  0  0  0   2
+3     0  1  1  0  0  0   2
+4     0  0  1  1  0  0   2
+5     0  0  0  1  1  0   2
+6     0  0  0  0  1  1   2
+全部    2  2  3  2  2  1  12
+
+单元格内容
+      计数
+
+
+Output.Text[2]:
+顺序类别的一致性量度
+
+配对   数量  度量结果综述
+一致   51  Somer 的 D（与 RankX 相关）      0.830508
+不一致   2  Somer 的 D（与 RankY 相关）      0.816667
+结    13  Goodman 和 Kruskal 的 Gamma  0.924528
+合计   66  Kendall 的 Tau-b            0.823558
+
+
+Output.Text[3]:
+一致性检验
+
+P 值
+0.0001309
+

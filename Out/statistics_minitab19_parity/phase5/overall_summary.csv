@@ -1,0 +1,2 @@
+﻿本轮范围,比较指标数,PASS,FAIL,METHOD_DIFF,UNSUPPORTED,NOT_RUN,唯一固定案例数,说明
+phase5 新增/复验及历史字段复核,107,94,0,6,7,0,11,103 项新增/复验比较，另含 4 项 phase4 截距字段状态复核；不重复累计 phase4 历史 257 项。Welch 第一阶段复核另记在 welch_historical_review.csv。

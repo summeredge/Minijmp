@@ -1,0 +1,14 @@
+﻿case_id,比较指标数,PASS,FAIL,METHOD_DIFF,UNSUPPORTED,NOT_RUN,功能状态,备注
+ols_prediction,5,5,0,0,0,0,PASS,
+one_sample_t_missing,8,8,0,0,0,0,PASS,
+paired_t_one_side_missing,9,9,0,0,0,0,PASS,
+welch_t_different_missing,11,7,0,4,0,0,MIXED,Minitab 19 将 Welch 自由度截为整数；MiniJMP 保留 Welch-Satterthwaite 小数自由度。；Minitab 19 截断 Welch 自由度并用整数自由度计算尾概率和置信区间；MiniJMP 保留分数自由度。
+rank_one_column_missing_spearman,3,3,0,0,0,0,PASS,
+rank_one_column_missing_kendall,3,2,0,1,0,0,MIXED,XTABS CONCORDANT 检验有序类别一致性；MiniJMP 用 Kendall tau-b 双侧检验，保留既有方法差异。
+rank_different_positions_missing_spearman,3,3,0,0,0,0,PASS,
+rank_different_positions_missing_kendall,3,2,0,1,0,0,MIXED,XTABS CONCORDANT 检验有序类别一致性；MiniJMP 用 Kendall tau-b 双侧检验，保留既有方法差异。
+normality_missing,5,2,0,0,3,0,MIXED,Minitab 19 NORMTEST COM 只返回正态概率图标题，未提供可稳定读取的 AD 统计量。；MiniJMP 实现 Shapiro-Wilk；Minitab 19 NORMTEST 提供 AD、RJTEST（Ryan-Joiner，与 Shapiro-Wilk 相似但定义不同）及 KSTEST，无同名 Shapiro-Wilk 原生字段；未将 RJ/KS 冒充参考值。
+one_way_anova_missing,29,29,0,0,0,0,PASS,
+two_way_anova_missing,24,24,0,0,0,0,PASS,
+binary_logistic,2,0,0,0,2,0,UNSUPPORTED,phase4 Minitab 命令已成功；原生系数表仅含系数、SE，COM 仅存系数与 SE，无截距 z/p 字段。历史 NOT_RUN 在第三轮确认为参考字段缺失，保留原 phase4 文件不变。
+poisson,2,0,0,0,2,0,UNSUPPORTED,phase4 Minitab 命令已成功；原生系数表仅含系数、SE，COM 仅存系数与 SE，无截距 z/p 字段。历史 NOT_RUN 在第三轮确认为参考字段缺失，保留原 phase4 文件不变。
