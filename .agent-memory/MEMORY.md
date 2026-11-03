@@ -12,11 +12,16 @@
 - phase1 的 8 个统计案例为 40 PASS、2 METHOD_DIFF、1 UNSUPPORTED；90 项菜单矩阵范围和原生参考入口保留在 `Out/statistics_minitab19_parity/`。
 - phase2 的过程能力/SPC/GRR 共10案/909项（886 PASS、10 FAIL、13 METHOD_DIFF）；phase3 独立复核最终为896 PASS、0 FAIL、13 METHOD_DIFF，哈希稳定。CAP-05/CAP-03 经独立数值复核，CAP-04 ddof 差异保留 METHOD_DIFF；未改生产算法，详见各 phase 工件。
 
-## 统计功能 Minitab 19 对标第四至六阶段（2026-11-03）
+## 统计功能 Minitab 19 对标第四至八阶段（2026-11-03）
 
-- phase6 P1 覆盖 3 个拟合样本（正值、并列/缺失、含负值/零）、3 个概率分布参数配置及 1 个分类卡方 GOF 配置，共 7 配置/109 项：85 PASS、12 METHOD_DIFF、12 UNSUPPORTED、0 FAIL/NOT_RUN。Minitab 19.1.0.1 COM 重复完整执行后 phase6 文件哈希一致；phase4/phase5 29 个文件哈希未变。
-- phase6 拟合对比包括 Normal、Lognormal、Gamma、Exponential、Weibull 参数、AD/显示 p 范围和 P5/P50/P95；正态 AD 沿用 phase5 未重复。Lognormal 无偏估计与 MiniJMP MLE、AD p 校准差异保留 METHOD_DIFF；Weibull MLE 用独立 score 方程核验。Normal/Lognormal/t 概率工具 21 项全 PASS，最大绝对误差 4.86e-10；比率卡方 Pearson χ²/df/p 按原生显示精度通过，LR 原生字段缺失。
-- 90 项矩阵行数不变，仅更新 06分布拟合、43比率卡方检验为部分验证。拟合参数 CI、拟合百分位 95% CI、Student's t 拟合、KS、三参数分布及与 Minitab 不同名的 AICc/BIC/-2LL 均按实际接口与原生字段记录缺口。未改生产 code、开发 CHANGELOG 或 phase4/phase5；定向 test_g3_distribution_reports.py + test_g3_chi_square_reports.py 66 passed，概率入口专项 3 passed。证据见 Out/statistics_minitab19_parity/phase6/。
+- phase6 P1 共 7 配置/109 项；初始对标为 85 PASS、12 METHOD_DIFF、12 UNSUPPORTED。2026-11-03 定向修复后为 97 PASS、0 METHOD_DIFF、12 UNSUPPORTED、0 FAIL/NOT_RUN；修复前 comparison、MiniJMP 结果、summary 和哈希清单以 `*_pre_repair` 保留，Minitab 原始输出/命令未覆盖。修复结果重复刷新 SHA-256 稳定，phase4/phase5 29 文件哈希未变。
+- Lognormal 对数标准差根因为 SciPy MLE（ddof=0）与 Minitab 无偏估计（ddof=1）；N=13 缺失值样本核实后，拟合参数、P5/P50/P95 和 AD 显示值对齐。AICc/BIC 仍基于 MLE，原模型排序口径不变。Lognormal AD p 对 ln(X) 做正态校准；一参数零位置 Exponential 用 Stephens 校准（p=0.024529 vs 原生 0.025）；Gamma p 按形状参数临界值插值（0.091289 vs 0.091，另例符合 `<0.005` 截断范围）。
+- 90 项矩阵行数不变，phase6 comparison/summary 与第 06 分布拟合行同步更新。`tests/test_g3_distribution_reports.py` 31 passed；`tests/test_g10_tables.py` 41 passed、5 warnings。Normal/Lognormal/t 概率工具 21 项及比率卡方原有结果保持。细节见 `logs/2026-11-03.md`。
+- phase7 的 Minitab 19.1.0.1 原生 COM 两次隔离采集哈希稳定；本轮仅复用原生输出离线复核，94 项为 70 PASS、0 FAIL、7 METHOD_DIFF、17 UNSUPPORTED。复用 phase2/3 能力 41 项（28 PASS/13 METHOD_DIFF）、基础 SPC 846 PASS、交叉 GRR ANOVA 22 PASS；90 项矩阵仍为 90 行，phase6 第 06 分布拟合行保持原值。
+- `code/advanced_spc.py` 规则 5/6 在第 2/4 个同侧超限点触发，规则 8 不要求窗口同时出现正负两侧；规则 3/4 按连续 6/14 个观测点检测。phase7 固定序列上 MiniJMP 触发 `[6,7]`/`[14,15]`，Minitab 19.1.0.1 TRESULTS 标记 `[7]`/`[15]`，两项现记 METHOD_DIFF。G5 四个 AST 哈希基线已更新为当前源码结构，统计正确性由独立数值测试校验。`test_g5_spc_reports.py` 74 passed；SPC、帮助、绘图与汇总 149 passed。未跑全量 pytest。
+- G5 默认 TkAgg 绘图初始化触发本机 Tcl 初始化错误；G5 模块 fixture 临时切到 Agg 并在结束后恢复原后端，真实 Tk 输出窗口与对话框断言仍全部通过。生产代码仅在 Vista 主题可用时选用 Vista；Windows onedir 已含主题资源。交叉 Xbar 平均极差 5 项差异保留：实际固定设计为 10 零件×3 操作者×2 次测量，MiniJMP d2 表值为三位小数、Minitab 使用 AIAG Appendix C d2*；EWMA、CUSUM、T² 未做 Minitab 对标。phase6 工件保留未覆盖写入。
+- phase8 第六轮首轮为 14 配置/102 指标（85 PASS、17 UNSUPPORTED）。属性规则补齐后最终 18 配置/118 指标（109 PASS、8 METHOD_DIFF、1 UNSUPPORTED、0 FAIL/NOT_RUN）；原 85 PASS 和原 phase8 Minitab 存储未变。P/NP/C/U 各 4 条历史标志由 UNSUPPORTED 更新为 PASS；新增正向案例中 Test 1/2 对标通过，Test 3/4 保留逐点标记差异。
+- Test 3/4 本地规则分别按 6/14 点窗口首次在第 22/38 点触发；Minitab 19.1.0.1 TRESULTS 标记第 23/39 点，8 项记 METHOD_DIFF。属性图矩阵仍 90 行，四行改为“方法不同”；phase8 预修复比较/汇总/结果/重复性快照均保留。仅补跑 4 个属性图命令两次，哈希稳定；phase4–phase7 未重跑。Pearson 配对 N 原生字段缺失仍是唯一 UNSUPPORTED。验证与文件见 `logs/2026-11-03.md`。
 
 - phase4 历史保持 14 案/257 指标：223 PASS、6 METHOD_DIFF、19 UNSUPPORTED、9 NOT_RUN；未改其 14 个文件。phase5 新增/复验 103 项，并复核 4 项 phase4 Logistic/Poisson 截距字段：合计 107 条记录、94 PASS、6 METHOD_DIFF、7 UNSUPPORTED、0 FAIL/NOT_RUN。
 - phase5 包状态（共享项不重复计总数）：P0-A 3 配置/9 项（5 PASS、4 UNSUPPORTED）；P0-B 6 配置/44 项（38 PASS、6 METHOD_DIFF）；P0-C 4 配置/69 项（62 PASS、4 METHOD_DIFF、3 UNSUPPORTED）。四条 Logistic/Poisson 原命令成功，系数表与 COM 存储无截距 z/p，phase4 保留原值，phase5 归类为原生字段缺失。

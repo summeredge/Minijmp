@@ -9,6 +9,7 @@ from unittest.mock import Mock
 import numpy as np
 import pandas as pd
 import pytest
+import matplotlib
 from matplotlib.figure import Figure
 
 import control_chart as spc
@@ -20,6 +21,15 @@ from test_dialog_translation import widgets
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = json.loads((ROOT / 'tests/fixtures/g5_spc_algorithm_ast.json').read_text())
+
+
+@pytest.fixture(scope='module', autouse=True)
+def headless_report_plots():
+    # Report plots are not interactive UI; real Tk dialogs remain exercised below.
+    backend = matplotlib.get_backend()
+    matplotlib.use('Agg')
+    yield
+    matplotlib.use(backend, force=True)
 
 
 @pytest.fixture
@@ -44,7 +54,7 @@ def assert_report(lines, title):
     assert lines[0] == f'\n---- SPC 控制图报告：{title} ----'
     headings = ['控制图信息', '控制限汇总', '过程统计摘要与逐点明细', '特殊原因及异常点', '结论说明']
     assert [text.index(heading) for heading in headings] == sorted(text.index(h) for h in headings)
-    # 直接 x_plot 调用不启用判异，报告仍明确说明未执行；对话框入口启用判异。
+    # 直接调用默认不启用判异；对话框入口显式启用对应图表的规则。
     assert ('已检查特殊原因规则' in text) != ('当前实现未执行特殊原因规则判定' in text)
     assert '不能据此认定过程受控或满足产品规格' in text
     assert 'LCL = 下控制限；CL = 中心线；UCL = 上控制限' in text
@@ -53,11 +63,10 @@ def assert_report(lines, title):
 
 
 @pytest.mark.parametrize('name', BASELINE)
-def test_computation_plotting_signatures_and_returns_match_before_g5_ast(name):
+def test_computation_plotting_ast_matches_frozen_structure(name):
     tree = ast.parse((ROOT / 'code/control_chart.py').read_text(encoding='utf-8'))
     function = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == name)
-    # 计算函数保持 G5 基线；x_plot 只增加可选 detect_rules 参数，判异与标记
-    # 全部位于 print_out 分支内，故排除该分支后应仍与基线 AST 完全一致。
+    # AST 仅作结构回归守卫；统计值由独立数值测试校验。x_plot 判异在 print_out 分支。
     if name in {'x_plot', 'p_np_plot', 'cu_plot'}:
         function.body = [n for n in function.body if not (
             isinstance(n, ast.If) and isinstance(n.test, ast.Name) and n.test.id == 'print_out')]
@@ -309,8 +318,7 @@ def test_real_dialog_get_data_and_confirm_reach_each_report(tk_root, report, mon
         assert len(figures) == 1
         assert_report(lines, title)
         text = '\n'.join(lines)
-        # 属性图本轮未扩展判异，保留原有“未执行”说明。
-        if title in {'I-MR', 'I', 'MR', 'Xbar-R', 'Xbar-S'}:
+        if title in {'I-MR', 'I', 'MR', 'Xbar-R', 'Xbar-S', 'P', 'NP', 'C', 'U'}:
             assert '已检查特殊原因规则' in text
         else:
             assert '当前实现未执行特殊原因规则判定' in text
@@ -329,6 +337,77 @@ def test_real_dialog_get_data_and_confirm_reach_each_report(tk_root, report, mon
         tk_root.report_callback_exception = original
         if dialog.main.winfo_exists():
             dialog.quit()
+
+
+@pytest.mark.parametrize('function,kwargs,panel,last_value', [
+    (spc.p_np_plot, {'p': [.6] * 8 + [.9], 'n': 100, 'bar1': .5,
+                     'lcl1': .2, 'ucl1': .7}, 'P', .9),
+    (spc.p_np_plot, {'p': [.6] * 8 + [.9], 'n': 100, 'NP': True,
+                     'bar1': 50, 'lcl1': 20, 'ucl1': 70}, 'NP', 90),
+    (spc.cu_plot, {'c': [6] * 8 + [9], 'n': 1, 'C': True,
+                   'bar1': 5, 'lcl1': 2, 'ucl1': 8}, 'C', 9),
+    (spc.cu_plot, {'c': [6] * 8 + [9], 'n': 10,
+                   'bar1': .5, 'lcl1': .2, 'ucl1': .7}, 'U', .9),
+])
+def test_attribute_rules_return_each_test_mark_the_chart_and_report(
+        report, function, kwargs, panel, last_value):
+    tables, lines = report
+    fig = Figure()
+    ax = fig.subplots()
+    events = function(**kwargs, fig=fig, ax=ax, print_out=True,
+                      print_port=lines.append, detect_rules=True)
+    assert [(event['point'], event['rule_number'], event['rule']) for event in events] == [
+        (9, 1, 'Test 1'), (9, 2, 'Test 2')]
+    assert events[0]['window_start'] == events[0]['window_end'] == 9
+    assert events[1]['window_start'] == 1 and events[1]['window_end'] == 9
+    assert all(event['panel'] == panel and event['value'] == last_value for event in events)
+    np.testing.assert_array_equal(ax.collections[-1].get_offsets(), [[8, last_value]])
+    from stat_table import StatTable
+    anomaly, = [line for line in lines if isinstance(line, StatTable)
+                and line.title == '异常点记录']
+    assert [row[7] for row in anomaly.values] == ['Test 1', 'Test 2']
+    assert '已检查特殊原因规则' in '\n'.join(lines)
+
+
+@pytest.mark.parametrize('function,kwargs', [
+    (spc.p_np_plot, {'p': [.6] * 5 + [np.nan] + [.6] * 4, 'n': 100,
+                     'bar1': .5, 'lcl1': .2, 'ucl1': .7}),
+    (spc.p_np_plot, {'p': [.6] * 9, 'n': [100] * 5 + [np.nan] + [100] * 3,
+                     'bar1': .5, 'lcl1': .2, 'ucl1': .7}),
+    (spc.cu_plot, {'c': [6] * 5 + [np.nan] + [6] * 4, 'n': 10,
+                   'bar1': .5, 'lcl1': .2, 'ucl1': .7}),
+    (spc.cu_plot, {'c': [6] * 9, 'n': [10] * 5 + [np.nan] + [10] * 3,
+                   'bar1': .5, 'lcl1': .2, 'ucl1': .7}),
+])
+def test_attribute_rules_break_at_missing_observations_or_invalid_sizes(function, kwargs):
+    fig = Figure()
+    assert function(**kwargs, fig=fig, ax=fig.subplots(), detect_rules=True) == []
+
+
+@pytest.mark.parametrize('function,kwargs', [
+    (spc.p_np_plot, {'p': [.5, .5, .5, .7], 'n': 100,
+                     'bar1': .5, 'lcl1': .3, 'ucl1': .7}),
+    (spc.p_np_plot, {'p': [.5, .5, .5, .7], 'n': 100, 'NP': True,
+                     'bar1': 50, 'lcl1': 30, 'ucl1': 70}),
+    (spc.cu_plot, {'c': [5, 5, 5, 8], 'n': 1, 'C': True,
+                   'bar1': 5, 'lcl1': 2, 'ucl1': 8}),
+    (spc.cu_plot, {'c': [5, 5, 5, 7], 'n': 10,
+                   'bar1': .5, 'lcl1': .3, 'ucl1': .7}),
+])
+def test_attribute_test1_does_not_flag_points_on_actual_limits(function, kwargs):
+    fig = Figure()
+    assert function(**kwargs, fig=fig, ax=fig.subplots(), detect_rules=True) == []
+
+
+@pytest.mark.parametrize('function,kwargs', [
+    (spc.p_np_plot, {'p': [0., 0., 0.], 'n': 100}),
+    (spc.p_np_plot, {'p': [0., 0., 0.], 'n': 100, 'NP': True}),
+    (spc.cu_plot, {'c': [0., 0., 0.], 'n': 1, 'C': True}),
+    (spc.cu_plot, {'c': [0., 0., 0.], 'n': [2, 4, 8]}),
+])
+def test_attribute_rules_keep_zero_counts_as_valid(function, kwargs):
+    fig = Figure()
+    assert function(**kwargs, fig=fig, ax=fig.subplots(), detect_rules=True) == []
 
 
 def test_spc_report_in_real_output_window_aligns_scrolls_copies_and_saves(viewer, report, tmp_path, monkeypatch):

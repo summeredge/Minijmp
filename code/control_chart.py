@@ -218,8 +218,8 @@ def _finite_runs(values):
 
 
 def _panel_events(values, center, lower, upper, labels, scale,
-                  use_rules=True, panel=''):
-    """返回实际绘图点的异常记录；主图用 Nelson，极差类图只判越限。"""
+                  use_rules=True, panel='', rules=None, valid=None):
+    """按实际控制限判越限，或对标准化序列执行选定的 Nelson 规则。"""
     from advanced_spc import NELSON, nelson_events
 
     values = np.asarray(values, dtype=float)
@@ -228,11 +228,13 @@ def _panel_events(values, center, lower, upper, labels, scale,
         z = np.full(len(values), np.nan)
         for i, value in enumerate(values):
             center_i, scale_i = _at_limit(center, i), _at_limit(scale, i)
-            if (np.isfinite(value) and np.isfinite(center_i)
+            if ((valid is None or valid[i]) and np.isfinite(value)
+                    and center_i is not None and np.isfinite(center_i)
                     and np.isfinite(scale_i) and scale_i > 0):
                 z[i] = (value - center_i) / scale_i
+        selected_rules = tuple(NELSON) if rules is None else rules
         for start, end in _finite_runs(z):
-            for point, rule, window in nelson_events(z[start:end + 1]):
+            for point, rule, window in nelson_events(z[start:end + 1], selected_rules):
                 i = start + point
                 events.append({
                     'panel': panel, 'x': i, 'point': i + 1,
@@ -243,9 +245,11 @@ def _panel_events(values, center, lower, upper, labels, scale,
                     'window_start': start + window + 1, 'window_end': i + 1})
     else:
         for i, value in enumerate(values):
-            if not np.isfinite(value):
+            if (valid is not None and not valid[i]) or not np.isfinite(value):
                 continue
             lo, hi = _at_limit(lower, i), _at_limit(upper, i)
+            if lo is None or hi is None:
+                continue
             if (np.isfinite(lo) and value < lo) or (np.isfinite(hi) and value > hi):
                 events.append({
                     'panel': panel, 'x': i, 'point': i + 1,
@@ -254,6 +258,29 @@ def _panel_events(values, center, lower, upper, labels, scale,
                     'upper': hi, 'rule': '越限', 'description': '超出控制限',
                     'window_start': i + 1, 'window_end': i + 1})
     return sorted(events, key=lambda event: (event['x'], event['rule']))
+
+
+def _attribute_events(values, center, lower, upper, labels, panel, valid):
+    from advanced_spc import NELSON
+
+    values = np.asarray(values, dtype=float)
+    scale = []
+    for i in range(len(values)):
+        center_i, upper_i = _at_limit(center, i), _at_limit(upper, i)
+        scale.append((upper_i - center_i) / 3
+                     if center_i is not None and upper_i is not None
+                     and np.isfinite(center_i) and np.isfinite(upper_i) else np.nan)
+
+    events = _panel_events(values, center, lower, upper, labels, scale,
+                           use_rules=False, panel=panel, valid=valid)
+    for event in events:
+        event.update(rule='Test 1', rule_number=1, description=NELSON[1])
+    run_events = _panel_events(values, center, lower, upper, labels, scale,
+                               panel=panel, rules=(2, 3, 4), valid=valid)
+    for event in run_events:
+        rule = int(event['rule'].rsplit(' ', 1)[1])
+        event.update(rule='Test %d' % rule, rule_number=rule)
+    return sorted(events + run_events, key=lambda event: (event['x'], event['rule_number']))
 
 
 def _mark_events(ax, events, panel):
@@ -392,9 +419,9 @@ def _print_spc_report(title, charts, sizes, size_label, labels, notes, print_por
                        '重叠窗口和多项规则同时命中不等同于彼此独立的异常事件。')
         else:
             print_port('未发现异常点。')
-            print_port('主图按所选 Nelson 规则检查；极差类图检查是否超出控制限。')
+            print_port('已检查当前图表启用的规则；未发现异常点。')
     print_port('\n结论说明')
-    print_port('本报告仅汇总统计量与控制限，不能据此认定过程受控或满足产品规格。')
+    print_port('本报告汇总统计量、控制限和异常点，不能据此认定过程受控或满足产品规格；未报警也不代表过程已受控。')
 
 
 def x_plot(data, bar1=None, pooled=False,
@@ -561,7 +588,7 @@ def p_np_plot(p=None, n=1,
               print_out=False, max_label_num=25, print_port=print,
               ylabel="P", NP=False,
               xlabel=None, ax=None, fig=None, refY=None,
-              filename=None):
+              filename=None, detect_rules=False):
 
     if not isinstance(n, list):
         nlist = [n] * len(p)
@@ -615,6 +642,16 @@ def p_np_plot(p=None, n=1,
     else:
         ax.plot(xs, lcl_ys, color='red', linestyle='dashed', label='LCL')
 
+    anomalies = None
+    if detect_rules:
+        valid = [i < len(nlist) and nlist[i] is not None
+                 and np.isfinite(nlist[i]) and nlist[i] > 0 for i in range(len(p))]
+        anomalies = _attribute_events(
+            p, p_bar, lcl1 if lcl1 is not None else lcl_list,
+            ucl1 if ucl1 is not None else ucl_list, xLabels,
+            'NP' if NP else 'P', valid)
+        _mark_events(ax, anomalies, 'NP' if NP else 'P')
+
     ax.set(ylabel=ylabel)
     add_Y_refs(ax=ax, y_values=refY)
 
@@ -645,9 +682,10 @@ def p_np_plot(p=None, n=1,
              '控制限方法：二项分布的 3 倍标准差；比例中心按检验数量加权；原计算下限截为 0。',
              'NP 图统计值为不合格品数量；按各组检验数量计算中心线与控制限。' if NP else
              'P 图统计值为不合格比例；检验数量不同时逐点列示实际控制限。',
-             '中心线与控制限采用实际绘图值（含调用方指定值）。'], print_port)
+             '中心线与控制限采用实际绘图值（含调用方指定值）。'], print_port,
+            anomalies=anomalies)
 
-    return
+    return anomalies
 
 
 def cu_plot(c=None, n=1,
@@ -655,7 +693,7 @@ def cu_plot(c=None, n=1,
             print_out=False, max_label_num=25, print_port=print,
             ylabel="P", C=False,
             xlabel=None, ax=None, fig=None, refY=None,
-            filename=None):
+            filename=None, detect_rules=False):
     # c 为原始缺陷数，n 为检查单位数；U 图只在此处归一化（C 图 n=1）。
     p = c
     if not isinstance(n, list):
@@ -700,6 +738,16 @@ def cu_plot(c=None, n=1,
     else:
         ax.plot(xs, lcl_ys, color='red', linestyle='dashed', label='LCL')
 
+    anomalies = None
+    if detect_rules:
+        valid = [i < len(nlist) and nlist[i] is not None
+                 and np.isfinite(nlist[i]) and nlist[i] > 0 for i in range(len(c))]
+        anomalies = _attribute_events(
+            c, c_bar, lcl1 if lcl1 is not None else lcl_list,
+            ucl1 if ucl1 is not None else ucl_list, xLabels,
+            'C' if C else 'U', valid)
+        _mark_events(ax, anomalies, 'C' if C else 'U')
+
     ax.set(ylabel=ylabel)
     add_Y_refs(ax=ax, y_values=refY)
 
@@ -731,6 +779,7 @@ def cu_plot(c=None, n=1,
              '控制限方法：泊松分布的 3 倍标准差；中心线为输入缺陷总数 / 检查单位总数；原计算下限截为 0。',
              'C 图在 GUI 中每次使用一个检查单位；本表按原实现列示输入缺陷数 / 检查单位数，缺陷数不同于不合格品数。' if C else
              'U 图统计值为输入缺陷数 / 检查单位数；单位数不同时逐点列示实际控制限。',
-             '中心线与控制限采用实际绘图值（含调用方指定值）。'], print_port)
+             '中心线与控制限采用实际绘图值（含调用方指定值）。'], print_port,
+            anomalies=anomalies)
 
-    return
+    return anomalies

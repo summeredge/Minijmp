@@ -1,0 +1,2408 @@
+{
+  "runs": [
+    {
+      "metadata": {
+        "version": "19.1.0.1",
+        "clsid": "{6265486C-4A08-4B4E-9713-C2CD85F1F515}",
+        "registered_server": "\"D:\\Program\\Minitab 19\\Mtb.exe\" /19_1",
+        "app_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+        "process_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+        "process_id": 972,
+        "project_name": "无标题",
+        "worksheet_name": "工作表 1",
+        "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+        "loaded_inputs": {
+          "1": {
+            "name": "DESCRIBE_value",
+            "values": [
+              1.0,
+              2.0,
+              2.0,
+              3.0,
+              null,
+              4.0,
+              5.0,
+              5.0,
+              5.0,
+              7.0,
+              8.0,
+              10.0,
+              14.0
+            ],
+            "effective_n": 12
+          },
+          "2": {
+            "name": "LINEAR_X",
+            "values": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              5.0,
+              5.0,
+              5.0,
+              5.0
+            ],
+            "effective_n": 20
+          },
+          "3": {
+            "name": "LINEAR_Y",
+            "values": [
+              8.5,
+              12.5,
+              9.5,
+              11.5,
+              9.0,
+              13.0,
+              10.0,
+              12.0,
+              9.5,
+              13.5,
+              10.5,
+              12.5,
+              10.0,
+              14.0,
+              11.0,
+              13.0,
+              10.5,
+              14.5,
+              11.5,
+              13.5
+            ],
+            "effective_n": 20
+          },
+          "4": {
+            "name": "CORR_X",
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              null,
+              6.0,
+              7.0,
+              8.0,
+              9.0,
+              10.0
+            ],
+            "effective_n": 9
+          },
+          "5": {
+            "name": "CORR_Y",
+            "values": [
+              2.0,
+              null,
+              5.0,
+              4.0,
+              8.0,
+              12.0,
+              11.0,
+              null,
+              17.0,
+              15.0
+            ],
+            "effective_n": 8
+          },
+          "6": {
+            "name": "x1",
+            "values": [
+              10.2,
+              11.0,
+              9.8,
+              12.4,
+              8.9,
+              10.7,
+              11.8,
+              9.4,
+              12.1,
+              8.6
+            ],
+            "effective_n": 10
+          },
+          "7": {
+            "name": "x2",
+            "values": [
+              2.1,
+              3.4,
+              2.8,
+              4.2,
+              1.5,
+              3.1,
+              3.7,
+              2.2,
+              4.4,
+              1.8
+            ],
+            "effective_n": 10
+          },
+          "8": {
+            "name": "x3",
+            "values": [
+              30.0,
+              29.5,
+              31.2,
+              32.0,
+              27.8,
+              30.4,
+              28.9,
+              29.3,
+              31.1,
+              28.3
+            ],
+            "effective_n": 10
+          },
+          "10": {
+            "name": "x1",
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0,
+              7.0,
+              8.0,
+              9.0,
+              10.0,
+              11.0,
+              12.0
+            ],
+            "effective_n": 12
+          },
+          "11": {
+            "name": "x2",
+            "values": [
+              10.0,
+              15.0,
+              12.0,
+              18.0,
+              16.0,
+              21.0,
+              19.0,
+              25.0,
+              23.0,
+              28.0,
+              27.0,
+              31.0
+            ],
+            "effective_n": 12
+          },
+          "12": {
+            "name": "y",
+            "values": [
+              8.8,
+              11.4,
+              13.6,
+              16.8,
+              18.4,
+              21.1,
+              23.3,
+              26.2,
+              28.1,
+              31.1,
+              32.5,
+              35.2
+            ],
+            "effective_n": 12
+          },
+          "13": {
+            "name": "PLS_CV_group",
+            "values": [
+              1.0,
+              1.0,
+              1.0,
+              2.0,
+              2.0,
+              2.0,
+              3.0,
+              3.0,
+              3.0,
+              4.0,
+              4.0,
+              4.0
+            ],
+            "effective_n": 12
+          },
+          "14": {
+            "name": "PLS_predict_x1",
+            "values": [
+              1.0,
+              6.5,
+              12.0
+            ],
+            "effective_n": 3
+          },
+          "15": {
+            "name": "PLS_predict_x2",
+            "values": [
+              10.0,
+              20.0,
+              31.0
+            ],
+            "effective_n": 3
+          },
+          "16": {
+            "name": "P_EDGE_defectives",
+            "values": [
+              0.0,
+              1.0,
+              0.0,
+              null,
+              2.0,
+              1.0
+            ],
+            "effective_n": 5
+          },
+          "17": {
+            "name": "P_EDGE_sample_sizes",
+            "values": [
+              10.0,
+              20.0,
+              8.0,
+              15.0,
+              14.0,
+              9.0
+            ],
+            "effective_n": 6
+          },
+          "18": {
+            "name": "NP_EDGE_defectives",
+            "values": [
+              0.0,
+              1.0,
+              2.0,
+              null,
+              3.0,
+              1.0
+            ],
+            "effective_n": 5
+          },
+          "19": {
+            "name": "C_EDGE_defects",
+            "values": [
+              0.0,
+              1.0,
+              0.0,
+              null,
+              2.0,
+              1.0
+            ],
+            "effective_n": 5
+          },
+          "20": {
+            "name": "U_EDGE_defects",
+            "values": [
+              0.0,
+              1.0,
+              null,
+              3.0,
+              2.0,
+              0.0
+            ],
+            "effective_n": 5
+          },
+          "21": {
+            "name": "U_EDGE_opportunities",
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              2.0,
+              5.0
+            ],
+            "effective_n": 6
+          }
+        },
+        "input_commands": [
+          "SET C1\n1 2 2 3 * 4 5 5 5 7 8 10 14\nEND",
+          "SET C4\n1 2 3 4 * 6 7 8 9 10\nEND",
+          "SET C5\n2 * 5 4 8 12 11 * 17 15\nEND",
+          "SET C16\n0 1 0 * 2 1\nEND",
+          "SET C18\n0 1 2 * 3 1\nEND",
+          "SET C19\n0 1 0 * 2 1\nEND",
+          "SET C20\n0 1 * 3 2 0\nEND"
+        ]
+      },
+      "outputs": {
+        "DESCRIBE-01": {
+          "executed": true,
+          "command": "STATS C1;\n  N C30;\n  NMISS C31;\n  COUNT C32;\n  MEAN C33;\n  SEMEAN C34;\n  STDEV C35;\n  VARIANCE C36;\n  CVARIATION C37;\n  MEDIAN C38;\n  SUMS C39;\n  MINIMUMS C40;\n  MAXIMUMS C41;\n  RANGE C42;\n  SKEWNESS C43;\n  KURTOSIS C44.\n",
+          "command_count": [
+            7,
+            8
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\n",
+          "stored": {
+            "N": [
+              12.0
+            ],
+            "NMISS": [
+              1.0
+            ],
+            "COUNT": [
+              13.0
+            ],
+            "MEAN": [
+              5.5
+            ],
+            "SEMEAN": [
+              1.0836246694508318
+            ],
+            "STDEV": [
+              3.7537859676477416
+            ],
+            "VARIANCE": [
+              14.090909090909092
+            ],
+            "CVARIATION": [
+              68.25065395723166
+            ],
+            "MEDIAN": [
+              5.0
+            ],
+            "SUMS": [
+              66.0
+            ],
+            "MIN": [
+              1.0
+            ],
+            "MAX": [
+              14.0
+            ],
+            "RANGE": [
+              13.0
+            ],
+            "SKEWNESS": [
+              1.0889651063524535
+            ],
+            "KURTOSIS": [
+              1.068636836628511
+            ]
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "N": [
+              30
+            ],
+            "NMISS": [
+              31
+            ],
+            "COUNT": [
+              32
+            ],
+            "MEAN": [
+              33
+            ],
+            "SEMEAN": [
+              34
+            ],
+            "STDEV": [
+              35
+            ],
+            "VARIANCE": [
+              36
+            ],
+            "CVARIATION": [
+              37
+            ],
+            "MEDIAN": [
+              38
+            ],
+            "SUMS": [
+              39
+            ],
+            "MIN": [
+              40
+            ],
+            "MAX": [
+              41
+            ],
+            "RANGE": [
+              42
+            ],
+            "SKEWNESS": [
+              43
+            ],
+            "KURTOSIS": [
+              44
+            ]
+          },
+          "storage_matrices": {}
+        },
+        "DESCRIBE-01-DISPLAY": {
+          "executed": true,
+          "command": "DESCRIBE C1.\n",
+          "command_count": [
+            8,
+            9
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\n描述性统计量: DESCRIBE_value\r\n \r\n\r\n统计量\r\n\r\n变量               N  N*    均值  均值标准误   标准差   最小值  下四分位数   中位数  上四分位数    最大值\r\nDESCRIBE_value  12   1  5.50   1.08  3.75  1.00   2.25  5.00   7.75  14.00\r\n\r\n\n\nOutput.Text[1]:\n统计量\r\n\r\n变量               N  N*    均值  均值标准误   标准差   最小值  下四分位数   中位数  上四分位数    最大值\r\nDESCRIBE_value  12   1  5.50   1.08  3.75  1.00   2.25  5.00   7.75  14.00\r\n",
+          "stored": {},
+          "storage_errors": {},
+          "storage_columns": {},
+          "storage_matrices": {}
+        },
+        "LINEAR-FIT-01": {
+          "executed": true,
+          "command": "REGRESS;\n  RESPONSE C3;\n  CONTINUOUS C2;\n  TERMS C2;\n  CONSTANT;\n  UNSTANDARDIZED;\n  CONFIDENCE 95;\n  COEFFICIENTS C50;\n  FITS C52;\n  RESIDUALS C53;\n  SS C54;\n  SRSQ C55;\n  SRSADJ C56;\n  SPVALUE C57;\n  TCOEFFICIENTS;\n  TANOVA;\n  TSUMMARY.\n",
+          "command_count": [
+            9,
+            10
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\n回归分析: LINEAR_Y 与 LINEAR_X\r\n \r\n\r\n回归方程\r\n\r\nLINEAR_Y = 10.000 + 0.500 LINEAR_X\r\n\r\n\r\n系数\r\n\r\n项             系数  系数标准误    T 值    P 值  方差膨胀因子\r\n常量        10.000  0.874  11.44  0.000\r\nLINEAR_X   0.500  0.264   1.90  0.074    1.00\r\n\r\n\r\n模型汇总\r\n\r\n      S    R-sq  R-sq（调整）  R-sq（预测）\r\n1.66667  16.67%    12.04%     0.00%\r\n\r\n\r\n方差分析\r\n\r\n来源          自由度   Adj SS   Adj MS   F 值    P 值\r\n回归            1  10.0000  10.0000  3.60  0.074\r\n  LINEAR_X    1  10.0000  10.0000  3.60  0.074\r\n误差           18  50.0000   2.7778\r\n  失拟          3   0.0000   0.0000  0.00  1.000\r\n  纯误差        15  50.0000   3.3333\r\n合计           19  60.0000\r\n\r\n\n\nOutput.Text[1]:\n回归方程\r\n\r\nLINEAR_Y = 10.000 + 0.500 LINEAR_X\r\n\n\nOutput.Text[2]:\n系数\r\n\r\n项             系数  系数标准误    T 值    P 值  方差膨胀因子\r\n常量        10.000  0.874  11.44  0.000\r\nLINEAR_X   0.500  0.264   1.90  0.074    1.00\r\n\n\nOutput.Text[3]:\n模型汇总\r\n\r\n      S    R-sq  R-sq（调整）  R-sq（预测）\r\n1.66667  16.67%    12.04%     0.00%\r\n\n\nOutput.Text[4]:\n方差分析\r\n\r\n来源          自由度   Adj SS   Adj MS   F 值    P 值\r\n回归            1  10.0000  10.0000  3.60  0.074\r\n  LINEAR_X    1  10.0000  10.0000  3.60  0.074\r\n误差           18  50.0000   2.7778\r\n  失拟          3   0.0000   0.0000  0.00  1.000\r\n  纯误差        15  50.0000   3.3333\r\n合计           19  60.0000\r\n",
+          "stored": {
+            "COEFFICIENTS": [
+              10.0,
+              0.49999999999999994
+            ],
+            "FITS": [
+              10.5,
+              10.5,
+              10.5,
+              10.5,
+              11.0,
+              11.0,
+              11.0,
+              11.0,
+              11.5,
+              11.5,
+              11.5,
+              11.5,
+              12.0,
+              12.0,
+              12.0,
+              12.0,
+              12.5,
+              12.5,
+              12.5,
+              12.5
+            ],
+            "RESIDUALS": [
+              -2.0,
+              2.0,
+              -1.0,
+              1.0,
+              -2.0,
+              2.0,
+              -1.0,
+              1.0,
+              -2.0,
+              2.0,
+              -1.0,
+              1.0,
+              -2.0,
+              2.0,
+              -1.0,
+              1.0,
+              -2.0,
+              2.0,
+              -1.0,
+              1.0
+            ],
+            "S": [
+              1.6666666666666667
+            ],
+            "R2": [
+              0.16666666666666663
+            ],
+            "R2ADJ": [
+              0.12037037037037035
+            ],
+            "PVALUES": [
+              1.0826076587870482e-09,
+              0.07394020034786027
+            ]
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "COEFFICIENTS": [
+              50
+            ],
+            "FITS": [
+              52
+            ],
+            "RESIDUALS": [
+              53
+            ],
+            "S": [
+              54
+            ],
+            "R2": [
+              55
+            ],
+            "R2ADJ": [
+              56
+            ],
+            "PVALUES": [
+              57
+            ]
+          },
+          "storage_matrices": {}
+        },
+        "COR-PAIR-MISSING-01": {
+          "executed": true,
+          "command": "CORRELATION C4 C5;\n  PEARSON;\n  NODEFAULT;\n  SCORRELATION M20;\n  SPVALUES M21.\n",
+          "command_count": [
+            10,
+            11
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\n",
+          "stored": {
+            "CORRELATION": {
+              "rows": 2,
+              "columns": 2,
+              "values": [
+                [
+                  1.0,
+                  0.9535382484630249
+                ],
+                [
+                  0.9535382484630249,
+                  1.0
+                ]
+              ]
+            },
+            "PVALUES": {
+              "rows": 2,
+              "columns": 2,
+              "values": [
+                [
+                  1.23456e+30,
+                  0.0008715584692739428
+                ],
+                [
+                  0.0008715584692739428,
+                  1.23456e+30
+                ]
+              ]
+            }
+          },
+          "storage_errors": {},
+          "storage_columns": {},
+          "storage_matrices": {
+            "CORRELATION": {
+              "name": "M20"
+            },
+            "PVALUES": {
+              "name": "M21"
+            }
+          }
+        },
+        "COR-PAIR-MISSING-01-TABLE": {
+          "executed": true,
+          "command": "CORRELATION C4 C5;\n  PEARSON;\n  TPCORRELATION.\n",
+          "command_count": [
+            11,
+            12
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\n相关: CORR_X, CORR_Y\r\n \r\n\r\nCORR_X, CORR_Y 的矩阵图\r\n\r\n\r\n\r\n方法\r\n\r\n相关类型    Pearson\r\n已使用的行数  10\r\n\r\nρ: 配对 Pearson 相关\r\n\r\n\r\n相关\r\n\r\n        CORR_X\r\nCORR_Y   0.954\r\n\r\n\r\n配对 Pearson 相关\r\n\r\n样本 1    样本 2       相关   ρ 的 95% 置信区间     P 值\r\nCORR_Y  CORR_X  0.954  (0.711, 0.993)  0.001\r\n\r\n\n\nOutput.Text[1]:\nCORR_X, CORR_Y 的矩阵图\r\n\n\nOutput.Text[2]:\n方法\r\n\r\n相关类型    Pearson\r\n已使用的行数  10\r\n\r\nρ: 配对 Pearson 相关\r\n\n\nOutput.Text[3]:\n相关\r\n\r\n        CORR_X\r\nCORR_Y   0.954\r\n\n\nOutput.Text[4]:\n配对 Pearson 相关\r\n\r\n样本 1    样本 2       相关   ρ 的 95% 置信区间     P 值\r\nCORR_Y  CORR_X  0.954  (0.711, 0.993)  0.001\r\n",
+          "stored": {},
+          "storage_errors": {},
+          "storage_columns": {},
+          "storage_matrices": {}
+        },
+        "COR-PAIR-MISSING-01-N-PROBE": {
+          "executed": false,
+          "command": "CORRELATION C4 C5;\n  PEARSON;\n  TPCORRELATION M22.\n",
+          "command_count": [
+            12,
+            12
+          ],
+          "last_error": "CORRELATION C4 C5;\r\n  PEARSON;\r\n  TPCORRELATION M22.\r\n* 错误 * 1 变元太多。\r\n\r\n        * 其余子命令被忽略。\r\n        * 计算不可能完成。",
+          "command_output_error": false,
+          "output": "",
+          "stored": {},
+          "storage_errors": {},
+          "storage_columns": {},
+          "storage_matrices": {}
+        },
+        "ATTR-P-EDGE": {
+          "executed": true,
+          "command": "PCHART C16 C17;\n  PPOINTS C80;\n  CENLINE C81;\n  CONLIMITS C82 C83.\n",
+          "command_count": [
+            12,
+            13
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\nP_EDGE_defectives 的 P 控制图\r\n \r\n\r\nP_EDGE_defectives 的 P 控制图\r\n\r\n\r\n\n\nOutput.Text[1]:\nP_EDGE_defectives 的 P 控制图\r\n",
+          "stored": {
+            "PPOINTS": [
+              0.0,
+              0.05,
+              0.0,
+              null,
+              0.14285714285714285,
+              0.1111111111111111
+            ],
+            "CENLINE": [
+              0.06557377049180328,
+              0.06557377049180328,
+              0.06557377049180328,
+              0.06557377049180328,
+              0.06557377049180328,
+              0.06557377049180328
+            ],
+            "CONLIMITS": [
+              [
+                0.0,
+                0.0,
+                0.0,
+                null,
+                0.0,
+                0.0
+              ],
+              [
+                0.30040661743567193,
+                0.23162566901115544,
+                0.3281248750499503,
+                null,
+                0.2640437502364244,
+                0.31310932574658196
+              ]
+            ]
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "PPOINTS": [
+              80
+            ],
+            "CENLINE": [
+              81
+            ],
+            "CONLIMITS": [
+              82,
+              83
+            ]
+          },
+          "storage_matrices": {}
+        },
+        "ATTR-NP-EDGE": {
+          "executed": true,
+          "command": "NPCHART C18 10;\n  PPOINTS C84;\n  CENLINE C85;\n  CONLIMITS C86 C87.\n",
+          "command_count": [
+            13,
+            14
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\nNP_EDGE_defectives 的 NP 控制图\r\n \r\n\r\nNP_EDGE_defectives 的 NP 控制图\r\n\r\n\r\n\n\nOutput.Text[1]:\nNP_EDGE_defectives 的 NP 控制图\r\n",
+          "stored": {
+            "PPOINTS": [
+              0.0,
+              1.0,
+              2.0,
+              null,
+              3.0,
+              1.0
+            ],
+            "CENLINE": [
+              1.4000000000000001,
+              1.4000000000000001,
+              1.4000000000000001,
+              1.4000000000000001,
+              1.4000000000000001,
+              1.4000000000000001
+            ],
+            "CONLIMITS": [
+              [
+                0.0,
+                0.0,
+                0.0,
+                null,
+                0.0,
+                0.0
+              ],
+              [
+                4.6918080138428495,
+                4.6918080138428495,
+                4.6918080138428495,
+                null,
+                4.6918080138428495,
+                4.6918080138428495
+              ]
+            ]
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "PPOINTS": [
+              84
+            ],
+            "CENLINE": [
+              85
+            ],
+            "CONLIMITS": [
+              86,
+              87
+            ]
+          },
+          "storage_matrices": {}
+        },
+        "ATTR-C-EDGE": {
+          "executed": true,
+          "command": "CCHART C19;\n  PPOINTS C88;\n  CENLINE C89;\n  CONLIMITS C90 C91.\n",
+          "command_count": [
+            14,
+            15
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\nC_EDGE_defects 的 C 控制图\r\n \r\n\r\nC_EDGE_defects 的 C 控制图\r\n\r\n\r\n\n\nOutput.Text[1]:\nC_EDGE_defects 的 C 控制图\r\n",
+          "stored": {
+            "PPOINTS": [
+              0.0,
+              1.0,
+              0.0,
+              null,
+              2.0,
+              1.0
+            ],
+            "CENLINE": [
+              0.8,
+              0.8,
+              0.8,
+              0.8,
+              0.8,
+              0.8
+            ],
+            "CONLIMITS": [
+              [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                3.483281572999748,
+                3.483281572999748,
+                3.483281572999748,
+                3.483281572999748,
+                3.483281572999748,
+                3.483281572999748
+              ]
+            ]
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "PPOINTS": [
+              88
+            ],
+            "CENLINE": [
+              89
+            ],
+            "CONLIMITS": [
+              90,
+              91
+            ]
+          },
+          "storage_matrices": {}
+        },
+        "ATTR-U-EDGE": {
+          "executed": true,
+          "command": "UCHART C20 C21;\n  PPOINTS C92;\n  CENLINE C93;\n  CONLIMITS C94 C95.\n",
+          "command_count": [
+            15,
+            16
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\nU_EDGE_defects 的 U 控制图\r\n \r\n\r\nU_EDGE_defects 的 U 控制图\r\n\r\n\r\n\n\nOutput.Text[1]:\nU_EDGE_defects 的 U 控制图\r\n",
+          "stored": {
+            "PPOINTS": [
+              0.0,
+              0.5,
+              null,
+              0.75,
+              1.0,
+              0.0
+            ],
+            "CENLINE": [
+              0.42857142857142855,
+              0.42857142857142855,
+              0.42857142857142855,
+              0.42857142857142855,
+              0.42857142857142855,
+              0.42857142857142855
+            ],
+            "CONLIMITS": [
+              [
+                0.0,
+                0.0,
+                null,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                2.39253244069536,
+                1.8173015782302557,
+                null,
+                1.4105519346333941,
+                1.8173015782302557,
+                1.3068814942251086
+              ]
+            ]
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "PPOINTS": [
+              92
+            ],
+            "CENLINE": [
+              93
+            ],
+            "CONLIMITS": [
+              94,
+              95
+            ]
+          },
+          "storage_matrices": {}
+        },
+        "PCA-02": {
+          "executed": true,
+          "command": "PCA C6-C8;\n  NCOMP 2;\n  COEFFICIENTS C60 C61;\n  SCORES C62 C63;\n  EIGEN C64;\n  DISTANCE C65.\n",
+          "command_count": [
+            16,
+            17
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\n主成分分析: x1, x2, x3\r\n \r\n\r\n相关矩阵的特征分析\r\n\r\n特征值  2.5490  0.4081  0.0429\r\n比率    0.850   0.136   0.014\r\n累积    0.850   0.986   1.000\r\n\r\n\r\n特征向量\r\n\r\n变量    PC1     PC2\r\nx1  0.597  -0.422\r\nx2  0.606  -0.321\r\nx3  0.526   0.848\r\n\r\n\n\nOutput.Text[1]:\n相关矩阵的特征分析\r\n\r\n特征值  2.5490  0.4081  0.0429\r\n比率    0.850   0.136   0.014\r\n累积    0.850   0.986   1.000\r\n\n\nOutput.Text[2]:\n特征向量\r\n\r\n变量    PC1     PC2\r\nx1  0.597  -0.422\r\nx2  0.606  -0.321\r\nx3  0.526   0.848\r\n",
+          "stored": {
+            "COEFFICIENTS": [
+              [
+                0.5965850703478015,
+                0.6057232480151482,
+                0.5264841884160323
+              ],
+              [
+                -0.42233455843947687,
+                -0.32088091574450456,
+                0.8477434509677443
+              ]
+            ],
+            "SCORES": [
+              [
+                -0.5624791227650046,
+                0.3782941419517544,
+                0.14903205691748606,
+                2.4615775761464738,
+                -2.363703118179616,
+                0.417021499061206,
+                0.6800179878103437,
+                -1.1333717525163214,
+                2.0953081351054643,
+                -2.121697403531798
+              ],
+              [
+                0.4467242169674643,
+                -0.534246468554581,
+                1.1072713047615375,
+                0.3460911762370611,
+                -0.3395568667121406,
+                0.22333951890496911,
+                -1.2604891433586949,
+                0.2260625467076821,
+                -0.19030946139140947,
+                -0.024886823561925286
+              ]
+            ],
+            "EIGEN": [
+              2.5489928162965834,
+              0.40808491854144036
+            ],
+            "DISTANCE": [
+              2.311381030823834,
+              1.0007307975123174,
+              1.9880353052136164,
+              1.795845328686675,
+              1.6676332820734259,
+              0.43677173749763604,
+              2.0394716839015863,
+              0.8497686833000493,
+              1.6180035907050399,
+              1.73420105053381
+            ]
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "COEFFICIENTS": [
+              60,
+              61
+            ],
+            "SCORES": [
+              62,
+              63
+            ],
+            "EIGEN": [
+              64
+            ],
+            "DISTANCE": [
+              65
+            ]
+          },
+          "storage_matrices": {}
+        },
+        "PLS-CV-01": {
+          "executed": true,
+          "command": "PLS C12 = C10-C11;\n  NCOMP 2;\n  XVALIDATION C13;\n  FITS C70;\n  CVFITS C71;\n  PRESIDUALS C72;\n  COEFFICIENTS C73;\n  XSCORES M23;\n  YSCORES M24;\n  XLOADINGS M25;\n  YLOADINGS M26;\n  PCONTINUOUS C14 C15;\n  PFITS C74;\n  TSELECTION;\n  TCOEFFICIENTS;\n  TFITS.\n",
+          "command_count": [
+            17,
+            18
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\nPLS 回归:y 与 x1_1, x2_1\r\n \r\n\r\ny 的模型选择和验证\r\n\r\n分量     X 方差       误差      R-Sq    PRESS  R-Sq（预测）\r\n 1  0.97960  11.3286  0.986206  13.6001  0.983441\r\n 2  1.00000   0.6324  0.999230   1.8355  0.997765\r\n\r\n\r\n系数\r\n\r\n            y     y 标准化\r\n常量    5.53516  0.000000\r\nx1_1  2.17996  0.909639\r\nx2_1  0.12262  0.093438\r\n\r\n\r\ny 的拟合值与残差\r\n\r\n 行     y      拟合值         残差     标准化残差  拟合值（预测）     残差（预测）\r\n 1   8.8   8.9413  -0.141287  -0.64211   9.2764  -0.476447\r\n 2  11.4  11.7343  -0.334332  -1.60778  12.1138  -0.713772\r\n 3  13.6  13.5464   0.053556   0.24255  13.7515  -0.151524\r\n 4  16.8  16.4621   0.337895   1.45095  16.3663   0.433741\r\n 5  18.4  18.3968   0.003166   0.01321  18.3874   0.012627\r\n 6  21.1  21.1899  -0.089879  -0.36584  21.1199  -0.019891\r\n 7  23.3  23.1246   0.175392   0.75066  23.0214   0.278622\r\n 8  26.2  26.0403   0.159731   0.67350  26.0055   0.194472\r\n 9  28.1  27.9750   0.125002   0.53115  27.8664   0.233594\r\n10  31.1  30.7680   0.331958   1.42197  30.9749   0.125115\r\n11  32.5  32.8254  -0.325388  -1.43603  33.0999  -0.599898\r\n12  35.2  35.4958  -0.295816  -1.35185  35.7846  -0.584635\r\n\r\n\n\nOutput.Text[1]:\ny 的模型选择和验证\r\n\r\n分量     X 方差       误差      R-Sq    PRESS  R-Sq（预测）\r\n 1  0.97960  11.3286  0.986206  13.6001  0.983441\r\n 2  1.00000   0.6324  0.999230   1.8355  0.997765\r\n\n\nOutput.Text[2]:\n系数\r\n\r\n            y     y 标准化\r\n常量    5.53516  0.000000\r\nx1_1  2.17996  0.909639\r\nx2_1  0.12262  0.093438\r\n\n\nOutput.Text[3]:\ny 的拟合值与残差\r\n\r\n 行     y      拟合值         残差     标准化残差  拟合值（预测）     残差（预测）\r\n 1   8.8   8.9413  -0.141287  -0.64211   9.2764  -0.476447\r\n 2  11.4  11.7343  -0.334332  -1.60778  12.1138  -0.713772\r\n 3  13.6  13.5464   0.053556   0.24255  13.7515  -0.151524\r\n 4  16.8  16.4621   0.337895   1.45095  16.3663   0.433741\r\n 5  18.4  18.3968   0.003166   0.01321  18.3874   0.012627\r\n 6  21.1  21.1899  -0.089879  -0.36584  21.1199  -0.019891\r\n 7  23.3  23.1246   0.175392   0.75066  23.0214   0.278622\r\n 8  26.2  26.0403   0.159731   0.67350  26.0055   0.194472\r\n 9  28.1  27.9750   0.125002   0.53115  27.8664   0.233594\r\n10  31.1  30.7680   0.331958   1.42197  30.9749   0.125115\r\n11  32.5  32.8254  -0.325388  -1.43603  33.0999  -0.599898\r\n12  35.2  35.4958  -0.295816  -1.35185  35.7846  -0.584635\r\n",
+          "stored": {
+            "FITS": [
+              8.941287125684397,
+              11.734331508273941,
+              13.5464441929465,
+              16.46210503777567,
+              18.396834184687854,
+              21.189878567277397,
+              23.12460771418958,
+              26.04026855901875,
+              27.97499770593093,
+              30.768042088520478,
+              32.825387697672284,
+              35.495815618022206
+            ],
+            "CVFITS": [
+              9.276447190851616,
+              12.113772284963416,
+              13.751523545706366,
+              16.366259334691108,
+              18.38737270875764,
+              21.119891378139847,
+              23.021377719843574,
+              26.005528259634346,
+              27.866405962766134,
+              30.97488514548239,
+              33.09989790709546,
+              35.78463501786626
+            ],
+            "PRESIDUALS": [
+              -0.4764471908516157,
+              -0.7137722849634152,
+              -0.1515235457063664,
+              0.43374066530889266,
+              0.012627291242360172,
+              -0.019891378139845983,
+              0.2786222801564264,
+              0.1944717403656533,
+              0.23359403723386762,
+              0.12511485451761217,
+              -0.5998979070954604,
+              -0.5846350178662547
+            ],
+            "COEFFICIENTS": [
+              2.179962071391429,
+              0.12261646223962346
+            ],
+            "PFITS": [
+              8.941287125684397,
+              22.157243140733488,
+              35.495815618022206
+            ],
+            "XSCORES": {
+              "rows": 12,
+              "columns": 2,
+              "values": [
+                [
+                  -2.1962825399472288,
+                  0.04077761725955103
+                ],
+                [
+                  -1.4690977495705588,
+                  -0.3003569096871937
+                ],
+                [
+                  -1.5863541566765613,
+                  0.21804211932198514
+                ],
+                [
+                  -0.7536142166145572,
+                  -0.23053410211925007
+                ],
+                [
+                  -0.7653154740352253,
+                  0.1804232323954383
+                ],
+                [
+                  -0.038130683658555244,
+                  -0.16071129455130637
+                ],
+                [
+                  -0.049831941079223355,
+                  0.25024603996338196
+                ],
+                [
+                  0.7829079989827807,
+                  -0.1983301814778532
+                ],
+                [
+                  0.7712067415621127,
+                  0.21262715303683521
+                ],
+                [
+                  1.4983915319387826,
+                  -0.12850737390990954
+                ],
+                [
+                  1.5922454242034485,
+                  0.17500826611028839
+                ],
+                [
+                  2.2138750648947845,
+                  -0.05868456634196588
+                ]
+              ]
+            },
+            "YSCORES": {
+              "rows": 12,
+              "columns": 2,
+              "values": [
+                [
+                  -2.186854405094888,
+                  0.011839790856509132
+                ],
+                [
+                  -1.7628030847781664,
+                  -0.36883326307490366
+                ],
+                [
+                  -1.403990429125556,
+                  0.22901119127303401
+                ],
+                [
+                  -0.8820811118126677,
+                  -0.161327897293823
+                ],
+                [
+                  -0.6211264531562238,
+                  0.18107164118345243
+                ],
+                [
+                  -0.18076546667347393,
+                  -0.17911983931169195
+                ],
+                [
+                  0.17804718897913666,
+                  0.2861691397831926
+                ],
+                [
+                  0.6510275077939415,
+                  -0.16561466909246936
+                ],
+                [
+                  0.9609111649484691,
+                  0.2382295896936113
+                ],
+                [
+                  1.450201149929302,
+                  -0.06051717049272883
+                ],
+                [
+                  1.6785364762536903,
+                  0.10836374585895707
+                ],
+                [
+                  2.1188974627364403,
+                  -0.11927225938313428
+                ]
+              ]
+            },
+            "XLOADINGS": {
+              "rows": 2,
+              "columns": 2,
+              "values": [
+                [
+                  0.7074532669424431,
+                  0.6950312524279622
+                ],
+                [
+                  0.7069546643754712,
+                  -0.718979525541874
+                ]
+              ]
+            },
+            "YLOADINGS": {
+              "rows": 1,
+              "columns": 2,
+              "values": [
+                [
+                  0.7095830350227902,
+                  0.5650475269544114
+                ]
+              ]
+            }
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "FITS": [
+              70
+            ],
+            "CVFITS": [
+              71
+            ],
+            "PRESIDUALS": [
+              72
+            ],
+            "COEFFICIENTS": [
+              73
+            ],
+            "PFITS": [
+              74
+            ]
+          },
+          "storage_matrices": {
+            "XSCORES": {
+              "name": "M23"
+            },
+            "YSCORES": {
+              "name": "M24"
+            },
+            "XLOADINGS": {
+              "name": "M25"
+            },
+            "YLOADINGS": {
+              "name": "M26"
+            }
+          }
+        }
+      }
+    },
+    {
+      "metadata": {
+        "version": "19.1.0.1",
+        "clsid": "{6265486C-4A08-4B4E-9713-C2CD85F1F515}",
+        "registered_server": "\"D:\\Program\\Minitab 19\\Mtb.exe\" /19_1",
+        "app_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+        "process_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+        "process_id": 30956,
+        "project_name": "无标题",
+        "worksheet_name": "工作表 1",
+        "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+        "loaded_inputs": {
+          "1": {
+            "name": "DESCRIBE_value",
+            "values": [
+              1.0,
+              2.0,
+              2.0,
+              3.0,
+              null,
+              4.0,
+              5.0,
+              5.0,
+              5.0,
+              7.0,
+              8.0,
+              10.0,
+              14.0
+            ],
+            "effective_n": 12
+          },
+          "2": {
+            "name": "LINEAR_X",
+            "values": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              2.0,
+              2.0,
+              2.0,
+              2.0,
+              3.0,
+              3.0,
+              3.0,
+              3.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              5.0,
+              5.0,
+              5.0,
+              5.0
+            ],
+            "effective_n": 20
+          },
+          "3": {
+            "name": "LINEAR_Y",
+            "values": [
+              8.5,
+              12.5,
+              9.5,
+              11.5,
+              9.0,
+              13.0,
+              10.0,
+              12.0,
+              9.5,
+              13.5,
+              10.5,
+              12.5,
+              10.0,
+              14.0,
+              11.0,
+              13.0,
+              10.5,
+              14.5,
+              11.5,
+              13.5
+            ],
+            "effective_n": 20
+          },
+          "4": {
+            "name": "CORR_X",
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              null,
+              6.0,
+              7.0,
+              8.0,
+              9.0,
+              10.0
+            ],
+            "effective_n": 9
+          },
+          "5": {
+            "name": "CORR_Y",
+            "values": [
+              2.0,
+              null,
+              5.0,
+              4.0,
+              8.0,
+              12.0,
+              11.0,
+              null,
+              17.0,
+              15.0
+            ],
+            "effective_n": 8
+          },
+          "6": {
+            "name": "x1",
+            "values": [
+              10.2,
+              11.0,
+              9.8,
+              12.4,
+              8.9,
+              10.7,
+              11.8,
+              9.4,
+              12.1,
+              8.6
+            ],
+            "effective_n": 10
+          },
+          "7": {
+            "name": "x2",
+            "values": [
+              2.1,
+              3.4,
+              2.8,
+              4.2,
+              1.5,
+              3.1,
+              3.7,
+              2.2,
+              4.4,
+              1.8
+            ],
+            "effective_n": 10
+          },
+          "8": {
+            "name": "x3",
+            "values": [
+              30.0,
+              29.5,
+              31.2,
+              32.0,
+              27.8,
+              30.4,
+              28.9,
+              29.3,
+              31.1,
+              28.3
+            ],
+            "effective_n": 10
+          },
+          "10": {
+            "name": "x1",
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              5.0,
+              6.0,
+              7.0,
+              8.0,
+              9.0,
+              10.0,
+              11.0,
+              12.0
+            ],
+            "effective_n": 12
+          },
+          "11": {
+            "name": "x2",
+            "values": [
+              10.0,
+              15.0,
+              12.0,
+              18.0,
+              16.0,
+              21.0,
+              19.0,
+              25.0,
+              23.0,
+              28.0,
+              27.0,
+              31.0
+            ],
+            "effective_n": 12
+          },
+          "12": {
+            "name": "y",
+            "values": [
+              8.8,
+              11.4,
+              13.6,
+              16.8,
+              18.4,
+              21.1,
+              23.3,
+              26.2,
+              28.1,
+              31.1,
+              32.5,
+              35.2
+            ],
+            "effective_n": 12
+          },
+          "13": {
+            "name": "PLS_CV_group",
+            "values": [
+              1.0,
+              1.0,
+              1.0,
+              2.0,
+              2.0,
+              2.0,
+              3.0,
+              3.0,
+              3.0,
+              4.0,
+              4.0,
+              4.0
+            ],
+            "effective_n": 12
+          },
+          "14": {
+            "name": "PLS_predict_x1",
+            "values": [
+              1.0,
+              6.5,
+              12.0
+            ],
+            "effective_n": 3
+          },
+          "15": {
+            "name": "PLS_predict_x2",
+            "values": [
+              10.0,
+              20.0,
+              31.0
+            ],
+            "effective_n": 3
+          },
+          "16": {
+            "name": "P_EDGE_defectives",
+            "values": [
+              0.0,
+              1.0,
+              0.0,
+              null,
+              2.0,
+              1.0
+            ],
+            "effective_n": 5
+          },
+          "17": {
+            "name": "P_EDGE_sample_sizes",
+            "values": [
+              10.0,
+              20.0,
+              8.0,
+              15.0,
+              14.0,
+              9.0
+            ],
+            "effective_n": 6
+          },
+          "18": {
+            "name": "NP_EDGE_defectives",
+            "values": [
+              0.0,
+              1.0,
+              2.0,
+              null,
+              3.0,
+              1.0
+            ],
+            "effective_n": 5
+          },
+          "19": {
+            "name": "C_EDGE_defects",
+            "values": [
+              0.0,
+              1.0,
+              0.0,
+              null,
+              2.0,
+              1.0
+            ],
+            "effective_n": 5
+          },
+          "20": {
+            "name": "U_EDGE_defects",
+            "values": [
+              0.0,
+              1.0,
+              null,
+              3.0,
+              2.0,
+              0.0
+            ],
+            "effective_n": 5
+          },
+          "21": {
+            "name": "U_EDGE_opportunities",
+            "values": [
+              1.0,
+              2.0,
+              3.0,
+              4.0,
+              2.0,
+              5.0
+            ],
+            "effective_n": 6
+          }
+        },
+        "input_commands": [
+          "SET C1\n1 2 2 3 * 4 5 5 5 7 8 10 14\nEND",
+          "SET C4\n1 2 3 4 * 6 7 8 9 10\nEND",
+          "SET C5\n2 * 5 4 8 12 11 * 17 15\nEND",
+          "SET C16\n0 1 0 * 2 1\nEND",
+          "SET C18\n0 1 2 * 3 1\nEND",
+          "SET C19\n0 1 0 * 2 1\nEND",
+          "SET C20\n0 1 * 3 2 0\nEND"
+        ]
+      },
+      "outputs": {
+        "DESCRIBE-01": {
+          "executed": true,
+          "command": "STATS C1;\n  N C30;\n  NMISS C31;\n  COUNT C32;\n  MEAN C33;\n  SEMEAN C34;\n  STDEV C35;\n  VARIANCE C36;\n  CVARIATION C37;\n  MEDIAN C38;\n  SUMS C39;\n  MINIMUMS C40;\n  MAXIMUMS C41;\n  RANGE C42;\n  SKEWNESS C43;\n  KURTOSIS C44.\n",
+          "command_count": [
+            7,
+            8
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\n",
+          "stored": {
+            "N": [
+              12.0
+            ],
+            "NMISS": [
+              1.0
+            ],
+            "COUNT": [
+              13.0
+            ],
+            "MEAN": [
+              5.5
+            ],
+            "SEMEAN": [
+              1.0836246694508318
+            ],
+            "STDEV": [
+              3.7537859676477416
+            ],
+            "VARIANCE": [
+              14.090909090909092
+            ],
+            "CVARIATION": [
+              68.25065395723166
+            ],
+            "MEDIAN": [
+              5.0
+            ],
+            "SUMS": [
+              66.0
+            ],
+            "MIN": [
+              1.0
+            ],
+            "MAX": [
+              14.0
+            ],
+            "RANGE": [
+              13.0
+            ],
+            "SKEWNESS": [
+              1.0889651063524535
+            ],
+            "KURTOSIS": [
+              1.068636836628511
+            ]
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "N": [
+              30
+            ],
+            "NMISS": [
+              31
+            ],
+            "COUNT": [
+              32
+            ],
+            "MEAN": [
+              33
+            ],
+            "SEMEAN": [
+              34
+            ],
+            "STDEV": [
+              35
+            ],
+            "VARIANCE": [
+              36
+            ],
+            "CVARIATION": [
+              37
+            ],
+            "MEDIAN": [
+              38
+            ],
+            "SUMS": [
+              39
+            ],
+            "MIN": [
+              40
+            ],
+            "MAX": [
+              41
+            ],
+            "RANGE": [
+              42
+            ],
+            "SKEWNESS": [
+              43
+            ],
+            "KURTOSIS": [
+              44
+            ]
+          },
+          "storage_matrices": {}
+        },
+        "DESCRIBE-01-DISPLAY": {
+          "executed": true,
+          "command": "DESCRIBE C1.\n",
+          "command_count": [
+            8,
+            9
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\n描述性统计量: DESCRIBE_value\r\n \r\n\r\n统计量\r\n\r\n变量               N  N*    均值  均值标准误   标准差   最小值  下四分位数   中位数  上四分位数    最大值\r\nDESCRIBE_value  12   1  5.50   1.08  3.75  1.00   2.25  5.00   7.75  14.00\r\n\r\n\n\nOutput.Text[1]:\n统计量\r\n\r\n变量               N  N*    均值  均值标准误   标准差   最小值  下四分位数   中位数  上四分位数    最大值\r\nDESCRIBE_value  12   1  5.50   1.08  3.75  1.00   2.25  5.00   7.75  14.00\r\n",
+          "stored": {},
+          "storage_errors": {},
+          "storage_columns": {},
+          "storage_matrices": {}
+        },
+        "LINEAR-FIT-01": {
+          "executed": true,
+          "command": "REGRESS;\n  RESPONSE C3;\n  CONTINUOUS C2;\n  TERMS C2;\n  CONSTANT;\n  UNSTANDARDIZED;\n  CONFIDENCE 95;\n  COEFFICIENTS C50;\n  FITS C52;\n  RESIDUALS C53;\n  SS C54;\n  SRSQ C55;\n  SRSADJ C56;\n  SPVALUE C57;\n  TCOEFFICIENTS;\n  TANOVA;\n  TSUMMARY.\n",
+          "command_count": [
+            9,
+            10
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\n回归分析: LINEAR_Y 与 LINEAR_X\r\n \r\n\r\n回归方程\r\n\r\nLINEAR_Y = 10.000 + 0.500 LINEAR_X\r\n\r\n\r\n系数\r\n\r\n项             系数  系数标准误    T 值    P 值  方差膨胀因子\r\n常量        10.000  0.874  11.44  0.000\r\nLINEAR_X   0.500  0.264   1.90  0.074    1.00\r\n\r\n\r\n模型汇总\r\n\r\n      S    R-sq  R-sq（调整）  R-sq（预测）\r\n1.66667  16.67%    12.04%     0.00%\r\n\r\n\r\n方差分析\r\n\r\n来源          自由度   Adj SS   Adj MS   F 值    P 值\r\n回归            1  10.0000  10.0000  3.60  0.074\r\n  LINEAR_X    1  10.0000  10.0000  3.60  0.074\r\n误差           18  50.0000   2.7778\r\n  失拟          3   0.0000   0.0000  0.00  1.000\r\n  纯误差        15  50.0000   3.3333\r\n合计           19  60.0000\r\n\r\n\n\nOutput.Text[1]:\n回归方程\r\n\r\nLINEAR_Y = 10.000 + 0.500 LINEAR_X\r\n\n\nOutput.Text[2]:\n系数\r\n\r\n项             系数  系数标准误    T 值    P 值  方差膨胀因子\r\n常量        10.000  0.874  11.44  0.000\r\nLINEAR_X   0.500  0.264   1.90  0.074    1.00\r\n\n\nOutput.Text[3]:\n模型汇总\r\n\r\n      S    R-sq  R-sq（调整）  R-sq（预测）\r\n1.66667  16.67%    12.04%     0.00%\r\n\n\nOutput.Text[4]:\n方差分析\r\n\r\n来源          自由度   Adj SS   Adj MS   F 值    P 值\r\n回归            1  10.0000  10.0000  3.60  0.074\r\n  LINEAR_X    1  10.0000  10.0000  3.60  0.074\r\n误差           18  50.0000   2.7778\r\n  失拟          3   0.0000   0.0000  0.00  1.000\r\n  纯误差        15  50.0000   3.3333\r\n合计           19  60.0000\r\n",
+          "stored": {
+            "COEFFICIENTS": [
+              10.0,
+              0.49999999999999994
+            ],
+            "FITS": [
+              10.5,
+              10.5,
+              10.5,
+              10.5,
+              11.0,
+              11.0,
+              11.0,
+              11.0,
+              11.5,
+              11.5,
+              11.5,
+              11.5,
+              12.0,
+              12.0,
+              12.0,
+              12.0,
+              12.5,
+              12.5,
+              12.5,
+              12.5
+            ],
+            "RESIDUALS": [
+              -2.0,
+              2.0,
+              -1.0,
+              1.0,
+              -2.0,
+              2.0,
+              -1.0,
+              1.0,
+              -2.0,
+              2.0,
+              -1.0,
+              1.0,
+              -2.0,
+              2.0,
+              -1.0,
+              1.0,
+              -2.0,
+              2.0,
+              -1.0,
+              1.0
+            ],
+            "S": [
+              1.6666666666666667
+            ],
+            "R2": [
+              0.16666666666666663
+            ],
+            "R2ADJ": [
+              0.12037037037037035
+            ],
+            "PVALUES": [
+              1.0826076587870482e-09,
+              0.07394020034786027
+            ]
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "COEFFICIENTS": [
+              50
+            ],
+            "FITS": [
+              52
+            ],
+            "RESIDUALS": [
+              53
+            ],
+            "S": [
+              54
+            ],
+            "R2": [
+              55
+            ],
+            "R2ADJ": [
+              56
+            ],
+            "PVALUES": [
+              57
+            ]
+          },
+          "storage_matrices": {}
+        },
+        "COR-PAIR-MISSING-01": {
+          "executed": true,
+          "command": "CORRELATION C4 C5;\n  PEARSON;\n  NODEFAULT;\n  SCORRELATION M20;\n  SPVALUES M21.\n",
+          "command_count": [
+            10,
+            11
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\n",
+          "stored": {
+            "CORRELATION": {
+              "rows": 2,
+              "columns": 2,
+              "values": [
+                [
+                  1.0,
+                  0.9535382484630249
+                ],
+                [
+                  0.9535382484630249,
+                  1.0
+                ]
+              ]
+            },
+            "PVALUES": {
+              "rows": 2,
+              "columns": 2,
+              "values": [
+                [
+                  1.23456e+30,
+                  0.0008715584692739428
+                ],
+                [
+                  0.0008715584692739428,
+                  1.23456e+30
+                ]
+              ]
+            }
+          },
+          "storage_errors": {},
+          "storage_columns": {},
+          "storage_matrices": {
+            "CORRELATION": {
+              "name": "M20"
+            },
+            "PVALUES": {
+              "name": "M21"
+            }
+          }
+        },
+        "COR-PAIR-MISSING-01-TABLE": {
+          "executed": true,
+          "command": "CORRELATION C4 C5;\n  PEARSON;\n  TPCORRELATION.\n",
+          "command_count": [
+            11,
+            12
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\n相关: CORR_X, CORR_Y\r\n \r\n\r\nCORR_X, CORR_Y 的矩阵图\r\n\r\n\r\n\r\n方法\r\n\r\n相关类型    Pearson\r\n已使用的行数  10\r\n\r\nρ: 配对 Pearson 相关\r\n\r\n\r\n相关\r\n\r\n        CORR_X\r\nCORR_Y   0.954\r\n\r\n\r\n配对 Pearson 相关\r\n\r\n样本 1    样本 2       相关   ρ 的 95% 置信区间     P 值\r\nCORR_Y  CORR_X  0.954  (0.711, 0.993)  0.001\r\n\r\n\n\nOutput.Text[1]:\nCORR_X, CORR_Y 的矩阵图\r\n\n\nOutput.Text[2]:\n方法\r\n\r\n相关类型    Pearson\r\n已使用的行数  10\r\n\r\nρ: 配对 Pearson 相关\r\n\n\nOutput.Text[3]:\n相关\r\n\r\n        CORR_X\r\nCORR_Y   0.954\r\n\n\nOutput.Text[4]:\n配对 Pearson 相关\r\n\r\n样本 1    样本 2       相关   ρ 的 95% 置信区间     P 值\r\nCORR_Y  CORR_X  0.954  (0.711, 0.993)  0.001\r\n",
+          "stored": {},
+          "storage_errors": {},
+          "storage_columns": {},
+          "storage_matrices": {}
+        },
+        "COR-PAIR-MISSING-01-N-PROBE": {
+          "executed": false,
+          "command": "CORRELATION C4 C5;\n  PEARSON;\n  TPCORRELATION M22.\n",
+          "command_count": [
+            12,
+            12
+          ],
+          "last_error": "CORRELATION C4 C5;\r\n  PEARSON;\r\n  TPCORRELATION M22.\r\n* 错误 * 1 变元太多。\r\n\r\n        * 其余子命令被忽略。\r\n        * 计算不可能完成。",
+          "command_output_error": false,
+          "output": "",
+          "stored": {},
+          "storage_errors": {},
+          "storage_columns": {},
+          "storage_matrices": {}
+        },
+        "ATTR-P-EDGE": {
+          "executed": true,
+          "command": "PCHART C16 C17;\n  PPOINTS C80;\n  CENLINE C81;\n  CONLIMITS C82 C83.\n",
+          "command_count": [
+            12,
+            13
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\nP_EDGE_defectives 的 P 控制图\r\n \r\n\r\nP_EDGE_defectives 的 P 控制图\r\n\r\n\r\n\n\nOutput.Text[1]:\nP_EDGE_defectives 的 P 控制图\r\n",
+          "stored": {
+            "PPOINTS": [
+              0.0,
+              0.05,
+              0.0,
+              null,
+              0.14285714285714285,
+              0.1111111111111111
+            ],
+            "CENLINE": [
+              0.06557377049180328,
+              0.06557377049180328,
+              0.06557377049180328,
+              0.06557377049180328,
+              0.06557377049180328,
+              0.06557377049180328
+            ],
+            "CONLIMITS": [
+              [
+                0.0,
+                0.0,
+                0.0,
+                null,
+                0.0,
+                0.0
+              ],
+              [
+                0.30040661743567193,
+                0.23162566901115544,
+                0.3281248750499503,
+                null,
+                0.2640437502364244,
+                0.31310932574658196
+              ]
+            ]
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "PPOINTS": [
+              80
+            ],
+            "CENLINE": [
+              81
+            ],
+            "CONLIMITS": [
+              82,
+              83
+            ]
+          },
+          "storage_matrices": {}
+        },
+        "ATTR-NP-EDGE": {
+          "executed": true,
+          "command": "NPCHART C18 10;\n  PPOINTS C84;\n  CENLINE C85;\n  CONLIMITS C86 C87.\n",
+          "command_count": [
+            13,
+            14
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\nNP_EDGE_defectives 的 NP 控制图\r\n \r\n\r\nNP_EDGE_defectives 的 NP 控制图\r\n\r\n\r\n\n\nOutput.Text[1]:\nNP_EDGE_defectives 的 NP 控制图\r\n",
+          "stored": {
+            "PPOINTS": [
+              0.0,
+              1.0,
+              2.0,
+              null,
+              3.0,
+              1.0
+            ],
+            "CENLINE": [
+              1.4000000000000001,
+              1.4000000000000001,
+              1.4000000000000001,
+              1.4000000000000001,
+              1.4000000000000001,
+              1.4000000000000001
+            ],
+            "CONLIMITS": [
+              [
+                0.0,
+                0.0,
+                0.0,
+                null,
+                0.0,
+                0.0
+              ],
+              [
+                4.6918080138428495,
+                4.6918080138428495,
+                4.6918080138428495,
+                null,
+                4.6918080138428495,
+                4.6918080138428495
+              ]
+            ]
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "PPOINTS": [
+              84
+            ],
+            "CENLINE": [
+              85
+            ],
+            "CONLIMITS": [
+              86,
+              87
+            ]
+          },
+          "storage_matrices": {}
+        },
+        "ATTR-C-EDGE": {
+          "executed": true,
+          "command": "CCHART C19;\n  PPOINTS C88;\n  CENLINE C89;\n  CONLIMITS C90 C91.\n",
+          "command_count": [
+            14,
+            15
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\nC_EDGE_defects 的 C 控制图\r\n \r\n\r\nC_EDGE_defects 的 C 控制图\r\n\r\n\r\n\n\nOutput.Text[1]:\nC_EDGE_defects 的 C 控制图\r\n",
+          "stored": {
+            "PPOINTS": [
+              0.0,
+              1.0,
+              0.0,
+              null,
+              2.0,
+              1.0
+            ],
+            "CENLINE": [
+              0.8,
+              0.8,
+              0.8,
+              0.8,
+              0.8,
+              0.8
+            ],
+            "CONLIMITS": [
+              [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                3.483281572999748,
+                3.483281572999748,
+                3.483281572999748,
+                3.483281572999748,
+                3.483281572999748,
+                3.483281572999748
+              ]
+            ]
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "PPOINTS": [
+              88
+            ],
+            "CENLINE": [
+              89
+            ],
+            "CONLIMITS": [
+              90,
+              91
+            ]
+          },
+          "storage_matrices": {}
+        },
+        "ATTR-U-EDGE": {
+          "executed": true,
+          "command": "UCHART C20 C21;\n  PPOINTS C92;\n  CENLINE C93;\n  CONLIMITS C94 C95.\n",
+          "command_count": [
+            15,
+            16
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\nU_EDGE_defects 的 U 控制图\r\n \r\n\r\nU_EDGE_defects 的 U 控制图\r\n\r\n\r\n\n\nOutput.Text[1]:\nU_EDGE_defects 的 U 控制图\r\n",
+          "stored": {
+            "PPOINTS": [
+              0.0,
+              0.5,
+              null,
+              0.75,
+              1.0,
+              0.0
+            ],
+            "CENLINE": [
+              0.42857142857142855,
+              0.42857142857142855,
+              0.42857142857142855,
+              0.42857142857142855,
+              0.42857142857142855,
+              0.42857142857142855
+            ],
+            "CONLIMITS": [
+              [
+                0.0,
+                0.0,
+                null,
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                2.39253244069536,
+                1.8173015782302557,
+                null,
+                1.4105519346333941,
+                1.8173015782302557,
+                1.3068814942251086
+              ]
+            ]
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "PPOINTS": [
+              92
+            ],
+            "CENLINE": [
+              93
+            ],
+            "CONLIMITS": [
+              94,
+              95
+            ]
+          },
+          "storage_matrices": {}
+        },
+        "PCA-02": {
+          "executed": true,
+          "command": "PCA C6-C8;\n  NCOMP 2;\n  COEFFICIENTS C60 C61;\n  SCORES C62 C63;\n  EIGEN C64;\n  DISTANCE C65.\n",
+          "command_count": [
+            16,
+            17
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\n主成分分析: x1, x2, x3\r\n \r\n\r\n相关矩阵的特征分析\r\n\r\n特征值  2.5490  0.4081  0.0429\r\n比率    0.850   0.136   0.014\r\n累积    0.850   0.986   1.000\r\n\r\n\r\n特征向量\r\n\r\n变量    PC1     PC2\r\nx1  0.597  -0.422\r\nx2  0.606  -0.321\r\nx3  0.526   0.848\r\n\r\n\n\nOutput.Text[1]:\n相关矩阵的特征分析\r\n\r\n特征值  2.5490  0.4081  0.0429\r\n比率    0.850   0.136   0.014\r\n累积    0.850   0.986   1.000\r\n\n\nOutput.Text[2]:\n特征向量\r\n\r\n变量    PC1     PC2\r\nx1  0.597  -0.422\r\nx2  0.606  -0.321\r\nx3  0.526   0.848\r\n",
+          "stored": {
+            "COEFFICIENTS": [
+              [
+                0.5965850703478015,
+                0.6057232480151482,
+                0.5264841884160323
+              ],
+              [
+                -0.42233455843947687,
+                -0.32088091574450456,
+                0.8477434509677443
+              ]
+            ],
+            "SCORES": [
+              [
+                -0.5624791227650046,
+                0.3782941419517544,
+                0.14903205691748606,
+                2.4615775761464738,
+                -2.363703118179616,
+                0.417021499061206,
+                0.6800179878103437,
+                -1.1333717525163214,
+                2.0953081351054643,
+                -2.121697403531798
+              ],
+              [
+                0.4467242169674643,
+                -0.534246468554581,
+                1.1072713047615375,
+                0.3460911762370611,
+                -0.3395568667121406,
+                0.22333951890496911,
+                -1.2604891433586949,
+                0.2260625467076821,
+                -0.19030946139140947,
+                -0.024886823561925286
+              ]
+            ],
+            "EIGEN": [
+              2.5489928162965834,
+              0.40808491854144036
+            ],
+            "DISTANCE": [
+              2.311381030823834,
+              1.0007307975123174,
+              1.9880353052136164,
+              1.795845328686675,
+              1.6676332820734259,
+              0.43677173749763604,
+              2.0394716839015863,
+              0.8497686833000493,
+              1.6180035907050399,
+              1.73420105053381
+            ]
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "COEFFICIENTS": [
+              60,
+              61
+            ],
+            "SCORES": [
+              62,
+              63
+            ],
+            "EIGEN": [
+              64
+            ],
+            "DISTANCE": [
+              65
+            ]
+          },
+          "storage_matrices": {}
+        },
+        "PLS-CV-01": {
+          "executed": true,
+          "command": "PLS C12 = C10-C11;\n  NCOMP 2;\n  XVALIDATION C13;\n  FITS C70;\n  CVFITS C71;\n  PRESIDUALS C72;\n  COEFFICIENTS C73;\n  XSCORES M23;\n  YSCORES M24;\n  XLOADINGS M25;\n  YLOADINGS M26;\n  PCONTINUOUS C14 C15;\n  PFITS C74;\n  TSELECTION;\n  TCOEFFICIENTS;\n  TFITS.\n",
+          "command_count": [
+            17,
+            18
+          ],
+          "last_error": "",
+          "command_output_error": false,
+          "output": "OutputDocument.Text:\nPLS 回归:y 与 x1_1, x2_1\r\n \r\n\r\ny 的模型选择和验证\r\n\r\n分量     X 方差       误差      R-Sq    PRESS  R-Sq（预测）\r\n 1  0.97960  11.3286  0.986206  13.6001  0.983441\r\n 2  1.00000   0.6324  0.999230   1.8355  0.997765\r\n\r\n\r\n系数\r\n\r\n            y     y 标准化\r\n常量    5.53516  0.000000\r\nx1_1  2.17996  0.909639\r\nx2_1  0.12262  0.093438\r\n\r\n\r\ny 的拟合值与残差\r\n\r\n 行     y      拟合值         残差     标准化残差  拟合值（预测）     残差（预测）\r\n 1   8.8   8.9413  -0.141287  -0.64211   9.2764  -0.476447\r\n 2  11.4  11.7343  -0.334332  -1.60778  12.1138  -0.713772\r\n 3  13.6  13.5464   0.053556   0.24255  13.7515  -0.151524\r\n 4  16.8  16.4621   0.337895   1.45095  16.3663   0.433741\r\n 5  18.4  18.3968   0.003166   0.01321  18.3874   0.012627\r\n 6  21.1  21.1899  -0.089879  -0.36584  21.1199  -0.019891\r\n 7  23.3  23.1246   0.175392   0.75066  23.0214   0.278622\r\n 8  26.2  26.0403   0.159731   0.67350  26.0055   0.194472\r\n 9  28.1  27.9750   0.125002   0.53115  27.8664   0.233594\r\n10  31.1  30.7680   0.331958   1.42197  30.9749   0.125115\r\n11  32.5  32.8254  -0.325388  -1.43603  33.0999  -0.599898\r\n12  35.2  35.4958  -0.295816  -1.35185  35.7846  -0.584635\r\n\r\n\n\nOutput.Text[1]:\ny 的模型选择和验证\r\n\r\n分量     X 方差       误差      R-Sq    PRESS  R-Sq（预测）\r\n 1  0.97960  11.3286  0.986206  13.6001  0.983441\r\n 2  1.00000   0.6324  0.999230   1.8355  0.997765\r\n\n\nOutput.Text[2]:\n系数\r\n\r\n            y     y 标准化\r\n常量    5.53516  0.000000\r\nx1_1  2.17996  0.909639\r\nx2_1  0.12262  0.093438\r\n\n\nOutput.Text[3]:\ny 的拟合值与残差\r\n\r\n 行     y      拟合值         残差     标准化残差  拟合值（预测）     残差（预测）\r\n 1   8.8   8.9413  -0.141287  -0.64211   9.2764  -0.476447\r\n 2  11.4  11.7343  -0.334332  -1.60778  12.1138  -0.713772\r\n 3  13.6  13.5464   0.053556   0.24255  13.7515  -0.151524\r\n 4  16.8  16.4621   0.337895   1.45095  16.3663   0.433741\r\n 5  18.4  18.3968   0.003166   0.01321  18.3874   0.012627\r\n 6  21.1  21.1899  -0.089879  -0.36584  21.1199  -0.019891\r\n 7  23.3  23.1246   0.175392   0.75066  23.0214   0.278622\r\n 8  26.2  26.0403   0.159731   0.67350  26.0055   0.194472\r\n 9  28.1  27.9750   0.125002   0.53115  27.8664   0.233594\r\n10  31.1  30.7680   0.331958   1.42197  30.9749   0.125115\r\n11  32.5  32.8254  -0.325388  -1.43603  33.0999  -0.599898\r\n12  35.2  35.4958  -0.295816  -1.35185  35.7846  -0.584635\r\n",
+          "stored": {
+            "FITS": [
+              8.941287125684397,
+              11.734331508273941,
+              13.5464441929465,
+              16.46210503777567,
+              18.396834184687854,
+              21.189878567277397,
+              23.12460771418958,
+              26.04026855901875,
+              27.97499770593093,
+              30.768042088520478,
+              32.825387697672284,
+              35.495815618022206
+            ],
+            "CVFITS": [
+              9.276447190851616,
+              12.113772284963416,
+              13.751523545706366,
+              16.366259334691108,
+              18.38737270875764,
+              21.119891378139847,
+              23.021377719843574,
+              26.005528259634346,
+              27.866405962766134,
+              30.97488514548239,
+              33.09989790709546,
+              35.78463501786626
+            ],
+            "PRESIDUALS": [
+              -0.4764471908516157,
+              -0.7137722849634152,
+              -0.1515235457063664,
+              0.43374066530889266,
+              0.012627291242360172,
+              -0.019891378139845983,
+              0.2786222801564264,
+              0.1944717403656533,
+              0.23359403723386762,
+              0.12511485451761217,
+              -0.5998979070954604,
+              -0.5846350178662547
+            ],
+            "COEFFICIENTS": [
+              2.179962071391429,
+              0.12261646223962346
+            ],
+            "PFITS": [
+              8.941287125684397,
+              22.157243140733488,
+              35.495815618022206
+            ],
+            "XSCORES": {
+              "rows": 12,
+              "columns": 2,
+              "values": [
+                [
+                  -2.1962825399472288,
+                  0.04077761725955103
+                ],
+                [
+                  -1.4690977495705588,
+                  -0.3003569096871937
+                ],
+                [
+                  -1.5863541566765613,
+                  0.21804211932198514
+                ],
+                [
+                  -0.7536142166145572,
+                  -0.23053410211925007
+                ],
+                [
+                  -0.7653154740352253,
+                  0.1804232323954383
+                ],
+                [
+                  -0.038130683658555244,
+                  -0.16071129455130637
+                ],
+                [
+                  -0.049831941079223355,
+                  0.25024603996338196
+                ],
+                [
+                  0.7829079989827807,
+                  -0.1983301814778532
+                ],
+                [
+                  0.7712067415621127,
+                  0.21262715303683521
+                ],
+                [
+                  1.4983915319387826,
+                  -0.12850737390990954
+                ],
+                [
+                  1.5922454242034485,
+                  0.17500826611028839
+                ],
+                [
+                  2.2138750648947845,
+                  -0.05868456634196588
+                ]
+              ]
+            },
+            "YSCORES": {
+              "rows": 12,
+              "columns": 2,
+              "values": [
+                [
+                  -2.186854405094888,
+                  0.011839790856509132
+                ],
+                [
+                  -1.7628030847781664,
+                  -0.36883326307490366
+                ],
+                [
+                  -1.403990429125556,
+                  0.22901119127303401
+                ],
+                [
+                  -0.8820811118126677,
+                  -0.161327897293823
+                ],
+                [
+                  -0.6211264531562238,
+                  0.18107164118345243
+                ],
+                [
+                  -0.18076546667347393,
+                  -0.17911983931169195
+                ],
+                [
+                  0.17804718897913666,
+                  0.2861691397831926
+                ],
+                [
+                  0.6510275077939415,
+                  -0.16561466909246936
+                ],
+                [
+                  0.9609111649484691,
+                  0.2382295896936113
+                ],
+                [
+                  1.450201149929302,
+                  -0.06051717049272883
+                ],
+                [
+                  1.6785364762536903,
+                  0.10836374585895707
+                ],
+                [
+                  2.1188974627364403,
+                  -0.11927225938313428
+                ]
+              ]
+            },
+            "XLOADINGS": {
+              "rows": 2,
+              "columns": 2,
+              "values": [
+                [
+                  0.7074532669424431,
+                  0.6950312524279622
+                ],
+                [
+                  0.7069546643754712,
+                  -0.718979525541874
+                ]
+              ]
+            },
+            "YLOADINGS": {
+              "rows": 1,
+              "columns": 2,
+              "values": [
+                [
+                  0.7095830350227902,
+                  0.5650475269544114
+                ]
+              ]
+            }
+          },
+          "storage_errors": {},
+          "storage_columns": {
+            "FITS": [
+              70
+            ],
+            "CVFITS": [
+              71
+            ],
+            "PRESIDUALS": [
+              72
+            ],
+            "COEFFICIENTS": [
+              73
+            ],
+            "PFITS": [
+              74
+            ]
+          },
+          "storage_matrices": {
+            "XSCORES": {
+              "name": "M23"
+            },
+            "YSCORES": {
+              "name": "M24"
+            },
+            "XLOADINGS": {
+              "name": "M25"
+            },
+            "YLOADINGS": {
+              "name": "M26"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "stderr": [
+    "",
+    ""
+  ],
+  "exit_codes": [
+    0,
+    0
+  ]
+}

@@ -180,7 +180,7 @@
       <li><strong>参数：</strong>可设置横轴标签、标签列、最多标签数（默认 25）、Y Label 和参考线。</li>
     </ul>
     <p><strong>操作：</strong>确认计数是每组不合格品件数，并为所有子组填写相同的 n Trials，然后运行。</p>
-    <p><strong>结果：</strong>绘制不合格品件数、中心线和控制限；文本结果列出中心值及 UCL/LCL。</p>
+    <p><strong>结果：</strong>绘制不合格品件数、中心线和控制限；异常点以红色叉号标记，文本报告列出触发的 Test 1–4 和检测窗口。</p>
     <p><strong>注意：</strong>样本量应固定；样本量不同时应使用 P 图。图中的限值是过程控制限，不是产品规格要求。</p>
     <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/attributes-charts/np-chart/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab NP 控制图概述</a>（Minijmp 的参数以本页为准）。</p>
   </section>
@@ -193,7 +193,7 @@
       <li><strong>参数：</strong>可设置横轴标签、标签列、最多标签数（默认 25）、Y Label 和参考线。</li>
     </ul>
     <p><strong>操作：</strong>确认缺陷品计数不超过对应样本量，选择计数列与样本量列，再运行。</p>
-    <p><strong>结果：</strong>绘制各组不合格品比例；中心线按样本量加权，控制限随各组样本量变化。文本结果显示中心值，图上显示控制限。</p>
+    <p><strong>结果：</strong>绘制各组不合格品比例；中心线按样本量加权，控制限随各组样本量变化。异常点以红色叉号标记，文本报告列出触发的 Test 1–4 和检测窗口。</p>
     <p><strong>注意：</strong>P 图的分子是每组不合格品件数；若记录的是一件产品上的缺陷个数，应考虑 C/U 图。</p>
     <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/attributes-charts/p-chart/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab P 控制图概述</a>（Minijmp 的参数以本页为准）。</p>
   </section>
@@ -206,7 +206,7 @@
       <li><strong>参数：</strong>可设置横轴标签、标签列、最多标签数（默认 25）、Y Label 和参考线。</li>
     </ul>
     <p><strong>操作：</strong>仅当各子组的检验单位或机会数相同，才直接使用 C 图；选择计数列后运行。</p>
-    <p><strong>结果：</strong>绘制缺陷计数、中心线和控制限；文本结果列出中心值及 UCL/LCL。</p>
+    <p><strong>结果：</strong>绘制缺陷计数、中心线和控制限；异常点以红色叉号标记，文本报告列出触发的 Test 1–4 和检测窗口。</p>
     <p><strong>注意：</strong>机会数变化时，应使用 U 图并提供每组单位大小。C 图限值与规格限无关。</p>
     <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/attributes-charts/c-chart/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab C 控制图概述</a>（Minijmp 的参数以本页为准）。</p>
   </section>
@@ -219,7 +219,7 @@
       <li><strong>参数：</strong>可设置横轴标签、标签列、最多标签数（默认 25）、Y Label 和参考线。</li>
     </ul>
     <p><strong>操作：</strong>确认计数为缺陷数而不是不合格品件数，选择计数列与单位大小列，再运行。</p>
-    <p><strong>结果：</strong>绘制单位缺陷率，中心线按单位大小加权，控制限随单位大小变化；文本结果显示中心值。</p>
+    <p><strong>结果：</strong>绘制单位缺陷率，中心线按单位大小加权，控制限随单位大小变化。异常点以红色叉号标记，文本报告列出触发的 Test 1–4 和检测窗口。</p>
     <p><strong>注意：</strong>当前实现中，填写 Axis Label Col. 与留空该列会走不同的 U 图数据缩放路径；未选标签列时可能重复按单位大小缩放。请核对输入与图上比率，必要时选择标签列后再比较结果。</p>
     <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/attributes-charts/u-chart/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab U 控制图概述</a>（Minijmp 的参数以本页为准）。</p>
   </section>

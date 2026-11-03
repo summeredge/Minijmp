@@ -1,0 +1,13 @@
+{
+  "runs": 2,
+  "exit_codes": [
+    0,
+    0
+  ],
+  "output_hashes": [
+    "c1480ad8de7af724d75d20ccc9f2887004809b63ade4acd3d4b78ffc2b6cd54e",
+    "c1480ad8de7af724d75d20ccc9f2887004809b63ade4acd3d4b78ffc2b6cd54e"
+  ],
+  "stable": true,
+  "compared_fields": "command, execution/error state, stored columns/matrices and storage errors; excludes COM PID, counters and output-document timestamps"
+}

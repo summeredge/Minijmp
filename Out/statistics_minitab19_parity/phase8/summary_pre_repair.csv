@@ -1,0 +1,5 @@
+﻿范围,配置数,指标数,PASS,FAIL,METHOD_DIFF,UNSUPPORTED,NOT_RUN,证据来源
+P0-A 属性图限值边界与规则缺口复核,8,32,16,0,0,16,0,phase8 固定输入；Minitab 19.1.0.1 COM；MiniJMP 生产入口
+P0-C 描述统计、线性回归与 Pearson 缺失配对,3,50,49,0,0,1,0,phase8 固定输入；Minitab 19.1.0.1 COM；MiniJMP 生产入口
+P0-B PCA/PLS 模型与预测扩展,3,20,20,0,0,0,0,phase8 固定输入；Minitab 19.1.0.1 COM；MiniJMP 生产入口
+第六轮合计,14,102,85,0,0,17,0,phase8/comparison.csv

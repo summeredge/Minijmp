@@ -1,0 +1,42 @@
+[
+  {
+    "file": "Out/statistics_minitab19_parity/phase6/case_inputs.json",
+    "sha256": "210ec936fe18b1eff4ef35bd27064528c743680d9f2857e914910fb902fc748d"
+  },
+  {
+    "file": "Out/statistics_minitab19_parity/phase6/minijmp_results.json",
+    "sha256": "10059ff6a3ff7e5b3826d29908509c80c88ae9eba669243bfeb67d4ff297a9bb"
+  },
+  {
+    "file": "Out/statistics_minitab19_parity/phase6/minitab_metadata.json",
+    "sha256": "9c754de79369cf35c548cd13e94c74352cc9c7801a48765664cc144314fa414a"
+  },
+  {
+    "file": "Out/statistics_minitab19_parity/phase6/minitab_results.json",
+    "sha256": "03dbea15b0ebf7efc80ebf453e203a20826f5fa50590ae190f6617f6fb051cbd"
+  },
+  {
+    "file": "Out/statistics_minitab19_parity/phase6/minitab_raw_outputs.txt",
+    "sha256": "6c667a47cb6a7e91d11a7fa5c2583a3114ca0e302200bbacafd39b07d36abd4c"
+  },
+  {
+    "file": "Out/statistics_minitab19_parity/phase6/minitab_session_commands.txt",
+    "sha256": "e0375d48a1906f0d1910bc0c88174e873458a2fe0636b4e42ac7016b065ed0b0"
+  },
+  {
+    "file": "Out/statistics_minitab19_parity/phase6/comparison.csv",
+    "sha256": "56f50ad73c2ad46dd96f28e63f1ebbe35579960084141f7d9555ff58aa0d7479"
+  },
+  {
+    "file": "Out/statistics_minitab19_parity/phase6/summary.csv",
+    "sha256": "ecd796796a6fee03b8183f49424858e3e746bc091cefc9c05de6cee8b2debe8f"
+  },
+  {
+    "file": "Out/statistics_minitab19_parity/phase6/phase4_phase5_sha256.csv",
+    "sha256": "273ca7aa1fc780895c790d19e6ea8849a747d12d2bfd2825ed3ee753c3e90244"
+  },
+  {
+    "file": "Out/statistics_minitab19_parity/feature_matrix.csv",
+    "sha256": "c49e507d058d39be041038989c60abaf320eae8f7b061fb025ed311b2836b8ef"
+  }
+]

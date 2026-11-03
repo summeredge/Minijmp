@@ -1,0 +1,156 @@
+{
+  "metadata": {
+    "phase": 7,
+    "date": "2026-11-03",
+    "minitab_exe": "D:\\Program\\Minitab 19\\Mtb.exe",
+    "required_version": "19.1.0.1",
+    "python": ".venv\\Scripts\\python.exe",
+    "purpose": "SPC 属性图/特殊原因规则、交叉与嵌套 GRR、PCA/PLS 的固定案例。能力分析复用 phase2/phase3 已验收证据。"
+  },
+  "tolerances": {
+    "chart_abs": 1e-8,
+    "grr_abs": 1e-8,
+    "multivariate_abs": 1e-8,
+    "flag_exact": 0
+  },
+  "evidence_reused": {
+    "capability": {
+      "cases": ["CAP-01", "CAP-02", "CAP-03", "CAP-04", "CAP-05"],
+      "inputs": "phase2/case_inputs.json",
+      "native_commands": "phase2/minitab_session_commands.txt",
+      "native_results": "phase2/minitab_raw_outputs.txt",
+      "comparison": "phase3/comparison.csv",
+      "summary": "phase3/summary.csv",
+      "reason": "phase3 对 phase2 固定输入/原生结果复核；无受本轮代码影响的能力计算变更，不重跑。"
+    },
+    "spc_base_charts": {
+      "cases": ["SPC-01", "SPC-02", "SPC-03", "SPC-04"],
+      "inputs": "phase2/case_inputs.json",
+      "native_commands": "phase2/minitab_session_commands.txt",
+      "native_results": "phase2/minitab_raw_outputs.txt",
+      "comparison": "phase3/comparison.csv",
+      "summary": "phase3/summary.csv",
+      "reason": "I-MR、Xbar-R、Xbar-S 固定案例已两次原生运行并通过，本轮未改其计算路径。"
+    },
+    "grr_cross_anova": {
+      "case": "GRR-01",
+      "inputs": "phase2/case_inputs.json",
+      "native_commands": "phase2/minitab_session_commands.txt",
+      "native_results": "phase2/minitab_raw_outputs.txt",
+      "comparison": "phase3/comparison.csv",
+      "summary": "phase3/summary.csv",
+      "reason": "平衡交叉 AIAG ANOVA 固定案例的 22 项已两次原生运行并通过，本轮复用。"
+    }
+  },
+  "cases": {
+    "SPC-P": {
+      "feature": "控制图 P",
+      "chart": "P",
+      "defectives": [5, 8, 4, 9, 7, 10, 5, 13, 7, 6],
+      "sample_sizes": [100, 120, 80, 110, 90, 130, 95, 125, 105, 85],
+      "configuration": "原始不合格品数；各子组样本量不同；三倍标准差限；所有数据估计中心线。"
+    },
+    "SPC-NP": {
+      "feature": "控制图 NP",
+      "chart": "NP",
+      "defectives": [8, 11, 9, 13, 7, 10, 12, 9, 8, 14],
+      "sample_size": 100,
+      "configuration": "原始不合格品数；固定子组样本量 100；三倍标准差限。"
+    },
+    "SPC-C": {
+      "feature": "控制图 C",
+      "chart": "C",
+      "defects": [2, 5, 3, 7, 4, 2, 6, 4, 3, 5],
+      "configuration": "每个子组的检验机会数固定为 1；三倍标准差限。"
+    },
+    "SPC-U": {
+      "feature": "控制图 U",
+      "chart": "U",
+      "defects": [12, 18, 9, 23, 16, 11, 20, 14, 19, 8],
+      "sample_sizes": [6, 9, 5, 11, 8, 7, 10, 8, 9, 4],
+      "configuration": "原始缺陷数；各子组检验机会数不同；三倍标准差限。"
+    },
+    "SPC-XBR-VAR": {
+      "feature": "控制图 Xbar-R",
+      "chart": "XBAR_R",
+      "subgroups": [
+        [9.8, 10.1, 10.2],
+        [10.0, 10.3, 10.2, 10.4],
+        [9.9, 10.1, 10.0, 10.3, 10.2]
+      ],
+      "k": 3,
+      "configuration": "按显式子组列输入；子组大小分别为 3、4、5；三倍标准差限。"
+    },
+    "SPC-NELSON": {
+      "feature": "高级 SPC Nelson 特殊原因规则",
+      "mean": 0,
+      "sigma": 1,
+      "rules": [1, 2, 3, 4, 5, 6, 7, 8],
+      "values_by_rule": {
+        "1": [0.2, 3.4],
+        "2": [0.5, 0.7, 0.3, 0.6, 0.8, 0.4, 0.9, 0.2, 0.6],
+        "3": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7],
+        "4": [0.5, 0.4, 0.5, 0.4, 0.5, 0.4, 0.5, 0.4, 0.5, 0.4, 0.5, 0.4, 0.5, 0.4, 0.5],
+        "5": [2.1, 2.2, 0],
+        "6": [1.1, 1.2, 1.3, 1.4, 0],
+        "7": [0.4, -0.2, 0.3, -0.1, 0.5, -0.4, 0.1, -0.3, 0.8, 0.2, -0.6, 0.6, -0.8, 0.9, -0.7],
+        "8": [1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]
+      },
+      "configuration": "各规则使用独立固定反例；规则 3/4 分别使用 7/15 点序列以复核首次触发边界；I chart 固定已知 mean=0、sigma=1；采用默认阈值并比较触发时刻。"
+    },
+    "GRR-CROSS-XBAR": {
+      "feature": "量具 R&R 研究（交叉，平均极差法）",
+      "source_case": "phase2/case_inputs.json#cases.GRR-01",
+      "configuration": "复用平衡 10 parts x 3 operators x 2 replicates（60 条测量）；Minitab crossed GAGERR XBAR; Study Var=6."
+    },
+    "GRR-NESTED": {
+      "feature": "量具 R&R 研究（嵌套，ANOVA）",
+      "operators": ["A", "A", "A", "A", "B", "B", "B", "B", "C", "C", "C", "C"],
+      "parts": ["A1", "A1", "A2", "A2", "B1", "B1", "B2", "B2", "C1", "C1", "C2", "C2"],
+      "measurements": [10.0, 10.2, 11.0, 11.1, 9.7, 9.9, 10.9, 11.0, 11.8, 12.2, 12.9, 13.1],
+      "study_var": 6,
+      "configuration": "平衡 3 operators x 2 nested parts/operator x 2 replicates; Minitab NTGAGE; Study Var=6。"
+    },
+    "PCA-01": {
+      "feature": "主成分分析 PCA",
+      "columns": ["x1", "x2", "x3"],
+      "rows": [
+        [10.2, 2.1, 30.0], [11.0, 3.4, 29.5], [9.8, 2.8, 31.2],
+        [12.4, 4.2, 32.0], [8.9, 1.5, 27.8], [10.7, 3.1, 30.4],
+        [11.8, 3.7, 28.9], [9.4, 2.2, 29.3], [12.1, 4.4, 31.1],
+        [8.6, 1.8, 28.3]
+      ],
+      "n_components": 3,
+      "scaling": "autoscale",
+      "missing": "error",
+      "configuration": "相关矩阵 PCA；各列样本标准差 ddof=1 标准化；完整观测；固定 3 PCs。"
+    },
+    "PLS-01": {
+      "feature": "偏最小二乘回归 PLS",
+      "predictors": ["x1", "x2"],
+      "responses": ["y"],
+      "rows": [
+        [1, 10, 8.8], [2, 15, 11.4], [3, 12, 13.6], [4, 18, 16.8],
+        [5, 16, 18.4], [6, 21, 21.1], [7, 19, 23.3], [8, 25, 26.2],
+        [9, 23, 28.1], [10, 28, 31.1], [11, 27, 32.5], [12, 31, 35.2]
+      ],
+      "n_components": 1,
+      "scale": true,
+      "cv": 0,
+      "missing": "error",
+      "configuration": "连续数值 X、单响应 Y；中心化并按样本标准差 ddof=1 缩放；固定 1 component；关闭 CV。"
+    },
+    "MULTI-DESC-01": {
+      "feature": "多变量描述性统计",
+      "source_input_case": "PCA-01",
+      "statistics": ["N", "Mean", "Standard Deviation", "Minimum", "Maximum"],
+      "configuration": "同一完整三列数值工作表；逐列输出 N、均值、样本标准差、最小值、最大值。"
+    },
+    "COR-MATRIX-01": {
+      "feature": "相关系数矩阵",
+      "source_input_case": "PCA-01",
+      "method": "Spearman",
+      "configuration": "三列完整观测、Spearman rho 及双侧零相关 p 值矩阵；全矩阵共用相同行。"
+    }
+  }
+}
