@@ -320,8 +320,11 @@ def test_advanced_spc_topic_contract_is_searchable_and_available_offline(monkeyp
     for text in ['EWMA', 'CUSUM', 'Nelson', 'Hotelling', 'Phase I', 'Phase II',
                  'ddof=1', '窗口末端', '不自动重置', '单侧', '伪逆', 'drop', '来源行',
                  '区界点归内区', 'C 区为 |z|≤1', 'B 区为 1<|z|≤2', 'A 区为 2<|z|≤3',
-                 '自身也须在该侧超出 2σ', '自身也须在该侧超出 1σ',
-                 '全部 |z|≤1', '不另要求两侧都有点', '每点均严格 |z|>1', 'Table 3.8']:
+                 '连续 6 点严格递增或递减', '连续 14 点严格交替升降',
+                 'Minitab 19.1.0.1 在 phase7 固定序列的 TRESULTS 中从第 7/15 行起标记',
+                 '当前点超出 2σ', '达到第 2 个合格点时即可触发',
+                 '当前点超出 1σ', '达到第 4 个合格点时即可触发',
+                 '全部 |z|≤1', '不要求窗口同时包含中心线两侧的点', '每点严格 |z|>1']:
         assert text in item['text'], text
     opened = []
     monkeypatch.setattr(help_link.webbrowser, 'open', lambda url, **kw: opened.append(url) or True)

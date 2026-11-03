@@ -467,7 +467,8 @@ class NPDialog(IMRDialog):
             print_out=True,
             n=n, NP=NP,
             fig=fig, ax=ax,
-            print_port=self.app.print)
+            print_port=self.app.print,
+            detect_rules=True)
 
         self.remember_columns()
         return
@@ -587,7 +588,8 @@ class CDialog(NPDialog):
             print_out=True,
             n=n, C=C,
             fig=fig, ax=ax,
-            print_port=self.app.print)
+            print_port=self.app.print,
+            detect_rules=True)
 
         self.remember_columns()
         return

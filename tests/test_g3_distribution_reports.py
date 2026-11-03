@@ -31,15 +31,15 @@ CASES = [
     ('Gamma', 'fit_gamma', ['形状 shape', '尺度 scale'],
      (.9664322484856769, 7.08394598470946),
      (76.00593557093752, 81.20593557093753, 81.1358342858606),
-     (1.4892588133109435, .0007714599668939043)),
+     (1.4892588133109435, .005)),
     ('Lognormal', 'fit_lognorm', ['对数均值 mu', '对数标准差 sigma'],
-     (3.7584322754649038, .9543430894024632),
+     (3.7584322754649038, .9933117805172876),
      (70.10141881485742, 75.30141881485743, 75.2313175297805),
-     (.9838428413660552, .013500143390714228)),
+     (.9599936250108758, .010499825582920466)),
     ('Exponential', 'fit_expon', ['尺度 scale (均值)'],
      (6.846153846153846,),
      (76.01586231903566, 78.37949868267202, 78.5808116764972),
-     (1.5326237776493201, .0006037448134309269)),
+     (1.5326237776493201, .02452906831054283)),
     ('Weibull', 'fit_weibull', ['尺度 scale', '形状 shape'],
      (6.346110156213206, .8881557995025409),
      (75.6042544843507, 80.80425448435071, 80.73415319927378),
@@ -106,7 +106,9 @@ def test_all_fits_values_fields_parameter_order_and_output_switch(case, print_ou
     assert result['rv'].args == pytest.approx(reference.args, rel=2e-6)
     assert result['rv'].kwds == pytest.approx(reference.kwds, rel=2e-6)
     np.testing.assert_allclose(result['rv'].pdf(DATA), reference.pdf(DATA), rtol=2e-6)
-    assert dist_fit.goodness_of_fit(result['rv'], DATA, normal=name == 'Normal') == pytest.approx(gof, rel=2e-6)
+    fitted_distribution = name if name in ['Lognormal', 'Gamma', 'Exponential'] else None
+    assert dist_fit.goodness_of_fit(result['rv'], DATA, normal=name == 'Normal',
+                                    fitted_distribution=fitted_distribution) == pytest.approx(gof, rel=2e-6)
     silent = getattr(dist_fit, function)(DATA, print_out=False, print_port=lines.append)
     for key in ['fits', 'ABL']:
         assert result[key] == silent[key]
@@ -129,17 +131,67 @@ def test_all_fits_values_fields_parameter_order_and_output_switch(case, print_ou
         assert '参数置信区间：现有方法未计算' in text
         assert 'p = 0.000' in text and '不代表概率严格为零' in text
         assert '未拒绝 H0 不等于证明' in text
-        assert '未进行分布专用校准' in text
+        assert '未进行分布专用校准' not in text
         for table in tables:
             for column in table.field_names:
                 assert table.align[column] == ('l' if column in ['参数', '拟合优度方法'] else 'r')
         if name == "Student's t":
             assert '并非标准差' in text
         if name == 'Lognormal':
-            assert 'ln(X)' in text and 'SciPy scale = exp(mu)' in text
+            assert 'ln(X)' in text and '无偏样本标准差' in text
+            assert 'AICc/BIC 按最大似然估计计算' in text and 'SciPy scale = exp(mu)' in text
         if name in ['Gamma', 'Lognormal', 'Exponential', 'Weibull']:
             assert '位置固定为 0' in text
     assert capsys.readouterr().out == ''
+
+
+def test_fitted_distribution_calibrations_match_phase6_native_values():
+    normal_ties = [59, 61, 55, 66, 52, 60, 61, 51, 60, 61, 56, 65, 63, 58, 59, 61,
+                   62, 65, 63, 62, 63, 64, 65, 64, 68, 64, 69, 62, 64, 67, 65,
+                   66, 62, 66, 65, 60, 68, 62, 68, 70]
+
+    log_fit = dist_fit.fit_lognorm(DATA, print_out=False)
+    log_values = np.log(DATA)
+    assert log_fit['fits'][1] == pytest.approx(np.std(log_values, ddof=1))
+    assert log_fit['fits'][1] / np.std(log_values, ddof=0) == pytest.approx(np.sqrt(len(DATA) / (len(DATA) - 1)))
+    log_mean = np.mean(log_values)
+    mle_sigma = np.std(log_values, ddof=0)
+    log_likelihood = np.sum(stats.norm.logpdf(log_values, log_mean, mle_sigma) - log_values)
+    n = len(DATA)
+    minus_2_log_likelihood = -2 * log_likelihood
+    assert log_fit['ABL'] == pytest.approx((
+        minus_2_log_likelihood,
+        minus_2_log_likelihood + 2 * 2 * n / (n - 2 - 1),
+        minus_2_log_likelihood + np.log(n) * 2,
+    ))
+    log_ad, log_p = dist_fit.goodness_of_fit(
+        log_fit['rv'], DATA, fitted_distribution='Lognormal')
+    assert log_ad == pytest.approx(stats.anderson(log_values, dist='norm').statistic)
+    assert log_ad == pytest.approx(.960, abs=.0005)
+    assert log_p == pytest.approx(.010, abs=.0005)
+    assert log_p > .01
+
+    exponential_fit = dist_fit.fit_expon(DATA, print_out=False)
+    _, exponential_p = dist_fit.goodness_of_fit(
+        exponential_fit['rv'], DATA, fitted_distribution='Exponential')
+    _, generic_p = dist_fit.goodness_of_fit(exponential_fit['rv'], DATA)
+    assert exponential_p == pytest.approx(.025, abs=.0005)
+    assert exponential_p > .01
+    assert generic_p < .01
+
+    extreme_exponential_fit = dist_fit.fit_expon(normal_ties, print_out=False)
+    _, extreme_exponential_p = dist_fit.goodness_of_fit(
+        extreme_exponential_fit['rv'], normal_ties, fitted_distribution='Exponential')
+    assert extreme_exponential_p < .003
+
+    gamma_fit = dist_fit.fit_gamma(normal_ties, print_out=False)
+    _, gamma_p = dist_fit.goodness_of_fit(
+        gamma_fit['rv'], normal_ties, fitted_distribution='Gamma')
+    assert gamma_p == pytest.approx(.091, abs=.0005)
+    boundary_gamma_fit = dist_fit.fit_gamma(DATA, print_out=False)
+    _, boundary_gamma_p = dist_fit.goodness_of_fit(
+        boundary_gamma_fit['rv'], DATA, fitted_distribution='Gamma')
+    assert boundary_gamma_p <= .005
 
 
 @pytest.mark.parametrize('print_out', [False, True])
@@ -362,5 +414,5 @@ def test_scoped_source_legacy_report_patterns_and_public_contracts():
     assert 'if print_out and len(selected) > 1:' in functions['compare_dist']
     assert 'res.sort(key=lambda x: -x[-1])' in functions['compare_dist']
     for name in ['fit_gamma', 'fit_weibull', 'fit_lognorm', 'fit_expon']:
-        assert 'floc=0' in functions[name]
+        assert ('loc=0' if name == 'fit_lognorm' else 'floc=0') in functions[name]
     assert 'print(johnsonsu.fit(data))' in functions['fit_jsu']

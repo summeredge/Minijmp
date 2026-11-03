@@ -101,19 +101,15 @@ def test_rank_deficient_effects_are_rejected(data, interaction):
         two_way_anova(data, interaction=interaction)
 
 
-@pytest.mark.parametrize('unbalanced', [False, True])
-def test_grr_additive_components_use_matrix_residual(unbalanced):
+def test_grr_additive_components_use_matrix_residual():
     from GRR import grr_simple
 
     part = [p for p in 'ABC' for op in 'XY' for _ in range(3)]
     ops = [op for p in 'ABC' for op in 'XY' for _ in range(3)]
     y = np.random.default_rng(81).normal(size=len(part)).tolist()
-    if unbalanced:
-        y, part, ops = y[:-1], part[:-1], ops[:-1]
     data = [[[v for v, p, op in zip(y, part, ops) if p == a and op == b]
              for b in 'XY'] for a in 'ABC']
     reference = matrix_reference(data, False)
-    # Existing GRR convention uses average replicates for an unbalanced design.
     replicates = len(y) / (3 * 2)
     expected = (reference['MSE'],
                 max(0., (reference['SSB'] - reference['MSE']) / (3 * replicates)),

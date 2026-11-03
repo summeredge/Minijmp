@@ -16,9 +16,9 @@ from pca_analysis import hotelling_statistics, t2_limits
 
 NELSON = {
     1: '单点超出 3σ', 2: '连续9点在中心同侧', 3: '连续6点严格递增或递减',
-    4: '连续14点严格交替升降', 5: '连续3点中至少2点及当前点超2σ且同侧',
-    6: '连续5点中至少4点及当前点超1σ且同侧', 7: '连续15点均在1σ内（含边界）',
-    8: '连续8点均在1σ外且分布两侧',
+    4: '连续14点严格交替升降', 5: '连续3点中至少2点超2σ且同侧',
+    6: '连续5点中至少4点超1σ且同侧', 7: '连续15点均在1σ内（含边界）',
+    8: '连续8点均在1σ外',
 }
 
 
@@ -81,11 +81,21 @@ def nelson_events(z, rules=tuple(NELSON), cancel=None):
     if len(set(rules)) != len(rules):
         raise ValueError('Nelson 规则不可重复。')
     events = []
+    # Rules 3/4 count points, so each window has one fewer direction change.
     lengths = {1: 1, 2: 9, 3: 6, 4: 14, 5: 3, 6: 5, 7: 15, 8: 8}
     # 固定小窗口向量化；避免逐样本创建 DataFrame 或 O(n²) 运行段扫描。
     for rule in sorted(rules):
         _cancel(cancel)
         length = lengths[rule]
+        if rule in (5, 6):
+            threshold, count = (2, 2) if rule == 5 else (1, 4)
+            above, below = z > threshold, z < -threshold
+            kernel = np.ones(length, dtype=np.int8)
+            above_count = np.convolve(above.astype(np.int8), kernel, mode='full')[:len(z)]
+            below_count = np.convolve(below.astype(np.int8), kernel, mode='full')[:len(z)]
+            hit = (above & (above_count >= count)) | (below & (below_count >= count))
+            events.extend((int(end), rule, max(0, int(end)-length+1)) for end in np.flatnonzero(hit))
+            continue
         if len(z) < length:
             continue
         w = np.lib.stride_tricks.sliding_window_view(z, length)
@@ -99,14 +109,10 @@ def nelson_events(z, rules=tuple(NELSON), cancel=None):
         elif rule == 4:
             diff = np.sign(np.diff(w, axis=1))
             hit = (diff[:, 1:]*diff[:, :-1] == -1).all(axis=1)
-        elif rule in (5, 6):
-            threshold, count = (2, 2) if rule == 5 else (1, 4)
-            hit = (((w > threshold).sum(axis=1) >= count) & (w[:, -1] > threshold)
-                   | ((w < -threshold).sum(axis=1) >= count) & (w[:, -1] < -threshold))
         elif rule == 7:
             hit = (np.abs(w) <= 1).all(axis=1)
         else:
-            hit = (np.abs(w) > 1).all(axis=1) & (w > 0).any(axis=1) & (w < 0).any(axis=1)
+            hit = (np.abs(w) > 1).all(axis=1)
         events.extend((int(start+length-1), rule, int(start)) for start in np.flatnonzero(hit))
     return sorted(events)
 

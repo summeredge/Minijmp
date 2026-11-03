@@ -55,7 +55,6 @@ def print_table(fit_name, para_names, paras, abl, a2, p, print_port=print):
         [['Anderson-Darling', a2, p]], display=[[str(v) for v in row] for row in t.rows]))
     print("H0：样本来自所拟合的分布；小 p 值提示与该分布不符，未拒绝 H0 不等于证明分布正确。")
     print("p 值不是 H0 成立的概率；p = 0.000 为三位小数舍入结果，不代表概率严格为零。")
-    print("AD 的 p 值为近似值；非正态分布沿用现有近似，未进行分布专用校准。")
     print("AICc、BIC 用于同一数据下候选模型的相对比较，值越小越优；它们与 AD 统计量含义不同。")
     print("* 表示不可用或未计算的统计量。")
     return
@@ -98,12 +97,46 @@ def approximate_p(ad_adjusted):
     return p
 
 
-def goodness_of_fit(rv, data, normal=False):
+# Stephens calibration for a zero-location exponential with sample-estimated scale.
+def exponential_ad_p(ad_stat, n):
+    adjusted = ad_stat * (1 + 0.6 / n)
+    if adjusted <= 0.26:
+        return 1 - np.exp(-12.2204 + 67.459 * adjusted - 110.3 * adjusted**2)
+    if adjusted <= 0.51:
+        return 1 - np.exp(-6.1327 + 20.218 * adjusted - 18.663 * adjusted**2)
+    if adjusted <= 0.95:
+        return np.exp(0.9209 - 3.353 * adjusted - 0.3 * adjusted**2)
+    if adjusted <= 10.03:
+        return np.exp(0.731 - 3.009 * adjusted + 0.15 * adjusted**2)
+    # shortcut: the published approximation returns 0 beyond z*=10.03; use a tail model if exact tiny p-values are needed.
+    return 0.0
+
+
+# D'Agostino-Stephens critical values depend on the fitted Gamma shape.
+def gamma_ad_p(ad_stat, shape):
+    if shape <= 1:
+        critical = [0.486, 0.657, 0.786, 0.917, 1.092, 1.227]
+    elif shape <= 8:
+        critical = [0.473, 0.637, 0.759, 0.883, 1.048, 1.173]
+    else:
+        critical = [0.470, 0.631, 0.752, 0.873, 1.035, 1.159]
+    return np.interp(ad_stat, critical, [0.25, 0.1, 0.05, 0.025, 0.01, 0.005],
+                     left=0.25, right=0.005)
+
+
+def goodness_of_fit(rv, data, normal=False, fitted_distribution=None):
+    if fitted_distribution == "Lognormal":
+        res = norm_test(np.log(data), print_out=False)
+        return res['AD s'], res['AD p']
     if normal:
         res = norm_test(data, print_out=False)
         return res['AD s'], res['AD p']
+    a2 = AD(rv, data)
+    if fitted_distribution == "Exponential":
+        p = exponential_ad_p(a2, len(data))
+    elif fitted_distribution == "Gamma":
+        p = gamma_ad_p(a2, rv.args[0])
     else:
-        a2 = AD(rv, data)
         #  p = p_simulation(rv, a2, len(data))
         p = approximate_p(a2)
     return a2, p
@@ -184,7 +217,7 @@ def fit_gamma(data, print_out=True, print_port=print):
     #  print(ABL(t_dist(df), (data - u) / s, 3))
     rv = gamma(u, loc=0, scale=s)
     abl = ABL(rv, data, 2)
-    a2, p = goodness_of_fit(rv, data)
+    a2, p = goodness_of_fit(rv, data, fitted_distribution="Gamma")
     if print_out:
         print_port("\n---- 分布拟合 ----")
         print_port("样本量 N = %d" % len(data))
@@ -213,17 +246,20 @@ def fit_weibull(data,
 def fit_lognorm(data,
                 print_out=True, print_port=print):
     #  data = [-i for i in data]
-    a, _, s = lognorm.fit(data, floc=0)
+    log_data = [ln(value) for value in data]
+    a = np.float64(stat.stdev(log_data))
+    s = np.float64(exp(stat.mean(log_data)))
     #  print(a, ln(s))
     rv = lognorm(a, loc=0, scale=s)
-    abl = ABL(rv, data, 2)
-    a2, p = goodness_of_fit(rv, data)
+    # AIC/BIC remain likelihood-based even though the reported sigma is unbiased.
+    abl = ABL(lognorm(stat.pstdev(log_data), loc=0, scale=s), data, 2)
+    a2, p = goodness_of_fit(rv, data, fitted_distribution="Lognormal")
     if print_out:
         print_port("\n---- 分布拟合 ----")
         print_port("样本量 N = %d" % len(data))
         print_table("对数正态 Lognormal", ("对数均值 mu", "对数标准差 sigma"),
                     (ln(s), a), abl, a2, p, print_port=print_port)
-        print_port("对数正态分布：位置固定为 0；mu、sigma 分别为 ln(X) 的均值、标准差，SciPy scale = exp(mu)；输入值须 > 0。")
+        print_port("对数正态分布：位置固定为 0；mu、sigma 分别为 ln(X) 的均值、无偏样本标准差；AICc/BIC 按最大似然估计计算；SciPy scale = exp(mu)；输入值须 > 0。")
     return {"fits": (s, a), "ABL": abl, "rv": rv}
 
 
@@ -237,7 +273,7 @@ def fit_expon(data,
     _, s = expon.fit(data, floc=0)
     rv = expon(loc=0, scale=s)
     abl = ABL(rv, data, 1)
-    a2, p = goodness_of_fit(rv, data)
+    a2, p = goodness_of_fit(rv, data, fitted_distribution="Exponential")
     if print_out:
         print_port("\n---- 分布拟合 ----")
         print_port("样本量 N = %d" % len(data))

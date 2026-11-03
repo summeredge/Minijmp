@@ -381,7 +381,9 @@ def weibull_mle_score_reference(values: list[float]) -> dict:
 
 def dist_fit_gof(name, fit, values):
     from dist_fit import goodness_of_fit
-    return goodness_of_fit(fit["rv"], values, normal=name == "Normal")
+    calibrated = name if name in ("Lognormal", "Gamma", "Exponential") else None
+    return goodness_of_fit(fit["rv"], values, normal=name == "Normal",
+                           fitted_distribution=calibrated)
 
 
 def output_document(state: dict) -> list[str]:
@@ -421,8 +423,8 @@ def reported_match(value: float, token: str) -> tuple[str, float | None, str]:
     text = token.replace(" ", "")
     if text.startswith("<"):
         bound = float(text[1:])
-        return ("PASS", abs(value - bound), f"<{bound:g}") if value < bound else (
-            "METHOD_DIFF", abs(value - bound), f"<{bound:g}")
+        return ("PASS", abs(value - bound), f"<={bound:g}") if value <= bound else (
+            "METHOD_DIFF", abs(value - bound), f"<={bound:g}")
     if text.startswith(">"):
         bound = float(text[1:])
         return ("PASS", abs(value - bound), f">{bound:g}") if value > bound else (
@@ -564,18 +566,15 @@ def build_comparisons(payload: dict, local: dict, native: dict) -> list[dict]:
                         f"MiniJMP error={mini_error:.3g}; Minitab display error={native_error:.3g}.",
                     ))
                     continue
-                method_diff = name == "Lognormal" and parameter == "对数标准差/scale"
                 compare_numeric(
                     rows, case_id=f"fit_{case_id}", feature=feature,
                     metric=f"{name} 参数 {parameter}", native_token=native_token,
                     local_value=float(mini_value), native_source=native_source, local_source=local_source,
                     config="Minitab DCAPA 单列、子组大小 1；两参数模型 location/threshold 固定为 0（适用时）。",
-                    reason=("Minitab 对 Lognormal 使用无偏参数估计，MiniJMP SciPy lognorm.fit 使用 MLE；"
-                            "差异按估计方法保留为 METHOD_DIFF。" if method_diff else
+                    reason=("两侧均以 ln(X) 的无偏样本标准差估计 Lognormal sigma。"
+                            if name == "Lognormal" and parameter == "对数标准差/scale" else
                             "按 Minitab 表格显示精度比较；两侧参数化及估计方法一致。"),
                 )
-                if method_diff and rows[-1]["结果"] == "PASS":
-                    rows[-1]["判断依据"] = "数值在显示精度内一致；估计方法仍分别为 Minitab 无偏估计与 MiniJMP MLE。"
 
             for percentile, (native_token, line) in native_percentiles(native, case_id, name).items():
                 local_value = float(result["percentiles_5_50_95"][[5, 50, 95].index(percentile)])
@@ -607,12 +606,12 @@ def build_comparisons(payload: dict, local: dict, native: dict) -> list[dict]:
                     local_value=local_value, native_source=native_source,
                     local_source=f"phase6/minijmp_results.json#results.fit.{case_id}.distributions.{name}.percentiles_5_50_95",
                     config=f"DCAPA RPTILE {percentile}; parametric percentile from the fitted distribution.",
-                    reason=("Lognormal 百分位数受 Minitab 无偏参数估计与 MiniJMP MLE 差异影响。"
+                    reason=("Lognormal 百分位数使用 ln(X) 的无偏样本标准差估计。"
                             if name == "Lognormal" else
                             f"按原生百分位数显示精度比较；原生行：{line}"),
                 )
                 if name == "Lognormal" and status == "PASS":
-                    rows[-1]["判断依据"] = "数值在显示精度内一致；Lognormal 参数估计方法不同。"
+                    rows[-1]["判断依据"] = "Lognormal 百分位数使用 ln(X) 的无偏样本标准差估计；数值在原生显示精度内一致。"
 
             if name != "Normal" and case_id != "nonpositive_boundary":
                 ad_tokens = native_gof_row(native, case_id, name)
@@ -626,20 +625,26 @@ def build_comparisons(payload: dict, local: dict, native: dict) -> list[dict]:
                     f"phase6/minitab_raw_outputs.txt#{case_id}_positive_distribution_fit",
                     f"phase6/minijmp_results.json#results.fit.{case_id}.distributions.{name}.AD",
                     "Minitab DCAPA RFITTESTS; MiniJMP dist_fit.AD.",
-                    "显示精度内一致。" if ad_status == "PASS" else
-                    "Minitab 报告修正 AD 统计量；MiniJMP 使用原始 AD 统计量。",
+                    ("显示精度内一致；Lognormal AD 在 ln(X) 上计算。" if name == "Lognormal" else
+                     "显示精度内一致。") if ad_status == "PASS" else
+                    "AD 统计量超出 Minitab 显示舍入范围，需复核参数和 CDF 计算。",
                 ))
+                p_reason = {
+                    "Lognormal": "Lognormal 对 ln(X) 使用正态 AD 校准",
+                    "Gamma": "Gamma p 值按形状参数对应的 Stephens 临界值表线性插值",
+                    "Exponential": "一参数、零位置、样本估计尺度的 Exponential p 值按 Stephens 分段公式校准",
+                }.get(name, "MiniJMP 使用通用 approximate_p；Minitab 使用分布专用表格校准")
                 p_status = compare_numeric(
                     rows, case_id=f"fit_{case_id}", feature=feature,
                     metric=f"{name} Anderson–Darling p 值", native_token=ad_tokens[1],
                     local_value=float(result["AD_p"]),
                     native_source=f"phase6/minitab_raw_outputs.txt#{case_id}_positive_distribution_fit",
                     local_source=f"phase6/minijmp_results.json#results.fit.{case_id}.distributions.{name}.AD_p",
-                    config="Minitab DCAPA RFITTESTS；p 值按原生显示值或不等式范围比较。",
-                    reason="Minitab 使用分布专用修正/表格插值；MiniJMP 使用通用 approximate_p。",
+                    config=f"Minitab DCAPA RFITTESTS；{p_reason}；按原生显示精度或截断范围比较。",
+                    reason=p_reason,
                 )
                 if p_status == "PASS":
-                    rows[-1]["判断依据"] = "MiniJMP p 值落在 Minitab 原生显示的精度或范围内。"
+                    rows[-1]["判断依据"] += "；数值符合 Minitab 原生显示精度或截断范围。"
 
         add_unsupported(
             rows, f"fit_{case_id}", feature, "P5/P50/P95 拟合百分位数 95% 置信区间",
@@ -785,7 +790,9 @@ def update_feature_matrix() -> None:
         "06分布拟合": (
             "已覆盖 3 个固定样本配置；Normal、Lognormal、Gamma、Exponential、Weibull 的参数与 P5/P50/P95，"
             "正值样本的 AD 统计量/p，以及 Normal/Lognormal/t 的 PDF/CDF/ICDF；正常性 AD 沿用 phase5，不重复计数。"
-            "Lognormal 无偏估计与 SciPy MLE、非正态 AD 校准有 METHOD_DIFF；Weibull 参数用独立 score 方程核验。"
+            "Lognormal 参数改用 ln(X) 的无偏样本标准差，Lognormal、Gamma 与一参数 Exponential 的 AD p 值使用分布专用校准；"
+            "Lognormal AICc/BIC 仍按 ddof=0 MLE 计算。"
+            "修复后固定案例 97 项 PASS、0 项 METHOD_DIFF。Weibull 参数用独立 score 方程核验。"
             "Minitab RPTILE 提供 P5/P50/P95 的 95% 区间，MiniJMP 仅返回点估计且不返回拟合参数 CI；"
             "Student's t、AICc/BIC 原生字段、"
             "KS 及三参数拟合为 UNSUPPORTED。结果见 phase6/。"

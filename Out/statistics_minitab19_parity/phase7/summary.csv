@@ -1,0 +1,7 @@
+﻿范围,配置数,指标数,PASS,FAIL,METHOD_DIFF,UNSUPPORTED,NOT_RUN,证据来源
+正态/非正态过程能力（复用 phase2/phase3 已验收固定案例）,5,41,28,0,13,0,0,phase2/case_inputs.json + Minitab 原生输出; phase3/comparison.csv
+I-MR/Xbar-R/Xbar-S 基础变量图（复用 phase2/phase3）,4,846,846,0,0,0,0,phase2 固定输入/原生命令/输出; phase3/comparison.csv
+交叉 GRR ANOVA（复用 phase2/phase3）,1,22,22,0,0,0,0,phase2 固定输入/原生命令/输出; phase3/comparison.csv
+SPC phase7 新增/复核,13,48,30,0,2,16,0,phase7/case_inputs.json; Minitab 19.1.0.1 COM; MiniJMP 生产入口
+GRR phase7 新增/复核,2,10,5,0,5,0,0,phase7/case_inputs.json; Minitab 19.1.0.1 COM; MiniJMP 生产入口
+多变量 phase7 新增/复核,4,36,35,0,0,1,0,phase7/case_inputs.json; Minitab 19.1.0.1 COM; MiniJMP 生产入口

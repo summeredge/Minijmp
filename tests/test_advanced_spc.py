@@ -69,18 +69,25 @@ def test_cusum_negative_branch_strict_threshold_and_event_value():
 
 @pytest.mark.parametrize('rule,values', [
     (1,[0.,3.01]), (2,[.5]*9), (3,[-.3,-.2,-.1,0.,.1,.2]),
-    (4,[-.2,.2]*7), (5,[2.1,0.,2.2]), (6,[1.1,1.2,0.,1.3,1.4]),
-    (7,[0.]*15), (8,[-1.1,1.1]*4),
+    (4,[-.2,.2]*7), (5,[2.1,2.2,0.]), (6,[1.1,1.2,1.3,1.4,0.]),
+    (7,[0.]*15), (8,[1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9]),
 ])
 def test_each_nelson_rule_known_minimal_pattern(rule,values):
-    assert nelson_events(values,[rule]) == [(len(values)-1,rule,0 if rule!=1 else 1)]
-    assert nelson_events(values[:-1],[rule]) == []
+    lengths={1:1,2:9,3:6,4:14,5:3,6:5,7:15,8:8}
+    endpoint={5:1,6:3}.get(rule,len(values)-1)
+    assert nelson_events(values,[rule]) == [(endpoint,rule,max(0,endpoint-lengths[rule]+1))]
+    if rule == 5:
+        assert nelson_events(values[:1],[rule]) == []
+    elif rule == 6:
+        assert nelson_events(values[:3],[rule]) == []
+    else:
+        assert nelson_events(values[:-1],[rule]) == []
     if rule != 7:
-        assert nelson_events(-np.array(values),[rule]) == [(len(values)-1,rule,0 if rule!=1 else 1)]
+        assert nelson_events(-np.array(values),[rule]) == [(endpoint,rule,max(0,endpoint-lengths[rule]+1))]
     r=analyze_spc(pd.DataFrame({'x':values}),['x'],kind='Nelson',mean=0.,sigma=1.,rules=[rule])
     alarm=r.tables['alarms'].iloc[0]
-    assert alarm.source_row==len(values) and alarm.rule=='Nelson '+str(rule)
-    assert json.loads(alarm.members) == ([2] if rule==1 else list(range(1,len(values)+1)))
+    assert alarm.source_row==endpoint+1 and alarm.rule=='Nelson '+str(rule)
+    assert json.loads(alarm.members) == list(range(max(0,endpoint-lengths[rule]+1)+1,endpoint+2))
     assert r.tables['observations'].alarm.sum()==1
 
 
@@ -88,8 +95,7 @@ def test_each_nelson_rule_known_minimal_pattern(rule,values):
     (1,[-3.,3.]),(2,[1.]*4+[0.]+[1.]*4),(3,[0,1,2,2,3,4]),
     (4,[0.,1.]*6+[1.,0.]),(5,[2.,2.,0.]),(5,[2.1,-2.1,0.]),
     (6,[1.,1.,1.,1.,0.]),(7,[0.]*14+[np.nextafter(1.,np.inf)]),(8,[-1.1,1.1]*3+[-1.,1.1]),
-    (5,[2.1,2.2,0.]),(6,[1.1,1.2,1.3,1.4,0.]),
-    (8,[1.1]*8),
+    (8,[1.1]*7+[1.]),
 ])
 def test_nelson_boundaries_ties_and_sides_do_not_trigger(rule,values):
     assert nelson_events(values,[rule])==[]
