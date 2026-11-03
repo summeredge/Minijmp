@@ -1,0 +1,4 @@
+﻿工作包,配置数,指标数,PASS,FAIL,METHOD_DIFF,UNSUPPORTED,NOT_RUN,备注
+P0-A,3,9,5,0,0,4,0,P0-A 含 4 项 phase4 原生字段缺失复核；P0-B/C 共用 Welch 与单因子 ANOVA 案例，总体指标只计一次。
+P0-B,6,44,38,0,6,0,0,P0-A 含 4 项 phase4 原生字段缺失复核；P0-B/C 共用 Welch 与单因子 ANOVA 案例，总体指标只计一次。
+P0-C,4,69,62,0,4,3,0,P0-A 含 4 项 phase4 原生字段缺失复核；P0-B/C 共用 Welch 与单因子 ANOVA 案例，总体指标只计一次。

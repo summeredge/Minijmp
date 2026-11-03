@@ -1,0 +1,656 @@
+{
+  "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+  "case_inputs": {
+    "reference_version": "19.1.0.1",
+    "ols_prediction": {
+      "source_case": "../phase4/case_inputs.json#cases.ols_multiple",
+      "predictors": {
+        "x1": 7,
+        "x2": 5
+      },
+      "confidence": 0.95
+    },
+    "cases": {
+      "one_sample_t_missing": {
+        "values": [
+          0,
+          8,
+          9,
+          11,
+          12,
+          null,
+          10
+        ],
+        "mu0": 8,
+        "alternative": "right",
+        "confidence": 0.9
+      },
+      "paired_t_one_side_missing": {
+        "sample1": [
+          0,
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "sample2": [
+          1,
+          9,
+          10,
+          null,
+          12,
+          13
+        ],
+        "null_difference": 0,
+        "difference": "sample1 - sample2",
+        "alternative": "two-sided",
+        "confidence": 0.95
+      },
+      "welch_t_different_missing": {
+        "sample1": [
+          0,
+          3,
+          4,
+          6,
+          8,
+          null,
+          9,
+          null
+        ],
+        "sample2": [
+          4,
+          6,
+          8,
+          null,
+          10,
+          12,
+          14,
+          16,
+          20
+        ],
+        "null_difference": 0,
+        "difference": "sample2 - sample1",
+        "variance_method": "Welch, unpooled",
+        "alternative": "two-sided",
+        "confidence": 0.95
+      },
+      "rank_one_column_missing": {
+        "x": [
+          0,
+          1,
+          1,
+          3,
+          null,
+          5,
+          6,
+          7,
+          7
+        ],
+        "y": [
+          0,
+          3,
+          3,
+          1,
+          5,
+          5,
+          8,
+          8,
+          8
+        ]
+      },
+      "rank_different_positions_missing": {
+        "x": [
+          0,
+          1,
+          1,
+          3,
+          4,
+          null,
+          6,
+          7,
+          7,
+          8
+        ],
+        "y": [
+          1,
+          2,
+          null,
+          2,
+          4,
+          5,
+          6,
+          6,
+          8,
+          9
+        ]
+      },
+      "normality_missing": {
+        "values": [
+          -2,
+          -1.4,
+          -1,
+          -0.6,
+          -0.2,
+          0,
+          0.3,
+          0.6,
+          1,
+          1.4,
+          1.8,
+          null,
+          2.3
+        ],
+        "method": "Anderson-Darling"
+      },
+      "one_way_anova_missing": {
+        "groups": {
+          "A": [
+            0,
+            1,
+            null,
+            2
+          ],
+          "B": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "C": [
+            7,
+            8,
+            9,
+            11,
+            null
+          ]
+        },
+        "confidence": 0.95
+      },
+      "two_way_anova_missing": {
+        "response": [
+          0,
+          1,
+          2,
+          2,
+          3,
+          null,
+          4,
+          4,
+          5,
+          6,
+          7,
+          7,
+          8,
+          9,
+          null,
+          11
+        ],
+        "factor_a": [
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "A",
+          "B",
+          "B",
+          "B",
+          "B",
+          "B",
+          "B",
+          "B",
+          "B",
+          "B"
+        ],
+        "factor_b": [
+          "X",
+          "X",
+          "X",
+          "Y",
+          "Y",
+          "Y",
+          "Y",
+          "X",
+          "X",
+          "X",
+          "X",
+          "Y",
+          "Y",
+          "Y",
+          "Y",
+          "Y"
+        ],
+        "terms": [
+          "A",
+          "B",
+          "A*B"
+        ],
+        "sum_squares": "Type III adjusted sums of squares; effect coding; fixed effects"
+      }
+    }
+  },
+  "results": {
+    "ols_prediction.prediction": {
+      "value": 19.147745664739876,
+      "source": "advanced_regression.fit_regression.predict; 95%"
+    },
+    "ols_prediction.ci_low": {
+      "value": 18.904793967726174,
+      "source": "advanced_regression.fit_regression.predict; 95%"
+    },
+    "ols_prediction.ci_high": {
+      "value": 19.390697361753578,
+      "source": "advanced_regression.fit_regression.predict; 95%"
+    },
+    "ols_prediction.pi_low": {
+      "value": 18.310053293993764,
+      "source": "advanced_regression.fit_regression.predict; 95%"
+    },
+    "ols_prediction.pi_high": {
+      "value": 19.985438035485988,
+      "source": "advanced_regression.fit_regression.predict; 95%"
+    },
+    "one_sample_t_missing.n": {
+      "value": 6.0,
+      "source": "sample_test_dialog number_list → t_test.t_test_1sample"
+    },
+    "one_sample_t_missing.mean": {
+      "value": 8.333333333333334,
+      "source": "sample_test_dialog number_list → t_test.t_test_1sample"
+    },
+    "one_sample_t_missing.stdev": {
+      "value": 4.320493798938574,
+      "source": "sample_test_dialog number_list → t_test.t_test_1sample"
+    },
+    "one_sample_t_missing.se": {
+      "value": 1.763834207376394,
+      "source": "sample_test_dialog number_list → t_test.t_test_1sample"
+    },
+    "one_sample_t_missing.t": {
+      "value": 0.1889822365046139,
+      "source": "sample_test_dialog number_list → t_test.t_test_1sample"
+    },
+    "one_sample_t_missing.df": {
+      "value": 5.0,
+      "source": "sample_test_dialog number_list → t_test.t_test_1sample"
+    },
+    "one_sample_t_missing.p": {
+      "value": 0.4287691444920918,
+      "source": "sample_test_dialog number_list → t_test.t_test_1sample"
+    },
+    "one_sample_t_missing.bound_low": {
+      "value": 5.730118561840262,
+      "source": "sample_test_dialog number_list → t_test.t_test_1sample"
+    },
+    "paired_t_one_side_missing.n": {
+      "value": 5.0,
+      "source": "PairedTDialog number_2lists → t_test.paired_t_test"
+    },
+    "paired_t_one_side_missing.mean": {
+      "value": 0.6,
+      "source": "PairedTDialog number_2lists → t_test.paired_t_test"
+    },
+    "paired_t_one_side_missing.stdev": {
+      "value": 0.8944271909999159,
+      "source": "PairedTDialog number_2lists → t_test.paired_t_test"
+    },
+    "paired_t_one_side_missing.se": {
+      "value": 0.39999999999999997,
+      "source": "PairedTDialog number_2lists → t_test.paired_t_test"
+    },
+    "paired_t_one_side_missing.t": {
+      "value": 1.5,
+      "source": "PairedTDialog number_2lists → t_test.paired_t_test"
+    },
+    "paired_t_one_side_missing.df": {
+      "value": 4.0,
+      "source": "PairedTDialog number_2lists → t_test.paired_t_test"
+    },
+    "paired_t_one_side_missing.p": {
+      "value": 0.20799999999999974,
+      "source": "PairedTDialog number_2lists → t_test.paired_t_test"
+    },
+    "paired_t_one_side_missing.ci_low": {
+      "value": -0.5105780420791194,
+      "source": "PairedTDialog number_2lists → t_test.paired_t_test"
+    },
+    "paired_t_one_side_missing.ci_high": {
+      "value": 1.7105780420791192,
+      "source": "PairedTDialog number_2lists → t_test.paired_t_test"
+    },
+    "welch_t_different_missing.n1": {
+      "value": 6.0,
+      "source": "Mean2SampleDialog number_list → t_test.t_test_2samples (Welch)"
+    },
+    "welch_t_different_missing.n2": {
+      "value": 8.0,
+      "source": "Mean2SampleDialog number_list → t_test.t_test_2samples (Welch)"
+    },
+    "welch_t_different_missing.mean1": {
+      "value": 5.0,
+      "source": "Mean2SampleDialog number_list → t_test.t_test_2samples (Welch)"
+    },
+    "welch_t_different_missing.mean2": {
+      "value": 11.25,
+      "source": "Mean2SampleDialog number_list → t_test.t_test_2samples (Welch)"
+    },
+    "welch_t_different_missing.stdev1": {
+      "value": 3.3466401061363023,
+      "source": "Mean2SampleDialog number_list → t_test.t_test_2samples (Welch)"
+    },
+    "welch_t_different_missing.stdev2": {
+      "value": 5.338539126015656,
+      "source": "Mean2SampleDialog number_list → t_test.t_test_2samples (Welch)"
+    },
+    "welch_t_different_missing.difference": {
+      "value": 6.25,
+      "source": "Mean2SampleDialog number_list → t_test.t_test_2samples (Welch)"
+    },
+    "welch_t_different_missing.se": {
+      "value": 2.3300572239038826,
+      "source": "Mean2SampleDialog number_list → t_test.t_test_2samples (Welch)"
+    },
+    "welch_t_different_missing.t": {
+      "value": 2.6823375562976386,
+      "source": "Mean2SampleDialog number_list → t_test.t_test_2samples (Welch)"
+    },
+    "welch_t_different_missing.df": {
+      "value": 11.743615136046996,
+      "source": "Mean2SampleDialog number_list → t_test.t_test_2samples (Welch)"
+    },
+    "welch_t_different_missing.p": {
+      "value": 0.020276375135550584,
+      "source": "Mean2SampleDialog number_list → t_test.t_test_2samples (Welch)"
+    },
+    "welch_t_different_missing.ci_low": {
+      "value": 1.1609215089715743,
+      "source": "Mean2SampleDialog number_list → t_test.t_test_2samples (Welch)"
+    },
+    "welch_t_different_missing.ci_high": {
+      "value": 11.339078491028426,
+      "source": "Mean2SampleDialog number_list → t_test.t_test_2samples (Welch)"
+    },
+    "rank_one_column_missing_spearman.n": {
+      "value": 8.0,
+      "source": "CorrelationDialog number_2lists → nonpara_cor.spearman"
+    },
+    "rank_one_column_missing_spearman.cor": {
+      "value": 0.9069897692335281,
+      "source": "CorrelationDialog number_2lists → nonpara_cor.spearman"
+    },
+    "rank_one_column_missing_spearman.p": {
+      "value": 0.001873845002943686,
+      "source": "CorrelationDialog number_2lists → nonpara_cor.spearman"
+    },
+    "rank_one_column_missing_kendall.n": {
+      "value": 8.0,
+      "source": "CorrelationDialog number_2lists → nonpara_cor.kendall"
+    },
+    "rank_one_column_missing_kendall.cor": {
+      "value": 0.8006407690254358,
+      "source": "CorrelationDialog number_2lists → nonpara_cor.kendall"
+    },
+    "rank_one_column_missing_kendall.p": {
+      "value": 0.009191995862593751,
+      "source": "CorrelationDialog number_2lists → nonpara_cor.kendall"
+    },
+    "rank_different_positions_missing_spearman.n": {
+      "value": 8.0,
+      "source": "CorrelationDialog number_2lists → nonpara_cor.spearman"
+    },
+    "rank_different_positions_missing_spearman.cor": {
+      "value": 0.9757754965005869,
+      "source": "CorrelationDialog number_2lists → nonpara_cor.spearman"
+    },
+    "rank_different_positions_missing_spearman.p": {
+      "value": 3.4896398846122185e-05,
+      "source": "CorrelationDialog number_2lists → nonpara_cor.spearman"
+    },
+    "rank_different_positions_missing_kendall.n": {
+      "value": 8.0,
+      "source": "CorrelationDialog number_2lists → nonpara_cor.kendall"
+    },
+    "rank_different_positions_missing_kendall.cor": {
+      "value": 0.9435641951204964,
+      "source": "CorrelationDialog number_2lists → nonpara_cor.kendall"
+    },
+    "rank_different_positions_missing_kendall.p": {
+      "value": 0.0015524838407550597,
+      "source": "CorrelationDialog number_2lists → nonpara_cor.kendall"
+    },
+    "normality_missing.n": {
+      "value": 12.0,
+      "source": "NormTestDialog number_list → utilities.norm_test"
+    },
+    "normality_missing.ad": {
+      "value": 0.0905017212884669,
+      "source": "NormTestDialog number_list → utilities.norm_test"
+    },
+    "normality_missing.p": {
+      "value": 0.99664577283946,
+      "source": "NormTestDialog number_list → utilities.norm_test"
+    },
+    "normality_missing.shapiro_w": {
+      "value": 0.9868389063111515,
+      "source": "NormTestDialog number_list → utilities.norm_test"
+    },
+    "normality_missing.shapiro_p": {
+      "value": 0.9984168421408353,
+      "source": "NormTestDialog number_list → utilities.norm_test"
+    },
+    "one_way_anova_missing.n": {
+      "value": 11.0,
+      "source": "Anova1WayDialog number_list → one_way_ANOVA.one_way_anova"
+    },
+    "one_way_anova_missing.df_between": {
+      "value": 2.0,
+      "source": "Anova1WayDialog number_list → one_way_ANOVA.one_way_anova"
+    },
+    "one_way_anova_missing.df_error": {
+      "value": 8.0,
+      "source": "Anova1WayDialog number_list → one_way_ANOVA.one_way_anova"
+    },
+    "one_way_anova_missing.df_total": {
+      "value": 10.0,
+      "source": "Anova1WayDialog number_list → one_way_ANOVA.one_way_anova"
+    },
+    "one_way_anova_missing.ss_between": {
+      "value": 105.1590909090909,
+      "source": "Anova1WayDialog number_list → one_way_ANOVA.one_way_anova"
+    },
+    "one_way_anova_missing.ms_between": {
+      "value": 52.57954545454545,
+      "source": "Anova1WayDialog number_list → one_way_ANOVA.one_way_anova"
+    },
+    "one_way_anova_missing.ss_error": {
+      "value": 15.75,
+      "source": "Anova1WayDialog number_list → one_way_ANOVA.one_way_anova"
+    },
+    "one_way_anova_missing.ms_error": {
+      "value": 1.96875,
+      "source": "Anova1WayDialog number_list → one_way_ANOVA.one_way_anova"
+    },
+    "one_way_anova_missing.ss_total": {
+      "value": 120.9090909090909,
+      "source": "Anova1WayDialog number_list → one_way_ANOVA.one_way_anova"
+    },
+    "one_way_anova_missing.f": {
+      "value": 26.707070707070706,
+      "source": "Anova1WayDialog number_list → one_way_ANOVA.one_way_anova"
+    },
+    "one_way_anova_missing.p": {
+      "value": 0.0002879296632209982,
+      "source": "Anova1WayDialog number_list → one_way_ANOVA.one_way_anova"
+    },
+    "one_way_anova_missing.s": {
+      "value": 1.403121520040228,
+      "source": "Anova1WayDialog number_list → one_way_ANOVA.one_way_anova"
+    },
+    "one_way_anova_missing.r2_percent": {
+      "value": 86.97368421052632,
+      "source": "Anova1WayDialog number_list → one_way_ANOVA.one_way_anova"
+    },
+    "one_way_anova_missing.r2_adjusted_percent": {
+      "value": 83.7171052631579,
+      "source": "Anova1WayDialog number_list → one_way_ANOVA.one_way_anova"
+    },
+    "one_way_anova_missing.A.n": {
+      "value": 3.0,
+      "source": "Anova1WayDialog number_list per group"
+    },
+    "one_way_anova_missing.A.mean": {
+      "value": 1.0,
+      "source": "one_way_ANOVA.one_way_anova group mean"
+    },
+    "one_way_anova_missing.A.ci_low": {
+      "value": -0.8680768562143075,
+      "source": "Anova1WayDialog one_way_ANOVA.one_way_anova 95% CI"
+    },
+    "one_way_anova_missing.A.ci_high": {
+      "value": 2.8680768562143077,
+      "source": "Anova1WayDialog one_way_ANOVA.one_way_anova 95% CI"
+    },
+    "one_way_anova_missing.B.n": {
+      "value": 4.0,
+      "source": "Anova1WayDialog number_list per group"
+    },
+    "one_way_anova_missing.B.mean": {
+      "value": 4.5,
+      "source": "one_way_ANOVA.one_way_anova group mean"
+    },
+    "one_way_anova_missing.B.ci_low": {
+      "value": 2.8821979862966396,
+      "source": "Anova1WayDialog one_way_ANOVA.one_way_anova 95% CI"
+    },
+    "one_way_anova_missing.B.ci_high": {
+      "value": 6.11780201370336,
+      "source": "Anova1WayDialog one_way_ANOVA.one_way_anova 95% CI"
+    },
+    "one_way_anova_missing.C.n": {
+      "value": 4.0,
+      "source": "Anova1WayDialog number_list per group"
+    },
+    "one_way_anova_missing.C.mean": {
+      "value": 8.75,
+      "source": "one_way_ANOVA.one_way_anova group mean"
+    },
+    "one_way_anova_missing.C.ci_low": {
+      "value": 7.13219798629664,
+      "source": "Anova1WayDialog one_way_ANOVA.one_way_anova 95% CI"
+    },
+    "one_way_anova_missing.C.ci_high": {
+      "value": 10.367802013703361,
+      "source": "Anova1WayDialog one_way_ANOVA.one_way_anova 95% CI"
+    },
+    "one_way_anova_missing.pair_p_B_A": {
+      "value": 0.011424554377833868,
+      "source": "Anova1WayDialog JMP_ANOVA_t_test; pooled two-sided p, no multiple-comparison adjustment"
+    },
+    "one_way_anova_missing.pair_p_C_A": {
+      "value": 8.9624493977936e-05,
+      "source": "Anova1WayDialog JMP_ANOVA_t_test; pooled two-sided p, no multiple-comparison adjustment"
+    },
+    "one_way_anova_missing.pair_p_C_B": {
+      "value": 0.0026744460027725387,
+      "source": "Anova1WayDialog JMP_ANOVA_t_test; pooled two-sided p, no multiple-comparison adjustment"
+    },
+    "two_way_anova_missing.n": {
+      "value": 14.0,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.df_a": {
+      "value": 1.0,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.df_b": {
+      "value": 1.0,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.df_ab": {
+      "value": 1.0,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.df_error": {
+      "value": 10.0,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.df_total": {
+      "value": 13.0,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.ss_a": {
+      "value": 90.05357142857142,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.ss_b": {
+      "value": 23.624999999999986,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.ss_ab": {
+      "value": 1.3392857142857204,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.ss_error": {
+      "value": 17.75,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.ss_total": {
+      "value": 134.92857142857144,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.ms_a": {
+      "value": 90.05357142857142,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.ms_b": {
+      "value": 23.624999999999986,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.ms_ab": {
+      "value": 1.3392857142857204,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.ms_error": {
+      "value": 1.775,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.f_a": {
+      "value": 50.73440643863179,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.f_b": {
+      "value": 13.30985915492957,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.f_ab": {
+      "value": 0.7545271629778707,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.p_a": {
+      "value": 3.2069244090271454e-05,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.p_b": {
+      "value": 0.004475110500289148,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.p_ab": {
+      "value": 0.40541138193469795,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.s": {
+      "value": 1.3322912594474228,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.r2_percent": {
+      "value": 86.84489147697194,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    },
+    "two_way_anova_missing.r2_adjusted_percent": {
+      "value": 82.89835892006353,
+      "source": "Anova2WayDialog filter_voids → two_way_anova Type III"
+    }
+  }
+}

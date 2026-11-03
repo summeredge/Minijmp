@@ -1,0 +1,628 @@
+{
+  "version": "19.1.0.1",
+  "clsid": "{6265486C-4A08-4B4E-9713-C2CD85F1F515}",
+  "registered_server": "\"D:\\Program\\Minitab 19\\Mtb.exe\" /19_1",
+  "app_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+  "process_path": "D:\\Program\\Minitab 19\\Mtb.exe",
+  "process_id": 17940,
+  "project_name": "无标题",
+  "worksheet_name": "工作表 1",
+  "python": "C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Scripts\\python.exe",
+  "loaded_inputs": {
+    "16": {
+      "name": "OLS_Y",
+      "values": [
+        8.1,
+        10.0,
+        11.8,
+        13.2,
+        14.7,
+        17.6,
+        18.8,
+        21.1,
+        22.7,
+        24.8,
+        26.9,
+        29.2
+      ],
+      "effective_n": 12
+    },
+    "17": {
+      "name": "OLS_X1",
+      "values": [
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0,
+        9.0,
+        10.0,
+        11.0,
+        12.0
+      ],
+      "effective_n": 12
+    },
+    "18": {
+      "name": "OLS_X2",
+      "values": [
+        2.0,
+        1.0,
+        4.0,
+        2.0,
+        5.0,
+        3.0,
+        6.0,
+        4.0,
+        7.0,
+        5.0,
+        8.0,
+        6.0
+      ],
+      "effective_n": 12
+    },
+    "25": {
+      "name": "PredictX1",
+      "values": [
+        7.0
+      ],
+      "effective_n": 1
+    },
+    "26": {
+      "name": "PredictX2",
+      "values": [
+        5.0
+      ],
+      "effective_n": 1
+    },
+    "31": {
+      "name": "OneT",
+      "values": [
+        0.0,
+        8.0,
+        9.0,
+        11.0,
+        12.0,
+        null,
+        10.0
+      ],
+      "effective_n": 6
+    },
+    "32": {
+      "name": "PairBefore",
+      "values": [
+        0.0,
+        10.0,
+        11.0,
+        12.0,
+        13.0,
+        14.0
+      ],
+      "effective_n": 6
+    },
+    "33": {
+      "name": "PairAfter",
+      "values": [
+        1.0,
+        9.0,
+        10.0,
+        null,
+        12.0,
+        13.0
+      ],
+      "effective_n": 5
+    },
+    "34": {
+      "name": "Welch1",
+      "values": [
+        0.0,
+        3.0,
+        4.0,
+        6.0,
+        8.0,
+        null,
+        9.0,
+        null
+      ],
+      "effective_n": 6
+    },
+    "35": {
+      "name": "Welch2",
+      "values": [
+        4.0,
+        6.0,
+        8.0,
+        null,
+        10.0,
+        12.0,
+        14.0,
+        16.0,
+        20.0
+      ],
+      "effective_n": 8
+    },
+    "36": {
+      "name": "Rank1X",
+      "values": [
+        0.0,
+        1.0,
+        1.0,
+        3.0,
+        null,
+        5.0,
+        6.0,
+        7.0,
+        7.0
+      ],
+      "effective_n": 8
+    },
+    "37": {
+      "name": "Rank1Y",
+      "values": [
+        0.0,
+        3.0,
+        3.0,
+        1.0,
+        5.0,
+        5.0,
+        8.0,
+        8.0,
+        8.0
+      ],
+      "effective_n": 9
+    },
+    "38": {
+      "name": "Rank2X",
+      "values": [
+        0.0,
+        1.0,
+        1.0,
+        3.0,
+        4.0,
+        null,
+        6.0,
+        7.0,
+        7.0,
+        8.0
+      ],
+      "effective_n": 9
+    },
+    "39": {
+      "name": "Rank2Y",
+      "values": [
+        1.0,
+        2.0,
+        null,
+        2.0,
+        4.0,
+        5.0,
+        6.0,
+        6.0,
+        8.0,
+        9.0
+      ],
+      "effective_n": 9
+    },
+    "40": {
+      "name": "NormalityY",
+      "values": [
+        -2.0,
+        -1.4,
+        -1.0,
+        -0.6,
+        -0.2,
+        0.0,
+        0.3,
+        0.6,
+        1.0,
+        1.4,
+        1.8,
+        null,
+        2.3
+      ],
+      "effective_n": 12
+    },
+    "41": {
+      "name": "OneWayY",
+      "values": [
+        0.0,
+        1.0,
+        null,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0,
+        9.0,
+        11.0,
+        null
+      ],
+      "effective_n": 11
+    },
+    "42": {
+      "name": "OneWayGroup",
+      "values": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "B",
+        "B",
+        "B",
+        "B",
+        "C",
+        "C",
+        "C",
+        "C",
+        "C"
+      ],
+      "effective_n": 13
+    },
+    "43": {
+      "name": "TwoWayY",
+      "values": [
+        0.0,
+        1.0,
+        2.0,
+        2.0,
+        3.0,
+        null,
+        4.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        7.0,
+        8.0,
+        9.0,
+        null,
+        11.0
+      ],
+      "effective_n": 14
+    },
+    "44": {
+      "name": "FactorA",
+      "values": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B",
+        "B"
+      ],
+      "effective_n": 16
+    },
+    "45": {
+      "name": "FactorB",
+      "values": [
+        "X",
+        "X",
+        "X",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "X",
+        "X",
+        "X",
+        "X",
+        "Y",
+        "Y",
+        "Y",
+        "Y",
+        "Y"
+      ],
+      "effective_n": 16
+    }
+  },
+  "commands": [
+    {
+      "command": "SET C31\n0 8 9 11 12 * 10\nEND",
+      "executed": true,
+      "last_error": ""
+    },
+    {
+      "command": "SET C33\n1 9 10 * 12 13\nEND",
+      "executed": true,
+      "last_error": ""
+    },
+    {
+      "command": "SET C34\n0 3 4 6 8 * 9 *\nEND",
+      "executed": true,
+      "last_error": ""
+    },
+    {
+      "command": "SET C35\n4 6 8 * 10 12 14 16 20\nEND",
+      "executed": true,
+      "last_error": ""
+    },
+    {
+      "command": "SET C36\n0 1 1 3 * 5 6 7 7\nEND",
+      "executed": true,
+      "last_error": ""
+    },
+    {
+      "command": "SET C38\n0 1 1 3 4 * 6 7 7 8\nEND",
+      "executed": true,
+      "last_error": ""
+    },
+    {
+      "command": "SET C39\n1 2 * 2 4 5 6 6 8 9\nEND",
+      "executed": true,
+      "last_error": ""
+    },
+    {
+      "command": "SET C40\n-2 -1.3999999999999999 -1 -0.59999999999999998 -0.20000000000000001 0 0.29999999999999999 0.59999999999999998 1 1.3999999999999999 1.8 * 2.2999999999999998\nEND",
+      "executed": true,
+      "last_error": ""
+    },
+    {
+      "command": "SET C41\n0 1 * 2 3 4 5 6 7 8 9 11 *\nEND",
+      "executed": true,
+      "last_error": ""
+    },
+    {
+      "command": "SET C43\n0 1 2 2 3 * 4 4 5 6 7 7 8 9 * 11\nEND",
+      "executed": true,
+      "last_error": ""
+    },
+    {
+      "command": "REGRESS;\n  RESPONSE C16;\n  CONTINUOUS C17 C18;\n  TERMS C17 C18;\n  CONSTANT;\n  UNSTANDARDIZED;\n  CONFIDENCE 95;\n  TCOEFFICIENTS;\n  TANOVA;\n  TSUMMARY;\n  TDIAGNOSTICS 1;\n  RESIDUALS C93;\n  SRESIDUALS C94;\n  HI C95;\n  COOK C96;\n  FITS C97.",
+      "case_id": "ols_multiple"
+    },
+    {
+      "command": "PREDICT C16;\n  CPREDICTORS C25 C26;\n  CONFIDENCE 95;\n  TPREDICTION;\n  PFITS C114;\n  PSEFITS C115;\n  CLIMITS C116 C117;\n  PLIMITS C118 C119.",
+      "case_id": "ols_prediction"
+    },
+    {
+      "command": "ONET C31;\n  TEST 8;\n  ALTERNATIVE 1;\n  CONFIDENCE 90;\n  SPVALUE C70;\n  SCONF C71 C72.",
+      "case_id": "one_sample_t_missing"
+    },
+    {
+      "command": "PAIR C32 C33;\n  TEST 0;\n  CONFIDENCE 95;\n  SPVALUE C73;\n  SCONF C74 C75.",
+      "case_id": "paired_t_one_side_missing"
+    },
+    {
+      "command": "TWOSAMPLE 95 C35 C34;\n  TEST 0;\n  SPVALUE C76;\n  SCONF C77 C78.",
+      "case_id": "welch_t_different_missing"
+    },
+    {
+      "command": "CORRELATION C36 C37;\n  SPEARMAN;\n  SCORRELATION M5;\n  SPVALUES M6.",
+      "case_id": "spearman_rank_one_missing"
+    },
+    {
+      "command": "XTABS C36 C37;\n  COUNTS;\n  CONCORDANT.",
+      "case_id": "kendall_rank_one_missing"
+    },
+    {
+      "command": "CORRELATION C38 C39;\n  SPEARMAN;\n  SCORRELATION M7;\n  SPVALUES M8.",
+      "case_id": "spearman_rank_different_missing"
+    },
+    {
+      "command": "XTABS C38 C39;\n  COUNTS;\n  CONCORDANT.",
+      "case_id": "kendall_rank_different_missing"
+    },
+    {
+      "command": "NORMTEST C40;\n  SPVALUE C79.",
+      "case_id": "normality_missing"
+    },
+    {
+      "command": "ONEWAY;\n  RESPONSE C41;\n  CATEGORICAL C42;\n  CONFIDENCE 95;\n  FISHER;\n  TANOVA;\n  TMEANS;\n  TMTEST.",
+      "case_id": "one_way_anova_missing"
+    },
+    {
+      "command": "GLM;\n  RESPONSE C43;\n  CATEGORICAL C44 C45;\n  TERMS C44 C45 C44*C45;\n  EFFECT;\n  TANOVA;\n  TSUMMARY.",
+      "case_id": "two_way_anova_missing"
+    }
+  ],
+  "outputs": {
+    "ols_multiple": {
+      "executed": true,
+      "command_count": [
+        10,
+        11
+      ],
+      "command": "REGRESS;\n  RESPONSE C16;\n  CONTINUOUS C17 C18;\n  TERMS C17 C18;\n  CONSTANT;\n  UNSTANDARDIZED;\n  CONFIDENCE 95;\n  TCOEFFICIENTS;\n  TANOVA;\n  TSUMMARY;\n  TDIAGNOSTICS 1;\n  RESIDUALS C93;\n  SRESIDUALS C94;\n  HI C95;\n  COOK C96;\n  FITS C97.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n回归分析: OLS_Y 与 OLS_X1, OLS_X2\r\n \r\n\r\n回归方程\r\n\r\nOLS_Y = 6.059 + 1.9609 OLS_X1 - 0.1275 OLS_X2\r\n\r\n\r\n系数\r\n\r\n项            系数   系数标准误    T 值    P 值  方差膨胀因子\r\n常量        6.059   0.243  24.91  0.000\r\nOLS_X1   1.9609  0.0511  38.39  0.000    2.97\r\nOLS_X2  -0.1275  0.0856  -1.49  0.171    2.97\r\n\r\n\r\n模型汇总\r\n\r\n       S    R-sq  R-sq（调整）  R-sq（预测）\r\n0.354391  99.78%    99.73%    99.60%\r\n\r\n\r\n方差分析\r\n\r\n来源        自由度   Adj SS   Adj MS      F 值    P 值\r\n回归          2  515.939  257.969  2054.01  0.000\r\n  OLS_X1    1  185.087  185.087  1473.71  0.000\r\n  OLS_X2    1    0.279    0.279     2.22  0.171\r\n误差          9    1.130    0.126\r\n合计         11  517.069\r\n\r\n\r\n所有观测值的拟合和诊断\r\n\r\n观测值   OLS_Y     拟合值      残差  标准化残差\r\n  1   8.100   7.765   0.335   1.13\r\n  2  10.000   9.853   0.147   0.50\r\n  3  11.800  11.432   0.368   1.21\r\n  4  13.200  13.648  -0.448  -1.42\r\n  5  14.700  15.226  -0.526  -1.66\r\n  6  17.600  17.442   0.158   0.49\r\n  7  18.800  19.020  -0.220  -0.69\r\n  8  21.100  21.236  -0.136  -0.42\r\n  9  22.700  22.815  -0.115  -0.37\r\n 10  24.800  25.031  -0.231  -0.75\r\n 11  26.900  26.609   0.291   1.01\r\n 12  29.200  28.825   0.375   1.33\r\n\r\n\n\nOutput.Text[1]:\n回归方程\r\n\r\nOLS_Y = 6.059 + 1.9609 OLS_X1 - 0.1275 OLS_X2\r\n\n\nOutput.Text[2]:\n系数\r\n\r\n项            系数   系数标准误    T 值    P 值  方差膨胀因子\r\n常量        6.059   0.243  24.91  0.000\r\nOLS_X1   1.9609  0.0511  38.39  0.000    2.97\r\nOLS_X2  -0.1275  0.0856  -1.49  0.171    2.97\r\n\n\nOutput.Text[3]:\n模型汇总\r\n\r\n       S    R-sq  R-sq（调整）  R-sq（预测）\r\n0.354391  99.78%    99.73%    99.60%\r\n\n\nOutput.Text[4]:\n方差分析\r\n\r\n来源        自由度   Adj SS   Adj MS      F 值    P 值\r\n回归          2  515.939  257.969  2054.01  0.000\r\n  OLS_X1    1  185.087  185.087  1473.71  0.000\r\n  OLS_X2    1    0.279    0.279     2.22  0.171\r\n误差          9    1.130    0.126\r\n合计         11  517.069\r\n\n\nOutput.Text[5]:\n所有观测值的拟合和诊断\r\n\r\n观测值   OLS_Y     拟合值      残差  标准化残差\r\n  1   8.100   7.765   0.335   1.13\r\n  2  10.000   9.853   0.147   0.50\r\n  3  11.800  11.432   0.368   1.21\r\n  4  13.200  13.648  -0.448  -1.42\r\n  5  14.700  15.226  -0.526  -1.66\r\n  6  17.600  17.442   0.158   0.49\r\n  7  18.800  19.020  -0.220  -0.69\r\n  8  21.100  21.236  -0.136  -0.42\r\n  9  22.700  22.815  -0.115  -0.37\r\n 10  24.800  25.031  -0.231  -0.75\r\n 11  26.900  26.609   0.291   1.01\r\n 12  29.200  28.825   0.375   1.33\r\n"
+    },
+    "ols_prediction": {
+      "executed": true,
+      "command_count": [
+        11,
+        12
+      ],
+      "command": "PREDICT C16;\n  CPREDICTORS C25 C26;\n  CONFIDENCE 95;\n  TPREDICTION;\n  PFITS C114;\n  PSEFITS C115;\n  CLIMITS C116 C117;\n  PLIMITS C118 C119.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\nOLS_Y 的预测\r\n \r\n\r\n回归方程\r\n\r\nOLS_Y = 6.059 + 1.9609 OLS_X1 - 0.1275 OLS_X2\r\n\r\n\r\n设置\r\n\r\n变量      设置\r\nOLS_X1   7\r\nOLS_X2   5\r\n\r\n\r\n预测\r\n\r\n    拟合值    拟合值标准误       95% 置信区间            95% 预测区间\r\n19.1477  0.107398  (18.9048, 19.3907)  (18.3101, 19.9854)\r\n\r\n\n\nOutput.Text[1]:\n回归方程\r\n\r\nOLS_Y = 6.059 + 1.9609 OLS_X1 - 0.1275 OLS_X2\r\n\n\nOutput.Text[2]:\n设置\r\n\r\n变量      设置\r\nOLS_X1   7\r\nOLS_X2   5\r\n\n\nOutput.Text[3]:\n预测\r\n\r\n    拟合值    拟合值标准误       95% 置信区间            95% 预测区间\r\n19.1477  0.107398  (18.9048, 19.3907)  (18.3101, 19.9854)\r\n",
+      "stored": {
+        "fit": [
+          19.147745664739887
+        ],
+        "se_fit": [
+          0.10739823961090132
+        ],
+        "ci_low": [
+          18.904793967848793
+        ],
+        "ci_high": [
+          19.39069736163098
+        ],
+        "pi_low": [
+          18.310053294416516
+        ],
+        "pi_high": [
+          19.985438035063257
+        ]
+      }
+    },
+    "one_sample_t_missing": {
+      "executed": true,
+      "command_count": [
+        12,
+        13
+      ],
+      "command": "ONET C31;\n  TEST 8;\n  ALTERNATIVE 1;\n  CONFIDENCE 90;\n  SPVALUE C70;\n  SCONF C71 C72.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n单样本 T: OneT\r\n \r\n\r\n描述性统计量\r\n\r\n                         μ 的\r\nN    均值   标准差  均值标准误  90% 下限\r\n6  8.33  4.32   1.76    5.73\r\n\r\nμ: OneT 的均值\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: μ = 8\r\n备择假设  H₁: μ > 8\r\n\r\n T 值    P 值\r\n0.19  0.429\r\n\r\n\n\nOutput.Text[1]:\n描述性统计量\r\n\r\n                         μ 的\r\nN    均值   标准差  均值标准误  90% 下限\r\n6  8.33  4.32   1.76    5.73\r\n\r\nμ: OneT 的均值\r\n\n\nOutput.Text[2]:\n检验\r\n\r\n原假设   H₀: μ = 8\r\n备择假设  H₁: μ > 8\r\n\r\n T 值    P 值\r\n0.19  0.429\r\n",
+      "stored": {
+        "p": [
+          0.42876914449209835
+        ],
+        "bound_low": [
+          5.730118560982296
+        ],
+        "bound_high": [
+          10.936548105684372
+        ]
+      }
+    },
+    "paired_t_one_side_missing": {
+      "executed": true,
+      "command_count": [
+        13,
+        14
+      ],
+      "command": "PAIR C32 C33;\n  TEST 0;\n  CONFIDENCE 95;\n  SPVALUE C73;\n  SCONF C74 C75.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n配对 T 检验和置信区间: PairBefore, PairAfter\r\n \r\n\r\n描述性统计量\r\n\r\n样本          N    均值   标准差  均值标准误\r\nPairBefore  5  9.60  5.59   2.50\r\nPairAfter   5  9.00  4.74   2.12\r\n\r\n\r\n配对差值的估计值\r\n\r\n                    μ_差 的 95% 置信区\r\n   均值    标准差  均值标准误       间\r\n0.600  0.894  0.400(-0.511, 1.711)\r\n\r\nμ_差: (PairBefore - PairAfter) 的均值\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: μ_差 = 0\r\n备择假设  H₁: μ_差 ≠ 0\r\n\r\n T 值    P 值\r\n1.50  0.208\r\n\r\n\n\nOutput.Text[1]:\n描述性统计量\r\n\r\n样本          N    均值   标准差  均值标准误\r\nPairBefore  5  9.60  5.59   2.50\r\nPairAfter   5  9.00  4.74   2.12\r\n\n\nOutput.Text[2]:\n配对差值的估计值\r\n\r\n                    μ_差 的 95% 置信区\r\n   均值    标准差  均值标准误       间\r\n0.600  0.894  0.400(-0.511, 1.711)\r\n\r\nμ_差: (PairBefore - PairAfter) 的均值\r\n\n\nOutput.Text[3]:\n检验\r\n\r\n原假设   H₀: μ_差 = 0\r\n备择假设  H₁: μ_差 ≠ 0\r\n\r\n T 值    P 值\r\n1.50  0.208\r\n",
+      "stored": {
+        "p": [
+          0.20799999999999902
+        ],
+        "ci_low": [
+          -0.5105780420711453
+        ],
+        "ci_high": [
+          1.7105780420711452
+        ]
+      }
+    },
+    "welch_t_different_missing": {
+      "executed": true,
+      "command_count": [
+        14,
+        15
+      ],
+      "command": "TWOSAMPLE 95 C35 C34;\n  TEST 0;\n  SPVALUE C76;\n  SCONF C77 C78.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n双样本 T 检验和置信区间: Welch2, Welch1\r\n \r\n\r\n方法\r\n\r\nμ₁: Welch2 的均值\r\nµ₂: Welch1 的均值\r\n差值: μ₁ - µ₂\r\n\r\n未针对此分析假定等方差。\r\n\r\n\r\n描述性统计量\r\n\r\n样本      N     均值   标准差  均值标准误\r\nWelch2  8  11.25  5.34    1.9\r\nWelch1  6   5.00  3.35    1.4\r\n\r\n\r\n差值的估计值\r\n\r\n       差值的 95% 置信区\r\n  差值        间\r\n6.25  (1.12, 11.38)\r\n\r\n\r\n检验\r\n\r\n原假设   H₀: μ₁ - µ₂ = 0\r\n备择假设  H₁: μ₁ - µ₂ ≠ 0\r\n\r\n T 值  自由度    P 值\r\n2.68   11  0.021\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\nμ₁: Welch2 的均值\r\nµ₂: Welch1 的均值\r\n差值: μ₁ - µ₂\r\n\r\n未针对此分析假定等方差。\r\n\n\nOutput.Text[2]:\n描述性统计量\r\n\r\n样本      N     均值   标准差  均值标准误\r\nWelch2  8  11.25  5.34    1.9\r\nWelch1  6   5.00  3.35    1.4\r\n\n\nOutput.Text[3]:\n差值的估计值\r\n\r\n       差值的 95% 置信区\r\n  差值        间\r\n6.25  (1.12, 11.38)\r\n\n\nOutput.Text[4]:\n检验\r\n\r\n原假设   H₀: μ₁ - µ₂ = 0\r\n备择假设  H₁: μ₁ - µ₂ ≠ 0\r\n\r\n T 值  自由度    P 值\r\n2.68   11  0.021\r\n",
+      "stored": {
+        "p": [
+          0.02131898712295056
+        ],
+        "ci_low": [
+          1.1215786281095932
+        ],
+        "ci_high": [
+          11.378421371890408
+        ]
+      }
+    },
+    "spearman_rank_one_missing": {
+      "executed": true,
+      "command_count": [
+        15,
+        16
+      ],
+      "command": "CORRELATION C36 C37;\n  SPEARMAN;\n  SCORRELATION M5;\n  SPVALUES M6.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n相关: Rank1X, Rank1Y\r\n \r\n\r\nRank1X, Rank1Y 的矩阵图\r\n\r\n\r\n\r\n方法\r\n\r\n相关类型    Spearman\r\n已使用的行数  9\r\n\r\n\r\n相关\r\n\r\n        Rank1X\r\nRank1Y   0.907\r\n\r\n\n\nOutput.Text[1]:\nRank1X, Rank1Y 的矩阵图\r\n\n\nOutput.Text[2]:\n方法\r\n\r\n相关类型    Spearman\r\n已使用的行数  9\r\n\n\nOutput.Text[3]:\n相关\r\n\r\n        Rank1X\r\nRank1Y   0.907\r\n",
+      "stored": {
+        "rho": [
+          0.9069897692335279
+        ],
+        "p": [
+          0.001873845003011728
+        ]
+      }
+    },
+    "kendall_rank_one_missing": {
+      "executed": true,
+      "command_count": [
+        16,
+        17
+      ],
+      "command": "XTABS C36 C37;\n  COUNTS;\n  CONCORDANT.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n列表统计量: Rank1X, Rank1Y\r\n \r\n\r\n行: Rank1X   列: Rank1Y\r\n\r\n      0  1  3  5  8  全部\r\n\r\n0     1  0  0  0  0   1\r\n1     0  0  2  0  0   2\r\n3     0  1  0  0  0   1\r\n5     0  0  0  1  0   1\r\n6     0  0  0  0  1   1\r\n7     0  0  0  0  2   2\r\n全部    1  1  2  1  3   8\r\n\r\n单元格内容\r\n      计数\r\n\r\n\r\n顺序类别的一致性量度\r\n\r\n配对   数量  度量结果综述\r\n一致   22  Somer 的 D（与 Rank1X 相关）     0.833333\r\n不一致   2  Somer 的 D（与 Rank1Y 相关）     0.769231\r\n结     4  Goodman 和 Kruskal 的 Gamma  0.833333\r\n合计   28  Kendall 的 Tau-b            0.800641\r\n\r\n\r\n一致性检验\r\n\r\nP 值\r\n0.0024667\r\n\r\n\n\nOutput.Text[1]:\n行: Rank1X   列: Rank1Y\r\n\r\n      0  1  3  5  8  全部\r\n\r\n0     1  0  0  0  0   1\r\n1     0  0  2  0  0   2\r\n3     0  1  0  0  0   1\r\n5     0  0  0  1  0   1\r\n6     0  0  0  0  1   1\r\n7     0  0  0  0  2   2\r\n全部    1  1  2  1  3   8\r\n\r\n单元格内容\r\n      计数\r\n\n\nOutput.Text[2]:\n顺序类别的一致性量度\r\n\r\n配对   数量  度量结果综述\r\n一致   22  Somer 的 D（与 Rank1X 相关）     0.833333\r\n不一致   2  Somer 的 D（与 Rank1Y 相关）     0.769231\r\n结     4  Goodman 和 Kruskal 的 Gamma  0.833333\r\n合计   28  Kendall 的 Tau-b            0.800641\r\n\n\nOutput.Text[3]:\n一致性检验\r\n\r\nP 值\r\n0.0024667\r\n"
+    },
+    "spearman_rank_different_missing": {
+      "executed": true,
+      "command_count": [
+        17,
+        18
+      ],
+      "command": "CORRELATION C38 C39;\n  SPEARMAN;\n  SCORRELATION M7;\n  SPVALUES M8.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n相关: Rank2X, Rank2Y\r\n \r\n\r\nRank2X, Rank2Y 的矩阵图\r\n\r\n\r\n\r\n方法\r\n\r\n相关类型    Spearman\r\n已使用的行数  10\r\n\r\n\r\n相关\r\n\r\n        Rank2X\r\nRank2Y   0.976\r\n\r\n\n\nOutput.Text[1]:\nRank2X, Rank2Y 的矩阵图\r\n\n\nOutput.Text[2]:\n方法\r\n\r\n相关类型    Spearman\r\n已使用的行数  10\r\n\n\nOutput.Text[3]:\n相关\r\n\r\n        Rank2X\r\nRank2Y   0.976\r\n",
+      "stored": {
+        "rho": [
+          0.9757754965005868
+        ],
+        "p": [
+          3.4896398846097804e-05
+        ]
+      }
+    },
+    "kendall_rank_different_missing": {
+      "executed": true,
+      "command_count": [
+        18,
+        19
+      ],
+      "command": "XTABS C38 C39;\n  COUNTS;\n  CONCORDANT.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n列表统计量: Rank2X, Rank2Y\r\n \r\n\r\n行: Rank2X   列: Rank2Y\r\n\r\n      1  2  4  5  6  8  9  全部\r\n\r\n0     1  0  0  0  0  0  0   1\r\n1     0  1  0  0  0  0  0   1\r\n3     0  1  0  0  0  0  0   1\r\n4     0  0  1  0  0  0  0   1\r\n6     0  0  0  0  1  0  0   1\r\n7     0  0  0  0  1  1  0   2\r\n8     0  0  0  0  0  0  1   1\r\n全部    1  2  1  0  2  1  1   8\r\n\r\n单元格内容\r\n      计数\r\n\r\n\r\n顺序类别的一致性量度\r\n\r\n配对   数量  度量结果综述\r\n一致   25  Somer 的 D（与 Rank2X 相关）     0.96154\r\n不一致   0  Somer 的 D（与 Rank2Y 相关）     0.92593\r\n结     3  Goodman 和 Kruskal 的 Gamma  1.00000\r\n合计   28  Kendall 的 Tau-b            0.94356\r\n\r\n\r\n一致性检验\r\n\r\nP 值\r\n0.0003035\r\n\r\n\n\nOutput.Text[1]:\n行: Rank2X   列: Rank2Y\r\n\r\n      1  2  4  5  6  8  9  全部\r\n\r\n0     1  0  0  0  0  0  0   1\r\n1     0  1  0  0  0  0  0   1\r\n3     0  1  0  0  0  0  0   1\r\n4     0  0  1  0  0  0  0   1\r\n6     0  0  0  0  1  0  0   1\r\n7     0  0  0  0  1  1  0   2\r\n8     0  0  0  0  0  0  1   1\r\n全部    1  2  1  0  2  1  1   8\r\n\r\n单元格内容\r\n      计数\r\n\n\nOutput.Text[2]:\n顺序类别的一致性量度\r\n\r\n配对   数量  度量结果综述\r\n一致   25  Somer 的 D（与 Rank2X 相关）     0.96154\r\n不一致   0  Somer 的 D（与 Rank2Y 相关）     0.92593\r\n结     3  Goodman 和 Kruskal 的 Gamma  1.00000\r\n合计   28  Kendall 的 Tau-b            0.94356\r\n\n\nOutput.Text[3]:\n一致性检验\r\n\r\nP 值\r\n0.0003035\r\n"
+    },
+    "normality_missing": {
+      "executed": true,
+      "command_count": [
+        19,
+        20
+      ],
+      "command": "NORMTEST C40;\n  SPVALUE C79.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\nNormalityY 的概率图\r\n \r\n\r\nNormalityY 的概率图\r\n\r\n\r\n\n\nOutput.Text[1]:\nNormalityY 的概率图\r\n",
+      "stored": {
+        "p": [
+          0.997
+        ]
+      }
+    },
+    "one_way_anova_missing": {
+      "executed": true,
+      "command_count": [
+        20,
+        21
+      ],
+      "command": "ONEWAY;\n  RESPONSE C41;\n  CATEGORICAL C42;\n  CONFIDENCE 95;\n  FISHER;\n  TANOVA;\n  TMEANS;\n  TMTEST.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n单因子方差分析: OneWayY 与 OneWayGroup\r\n \r\n\r\n方法\r\n\r\n原假设    所有均值都相等\r\n备择假设   并非所有的均值都相等\r\n显著性水平  α = 0.05\r\n未使用的行  2\r\n\r\n已针对此分析假定了相等方差。\r\n\r\n\r\n因子信息\r\n\r\n因子           水平数  值\r\nOneWayGroup    3  A, B, C\r\n\r\n\r\n方差分析\r\n\r\n来源           自由度  Adj SS  Adj MS    F 值    P 值\r\nOneWayGroup    2  105.16  52.580  26.71  0.000\r\n误差             8   15.75   1.969\r\n合计            10  120.91\r\n\r\n\r\n模型汇总\r\n\r\n      S    R-sq  R-sq（调整）  R-sq（预测）\r\n1.40312  86.97%    83.72%    76.06%\r\n\r\n\r\n均值\r\n\r\nOneWayGroup  N     均值    标准差      95% 置信区间\r\nA            3  1.000  1.000  (-0.868,  2.868)\r\nB            4  4.500  1.291  ( 2.882,  6.118)\r\nC            4  8.750  1.708  ( 7.132, 10.368)\r\n\r\n合并标准差 = 1.40312\r\n\r\n\r\nFisher 配对比较\r\n \r\n\r\n使用 Fisher LSD 方法和 95% 置信度对信息进行分组\r\n\r\nOneWayGroup  N     均值     分组\r\nC            4  8.750  A\r\nB            4  4.500     B\r\nA            3  1.000        C\r\n\r\n不共享字母的均值之间具有显著差异。\r\n\r\n\r\n均值差值的 Fisher 单个检验\r\n\r\n水平的差值   均值差值  差值标准误     95% 置信区间      T 值  调整的 P 值\r\nB - A   3.50   1.07  ( 1.03,  5.97)  3.27    0.011\r\nC - A   7.75   1.07  ( 5.28, 10.22)  7.23    0.000\r\nC - B  4.250  0.992  (1.962, 6.538)  4.28    0.003\r\n\r\n同时置信水平 = 88.77%\r\n\r\n \r\nOneWayY 与 OneWayGroup 的区间图\r\n\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\n原假设    所有均值都相等\r\n备择假设   并非所有的均值都相等\r\n显著性水平  α = 0.05\r\n未使用的行  2\r\n\r\n已针对此分析假定了相等方差。\r\n\n\nOutput.Text[2]:\n因子信息\r\n\r\n因子           水平数  值\r\nOneWayGroup    3  A, B, C\r\n\n\nOutput.Text[3]:\n方差分析\r\n\r\n来源           自由度  Adj SS  Adj MS    F 值    P 值\r\nOneWayGroup    2  105.16  52.580  26.71  0.000\r\n误差             8   15.75   1.969\r\n合计            10  120.91\r\n\n\nOutput.Text[4]:\n模型汇总\r\n\r\n      S    R-sq  R-sq（调整）  R-sq（预测）\r\n1.40312  86.97%    83.72%    76.06%\r\n\n\nOutput.Text[5]:\n均值\r\n\r\nOneWayGroup  N     均值    标准差      95% 置信区间\r\nA            3  1.000  1.000  (-0.868,  2.868)\r\nB            4  4.500  1.291  ( 2.882,  6.118)\r\nC            4  8.750  1.708  ( 7.132, 10.368)\r\n\r\n合并标准差 = 1.40312\r\n\n\nOutput.Text[6]:\nFisher 配对比较\r\n \r\n\r\n使用 Fisher LSD 方法和 95% 置信度对信息进行分组\r\n\r\nOneWayGroup  N     均值     分组\r\nC            4  8.750  A\r\nB            4  4.500     B\r\nA            3  1.000        C\r\n\r\n不共享字母的均值之间具有显著差异。\r\n\r\n\r\n均值差值的 Fisher 单个检验\r\n\r\n水平的差值   均值差值  差值标准误     95% 置信区间      T 值  调整的 P 值\r\nB - A   3.50   1.07  ( 1.03,  5.97)  3.27    0.011\r\nC - A   7.75   1.07  ( 5.28, 10.22)  7.23    0.000\r\nC - B  4.250  0.992  (1.962, 6.538)  4.28    0.003\r\n\r\n同时置信水平 = 88.77%\r\n\r\n \n\nOutput.Text[7]:\n使用 Fisher LSD 方法和 95% 置信度对信息进行分组\r\n\r\nOneWayGroup  N     均值     分组\r\nC            4  8.750  A\r\nB            4  4.500     B\r\nA            3  1.000        C\r\n\r\n不共享字母的均值之间具有显著差异。\r\n\n\nOutput.Text[8]:\n均值差值的 Fisher 单个检验\r\n\r\n水平的差值   均值差值  差值标准误     95% 置信区间      T 值  调整的 P 值\r\nB - A   3.50   1.07  ( 1.03,  5.97)  3.27    0.011\r\nC - A   7.75   1.07  ( 5.28, 10.22)  7.23    0.000\r\nC - B  4.250  0.992  (1.962, 6.538)  4.28    0.003\r\n\r\n同时置信水平 = 88.77%\r\n\n\nOutput.Text[9]:\nOneWayY 与 OneWayGroup 的区间图\r\n"
+    },
+    "two_way_anova_missing": {
+      "executed": true,
+      "command_count": [
+        21,
+        22
+      ],
+      "command": "GLM;\n  RESPONSE C43;\n  CATEGORICAL C44 C45;\n  TERMS C44 C45 C44*C45;\n  EFFECT;\n  TANOVA;\n  TSUMMARY.",
+      "last_error": "",
+      "output": "OutputDocument.Text:\n一般线性模型: TwoWayY 与 FactorA, FactorB\r\n \r\n\r\n方法\r\n\r\n因子编码   (-1, 0, +1)\r\n未使用的行  2\r\n\r\n\r\n因子信息\r\n\r\n因子       类型  水平数  值\r\nFactorA  固定    2  A, B\r\nFactorB  固定    2  X, Y\r\n\r\n\r\n方差分析\r\n\r\n来源                 自由度   Adj SS  Adj MS    F 值    P 值\r\n  FactorA            1   90.054  90.054  50.73  0.000\r\n  FactorB            1   23.625  23.625  13.31  0.004\r\n  FactorA*FactorB    1    1.339   1.339   0.75  0.405\r\n误差                  10   17.750   1.775\r\n合计                  13  134.929\r\n\r\n\r\n模型汇总\r\n\r\n      S    R-sq  R-sq（调整）  R-sq（预测）\r\n1.33229  86.84%    82.90%    75.21%\r\n\r\n\r\n系数\r\n\r\n项                    系数  系数标准误    T 值    P 值  方差膨胀因子\r\n常量                4.563  0.360  12.68  0.000\r\nFactorA\r\n  A              -2.562  0.360  -7.12  0.000    1.00\r\nFactorB\r\n  X              -1.313  0.360  -3.65  0.004    1.02\r\nFactorA*FactorB\r\n  A X             0.312  0.360   0.87  0.405    1.02\r\n\r\n\r\n回归方程\r\n\r\nTwoWayY = 4.563 - 2.562 FactorA_A + 2.562 FactorA_B - 1.313 FactorB_X + 1.313 FactorB_Y\r\n          + 0.312 FactorA*FactorB_A X - 0.312 FactorA*FactorB_A Y - 0.312 FactorA*FactorB_B X\r\n          + 0.312 FactorA*FactorB_B Y\r\n\r\n\n\nOutput.Text[1]:\n方法\r\n\r\n因子编码   (-1, 0, +1)\r\n未使用的行  2\r\n\n\nOutput.Text[2]:\n因子信息\r\n\r\n因子       类型  水平数  值\r\nFactorA  固定    2  A, B\r\nFactorB  固定    2  X, Y\r\n\n\nOutput.Text[3]:\n方差分析\r\n\r\n来源                 自由度   Adj SS  Adj MS    F 值    P 值\r\n  FactorA            1   90.054  90.054  50.73  0.000\r\n  FactorB            1   23.625  23.625  13.31  0.004\r\n  FactorA*FactorB    1    1.339   1.339   0.75  0.405\r\n误差                  10   17.750   1.775\r\n合计                  13  134.929\r\n\n\nOutput.Text[4]:\n模型汇总\r\n\r\n      S    R-sq  R-sq（调整）  R-sq（预测）\r\n1.33229  86.84%    82.90%    75.21%\r\n\n\nOutput.Text[5]:\n系数\r\n\r\n项                    系数  系数标准误    T 值    P 值  方差膨胀因子\r\n常量                4.563  0.360  12.68  0.000\r\nFactorA\r\n  A              -2.562  0.360  -7.12  0.000    1.00\r\nFactorB\r\n  X              -1.313  0.360  -3.65  0.004    1.02\r\nFactorA*FactorB\r\n  A X             0.312  0.360   0.87  0.405    1.02\r\n\n\nOutput.Text[6]:\n回归方程\r\n\r\nTwoWayY = 4.563 - 2.562 FactorA_A + 2.562 FactorA_B - 1.313 FactorB_X + 1.313 FactorB_Y\r\n          + 0.312 FactorA*FactorB_A X - 0.312 FactorA*FactorB_A Y - 0.312 FactorA*FactorB_B X\r\n          + 0.312 FactorA*FactorB_B Y\r\n"
+    }
+  }
+}

@@ -490,7 +490,7 @@ def _header_key(value: str) -> str:
 
 
 def displayed_cell(raw: str, row_aliases: tuple[str, ...], column_aliases: tuple[str, ...]) -> tuple[float, str]:
-    lines = raw.replace("\r", "\n").replace("\xa0", " ").splitlines()
+    lines = raw.replace("\r\n", "\n").replace("\r", "\n").replace("\xa0", " ").splitlines()
     wanted = {_header_key(alias) for alias in column_aliases}
     for header_index, header in enumerate(lines):
         cells = _table_cells(header)
@@ -813,6 +813,33 @@ def called_names(node: ast.AST) -> list[str]:
 def build_feature_matrix(summary: list[dict]) -> list[dict]:
     tree = ast.parse((CODE / "MiniJMP.py").read_text(encoding="utf-8"))
     case_status = {row["case_id"]: row["功能状态"] for row in summary}
+    phase4 = {
+        "04正态性检验": ("部分验证", "第二轮重核 Anderson–Darling p 值；Minitab COM 未提供可稳定读取的 AD 统计量。"),
+        "13相关分析": ("部分验证", "第一阶段 Pearson 已验证；第二轮固定序数数据中 Spearman 系数和双侧 p 值通过，Kendall tau-b 系数通过但 XTABS 一致性检验 p 与 MiniJMP 双侧 tau-b p 属方法差异。Minitab 19 无 Hoeffding D 原生对标项；缺失行行为未覆盖。"),
+        "15残差图": ("部分验证", "第二轮核对多元 OLS 的拟合值、残差、标准化残差、杠杆值及 Cook 距离；独立残差图配置未覆盖。"),
+        "18完整回归分析": ("部分验证", "第二轮覆盖多元及分类 OLS、二值 Logistic；预测区间原生参考未取得，部分 Logistic 协方差/拟合优度指标未与 MiniJMP 对齐。变量筛选、WLS、Nominal/Ordinal Logistic 与 PLS 未覆盖。"),
+        "19泊松回归": ("部分验证", "第二轮覆盖一个连续预测变量与 log 链接；偏差 R²、调整偏差 R² 和 AICc 未由当前 MiniJMP 接口输出，其他链接与分类预测变量未覆盖。"),
+        "25单样本均值 t 检验": ("部分验证", "第二轮验证 α=.10 的双侧及右侧检验和 90% 区间；缺失值及其他尾向/参数组合未纳入固定案例。"),
+        "27单样本标准差检验": ("部分验证", "第二轮对照卡方及 Bonett 双侧结果，并核对右侧卡方区间；MiniJMP 接口未返回右侧 Bonett p 值。"),
+        "28单比率检验": ("部分验证", "第二轮覆盖默认精确法、USEZ 正态近似及右侧 USEZ；其他精确法/样本规模组合未覆盖。"),
+        "29双样本 t 检验": ("方法不同", "第二轮合并方差 t 的 Minitab 数值通过；第一轮 Welch 自由度截断差异仍为 METHOD_DIFF，MiniJMP 仅提供双侧区间。"),
+        "30配对 t 检验": ("部分验证", "第二轮验证 α=.10 的双侧及右侧检验和 90% 区间；缺失配对和额外样本处理未纳入固定案例。"),
+        "31双比率检验": ("部分验证", "第二轮覆盖未合并/合并正态、Fisher 双侧及右侧 p 值和区间；其他样本规模未覆盖。"),
+        "32多样本标准差检验": ("部分验证", "第二轮确认 MiniJMP Brown–Forsythe 与 Minitab 中位数中心 Levene 一致；均值中心 Levene 是不同方法，VARTEST 多重比较 p 值未由 MiniJMP 接口输出。"),
+        "34单因子方差分析": ("部分验证", "第二轮在不平衡样本中核对 SS/DF/MS/F/p、R²、调整 R²、均值区间及 Fisher LSD；预测 R² 未由 MiniJMP 接口输出。"),
+        "35双因子方差分析": ("部分验证", "第二轮核对不平衡固定效应 A+B+A*B、Type III Adjusted SS、F/p、R²及调整 R²；预测 R²、其他模型项与缺失单元配置未覆盖。"),
+    }
+    phase5 = {
+        "04正态性检验": ("部分验证", "缺失值案例按有效 N 核对 Minitab 19 默认 Anderson–Darling p 值；COM 未提供可稳定读取的 AD 统计量。MiniJMP 的 Shapiro–Wilk W/p 无同名 Minitab 19 原生方法，Ryan–Joiner 为不同检验，明确记 UNSUPPORTED。"),
+        "13相关分析": ("部分验证", "Spearman 与 Kendall 增加单列及不同位置缺失、并列秩案例，按有效配对行比较；Spearman 系数及 p 值取得原生参考，Kendall tau-b 系数通过，XTABS 一致性 p 与 tau-b 双侧 p 保留方法差异；Hoeffding D 仍无原生参考。"),
+        "18完整回归分析": ("部分验证", "修正 Minitab 19 预测引用为 PREDICT C16；同一第二轮数据的预测值及 95% 均值/预测区间已取得原生存储值并复验。二值 Logistic 截距 z/p 经复核为原生字段缺失并分类 UNSUPPORTED；预测 R²仍无 MiniJMP 接口字段。"),
+        "19泊松回归": ("部分验证", "复核 phase4 Poisson 截距 z/p：Minitab 命令成功，系数表和 COM 存储均无该字段，历史 NOT_RUN 在 phase5 分类为 UNSUPPORTED；其他回归指标沿用 phase4 范围。"),
+        "25单样本均值 t 检验": ("部分验证", "新增缺失值右侧检验，核对 N、均值、标准差、标准误、t、df、p 和 90% 单侧区间；0 保留为合法观测。"),
+        "29双样本 t 检验": ("方法不同", "新增不等缺失数的 Welch 案例，核对 N、均值、标准差、标准误和 t；df、p 及置信区间差异来自 Minitab 19 截断 Welch-Satterthwaite df，MiniJMP 保留分数 df。"),
+        "30配对 t 检验": ("部分验证", "新增仅一侧观测缺失的配对案例，核对完整配对 N、差值描述统计、df、t、p 和区间；0 保留为合法观测。"),
+        "34单因子方差分析": ("部分验证", "缺失响应及不平衡组案例核对 N、SS/DF/MS/F/p、S、R²、调整 R²、各组均值与95%区间及Fisher LSD两两 p；预测 R² 仍无 MiniJMP 接口字段。"),
+        "35双因子方差分析": ("部分验证", "不平衡 2×2 缺失响应案例按 Type III 核对各项 SS/DF/MS/F/p、S、R²及调整 R²；当前 MiniJMP 入口不提供拟合值/预测值，预测 R²亦未输出。"),
+    }
     parity_case = {
         "01描述性统计": "descriptive", "04正态性检验": "normality", "13相关分析": "pearson",
         "14线性回归": "ols_linear", "25单样本均值 t 检验": "one_sample_t",
@@ -840,7 +867,28 @@ def build_feature_matrix(summary: list[dict]) -> list[dict]:
                 if case_id and case_id in case_status:
                     status = "已验证" if case_status[case_id] == "PASS" else (
                         "方法不同" if case_status[case_id] == "METHOD_DIFF" else "待验证")
+                if raw_label in phase4:
+                    status, phase_note = phase4[raw_label]
+                    note = f"{note} 第二轮限定范围：{phase_note}"
+                    independent = numeric_reference = "部分"
+                    sources_phase4 = (
+                        "Out/statistics_minitab19_parity/phase4/case_inputs.json; "
+                        "minitab_reference.csv; comparison.csv; summary.csv"
+                    )
+                else:
+                    sources_phase4 = ""
                 sources = f"code/MiniJMP.py:{item_line}; {tests}; docs/usage/、docs/advanced-statistics.md"
+                if sources_phase4:
+                    sources += f"; {sources_phase4}"
+                if raw_label in phase5:
+                    status, phase_note = phase5[raw_label]
+                    note = f"{note} 第三轮限定范围：{phase_note}"
+                    independent = numeric_reference = "部分"
+                    sources += (
+                        "; Out/statistics_minitab19_parity/phase5/case_inputs.json; "
+                        "minitab_session_commands.txt; minitab_raw_outputs.txt; "
+                        "minitab_reference.csv; comparison.csv; summary.csv"
+                    )
             elif kind == "doe":
                 calls = [call for call in called_names(entry) if call in DOE_CALLS]
                 production = "; ".join(DOE_CALLS[call] for call in calls) or f"code/MiniJMP.py: {entry_text}"

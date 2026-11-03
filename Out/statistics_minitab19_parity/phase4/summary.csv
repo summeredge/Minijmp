@@ -1,0 +1,15 @@
+﻿case_id,比较指标数,PASS,FAIL,METHOD_DIFF,UNSUPPORTED,NOT_RUN,功能状态,备注
+one_sample_t,11,11,0,0,0,0,PASS,
+paired_t,11,11,0,0,0,0,PASS,
+two_sample_pooled_t,15,14,0,0,1,0,MIXED,Minitab 提供单侧下限；MiniJMP t_test_2samples 接口只返回双侧 CI 和单侧 p，没有单侧 CI 字段。
+one_variance,15,14,0,0,1,0,MIXED,MiniJMP var_1sample 返回 Bonett 双侧 p，但没有右侧 Bonett p 字段；不以 p/2 推导。
+one_proportion,12,12,0,0,0,0,PASS,
+two_proportion,23,23,0,0,0,0,PASS,
+multi_variance,10,8,0,1,1,0,MIXED,"MiniJMP Levene uses group means; Minitab 19 VARTEST uses medians. This is a method difference, not an algorithm defect.；Minitab 19 supplies a Bonferroni multiple-comparison result; MiniJMP multi_pop_var_test does not return a matching p value."
+one_way_anova,29,28,0,0,1,0,MIXED,MiniJMP one_way_anova 返回结构不含 PRESS/预测 R²。
+two_way_anova,24,23,0,0,1,0,MIXED,MiniJMP two_way_anova 返回结构不含 PRESS/预测 R²。
+ols_multiple,36,30,0,0,1,5,MIXED,MiniJMP advanced_regression summary 不含 PRESS/预测 R²。；Minitab 19.1.0.1 COM 的 PREDICT 项目模型语法报错，未取到原生预测值；命令和错误见 minitab_raw_outputs.txt。
+ols_categorical,22,21,0,0,1,0,MIXED,MiniJMP categorical OLS summary 不含 PRESS/预测 R²。
+binary_logistic,23,10,0,4,7,2,MIXED,高精度 Minitab SE 与 MiniJMP BFGS 协方差有实现差异，但两者按 Minitab 显示的 3 位小数一致。Minitab 方法说明其 Logistic SE 使用 observed-Hessian 协方差；MiniJMP 泛型 Logistic 读取 statsmodels BFGS 协方差。方法来源：https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/regression/how-to/fit-binary-logistic-model/methods-and-formulas/estimated-equation/。；MiniJMP Logistic CI uses its statsmodels BFGS covariance; Minitab native CI uses its stored observed-Hessian SE. Upper endpoint differs at the fourth displayed decimal; formula and link are aligned. See Minitab methods source in the paired SE rows.；Minitab 19 GZLM 原生系数表未显示截距 z/p；未据 MiniJMP 值推造参考。；MiniJMP Logistic summary 不返回调整偏差 R²。；MiniJMP Logistic summary 不返回 AICc。；MiniJMP diagnostics 有 Pearson χ²，但没有相同自由度下的 GOF p 字段。；MiniJMP Logistic diagnostics 未返回 Minitab 同口径 residual deviance GOF χ²。；MiniJMP Logistic diagnostics 未返回 Minitab 同口径 residual deviance GOF p。；MiniJMP Logistic diagnostics 没有 Hosmer–Lemeshow 分组检验。
+poisson,20,15,0,0,3,2,MIXED,MiniJMP generalized Poisson summary 不返回 deviance R²。；MiniJMP generalized Poisson summary 不返回调整偏差 R²。；MiniJMP generalized Poisson summary 不返回 AICc。；Minitab 19 Poisson 系数表未显示截距 z/p；未据 MiniJMP 值推造参考。
+rank_correlation,6,3,0,1,2,0,MIXED,合理方法差异：Minitab 的 XTABS CONCORDANT 检验序数类别独立性并以正态统计量给出一致性检验 p；MiniJMP nonpara_cor.kendall 返回双侧 Kendall tau-b 检验 p。系数另行比较；未为机械匹配而改算法。Minitab 方法说明：https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/tables/how-to/cross-tabulation-and-chi-square/methods-and-formulas/measures-of-concordance-for-ordinal-categories/。；Minitab 19 CORRELATION 命令只提供 Pearson/Spearman，XTABS CONCORDANT 提供 Kendall tau-b；本菜单的 Hoeffding D 无对应 Minitab 19 原生结果，故不伪造参考。

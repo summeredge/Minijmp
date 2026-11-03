@@ -1,0 +1,6 @@
+Minitab 19.1.0.1 phase5 重复性核验
+完整脚本重复执行一次；忽略 COM PID 后比较 107 条明细、汇总、矩阵及原始输出。
+phase5 文件哈希一致：PASS
+phase4 14 个历史文件未变化：PASS
+状态：PASS=94，METHOD_DIFF=6，UNSUPPORTED=7，NOT_RUN=0，FAIL=0
+差异文件：无

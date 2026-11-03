@@ -1,0 +1,5 @@
+﻿统计量,Minitab 19.1.0.1,MiniJMP,截断 df 复算,结果,依据
+t,-2.79,-2.78501733897839,,PASS,Minitab 显示 t=-2.79，两位小数容差为 0.005；两边使用相同 Welch 标准误。
+df,12,12.992964037069,12,METHOD_DIFF,Minitab 桌面版按 Welch-Satterthwaite df 向下截为整数；MiniJMP 保留分数 df。
+双侧 p,0.0164962387164297,0.0154734868214532,0.0164962387167654,METHOD_DIFF,Minitab 原生 p 与相同 t 值、df=12 的双侧尾概率吻合；分数 df 得到 MiniJMP p。
+SE difference,0.96819094577619,0.96819094577619,,PASS,Minitab 与 MiniJMP 的不合并样本方差、n1/n2 和 Welch 标准误一致。

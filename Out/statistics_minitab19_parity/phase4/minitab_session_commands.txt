@@ -1,0 +1,217 @@
+===== one_sample_t_two_sided =====
+ONET C1;
+  TEST 10.5;
+  CONFIDENCE 90;
+  SPVALUE C61;
+  SCONF C62 C63.
+
+===== one_sample_t_right =====
+ONET C1;
+  TEST 10.5;
+  ALTERNATIVE 1;
+  CONFIDENCE 90;
+  SPVALUE C64;
+  SCONF C65 C66.
+
+===== paired_t_two_sided =====
+PAIR C2 C3;
+  TEST 0;
+  CONFIDENCE 90;
+  SPVALUE C67;
+  SCONF C68 C69.
+
+===== paired_t_right =====
+PAIR C2 C3;
+  TEST 0;
+  ALTERNATIVE 1;
+  CONFIDENCE 90;
+  SPVALUE C70;
+  SCONF C71 C72.
+
+===== pooled_t_two_sided =====
+TWOSAMPLE 90 C4 C5;
+  TEST 0;
+  POOLED;
+  SPVALUE C73;
+  SCONF C74 C75.
+
+===== pooled_t_right =====
+TWOSAMPLE 90 C4 C5;
+  TEST 0;
+  POOLED;
+  ALTERNATIVE 1;
+  SPVALUE C76;
+  SCONF C77 C78.
+
+===== one_variance_two_sided =====
+ONEV C6;
+  STEST 3;
+  CONFIDENCE 90.
+
+===== one_variance_right =====
+ONEV C6;
+  STEST 3;
+  ALTERNATIVE 1;
+  CONFIDENCE 90.
+
+===== one_proportion_default =====
+PONE 20 12;
+  TEST 0.5;
+  CONFIDENCE 90;
+  SPVALUE C79;
+  SCONF C80 C81.
+
+===== one_proportion_normal =====
+PONE 20 12;
+  TEST 0.5;
+  CONFIDENCE 90;
+  USEZ;
+  SPVALUE C82;
+  SCONF C83 C84.
+
+===== one_proportion_normal_right =====
+PONE 20 12;
+  TEST 0.5;
+  ALTERNATIVE 1;
+  CONFIDENCE 90;
+  USEZ;
+  SPVALUE C103;
+  SCONF C104 C105.
+
+===== two_proportion_default =====
+PTWO 20 12 20 9;
+  TEST 0;
+  CONFIDENCE 90;
+  SPVALUE C85;
+  SFISHER C86;
+  SCONFC C87 C88.
+
+===== two_proportion_pooled =====
+PTWO 20 12 20 9;
+  TEST 0;
+  CONFIDENCE 90;
+  POOLED;
+  SPVALUE C89;
+  SFISHER C90;
+  SCONFC C91 C92.
+
+===== two_proportion_right =====
+PTWO 20 12 20 9;
+  TEST 0;
+  ALTERNATIVE 1;
+  CONFIDENCE 90;
+  SPVALUE C106;
+  SFISHER C107;
+  SCONFC C108 C109.
+
+===== two_proportion_pooled_right =====
+PTWO 20 12 20 9;
+  TEST 0;
+  POOLED;
+  ALTERNATIVE 1;
+  CONFIDENCE 90;
+  SPVALUE C110;
+  SFISHER C111;
+  SCONFC C112 C113.
+
+===== multi_variance =====
+VARTEST C9 C10.
+
+===== one_way_anova_fisher =====
+ONEWAY;
+  RESPONSE C11;
+  CATEGORICAL C12;
+  CONFIDENCE 95;
+  FISHER;
+  TANOVA;
+  TMEANS;
+  TMTEST.
+
+===== two_way_anova_type3 =====
+GLM;
+  RESPONSE C13;
+  CATEGORICAL C14 C15;
+  TERMS C14 C15 C14*C15;
+  EFFECT;
+  TANOVA;
+  TSUMMARY.
+
+===== ols_multiple =====
+REGRESS;
+  RESPONSE C16;
+  CONTINUOUS C17 C18;
+  TERMS C17 C18;
+  CONSTANT;
+  UNSTANDARDIZED;
+  CONFIDENCE 95;
+  TCOEFFICIENTS;
+  TANOVA;
+  TSUMMARY;
+  TDIAGNOSTICS 1;
+  RESIDUALS C93;
+  SRESIDUALS C94;
+  HI C95;
+  COOK C96;
+  FITS C97.
+
+===== ols_categorical =====
+REGRESS;
+  RESPONSE C27;
+  CATEGORICAL C28;
+  TERMS C28;
+  CONSTANT;
+  UNSTANDARDIZED;
+  BINARY;
+  REFERENCE C28 "A";
+  CONFIDENCE 95;
+  TCOEFFICIENTS;
+  TANOVA;
+  TSUMMARY.
+
+===== ols_prediction =====
+PREDICT "multiple_regression|1";
+  CPREDICTORS C25 C26;
+  CONFIDENCE 95;
+  TPREDICTION;
+  PFITS C114;
+  PSEFITS C115;
+  CLIMITS C116 C117;
+  PLIMITS C118 C119.
+
+===== binary_logistic =====
+GZLM;
+  BINOMIAL;
+  LOGIT;
+  RESPONSE C21;
+  CONTINUOUS C22;
+  TERMS C22;
+  TCOEFFICIENTS;
+  TSUMMARY;
+  TDEVIANCE;
+  COEFFICIENTS C120;
+  SECOEFFICIENTS C121.
+
+===== poisson =====
+GZLM;
+  POISSON;
+  LOG;
+  RESPONSE C23;
+  CONTINUOUS C24;
+  TERMS C24;
+  TCOEFFICIENTS;
+  TSUMMARY;
+  TDEVIANCE;
+  COEFFICIENTS C122;
+  SECOEFFICIENTS C123.
+
+===== spearman_correlation =====
+CORRELATION C29 C30;
+  SPEARMAN;
+  NODEFAULT;
+  SCORRELATION M3;
+  SPVALUES M4.
+
+===== kendall_association =====
+XTABS C29 C30;
+  COUNTS;
+  CONCORDANT.
