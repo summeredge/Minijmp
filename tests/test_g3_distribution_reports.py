@@ -22,7 +22,7 @@ DATA = [1., 2., 3., 4., 2., 12., 3., 12., 3., 2., 40., 3., 2.]
 CASES = [
     ('Normal', 'fit_norm', ['总体均值 mu', '总体标准差 sigma'],
      (6.846153846153846, 10.59753236879663),
-     (97.26855250745247, 102.46855250745247, 102.39845122237554),
+     (97.22799730769651, 102.42799730769651, 102.35789602261958),
      (2.4640161940626157, 1.188665222608914e-6)),
     ("Student's t", 'fit_t', ['位置 loc', '尺度 scale', '自由度 df'],
      (2.5817802627945747, .7843199376161987, .7427137276103728),
@@ -46,8 +46,8 @@ CASES = [
      (1.2945953007205286, .002320502783517517)),
 ]
 ORDER = ['Lognormal', 'Exponential', "Student's t", 'Weibull', 'Gamma', 'Normal']
-WEIGHTS = [.6502410461311354, .13953328855655106, .1347585699731787,
-           .04150962381880772, .033956651534672116, 8.199856548451121e-7]
+WEIGHTS = [.6502410352089961, .13953328621279976, .1347585677096287,
+           .0415096231215674, .03395665096429965, 8.367827083628719e-7]
 
 
 @pytest.fixture
@@ -145,6 +145,31 @@ def test_all_fits_values_fields_parameter_order_and_output_switch(case, print_ou
     assert capsys.readouterr().out == ''
 
 
+def test_normal_information_criteria_use_mle_without_changing_sample_fit():
+    # 独立闭式参考：sigma_MLE² = SSE/N，-2LL = N[log(2*pi*sigma_MLE²)+1]。
+    n = len(DATA)
+    mean = sum(DATA) / n
+    variance = sum((x - mean) ** 2 for x in DATA) / n
+    minus_2ll = n * (np.log(2 * np.pi * variance) + 1)
+    expected = (minus_2ll, minus_2ll + 4 * n / (n - 3),
+                minus_2ll + 2 * np.log(n))
+    result = dist_fit.fit_norm(DATA, print_out=False)
+    assert result['ABL'] == pytest.approx(expected, rel=1e-12)
+    assert result['fits'] == CASES[0][3]
+    assert result['fits'] == pytest.approx((mean, np.sqrt(variance * n / (n - 1))), rel=1e-14)
+    assert result['rv'].args == result['fits']
+    old_minus_2ll = -2 * sum(stats.norm.logpdf(DATA, *result['fits']))
+    assert old_minus_2ll - minus_2ll == pytest.approx(.0405551997559, abs=1e-12)
+
+    comparison = dist_fit.compare_dist(DATA, print_out=False)
+    aiccs = dict((case[0], case[4][1]) for case in CASES)
+    aiccs['Normal'] = expected[1]
+    relative = {name: np.exp(-.5 * (aicc - min(aiccs.values())))
+                for name, aicc in aiccs.items()}
+    for name, _, _, weight in comparison:
+        assert weight == pytest.approx(relative[name] / sum(relative.values()), rel=1e-12)
+
+
 def test_fitted_distribution_calibrations_match_phase6_native_values():
     normal_ties = [59, 61, 55, 66, 52, 60, 61, 51, 60, 61, 56, 65, 63, 58, 59, 61,
                    62, 65, 63, 62, 63, 64, 65, 64, 68, 64, 69, 62, 64, 67, 65,
@@ -237,7 +262,7 @@ def test_small_sample_missing_aicc_and_weights_preserve_nan_order(tables):
     comparison = tables[-1]
     assert [row[2] for row in comparison.rows] == ['*'] * 6
     assert [row[1] for row in comparison.rows] == ['*', '*', '*', '*', '16.159', '*']
-    assert tables[1].rows == [['7.514', '*', '9.711']]
+    assert tables[1].rows == [['7.297', '*', '9.494']]
     lines = []
     dist_fit.compare_dist([1., 2., 3.], print_port=lines.append, selected=['Normal', 'Exponential'])
     assert 'AICc 或权重为 * 时，现有排序不提供有效的优劣结论。' in lines
@@ -248,8 +273,12 @@ def test_failed_candidates_are_reported_and_excluded_without_altering_valid_fits
     lines = []
     result = dist_fit.compare_dist([-2., -1., 0., 1., 2.], print_out=print_out, print_port=lines.append)
     assert [row[0] for row in result] == ['Normal', "Student's t"]
-    assert result[0][1] == pytest.approx((17.770838991417502, 27.770838991417502, 20.9897148162857))
-    assert result[0][-1] == pytest.approx(.999951898116555)
+    # N=5、均值0、MLE方差2 的独立正态似然参考。
+    minus_2ll = 5 * (np.log(2 * np.pi * 2) + 1)
+    assert result[0][1] == pytest.approx((minus_2ll, minus_2ll + 10, minus_2ll + 2 * np.log(5)))
+    old_weight = .999951898116555
+    expected_weight = 1 / (1 + (1 / old_weight - 1) * np.exp((minus_2ll - 17.770838991417502) / 2))
+    assert result[0][-1] == pytest.approx(expected_weight, rel=1e-12)
     if print_out:
         assert sum('拟合失败' in line for line in lines) == 4
         assert [row[0] for row in tables[-1].rows] == ['Normal', "Student's t"]
