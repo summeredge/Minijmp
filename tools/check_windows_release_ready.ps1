@@ -93,23 +93,21 @@ if (!$GitOnly) {
         'sample_data/CPK_sample.pickle', 'sample_data/GRR_crossed.pickle', 'sample_data/fit_sample_data.pickle',
         'LICENSE', 'tools/build_windows_release.ps1', 'tools/check_windows_release_ready.ps1',
         'tools/make_zip.py', 'tools/smoke_launch.py', 'tools/release_env.py',
-        'tools/release_metadata.py', 'tools/write_third_party_notices.py'
+        'tools/release_metadata.py', 'tools/write_third_party_notices.py', 'tools/write_release_sbom.py',
+        'docs/release/VERSION-INFO.md', 'docs/release/INSTALL-USAGE.md',
+        'docs/release/SOURCE-PROVENANCE.md', 'docs/release/SOURCE-PROVENANCE.csv',
+        'packaging/windows/licenses/BlakerCI-DESCRIPTION.txt', 'packaging/windows/licenses/Hmisc-DESCRIPTION.txt'
     )
     $missing = @($runtimeInputs | Where-Object { !(Test-Path -LiteralPath (Join-Path $root $_)) })
     if ($missing) { $missing | ForEach-Object { Add-Result 'BLOCKED' "缺少构建输入：$_" } }
     else { Add-Result 'PASS' '入口、运行资源、许可证与发布脚本均已存在。' }
 
     # The release generates clean runtime files from these source templates.
-    $piInputs = @('PIReader/PIReader.exe', 'PIReader/OSIsoft.PISDK.dll',
-        'PIReader/OSIsoft.PISDKCommon.dll', 'PIReader/OSIsoft.PITimeServer.dll',
-        'PIReader/config.example.txt', 'PIReader/tags.example.txt')
-    $missingPi = @($piInputs | Where-Object { !(Test-Path -LiteralPath (Join-Path $root $_)) })
-    if ($missingPi) {
-        $missingPi | ForEach-Object { Add-Result 'BLOCKED' "PI 随包模板缺失：$_" }
-    } else {
-        Add-Result 'PASS' 'PIReader、三份 PI SDK DLL 与干净配置模板均存在；本机配置不会进入运行包。'
+    $piInputs = @('PIReader/config.example.txt', 'PIReader/tags.example.txt')
+    foreach ($item in $piInputs) {
+        if (!(Test-Path -LiteralPath (Join-Path $root $item))) { Add-Result 'BLOCKED' "PI template missing: $item" }
     }
-    Add-Result 'WARNING' 'PI SDK DLL 再分发授权尚未确认；构建产物仅供授权的内部验证，正式对外分发受阻。'
+    Add-Result 'PASS' 'PI SDK DLLs and precompiled PIReader are excluded from the release; optional PI support requires separately authorized components.'
 
     # The source bundle is built from disk, so untracked sources are included by
     # design. Tracked build inputs are listed only to document ownership.

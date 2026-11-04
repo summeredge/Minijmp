@@ -23,6 +23,7 @@ SOURCE_FILES = ('.gitignore', 'LICENSE', 'README.md', 'CHANGES', 'AGENTS.md', 'C
 SOURCE_SKIP_SUFFIXES = {'.log', '.tmp', '.bak', '.orig', '.swp'}
 SOURCE_SKIP_NAMES = {'.DS_Store', 'Thumbs.db', 'local_settings.py'}
 SOURCE_SKIP_PATHS = {
+    'PIReader/PIReader.exe',
     'PIReader/config.txt',
     'PIReader/tags.txt',
     'PIReader/OSIsoft.PISDK.dll',

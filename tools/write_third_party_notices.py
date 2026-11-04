@@ -134,6 +134,13 @@ def generate(destination):
 
     notice = (
         'THIRD-PARTY NOTICES\n\n'
+        'MiniJMP upstream: G.Du, Copyright (C) G.Du 2024-, https://github.com/garrydu/Minijmp .\n'
+        'Embedded PandasTable/DataExplore: Copyright (C) Damien Farrell 2014-, GPL-3.0-or-later; https://github.com/dmnfarrell/pandastable .\n'
+        'BlakerCI 1.0-6 translated code: Jan Klaschka, GPL-3.0-only; code/blakerCI.py.\n'
+        'Hmisc hoeffd.s translation: Frank E Harrell Jr and contributors, GPL-2.0-or-later; original version unknown; code/nonpara_cor.py.\n'
+        'hoeffdings_d_explainer: Dicklesworthstone, copied README snippet in code/nonpara_cor.py; license/redistribution authorization UNCONFIRMED; https://github.com/Dicklesworthstone/hoeffdings_d_explainer .\n'
+        'PI adapter/PIReader sources reused from https://github.com/summeredge/PI-Data-Viewer ; separate license evidence UNCONFIRMED.\n'
+        'PIReader.exe and proprietary OSIsoft SDK DLLs are excluded from both release archives.\n\n'
         'MiniJMP is licensed under GNU GPL version 3 or later; see the adjacent LICENSE file.\n'
         'The following runtime dependencies and PyInstaller bootloader were used for this build.\n'
         'License metadata and upstream license files are copied from the locked build environment.\n\n'

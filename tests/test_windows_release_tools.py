@@ -282,7 +282,7 @@ def test_release_uses_only_clean_pireader_templates():
     precheck = (ROOT / 'tools' / 'check_windows_release_ready.ps1').read_text(encoding='utf-8')
 
     assert "'PIReader\\config.example.txt', 'PIReader\\tags.example.txt'" in script
-    assert "Copy-Item -LiteralPath (Join-Path $piSource 'PIReader.exe')" in script
+    assert "Copy-Item -LiteralPath (Join-Path $piSource 'PIReader.exe')" not in script
     assert "Join-Path $piSource 'config.example.txt'" in script
     assert "Join-Path $piSource 'tags.example.txt'" in script
     assert 'Get-ChildItem -LiteralPath $piSource' not in script
@@ -331,19 +331,17 @@ def test_python_version_gate_accepts_311_and_newer(tmp_path):
 def test_version_identifiers_and_build_info_agree():
     levels = release_metadata.check()
     assert [level for level, _ in levels] == ['PASS'], levels
-    assert 'V1.0-beta2' in levels[0][1] and '1.0.0.2' in levels[0][1]
+    assert 'V1.0' in levels[0][1] and '1.0.0.0' in levels[0][1]
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
-    assert '$releaseVersion = ' + "'V1.0-beta2'" in script
-    assert '$productVersion = ' + "'v1.0.0-beta.2'" in script
+    assert '$releaseVersion = ' + "'V1.0'" in script
+    assert '$productVersion = ' + "'v1.0.0'" in script
     assert 'Release name: $releaseVersion' in script
-    assert 'PIReader: bundled beside MiniJMP.exe with PIReader.exe, three PI SDK DLLs' in script
+    assert 'PIReader: templates only.' in script
     assert 'PI SDK/PIPC runtime' in script
     version_info = (ROOT / 'packaging' / 'windows' / 'version_info.txt').read_text(encoding='utf-8')
-    assert "StringStruct('Comments', 'MiniJMP V1.0 beta2 source baseline')" in version_info
+    assert "StringStruct('Comments', 'MiniJMP V1.0 source baseline')" in version_info
     usage = (ROOT / 'packaging' / 'windows' / 'USAGE.txt').read_text(encoding='utf-8')
-    assert all(name in usage for name in ('OSIsoft.PISDK.dll', 'OSIsoft.PISDKCommon.dll',
-                                          'OSIsoft.PITimeServer.dll'))
-    assert '不得对外分发' in usage
+    assert '不分发授权未确认' in usage
 
 
 def test_pireader_paths_resolve_beside_frozen_exe(monkeypatch, tmp_path, tk_root):
@@ -387,7 +385,7 @@ def test_powershell_scripts_parse_and_avoid_bulk_deletion():
         assert '-Confirm:$false' not in text
 
 
-@pytest.mark.parametrize('latest', ['v1.0.0-beta.2', 'v2.3.4-beta.12'])
+@pytest.mark.parametrize('latest', ['v1.0.0', 'v2.3.4-beta.12'])
 def test_changes_reads_latest_version_across_major_versions(monkeypatch, latest):
     original_read = release_metadata.read
 
@@ -399,7 +397,7 @@ def test_changes_reads_latest_version_across_major_versions(monkeypatch, latest)
     monkeypatch.setattr(release_metadata, 'read', read)
     assert release_metadata.identifiers()['product:CHANGES'] == latest
     levels = release_metadata.check()
-    assert levels[0][0] == ('PASS' if latest == 'v1.0.0-beta.2' else 'BLOCKED')
+    assert levels[0][0] == ('PASS' if latest == 'v1.0.0' else 'BLOCKED')
 
 
 def test_version_check_rejects_build_product_drift(monkeypatch):
@@ -408,3 +406,40 @@ def test_version_check_rejects_build_product_drift(monkeypatch):
     monkeypatch.setattr(release_metadata, 'identifiers', lambda root: found)
     assert any(level == 'BLOCKED' and 'product:build' in message
                for level, message in release_metadata.check())
+
+
+def test_finalize_review_materials_binds_tag_commit_and_deliverable_hashes(tmp_path, monkeypatch):
+    import shutil
+    repo = tmp_path / 'repo'
+    docs = repo / 'docs/release'
+    docs.mkdir(parents=True)
+    for name in ('VERSION-INFO.md', 'INSTALL-USAGE.md', 'SOURCE-PROVENANCE.md', 'SOURCE-PROVENANCE.csv'):
+        (docs / name).write_text('{{COMMIT}} {{TAG}} {{SHA256}}', encoding='utf-8')
+    lock = repo / 'packaging/windows/requirements-py311.lock'
+    lock.parent.mkdir(parents=True)
+    lock.write_text('numpy==2.4.6', encoding='utf-8')
+    runtime = tmp_path / 'MiniJMP-V1.0'
+    runtime.mkdir()
+    for name in ('MiniJMP.exe', 'BUILD-INFO.txt', 'THIRD-PARTY-NOTICES.txt', 'LICENSE', 'PI-SDK-NOTICE.txt'):
+        (runtime / name).write_text('test', encoding='utf-8')
+    (runtime / 'BUILD-INFO.txt').write_text('Base Git HEAD: ' + 'a' * 40, encoding='utf-8')
+    (runtime / 'THIRD-PARTY-LICENSES').mkdir()
+    destination = tmp_path / 'review'
+    destination.mkdir()
+    for name in ('MiniJMP-V1.0-Windows-x64.zip', 'MiniJMP-V1.0-Source.zip'):
+        (destination / name).write_bytes(b'archive')
+    monkeypatch.setattr(release_metadata, 'ROOT', repo)
+    monkeypatch.setattr(subprocess, 'check_output', lambda *a, **k: 'a' * 40)
+    monkeypatch.setattr(make_zip, 'stable_sha256', lambda path, **k: make_zip.sha256_file(path))
+    release_metadata.finalize(runtime, destination)
+    info = (destination / 'VERSION-INFO.md').read_text(encoding='utf-8')
+    assert 'a' * 40 in info and 'v1.0.0' in info and '{{' not in info
+    sums = (destination / 'SHA256SUMS.txt').read_text(encoding='ascii')
+    assert '  SHA256SUMS.txt' not in sums
+    for line in sums.splitlines():
+        digest, relative = line.split('  ', 1)
+        assert make_zip.sha256_file(destination / relative) == digest
+    shutil.rmtree(destination / 'THIRD-PARTY-LICENSES')
+    monkeypatch.setattr(subprocess, 'check_output', lambda args, **k: 'b' * 40 if '^{}' in args[-1] else 'a' * 40)
+    with pytest.raises(ValueError, match='does not identify'):
+        release_metadata.finalize(runtime, destination)

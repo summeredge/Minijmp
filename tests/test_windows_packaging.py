@@ -83,7 +83,7 @@ def test_release_archives_identify_commit_and_preserve_existing_artifacts():
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
     assert "MiniJMP-$releaseVersion" in script
     assert "MiniJMP-$releaseVersion-source" in script
-    assert 'Existing beta2 output is preserved' in script
+    assert 'Existing release output is preserved' in script
     assert 'windows-pkg-$releaseVersion' in script
     assert "-Filter 'MiniJMP-V*'" not in script
     assert 'merge-base --is-ancestor origin/main HEAD' in script
@@ -104,16 +104,15 @@ def test_release_script_requires_a_clean_frozen_commit():
     assert dirty_check < script.index('New-Item -ItemType Directory -Path $distRoot')
 
 
-def test_release_copies_and_hash_checks_all_required_pi_sdk_dlls():
-    script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
-    precheck = (ROOT / 'tools' / 'check_windows_release_ready.ps1').read_text(encoding='utf-8')
-    for name in ('OSIsoft.PISDK.dll', 'OSIsoft.PISDKCommon.dll', 'OSIsoft.PITimeServer.dll'):
-        assert name in script
-        assert f"PIReader/{name}" in precheck
-    assert '$sourceFile.Length -ne $targetFile.Length -or $sourceHash -ne $targetHash' in script
-    assert '($piDllInfo -join $nl)' in script
-    assert 'redistribution rights are unconfirmed' in script
-    assert 'PI SDK assemblies are not bundled' not in script
+def test_release_excludes_unlicensed_pi_binaries():
+    script = (ROOT / 'tools/build_windows_release.ps1').read_text(encoding='utf-8')
+    assert "Copy-Item -LiteralPath (Join-Path $piSource 'PIReader.exe')" not in script
+    assert '$piDllNames' not in script
+    assert 'not distributed; rights are unconfirmed' in script
+    import runpy
+    SOURCE_SKIP_PATHS = runpy.run_path(str(ROOT / 'tools/make_zip.py'))['SOURCE_SKIP_PATHS']
+    assert {'PIReader/PIReader.exe', 'PIReader/OSIsoft.PISDK.dll',
+            'PIReader/OSIsoft.PISDKCommon.dll', 'PIReader/OSIsoft.PITimeServer.dll'} <= SOURCE_SKIP_PATHS
 
 
 def test_release_precheck_reports_clean_and_dirty_worktrees(tmp_path):
