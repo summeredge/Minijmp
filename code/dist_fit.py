@@ -148,7 +148,8 @@ def fit_norm(data, print_out=True, print_port=print):
     #  print(u, s)
     rv = norm(u, s)
     #  n = len(data)
-    abl = ABL(rv, data, 2)
+    # Keep the sample sigma for reporting/AD; likelihood uses the MLE sigma.
+    abl = ABL(norm(u, stat.pstdev(data)), data, 2)
     a2, p = goodness_of_fit(rv, data, normal=True)
     if print_out:
         print_port("\n---- 分布拟合 ----")

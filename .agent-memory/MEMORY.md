@@ -1,5 +1,12 @@
 # MiniJMP 工作记忆
 
+## 稳定版冻结前 Normal 信息准则定向修复（2026-11-04）
+
+- `fit_norm()` 仅将 `ABL()` 的正态标准差改为 `stat.pstdev(data)`（ddof=0）；展示、AD、fits/rv 继续使用样本标准差（ddof=1）。ABL、compare_dist、Lognormal 和其他分布未改。
+- N=13 固定案例 -2LL/AICc/BIC 从 97.26855250745247/102.46855250745247/102.39845122237554 修正为 97.22799730769651/102.42799730769651/102.35789602261958；独立闭式 MLE 测试拒绝旧实现，修复后通过。Normal 权重 8.199856548451121e-7→8.367827083628719e-7，排序不变。
+- 项目 `.venv` Python 3.11.9、SciPy 1.15.3；`tests/test_g3_distribution_reports.py` 32 passed。phase4–phase8 原始证据、历史快照及 90 项矩阵未改；独立数值验收不代表 Minitab 原生 AICc/BIC PASS。未全量测试、打包或提交。细节见 `logs/2026-11-04.md`。
+
+
 ## V1.0 beta2 源码基线与 Windows 内部构建（2026-11-02）
 
 - 冻结 Commit `d7ffca83ce52006048fb61de249e349165579336`（父提交 `9485e848a09c87ffd3b4056289db18be34a2b65a`）；本地 `v1.0.0-beta.2` tag 指向该提交，未推送。项目 `.venv` 为 Python 3.11.9 x64、PyInstaller 6.22.3；定向回归 70 passed。
