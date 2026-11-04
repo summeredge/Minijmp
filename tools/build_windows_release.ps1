@@ -14,8 +14,8 @@ $versionInfo = Join-Path $root 'packaging\windows\version_info.txt'
 $entry = Join-Path $root 'packaging\windows_entrypoint.py'
 $makeZip = Join-Path $root 'tools\make_zip.py'
 $smoke = Join-Path $root 'tools\smoke_launch.py'
-$releaseVersion = 'V1.0-beta2'
-$productVersion = 'v1.0.0-beta.2'
+$releaseVersion = 'V1.0'
+$productVersion = 'v1.0.0'
 
 if (!(Test-Path -LiteralPath $python -PathType Leaf)) {
     throw "Project Python environment not found: $python"
@@ -53,6 +53,9 @@ if (Test-Path -LiteralPath $sourceBundleInfo -PathType Leaf) {
     & git -C $root merge-base --is-ancestor origin/main HEAD
     if ($LASTEXITCODE -ne 0) { throw 'origin/main is not an ancestor of HEAD; reconcile the branch before building.' }
 
+    $tagCommit = (git -C $root rev-parse "$productVersion^{}").Trim()
+    if ($LASTEXITCODE -ne 0 -or $tagCommit -ne $head) { throw 'The release tag must identify HEAD.' }
+
     $dirty = @(git -C $root status --porcelain --untracked-files=normal)
     if ($dirty.Count) {
         throw "Refusing to build from a dirty working tree; commit or remove the $($dirty.Count) changed entries first."
@@ -60,8 +63,7 @@ if (Test-Path -LiteralPath $sourceBundleInfo -PathType Leaf) {
 }
 
 $required = @(
-    'PIReader\PIReader.exe', 'PIReader\OSIsoft.PISDK.dll', 'PIReader\OSIsoft.PISDKCommon.dll',
-    'PIReader\OSIsoft.PITimeServer.dll', 'PIReader\config.example.txt', 'PIReader\tags.example.txt', 'LICENSE',
+    'PIReader\config.example.txt', 'PIReader\tags.example.txt', 'LICENSE',
     'packaging\windows\PI-SDK-NOTICE.txt',
     'packaging\windows\USAGE.txt', 'packaging\windows\version_info.txt',
     'icon\icon_big.ico', 'code\help.json', 'help', 'user_config\default.conf'
@@ -80,20 +82,21 @@ if ($template -cne "Server=`nUser=`nPassword=`nInterval=5m`nBlockDays=7" -or
 $distRoot = Join-Path $root 'dist'
 $buildRoot = Join-Path $root "build\windows-pkg-$releaseVersion"
 $releaseDir = Join-Path $distRoot "MiniJMP-$releaseVersion"
-$releaseZip = Join-Path $distRoot "MiniJMP-$releaseVersion.zip"
-$sourceZip = Join-Path $distRoot "MiniJMP-$releaseVersion-source.zip"
+$auditDir = Join-Path $distRoot "MiniJMP-$releaseVersion-Release"
+$releaseZip = Join-Path $auditDir "MiniJMP-$releaseVersion-Windows-x64.zip"
+$sourceZip = Join-Path $auditDir "MiniJMP-$releaseVersion-Source.zip"
 $hashFile = Join-Path $distRoot "MiniJMP-$releaseVersion-SHA256SUMS.txt"
 $recordDir = Join-Path $root 'docs\release'
 $buildLog = Join-Path $recordDir "pyinstaller-build-$releaseVersion.txt"
 $manifestPath = Join-Path $recordDir "build-inputs-$releaseVersion.txt"
 
-# Beta2 outputs are version-specific and never overwrite or remove earlier artifacts.
-$existing = @($releaseDir, $releaseZip, $sourceZip, $hashFile, $buildLog, $manifestPath,
+# Never overwrite or remove earlier artifacts.
+$existing = @($auditDir, $releaseDir, $releaseZip, $sourceZip, $hashFile, $buildLog, $manifestPath,
     $buildRoot) | Where-Object { Test-Path -LiteralPath $_ }
 if ($existing) {
-    throw ('Existing beta2 output is preserved; review it before moving it aside for a separate build:' + $nl + ($existing -join $nl))
+    throw ('Existing release output is preserved; review it before moving it aside for a separate build:' + $nl + ($existing -join $nl))
 }
-New-Item -ItemType Directory -Path $distRoot, $recordDir, $buildRoot -Force | Out-Null
+New-Item -ItemType Directory -Path $distRoot, $auditDir, $recordDir, $buildRoot -Force | Out-Null
 $rawDist = Join-Path $buildRoot 'dist'
 $workPath = Join-Path $buildRoot 'work'
 $specPath = Join-Path $buildRoot 'spec'
@@ -155,22 +158,7 @@ Copy-Item -LiteralPath (Join-Path $root 'packaging\windows\PI-SDK-NOTICE.txt') -
 $piTarget = Join-Path $releaseDir 'PIReader'
 $piSource = Join-Path $root 'PIReader'
 New-Item -ItemType Directory -Path $piTarget -Force | Out-Null
-Copy-Item -LiteralPath (Join-Path $piSource 'PIReader.exe') -Destination $piTarget
-$piDllNames = @('OSIsoft.PISDK.dll', 'OSIsoft.PISDKCommon.dll', 'OSIsoft.PITimeServer.dll')
-$piDllInfo = foreach ($name in $piDllNames) {
-    $source = Join-Path $piSource $name
-    $target = Join-Path $piTarget $name
-    Copy-Item -LiteralPath $source -Destination $target
-    $sourceFile = Get-Item -LiteralPath $source
-    $targetFile = Get-Item -LiteralPath $target
-    $sourceHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $source).Hash
-    $targetHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $target).Hash
-    if ($sourceFile.Length -ne $targetFile.Length -or $sourceHash -ne $targetHash) {
-        throw "PI SDK DLL copy does not match its source: $name"
-    }
-    $version = [Diagnostics.FileVersionInfo]::GetVersionInfo($source).FileVersion
-    "{0}: version {1}; bytes {2}; SHA256 {3}" -f $name, $version, $sourceFile.Length, $sourceHash
-}
+# Unconfirmed PIReader/SDK redistribution rights: ship templates and source only.
 Copy-Item -LiteralPath (Join-Path $piSource 'config.example.txt') -Destination (Join-Path $piTarget 'config.txt')
 Copy-Item -LiteralPath (Join-Path $piSource 'tags.example.txt') -Destination (Join-Path $piTarget 'tags.txt')
 & $python (Join-Path $root 'tools\write_third_party_notices.py') $releaseDir
@@ -191,6 +179,8 @@ $buildInfo = @(
     "MiniJMP $productVersion Windows x64",
     "Release name: $releaseVersion",
     "Base Git HEAD: $head",
+    "Git Tag: $productVersion",
+    "Build time: $([DateTimeOffset]::Now.ToString('o'))",
     "Branch: $branch",
     "Origin/main: $originMain",
     "Working tree: $treeState",
@@ -198,20 +188,21 @@ $buildInfo = @(
     "PyInstaller: $pyinstallerVersion (onedir, windowed, noupx, _internal)",
     "Windows: $($os.Caption), version $($os.Version), build $($os.BuildNumber), $($os.OSArchitecture)",
     "Core dependencies: $coreVersions",
-    'PIReader: bundled beside MiniJMP.exe with PIReader.exe, three PI SDK DLLs and clean config.txt/tags.txt templates.',
-    ($piDllInfo -join $nl),
-    'PI SDK DLLs are proprietary third-party files, not GPL; redistribution rights are unconfirmed. This package is for authorized internal validation only; external distribution is blocked pending written authorization.',
+    'PIReader: templates only. PIReader.exe and proprietary OSIsoft DLLs are not distributed; rights are unconfirmed.',
     'The DLLs do not include or register the full PI SDK/PIPC runtime. Target-machine runtime, licensing and PI Server connectivity were not verified.',
     'Defender, TsdEncrypt/DLP and non-admin execution on office machines were not verified by this build.'
 ) -join $nl
 Set-Content -LiteralPath (Join-Path $releaseDir 'BUILD-INFO.txt') -Value $buildInfo -Encoding utf8
 @(
-    "Corresponding source archive: MiniJMP-$releaseVersion-source.zip",
+    "Corresponding source archive: MiniJMP-$releaseVersion-Source.zip",
     "Base Git HEAD: $head",
     'Repository: https://github.com/summeredge/Minijmp',
     'The source ZIP contains the corresponding source files and build scripts; it omits .git, OSIsoft PI SDK assemblies and real PI connection settings.',
     'Build prerequisites for PIReader are listed in PACKAGING.md and SOURCE-BUNDLE-INFO.txt.'
 ) -join $nl | Set-Content -LiteralPath (Join-Path $releaseDir 'SOURCE-CODE.txt') -Encoding utf8
+
+& $python (Join-Path $root 'tools\write_release_sbom.py') $releaseDir $auditDir
+if ($LASTEXITCODE -ne 0) { throw 'SBOM generation failed.' }
 
 # Stage the sources actually used from disk, in TEMP so DLP-synced folders
 # cannot rewrite them mid-archive.
@@ -261,7 +252,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Encrypted (DLP) files found in the package.' }
 # Transparent encryption can rewrite archives after they land, and it changes
 # size without touching mtime. Wait, then read full content instead of metadata.
 Write-Output 'Waiting 120s for the transparent-encryption rewrite to settle...'
-Start-Sleep -Seconds 120
+1..4 | ForEach-Object { Start-Sleep -Seconds 30 }
 $artifacts = @($releaseZip, $sourceZip)
 $digests = @{}
 foreach ($artifact in $artifacts) {
@@ -281,24 +272,15 @@ $exeHash = ($exeLine -join '').Trim() -replace '^SHA256=', ''
 if ($zipExeHash -ne $exeHash) {
     throw "The EXE inside the archive differs from the built EXE ($zipExeHash vs $exeHash)."
 }
-foreach ($name in $piDllNames) {
-    $entry = "MiniJMP-$releaseVersion/PIReader/$name"
-    $dllInspect = @(& $python $makeZip 'inspect' $releaseZip '--entry' $entry)
-    if ($LASTEXITCODE -ne 0) { throw "Runtime archive is missing or corrupt: $entry ($dllInspect)" }
-    $zipHash = @($dllInspect | Where-Object { $_ -like 'ENTRY-SHA256=*' })[0] -replace '^ENTRY-SHA256=', ''
-    $sourceHash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $piSource $name)).Hash
-    if ($zipHash -ne $sourceHash) { throw "The PI SDK DLL inside the runtime ZIP differs from its source: $name" }
-}
-
 $hashes = @(
     "$exeHash  $exeRelative",
-    "$($digests[$releaseZip])  MiniJMP-$releaseVersion.zip",
-    "$($digests[$sourceZip])  MiniJMP-$releaseVersion-source.zip"
+    "$($digests[$releaseZip])  MiniJMP-$releaseVersion-Windows-x64.zip",
+    "$($digests[$sourceZip])  MiniJMP-$releaseVersion-Source.zip"
 ) -join $nl
 Set-Content -LiteralPath $hashFile -Value $hashes -Encoding ascii
 
 Write-Output 'Re-verifying after SHA256SUMS was written (90s window)...'
-Start-Sleep -Seconds 90
+1..3 | ForEach-Object { Start-Sleep -Seconds 30 }
 foreach ($artifact in $artifacts) {
     $line = @(& $python $makeZip 'rehash' $artifact '--interval' '15' '--attempts' '2')
     if ($LASTEXITCODE -ne 0) { throw "Hashing $artifact failed on re-verification: $line" }
@@ -329,3 +311,6 @@ Get-Item -LiteralPath $releaseZip, $sourceZip, (Join-Path $releaseDir 'MiniJMP.e
 Get-Content -LiteralPath $hashFile
 Write-Output "Build log: $buildLog"
 Write-Output "Runtime manifest: $manifestPath"
+
+& $python (Join-Path $root 'tools\release_metadata.py') '--finalize' $releaseDir $auditDir
+if ($LASTEXITCODE -ne 0) { throw 'Review package finalization failed.' }

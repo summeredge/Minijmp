@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PRODUCT = re.compile('v([0-9]+)[.]([0-9]+)[.]([0-9]+)-beta[.]([0-9]+)')
+PRODUCT = re.compile('v([0-9]+)[.]([0-9]+)[.]([0-9]+)(?:-beta[.]([0-9]+))?')
 
 
 def read(root, name):
@@ -57,11 +57,11 @@ def identifiers(root=ROOT):
 
 def expected(groups):
     major, minor, patch, beta = groups
-    numbers = ', '.join(groups)
+    numbers = ', '.join((*groups[:3], beta or '0'))
     return {
-        'release': f'V{major}.{minor}-beta{beta}',
-        'display:about': f'V{major}.{minor} beta{beta}',
-        'product:fileversion': f'{major}.{minor}.{patch}.{beta}',
+        'release': f'V{major}.{minor}' + (f'-beta{beta}' if beta else ''),
+        'display:about': f'V{major}.{minor}' + (f' beta{beta}' if beta else ''),
+        'product:fileversion': f'{major}.{minor}.{patch}.{beta or 0}',
         'numeric:filevers': numbers,
         'numeric:prodvers': numbers,
     }
@@ -71,7 +71,7 @@ def check(root=ROOT):
     found = identifiers(root)
     match = PRODUCT.fullmatch(found['product:version_info'] or '')
     if not match:
-        return [('BLOCKED', 'version_info.txt ProductVersion is not vX.Y.Z-beta.N.')]
+        return [('BLOCKED', 'version_info.txt ProductVersion is not vX.Y.Z or vX.Y.Z-beta.N.')]
     wanted = expected(match.groups())
     for name in ('product:USAGE', 'product:README', 'product:build', 'product:CHANGES'):
         wanted[name] = found['product:version_info']
@@ -90,8 +90,53 @@ def check(root=ROOT):
                      f'{found["product:version_info"]} / {wanted["product:fileversion"]}.')]
 
 
+def finalize(runtime, destination):
+    """Collect review documents and hash the actual deliverables without self-hashing."""
+    import shutil
+    import subprocess
+    from make_zip import sha256_file, stable_sha256
+
+    commit = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
+    tag_commit = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'v1.0.0^{}'], text=True).strip()
+    if commit != tag_commit:
+        raise ValueError('v1.0.0 does not identify the build commit')
+    build_info = (runtime / 'BUILD-INFO.txt').read_text(encoding='utf-8-sig')
+    if f'Base Git HEAD: {commit}' not in build_info:
+        raise ValueError('Build commit differs from HEAD')
+    binaries = sorted(destination.glob('*.zip'))
+    if len(binaries) != 2:
+        raise ValueError('Expected runtime and source archives')
+    hashes = {path.name: stable_sha256(path, interval=15, attempts=2) for path in binaries}
+    hashes['MiniJMP.exe (Windows ZIP/MiniJMP-V1.0/MiniJMP.exe)'] = sha256_file(runtime / 'MiniJMP.exe')
+    hash_text = '\n'.join(f'{value}  {name}' for name, value in hashes.items())
+    for name in ('VERSION-INFO.md', 'INSTALL-USAGE.md', 'SOURCE-PROVENANCE.md', 'SOURCE-PROVENANCE.csv'):
+        source = ROOT / 'docs' / 'release' / name
+        text = source.read_text(encoding='utf-8-sig').replace('{{COMMIT}}', commit).replace('{{TAG}}', 'v1.0.0').replace('{{SHA256}}', hash_text)
+        (destination / name).write_text(text, encoding='utf-8')
+    for name in ('THIRD-PARTY-NOTICES.txt', 'LICENSE', 'PI-SDK-NOTICE.txt'):
+        shutil.copyfile(runtime / name, destination / name)
+    shutil.copytree(runtime / 'THIRD-PARTY-LICENSES', destination / 'THIRD-PARTY-LICENSES')
+    info = build_info
+    lock = ROOT / 'packaging/windows/requirements-py311.lock'
+    info += '\nDependency lock: packaging/windows/requirements-py311.lock; SHA256 ' + sha256_file(lock)
+    info += '\nRelease files SHA256:\n' + hash_text + '\n'
+    (destination / 'BUILD-INFO.txt').write_text(info, encoding='utf-8')
+    entries = sorted(path for path in destination.rglob('*') if path.is_file() and path.name != 'SHA256SUMS.txt')
+    lines = [f'{sha256_file(path)}  {path.relative_to(destination).as_posix()}' for path in entries]
+    lines.append(f"{sha256_file(runtime / 'MiniJMP.exe')}  ../MiniJMP-V1.0/MiniJMP.exe")
+    (destination / 'SHA256SUMS.txt').write_text('\n'.join(lines) + '\n', encoding='ascii')
+    for line in lines:
+        digest, relative = line.split('  ', 1)
+        if sha256_file(destination / relative) != digest:
+            raise ValueError(f'Artifact changed: {relative}')
+    print(f'PASS: review package finalized for {commit}: {destination}')
+
+
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
+    if argv and argv[0] == '--finalize':
+        finalize(Path(argv[1]), Path(argv[2]))
+        return 0
     levels = check(Path(argv[0]) if argv else ROOT)
     for level, message in levels:
         print(f'{level}: {message}')

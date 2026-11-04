@@ -1,5 +1,13 @@
 # MiniJMP 工作记忆
 
+## V1.0 稳定审核冻结准备（2026-11-04）
+
+- 版本统一V1.0 / v1.0.0 / 1.0.0.0；保留Normal MLE修复7a70959，本轮静态复核生产/测试diff与独立闭式参考，无需再次统计回归；此前32 passed记录复用，没有找到单独的上一轮Review签字工件。
+- 发布工具相关40项通过；SBOM生成器fixture通过CycloneDX1.6官方schema。项目.venv Python3.11.9 x64、PyInstaller6.22.3、锁环境与pip check通过。Schema验证独立使用PythonEnvs/minijmp-release-validation，不更改构建环境。
+- 源码来源按固定upstream c684c7d与7a70959分类，见docs/release/SOURCE-PROVENANCE.md/.csv。Hoeffding复制片段与PI-Data-Viewer来源许可缺证据，正式合规放行受阻；不将公开代码默认视作已授权。
+- 正式打包排除PIReader.exe和三个OSIsoft DLL，保留PI接口/源码/模板。运行与源码ZIP计划输出dist/MiniJMP-V1.0-Release/；旧Beta产物不动，不推送。当前待本地冻结Commit/annotated v1.0.0、执行全新构建及实际产物一致性/启动冒烟，未宣称完成。
+
+
 ## 稳定版冻结前 Normal 信息准则定向修复（2026-11-04）
 
 - `fit_norm()` 仅将 `ABL()` 的正态标准差改为 `stat.pstdev(data)`（ddof=0）；展示、AD、fits/rv 继续使用样本标准差（ddof=1）。ABL、compare_dist、Lognormal 和其他分布未改。

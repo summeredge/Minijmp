@@ -1,183 +1,48 @@
-# MiniJMP Windows 分发包打包指令
+# MiniJMP V1.0 Windows 发布
 
-唯一构建入口是 **tools/build_windows_release.ps1**，本文是复制即用的操作卡。
-所有命令都在仓库根目录执行；脚本按自身位置解析项目根，不依赖盘符。
+唯一构建入口 `tools/build_windows_release.ps1`。版本：显示 V1.0，产品/Tag v1.0.0，Windows文件版本1.0.0.0。保留Beta标签和历史构建，禁止覆盖已有目标。
 
-当前构建目标为 V1.0 beta2（`v1.0.0-beta.2`）。beta1 的 Tag、源码及发布产物保留原样；beta2 只检查自己的输出路径，可从 `origin/main` 快进领先且工作区干净的本地 `main` 冻结 Commit 构建。
+## 前置检查与冻结
 
-beta.4 已在干净提交 0d9f573 上完成本机构建、ZIP 校验及 EXE 冒烟；办公终端验收仍待完成。详见 docs/release/v0.1.0-beta.4-release.md。
+使用项目 `.venv\Scripts\python.exe`（Windows x64 Python3.11.9），锁文件 `packaging/windows/requirements-py311.lock`，PyInstaller6.22.3。不得使用Codex运行时替代项目环境。
 
----
+```powershell
+& .venv/Scripts/python.exe tools/release_env.py
+& .venv/Scripts/python.exe tools/release_metadata.py
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_windows_release_ready.ps1
+```
 
-## 前置条件
+发布工作区必须在main、干净，且origin/main为HEAD祖先；允许本地快进领先，不自动推送、不修改同步规则。先提交全部版本源码、发布工具及审核模板，创建本地annotated `v1.0.0`，记录完整SHA，然后构建。源码ZIP没有.git时可按SOURCE-BUNDLE-INFO复现基础构建；正式审核包最终化需Git冻结和对应Tag。
 
-- Windows x64，Python **>= 3.11**。3.11 必须与锁定环境一致；3.12 及更新版本只把锁文件差异写入 BUILD-INFO.txt。
-- 正式 pandas 版本为 **3.0.6**；Python 3.11 发布环境须匹配完整锁文件。
-- 项目解释器：**.venv\Scripts\python.exe**（64 位）。
-- PyInstaller 6.22.3。
-- Git 工作区须为 `main`，`origin/main` 必须是 HEAD 的祖先，且工作区干净；源码 ZIP 无 `.git` 时使用包内 SOURCE-BUNDLE-INFO.txt。
-- **PIReader\PIReader.exe**、三个 `OSIsoft.*.dll` 和干净的 `config.example.txt`、`tags.example.txt` 必须存在。
-- 三个 PI SDK DLL 只随 Windows 运行包，源码 ZIP 继续排除；重新构建 PIReader 需要 .NET Framework 4.8 构建工具和按其许可自行提供的 PI SDK。DLL 的再分发授权尚未确认，因此本次产物仅用于获准的内部验证，正式对外分发受阻。
-- 三个 DLL 不替代完整 PI SDK/PIPC 运行时，不自动安装或注册系统组件；目标机仍需满足对应运行时和 PI Server 访问许可。
-- **packaging\windows\requirements-py311.lock** 保留原名，它是 Python 3.11 的产物。
+## 构建与产物
 
-只读预检查（不构建、不删除、不安装）：
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/build_windows_release.ps1
+```
 
-    powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\check_windows_release_ready.ps1
+Windows x64 PyInstaller onedir/windowed/noupx，运行时在_internal；解压即用，无额外Python安装和管理员权限要求。仅排错可使用-SkipSmoke，正式审核必须执行冒烟。
 
-退出码 0 为 PASS，1 为 BLOCKED。未提交文件只报 WARNING 与数量，不阻断办公环境分发。
+- `dist/MiniJMP-V1.0/`：实际运行目录。
+- `dist/MiniJMP-V1.0-Release/`：审核目录，包含MiniJMP-V1.0-Windows-x64.zip、MiniJMP-V1.0-Source.zip、VERSION-INFO.md、INSTALL-USAGE.md、SOURCE-PROVENANCE.md/.csv、BUILD-INFO.txt、SBOM.cdx.json/.csv、THIRD-PARTY-NOTICES.txt、完整LICENSE目录及SHA256SUMS.txt。
+- `docs/release/pyinstaller-build-V1.0.txt`、`build-inputs-V1.0.txt`：构建记录。
 
----
+工具保留旧产物；新版本目标存在即阻断，不能擅自删除或覆盖。PyInstaller进度写stderr，以退出码判断。
 
-## A. beta2 输出检查
+## PI组件与许可证边界
 
-beta2 只检查 `dist\MiniJMP-V1.0-beta2*`、beta2 日志/清单和
-`build\windows-pkg-V1.0-beta2`。若这些目标已存在，脚本拒绝覆盖；不会清理旧版本。
-beta1 目录、ZIP、源码 ZIP、SHA256SUMS 和旧构建临时目录无需删除。
+本版不分发授权未确认的PIReader.exe与OSIsoft三个DLL，源码包也排除这些二进制、本机config.txt/tags.txt及缓存。保留PI业务接口、PIReader源码、干净配置模板。启用时自行提供合法授权的x86 PIReader/.NET Framework4.8、匹配PI SDK/PIPC及PI访问权限；不会安装或注册SDK。
 
-如果 beta2 先前失败留下目标文件，先保留日志和证据。脚本会拒绝覆盖；只有在审阅并将原 beta2 输出移到独立留档位置后，才可另行重建。不得把 beta1 产物纳入清理。
+SOURCE-PROVENANCE列出源码继承/修改/新增/待确认分类。Hoeffding复制片段与PI来源许可仍待补充；即使构建通过也不得宣称合规已放行。SBOM记录实际依赖、二进制、未知版本/许可与排除组件，不以requirements清单代替实际打包核对。
 
----
+## 一致性与冒烟
 
-## B. 构建
+工具复用make_zip的DLP文件头扫描、CRC、全文件hash与EXE条目hash比较。ZIP落盘后等待120秒沉降，间隔读取一致才写hash，之后再等待90秒复核；不调整Defender/DLP策略。构建目录与新解压目录分别启动冒烟，90秒内识别真实MiniJMP窗口，裸tk标题不算通过。工具写SHA256SUMS时不计算其自身，BUILD-INFO不自包含其自身摘要。
 
-    powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\build_windows_release.ps1
+```powershell
+& .venv/Scripts/python.exe tools/make_zip.py inspect dist/MiniJMP-V1.0-Release/MiniJMP-V1.0-Windows-x64.zip --entry MiniJMP-V1.0/MiniJMP.exe
+& .venv/Scripts/python.exe tools/smoke_launch.py dist/MiniJMP-V1.0/MiniJMP.exe 90
+```
 
-仅排错时可加 -SkipSmoke 跳过 EXE 冒烟；正式产物必须跑冒烟。
+对应源码保留GPL、原始署名、构建说明；SOURCE-MANIFEST记录源码包逐项摘要。检查SOURCE-BUNDLE-INFO的Commit与BUILD-INFO及annotated tag一致。审核材料中的Commit/hash由release_metadata.py --finalize从冻结源码及实际ZIP填写。
 
-耗时约 12 分钟：PyInstaller 约 4.5 分钟，两个 ZIP 约 1 分钟，末尾等待透明加密沉降
-约 2.5 分钟，写出 SHA256SUMS 后再复验 90 秒。
-
-PyInstaller 的普通 INFO 走 stderr，脚本已把它包在 Continue 作用域内，
-只看退出码与日志末尾的 ERROR，不会把进度信息当失败。
-
-产物（均在 dist\）：
-
-    MiniJMP-V1.0-beta2.zip                        运行包（整目录，解压即用）
-    MiniJMP-V1.0-beta2-source.zip                 对应源码包（GPLv3 要求）
-    MiniJMP-V1.0-beta2-SHA256SUMS.txt             三个产物的校验值
-    MiniJMP-V1.0-beta2\                           未压缩运行目录
-    docs\release\pyinstaller-build-V1.0-beta2.txt 构建日志
-    docs\release\build-inputs-V1.0-beta2.txt      运行包输入清单与摘要
-
-运行包根目录：MiniJMP.exe、_internal\、PIReader\、README.txt、LICENSE、
-THIRD-PARTY-NOTICES.txt、THIRD-PARTY-LICENSES\、BUILD-INFO.txt、SOURCE-CODE.txt。
-
-PIReader 必须与 MiniJMP.exe 同级：frozen onedir 的程序模块在 _internal 内，
-代码显式以 sys.executable 所在目录作为应用根，不会去 _internal\PIReader 查找。
-运行包包含 PIReader.exe、三个 PI SDK DLL 和脱敏配置模板；BUILD-INFO 与
-build-inputs 清单记录 DLL 版本、大小及 SHA-256。DLL 不属于 MiniJMP 的 GPL 许可。
-
----
-
-## C. 版本标识
-
-以下标识刻意不同，不要强行改成同一字符串：
-
-| 用途 | 位置 | 值 |
-|---|---|---|
-| 用户展示 | 关于窗口、README | V1.0 beta2 |
-| 发布文件名 | tools\build_windows_release.ps1 的 $releaseVersion | V1.0-beta2 |
-| 产品版本 | version_info.txt 的 ProductVersion、USAGE.txt、README.md、CHANGES | v1.0.0-beta.2 |
-| EXE 四段数值 | version_info.txt 的 filevers / prodvers / FileVersion | 1.0.0.2 |
-
-预检查用 tools/release_metadata.py 分别核对这些标识，不要求彼此字符串相同。
-
-对应源码 ZIP 保留 MiniJMP 与 PIReader 源码及构建材料。`tools/make_zip.py stage-source` 排除本机 `PIReader/config.txt`、`tags.txt`、OSIsoft SDK DLL 和临时文件。运行包只包含 PIReader 可执行文件及脱敏配置模板；目标环境需自行安装 PI SDK 并填写连接配置。
-
----
-
-## D. 校验值与结构复核
-
-    $python = (Resolve-Path ".venv\Scripts\python.exe").Path
-    Get-Content .\dist\MiniJMP-V1.0-beta2-SHA256SUMS.txt
-    & $python .\tools\make_zip.py rehash .\dist\MiniJMP-V1.0-beta2.zip --interval 15 --attempts 3
-    & $python .\tools\make_zip.py rehash .\dist\MiniJMP-V1.0-beta2-source.zip --interval 15 --attempts 3
-    & $python .\tools\make_zip.py inspect .\dist\MiniJMP-V1.0-beta2.zip --entry MiniJMP-V1.0-beta2/MiniJMP.exe
-
-预期：两次 rehash 与 SHA256SUMS 三行一致；CRC=ok；ENTRY-SHA256 等于
-dist\MiniJMP-V1.0-beta2\MiniJMP.exe 的摘要；运行 ZIP 中三个 PI SDK DLL 的摘要
-与源文件及运行目录一致，PIReader 目录含程序、DLL 和两份脱敏模板配置。
-
-build-inputs-V1.0-beta2.txt 是打包瞬间的运行包文件清单与摘要；
-SHA256SUMS.txt 是沉降复验后的最终交付值。
-
----
-
-## E. 冒烟
-
-    $python = (Resolve-Path ".venv\Scripts\python.exe").Path
-    & $python .\tools\smoke_launch.py .\dist\MiniJMP-V1.0-beta2\MiniJMP.exe 90
-
-ZIP 解压版（解压到 %TEMP%，公司目录里的文件可能被透明加密改写）：
-
-    $python = (Resolve-Path ".venv\Scripts\python.exe").Path
-    $dest = Join-Path $env:TEMP 'mjmp-unzip'
-    Remove-Item -LiteralPath $dest -Recurse -Force -ErrorAction SilentlyContinue
-    & $python -m zipfile -e .\dist\MiniJMP-V1.0-beta2.zip $dest
-    & $python .\tools\smoke_launch.py (Join-Path $dest 'MiniJMP-V1.0-beta2\MiniJMP.exe') 90
-
-通过标准：打印 window after Ns: ['未命名项目 — 工作表1 - Minijmp']，退出码 0。
-裸 tk 占位标题不算成功。冷启动 8–28 秒属正常，等满 90 秒再判失败。
-
----
-
-## F. 功能抽样（正式构建后）
-
-    $python = (Resolve-Path ".venv\Scripts\python.exe").Path
-    & $python -m pytest tests\test_windows_packaging.py tests\test_windows_release_tools.py tests\test_csv_import.py tests\test_file_io.py tests\test_worksheets.py tests\test_sheet_context.py tests\test_pi_import.py -q
-
-GUI 抽样：CSV/Excel 导入导出、工作表操作、.dexpl 保存与重开、离线帮助、
-普通统计与图形、PI 导入入口的路径发现。
-
-PI 服务器连接测试只能在具备授权的企业终端进行。
-
----
-
-## 本机已知坑
-
-| 现象 | 原因 | 对策 |
-|---|---|---|
-| SHA256 记录值与实际不符 | 透明加密在 ZIP 落盘后 1–3 分钟改写字节：size 会变、mtime 不变 | 脚本先等 120 秒，连读三次间隔 15 秒一致才记录；写出后再等 90 秒复验，漂移即失败 |
-| 日志里的字节数与实际不同 | 同上，DLP 重新压缩整个 ZIP | 以 rehash 与 D 段复测为准 |
-| 构建几十秒内中止 | $ErrorActionPreference='Stop' 把 PyInstaller 的 stderr INFO 当致命错误 | 脚本已把 PyInstaller 调用包在 Continue 作用域内 |
-| 报 Existing build output must be removed | 旧产物还在，脚本不批量删 | 跑 A 段清场 |
-| 报 Encrypted (DLP) files found | 输入文件本身已被换成 %TSD-Header- 容器 | 从干净副本恢复该文件；源码暂存已改到 %TEMP% |
-| 冒烟只看到 tk | Tk 先建窗口再设标题 | smoke_launch.py 过滤占位标题 |
-| .ps1 报中文引号错乱 | Windows PowerShell 5.1 把无 BOM 的 UTF-8 当 ANSI | 两个发布脚本必须保存为 UTF-8 BOM |
-| 源码包缺新工具 | 仅用 git ls-files 会漏掉未跟踪文件 | 源码包按磁盘内容暂存，未跟踪工具同样收录 |
-
----
-
-## 企业安全环境
-
-### TsdEncrypt / DLP
-
-- 源码暂存放在 %TEMP%\MiniJMP-source-<guid>，不落在同步目录或项目输出目录。
-- 打包前全量扫描 %TSD-Header- 文件头，命中即中止。
-- 稳定性判断只读文件内容（三次 SHA256），不看 size 或 mtime。
-- ZIP 校验 CRC 与关键条目摘要；写出 SHA256SUMS 后再复验一轮。
-- 持续漂移时脚本明确失败，不宣称校验通过。
-- 不绕过、不暂停、不卸载、不修改 TsdEncrypt/DLP。
-
-### Defender 与权限
-
-- 不关闭 Defender、不加防火墙规则、不请求管理员权限。
-- Defender 可能拦截 MiniJMP.exe 或 PIReader.exe；构建成功不代表目标机可执行。
-- 被拦截时保留进程、路径、签名与告警信息供人工判断。
-- 普通用户权限运行只能由办公电脑验收确认。
-
----
-
-## 必须在办公电脑验收
-
-本机构建通过不代表企业环境可用。以下各项保留为 NOT VERIFIED：
-
-1. Defender 是否拦截 MiniJMP.exe 与 PIReader.exe。
-2. TsdEncrypt 环境下能否启动，输出文件是否完整。
-3. 离线帮助能否打开。
-4. 普通用户权限下能否启动。
-5. HKCU 中 PI 路径保存与重启恢复。
-6. 在另一台授权办公电脑打开 .dexpl。
-7. 目标机是否安装 PI SDK / PIPC 运行时。
-8. PI Server 是否可访问、能否正常导入数据。
+企业目标机Defender/DLP、普通权限、离线帮助实屏和PI连接仍待现场验收；本机启动冒烟不能替代这些验收。不启动额外统计回归或Minitab对标。

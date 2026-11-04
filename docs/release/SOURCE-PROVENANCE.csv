@@ -1,0 +1,181 @@
+﻿分类,源码路径,上游项目,作者或署名,许可证,依据与限制
+D,PIReader/PIReader.csproj,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
+D,PIReader/PIReader.exe,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
+D,PIReader/Program.cs,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
+D,PIReader/TimeExpressionParser.cs,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
+D,PIReader/build.bat,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
+D,PIReader/config.example.txt,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
+D,PIReader/tags.example.txt,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
+B,code/GRR.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/MiniJMP.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/Residual.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/advanced_regression.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/advanced_spc.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/advanced_spc_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/advanced_spc_plots.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/advanced_time_series_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/anova_dialog.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/attribute_agreement.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/basic_dialogs.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/basic_plot_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/binomial.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+A,code/blakerCI.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创；BlakerCI 1.0-6移植，Jan Klaschka，GPL-3.0-only
+A,code/bonett.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/capability.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/capability_compare.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/capability_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/capability_plots.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/chart_style.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/chi2_dialog.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/chi_sq.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/cont_plot.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/control_chart.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/cpk.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/cpk_plot.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/ctrl_chart_const.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/ctrlchart_dialog.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/describe.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/df_combine.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/dialog.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/dist_fit.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/dist_plot_dialog.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_analysis.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_augment.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_bbd.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_binary_analysis.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_binary_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_ccd.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_core.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_custom.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_custom_analysis.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_custom_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_diagnostics.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_dsd.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_factorial.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_factorial_anova.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_foldover.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_foldover_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_fractional.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_fractional_analysis.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_general_factorial.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_general_factorial_analysis.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_mixture.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_mixture_analysis.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_mixture_constraints.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_mixture_designs.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_mixture_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_mixture_improvement.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_mixture_model.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_mixture_optimize.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_mixture_plots.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_mixture_predict.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_modify.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_optimal.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_optimal_design.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_optimal_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_optimize.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_optimize_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_overlay.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_overlay_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_pb.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_pb_foldover.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_power.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_power_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_predict.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_predict_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_rsm.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_rsm_model.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_screening_analysis.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_screening_matrices.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_splitplot.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_splitplot_analysis.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_splitplot_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_stepwise.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_taguchi.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_taguchi_analysis.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_taguchi_analysis_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_taguchi_arrays.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_taguchi_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_taguchi_sn.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_variability.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/doe_variability_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/fit_dialog.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+A,code/freeze.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/generalized_regression.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/grr_plot.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/help.json,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/help_link.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/icon.png,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/icon_old.png,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/icon_resource.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/improvement_chart.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/improvement_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/linear_fit.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/linear_plot.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/modified_app.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/modified_table.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/nonpara_cor.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创；内含hoeffdings_d_explainer复制代码（授权待确认）及Hmisc移植
+B,code/one_way_ANOVA.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/ortho_fit.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/pandastable_local/app.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/pandastable_local/config.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/pandastable_local/core.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/pandastable_local/core_orig.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/pandastable_local/csv_import.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/pandastable_local/data.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/pandastable_local/data_orig.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/pandastable_local/dialogs.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/pandastable_local/handlers.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/pandastable_local/headers.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+A,code/pandastable_local/images.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/pandastable_local/plotting.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+A,code/pandastable_local/plugin.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/pandastable_local/stats.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/pandastable_local/util.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/pca_analysis.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/pca_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/pca_plots.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/pi_import.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+D,code/pi_reader.py,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
+B,code/plots.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/pls_regression.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/poisson.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/proportion_test.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/qc_dialog.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/quality_tools.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/quality_tools_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/quality_tools_plots.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/regression_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/regression_plots.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/sample_test_dialog.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/sb_box_dialog.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/sb_boxplot.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/sb_hist_dialog.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/sb_histo.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/sb_misc.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/sb_misc_dialog.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+A,code/sb_palette_dialog.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/sbplot_dialog.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/sheet_context.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/stage_compare.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/stat_plot_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/stat_table.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/t_test.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/ti.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/time_series.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/time_series_analysis.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/time_series_analysis_plots.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/time_series_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/two_way_anova.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/txt_output.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+B,code/utilities.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/worksheet_formulas.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,code/worksheets.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,packaging/windows/PI-SDK-NOTICE.txt,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,packaging/windows/USAGE.txt,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,packaging/windows/licenses/Carbon-Icons-Apache-2.0.txt,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,packaging/windows/licenses/Tabler-Icons-MIT.txt,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,packaging/windows/requirements-py311.lock,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,packaging/windows/version_info.txt,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+C,packaging/windows_entrypoint.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
