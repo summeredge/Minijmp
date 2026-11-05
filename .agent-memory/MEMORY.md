@@ -1,11 +1,15 @@
 # MiniJMP 工作记忆
 
-## V1.0 稳定审核冻结准备（2026-11-04）
+## V1.0 稳定审核构建完成、合规放行受阻（2026-11-04）
 
 - 版本统一V1.0 / v1.0.0 / 1.0.0.0；保留Normal MLE修复7a70959，本轮静态复核生产/测试diff与独立闭式参考，无需再次统计回归；此前32 passed记录复用，没有找到单独的上一轮Review签字工件。
 - 发布工具相关40项通过；SBOM生成器fixture通过CycloneDX1.6官方schema。项目.venv Python3.11.9 x64、PyInstaller6.22.3、锁环境与pip check通过。Schema验证独立使用PythonEnvs/minijmp-release-validation，不更改构建环境。
 - 源码来源按固定upstream c684c7d与7a70959分类，见docs/release/SOURCE-PROVENANCE.md/.csv。Hoeffding复制片段与PI-Data-Viewer来源许可缺证据，正式合规放行受阻；不将公开代码默认视作已授权。
-- 正式打包排除PIReader.exe和三个OSIsoft DLL，保留PI接口/源码/模板。运行与源码ZIP计划输出dist/MiniJMP-V1.0-Release/；旧Beta产物不动，不推送。当前待本地冻结Commit/annotated v1.0.0、执行全新构建及实际产物一致性/启动冒烟，未宣称完成。
+- 冻结Commit `1a1d13036895a096f0883483320befe589bd16b9`，本地annotated `v1.0.0`指向同一提交；无推送，旧Beta产物不动。全新Windows onedir构建及dist/独立TEMP解压版各3秒启动冒烟通过；Windows11 10.0.26200。
+- 审核目录 `dist/MiniJMP-V1.0-Release/` 包含Windows-x64.zip（103940634字节）、Source.zip（17362645字节）、SBOM/来源/许可/版本/安装/BUILD-INFO/完整许可文本/校验清单。未附PIReader.exe或OSIsoft DLL；业务接口、源码、空白模板保留。
+- 实际SBOM347条（334标记分发、209条版本unknown、77条明确独立许可待核对），官方CycloneDX1.6 schema通过。最终CRC、所有SHA256SUMS、2195运行文件与ZIP摘要、源码manifest及911个Git文件一致性通过；296文件仅CRLF/LF差异。hash见审核目录SHA256SUMS.txt；EXE 96D5787140CD8CFB3B642C4141580CAADEC47AA45BA3D393989385CFB250E657。
+- Windows ZIP SHA256 F1CCC4C7B7FD04F9AA2EDF5F48D243517356957517E6C42E45A73A34DBD0F1DA；Source ZIP A5E5785316E8D823B209105DABE1546350FC27887D919F6752D14C2ED7F4BDAF。技术审核材料齐备，授权/许可证缺口未解除，不宣称正式合规发布成功。后续如要放行先补授权和运行组件许可证据；本轮不继续开发或目标机部署。
+- 构建后工作记忆更新和两份docs/release/V1.0构建证据保留未提交，不改变冻结Commit/Tag。
 
 
 ## 稳定版冻结前 Normal 信息准则定向修复（2026-11-04）
