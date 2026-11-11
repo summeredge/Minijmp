@@ -136,8 +136,7 @@ def test_timezone_export_failure_preserves_existing_sha256(tmp_path, model_type)
     assert list(tmp_path.iterdir()) == [path]
 
 
-@pytest.mark.parametrize('extension,method', [('.csv', 'to_csv'), ('.xlsx', 'to_excel'),
-                                            ('.pickle', 'to_pickle')])
+@pytest.mark.parametrize('extension,method', [('.csv', 'to_csv'), ('.xlsx', 'to_excel')])
 def test_partial_serialization_failure_preserves_existing_file(tmp_path, monkeypatch, extension, method):
     path = tmp_path / ('existing' + extension)
     path.write_bytes(b'original bytes')

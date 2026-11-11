@@ -1,11 +1,12 @@
 ﻿分类,源码路径,上游项目,作者或署名,许可证,依据与限制
-D,PIReader/PIReader.csproj,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
-D,PIReader/PIReader.exe,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
-D,PIReader/Program.cs,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
-D,PIReader/TimeExpressionParser.cs,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
-D,PIReader/build.bat,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
-D,PIReader/config.example.txt,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
-D,PIReader/tags.example.txt,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
+C,PIReader/PIReader.csproj,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者（自研；2026-11-11 确认）,GPL-3.0-or-later（项目许可）,相对原项目为新增路径；自研身份由项目维护者确认
+C,PIReader/Properties/AssemblyInfo.cs,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者,GPL-3.0-or-later（项目许可）,项目产品名称及程序集版本信息
+C,PIReader/PIReader.exe,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者（自研；2026-11-11 确认）,GPL-3.0-or-later（项目许可）,仓库内副本为历史构建文件；运行包 SBOM 使用本次签名运行目录的 PIReader/PIReader.exe 与 SHA-256
+C,PIReader/Program.cs,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者（自研；2026-11-11 确认）,GPL-3.0-or-later（项目许可）,相对原项目为新增路径；自研身份由项目维护者确认
+C,PIReader/TimeExpressionParser.cs,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者（自研；2026-11-11 确认）,GPL-3.0-or-later（项目许可）,相对原项目为新增路径；自研身份由项目维护者确认
+C,PIReader/build.bat,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者（自研；2026-11-11 确认）,GPL-3.0-or-later（项目许可）,相对原项目为新增路径；自研身份由项目维护者确认
+C,PIReader/config.example.txt,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者（自研；2026-11-11 确认）,GPL-3.0-or-later（项目许可）,项目配置模板；不含凭据
+C,PIReader/tags.example.txt,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者（自研；2026-11-11 确认）,GPL-3.0-or-later（项目许可）,项目标签模板
 B,code/GRR.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 B,code/MiniJMP.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 B,code/Residual.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
@@ -137,7 +138,7 @@ C,code/pca_analysis.py,https://github.com/summeredge/Minijmp,本仓库维护者�
 C,code/pca_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 C,code/pca_plots.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 C,code/pi_import.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
-D,code/pi_reader.py,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE；专有SDK不属GPL）,Git路径新增；复用来源存在，独立授权未确认；exe不随正式包分发
+D,code/pi_reader.py,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE）,文件头注明复用 PI-Data-Viewer/backend/pi_reader.py；独立授权未确认；与项目自研的 PIReader/ 程序分开登记
 B,code/plots.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 C,code/pls_regression.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 B,code/poisson.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创

@@ -200,6 +200,15 @@ def test_main_and_dialog_help_entry_points_use_local_topics():
     assert "open_help(self.__class__.__name__, parent=self.main)" in dialog
 
 
+def test_project_file_help_describes_safe_format_and_legacy_migration():
+    page = (HELP / 'pages' / 'operations.html').read_text(encoding='utf-8')
+    assert '<code>.dexpl</code>' in page and 'Parquet' in page and 'JSON' in page
+    assert '不打开旧版 pickle 工程' in page
+    assert '联系公司 IT 制定隔离环境迁移方案' in page
+    assert '不要在普通环境打开旧版文件' in page
+    assert 'HDF5 文件暂不可导入' in page
+
+
 def test_open_help_resolves_home_and_dialog_class_alias(monkeypatch):
     opened = []
     monkeypatch.setattr(help_link.webbrowser, "open",

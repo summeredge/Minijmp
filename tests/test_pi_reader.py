@@ -4,11 +4,76 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import Mock
 
 import pandas as pd
 import pytest
 
 import pi_reader
+
+
+def install_fixed_reader(monkeypatch, root):
+    """Place PIReader.exe at the fixed <root>/PIReader location."""
+    reader_dir = root / "PIReader"
+    reader_dir.mkdir(exist_ok=True)
+    executable = reader_dir / "PIReader.exe"
+    executable.write_bytes(b"test executable")
+    monkeypatch.setattr(pi_reader, "application_root", lambda: root)
+    return executable
+
+
+@pytest.mark.parametrize("mode", ["source", "frozen"])
+def test_executable_is_fixed_to_application_root(monkeypatch, tmp_path, mode):
+    source_root = tmp_path / "repo"
+    (source_root / "code").mkdir(parents=True)
+    executable = install_fixed_reader(monkeypatch, source_root)
+    if mode == "frozen":
+        install = tmp_path / "MiniJMP-V1.0"
+        install.mkdir()
+        frozen_exe = install / "MiniJMP.exe"
+        frozen_exe.write_bytes(b"MZ")
+        reader = install_fixed_reader(monkeypatch, install)
+        monkeypatch.setattr(pi_reader.sys, "frozen", True, raising=False)
+        monkeypatch.setattr(pi_reader.sys, "executable", str(frozen_exe))
+        executable = reader
+    else:
+        monkeypatch.delattr(pi_reader.sys, "frozen", raising=False)
+        monkeypatch.setattr(pi_reader, "__file__", str(source_root / "code" / "pi_reader.py"))
+
+    assert pi_reader._executable_path() == executable.resolve()
+
+
+def test_environment_and_config_neighbor_cannot_replace_executable(
+        monkeypatch, tmp_path):
+    fixed = install_fixed_reader(monkeypatch, tmp_path)
+    config = tmp_path / "config.txt"
+    config.write_text("Server=1", encoding="utf-8")
+    rogue = tmp_path / "PIReader.exe"
+    rogue.write_bytes(b"rogue")
+    monkeypatch.setenv("PI_READER_EXE", str(rogue))
+    response = {"columns": ["Timestamp", "A"], "data": [["2026-01-01", 1]]}
+    run = Mock(return_value=subprocess.CompletedProcess([], 0, json.dumps(response), ""))
+    monkeypatch.setattr(pi_reader.subprocess, "run", run)
+
+    pi_reader.read_pi_data(["A"], "*-1h", "*", config_path=str(config))
+
+    assert run.call_args.args[0][0] == str(fixed.resolve())
+    assert rogue.read_bytes() == b"rogue"
+
+
+def test_missing_fixed_executable_reports_component_and_never_falls_back(
+        monkeypatch, tmp_path):
+    monkeypatch.setattr(pi_reader, "application_root", lambda: tmp_path)
+    config = tmp_path / "config.txt"
+    config.write_text("Server=1", encoding="utf-8")
+    # Tempting fallbacks that must never run.
+    (tmp_path / "PIReader.exe").write_bytes(b"rogue")
+    run = Mock()
+    monkeypatch.setattr(pi_reader.subprocess, "run", run)
+
+    with pytest.raises(FileNotFoundError, match="程序组件缺失"):
+        pi_reader.search_pi_tags("A*", config_path=str(config))
+    run.assert_not_called()
 
 
 @pytest.mark.parametrize("platform", ["nt", "posix"])
@@ -17,8 +82,7 @@ import pi_reader
 def test_pi_subprocess_flags_and_outcomes(monkeypatch, tmp_path, platform, operation, outcome):
     config = tmp_path / "config.txt"
     config.write_text("test config", encoding="utf-8")
-    executable = tmp_path / "PIReader.exe"
-    executable.touch()
+    install_fixed_reader(monkeypatch, tmp_path)
     monkeypatch.setattr(pi_reader, "os", SimpleNamespace(name=platform))
     if platform == "nt":
         monkeypatch.setattr(subprocess, "CREATE_NO_WINDOW", 0x08000000, raising=False)
@@ -46,7 +110,7 @@ def test_pi_subprocess_flags_and_outcomes(monkeypatch, tmp_path, platform, opera
     monkeypatch.setattr(subprocess, "run", fake_run)
 
     def invoke():
-        paths = {"config_path": config, "executable_path": executable}
+        paths = {"config_path": config}
         if operation == "search":
             return pi_reader.search_pi_tags("TAG*", **paths)
         return pi_reader.read_pi_data(["TAG_A"], "2024-01-01", "2024-01-02", **paths)
@@ -98,10 +162,8 @@ def test_reader_preserves_unsafe_columns(values):
 def test_read_pi_data_uses_pi_reader_json(monkeypatch, tmp_path):
     config_path = tmp_path / "config.txt"
     config_path.write_text("shared PIExport-format config", encoding="utf-8")
-    executable = tmp_path / "PIReader.exe"
-    executable.write_bytes(b"test executable")
+    executable = install_fixed_reader(monkeypatch, tmp_path)
     monkeypatch.setenv("PI_CONFIG", str(config_path))
-    monkeypatch.setenv("PI_READER_EXE", str(executable))
 
     def fake_run(command, *, input, capture_output, text, encoding, errors, check, timeout, creationflags):
         assert timeout == pi_reader.PI_READER_TIMEOUT_SECONDS
@@ -158,10 +220,8 @@ def test_read_pi_data_uses_pi_reader_json(monkeypatch, tmp_path):
 def test_search_pi_tags_returns_matching_names(monkeypatch, tmp_path):
     config_path = tmp_path / "config.txt"
     config_path.write_text("shared PIExport-format config", encoding="utf-8")
-    executable = tmp_path / "PIReader.exe"
-    executable.write_bytes(b"test executable")
+    executable = install_fixed_reader(monkeypatch, tmp_path)
     monkeypatch.setenv("PI_CONFIG", str(config_path))
-    monkeypatch.setenv("PI_READER_EXE", str(executable))
 
     def fake_run(command, **kwargs):
         assert command == [
@@ -196,10 +256,8 @@ def test_search_pi_tags_returns_matching_names(monkeypatch, tmp_path):
 def test_search_pi_tags_preserves_truncated_results(monkeypatch, tmp_path):
     config_path = tmp_path / "config.txt"
     config_path.write_text("shared PIExport-format config", encoding="utf-8")
-    executable = tmp_path / "PIReader.exe"
-    executable.write_bytes(b"test executable")
+    install_fixed_reader(monkeypatch, tmp_path)
     monkeypatch.setenv("PI_CONFIG", str(config_path))
-    monkeypatch.setenv("PI_READER_EXE", str(executable))
     tags = [f"TAG_{index}.PV" for index in range(100)]
 
     monkeypatch.setattr(
@@ -237,10 +295,8 @@ def test_search_pi_tags_does_not_turn_truncation_into_an_exception():
 def test_search_pi_tags_forwards_reader_failure(monkeypatch, tmp_path):
     config_path = tmp_path / "config.txt"
     config_path.write_text("shared PIExport-format config", encoding="utf-8")
-    executable = tmp_path / "PIReader.exe"
-    executable.write_bytes(b"test executable")
+    install_fixed_reader(monkeypatch, tmp_path)
     monkeypatch.setenv("PI_CONFIG", str(config_path))
-    monkeypatch.setenv("PI_READER_EXE", str(executable))
 
     def fake_run(command, **kwargs):
         return subprocess.CompletedProcess(command, 1, "", "PI SDK unavailable")
@@ -259,10 +315,8 @@ def test_search_pi_tags_rejects_unbounded_mask():
 def test_read_pi_data_forwards_pi_time_expressions(monkeypatch, tmp_path):
     config_path = tmp_path / "config.txt"
     config_path.write_text("shared PIExport-format config", encoding="utf-8")
-    executable = tmp_path / "PIReader.exe"
-    executable.write_bytes(b"test executable")
+    install_fixed_reader(monkeypatch, tmp_path)
     monkeypatch.setenv("PI_CONFIG", str(config_path))
-    monkeypatch.setenv("PI_READER_EXE", str(executable))
 
     def fake_run(command, **kwargs):
         assert command[command.index("--start") + 1] == "*-1h"
@@ -293,10 +347,8 @@ def test_pi_reader_production_path_does_not_create_tags_file():
 def test_read_pi_data_preserves_columns_for_empty_json(monkeypatch, tmp_path):
     config_path = tmp_path / "config.txt"
     config_path.write_text("shared PIExport-format config", encoding="utf-8")
-    executable = tmp_path / "PIReader.exe"
-    executable.write_bytes(b"test executable")
+    install_fixed_reader(monkeypatch, tmp_path)
     monkeypatch.setenv("PI_CONFIG", str(config_path))
-    monkeypatch.setenv("PI_READER_EXE", str(executable))
 
     def fake_run(command, **kwargs):
         return subprocess.CompletedProcess(
@@ -322,10 +374,8 @@ def test_read_pi_data_preserves_columns_for_empty_json(monkeypatch, tmp_path):
 def test_read_pi_data_rejects_invalid_json(monkeypatch, tmp_path):
     config_path = tmp_path / "config.txt"
     config_path.write_text("shared PIExport-format config", encoding="utf-8")
-    executable = tmp_path / "PIReader.exe"
-    executable.write_bytes(b"test executable")
+    install_fixed_reader(monkeypatch, tmp_path)
     monkeypatch.setenv("PI_CONFIG", str(config_path))
-    monkeypatch.setenv("PI_READER_EXE", str(executable))
     monkeypatch.setattr(
         pi_reader.subprocess,
         "run",
@@ -343,10 +393,8 @@ def test_read_pi_data_rejects_invalid_json(monkeypatch, tmp_path):
 def test_read_pi_data_rejects_unsupported_interval(monkeypatch, tmp_path):
     config_path = tmp_path / "config.txt"
     config_path.write_text("shared PIExport-format config", encoding="utf-8")
-    executable = tmp_path / "PIReader.exe"
-    executable.write_bytes(b"test executable")
+    install_fixed_reader(monkeypatch, tmp_path)
     monkeypatch.setenv("PI_CONFIG", str(config_path))
-    monkeypatch.setenv("PI_READER_EXE", str(executable))
 
     with pytest.raises(ValueError, match="采样间隔必须是以下选项之一"):
         pi_reader.read_pi_data(
@@ -360,10 +408,8 @@ def test_read_pi_data_rejects_unsupported_interval(monkeypatch, tmp_path):
 def test_read_pi_data_converts_timeout_to_user_error(monkeypatch, tmp_path):
     config_path = tmp_path / "config.txt"
     config_path.write_text("shared PIExport-format config", encoding="utf-8")
-    executable = tmp_path / "PIReader.exe"
-    executable.write_bytes(b"test executable")
+    install_fixed_reader(monkeypatch, tmp_path)
     monkeypatch.setenv("PI_CONFIG", str(config_path))
-    monkeypatch.setenv("PI_READER_EXE", str(executable))
 
     def fake_run(command, **kwargs):
         assert kwargs["timeout"] == pi_reader.PI_READER_TIMEOUT_SECONDS

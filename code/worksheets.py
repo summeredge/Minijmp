@@ -1,8 +1,11 @@
 """MTable worksheets and transactional Minijmp project files."""
-import gzip
+import io
+import json
+import math
 import os
 import pickle
 import posixpath
+import re
 import tempfile
 import zipfile
 from copy import deepcopy
@@ -13,10 +16,304 @@ from tkinter import Menu, TclError, ttk, filedialog, messagebox, simpledialog
 from xml.etree import ElementTree as ET
 
 import pandas as pd
+import numpy as np
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 from modified_table import MTable
 from pandastable_local import config
 from doe_core import validate_worksheet_metadata
+
+
+_LEGACY_PROJECT = '旧版工程使用不安全的 pickle 格式，当前版本禁止直接打开'
+_LEGACY_TABLE = '旧版 pickle 单表格式不安全，当前版本禁止打开或保存'
+_NUMPY_DTYPES = {f'{kind}{bits}' for kind in ('int', 'uint', 'float')
+                 for bits in (8, 16, 32, 64)} | {'bool', 'object', 'str'}
+_PANDAS_DTYPES = _NUMPY_DTYPES | {
+    'Int8', 'Int16', 'Int32', 'Int64', 'UInt8', 'UInt16', 'UInt32', 'UInt64',
+    'Float32', 'Float64', 'boolean', 'string', 'category'}
+_NUMPY_SCALARS = {dtype.__name__: dtype for dtype in (
+    np.bool_, np.int8, np.int16, np.int32, np.int64, np.uint8, np.uint16,
+    np.uint32, np.uint64, np.float16, np.float32, np.float64, np.str_)}
+
+
+def _safe_dtype(dtype):
+    return (isinstance(dtype, str) and (dtype in _PANDAS_DTYPES
+            or re.fullmatch(r'(?:datetime64|timedelta64)\[(?:s|ms|us|ns)(?:, [A-Za-z0-9_./+:-]+)?\]', dtype)))
+
+
+def _encode_json(value):
+    """Encode only supported data, retaining tuple and mapping-key types."""
+    if isinstance(value, np.generic):
+        name = type(value).__name__
+        if name not in _NUMPY_SCALARS:
+            raise ValueError(f'工程包含无法安全保存的元数据类型：{name}')
+        return {'$numpy': [name, _encode_json(value.item())]}
+    if value is None or type(value) in (str, bool, int):
+        return value
+    if type(value) is float and math.isfinite(value):
+        return value
+    if type(value) is list:
+        return [_encode_json(item) for item in value]
+    if type(value) is tuple:
+        return {'$tuple': [_encode_json(item) for item in value]}
+    if type(value) is dict:
+        return {'$map': [[_encode_json(key), _encode_json(item)]
+                         for key, item in value.items()]}
+    raise ValueError(f'工程包含无法安全保存的元数据类型：{type(value).__name__}')
+
+
+def _decode_json(value):
+    if value is None or type(value) in (str, bool, int):
+        return value
+    if type(value) is float and math.isfinite(value):
+        return value
+    if type(value) is list:
+        return [_decode_json(item) for item in value]
+    if type(value) is dict and set(value) == {'$numpy'}:
+        parts = value['$numpy']
+        if (type(parts) is not list or len(parts) != 2 or not isinstance(parts[0], str)
+                or parts[0] not in _NUMPY_SCALARS):
+            raise ValueError('无效的数值元数据')
+        item = _decode_json(parts[1])
+        if type(item) not in (bool, int, float, str):
+            raise ValueError('无效的数值元数据')
+        return _NUMPY_SCALARS[parts[0]](item)
+    if type(value) is dict and set(value) == {'$tuple'} and type(value['$tuple']) is list:
+        return tuple(_decode_json(item) for item in value['$tuple'])
+    if type(value) is dict and set(value) == {'$map'} and type(value['$map']) is list:
+        result = {}
+        for pair in value['$map']:
+            if type(pair) is not list or len(pair) != 2:
+                raise ValueError('无效的工程元数据')
+            key, item = _decode_json(pair[0]), _decode_json(pair[1])
+            try:
+                if key in result:
+                    raise ValueError('重复的工程元数据键')
+                result[key] = item
+            except TypeError as error:
+                raise ValueError('无效的工程元数据键') from error
+        return result
+    raise ValueError('无效或不支持的工程元数据')
+
+
+def _column_info(columns):
+    if isinstance(columns, pd.MultiIndex):
+        return {'kind': 'multi', 'values': _encode_json(columns.tolist()),
+                'names': _encode_json(columns.names)}
+    if isinstance(columns, pd.RangeIndex):
+        return {'kind': 'range', 'start': columns.start, 'stop': columns.stop,
+                'step': columns.step, 'name': _encode_json(columns.name)}
+    if type(columns) is pd.Index and _safe_dtype(str(columns.dtype)):
+        return {'kind': 'index', 'values': _encode_json(columns.tolist()),
+                'dtype': str(columns.dtype), 'name': _encode_json(columns.name)}
+    raise ValueError(f'不支持安全保存此列索引类型：{type(columns).__name__}')
+
+
+def _restore_columns(info):
+    if not isinstance(info, dict):
+        raise ValueError('无效的列索引')
+    if info.get('kind') == 'range':
+        if any(type(info.get(key)) is not int for key in ('start', 'stop', 'step')):
+            raise ValueError('无效的列索引范围')
+        return pd.RangeIndex(info['start'], info['stop'], info['step'],
+                             name=_decode_json(info.get('name')))
+    if info.get('kind') == 'multi':
+        return pd.MultiIndex.from_tuples(_decode_json(info['values']),
+                                         names=_decode_json(info['names']))
+    if info.get('kind') == 'index' and _safe_dtype(info.get('dtype')):
+        return pd.Index(_decode_json(info['values']), dtype=info['dtype'],
+                        name=_decode_json(info.get('name')), tupleize_cols=False)
+    raise ValueError('无效或不支持的列索引')
+
+
+_OBJECT_NULLS = {'none': None, 'nan': float('nan'), 'na': pd.NA, 'nat': pd.NaT,
+                 'float16': np.float16('nan'), 'float32': np.float32('nan'),
+                 'float64': np.float64('nan')}
+
+
+def _read_frame(content, columns, attrs, pandas_metadata, object_nulls):
+    if len(content) < 12 or content[:4] != b'PAR1' or content[-4:] != b'PAR1':
+        raise ValueError('工作表 Parquet 文件无效')
+    footer_size = int.from_bytes(content[-8:-4], 'little')
+    if footer_size > len(content) - 12:
+        raise ValueError('工作表 Parquet 文件已损坏')
+    # Even read_metadata can invoke an Arrow extension decoder; check the raw footer first.
+    if b'ARROW:schema' in content[-8-footer_size:-8]:
+        raise ValueError('不支持包含 Arrow 扩展类型的工作表')
+    source = io.BytesIO(content)
+    metadata = pq.read_metadata(source).metadata or {}
+    # Arrow's serialized schema may invoke registered Python extension types.
+    if metadata:
+        raise ValueError('不支持包含 Arrow 扩展类型的工作表')
+    if not isinstance(pandas_metadata, dict):
+        raise ValueError('无效的工作表类型信息')
+    column_metadata = pandas_metadata.get('columns')
+    column_indexes = pandas_metadata.get('column_indexes')
+    if (not isinstance(column_metadata, list) or not isinstance(column_indexes, list)
+            or len(column_indexes) > 1
+            or any(not isinstance(c, dict) or not _safe_dtype(c.get('numpy_type'))
+                   for c in column_metadata)
+            or any(not isinstance(c, dict) or c.get('pandas_type') not in ('unicode', 'string')
+                   or c.get('numpy_type') not in ('str', 'object')
+                   for c in column_indexes)):
+        raise ValueError('工作表包含不支持的数据类型')
+    # Attributes are restored from our explicitly typed JSON, never Parquet metadata.
+    pandas_metadata = {**pandas_metadata, 'attributes': {}}
+    source.seek(0)
+    table = pq.read_table(source, arrow_extensions_enabled=False)
+    table = table.replace_schema_metadata({b'pandas': json.dumps(pandas_metadata).encode('utf-8')})
+    frame = table.to_pandas()
+    object_fields = {c.get('field_name') for c in column_metadata if c['numpy_type'] == 'object'}
+    for index, name in enumerate(frame.columns):
+        if name in object_fields:
+            frame.isetitem(index, frame.iloc[:, index].astype(object))
+    if not isinstance(object_nulls, list):
+        raise ValueError('无效的缺失值信息')
+    seen = set()
+    for item in object_nulls:
+        if (not isinstance(item, list) or len(item) != 3 or type(item[0]) is not int
+                or type(item[1]) is not int or not isinstance(item[2], str)
+                or not 0 <= item[0] < frame.shape[1] or not 0 <= item[1] < len(frame)
+                or frame.columns[item[0]] not in object_fields or item[2] not in _OBJECT_NULLS
+                or (item[0], item[1]) in seen):
+            raise ValueError('无效的缺失值信息')
+        seen.add((item[0], item[1]))
+        frame.iat[item[1], item[0]] = _OBJECT_NULLS[item[2]]
+    frame.columns = _restore_columns(columns)
+    frame.attrs = _decode_json(attrs)
+    if not isinstance(frame.attrs, dict):
+        raise ValueError('无效的工作表属性')
+    return frame
+
+
+def _write_frame(frame):
+    if not isinstance(frame, pd.DataFrame):
+        raise ValueError('无效的工作表数据')
+    columns, attrs = _column_info(frame.columns), _encode_json(frame.attrs)
+    object_nulls = []
+    for column, dtype in enumerate(frame.dtypes):
+        if dtype != object:
+            continue
+        for row, value in enumerate(frame.iloc[:, column]):
+            if value is None:
+                kind = 'none'
+            elif value is pd.NA:
+                kind = 'na'
+            elif value is pd.NaT:
+                kind = 'nat'
+            elif isinstance(value, (float, np.floating)) and math.isnan(value):
+                kind = 'nan' if type(value) is float else type(value).__name__
+                if kind not in _OBJECT_NULLS:
+                    raise ValueError(f'不支持的缺失值类型：{kind}')
+            else:
+                continue
+            object_nulls.append([column, row, kind])
+    normalized = frame.copy(deep=False)
+    normalized.attrs = {}
+    normalized.columns = [f'column_{index:06d}' for index in range(frame.shape[1])]
+    try:
+        table = pa.Table.from_pandas(normalized, preserve_index=None)
+        pandas_metadata = json.loads(table.schema.metadata[b'pandas'])
+        output = io.BytesIO()
+        # Statistics can copy cell text into the footer checked for extension markers.
+        pq.write_table(table, output, store_schema=False, write_statistics=False)
+        content = output.getvalue()
+        restored = _read_frame(content, columns, attrs, pandas_metadata, object_nulls)
+        pd.testing.assert_frame_equal(frame, restored, check_exact=True,
+                                      check_index_type=True, check_column_type=True)
+        for index, dtype in enumerate(frame.dtypes):
+            if dtype == object and any(type(a) is not type(b) for a, b in
+                                       zip(frame.iloc[:, index], restored.iloc[:, index])):
+                raise ValueError('对象列中的值或缺失值类型发生变化')
+    except Exception as error:
+        raise ValueError(f'工作表无法使用安全格式无损保存：{error}') from error
+    return content, columns, attrs, pandas_metadata, object_nulls
+
+
+def _reject_legacy_overwrite(filename):
+    if os.path.isfile(filename):
+        with open(filename, 'rb') as stream:
+            if stream.read(2) == b'\x1f\x8b':
+                raise ValueError(_LEGACY_PROJECT + '，请另存为新文件')
+
+
+def write_project_file(filename, data):
+    """Write a project atomically, leaving an old project untouched on failure."""
+    if not isinstance(data, dict) or not any(name != 'meta' for name in data):
+        raise ValueError('工程中没有工作表')
+    _reject_legacy_overwrite(filename)
+    manifest = {'format': 'MiniJMP', 'version': 1,
+                'metadata': _encode_json(data.get('meta', {})), 'sheets': []}
+    temporary = None
+    try:
+        fd, temporary = tempfile.mkstemp(dir=Path(filename).resolve().parent, suffix='.tmp')
+        with os.fdopen(fd, 'w+b') as raw:
+            with zipfile.ZipFile(raw, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
+                for index, (name, record) in enumerate((item for item in data.items() if item[0] != 'meta'), 1):
+                    if not Worksheets._valid_name(name) or not isinstance(record, dict):
+                        raise ValueError('无效的工作表信息')
+                    content, columns, attrs, pandas_metadata, object_nulls = _write_frame(record.get('table'))
+                    path = f'worksheets/sheet_{index:03d}.parquet'
+                    archive.writestr(path, content)
+                    manifest['sheets'].append({'name': name, 'file': path, 'columns': columns,
+                                               'attrs': attrs, 'pandas': pandas_metadata,
+                                               'object_nulls': object_nulls,
+                                               'metadata': _encode_json(record.get('meta', {}))})
+                archive.writestr('manifest.json', json.dumps(manifest, ensure_ascii=False,
+                                                            allow_nan=False).encode('utf-8'))
+            raw.flush()
+            os.fsync(raw.fileno())
+        _reject_legacy_overwrite(filename)
+        os.replace(temporary, filename)
+    finally:
+        if temporary and os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def read_project_file(filename):
+    """Read only the versioned JSON/Parquet project format."""
+    if Path(filename).suffix.lower() in ('.pickle', '.pkl'):
+        raise ValueError(_LEGACY_TABLE)
+    with open(filename, 'rb') as stream:
+        if stream.read(2) == b'\x1f\x8b':
+            raise ValueError(_LEGACY_PROJECT)
+    try:
+        with zipfile.ZipFile(filename) as archive:
+            names = archive.namelist()
+            if len(names) != len(set(names)) or 'manifest.json' not in names:
+                raise ValueError('工程文件结构无效')
+            manifest = json.loads(archive.read('manifest.json'))
+            if (not isinstance(manifest, dict) or manifest.get('format') != 'MiniJMP'
+                    or type(manifest.get('version')) is not int or manifest['version'] != 1
+                    or not isinstance(manifest.get('sheets'), list) or not manifest['sheets']):
+                raise ValueError('不支持的工程格式或版本')
+            data = {'meta': _decode_json(manifest.get('metadata'))}
+            if not isinstance(data['meta'], dict):
+                raise ValueError('无效的工程信息')
+            paths = {'manifest.json'}
+            for index, entry in enumerate(manifest['sheets'], 1):
+                if not isinstance(entry, dict):
+                    raise ValueError('无效的工作表信息')
+                name, path = entry.get('name'), entry.get('file')
+                if (not Worksheets._valid_name(name) or name in data
+                        or path != f'worksheets/sheet_{index:03d}.parquet' or path in paths):
+                    raise ValueError('无效的工作表名称或文件')
+                paths.add(path)
+                meta = _decode_json(entry.get('metadata'))
+                if not isinstance(meta, dict):
+                    raise ValueError('无效的工作表信息')
+                data[name] = {'table': _read_frame(archive.read(path), entry.get('columns'),
+                                                    entry.get('attrs'), entry.get('pandas'),
+                                                    entry.get('object_nulls')), 'meta': meta}
+            if set(names) != paths:
+                raise ValueError('工程文件结构无效')
+            active = data['meta'].get('active')
+            if active is not None and (not isinstance(active, str) or active not in data or active == 'meta'):
+                raise ValueError('无效的活动工作表')
+            return data
+    except (zipfile.BadZipFile, KeyError, json.JSONDecodeError, UnicodeDecodeError) as error:
+        raise ValueError('工程文件无效或已损坏') from error
 
 
 def _restore_excel_precision(filename, frames):
@@ -390,32 +687,17 @@ class Worksheets:
                     filetypes=[('项目 / 单表', '*.dexpl *.pickle')])
         if not filename:
             return False
-        if not messagebox.askyesno('可信文件', '工程文件使用 pickle，仅打开您信任的文件。继续打开？', parent=self.main):
-            return False
         try:
             suffix = Path(filename).suffix.lower()
             if suffix == '.dexpl':
-                with gzip.open(filename, 'rb') as stream:
-                    data = pickle.load(stream)
-                if not isinstance(data, dict) or not any(n != 'meta' for n in data):
-                    raise ValueError('工程中没有工作表')
-                for name, record in data.items():
-                    if name == 'meta':
-                        if not isinstance(record, dict):
-                            raise ValueError('无效的工程信息')
-                    elif (not self._valid_name(name) or not isinstance(record, dict)
-                          or not isinstance(record.get('table'), pd.DataFrame)):
-                        raise ValueError('无效的工作表数据')
-            elif suffix == '.pickle':
-                df = pd.read_pickle(filename)
-                if not isinstance(df, pd.DataFrame):
-                    raise ValueError('单表文件必须包含 DataFrame')
-                data = {self._unique_name(Path(filename).stem, {}): {'table': df}}
+                data = read_project_file(filename)
+            elif suffix in ('.pickle', '.pkl'):
+                raise ValueError(_LEGACY_TABLE)
             else:
-                raise ValueError('请选择 .dexpl 或 .pickle 文件')
+                raise ValueError('请选择 .dexpl 工程文件')
             if not self._confirm_discard():
                 return False
-            self._replace(data, os.fspath(filename) if suffix == '.dexpl' else None)
+            self._replace(data, os.fspath(filename))
             return True
         except Exception as error:
             messagebox.showerror('打开失败', str(error), parent=self.main)
@@ -431,7 +713,6 @@ class Worksheets:
         return self._save_project(filename) if filename else False
 
     def _save_project(self, filename):
-        temporary = None
         try:
             if Path(filename).suffix.lower() != '.dexpl':
                 raise ValueError('项目请保存为 .dexpl；单表请使用“导出当前表”。')
@@ -449,13 +730,7 @@ class Worksheets:
                             data[name]['meta'].pop(key, None)
                         continue
                 data[name]['meta'] = self.saveMeta(table)
-            fd, temporary = tempfile.mkstemp(dir=Path(filename).resolve().parent, suffix='.tmp')
-            with os.fdopen(fd, 'wb') as raw:
-                with gzip.GzipFile(fileobj=raw, mode='wb') as stream:
-                    pickle.dump(data, stream, protocol=pickle.HIGHEST_PROTOCOL)
-                raw.flush()
-                os.fsync(raw.fileno())
-            os.replace(temporary, filename)
+            write_project_file(filename, data)
             for name in downgraded:
                 table = self.sheets[name]
                 table.doe_metadata = None
@@ -475,9 +750,6 @@ class Worksheets:
         except Exception as error:
             messagebox.showerror('保存失败', str(error), parent=self.main)
             return False
-        finally:
-            if temporary and os.path.exists(temporary):
-                os.unlink(temporary)
 
     def _import_frames(self, frames, directory=None):
         # Build every widget before touching the live notebook.
@@ -572,8 +844,8 @@ class Worksheets:
 
     def export_sheet(self):
         self._finish_edit()
-        filename = filedialog.asksaveasfilename(parent=self.main, defaultextension='.pickle',
-                     filetypes=[('单表 pickle', '*.pickle'), ('Excel', '*.xlsx'), ('CSV', '*.csv')])
+        filename = filedialog.asksaveasfilename(parent=self.main, defaultextension='.xlsx',
+                     filetypes=[('Excel', '*.xlsx'), ('CSV', '*.csv')])
         if filename:
             try:
                 self.getCurrentTable().saveAs(filename)

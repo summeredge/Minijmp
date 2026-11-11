@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import sys
 from decimal import Decimal
 from pathlib import Path
 
@@ -12,7 +13,6 @@ import pandas as pd
 
 
 _CONFIG_ENV = "PI_CONFIG"
-_EXE_ENV = "PI_READER_EXE"
 _PI_READER_EXE = "PIReader.exe"
 _TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 MAX_TAGS = 20
@@ -20,7 +20,17 @@ INTERVAL_OPTIONS = ("1m", "5m", "10m", "30m", "1h")
 PI_READER_TIMEOUT_SECONDS = 300
 
 
-def read_pi_data(tags, start_time, end_time, interval="1m", *, config_path=None, executable_path=None) -> pd.DataFrame:
+def application_root():
+    """Return the folder that holds PIReader/ beside the packaged EXE.
+
+    Frozen onedir modules live in _internal, so __file__ must not be used there.
+    """
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent.parent
+
+
+def read_pi_data(tags, start_time, end_time, interval="1m", *, config_path=None) -> pd.DataFrame:
     """Return PI historical data as a pandas DataFrame."""
 
     normalized_tags = normalize_tags(tags)
@@ -32,7 +42,7 @@ def read_pi_data(tags, start_time, end_time, interval="1m", *, config_path=None,
         raise ValueError("结束时间必须晚于开始时间")
 
     config_path = _config_path(config_path)
-    executable = _executable_path(config_path, executable_path)
+    executable = _executable_path()
 
     tag_input = "\n".join(normalized_tags) + "\n"
     command = [
@@ -80,7 +90,7 @@ def read_pi_data(tags, start_time, end_time, interval="1m", *, config_path=None,
     return _read_reader_json(payload)
 
 
-def search_pi_tags(mask, *, config_path=None, executable_path=None) -> dict[str, object]:
+def search_pi_tags(mask, *, config_path=None) -> dict[str, object]:
     """Return PI tag names and truncation metadata for a server-side search."""
 
     if not isinstance(mask, str) or not mask.strip():
@@ -90,7 +100,7 @@ def search_pi_tags(mask, *, config_path=None, executable_path=None) -> dict[str,
         raise ValueError("搜索条件不能为 *，请缩小条件")
 
     config_path = _config_path(config_path)
-    executable = _executable_path(config_path, executable_path)
+    executable = _executable_path()
     command = [
         str(executable),
         "--config",
@@ -191,12 +201,12 @@ def _config_path(configured=None) -> Path:
     return path.resolve()
 
 
-def _executable_path(config_path: Path, configured=None) -> Path:
-    configured = configured or os.environ.get(_EXE_ENV)
-    path = Path(configured).expanduser() if configured else config_path.with_name(_PI_READER_EXE)
+def _executable_path() -> Path:
+    # Security review P1 5.4: user input must never select the executable.
+    path = application_root() / "PIReader" / _PI_READER_EXE
     if not path.is_file():
         raise FileNotFoundError(
-            f"找不到 PIReader 程序：{path}。请将 {_EXE_ENV} 指向 PIReader.exe。"
+            f"PIReader 程序组件缺失：{path}。请重新安装 MiniJMP 或恢复该文件。"
         )
     return path.resolve()
 

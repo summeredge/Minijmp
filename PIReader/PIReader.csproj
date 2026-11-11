@@ -11,6 +11,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <PlatformTarget>x86</PlatformTarget>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug\</OutputPath>
@@ -32,19 +33,23 @@
     <Reference Include="OSIsoft.PISDK">
       <EmbedInteropTypes>False</EmbedInteropTypes>
       <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
     </Reference>
     <Reference Include="OSIsoft.PISDKCommon">
       <EmbedInteropTypes>False</EmbedInteropTypes>
       <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
     </Reference>
     <Reference Include="OSIsoft.PITimeServer">
       <EmbedInteropTypes>False</EmbedInteropTypes>
       <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="TimeExpressionParser.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

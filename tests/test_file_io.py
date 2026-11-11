@@ -1,8 +1,6 @@
 """File/model regressions using the real pandas readers and model methods."""
 import csv
-import gzip
 import io
-import pickle
 import tkinter as tk
 import warnings
 import zipfile
@@ -34,18 +32,11 @@ def mixed_frame():
 
 
 @pytest.mark.parametrize("model_type", MODELS)
-def test_pickle_chinese_mixed_roundtrip(tmp_path, mixed_frame, model_type):
-    filename = tmp_path / "中文混合数据.pickle"
-    model_type(mixed_frame).save(filename)
-    restored = model_type()
-    restored.load(filename)
-    assert_frame_equal(restored.df, mixed_frame)
-
-
 @pytest.mark.parametrize("extension", [".csv", ".CSV", ".xlsx", ".XLSX"])
-def test_export_chinese_mixed_roundtrip(tmp_path, mixed_frame, extension):
+def test_chinese_mixed_roundtrip_in_supported_single_table_formats(
+        tmp_path, mixed_frame, model_type, extension):
     filename = tmp_path / ("中文导出" + extension)
-    TableModel(mixed_frame).save(filename)
+    model_type(mixed_frame).save(filename)
     if extension.lower() == ".csv":
         restored = pd.read_csv(filename, index_col=0, parse_dates=["日期"])
     else:
@@ -54,8 +45,9 @@ def test_export_chinese_mixed_roundtrip(tmp_path, mixed_frame, extension):
 
 
 @pytest.mark.parametrize("model_type", MODELS)
-def test_unsupported_save_fails_without_overwriting(tmp_path, model_type):
-    filename = tmp_path / "已有数据.unknown"
+@pytest.mark.parametrize("extension", [".unknown", ".pickle"])
+def test_unsupported_save_fails_without_overwriting(tmp_path, model_type, extension):
+    filename = tmp_path / ("已有数据" + extension)
     filename.write_bytes(b"preserve existing content")
     with pytest.raises(ValueError, match="Unsupported file extension"):
         model_type(pd.DataFrame({"x": [1]})).save(filename)
@@ -339,6 +331,7 @@ def test_official_excel_read():
 
 def test_project_real_save_and_load_chinese_mixed_roundtrip(tmp_path, mixed_frame, monkeypatch):
     import matplotlib
+    import worksheets
 
     with monkeypatch.context() as scoped:
         scoped.setattr(matplotlib, "use", Mock())
@@ -351,8 +344,7 @@ def test_project_real_save_and_load_chinese_mixed_roundtrip(tmp_path, mixed_fram
         _checkTables=Mock(), saveMeta=Mock(return_value=metadata),
     )
     DataExplore.doSaveProject(app, str(filename))
-    with gzip.open(filename, "rb") as stream:
-        saved = pickle.load(stream)
+    saved = worksheets.read_project_file(filename)
     assert_frame_equal(saved["中文工作表"]["table"], mixed_frame)
     assert saved["中文工作表"]["meta"] == metadata
     loaded = SimpleNamespace(newProject=Mock(), main=Mock(), addRecent=Mock())

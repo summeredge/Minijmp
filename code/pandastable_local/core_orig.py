@@ -4122,30 +4122,32 @@ class Table(Canvas):
         """load from a file"""
         if filename is None:
             filename = filedialog.askopenfilename(
-                parent=self.master, defaultextension='.mpk', initialdir=self.currentdir, filetypes=[
-                    ("pickle", "*.pickle"), ("All files", "*.*")])
+                parent=self.master, defaultextension='.csv', initialdir=self.currentdir, filetypes=[
+                    ("CSV", "*.csv"), ("Excel", "*.xls *.xlsx"), ("All files", "*.*")])
         if not filename:
             return
         if not os.path.exists(filename):
-            print('file does not exist')
+            messagebox.showerror('打开表格失败', '文件不存在。', parent=self.master)
             return
-        if filename:
-            #prog_bar = Progress(self.master, row=0, column=0, columnspan=2)
-            filetype = os.path.splitext(filename)[1]
-            if filetype != '.mpk' and not messagebox.askyesno(
-                    '可信文件',
-                    '此文件使用 pickle，仅打开您信任的文件。继续打开？',
-                    parent=self.master):
-                return
+        filetype = os.path.splitext(filename)[1].lower()
+        if filetype in ('.pickle', '.pkl'):
+            messagebox.showerror(
+                '不支持的文件格式',
+                '为避免执行外部代码，MiniJMP 不再打开 pickle 表格文件。请先转换为 CSV 或 Excel。',
+                parent=self.master)
+            return
+        try:
             model = TableModel()
             model.load(filename, filetype)
-            self.updateModel(model)
-            self.filename = filename
-            self.currentdir = os.path.dirname(os.path.abspath(filename))
-            self.prevdf = None
-            self.adjustColumnWidths()
-            self.redraw()
-            # prog_bar.pb_stop()
+        except Exception as error:
+            messagebox.showerror('打开表格失败', str(error), parent=self.master)
+            return
+        self.updateModel(model)
+        self.filename = filename
+        self.currentdir = os.path.dirname(os.path.abspath(filename))
+        self.prevdf = None
+        self.adjustColumnWidths()
+        self.redraw()
         return
 
     def saveAs(self, filename=None):
@@ -4156,10 +4158,14 @@ class Table(Canvas):
         if filename is None:
             filename = filedialog.asksaveasfilename(
                 parent=self.master, initialdir=self.currentdir, filetypes=[
-                    ("pickle", "*.pickle"), ("All files", "*.*")],
-                defaultextension='.pickle')
+                    ("CSV", "*.csv"), ("Excel", "*.xls *.xlsx")],
+                defaultextension='.csv')
         if filename:
-            self.model.save(filename)
+            try:
+                self.model.save(filename)
+            except Exception as error:
+                messagebox.showerror('保存表格失败', str(error), parent=self.master)
+                return
             self.filename = filename
             self.currentdir = os.path.dirname(os.path.abspath(filename))
         return
@@ -4212,23 +4218,11 @@ class Table(Canvas):
         return
 
     def importHDF(self, filename=None, dialog=False, **kwargs):
-
-        if self.importpath is None:
-            self.importpath = os.getcwd()
-        if filename is None:
-            filename = filedialog.askopenfilename(parent=self.master,
-                                                  defaultextension='.hdf5',
-                                                  initialdir=self.importpath,
-                                                  filetypes=[("hdf", "*.hdf5"),
-                                                             ("All files", "*.*")])
-        if not filename:
-            return
-        df = pd.read_hdf(filename, **kwargs)
-        model = TableModel(dataframe=df)
-        self.updateModel(model)
-        self.redraw()
-        self.importpath = os.path.dirname(filename)
-        return
+        messagebox.showerror(
+            '不支持 HDF5 导入',
+            'HDF5 文件可能包含不安全的 pickle 数据，当前版本禁止导入。请使用 CSV 或 Excel。',
+            parent=self.master)
+        return False
 
     def loadExcel(self, filename=None):
         """Load excel file"""

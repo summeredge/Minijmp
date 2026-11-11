@@ -4,7 +4,6 @@ import ntpath
 import os
 import queue
 import re
-import sys
 import threading
 import tkinter as tk
 from pathlib import Path
@@ -19,7 +18,7 @@ import pi_reader
 # The current Windows user owns these preferences; no administrator access is needed.
 # Registry values are unaffected by the transparent file-encryption client.
 _PI_SETTINGS_KEY = r'Software\MiniJMP\PIImport'
-_PI_SETTING_NAMES = ('executable_path', 'config_path')
+_PI_SETTING_NAMES = ('config_path',)
 
 
 def normalize_pi_path(value):
@@ -28,16 +27,6 @@ def normalize_pi_path(value):
     if not value:
         return ''
     return ntpath.normpath(value) if os.name == 'nt' else os.path.normpath(value)
-
-
-def application_root():
-    """Return the folder that holds PIReader/ beside the packaged EXE.
-
-    Frozen onedir modules live in _internal, so __file__ must not be used there.
-    """
-    if getattr(sys, 'frozen', False):
-        return Path(sys.executable).resolve().parent
-    return Path(__file__).resolve().parent.parent
 
 
 def _pi_settings_file():
@@ -128,12 +117,8 @@ class PIImportDialog(tk.Toplevel):
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
         body.columnconfigure(1, weight=1)
-        body.rowconfigure(3, weight=1)
-        root = application_root()
-        # Both layouts are supported; discover the two files independently.
-        default_exe = (root / 'PIReader.exe' if (root / 'PIReader.exe').is_file()
-                       else root / 'PIReader' / 'PIReader.exe')
-        self._default_exe = default_exe
+        body.rowconfigure(2, weight=1)
+        root = pi_reader.application_root()
         default_config = (root / 'config.txt' if (root / 'config.txt').is_file()
                           else root / 'PIReader' / 'config.txt')
         try:
@@ -143,9 +128,6 @@ class PIImportDialog(tk.Toplevel):
             self._saved_paths = {}
             self._settings_error = f'PI 路径设置读取失败：{exc}'
         self._save_after = None
-        self.exe = tk.StringVar(value=normalize_pi_path(
-            self._saved_paths.get('executable_path') or os.environ.get('PI_READER_EXE')
-            or str(default_exe)))
         self.config = tk.StringVar(value=normalize_pi_path(
             self._saved_paths.get('config_path') or os.environ.get('PI_CONFIG')
             or str(default_config)))
@@ -153,23 +135,21 @@ class PIImportDialog(tk.Toplevel):
         self.end = tk.StringVar(value='*')
         self.interval = tk.StringVar(value='5m')
         self.mask = tk.StringVar()
-        for row, (label, variable, pattern) in enumerate([
-                ('PIReader.exe', self.exe, '*.exe'), ('config.txt', self.config, '*.txt')]):
-            ttk.Label(body, text=label).grid(row=row, column=0, sticky='w', padx=(0, 8))
-            entry = ttk.Entry(body, textvariable=variable, width=55)
-            entry.grid(row=row, column=1, sticky='ew')
-            entry.bind('<FocusOut>', lambda event: self.save_current_paths())
-            entry.bind('<Return>', lambda event: self.save_current_paths())
-            ttk.Button(body, text='浏览…', command=lambda v=variable, p=pattern: self.browse(v, p)).grid(row=row, column=2)
-        ttk.Label(body, text='PI Tag（每行一个，最多 20 个）').grid(row=2, column=0, columnspan=3, sticky='w', pady=(10, 0))
+        ttk.Label(body, text='config.txt').grid(row=0, column=0, sticky='w', padx=(0, 8))
+        entry = ttk.Entry(body, textvariable=self.config, width=55)
+        entry.grid(row=0, column=1, sticky='ew')
+        entry.bind('<FocusOut>', lambda event: self.save_current_paths())
+        entry.bind('<Return>', lambda event: self.save_current_paths())
+        ttk.Button(body, text='浏览…', command=lambda: self.browse(self.config, '*.txt')).grid(row=0, column=2)
+        ttk.Label(body, text='PI Tag（每行一个，最多 20 个）').grid(row=1, column=0, columnspan=3, sticky='w', pady=(10, 0))
         self.tags = tk.Text(body, height=5, width=65, wrap='none')
-        self.tags.grid(row=3, column=0, columnspan=3, sticky='nsew')
-        ttk.Label(body, text='Tag 搜索模式').grid(row=4, column=0, sticky='w')
-        ttk.Entry(body, textvariable=self.mask).grid(row=4, column=1, sticky='ew')
+        self.tags.grid(row=2, column=0, columnspan=3, sticky='nsew')
+        ttk.Label(body, text='Tag 搜索模式').grid(row=3, column=0, sticky='w')
+        ttk.Entry(body, textvariable=self.mask).grid(row=3, column=1, sticky='ew')
         self.search_button = ttk.Button(body, text='搜索', command=self.search)
-        self.search_button.grid(row=4, column=2)
+        self.search_button.grid(row=3, column=2)
         results = ttk.Frame(body)
-        results.grid(row=5, column=0, columnspan=3, sticky='ew')
+        results.grid(row=4, column=0, columnspan=3, sticky='ew')
         self.results = ttk.Treeview(results, columns=('selected', 'tag'), show='headings', height=4, selectmode='none')
         self.results.heading('selected', text='勾选')
         self.results.heading('tag', text='Tag')
@@ -181,24 +161,22 @@ class PIImportDialog(tk.Toplevel):
         self.results.configure(yscrollcommand=scrollbar.set)
         self.results.bind('<Button-1>', self.toggle_tag)
         self.results.bind('<space>', self.toggle_tag)
-        ttk.Button(body, text='添加勾选 Tag', command=self.add_tags).grid(row=6, column=2)
-        for row, label, variable in [(7, '开始时间', self.start), (8, '结束时间', self.end)]:
+        ttk.Button(body, text='添加勾选 Tag', command=self.add_tags).grid(row=5, column=2)
+        for row, label, variable in [(6, '开始时间', self.start), (7, '结束时间', self.end)]:
             ttk.Label(body, text=label).grid(row=row, column=0, sticky='w')
             ttk.Entry(body, textvariable=variable).grid(row=row, column=1, columnspan=2, sticky='ew')
-        ttk.Label(body, text='采样间隔').grid(row=9, column=0, sticky='w')
-        ttk.Combobox(body, textvariable=self.interval, values=pi_reader.INTERVAL_OPTIONS, state='readonly', width=10).grid(row=9, column=1, sticky='w')
+        ttk.Label(body, text='采样间隔').grid(row=8, column=0, sticky='w')
+        ttk.Combobox(body, textvariable=self.interval, values=pi_reader.INTERVAL_OPTIONS, state='readonly', width=10).grid(row=8, column=1, sticky='w')
         self.status_view = ScrolledText(body, height=3, width=60, wrap='word', state='disabled')
-        self.status_view.grid(row=10, column=0, columnspan=3, sticky='ew', pady=8)
+        self.status_view.grid(row=9, column=0, columnspan=3, sticky='ew', pady=8)
         self.import_button = ttk.Button(body, text='查询并导入', command=self.query)
-        self.import_button.grid(row=11, column=1, sticky='e')
-        ttk.Button(body, text='取消', command=self.cancel).grid(row=11, column=2)
+        self.import_button.grid(row=10, column=1, sticky='e')
+        ttk.Button(body, text='取消', command=self.cancel).grid(row=10, column=2)
         self.update_idletasks()
         self.minsize(self.winfo_reqwidth(), self.winfo_reqheight())
         self.grab_set()
         self.tags.focus_set()
-        self._path_traces = [
-            (variable, variable.trace_add('write', self.schedule_save))
-            for variable in (self.exe, self.config)]
+        self._path_traces = [(self.config, self.config.trace_add('write', self.schedule_save))]
         self.bind('<Destroy>', self._cancel_pending_save, add='+')
         if self._settings_error:
             self.set_status(self._settings_error)
@@ -229,17 +207,11 @@ class PIImportDialog(tk.Toplevel):
         if self._save_after is not None:
             self.after_cancel(self._save_after)
             self._save_after = None
-        candidates = {
-            'executable_path': normalize_pi_path(self.exe.get()),
-            'config_path': normalize_pi_path(self.config.get()),
-        }
-        for name, variable in (('executable_path', self.exe),
-                               ('config_path', self.config)):
-            if variable.get() != candidates[name]:
-                variable.set(candidates[name])
+        candidate = normalize_pi_path(self.config.get())
+        if self.config.get() != candidate:
+            self.config.set(candidate)
         # Store independently selected valid files, not incomplete typing or guesses.
-        updates = {key: value for key, value in candidates.items()
-                   if value and Path(value).is_file()}
+        updates = {'config_path': candidate} if candidate and Path(candidate).is_file() else {}
         # Normalization may have scheduled another callback through StringVar traces.
         if self._save_after is not None:
             self.after_cancel(self._save_after)
@@ -262,14 +234,7 @@ class PIImportDialog(tk.Toplevel):
 
     def paths(self):
         self.save_current_paths()
-        return dict(config_path=normalize_pi_path(self.config.get()),
-                    executable_path=normalize_pi_path(self.exe.get()))
-
-    def confirm_executable(self, path):
-        if os.path.normcase(os.path.realpath(path)) == os.path.normcase(os.path.realpath(self._default_exe)):
-            return True
-        return messagebox.askokcancel(
-            '确认运行程序', f'即将运行自定义 PIReader 程序：\n{path}\n请确认程序来源可信。', parent=self)
+        return dict(config_path=normalize_pi_path(self.config.get()))
 
     def toggle_tag(self, event):
         item = self.results.identify_row(event.y) if event.type != tk.EventType.KeyPress else self.results.focus()
@@ -292,8 +257,6 @@ class PIImportDialog(tk.Toplevel):
     def search(self):
         if not self.busy:
             mask, paths = self.mask.get(), self.paths()
-            if not self.confirm_executable(paths['executable_path']):
-                return
             self.run('search', lambda: pi_reader.search_pi_tags(mask, **paths))
 
     def query(self):
@@ -304,8 +267,6 @@ class PIImportDialog(tk.Toplevel):
             start = pi_reader._format_time(self.start.get(), '开始时间')
             end = pi_reader._format_time(self.end.get(), '结束时间')
             interval, paths = self.interval.get(), self.paths()
-            if not self.confirm_executable(paths['executable_path']):
-                return
             size = query_size(tags, start, end, interval)
             if size is None or size > 1_000_000:
                 text = ('无法估算该 PI 时间表达式的数据量。' if size is None else f'预计约 {size:,} 个数据点。')

@@ -1,9 +1,12 @@
 """Real Windows Tk/MTable workbook acceptance checks."""
 import gzip
+import json
 import pickle
+import zipfile
 from unittest.mock import Mock
 
 import pandas as pd
+import numpy as np
 import pytest
 from pandas.testing import assert_frame_equal
 
@@ -65,7 +68,7 @@ def test_roundtrip_nullable_order_active_width_and_filter(workbook, tmp_path):
     b.model.df = frame.iloc[[1]].copy()
     b.filtered = True
     target = tmp_path / '三张表.dexpl'
-    assert app._save_project(target)
+    assert app._save_project(target), error.call_args
     assert b.filtered and len(b.model.df) == 1
     assert app.load_file(target)
     assert list(app.sheets) == ['工作表1', 'B', 'A']
@@ -77,25 +80,28 @@ def test_roundtrip_nullable_order_active_width_and_filter(workbook, tmp_path):
     error.assert_not_called()
 
 
-def test_old_project_and_pickle(workbook, tmp_path):
+def test_old_project_and_pickle_are_rejected(workbook, tmp_path):
     app, error = workbook
     df = pd.DataFrame({'x': pd.array([1, None], dtype='Int64')})
+    original = app.table
     legacy = tmp_path / '旧.dexpl'
     with gzip.open(legacy, 'wb') as stream:
         pickle.dump({'Z': {'table': df, 'meta': {'mplopts': object()}},
                      'A': {'table': df.copy()}}, stream)
-    assert app.load_file(legacy)
-    assert list(app.sheets) == ['Z', 'A']
-    assert_frame_equal(app.table.model.df, df)
+    before = legacy.read_bytes()
+    assert not app.load_file(legacy)
+    assert legacy.read_bytes() == before and app.table is original
+    assert '旧版工程使用不安全的 pickle 格式' in error.call_args.args[1]
+    error.reset_mock()
     single = tmp_path / '单表.pickle'
     df.to_pickle(single)
-    assert app.load_file(single)
-    assert app.filename is None and len(app.sheets) == 1
-    assert_frame_equal(app.table.model.df, df)
-    error.assert_not_called()
+    before = single.read_bytes()
+    assert not app.load_file(single)
+    assert single.read_bytes() == before and app.table is original
+    assert 'pickle' in error.call_args.args[1]
 
 
-@pytest.mark.parametrize('problem', ['bad_data', 'bad_meta', 'bad_active', 'damaged', 'build_failure'])
+@pytest.mark.parametrize('problem', ['bad_data', 'bad_meta', 'bad_active', 'bad_version', 'damaged', 'build_failure'])
 def test_failed_load_rolls_back(workbook, tmp_path, monkeypatch, problem):
     app, error = workbook
     original = app.table
@@ -103,14 +109,23 @@ def test_failed_load_rolls_back(workbook, tmp_path, monkeypatch, problem):
     target = tmp_path / 'bad.dexpl'
     data = {'first': {'table': pd.DataFrame({'x': [1]})},
             'second': {'table': pd.DataFrame({'x': [2]})}}
-    if problem == 'bad_data':
-        data['second']['table'] = [1]
     if problem == 'bad_meta':
         data['second']['meta'] = {'minijmp': 1, 'columnwidths': {'x': -1}}
     if problem == 'bad_active':
         data['meta'] = {'active': ['first']}
-    with gzip.open(target, 'wb') as stream:
-        pickle.dump(data, stream)
+    worksheets.write_project_file(target, data)
+    if problem in ('bad_data', 'bad_version'):
+        with zipfile.ZipFile(target) as archive:
+            entries = {name: archive.read(name) for name in archive.namelist()}
+        if problem == 'bad_data':
+            entries['worksheets/sheet_002.parquet'] = b'corrupt parquet'
+        else:
+            manifest = json.loads(entries['manifest.json'])
+            manifest['version'] = 999
+            entries['manifest.json'] = json.dumps(manifest).encode('utf-8')
+        with zipfile.ZipFile(target, 'w') as archive:
+            for name, content in entries.items():
+                archive.writestr(name, content)
     if problem == 'damaged':
         target.write_bytes(b'invalid')
     if problem == 'build_failure':
@@ -149,17 +164,62 @@ def test_atomic_save_and_cancel(workbook, tmp_path, monkeypatch):
     assert len(app.sheets) == 2
 
 
-@pytest.mark.parametrize('cancel', ['trust', 'unsaved'])
-def test_open_cancel_preserves_project(workbook, tmp_path, monkeypatch, cancel):
+def test_legacy_project_cannot_be_overwritten(workbook, tmp_path):
+    app, error = workbook
+    path = tmp_path / 'old.dexpl'
+    path.write_bytes(gzip.compress(b'legacy content'))
+    before = path.read_bytes()
+    assert not app._save_project(path)
+    assert path.read_bytes() == before
+    assert app.filename is None
+    assert '旧版工程使用不安全的 pickle 格式' in error.call_args.args[1]
+
+
+def test_object_null_types_and_metadata_are_preserved(workbook, tmp_path):
+    app, error = workbook
+    frame = pd.DataFrame({'x': pd.Series([None, float('nan'), pd.NA, pd.NaT, 'ARROW:schema'], dtype=object)})
+    frame.attrs = {'键': (1, {'1': '文本', 1: '整数'}), '类型': np.int64(2**60 + 7)}
+    app.addSheet('数据', frame)
+    path = tmp_path / 'nulls.dexpl'
+    assert app._save_project(path), error.call_args
+    assert app.load_file(path)
+    actual = app.sheets['数据'].model.df
+    assert_frame_equal(actual, frame)
+    assert [type(x) for x in actual['x']] == [type(x) for x in frame['x']]
+    assert actual.attrs == frame.attrs
+    assert type(actual.attrs['类型']) is np.int64
+    error.assert_not_called()
+
+
+def test_unsupported_value_refuses_save_without_overwriting(workbook, tmp_path):
+    app, error = workbook
+    app.table.model.df = pd.DataFrame({'复杂值': [1 + 2j]})
+    path = tmp_path / 'existing.dexpl'
+    path.write_bytes(b'existing project')
+    assert not app._save_project(path)
+    assert path.read_bytes() == b'existing project'
+    assert app.filename is None
+    assert '无法使用安全格式无损保存' in error.call_args.args[1]
+
+
+def test_unsupported_metadata_refuses_save_without_overwriting(workbook, tmp_path):
+    app, error = workbook
+    app.table.model.df.attrs['unsupported'] = object()
+    path = tmp_path / 'existing.dexpl'
+    path.write_bytes(b'existing project')
+    assert not app._save_project(path)
+    assert path.read_bytes() == b'existing project'
+    assert app.filename is None
+    assert '无法安全保存的元数据类型' in error.call_args.args[1]
+
+
+def test_open_cancel_preserves_project(workbook, tmp_path, monkeypatch):
     app, error = workbook
     original = app.table
     app.addSheet('尚未保存', pd.DataFrame({'x': [42]}))
-    path = tmp_path / 'incoming.pickle'
-    pd.DataFrame({'incoming': [0]}).to_pickle(path)
-    if cancel == 'trust':
-        monkeypatch.setattr(worksheets.messagebox, 'askyesno', lambda *a, **k: False)
-    else:
-        monkeypatch.setattr(worksheets.messagebox, 'askyesnocancel', lambda *a, **k: None)
+    path = tmp_path / 'incoming.dexpl'
+    worksheets.write_project_file(path, {'incoming': {'table': pd.DataFrame({'incoming': [0]})}})
+    monkeypatch.setattr(worksheets.messagebox, 'askyesnocancel', lambda *a, **k: None)
     assert not app.load_file(path)
     assert list(app.sheets) == ['工作表1', '尚未保存']
     assert app.sheets['工作表1'] is original
@@ -254,8 +314,7 @@ def test_pending_cell_entry_is_saved_without_advancing_edit(workbook, tmp_path):
     assert copied.model.df.iloc[0, 0] == 42.
     path = tmp_path / 'edited.dexpl'
     assert app._save_project(path)
-    with gzip.open(path, 'rb') as stream:
-        stored = pickle.load(stream)
+    stored = worksheets.read_project_file(path)
     assert stored['编辑']['table'].iloc[0, 0] == 42.
     assert not table.cellentry.winfo_exists()
     error.assert_not_called()

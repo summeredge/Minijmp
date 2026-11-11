@@ -4,11 +4,13 @@ import json
 import subprocess
 import sys
 import zipfile
+from xml.etree import ElementTree
 from pathlib import Path
 
 import pytest
 
 import pi_import
+import pi_reader
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -288,9 +290,72 @@ def test_release_uses_only_clean_pireader_templates():
     assert 'Get-ChildItem -LiteralPath $piSource' not in script
     assert "'PIReader/config.example.txt'" in precheck
     assert "'PIReader/tags.example.txt'" in precheck
+    assert "'PIReader\\PIReader.csproj'" in script
+    assert '/p:TargetFrameworkRootPath=' in script and '/p:ReferencePath=' in script
+    assert 'FrameworkReferenceDirectory' in script and 'FrameworkReferenceDirectory' in precheck
+    assert "PIReader\\Program.cs" in script and "PIReader\\TimeExpressionParser.cs" in script
+    assert "Copy-Item -LiteralPath $compiledReader" in script
+    sign = script.index("'tools\\sign_minijmp_executables.ps1') @signArgs")
+    assert sign < script.index("'tools\\write_release_sbom.py'")
+    assert sign < script.index("'manifest' $releaseDir") < script.index("'make' $releaseDir")
+    assert '"$piHash  $piRelative"' in script
+    assert not any('Copy-Item' in line and 'OSIsoft.' in line for line in script.splitlines())
     assert script.index('SOURCE-CODE.txt') < script.index("'manifest' $releaseDir")
     assert script.index("'SOURCE-BUNDLE-INFO.txt'") < script.index("'manifest' $sourceStage")
     assert script.index('write_third_party_notices.py') < script.index("'manifest' $sourceStage")
+
+
+def test_pireader_project_identity_matches_release_version():
+    namespace = {'msbuild': 'http://schemas.microsoft.com/developer/msbuild/2003'}
+    project = ElementTree.parse(ROOT / 'PIReader' / 'PIReader.csproj')
+    assert project.find('.//msbuild:TargetFrameworkVersion', namespace).text == 'v4.8'
+    assert project.find('.//msbuild:PlatformTarget', namespace).text == 'x86'
+    assert project.find('.//msbuild:AssemblyName', namespace).text == 'PIReader'
+    includes = [item.attrib['Include'] for item in project.findall('.//msbuild:Compile', namespace)]
+    assert r'Properties\AssemblyInfo.cs' in includes
+    assembly = (ROOT / 'PIReader' / 'Properties' / 'AssemblyInfo.cs').read_text(encoding='utf-8')
+    versions = release_metadata.identifiers()
+    assert 'AssemblyProduct("MiniJMP PI Reader")' in assembly
+    assert f'AssemblyFileVersion("{versions["product:fileversion"]}")' in assembly
+    assert f'AssemblyInformationalVersion("{versions["product:version_info"]}")' in assembly
+
+
+def test_packaging_describes_sdk_as_compile_only():
+    usage = (ROOT / 'packaging' / 'windows' / 'USAGE.txt').read_text(encoding='utf-8')
+    notice = (ROOT / 'packaging' / 'windows' / 'PI-SDK-NOTICE.txt').read_text(encoding='utf-8')
+    assert '不包含 OSIsoft PI SDK DLL' in usage
+    assert '不将其复制进运行包' in notice
+
+
+def test_release_bundles_documented_safe_sample_projects_and_keeps_legacy_sources():
+    from worksheets import read_project_file
+
+    script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
+    precheck = (ROOT / 'tools' / 'check_windows_release_ready.ps1').read_text(encoding='utf-8')
+    usage = '\n'.join(path.read_text(encoding='utf-8') for path in (ROOT / 'docs' / 'usage').glob('*.rst'))
+    windows_usage = (ROOT / 'packaging' / 'windows' / 'USAGE.txt').read_text(encoding='utf-8')
+    changelog = (ROOT / 'docs' / 'CHANGELOG_DEV.md').read_text(encoding='utf-8')
+
+    for name in ('ctrl_chart_test', 'CPK_sample', 'GRR_crossed', 'fit_sample_data',
+                 'gasket', 'car_poll', 'correlation', 'Nested_GRR', 'dists'):
+        assert f"sample_data\\{name}.dexpl" in script
+        assert f"'sample_data/{name}.dexpl'" in precheck
+        assert f"sample_data\\{name}.pickle" not in script
+        assert f"'sample_data/{name}.pickle'" not in precheck
+        assert (ROOT / 'sample_data' / f'{name}.dexpl').is_file()
+        assert (ROOT / 'sample_data' / f'{name}.pickle').is_file()
+        project = read_project_file(ROOT / 'sample_data' / f'{name}.dexpl')
+        sheets = [record['table'] for key, record in project.items() if key != 'meta']
+        assert sheets and any(not sheet.empty for sheet in sheets)
+    for name in ('gasket', 'car_poll', 'correlation', 'CPK_sample', 'Nested_GRR', 'dists'):
+        assert f'{name}.dexpl' in usage
+        assert f'{name}.pickle' not in usage
+    assert 'ctrl_chart_imr.pickle' not in usage
+    assert 'ctrl_chart_test.dexpl' in usage and 'may not exactly match this sample' in usage
+    assert '随包提供的 .dexpl 示例工程' in windows_usage
+    assert '四个 .dexpl 示例工程' not in windows_usage
+    assert '使用手册示例' in changelog
+    assert '四个内置表格示例' not in changelog
 
 
 def test_source_bundle_precheck_does_not_require_git(tmp_path):
@@ -308,8 +373,11 @@ def test_source_bundle_precheck_does_not_require_git(tmp_path):
 def test_python_version_gate_accepts_311_and_newer(tmp_path):
     lock = tmp_path / 'lock.txt'
     lock.write_text('numpy==2.4.6\n', encoding='utf-8')
+    hash_lock = tmp_path / 'hashes.txt'
+    hash_lock.write_text('numpy==2.4.6 --hash=sha256:' + 'a' * 64 + '\n', encoding='utf-8')
     installed = {'numpy': '2.4.6'}.__getitem__
-    kwargs = dict(lock=lock, installed=installed, pip_ok=True, pyinstaller='6.22.3', bits=64)
+    kwargs = dict(lock=lock, hash_lock=hash_lock, installed=installed, pip_ok=True,
+                  pyinstaller='6.22.3', bits=64)
 
     for version in ((3, 11, 9), (3, 12, 3), (3, 13, 0)):
         levels = release_env.assess(version_info=version, **kwargs)
@@ -328,6 +396,47 @@ def test_python_version_gate_accepts_311_and_newer(tmp_path):
         (3, 10, 14), **kwargs))
 
 
+def test_hash_lock_must_exactly_cover_version_pins(tmp_path):
+    lock = tmp_path / 'requirements.lock'
+    hashes = tmp_path / 'requirements-hashed.lock'
+    lock.write_text('numpy==2.4.6\nPygments==2.21.0\n', encoding='utf-8')
+    hashes.write_text('numpy==2.4.6 --hash=sha256:' + 'a' * 64 + '\n'
+                      'Pygments==2.21.0 --hash=sha256:' + 'b' * 64 + '\n', encoding='utf-8')
+
+    assert release_env.hash_lock_mismatches(lock, hashes) == []
+    hashes.write_text('numpy==2.4.5 --hash=sha256:' + 'a' * 64 + '\n', encoding='utf-8')
+    issues = release_env.hash_lock_mismatches(lock, hashes)
+    assert any('version differs' in issue for issue in issues)
+    assert any('Pygments==2.21.0 has no hash-lock entry' in issue for issue in issues)
+
+
+def test_verified_install_report_must_match_all_wheel_hashes(tmp_path, monkeypatch):
+    lock = tmp_path / 'requirements.lock'
+    hashes = tmp_path / 'requirements-hashed.lock'
+    lock.write_text('numpy==2.4.6\n', encoding='utf-8')
+    digest = 'a' * 64
+    hashes.write_text(f'numpy==2.4.6 --hash=sha256:{digest}\n', encoding='utf-8')
+    monkeypatch.setattr(release_env.sys, 'prefix', str(tmp_path / 'venv'))
+    monkeypatch.setattr(release_env.sys, 'executable', str(tmp_path / 'venv' / 'Scripts' / 'python.exe'))
+    report = Path(release_env.sys.prefix) / f'minijmp-hash-install-{release_env._sha256(hashes)}.json'
+    report.parent.mkdir(parents=True)
+    report.write_text(json.dumps({
+        'python': str(Path(release_env.sys.executable).resolve()),
+        'version_lock_sha256': release_env._sha256(lock),
+        'hash_lock_sha256': release_env._sha256(hashes),
+        'verified_wheels': [{'name': 'NumPy', 'version': '2.4.6', 'sha256': digest}],
+    }), encoding='utf-8')
+
+    assert release_env.verified_install_hashes(lock, hashes) == {'numpy': ('2.4.6', digest)}
+    report.write_text(report.read_text(encoding='utf-8').replace(digest, 'b' * 64), encoding='utf-8')
+    assert release_env.verified_install_hashes(lock, hashes) is None
+
+
+def test_release_precheck_includes_hash_lock():
+    script = (TOOLS / 'check_windows_release_ready.ps1').read_text(encoding='utf-8')
+    assert "'packaging/windows/requirements-py311-hashed.lock'" in script
+
+
 def test_version_identifiers_and_build_info_agree():
     levels = release_metadata.check()
     assert [level for level, _ in levels] == ['PASS'], levels
@@ -336,12 +445,16 @@ def test_version_identifiers_and_build_info_agree():
     assert '$releaseVersion = ' + "'V1.0'" in script
     assert '$productVersion = ' + "'v1.0.0'" in script
     assert 'Release name: $releaseVersion' in script
-    assert 'PIReader: templates only.' in script
+    assert 'PIReader: built from project source' in script
     assert 'PI SDK/PIPC runtime' in script
+    assert "'--hidden-import', 'pyarrow.parquet'" in script
+    assert "names=['numpy','scipy','pandas','pyarrow'" in script
     version_info = (ROOT / 'packaging' / 'windows' / 'version_info.txt').read_text(encoding='utf-8')
     assert "StringStruct('Comments', 'MiniJMP V1.0 source baseline')" in version_info
     usage = (ROOT / 'packaging' / 'windows' / 'USAGE.txt').read_text(encoding='utf-8')
-    assert '不分发授权未确认' in usage
+    assert '不包含 OSIsoft PI SDK DLL' in usage
+    assert '许可和再分发授权不因打包或代码签名而改变' in usage
+    assert 'HDF5 暂不可导入' in usage
 
 
 def test_pireader_paths_resolve_beside_frozen_exe(monkeypatch, tmp_path, tk_root):
@@ -355,16 +468,16 @@ def test_pireader_paths_resolve_beside_frozen_exe(monkeypatch, tmp_path, tk_root
     stored = {}
     monkeypatch.setattr(pi_import, 'load_pi_paths', lambda: dict(stored))
     monkeypatch.setattr(pi_import, 'save_pi_paths', lambda paths: stored.update(paths))
-    monkeypatch.delenv('PI_READER_EXE', raising=False)
+    stored['executable_path'] = str(tmp_path / 'legacy-rogue.exe')
+    monkeypatch.setenv('PI_READER_EXE', str(tmp_path / 'env-rogue.exe'))
     monkeypatch.delenv('PI_CONFIG', raising=False)
     monkeypatch.setattr(pi_import, '__file__', str(internal / 'pi_import.py'))
-    monkeypatch.setattr(pi_import.sys, 'frozen', True, raising=False)
-    monkeypatch.setattr(pi_import.sys, 'executable', str(install / 'MiniJMP.exe'))
+    monkeypatch.setattr(pi_reader, 'application_root', lambda: install)
     window = pi_import.PIImportDialog(tk_root)
     try:
-        assert window.exe.get() == pi_import.normalize_pi_path(install / 'PIReader' / 'PIReader.exe')
         assert window.config.get() == pi_import.normalize_pi_path(install / 'PIReader' / 'config.txt')
-        assert '_internal' not in window.exe.get()
+        assert pi_reader._executable_path() == (install / 'PIReader' / 'PIReader.exe').resolve()
+        assert set(window.paths()) == {'config_path'}
     finally:
         window.cancel()
 
@@ -422,6 +535,8 @@ def test_finalize_review_materials_binds_tag_commit_and_deliverable_hashes(tmp_p
     runtime.mkdir()
     for name in ('MiniJMP.exe', 'BUILD-INFO.txt', 'THIRD-PARTY-NOTICES.txt', 'LICENSE', 'PI-SDK-NOTICE.txt'):
         (runtime / name).write_text('test', encoding='utf-8')
+    (runtime / 'PIReader').mkdir()
+    (runtime / 'PIReader' / 'PIReader.exe').write_bytes(b'signed reader fixture')
     (runtime / 'BUILD-INFO.txt').write_text('Base Git HEAD: ' + 'a' * 40, encoding='utf-8')
     (runtime / 'THIRD-PARTY-LICENSES').mkdir()
     destination = tmp_path / 'review'
@@ -436,6 +551,9 @@ def test_finalize_review_materials_binds_tag_commit_and_deliverable_hashes(tmp_p
     assert 'a' * 40 in info and 'v1.0.0' in info and '{{' not in info
     sums = (destination / 'SHA256SUMS.txt').read_text(encoding='ascii')
     assert '  SHA256SUMS.txt' not in sums
+    assert '../MiniJMP-V1.0/MiniJMP.exe' in sums
+    assert '../MiniJMP-V1.0/PIReader/PIReader.exe' in sums
+    assert make_zip.sha256_file(runtime / 'PIReader' / 'PIReader.exe') in info
     for line in sums.splitlines():
         digest, relative = line.split('  ', 1)
         assert make_zip.sha256_file(destination / relative) == digest

@@ -15,7 +15,7 @@ Choose Stats > Contingency table & Chi2
 The Chi Square results are consistent with both JMP 17 and Minitab 22.
 
 
-Open the sample data file `car_poll.pickle` in the `sample_data` folder. Select the columns and rows as `Gender` and `type`. The result is shown below.
+Open the sample data file `car_poll.dexpl` in the `sample_data` folder. Select the columns and rows as `Gender` and `type`. The result is shown below.
 
 
 .. code-block:: none

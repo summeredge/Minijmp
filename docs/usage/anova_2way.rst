@@ -34,7 +34,7 @@ The Two-Way ANOVA results are consistent with both JMP 17 and Minitab 22. Note t
   +---------------+----+-----------+----------+---------+---------+
 
 
-This example analyzes the sample data from `gasket.pickle`, selecting the Y column as the response data column, and the `Part` and `Operator` columns as the factors. A two-way ANOVA with interaction tests three null hypotheses simultaneously:
+This example analyzes the sample data from `gasket.dexpl`, selecting the Y column as the response data column, and the `Part` and `Operator` columns as the factors. A two-way ANOVA with interaction tests three null hypotheses simultaneously:
 
 - There is no difference in group means at any level of the first independent variable.
 - There is no difference in group means at any level of the second independent variable.

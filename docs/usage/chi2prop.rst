@@ -16,7 +16,7 @@ The first window is used to collect the sampled levels and their frequencies.
 
 The second window is used to collect the hypothesized probabilities. The probability values must be greater than zero and less than one for the Chi Square test. If all the inputed hypothesized probabilities do not sum to one, the numbers will be scaled.
 
-Open the sample data file `car_poll.pickle` in the `sample_data` folder. Select the column of `type` as the raw data, and input equal hypothesized probabilities for the three levels. Below is the output.
+Open the sample data file `car_poll.dexpl` in the `sample_data` folder. Select the column of `type` as the raw data, and input equal hypothesized probabilities for the three levels. Below is the output.
 
 
 .. code-block:: none

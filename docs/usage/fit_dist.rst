@@ -41,7 +41,7 @@ A sample output:
     
     - When DF > 30, the distribution will approach a normal distribution. 
     - A very large DF indicates that normal distribution may fit better to the samples. 
-    - The sample data file "dists.pickle" in "sample_data" directory contains student's t sample data, which is good for testing this fit.
+    - The sample data file "dists.dexpl" in "sample_data" directory contains student's t sample data, which is good for testing this fit.
       
   - For small DF, the t-distribution has heavier tails than the normal distribution.
   - The t-distribution is symmetric about its location parameter μ.

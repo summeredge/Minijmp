@@ -43,7 +43,7 @@ The one-way ANOVA results align with both Minitab 22 and JMP 17. The mean compar
   +-------+----+---------+---------+--------------------+
   Note: SE Mean and CI both use a pooled estimate of error variance = 484.348.
   
-The example is an analysis of the sample data from `gasket.pickle`, selecting the `Y` column as the data column of response, and the `Operator` column as the group column. The null hypothesis is that the response means are equal across all different groups or levels of the effect. Here, a level of the effect means a value of the categorical variable; for example, there are 3 operators, which means there are 3 levels in the effect variable of `Operator`. The p-value in the analysis of variance table is greater than common significance levels, so we can't reject the null hypothesis.
+The example is an analysis of the sample data from `gasket.dexpl`, selecting the `Y` column as the data column of response, and the `Operator` column as the group column. The null hypothesis is that the response means are equal across all different groups or levels of the effect. Here, a level of the effect means a value of the categorical variable; for example, there are 3 operators, which means there are 3 levels in the effect variable of `Operator`. The p-value in the analysis of variance table is greater than common significance levels, so we can't reject the null hypothesis.
 
 The `Source` of variance includes `Between` and `Within`. `Between` refers to the variance between the groups. In the example, it's the variance brought by the difference of operators. `Within` refers to the variance within each group. Thus, in the example, it is the variance of measurement for each operator.
 
@@ -64,7 +64,7 @@ Mean Comparison
 
 The null hypothesis of the One-Way ANOVA test is that the population means of all groups are equal. When the p-value is less than the significance level, the alternative hypothesis is that at least one of the population means is not equal to the others. At this point, it's a good idea to perform a comparison analysis to identify pairs of groups that are significantly different.
 
-Continue using the data file `gasket.pickle` from the previous example, but change the group column to `Parts`. The p-value is less than typical significance levels.
+Continue using the data file `gasket.dexpl` from the previous example, but change the group column to `Part`. The p-value is less than typical significance levels.
 
 .. code-block:: none
 

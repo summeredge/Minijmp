@@ -1,5 +1,4 @@
-import gzip
-import pickle
+from copy import deepcopy
 from dataclasses import replace
 from unittest.mock import Mock
 
@@ -23,6 +22,7 @@ from doe_pb import create_pb
 from doe_pb_foldover import create_pb_foldover
 from doe_screening_analysis import analyze_pb
 from test_csv_import import csv_app
+from worksheets import write_project_file
 
 
 @pytest.fixture
@@ -138,7 +138,7 @@ def test_design_types_roundtrip_in_mixed_dexpl_without_generating_designs(
 
 @pytest.mark.parametrize(
     "problem",
-    ["unknown_schema", "invalid_run_mapping", "duplicate_columns", "renamed_column",
+    ["unknown_schema", "invalid_run_mapping", "renamed_column",
      "missing_design_type", "invalid_design_type", "explicit_null"],
 )
 def test_bad_doe_metadata_fails_project_load_without_replacing_live_sheets(
@@ -157,11 +157,6 @@ def test_bad_doe_metadata_fails_project_load_without_replacing_live_sheets(
         metadata["design"].pop("design_type")
     elif problem == "invalid_design_type":
         metadata["design"]["design_type"] = "full_factorial_guess"
-    elif problem == "duplicate_columns":
-        damaged_frame.columns = [
-            "运行ID", "标准序", "运行序", "点类型", "重复", "批次ID",
-            "1", "1", "A实测", "收率列",
-        ]
     elif problem == "renamed_column":
         damaged_frame = damaged_frame.rename(columns={"1": "温度"})
     target = tmp_path / "invalid-doe.dexpl"
@@ -170,8 +165,7 @@ def test_bad_doe_metadata_fails_project_load_without_replacing_live_sheets(
         "DOE": {"table": damaged_frame, "meta": {"doe": metadata}},
         "meta": {"active": "健康工作表", "minijmp": 1},
     }
-    with gzip.open(target, "wb") as stream:
-        pickle.dump(data, stream)
+    write_project_file(target, data)
 
     original_table = app.table
     original_names = list(app.sheets)
@@ -179,6 +173,18 @@ def test_bad_doe_metadata_fails_project_load_without_replacing_live_sheets(
     assert app.table is original_table
     assert list(app.sheets) == original_names
     error.assert_called_once()
+
+
+def test_duplicate_doe_columns_are_rejected_before_project_serialization():
+    frame, spec, columns = _source()
+    metadata = worksheet_metadata(frame, spec, columns)
+    duplicate_columns = frame.copy(deep=True)
+    duplicate_columns.columns = [
+        "运行ID", "标准序", "运行序", "点类型", "重复", "批次ID",
+        "1", "1", "A实测", "收率列",
+    ]
+    with pytest.raises(ValueError, match="重复列名"):
+        validate_worksheet_metadata(duplicate_columns, metadata)
 
 
 def _pb_foldover_pair():
@@ -247,7 +253,7 @@ def test_corrupt_pb_foldover_project_does_not_replace_live_workbook(
     columns = folded_metadata["column_map"]
     added = folded.index[folded[columns["batch_id"]] == "FOLD1"]
     damaged = folded.copy(deep=True)
-    damaged_metadata = pickle.loads(pickle.dumps(folded_metadata))
+    damaged_metadata = deepcopy(folded_metadata)
     if damage in ("flipped_sign", "rebound_flipped_sign"):
         source_id, added_id = folded_metadata["design"]["foldover_lineage"]["run_map"][0]
         original = restore_design_result(folded, folded_metadata)
@@ -288,8 +294,7 @@ def test_corrupt_pb_foldover_project_does_not_replace_live_workbook(
         "DOE PB Foldover": {"table": damaged, "meta": {"doe": damaged_metadata}},
         "meta": {"active": "健康工作表", "minijmp": 1},
     }
-    with gzip.open(target, "wb") as stream:
-        pickle.dump(data, stream)
+    write_project_file(target, data)
 
     original_table = app.table
     original_names = list(app.sheets)
@@ -320,8 +325,7 @@ def test_corrupt_splitplot_project_does_not_replace_live_workbook(
         "DOE Split-Plot": {"table": frame, "meta": {"doe": metadata}},
         "meta": {"active": "健康工作表", "minijmp": 1},
     }
-    with gzip.open(target, "wb") as stream:
-        pickle.dump(data, stream)
+    write_project_file(target, data)
 
     original_table = app.table
     original_names = list(app.sheets)
@@ -522,8 +526,7 @@ def test_corrupt_splitplot_append_order_is_rejected_on_dexpl_load(
         "DOE Split-Plot": {"table": damaged, "meta": {"doe": damaged_metadata}},
         "meta": {"active": "健康工作表", "minijmp": 1},
     }
-    with gzip.open(target, "wb") as stream:
-        pickle.dump(data, stream)
+    write_project_file(target, data)
 
     original_table = app.table
     original_names = list(app.sheets)

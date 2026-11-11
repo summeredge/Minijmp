@@ -1,5 +1,11 @@
 ﻿param(
-    [switch]$SkipSmoke
+    [switch]$SkipSmoke,
+    [string]$CertificateThumbprint = $env:MINIJMP_SIGNING_THUMBPRINT,
+    [ValidateSet('CurrentUser', 'LocalMachine')]
+    [string]$CertificateStore = 'CurrentUser',
+    [string]$PiSdkDirectory,
+    [string]$FrameworkReferenceDirectory,
+    [string]$SignToolPath
 )
 
 # The only release entry point. It never deletes earlier artifacts and never
@@ -23,6 +29,43 @@ if (!(Test-Path -LiteralPath $python -PathType Leaf)) {
 if ($env:OS -ne 'Windows_NT') {
     throw 'Build this Windows package on Windows x64.'
 }
+$CertificateThumbprint = ($CertificateThumbprint -replace '\s', '').ToUpperInvariant()
+if ($CertificateThumbprint -notmatch '^[0-9A-F]{40}$') {
+    throw 'Provide a code-signing certificate thumbprint with -CertificateThumbprint or MINIJMP_SIGNING_THUMBPRINT.'
+}
+$certificate = Get-Item -LiteralPath "Cert:\$CertificateStore\My\$CertificateThumbprint" -ErrorAction SilentlyContinue
+if (!$certificate -or !$certificate.HasPrivateKey) {
+    throw "Code-signing certificate with private key not found in $CertificateStore/My."
+}
+if (!$PiSdkDirectory) { $PiSdkDirectory = Join-Path $root 'PIReader' }
+if (!$FrameworkReferenceDirectory) {
+    $FrameworkReferenceDirectory = Join-Path ${env:ProgramFiles(x86)} 'Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8'
+}
+$msbuild = Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\MSBuild.exe'
+if (!(Test-Path -LiteralPath $msbuild -PathType Leaf)) {
+    throw 'The .NET Framework MSBuild tool was not found.'
+}
+$frameworkRelease = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full' -Name Release -ErrorAction SilentlyContinue).Release
+if (!$frameworkRelease -or $frameworkRelease -lt 528040) {
+    throw '.NET Framework 4.8 or newer is required to build PIReader.'
+}
+foreach ($sdkName in @('OSIsoft.PISDK.dll', 'OSIsoft.PISDKCommon.dll', 'OSIsoft.PITimeServer.dll')) {
+    if (!(Test-Path -LiteralPath (Join-Path $PiSdkDirectory $sdkName) -PathType Leaf)) {
+        throw "PI SDK build reference missing: $sdkName in $PiSdkDirectory"
+    }
+}
+foreach ($frameworkName in @('mscorlib.dll', 'System.dll', 'System.Core.dll', 'System.Web.Extensions.dll')) {
+    if (!(Test-Path -LiteralPath (Join-Path $FrameworkReferenceDirectory $frameworkName) -PathType Leaf)) {
+        throw ".NET Framework 4.8 reference assembly missing: $frameworkName in $FrameworkReferenceDirectory"
+    }
+}
+$FrameworkReferenceDirectory = (Resolve-Path -LiteralPath $FrameworkReferenceDirectory).Path
+if ((Split-Path -Leaf $FrameworkReferenceDirectory) -ne 'v4.8' -or
+    (Split-Path -Leaf (Split-Path -Parent $FrameworkReferenceDirectory)) -ne '.NETFramework' -or
+    !(Test-Path -LiteralPath (Join-Path $FrameworkReferenceDirectory 'RedistList\FrameworkList.xml') -PathType Leaf)) {
+    throw 'FrameworkReferenceDirectory must be a complete .NETFramework/v4.8 reference assembly directory.'
+}
+$PiSdkDirectory = (Resolve-Path -LiteralPath $PiSdkDirectory).Path
 
 $envReport = @(& $python (Join-Path $root 'tools\release_env.py') 2>&1)
 $envReport | ForEach-Object { Write-Output $_ }
@@ -64,6 +107,8 @@ if (Test-Path -LiteralPath $sourceBundleInfo -PathType Leaf) {
 
 $required = @(
     'PIReader\config.example.txt', 'PIReader\tags.example.txt', 'LICENSE',
+    'PIReader\PIReader.csproj', 'PIReader\Program.cs', 'PIReader\TimeExpressionParser.cs',
+    'PIReader\Properties\AssemblyInfo.cs', 'tools\sign_minijmp_executables.ps1',
     'packaging\windows\PI-SDK-NOTICE.txt',
     'packaging\windows\USAGE.txt', 'packaging\windows\version_info.txt',
     'icon\icon_big.ico', 'code\help.json', 'help', 'user_config\default.conf'
@@ -109,20 +154,44 @@ $pyinstallerArgs = @(
     '--version-file', $versionInfo,
     '--specpath', $specPath, '--workpath', $workPath, '--distpath', $rawDist,
     '--paths', (Join-Path $root 'code'),
-    '--hidden-import', 'openpyxl', '--hidden-import', 'xlrd',
+    '--hidden-import', 'openpyxl', '--hidden-import', 'xlrd', '--hidden-import', 'pyarrow.parquet',
+    # appdirs uses its ctypes path lookup without optional Python COM automation.
+    '--exclude-module', 'win32com', '--exclude-module', 'pythoncom',
     '--add-data', ((Join-Path $root 'code\help.json') + ':.' ),
     '--add-data', ((Join-Path $root 'help') + ':help'),
     '--add-data', ((Join-Path $root 'user_config\default.conf') + ':user_config'),
     '--add-data', ((Join-Path $root 'sample_data\coatings.csv') + ':sample_data'),
     '--add-data', ((Join-Path $root 'sample_data\Gasket.xlsx') + ':sample_data'),
-    '--add-data', ((Join-Path $root 'sample_data\ctrl_chart_test.pickle') + ':sample_data'),
-    '--add-data', ((Join-Path $root 'sample_data\CPK_sample.pickle') + ':sample_data'),
-    '--add-data', ((Join-Path $root 'sample_data\GRR_crossed.pickle') + ':sample_data'),
-    '--add-data', ((Join-Path $root 'sample_data\fit_sample_data.pickle') + ':sample_data'),
+    '--add-data', ((Join-Path $root 'sample_data\ctrl_chart_test.dexpl') + ':sample_data'),
+    '--add-data', ((Join-Path $root 'sample_data\CPK_sample.dexpl') + ':sample_data'),
+    '--add-data', ((Join-Path $root 'sample_data\GRR_crossed.dexpl') + ':sample_data'),
+    '--add-data', ((Join-Path $root 'sample_data\fit_sample_data.dexpl') + ':sample_data'),
+    '--add-data', ((Join-Path $root 'sample_data\gasket.dexpl') + ':sample_data'),
+    '--add-data', ((Join-Path $root 'sample_data\car_poll.dexpl') + ':sample_data'),
+    '--add-data', ((Join-Path $root 'sample_data\correlation.dexpl') + ':sample_data'),
+    '--add-data', ((Join-Path $root 'sample_data\Nested_GRR.dexpl') + ':sample_data'),
+    '--add-data', ((Join-Path $root 'sample_data\dists.dexpl') + ':sample_data'),
     $entry
 )
 
 $envReport | Set-Content -LiteralPath $buildLog -Encoding utf8
+Write-Output 'Building PIReader from project source...'
+$piBuild = Join-Path $buildRoot 'pireader'
+New-Item -ItemType Directory -Path $piBuild | Out-Null
+$compiledReader = Join-Path $piBuild 'PIReader.exe'
+$frameworkRoot = (Split-Path -Parent (Split-Path -Parent $FrameworkReferenceDirectory)) + '/'
+$piIntermediate = (Join-Path $buildRoot 'pireader-obj') + '/'
+# A forward trailing slash also survives Windows PowerShell 5.1 argument quoting.
+$readerArgs = @(
+    (Join-Path $root 'PIReader\PIReader.csproj'),
+    '/nologo', '/t:Build', '/p:Configuration=Release', '/p:Platform=AnyCPU',
+    "/p:TargetFrameworkRootPath=$frameworkRoot", "/p:ReferencePath=$PiSdkDirectory",
+    "/p:OutputPath=$piBuild/", "/p:IntermediateOutputPath=$piIntermediate", '/verbosity:minimal'
+)
+& $msbuild @readerArgs *>> $buildLog
+if ($LASTEXITCODE -ne 0 -or !(Test-Path -LiteralPath $compiledReader -PathType Leaf)) {
+    throw "Compiling PIReader from source failed; see $buildLog"
+}
 "Building MiniJMP $productVersion with PyInstaller" | Add-Content -LiteralPath $buildLog
 # PyInstaller writes ordinary progress to stderr; only its exit code decides.
 $previous = $ErrorActionPreference
@@ -143,6 +212,11 @@ if (!(Test-Path -LiteralPath (Join-Path $rawApp 'MiniJMP.exe') -PathType Leaf) -
     !(Test-Path -LiteralPath (Join-Path $rawApp '_internal') -PathType Container)) {
     throw 'PyInstaller did not produce MiniJMP.exe and _internal.'
 }
+$mainInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $rawApp 'MiniJMP.exe'))
+$readerInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($compiledReader)
+if ($readerInfo.ProductName -ne 'MiniJMP PI Reader' -or $readerInfo.FileVersion -ne $mainInfo.FileVersion) {
+    throw 'PIReader product name or file version does not match the MiniJMP build.'
+}
 $externalIcons = Get-ChildItem -LiteralPath $rawApp -File -Recurse -Filter 'icon.png'
 if ($externalIcons) {
     throw ('Unexpected external runtime icon.png found: ' + (($externalIcons.FullName) -join ', '))
@@ -158,16 +232,25 @@ Copy-Item -LiteralPath (Join-Path $root 'packaging\windows\PI-SDK-NOTICE.txt') -
 $piTarget = Join-Path $releaseDir 'PIReader'
 $piSource = Join-Path $root 'PIReader'
 New-Item -ItemType Directory -Path $piTarget -Force | Out-Null
-# Unconfirmed PIReader/SDK redistribution rights: ship templates and source only.
+Copy-Item -LiteralPath $compiledReader -Destination (Join-Path $piTarget 'PIReader.exe')
 Copy-Item -LiteralPath (Join-Path $piSource 'config.example.txt') -Destination (Join-Path $piTarget 'config.txt')
 Copy-Item -LiteralPath (Join-Path $piSource 'tags.example.txt') -Destination (Join-Path $piTarget 'tags.txt')
+$signArgs = @{
+    Thumbprint = $CertificateThumbprint
+    StoreLocation = $CertificateStore
+    MiniJMPExe = (Join-Path $releaseDir 'MiniJMP.exe')
+    PIReaderExe = (Join-Path $piTarget 'PIReader.exe')
+}
+if ($SignToolPath) { $signArgs.SignTool = $SignToolPath }
+$signatureInfo = @(& (Join-Path $root 'tools\sign_minijmp_executables.ps1') @signArgs)
+$signatureInfo | ForEach-Object { Write-Output $_ }
 & $python (Join-Path $root 'tools\write_third_party_notices.py') $releaseDir
 if ($LASTEXITCODE -ne 0) { throw 'Generating third-party notices failed.' }
 
 $os = Get-CimInstance Win32_OperatingSystem
 $pythonVersion = (@(& $python -c "import sys; print('.'.join(map(str, sys.version_info[:3])))") -join '').Trim()
 $pyinstallerVersion = (@(& $python -m PyInstaller --version) -join '').Trim()
-$coreVersions = & $python -c "import importlib.metadata as m; names=['numpy','scipy','pandas','matplotlib','seaborn','statsmodels','openpyxl','xlrd','Pillow','prettytable']; print('; '.join(n+' '+m.version(n) for n in names))"
+$coreVersions = & $python -c "import importlib.metadata as m; names=['numpy','scipy','pandas','pyarrow','matplotlib','seaborn','statsmodels','openpyxl','xlrd','Pillow','prettytable']; print('; '.join(n+' '+m.version(n) for n in names))"
 $treeState = if ($branch -eq 'source bundle') {
     'Built from the corresponding source ZIP; Git metadata is not included, so changes after extraction are not measured.'
 } elseif ($dirty.Count) {
@@ -188,7 +271,8 @@ $buildInfo = @(
     "PyInstaller: $pyinstallerVersion (onedir, windowed, noupx, _internal)",
     "Windows: $($os.Caption), version $($os.Version), build $($os.BuildNumber), $($os.OSArchitecture)",
     "Core dependencies: $coreVersions",
-    'PIReader: templates only. PIReader.exe and proprietary OSIsoft DLLs are not distributed; rights are unconfirmed.',
+    'PIReader: built from project source for .NET Framework 4.8, x86; proprietary OSIsoft DLLs are not distributed.',
+    ("Authenticode: " + ($signatureInfo -join '; ')),
     'The DLLs do not include or register the full PI SDK/PIPC runtime. Target-machine runtime, licensing and PI Server connectivity were not verified.',
     'Defender, TsdEncrypt/DLP and non-admin execution on office machines were not verified by this build.'
 ) -join $nl
@@ -201,7 +285,7 @@ Set-Content -LiteralPath (Join-Path $releaseDir 'BUILD-INFO.txt') -Value $buildI
     'Build prerequisites for PIReader are listed in PACKAGING.md and SOURCE-BUNDLE-INFO.txt.'
 ) -join $nl | Set-Content -LiteralPath (Join-Path $releaseDir 'SOURCE-CODE.txt') -Encoding utf8
 
-& $python (Join-Path $root 'tools\write_release_sbom.py') $releaseDir $auditDir
+& $python (Join-Path $root 'tools\write_release_sbom.py') $releaseDir $auditDir (Join-Path $workPath 'MiniJMP')
 if ($LASTEXITCODE -ne 0) { throw 'SBOM generation failed.' }
 
 # Stage the sources actually used from disk, in TEMP so DLP-synced folders
@@ -272,8 +356,19 @@ $exeHash = ($exeLine -join '').Trim() -replace '^SHA256=', ''
 if ($zipExeHash -ne $exeHash) {
     throw "The EXE inside the archive differs from the built EXE ($zipExeHash vs $exeHash)."
 }
+$piRelative = "MiniJMP-$releaseVersion/PIReader/PIReader.exe"
+$piInspect = @(& $python $makeZip 'inspect' $releaseZip '--entry' $piRelative)
+if ($LASTEXITCODE -ne 0) { throw "PIReader archive entry failed CRC or entry checks: $piInspect" }
+$zipPiHash = @($piInspect | Where-Object { $_ -like 'ENTRY-SHA256=*' })[0] -replace '^ENTRY-SHA256=', ''
+$piLine = @(& $python $makeZip 'rehash' (Join-Path $piTarget 'PIReader.exe') '--interval' '5' '--attempts' '2')
+if ($LASTEXITCODE -ne 0) { throw "Hashing PIReader.exe failed: $piLine" }
+$piHash = ($piLine -join '').Trim() -replace '^SHA256=', ''
+if ($zipPiHash -ne $piHash) {
+    throw "The PIReader inside the archive differs from the built EXE ($zipPiHash vs $piHash)."
+}
 $hashes = @(
     "$exeHash  $exeRelative",
+    "$piHash  $piRelative",
     "$($digests[$releaseZip])  MiniJMP-$releaseVersion-Windows-x64.zip",
     "$($digests[$sourceZip])  MiniJMP-$releaseVersion-Source.zip"
 ) -join $nl
@@ -306,7 +401,7 @@ if (!$SkipSmoke) {
     }
 }
 
-Get-Item -LiteralPath $releaseZip, $sourceZip, (Join-Path $releaseDir 'MiniJMP.exe') |
+Get-Item -LiteralPath $releaseZip, $sourceZip, (Join-Path $releaseDir 'MiniJMP.exe'), (Join-Path $piTarget 'PIReader.exe') |
     Select-Object FullName, Length
 Get-Content -LiteralPath $hashFile
 Write-Output "Build log: $buildLog"

@@ -1,7 +1,5 @@
 import copy
 from dataclasses import replace
-import gzip
-import pickle
 
 import pandas as pd
 import pytest
@@ -13,6 +11,7 @@ from doe_mixture import (MixtureSpec, mixture_metadata, restore_mixture,
 from doe_mixture_constraints import ComponentSpec, VariableSpec
 from doe_mixture_designs import create_mixture_design
 from test_csv_import import csv_app
+from worksheets import write_project_file
 
 
 def full_spec():
@@ -154,8 +153,7 @@ def test_bad_schema2_dexpl_does_not_replace_a_healthy_workbook(
                                 'mixture_model': model}},
         'meta': {'active': '健康工作表', 'minijmp': 1},
     }
-    with gzip.open(path, 'wb') as stream:
-        pickle.dump(data, stream)
+    write_project_file(path, data)
 
     original_table = app.table
     original_names = list(app.sheets)

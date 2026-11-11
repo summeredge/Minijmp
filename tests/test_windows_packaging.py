@@ -68,6 +68,24 @@ def test_release_build_keeps_ico_but_does_not_stage_icon_png():
     assert "'code\\icon.png'" not in script
 
 
+def test_release_excludes_optional_python_com():
+    script = (ROOT / 'tools/build_windows_release.ps1').read_text(encoding='utf-8')
+    assert "'--exclude-module', 'win32com', '--exclude-module', 'pythoncom'" in script
+
+
+@pytest.mark.skipif(sys.platform != 'win32', reason='Windows directory lookup')
+@pytest.mark.parametrize('relative', [
+    'seaborn/external/appdirs.py', 'pkg_resources/_vendor/appdirs.py',
+])
+def test_appdirs_uses_ctypes_without_python_com(monkeypatch, relative):
+    monkeypatch.setitem(sys.modules, 'win32com', None)
+    monkeypatch.setitem(sys.modules, 'win32com.shell', None)
+    namespace = runpy.run_path(str(Path(sys.executable).parent.parent / 'Lib/site-packages' / relative))
+    assert namespace['_get_win_folder'] is namespace['_get_win_folder_with_ctypes']
+    for name in ('CSIDL_APPDATA', 'CSIDL_LOCAL_APPDATA', 'CSIDL_COMMON_APPDATA'):
+        assert Path(namespace['_get_win_folder'](name)).is_absolute()
+
+
 def test_frozen_entrypoint_calls_gui_main_without_startup_subprocess(monkeypatch):
     gui = ModuleType('MiniJMP')
     gui.main = Mock()
@@ -104,11 +122,12 @@ def test_release_script_requires_a_clean_frozen_commit():
     assert dirty_check < script.index('New-Item -ItemType Directory -Path $distRoot')
 
 
-def test_release_excludes_unlicensed_pi_binaries():
+def test_release_builds_pireader_and_excludes_sdk_binaries():
     script = (ROOT / 'tools/build_windows_release.ps1').read_text(encoding='utf-8')
     assert "Copy-Item -LiteralPath (Join-Path $piSource 'PIReader.exe')" not in script
+    assert "Copy-Item -LiteralPath $compiledReader -Destination (Join-Path $piTarget 'PIReader.exe')" in script
     assert '$piDllNames' not in script
-    assert 'not distributed; rights are unconfirmed' in script
+    assert 'proprietary OSIsoft DLLs are not distributed' in script
     import runpy
     SOURCE_SKIP_PATHS = runpy.run_path(str(ROOT / 'tools/make_zip.py'))['SOURCE_SKIP_PATHS']
     assert {'PIReader/PIReader.exe', 'PIReader/OSIsoft.PISDK.dll',
@@ -229,6 +248,10 @@ def test_third_party_notice_generator_copies_dependency_licenses(tmp_path):
     assert 'IBM Carbon Design System' in notice
     assert 'Copyright (c) 2020-2026 Paweł Kuna' in notice
     assert 'chart--histogram.svg' in notice and 'chart-scatter-3d.svg' in notice
+    assert 'PIReader/ source code is developed in-house for MiniJMP' in notice
+    assert 'code/pi_reader.py adapter identifies reuse from' in notice
+    assert 'OSIsoft/AVEVA PI SDK DLLs remain proprietary third-party components' in notice
+    assert 'excluded from both release archives' not in notice
     licenses = destination / 'THIRD-PARTY-LICENSES'
     for name in ('Carbon-Icons-Apache-2.0.txt', 'Tabler-Icons-MIT.txt'):
         assert (licenses / name).read_bytes() == (ROOT / 'packaging' / 'windows' / 'licenses' / name).read_bytes()

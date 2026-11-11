@@ -36,7 +36,7 @@ To perform the study, choose Quality > Control Chart I/MR
 
 For valid control chart results, ensure your data meets these criteria: use continuous data (not counts of defectives/defects, which require attribute control charts like P Chart or U Chart), maintain chronological order with oldest data at the top, collect observations at equally spaced time intervals appropriate for detecting process changes, use individual observations rather than subgroups (use Xbar-R or Xbar-S charts for subgrouped data), ensure the data is moderately normal, and verify that observations are not correlated with each other.
 
-Open the sample data `ctrl_chart_imr.pickle` in the `sample_data` folder. In the Control Chart I/MR dialog, select `Measure` as the Input Column Values, check `All SD Lines` and keep other options by default. The result is as below.
+Open the available related sample `ctrl_chart_test.dexpl` in the `sample_data` folder. It includes a `Measure` column; the moving range between observations 5 and 6 exceeds the upper limit. In the Control Chart I/MR dialog, select `Measure` as the Input Column Values and check `All SD Lines`. The screenshot below illustrates the chart and may not exactly match this sample's results.
 
 .. image:: images/ctrl_chart_imr2.png
    :align: center

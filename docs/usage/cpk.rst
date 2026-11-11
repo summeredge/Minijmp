@@ -24,7 +24,7 @@ Choose Quality > Process Capability
 The result aligns with JMP 17.
 
 
-Open the file `CPK_sample.pickle` in the sample data folder. Select `Measurement` with column `Y`. Set the LSL, USL and Target to 17, 23 and 20. The plot and results below will be displayed. 
+Open the file `CPK_sample.dexpl` in the sample data folder. Select `Measurement` with column `Y`. Set the LSL, USL and Target to 17, 23 and 20. The plot and results below will be displayed.
 
 .. image:: images/cpk2.png
    :align: center

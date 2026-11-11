@@ -108,6 +108,8 @@ def finalize(runtime, destination):
         raise ValueError('Expected runtime and source archives')
     hashes = {path.name: stable_sha256(path, interval=15, attempts=2) for path in binaries}
     hashes['MiniJMP.exe (Windows ZIP/MiniJMP-V1.0/MiniJMP.exe)'] = sha256_file(runtime / 'MiniJMP.exe')
+    hashes['PIReader.exe (Windows ZIP/MiniJMP-V1.0/PIReader/PIReader.exe)'] = sha256_file(
+        runtime / 'PIReader' / 'PIReader.exe')
     hash_text = '\n'.join(f'{value}  {name}' for name, value in hashes.items())
     for name in ('VERSION-INFO.md', 'INSTALL-USAGE.md', 'SOURCE-PROVENANCE.md', 'SOURCE-PROVENANCE.csv'):
         source = ROOT / 'docs' / 'release' / name
@@ -124,6 +126,7 @@ def finalize(runtime, destination):
     entries = sorted(path for path in destination.rglob('*') if path.is_file() and path.name != 'SHA256SUMS.txt')
     lines = [f'{sha256_file(path)}  {path.relative_to(destination).as_posix()}' for path in entries]
     lines.append(f"{sha256_file(runtime / 'MiniJMP.exe')}  ../MiniJMP-V1.0/MiniJMP.exe")
+    lines.append(f"{sha256_file(runtime / 'PIReader' / 'PIReader.exe')}  ../MiniJMP-V1.0/PIReader/PIReader.exe")
     (destination / 'SHA256SUMS.txt').write_text('\n'.join(lines) + '\n', encoding='ascii')
     for line in lines:
         digest, relative = line.split('  ', 1)

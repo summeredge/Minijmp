@@ -222,7 +222,7 @@ Though Spearman's rho is claimed to handle non-linear relationship, it still tes
 
 Even though it's not strictly correct in null hypothesis, Spearman's rho doesn't work better than Pearson in distinguishing if two variables have a non-linear monotonic relationship.
 
-However, Pearson's correlation and Spearman's rho both handle outliers poorly. Kendall's tau stands out in this perspective. Tested with non-linear related data I have and those with outliers, Kendall's tau did a better job in telling the potential correlation between the variables. For example, in the `sample_data` folder `correlation.pickle`, the column `X` and column `Outlier` have a non-linear relationship with outliers. Only Kendall's tau gives a small p-value, while all three methods' coefficients are similar.p
+However, Pearson's correlation and Spearman's rho both handle outliers poorly. Kendall's tau stands out in this perspective. Tested with non-linear related data I have and those with outliers, Kendall's tau did a better job in telling the potential correlation between the variables. For example, in the `sample_data` folder `correlation.dexpl`, the column `X` and column `Outliers` have a non-linear relationship with outliers. Only Kendall's tau gives a small p-value, while all three methods' coefficients are similar.p
 
 
 .. list-table::
@@ -271,7 +271,7 @@ If we testing the data set above with Hoeffding's D, it will give a definite rej
             Hoeffding's p-value: 0.000
             H0: The two variables are independent.
 
-In another dataset from the `correlation.pickle` sample sets, the first and second columns show two linear relationships moving in different directions with random errors. Testing with the four correlations, only Hoeffding's D provided a p-value less than 0.05, rejecting the null hypothesis.
+In another dataset from the `correlation.dexpl` sample sets, the first and second columns show two linear relationships moving in different directions with random errors. Testing with the four correlations, only Hoeffding's D provided a p-value less than 0.05, rejecting the null hypothesis.
 
 
 .. list-table::

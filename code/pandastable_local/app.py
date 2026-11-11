@@ -25,6 +25,7 @@ import platform
 import os
 import re
 import json
+import worksheets
 from . import plugin
 from .dialogs import MultipleValDialog
 from . import images, util, dialogs, plotting, config
@@ -33,8 +34,6 @@ from .core import Table
 import pandas as pd
 import sys
 import datetime
-import pickle
-import gzip
 try:
     from tkinter import *
     from tkinter.ttk import *
@@ -62,7 +61,7 @@ class DataExplore(Frame):
             parent: parent tkinter Frame, default None
             data: data, a pandas DataFrame
             projfile: path to a project file, opened on launch
-            msgpack: path to a dataframe stored as msgpack, default None
+            msgpack: legacy MessagePack path (unsupported), default None
     """
 
     def __init__(self, parent=None, data=None, projfile=None, msgpack=None):
@@ -468,8 +467,6 @@ class DataExplore(Frame):
         """Load global app options if present"""
 
         appfile = os.path.join(self.configpath, 'app.json')
-        legacyfile = os.path.join(self.configpath, 'app.p')
-        migrated = False
         if os.path.exists(appfile):
             try:
                 with open(appfile, encoding='utf-8') as file:
@@ -478,27 +475,12 @@ class DataExplore(Frame):
                 self.appoptions = {}
         else:
             self.appoptions = {}
-            if os.path.exists(legacyfile):
-                if messagebox.askyesno(
-                        '迁移旧配置',
-                        '旧配置 app.p 使用 pickle，读取可能执行其中的代码。'
-                        '仅在确认文件来源可信时迁移。是否继续？',
-                        parent=self.main):
-                    try:
-                        with open(legacyfile, 'rb') as file:
-                            self.appoptions = pickle.load(file)
-                        migrated = True
-                    except Exception as error:
-                        messagebox.showerror('迁移旧配置失败', str(error), parent=self.main)
         if not isinstance(self.appoptions, dict):
             self.appoptions = {}
         recent = self.appoptions.get('recent', [])
         if not isinstance(recent, list) or not all(isinstance(path, str) for path in recent):
             recent = []
         self.appoptions['recent'] = recent
-        if migrated:
-            self.appoptions = {'recent': recent}
-            self.saveAppOptions()
         return
 
     def newProject(self, data=None, df=None):
@@ -506,7 +488,7 @@ class DataExplore(Frame):
 
         w = self.closeProject()
         if w is None:
-            return
+            return False
         self.sheets = OrderedDict()
         self.sheetframes = {}  # store references to enclosing widgets
         self.openplugins = {}  # refs to running plugins
@@ -514,7 +496,7 @@ class DataExplore(Frame):
         for n in self.nb.tabs():
             self.nb.forget(n)
         if data is not None:
-            for s in sorted(data.keys()):
+            for s in data:
                 if s == 'meta':
                     continue
                 df = data[s]['table']
@@ -532,55 +514,44 @@ class DataExplore(Frame):
         self.filename = None
         self.projopen = True
         self.main.title('DataExplore')
-        return
+        return True
 
     def loadProject(self, filename=None, asksave=False):
         """Open project file"""
 
         if filename is None:
             filename = filedialog.askopenfilename(
-                defaultextension='.dexpl"', initialdir=self.defaultsavedir, filetypes=[
-                    ("project", "*.dexpl"), ("All files", "*.*")], parent=self.main)
+                defaultextension='.dexpl', initialdir=self.defaultsavedir, filetypes=[
+                    ("项目", "*.dexpl"), ("All files", "*.*")], parent=self.main)
         if not filename:
             return
-        if not os.path.exists(filename):
-            print('no such file')
+        filename = os.fspath(filename)
+        if not os.path.isfile(filename):
+            messagebox.showerror('打开项目失败', '文件不存在或不是普通文件。', parent=self.main)
             self.removeRecent(filename)
             return
-        ext = os.path.splitext(filename)[1]
-        if ext != '.dexpl':
-            print('does not appear to be a project file')
+        ext = os.path.splitext(filename)[1].lower()
+        if ext in ('.pickle', '.pkl'):
+            messagebox.showerror('打开项目失败', worksheets._LEGACY_TABLE, parent=self.main)
             return
-        if not messagebox.askyesno(
-                '可信文件',
-                '工程文件使用 pickle，仅打开您信任的文件。继续打开？',
-                parent=self.main):
+        if ext != '.dexpl':
+            messagebox.showerror('打开项目失败', '请选择 .dexpl 项目文件。', parent=self.main)
+            return
+        try:
+            data = worksheets.read_project_file(filename)
+        except Exception as error:
+            messagebox.showerror('打开项目失败', str(error), parent=self.main)
             return
         if asksave and self.closeProject() is None:
             return
-        if os.path.isfile(filename):
-            # new format uses pickle
-            try:
-                data = pickle.load(gzip.GzipFile(filename, 'r'))
-            except OSError as oe:
-                msg = 'DataExplore can no longer open the old format project files.\n'\
-                    'if you really need the file revert to pandastable<=0.12.1 and save the data.'
-                messagebox.showwarning("Project open error", msg)
-                return
-            # create backup file before we change anything
-            #backupfile = filename+'.bak'
-            #pd.to_msgpack(backupfile, data, encoding='utf-8')
-        else:
-            print('no such file')
-            self.quit()
+        if self.newProject(data) is False:
             return
-        self.newProject(data)
         self.filename = filename
         self.main.title('%s - DataExplore' % filename)
         self.projopen = True
         self.defaultsavedir = os.path.dirname(os.path.abspath(filename))
         self.addRecent(filename)
-        return
+        return True
 
     def removeRecent(self, filename):
         """Remove file from recent list"""
@@ -605,13 +576,16 @@ class DataExplore(Frame):
     def saveProject(self, filename=None):
         """Save project"""
 
-        if filename is not None:
-            self.filename = filename
-        if not hasattr(self, 'filename') or self.filename is None:
-            self.saveasProject()
-        else:
-            self.doSaveProject(self.filename)
-        return
+        target = filename if filename is not None else getattr(self, 'filename', None)
+        if target is None:
+            return self.saveasProject()
+        try:
+            self.doSaveProject(target)
+        except Exception as error:
+            messagebox.showerror('保存项目失败', str(error), parent=self.main)
+            return False
+        self.filename = target
+        return True
 
     def saveasProject(self):
         """Save as a new filename"""
@@ -624,15 +598,19 @@ class DataExplore(Frame):
                 ("project",
                  "*.dexpl")])
         if not filename:
-            return
+            return False
+        try:
+            self.doSaveProject(filename)
+        except Exception as error:
+            messagebox.showerror('保存项目失败', str(error), parent=self.main)
+            return False
         self.filename = filename
         self.defaultsavedir = os.path.dirname(os.path.abspath(filename))
-        self.doSaveProject(self.filename)
         self.addRecent(filename)
-        return
+        return True
 
     def doSaveProject(self, filename):
-        """Save sheets as dict in msgpack"""
+        """Save sheets as a portable project file."""
 
         self._checkTables()
         data = {}
@@ -642,11 +620,8 @@ class DataExplore(Frame):
             data[i]['table'] = table.model.df
             data[i]['meta'] = self.saveMeta(table)
 
-        #pd.to_msgpack(filename, data, encoding='utf-8')
-        # changed to pickle format
-        file = gzip.GzipFile(filename, 'w')
-        pickle.dump(data, file)
-        return
+        worksheets.write_project_file(filename, data)
+        return True
 
     def _checkTables(self):
         """Check tables before saving that so we are not saving
@@ -670,7 +645,8 @@ class DataExplore(Frame):
         if w is None:
             return
         elif w:
-            self.saveProject()
+            if self.saveProject() is False:
+                return None
         else:
             pass
         for n in self.nb.tabs():
@@ -689,12 +665,13 @@ class DataExplore(Frame):
         return
 
     def importHDF(self):
-        """Import csv to a new sheet"""
+        """Reject HDF5 imports without creating a worksheet."""
 
-        self.addSheet(select=True)
-        table = self.getCurrentTable()
-        table.importHDF(dialog=True)
-        return
+        messagebox.showerror(
+            '不支持 HDF5 导入',
+            'HDF5 文件可能包含不安全的 pickle 数据，当前版本禁止导入。请使用 CSV 或 Excel。',
+            parent=self.main)
+        return False
 
     def importURL(self):
         """Import CSV from URL"""
@@ -744,27 +721,22 @@ class DataExplore(Frame):
         return
 
     def load_msgpack(self, filename):
-        """Load a msgpack file"""
+        """Reject the removed legacy MessagePack reader."""
 
-        size = round((os.path.getsize(filename) / 1.0485e6), 2)
-        print(size)
-        df = pd.read_msgpack(filename)
-        name = os.path.splitext(os.path.basename(filename))[0]
-        self.load_dataframe(df, name)
-        return
+        messagebox.showerror(
+            '不支持的文件格式',
+            '当前版本不支持旧版 MessagePack（.mpk）文件，请先转换为 CSV 或 Excel。',
+            parent=self.main)
+        return False
 
     def load_pickle(self, filename):
-        """Load a pickle file"""
+        """Reject pickle files; use CSV or Excel instead."""
 
-        if not messagebox.askyesno(
-                '可信文件',
-                '此文件使用 pickle，仅打开您信任的文件。继续打开？',
-                parent=self.main):
-            return
-        df = pd.read_pickle(filename)
-        name = os.path.splitext(os.path.basename(filename))[0]
-        self.load_dataframe(df, name)
-        return
+        messagebox.showerror(
+            '不支持的文件格式',
+            '为避免执行外部代码，MiniJMP 不再打开 pickle 表格文件。请先将数据另存为 CSV 或 Excel。',
+            parent=self.main)
+        return False
 
     def getData(self, name):
         """Get predefined data from dataset folder"""
@@ -1256,7 +1228,7 @@ def main():
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("-f", "--file", dest="msgpack",
-                      help="Open a dataframe as msgpack", metavar="FILE")
+                      help="旧版 MessagePack（.mpk）已不支持，请转换为 CSV 或 Excel", metavar="FILE")
     parser.add_option("-p", "--project", dest="projfile",
                       help="Open a dataexplore project file", metavar="FILE")
     parser.add_option("-i", "--csv", dest="csv",

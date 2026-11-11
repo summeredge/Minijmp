@@ -60,7 +60,7 @@ To perform nested GRR choose Quality > Nested Gage R&R
 
 The result align with Minitab 22.
 
-Using the sample data file `Nested_GRR.pickle` as an example, select the corresponding data input columns and leave the `Historical Process Std Dev` blank. The result is as below.
+Using the sample data file `Nested_GRR.dexpl` as an example, select the corresponding data input columns and leave the `Historical Process Std Dev` blank. The result is as below.
 
 
 .. code-block:: none

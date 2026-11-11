@@ -33,7 +33,7 @@ To perform the study choose Quality > Process Capability with Subgroups
 The result aligns with JMP 17.
 
 
-The plot below demenstrates the result from the data set `CPK_sample.pickle` in the sample data folder. Select `Measurement` with column `Y`. Set the LSL, USL and Target to 17, 23 and 20. Select `Subgroup` with `Use Subgroup ID` and column `Lot` as the Subgroup ID. Keep the `Within Subgroup Variation` as `Unbiased SD` unchanged.
+The plot below demenstrates the result from the data set `CPK_sample.dexpl` in the sample data folder. Select `Measurement` with column `Y`. Set the LSL, USL and Target to 17, 23 and 20. Select `Subgroup` with `Use Subgroup ID` and column `Lot` as the Subgroup ID. Keep the `Within Subgroup Variation` as `Unbiased SD` unchanged.
 
 
 .. image:: images/cpk_sub2.png

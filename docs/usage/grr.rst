@@ -42,7 +42,7 @@ AIAG (Automotive Industry Action Group) Gage R&R is a standardized method for as
 
 The type III method is relatively new. The JMP 17 and Minitab 22 are using the method by default for GRR studies. The method here aligns with JMP 17 measurement system analysis > Gage R&R > crossed. The Minitab 22 has it at Gage study > Gage R&R crossed. The backbone algo of type III SS has slight difference in JMP 17 and Minitab 22. In most of the cases, both commercial softwares have the identical results, except for some extreme set ups, like the interaction term is much larger than operator variation. The software fully aligns with Minitab 22.
 
-Open the sample data file `gasket.pickle`, select `Measurement` by `Y`, operators and parts. Set `Operator x Part Interaction` to `Off`. The result is below. 
+Open the sample data file `gasket.dexpl`, select `Measurement` by `Y`, operators and parts. Set `Operator x Part Interaction` to `Off`. The result is below.
 
 
 .. code-block:: none
@@ -122,7 +122,7 @@ EMP in GRR stands for Evaluating the Measurement Process. It is an alternative a
 
 The EMP algorithm to achieve variations of the sources is still ANOVA, which is type III sum of squares. The standard deviation of sources in EMP method is the same to what AIAG ANOVA gives. The only difference is how to use the standard deviation values to evaluate the measurement system. 
 
-Open the sample data file `gasket.pickle`, select `Measurement` by `Y`, operators and parts. Set `Operator x Part Interaction` to `Off`. The result is below. 
+Open the sample data file `gasket.dexpl`, select `Measurement` by `Y`, operators and parts. Set `Operator x Part Interaction` to `Off`. The result is below.
 
 .. code-block:: none
 

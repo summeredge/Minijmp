@@ -26,7 +26,7 @@ MiniJMP 是独立的 Windows 桌面统计分析软件，提供表格数据导入
 
 - 本仓库为 [summeredge/Minijmp](https://github.com/summeredge/Minijmp)，基于原项目 [garrydu/Minijmp](https://github.com/garrydu/Minijmp) 二次开发。本仓库 `LICENSE` 声明 GNU GPL v3。该声明本身不能证明下列外部代码的授权或许可兼容性。
 - `code/nonpara_cor.py::hoeffd_example` 明确标记为复制自 [Dicklesworthstone/hoeffdings_d_explainer](https://github.com/Dicklesworthstone/hoeffdings_d_explainer) 的 README。审核时未找到该仓库的独立 `LICENSE`，GitHub license API 返回 HTTP 404：[许可查询](https://api.github.com/repos/Dicklesworthstone/hoeffdings_d_explainer/license)。
-- `code/pi_reader.py` 的 PI adapter 及 `PIReader/` 源码来自 [summeredge/PI-Data-Viewer](https://github.com/summeredge/PI-Data-Viewer)。审核时未找到该仓库的独立 `LICENSE`，GitHub license API 返回 HTTP 404：[许可查询](https://api.github.com/repos/summeredge/PI-Data-Viewer/license)。
+- `PIReader/` 是 MiniJMP 项目自研源码（项目维护者确认），按项目 GPL-3.0-or-later 许可；运行包使用本次签名构建产生的 `PIReader/PIReader.exe`。`code/pi_reader.py` 的文件头注明复用 [PI-Data-Viewer/backend/pi_reader.py](https://github.com/summeredge/PI-Data-Viewer)，该来源的独立许可仍未核实。
 
 上述许可缺口尚无独立授权文件或兼容性结论。该构建资料和包可用于内部审核；正式分发及合规放行须先补足授权依据或移除/替换相关代码，并重新审核。不得据此宣称整个交付物已获合规放行。
 
@@ -39,8 +39,8 @@ MiniJMP 是独立的 Windows 桌面统计分析软件，提供表格数据导入
 
 ## PI 发布边界
 
-- 最终运行包不包含预编译 `PIReader.exe` 或 OSIsoft PI SDK DLL；保留可选 PI 导入接口、PIReader 源码及空白配置/标签模板。未经再分发授权的 OSIsoft DLL 不得进入运行包或源码包。
-- PI 使用方需自行提供获授权的 PIReader 工具和匹配的 PI SDK/PIPC runtime，并具备 PI Server 访问授权及网络连通性。PI 功能没有在企业目标服务器上完成现场验收。
+- 当前 Windows 构建将签名后的 `PIReader.exe` 放在运行包 `PIReader/PIReader.exe`；SBOM 记录该运行文件的版本与签名后 SHA-256，不取仓库中的旧 EXE。源码包不含 PIReader.exe 或 PI SDK DLL。
+- OSIsoft/AVEVA 的三个 PI SDK DLL 仍属专有第三方组件，再分发授权仍未确认；`-PiSdkDirectory` 指定的文件仅用于编译引用，不会随包复制，也不会安装或注册。代码签名不代表发布者可信。PI 功能仍需 .NET Framework 4.8、目标机已有的合法匹配 PI SDK/PIPC、PI Server 权限及网络连通性，且没有在企业目标服务器上完成现场验收。
 
 ## 数据与企业验证边界
 

@@ -29,80 +29,61 @@ def isolated_pi_settings(monkeypatch):
 
 
 @pytest.mark.parametrize('action', ['search', 'query'])
-def test_custom_executable_requires_confirmation(tk_root, tmp_path, monkeypatch, action):
+def test_search_and_query_run_without_executable_confirmation(
+        tk_root, monkeypatch, action):
     window = PIImportDialog(tk_root)
     try:
-        window.exe.set(str(tmp_path / 'custom.exe'))
         window.tags.insert('1.0', 'example')
         run = Mock()
-        confirm = Mock(return_value=False)
+        confirm = Mock(return_value=True)
         monkeypatch.setattr(window, 'run', run)
         monkeypatch.setattr(pi_import.messagebox, 'askokcancel', confirm)
         getattr(window, action)()
-        confirm.assert_called_once()
-        run.assert_not_called()
-        confirm.return_value = True
-        getattr(window, action)()
+        confirm.assert_not_called()
         run.assert_called_once()
     finally:
         window.cancel()
 
 
 def test_paths_browse_autosaves_and_reopens(tk_root, tmp_path, monkeypatch, isolated_pi_settings):
-    exe = tmp_path / 'PIReader.exe'
     config = tmp_path / 'config.txt'
-    exe.write_bytes(b'MZ')
     config.write_text('[test]', encoding='utf-8')
-    choices = iter((exe.as_posix(), config.as_posix()))
-    monkeypatch.setattr(pi_import.filedialog, 'askopenfilename', lambda **kw: next(choices))
+    monkeypatch.setattr(pi_import.filedialog, 'askopenfilename', lambda **kw: config.as_posix())
     window = PIImportDialog(tk_root)
     try:
-        window.browse(window.exe, '*.exe')
         window.browse(window.config, '*.txt')
-        assert window.exe.get() == pi_import.normalize_pi_path(exe.as_posix())
         assert window.config.get() == pi_import.normalize_pi_path(config.as_posix())
         assert isolated_pi_settings == {
-            'executable_path': window.exe.get(), 'config_path': window.config.get()}
+            'config_path': window.config.get()}
         assert '自动保存' in window.status_view.get('1.0', 'end-1c')
     finally:
         window.cancel()
 
     reopened = PIImportDialog(tk_root)
     try:
-        assert reopened.exe.get() == pi_import.normalize_pi_path(exe)
         assert reopened.config.get() == pi_import.normalize_pi_path(config)
-        assert reopened.paths() == dict(
-            executable_path=pi_import.normalize_pi_path(exe),
-            config_path=pi_import.normalize_pi_path(config))
+        assert reopened.paths() == dict(config_path=pi_import.normalize_pi_path(config))
     finally:
         reopened.cancel()
 
 
 def test_manual_paths_autosave_and_skip_missing_files(
         tk_root, tmp_path, isolated_pi_settings):
-    exe, config = tmp_path / 'Reader New.exe', tmp_path / 'config.txt'
-    exe.write_bytes(b'MZ')
+    config = tmp_path / 'config.txt'
     config.write_text('config', encoding='utf-8')
     window = PIImportDialog(tk_root)
     try:
-        window.exe.set(exe.as_posix())
         window.config.set(config.as_posix())
         pump(tk_root, lambda: isolated_pi_settings.get('config_path') ==
              pi_import.normalize_pi_path(config))
-        assert isolated_pi_settings['executable_path'] == pi_import.normalize_pi_path(exe)
-        assert window.paths()['executable_path'] == pi_import.normalize_pi_path(exe)
+        assert set(window.paths()) == {'config_path'}
         missing = tmp_path / 'missing.exe'
-        window.exe.set(str(missing))
+        window.config.set(str(missing))
         window.save_current_paths()
-        assert isolated_pi_settings['executable_path'] == pi_import.normalize_pi_path(exe)
-        assert window.paths()['executable_path'] == pi_import.normalize_pi_path(missing)
+        assert isolated_pi_settings == {'config_path': pi_import.normalize_pi_path(config)}
+        assert window.paths()['config_path'] == pi_import.normalize_pi_path(missing)
     finally:
         window.cancel()
-    reopened = PIImportDialog(tk_root)
-    try:
-        assert reopened.exe.get() == pi_import.normalize_pi_path(exe)
-    finally:
-        reopened.cancel()
 
 
 @pytest.mark.skipif(pi_import.os.name != 'nt', reason='Windows path normalization')
@@ -111,32 +92,29 @@ def test_windows_pi_paths_use_native_separators(path):
     assert pi_import.normalize_pi_path(path) == r'D:\xx\PIReader.exe'
 
 
-@pytest.mark.parametrize('subdir', [None, 'PIReader'])
-def test_default_pi_paths_support_both_layouts(
-        tk_root, tmp_path, monkeypatch, subdir, isolated_pi_settings):
+def test_default_config_path_ignores_legacy_registry_and_env_executables(
+        tk_root, tmp_path, monkeypatch, isolated_pi_settings):
     project = tmp_path / 'project'
     code_dir = project / 'code'
     code_dir.mkdir(parents=True)
-    files_dir = project / subdir if subdir else project
-    files_dir.mkdir(exist_ok=True)
-    exe, config = files_dir / 'PIReader.exe', files_dir / 'config.txt'
-    exe.touch()
+    config = project / 'PIReader' / 'config.txt'
+    config.parent.mkdir()
     config.touch()
-    monkeypatch.setattr(pi_import, '__file__', str(code_dir / 'pi_import.py'))
-    monkeypatch.delenv('PI_READER_EXE', raising=False)
+    monkeypatch.setattr(pi_reader, 'application_root', lambda: project)
+    isolated_pi_settings['executable_path'] = str(tmp_path / 'rogue.exe')
+    monkeypatch.setenv('PI_READER_EXE', str(tmp_path / 'env-rogue.exe'))
     monkeypatch.delenv('PI_CONFIG', raising=False)
     window = PIImportDialog(tk_root)
     try:
-        assert window.exe.get() == pi_import.normalize_pi_path(exe)
         assert window.config.get() == pi_import.normalize_pi_path(config)
+        assert set(window.paths()) == {'config_path'}
     finally:
         window.cancel()
 
 
 def test_manual_entry_return_and_focus_out_save_immediately(
         tk_root, tmp_path, isolated_pi_settings):
-    exe, config = tmp_path / 'PIReader.exe', tmp_path / 'config.txt'
-    exe.touch()
+    config = tmp_path / 'config.txt'
     config.touch()
     root_was_withdrawn = tk_root.state() == 'withdrawn'
     if root_was_withdrawn:
@@ -146,16 +124,8 @@ def test_manual_entry_return_and_focus_out_save_immediately(
     try:
         entries = [widget for widget in window.winfo_children()[0].winfo_children()
                    if isinstance(widget, pi_import.ttk.Entry)]
-        exe_entry = next(widget for widget in entries
-                         if widget.cget('textvariable') == str(window.exe))
         config_entry = next(widget for widget in entries
                             if widget.cget('textvariable') == str(window.config))
-        window.exe.set(exe.as_posix())
-        exe_entry.focus_force()
-        tk_root.update()
-        exe_entry.event_generate('<Return>', when='now')
-        tk_root.update()
-        assert isolated_pi_settings['executable_path'] == pi_import.normalize_pi_path(exe)
         window.config.set(config.as_posix())
         config_entry.event_generate('<FocusOut>', when='now')
         tk_root.update()
@@ -176,16 +146,15 @@ def test_registry_pi_paths_round_trip_in_isolated_hkcu_key(monkeypatch):
     monkeypatch.setattr(pi_import, '_PI_SETTINGS_KEY', key_name)
     try:
         _real_save_pi_paths({
-            'executable_path': 'D:/xx/PIReader.exe',
+            'executable_path': 'legacy value must be ignored',
             'config_path': r'D:\xx\config.txt',
             'password': 'must not be stored',
         })
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_name) as key:
             names = {winreg.EnumValue(key, index)[0]
                      for index in range(winreg.QueryInfoKey(key)[1])}
-        assert names == {'executable_path', 'config_path'}
+        assert names == {'config_path'}
         assert _real_load_pi_paths() == {
-            'executable_path': r'D:\xx\PIReader.exe',
             'config_path': r'D:\xx\config.txt',
         }
     finally:
@@ -200,9 +169,8 @@ def test_json_pi_paths_round_trip_in_isolated_file(tmp_path, monkeypatch):
     monkeypatch.setattr(pi_import, '_pi_settings_file', lambda: settings_file)
     with monkeypatch.context() as isolated:
         isolated.setattr(pi_import.os, 'name', 'posix')
-        _real_save_pi_paths({'executable_path': 'reader.exe', 'config_path': 'config.txt'})
+        _real_save_pi_paths({'executable_path': 'legacy', 'config_path': 'config.txt'})
         assert _real_load_pi_paths() == {
-            'executable_path': pi_import.normalize_pi_path('reader.exe'),
             'config_path': pi_import.normalize_pi_path('config.txt'),
         }
 
@@ -214,15 +182,14 @@ def test_settings_read_failure_is_visible_and_does_not_block_dialog(
     try:
         assert '路径设置读取失败' in window.status_view.get('1.0', 'end-1c')
         paths = window.paths()
-        assert set(paths) == {'config_path', 'executable_path'}
+        assert set(paths) == {'config_path'}
     finally:
         window.cancel()
 
 
 def test_save_failure_does_not_block_query_with_manual_paths(
         tk_root, tmp_path, monkeypatch, isolated_pi_settings):
-    exe, config = tmp_path / 'PIReader.exe', tmp_path / 'config.txt'
-    exe.touch()
+    config = tmp_path / 'config.txt'
     config.touch()
     monkeypatch.setattr(pi_import, 'save_pi_paths', Mock(side_effect=PermissionError('registry denied')))
     read = Mock(return_value=pd.DataFrame(
@@ -238,7 +205,6 @@ def test_save_failure_does_not_block_query_with_manual_paths(
 
     monkeypatch.setattr(window, 'set_status', record_status)
     try:
-        window.exe.set(exe.as_posix())
         window.config.set(config.as_posix())
         window.tags.insert('1.0', 'A')
         window.query()
@@ -246,7 +212,6 @@ def test_save_failure_does_not_block_query_with_manual_paths(
         assert any('路径自动保存失败' in message for message in statuses)
         assert read.call_args.kwargs == {
             'config_path': pi_import.normalize_pi_path(config),
-            'executable_path': pi_import.normalize_pi_path(exe),
         }
         assert window.df is not None
     finally:
@@ -256,16 +221,16 @@ def test_save_failure_does_not_block_query_with_manual_paths(
 
 def test_destroy_cancels_pending_path_autosave(
         tk_root, tmp_path, isolated_pi_settings):
-    exe = tmp_path / 'PIReader.exe'
-    exe.touch()
+    config = tmp_path / 'config.txt'
+    config.touch()
     window = PIImportDialog(tk_root)
     errors = []
     window.report_callback_exception = lambda *error: errors.append(error)
-    window.exe.set(exe.as_posix())
+    window.config.set(config.as_posix())
     assert window._save_after is not None
     window.destroy()
     assert window._save_after is None
-    window.exe.set('changed after destruction')
+    window.config.set('changed after destruction')
     assert window._save_after is None
     deadline = time.monotonic() + .75
     pump(tk_root, lambda: time.monotonic() >= deadline)
@@ -395,7 +360,7 @@ def test_pi_strings_reach_real_y_candidates_and_plot(csv_app, monkeypatch):
 def test_menu_import_updates_real_table_and_statistics(csv_app, monkeypatch, tmp_path):
     app, error = csv_app
     expected = frame().reset_index()
-    app.table.filename = 'old.pickle'
+    app.table.filename = 'old.csv'
     app.table.prevdf = app.table.model.df.copy()
     read = Mock(return_value=frame())
     monkeypatch.setattr(pi_reader, 'read_pi_data', read)
@@ -415,9 +380,12 @@ def test_menu_import_updates_real_table_and_statistics(csv_app, monkeypatch, tmp
     assert number_list(app.table.model.df['B']) == [2, 6]
     assert number_list(app.table.model.df['A']) == [4, 8]
     assert read.call_args.args == (['B', 'A'], '*-1h', '*', '10m')
-    filename = tmp_path / 'import.pickle'
+    filename = tmp_path / 'import.csv'
     app.table.model.save(filename)
-    assert_frame_equal(pd.read_pickle(filename), expected)
+    csv_expected = expected.copy()
+    csv_expected['A'] = csv_expected['A'].astype(str)
+    assert_frame_equal(pd.read_csv(filename, index_col=0, parse_dates=['Timestamp']),
+                       csv_expected, check_dtype=False)
     error.assert_not_called()
 
 
@@ -427,7 +395,7 @@ def test_failed_or_canceled_query_preserves_sheet(csv_app, monkeypatch, failure)
     old = pd.DataFrame({'original': [42]})
     from pandastable_local.data import TableModel
     app.table.updateModel(TableModel(old.copy()))
-    app.table.filename = 'old.pickle'
+    app.table.filename = 'old.csv'
     app.table.prevdf = old.copy()
     app.update_title()
     started, finish = threading.Event(), threading.Event()
@@ -447,7 +415,6 @@ def test_failed_or_canceled_query_preserves_sheet(csv_app, monkeypatch, failure)
         monkeypatch.setattr(pi_reader, 'read_pi_data', read)
 
     def action(window):
-        window.exe.set('missing-PIReader.exe')
         window.config.set('missing-config.txt')
         window.tags.insert('1.0', 'A')
         window.query()
@@ -465,7 +432,7 @@ def test_failed_or_canceled_query_preserves_sheet(csv_app, monkeypatch, failure)
     app.main.update()
     assert_frame_equal(app.table.model.df, old)
     assert_frame_equal(app.table.prevdf, old)
-    assert app.table.filename == 'old.pickle'
+    assert app.table.filename == 'old.csv'
     assert app.main.title() == f'未命名项目 — {app.getCurrentSheet()} - Minijmp'
     error.assert_not_called()
 
@@ -517,16 +484,20 @@ def test_large_range_requires_confirmation(tk_root, monkeypatch):
 
 
 def test_explicit_paths_and_values(monkeypatch, tmp_path):
-    exe, config = tmp_path / 'PIReader.exe', tmp_path / 'config.txt'
-    exe.touch()
+    config = tmp_path / 'config.txt'
     config.touch()
+    executable = tmp_path / 'PIReader' / 'PIReader.exe'
+    executable.parent.mkdir()
+    executable.touch()
+    monkeypatch.setattr(pi_reader, 'application_root', lambda: tmp_path)
     monkeypatch.setenv('PI_CONFIG', 'wrong-config')
     monkeypatch.setenv('PI_READER_EXE', 'wrong-exe')
     response = {'columns': ['Timestamp', 'A'], 'data': [['2026-01-01', None]]}
     run = Mock(return_value=subprocess.CompletedProcess([], 0, json.dumps(response), ''))
     monkeypatch.setattr(pi_reader.subprocess, 'run', run)
-    result = pi_reader.read_pi_data(['A'], '*-1d', '*', config_path=str(config), executable_path=str(exe))
-    assert run.call_args.args[0][:3] == [str(exe.resolve()), '--config', str(config.resolve())]
+    result = pi_reader.read_pi_data(['A'], '*-1d', '*', config_path=str(config))
+    assert run.call_args.args[0][:3] == [
+        str(executable.resolve()), '--config', str(config.resolve())]
     assert pd.isna(result.iloc[0, 0])
 
 
@@ -545,16 +516,18 @@ def test_invalid_protocol(payload):
 def test_timestamp_tag_through_reader_and_real_menu(csv_app, monkeypatch, tmp_path,
                                                    tags, time_column):
     app, error = csv_app
-    exe, config = tmp_path / 'PIReader.exe', tmp_path / 'config.txt'
+    exe = tmp_path / 'PIReader' / 'PIReader.exe'
+    exe.parent.mkdir()
     exe.touch()
+    config = tmp_path / 'config.txt'
     config.touch()
+    monkeypatch.setattr(pi_reader, 'application_root', lambda: tmp_path)
     rows = [[f'2026-10-20 01:0{i}:00', *([i + 1] * len(tags))] for i in range(2)]
     response = {'columns': ['Timestamp', *tags], 'data': rows}
     monkeypatch.setattr(pi_reader.subprocess, 'run', Mock(return_value=
         subprocess.CompletedProcess([], 0, json.dumps(response), '')))
 
     def action(window):
-        window.exe.set(str(exe))
         window.config.set(str(config))
         window.tags.insert('1.0', '\n'.join(tags))
         window.import_button.invoke()
@@ -567,9 +540,9 @@ def test_timestamp_tag_through_reader_and_real_menu(csv_app, monkeypatch, tmp_pa
     assert result[time_column].tolist() == list(pd.to_datetime([row[0] for row in rows]))
     for tag in tags:
         assert number_list(result[tag]) == [1, 2]
-    filename = tmp_path / 'timestamp-tag.pickle'
+    filename = tmp_path / 'timestamp-tag.csv'
     app.table.model.save(filename)
-    assert_frame_equal(pd.read_pickle(filename), result)
+    assert_frame_equal(pd.read_csv(filename, index_col=0, parse_dates=[time_column]), result)
     error.assert_not_called()
 
 

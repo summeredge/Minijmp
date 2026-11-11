@@ -11,10 +11,10 @@ MiniJMP v1.0.0 (V1.0) — Windows x64
 - 软件内“关于”窗口保留原作者署名及本版本二次开发说明。
 
 数据与工作表
-- 可导入 CSV、TSV、TXT、XLS、XLSX；Excel 工作簿中的每个工作表会导入为一个 MiniJMP 工作表。
-- 可导出 CSV、XLSX 和单表 pickle；多工作表工程可保存为 .dexpl，单表 pickle 可保存为 .pickle。
-- .pickle 和 .dexpl 使用 Python pickle。只打开您信任来源的文件。
-- 内置精选示例可从文件菜单打开。
+- 可导入 CSV、TSV、TXT、XLS、XLSX；Excel 工作簿中的每个工作表会导入为一个 MiniJMP 工作表。HDF5 暂不可导入，请先导出为 CSV 或 Excel。
+- 可导出 CSV 和 XLSX；多工作表工程保存为 .dexpl。.dexpl 使用版本化 JSON 元数据和 Parquet 表格数据，不使用 pickle。
+- 随包提供的 .dexpl 示例工程可从“文件 → 打开项目”窗口选择。
+- 当前版本拒绝打开旧版 pickle 工程及 .pickle 单表文件。需要迁移历史工程时，请联系公司 IT 制定隔离环境迁移方案；不要在普通环境打开旧版文件。
 
 配置与日志
 - 表格默认配置及错误日志写入 %LOCALAPPDATA%\MiniJMP\。
@@ -22,8 +22,8 @@ MiniJMP v1.0.0 (V1.0) — Windows x64
 - 工作文件请保存到您有权限访问的位置。
 
 PI 数据
-- 包内 PIReader 文件夹仅含干净配置模板；不分发授权未确认的 PIReader.exe 和 OSIsoft DLL。可选 PI 接口保留，可在导入窗口选择另行获得授权的程序和配置路径。
-- 使用 PI 需要 .NET Framework 4.8、匹配的 PI SDK/PIPC 运行时与 PI Server 访问授权；本次未验证企业 PI 连接。
+- 包内 PIReader 文件夹包含本项目自研且已签名的 PIReader.exe 和干净配置模板；不包含 OSIsoft PI SDK DLL。程序路径为 PIReader/PIReader.exe。
+- OSIsoft DLL 仍为专有第三方组件；其许可和再分发授权不因打包或代码签名而改变。使用 PI 还需要 .NET Framework 4.8、匹配的 PI SDK/PIPC 与 PI Server 访问权限；本次未验证企业 PI 连接。
 
 许可与源码
 - 本程序依据 GNU GPL version 3 或更高版本授权，完整条款见 LICENSE。

@@ -3,8 +3,6 @@ from copy import deepcopy
 from dataclasses import replace
 import hashlib
 import json
-import gzip
-import pickle
 from pathlib import Path
 
 import pandas as pd
@@ -13,6 +11,7 @@ import pytest
 from doe_core import DesignSpec, FactorSpec, restore_design_result, validate_worksheet_metadata, worksheet_metadata
 from test_doe_schema_v2 import v1_columns, v1_frame, v1_metadata, v1_spec
 from test_doe_persistence import workbook, csv_app
+from worksheets import write_project_file
 
 
 def pb_case():
@@ -175,8 +174,7 @@ def test_bad_screening_identity_does_not_replace_workbook(workbook, tmp_path):
     path = tmp_path / 'invalid.dexpl'
     data = {'DOE': {'table': frame, 'meta': {'doe': metadata}},
             'meta': {'active': 'DOE', 'minijmp': 1}}
-    with gzip.open(path, 'wb') as stream:
-        pickle.dump(data, stream)
+    write_project_file(path, data)
     original = app.table
     names = list(app.sheets)
     assert not app.load_file(path)

@@ -24,7 +24,6 @@
 from types import *
 import operator
 import os, string, types, copy
-import pickle
 from decimal import Decimal, InvalidOperation
 import numpy as np
 import pandas as pd
@@ -264,25 +263,30 @@ class TableModel(object):
         """Save dataframe"""
 
         ftype = os.path.splitext(filename)[1].lower()
-        if ftype not in ('.pickle', '.xls', '.xlsx', '.csv'):
+        if ftype not in ('.xls', '.xlsx', '.csv'):
             raise ValueError('Unsupported file extension: %s' % ftype)
         with util.atomic_output(filename) as temporary:
-            if ftype == '.pickle':
-                self.df.to_pickle(temporary)
-            elif ftype in ('.xls', '.xlsx'):
+            if ftype in ('.xls', '.xlsx'):
                 self.df.to_excel(temporary)
             else:
                 self.df.to_csv(temporary)
         return
 
     def load(self, filename, filetype=None):
-        """Load file, if no filetype given assume it's pickle format"""
+        """Load a CSV or Excel table."""
 
-        if filetype == '.mpk':
-            self.df = pd.read_msgpack(filename)
+        ftype = (filetype or os.path.splitext(filename)[1]).lower()
+        if ftype == '.mpk':
+            raise ValueError(
+                '当前版本不支持旧版 MessagePack（.mpk）文件，请先转换为 CSV 或 Excel。')
+        elif ftype == '.csv':
+            df = pd.read_csv(filename, index_col=0)
+        elif ftype in ('.xls', '.xlsx'):
+            df = pd.read_excel(filename, index_col=0)
         else:
-            self.df = pd.read_pickle(filename)
-            #print (len(self.df))
+            raise ValueError(
+                'Unsupported file extension: %s (supported: .csv, .xls, .xlsx)' % ftype)
+        self.df = df
         return
 
     def getlongestEntry(self, colindex, n=500):

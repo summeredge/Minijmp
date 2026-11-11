@@ -644,7 +644,7 @@ def test_filtered_bulk_changes_and_project_save_are_rejected_before_writes(table
     calls = [('deleteCells', ([0], [0])), ('deleteRow', ()), ('deleteColumn', ()),
              ('paste', ()), ('sortTable', ()), ('setColumnType', ()),
              ('convertNumeric', ()), ('cleanData', ()), ('fillColumn', ()),
-             ('addColumn', ()), ('saveAs', (str(tmp_path / 'filtered.pickle'),))]
+             ('addColumn', ()), ('saveAs', (str(tmp_path / 'filtered.csv'),))]
     if isinstance(table, MTable):
         calls.extend((name, ()) for name in ['paste_header', 'stackColumn', 'splitColumn',
                                               'row1ToHeader', 'clearDataUp', 'sortSelected'])
@@ -653,7 +653,7 @@ def test_filtered_bulk_changes_and_project_save_are_rejected_before_writes(table
         assert_frame_equal(table.model.df, before)
         assert_frame_equal(table.dataframe, full)
     assert warning.call_count == len(calls)
-    assert not (tmp_path / 'filtered.pickle').exists()
+    assert not (tmp_path / 'filtered.csv').exists()
     table.showAll()
     assert_frame_equal(table.model.df, full)
 
@@ -707,10 +707,10 @@ def test_arrow_selection_matches_copied_cell(table, monkeypatch):
     assert table.multiplecollist == [1]
 
 
-def test_original_project_save_open_uses_directory_and_clears_old_history(table, tmp_path, monkeypatch):
+def test_table_csv_save_open_uses_directory_and_clears_old_history(table, tmp_path, monkeypatch):
     original = pd.DataFrame({'x': [1.5, np.nan], 'text': ['中文', 'a,b']})
     replace(table, original)
-    filename = tmp_path / '中文工程.pickle'
+    filename = tmp_path / '中文表格.csv'
     table.saveAs(str(filename))
     assert filename.is_file()
     assert table.filename == str(filename)
