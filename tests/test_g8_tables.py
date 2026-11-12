@@ -251,7 +251,7 @@ def test_titlebar_at_double_dpi(viewer):
 
 
 @pytest.mark.parametrize('paged', [False, True])
-def test_copy_to_excel_uses_full_display_and_only_this_table(viewer, paged):
+def test_copy_to_excel_uses_full_display_and_only_this_table(viewer, paged, monkeypatch):
     import csv
     import io
 
@@ -270,9 +270,16 @@ def test_copy_to_excel_uses_full_display_and_only_this_table(viewer, paged):
     if paged:
         block.show_page(block.page_count)
         block.tree.selection_set(block.tree.get_children()[-1])
+    written = []
+    monkeypatch.setattr(block, 'clipboard_clear', lambda: None)
+    monkeypatch.setattr(block, 'clipboard_append', written.append)
     block.menu.invoke(2)
-    copied = viewer.T.clipboard_get()
-    assert list(csv.reader(io.StringIO(copied, newline=''), delimiter='\t')) == [table.headers] + rows
+    # 本机 Tk 回读超长 CJK 剪贴板时会按旧编码丢字节，因此校验实际写入的文本。
+    copied = written[-1]
+    # 文本形式的 "-2.00e+08" 会被 Excel 当公式，复制时按文本加前缀；其余单元格原样。
+    escaped = [[cell if cell != '-2.00e+08' else "'-2.00e+08" for cell in row]
+               for row in rows]
+    assert list(csv.reader(io.StringIO(copied, newline=''), delimiter='\t')) == [table.headers] + escaped
     assert '不要复制' not in copied and '保留原 ASCII' not in copied
     viewer.select_all()
     viewer.copy()

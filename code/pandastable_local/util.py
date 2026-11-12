@@ -32,9 +32,88 @@ import string, copy
 import numpy as np
 import pandas as pd
 import tempfile
+import re
 from contextlib import contextmanager
 
 SCRATCH = None
+FORMULA_TEXT = re.compile(r"[ \t\r\n]*[=+\-@]")
+
+
+def _risky(value):
+    return isinstance(value, str) and FORMULA_TEXT.match(value) is not None
+
+
+def escape_text(value):
+    """Mark text a spreadsheet could run as a formula with Excel's literal quote."""
+    # "=1+1", "  =SUM(A1)", "+1+1", "@x" and "-2^2" run as formulas; "-12.5" stays text.
+    if _risky(value):
+        return "'" + value
+    return value
+
+
+def _textual(dtype):
+    return dtype == object or isinstance(dtype, (pd.StringDtype, pd.CategoricalDtype))
+
+
+def text_columns(frame):
+    """Positions of text columns holding a grid formula trigger."""
+    return [position for position, dtype in enumerate(frame.dtypes)
+            if _textual(dtype) and any(map(_risky, frame.iloc[:, position]))]
+
+
+def _written_as_formula(frame, index):
+    """True when the frame holds text openpyxl would store as a formula cell."""
+    labels = []
+    for axis in ([frame.columns, frame.index] if index else [frame.columns]):
+        labels.extend(axis.names)
+        if isinstance(axis, pd.MultiIndex):
+            labels.extend(value for label in axis for value in label)
+        else:
+            labels.extend(axis)
+    if any(isinstance(value, str) and value.startswith("=") for value in labels):
+        return True
+    return any(isinstance(value, str) and value.startswith("=")
+               for position, dtype in enumerate(frame.dtypes) if _textual(dtype)
+               for value in frame.iloc[:, position])
+
+
+def protected_frame(frame, index=False):
+    """Copy for CSV/TSV output; only risky text is prefixed, numbers and NA stay as they are."""
+    result = frame.copy()
+    for position in text_columns(result):
+        result.isetitem(position, result.iloc[:, position].map(escape_text))
+    for attribute in (['columns', 'index'] if index else ['columns']):
+        axis = getattr(result, attribute)
+        if isinstance(axis, pd.MultiIndex):
+            axis = pd.MultiIndex.from_arrays([
+                values.map(escape_text) if any(map(_risky, values)) else values
+                for values in (axis.get_level_values(level) for level in range(axis.nlevels))
+            ], names=[escape_text(name) for name in axis.names])
+        else:
+            if any(map(_risky, axis)):
+                axis = axis.map(escape_text)
+            axis = axis.rename(escape_text(axis.name))
+        setattr(result, attribute, axis)
+    return result
+
+
+def save_frame(frame, filename, *, index=False, encoding="utf-8-sig"):
+    """Write a user table to CSV or Excel without formula-injecting its text."""
+    if os.path.splitext(filename)[1].lower() == ".csv":
+        protected_frame(frame, index).to_csv(filename, index=index, encoding=encoding)
+        return
+    frame.to_excel(filename, index=index)
+    if not _written_as_formula(frame, index):
+        return
+    # Reopen and rewrite only the formula cells openpyxl produced; nothing else moves.
+    from openpyxl import load_workbook
+    book = load_workbook(filename)
+    for row in book.active.iter_rows():
+        for cell in row:
+            if cell.data_type == 'f':
+                cell.data_type = 's'
+    book.save(filename)
+    book.close()
 
 
 @contextmanager

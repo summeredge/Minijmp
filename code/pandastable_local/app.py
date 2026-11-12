@@ -25,6 +25,8 @@ import platform
 import os
 import re
 import json
+import logging
+from logging.handlers import RotatingFileHandler
 import worksheets
 from . import plugin
 from .dialogs import MultipleValDialog
@@ -53,6 +55,23 @@ from collections import OrderedDict
 import matplotlib
 matplotlib.use('TkAgg')
 #from .prefs import Preferences
+
+
+class _SafeLogFormatter(logging.Formatter):
+    _quoted_path = re.compile(r'''(?i)(?P<quote>["'])(?:[A-Z]:[\\/]|/|\\\\).*?(?P=quote)''')
+    _unquoted_path = re.compile(r'''(?i)(?<![\w"'])(?:[A-Z]:[\\/]|\\\\)[^\s,;"']+''')
+    _credentials = re.compile(
+        r'(?i)(\b(?:password|passwd|pwd|token|api[_-]?key|secret|'
+        r'username|user(?:\s*id)?|uid|server|host|database)\b\s*[:=]\s*)[^\s,;]+'
+    )
+    _url_credentials = re.compile(r'(?i)(\b[a-z][a-z0-9+.-]*://)[^/\s@]+@')
+
+    def format(self, record):
+        message = super().format(record)
+        message = self._quoted_path.sub('[path]', message)
+        message = self._unquoted_path.sub('[path]', message)
+        message = self._credentials.sub(r'\1[redacted]', message)
+        return self._url_credentials.sub(r'\1[redacted]@', message)
 
 
 class DataExplore(Frame):
@@ -118,9 +137,20 @@ class DataExplore(Frame):
         return
 
     def start_logging(self):
-        import logging
         from .core import logfile
-        logging.basicConfig(filename=logfile, format='%(asctime)s %(message)s')
+
+        root_logger = logging.getLogger()
+        log_path = os.path.abspath(logfile)
+        if not any(isinstance(handler, RotatingFileHandler)
+                   and os.path.normcase(handler.baseFilename) == os.path.normcase(log_path)
+                   for handler in root_logger.handlers):
+            handler = RotatingFileHandler(
+                logfile, maxBytes=1024 * 1024, backupCount=3, encoding='utf-8')
+            handler.setLevel(logging.WARNING)
+            handler.setFormatter(_SafeLogFormatter('%(asctime)s %(message)s'))
+            root_logger.addHandler(handler)
+        if root_logger.level == logging.NOTSET:
+            root_logger.setLevel(logging.WARNING)
 
     def setStyles(self):
         """Set theme and widget styles"""
@@ -947,7 +977,7 @@ class DataExplore(Frame):
         """Copy current table dataframe"""
 
         table = self.getCurrentTable()
-        table.model.df.to_clipboard()
+        util.protected_frame(table.model.df).to_clipboard()
         return
 
     def pasteTable(self, subtable=False):

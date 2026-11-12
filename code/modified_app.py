@@ -32,6 +32,26 @@ def get_tkver():
 
 
 class Minijmp_pre(DataExplore):
+    def loadAppOptions(self):
+        super().loadAppOptions()
+        if self.appoptions['recent']:
+            self.appoptions['recent'] = []
+            self.saveAppOptions()
+
+    def saveAppOptions(self):
+        # MiniJMP has no Recent menu, so the legacy full paths are not retained.
+        self.appoptions['recent'] = []
+        super().saveAppOptions()
+
+    def discoverPlugins(self):
+        return
+
+    def installPlugin(self):
+        return
+
+    def loadPlugin(self, plugin):
+        return
+
     def online_documentation(self, event=None, key=""):
         """Open the online documentation"""
         import webbrowser

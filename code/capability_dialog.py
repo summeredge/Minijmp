@@ -8,7 +8,7 @@ import pandas as pd
 from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
 
 from pandastable_local.dialogs import apply_dialog_theme
-from pandastable_local.util import atomic_output
+from pandastable_local.util import atomic_output, save_frame
 from improvement_chart import SPLITS
 from sheet_context import SheetApp, export_source_labels
 from stat_table import StatTable, TableBlock, display_value
@@ -333,10 +333,7 @@ class CapabilityDialog:
             if path:
                 frame = export_source_labels(frame)
                 with atomic_output(path) as temporary:
-                    if path.lower().endswith('.csv'):
-                        frame.to_csv(temporary, index=False, encoding='utf-8-sig')
-                    else:
-                        frame.to_excel(temporary, index=False)
+                    save_frame(frame, temporary)
         except Exception as exc:
             self.error(exc)
 

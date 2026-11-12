@@ -6,7 +6,7 @@ import pandas as pd
 
 from improvement_chart import phase_control_plot, print_report
 from pandastable_local.dialogs import apply_dialog_theme
-from pandastable_local.util import atomic_output
+from pandastable_local.util import atomic_output, save_frame
 from sheet_context import SheetApp
 from stat_table import StatTable, TableBlock
 
@@ -94,10 +94,7 @@ class ImprovementChartDialog:
                 filetypes=[('Excel', '*.xlsx'), ('CSV', '*.csv')])
             if filename:
                 with atomic_output(filename) as temporary:
-                    if filename.lower().endswith('.csv'):
-                        frame.to_csv(temporary, index=False, encoding='utf-8-sig')
-                    else:
-                        frame.to_excel(temporary, index=False)
+                    save_frame(frame, temporary)
         except Exception as exc:
             self.error(exc)
 

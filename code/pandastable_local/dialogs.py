@@ -929,7 +929,8 @@ class CombineDialog(Frame):
         newtable.show()
         bf = Frame(f)
         bf.grid(row=4,column=0,columnspan=2,sticky='news',padx=2,pady=2)
-        b = Button(bf, text="Copy Table", command=lambda : self.result.to_clipboard(sep=','))
+        b = Button(bf, text="Copy Table",
+                   command=lambda : util.protected_frame(self.result).to_clipboard(sep=','))
         b.pack(side=RIGHT)
         b = Button(bf, text="Replace Current Table", command=self.replaceTable)
         b.pack(side=RIGHT)

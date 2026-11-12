@@ -5,7 +5,7 @@ import math
 from numbers import Real
 from tkinter import ttk, filedialog, messagebox
 import tkinter as tk
-from pandastable_local.util import atomic_output
+from pandastable_local.util import atomic_output, escape_text
 
 RESULT_BACKGROUND = '#FFFFFF'
 LABEL_CELL_LIMIT = 1000
@@ -215,8 +215,11 @@ class TableBlock(ttk.Frame):
     def copy_to_excel(self):
         output = io.StringIO(newline='')
         writer = csv.writer(output, delimiter='\t', lineterminator='\r\n')
-        writer.writerow(self.table.headers)
-        writer.writerows(self.table.display)
+        writer.writerow([escape_text(header) for header in self.table.headers])
+        for values, shown in zip(self.table.values, self.table.display):
+            # 显示值是格式化后的数字，按原值判断，避免把正常数值写成文本。
+            writer.writerow([escape_text(text) if not isinstance(value, Real) else text
+                             for value, text in zip(values, shown)])
         try:
             self.clipboard_clear()
             self.clipboard_append(output.getvalue())

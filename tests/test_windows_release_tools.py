@@ -293,6 +293,9 @@ def test_release_uses_only_clean_pireader_templates():
     assert "'PIReader\\PIReader.csproj'" in script
     assert '/p:TargetFrameworkRootPath=' in script and '/p:ReferencePath=' in script
     assert 'FrameworkReferenceDirectory' in script and 'FrameworkReferenceDirectory' in precheck
+    assert '[Reflection.AssemblyName]::GetAssemblyName($sdkPath).Version' in script
+    assert 'Get-FileHash -LiteralPath $sdkPath -Algorithm SHA256' in script
+    assert 'PI SDK build references (build-only; not distributed)' in script
     assert "PIReader\\Program.cs" in script and "PIReader\\TimeExpressionParser.cs" in script
     assert "Copy-Item -LiteralPath $compiledReader" in script
     sign = script.index("'tools\\sign_minijmp_executables.ps1') @signArgs")

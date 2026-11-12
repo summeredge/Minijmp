@@ -7,7 +7,7 @@ from tkinter import ttk, filedialog, messagebox
 
 import pandas as pd
 from pandastable_local.dialogs import apply_dialog_theme
-from pandastable_local.util import atomic_output
+from pandastable_local.util import atomic_output, save_frame
 from sheet_context import SheetApp, export_source_labels
 from stat_table import StatTable, TableBlock
 from capability_dialog import CapabilityToolbar
@@ -214,10 +214,7 @@ class QualityToolsDialog:
                 if '频数' in frame:
                     frame['频数'] = frame['频数'].map(lambda v: str(v) if isinstance(v, Integral) and v > 2**53-1 else v)
                 with atomic_output(path) as temporary:
-                    if path.lower().endswith('.csv'):
-                        frame.to_csv(temporary, index=False, encoding='utf-8-sig')
-                    else:
-                        frame.to_excel(temporary, index=False)
+                    save_frame(frame, temporary)
         except Exception as exc:
             self.error(exc)
 

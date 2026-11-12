@@ -11,6 +11,7 @@ from pandastable_local.core import Table
 from pandastable_local.data import TableModel
 from pandastable_local.data_orig import _prepare_cell_updates, _commit_cell_updates
 from pandastable_local import csv_import
+from pandastable_local.util import protected_frame
 from pandastable_local.dialogs import MultipleValDialog, applyStyle, filedialog
 ############## Own Module ###############
 #  from modified_header import MColumnHeader as ColumnHeader
@@ -389,7 +390,7 @@ class MTable(Table):
             return False
 
         try:
-            text = df.iloc[rows, cols].to_csv(
+            text = protected_frame(df.iloc[rows, cols]).to_csv(
                 index=False, header=False, sep='\t', na_rep='', lineterminator='\n')
             self.clipboard_clear()
             self.clipboard_append(text)

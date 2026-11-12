@@ -2859,7 +2859,7 @@ class Table(Canvas):
         df = self.model.df.copy()
         # flatten multi-index
         df.columns = df.columns.get_level_values(0)
-        df.to_clipboard(sep=',')
+        util.protected_frame(df).to_clipboard(sep=',')
         return
 
     def paste(self, event=None):
@@ -2892,6 +2892,7 @@ class Table(Canvas):
         if not rows or self.allrows:
             rows = list(range(len(self.model.df)))
         data = self.model.df.iloc[rows, self.multiplecollist]
+        data = util.protected_frame(data)
         try:
             if len(data) == 1 and len(data.columns) == 1:
                 data.to_clipboard(index=False, header=False, sep=',')

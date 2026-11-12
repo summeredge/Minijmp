@@ -38,6 +38,7 @@ if (!$certificate -or !$certificate.HasPrivateKey) {
     throw "Code-signing certificate with private key not found in $CertificateStore/My."
 }
 if (!$PiSdkDirectory) { $PiSdkDirectory = Join-Path $root 'PIReader' }
+$piSdkNames = @('OSIsoft.PISDK.dll', 'OSIsoft.PISDKCommon.dll', 'OSIsoft.PITimeServer.dll')
 if (!$FrameworkReferenceDirectory) {
     $FrameworkReferenceDirectory = Join-Path ${env:ProgramFiles(x86)} 'Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8'
 }
@@ -49,7 +50,7 @@ $frameworkRelease = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\NET Framew
 if (!$frameworkRelease -or $frameworkRelease -lt 528040) {
     throw '.NET Framework 4.8 or newer is required to build PIReader.'
 }
-foreach ($sdkName in @('OSIsoft.PISDK.dll', 'OSIsoft.PISDKCommon.dll', 'OSIsoft.PITimeServer.dll')) {
+foreach ($sdkName in $piSdkNames) {
     if (!(Test-Path -LiteralPath (Join-Path $PiSdkDirectory $sdkName) -PathType Leaf)) {
         throw "PI SDK build reference missing: $sdkName in $PiSdkDirectory"
     }
@@ -66,6 +67,14 @@ if ((Split-Path -Leaf $FrameworkReferenceDirectory) -ne 'v4.8' -or
     throw 'FrameworkReferenceDirectory must be a complete .NETFramework/v4.8 reference assembly directory.'
 }
 $PiSdkDirectory = (Resolve-Path -LiteralPath $PiSdkDirectory).Path
+$piSdkBuildInputs = foreach ($sdkName in $piSdkNames) {
+    $sdkPath = Join-Path $PiSdkDirectory $sdkName
+    $assemblyVersion = [Reflection.AssemblyName]::GetAssemblyName($sdkPath).Version
+    $file = Get-Item -LiteralPath $sdkPath
+    $fileVersion = $file.VersionInfo.FileVersion
+    $sha256 = (Get-FileHash -LiteralPath $sdkPath -Algorithm SHA256).Hash
+    "$sdkName (AssemblyVersion=$assemblyVersion; FileVersion=$fileVersion; SHA256=$sha256)"
+}
 
 $envReport = @(& $python (Join-Path $root 'tools\release_env.py') 2>&1)
 $envReport | ForEach-Object { Write-Output $_ }
@@ -271,6 +280,7 @@ $buildInfo = @(
     "PyInstaller: $pyinstallerVersion (onedir, windowed, noupx, _internal)",
     "Windows: $($os.Caption), version $($os.Version), build $($os.BuildNumber), $($os.OSArchitecture)",
     "Core dependencies: $coreVersions",
+    ("PI SDK build references (build-only; not distributed): " + ($piSdkBuildInputs -join '; ')),
     'PIReader: built from project source for .NET Framework 4.8, x86; proprietary OSIsoft DLLs are not distributed.',
     ("Authenticode: " + ($signatureInfo -join '; ')),
     'The DLLs do not include or register the full PI SDK/PIPC runtime. Target-machine runtime, licensing and PI Server connectivity were not verified.',

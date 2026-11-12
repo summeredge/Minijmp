@@ -266,10 +266,7 @@ class TableModel(object):
         if ftype not in ('.xls', '.xlsx', '.csv'):
             raise ValueError('Unsupported file extension: %s' % ftype)
         with util.atomic_output(filename) as temporary:
-            if ftype in ('.xls', '.xlsx'):
-                self.df.to_excel(temporary)
-            else:
-                self.df.to_csv(temporary)
+            util.save_frame(self.df, temporary, index=True)
         return
 
     def load(self, filename, filetype=None):
