@@ -48,6 +48,7 @@ from .plotting import MPLBaseOptions, PlotViewer
 #from .prefs import Preferences
 from .dialogs import ImportDialog, CSVPreviewDialog
 from .csv_import import detect_csv, read_csv
+from .import_limits import check_file, check_frames, read_csv_bounded
 from . import images, util, config
 from .dialogs import *
 
@@ -4194,10 +4195,11 @@ class Table(Canvas):
         if not filename:
             return
         try:
+            check_file(filename)
             if dialog:
                 df = ImportDialog(self, filename=filename).df
             elif kwargs:
-                df = pd.read_csv(filename, **kwargs)
+                df = read_csv_bounded(filename, **kwargs)
             else:
                 options = detect_csv(filename)
                 confirm = options.pop('confirm')
@@ -4207,6 +4209,7 @@ class Table(Canvas):
                     df = read_csv(filename, **options)
             if df is None:
                 return
+            check_frames({'CSV': df})
         except Exception as error:
             messagebox.showerror('CSV import error', str(error), parent=self.master)
             return

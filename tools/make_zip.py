@@ -10,7 +10,8 @@ from pathlib import Path
 
 
 # Build caches never belong in a release archive, including PIReader obj/bin output.
-SKIP_DIRS = {'__pycache__', '.pytest_cache', '.mypy_cache', '.git', '.venv', 'obj', 'bin'}
+SKIP_DIRS = {'__pycache__', '.pytest_cache', '.mypy_cache', '.git', '.venv', 'obj', 'bin',
+             '.agent-memory', '.stage'}
 SKIP_SUFFIXES = {'.pyc', '.pyo'}
 DLP_HEADER = b'%TSD-Header-'
 

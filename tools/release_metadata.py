@@ -41,6 +41,7 @@ def identifiers(root=ROOT):
     info = read(root, 'packaging/windows/version_info.txt')
     about = read(root, 'code/modified_app.py')
     readme = read(root, 'README.md')
+    assembly = read(root, 'PIReader/Properties/AssemblyInfo.cs')
     return {
         'release': _assignment(read(root, 'tools/build_windows_release.ps1')),
         'product:build': _assignment(read(root, 'tools/build_windows_release.ps1'), 'productVersion'),
@@ -52,6 +53,9 @@ def identifiers(root=ROOT):
         'product:README': _between(readme, '产品版本标识：** ' + chr(96), chr(96)),
         'display:about': _between(about, '版本 ', chr(39)),
         'product:CHANGES': _first_product_version(read(root, 'CHANGES')),
+        'product:PIReader': _between(assembly, 'AssemblyInformationalVersion("', '"'),
+        'file:PIReader': _between(assembly, 'AssemblyFileVersion("', '"'),
+        'assembly:PIReader': _between(assembly, 'AssemblyVersion("', '"'),
     }
 
 
@@ -73,8 +77,9 @@ def check(root=ROOT):
     if not match:
         return [('BLOCKED', 'version_info.txt ProductVersion is not vX.Y.Z or vX.Y.Z-beta.N.')]
     wanted = expected(match.groups())
-    for name in ('product:USAGE', 'product:README', 'product:build', 'product:CHANGES'):
+    for name in ('product:USAGE', 'product:README', 'product:build', 'product:CHANGES', 'product:PIReader'):
         wanted[name] = found['product:version_info']
+    wanted['file:PIReader'] = wanted['assembly:PIReader'] = wanted['product:fileversion']
 
     problems = []
     for name, value in wanted.items():
@@ -97,9 +102,9 @@ def finalize(runtime, destination):
     from make_zip import sha256_file, stable_sha256
 
     commit = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
-    tag_commit = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'v1.0.0^{}'], text=True).strip()
+    tag_commit = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'v1.1.0^{}'], text=True).strip()
     if commit != tag_commit:
-        raise ValueError('v1.0.0 does not identify the build commit')
+        raise ValueError('v1.1.0 does not identify the build commit')
     build_info = (runtime / 'BUILD-INFO.txt').read_text(encoding='utf-8-sig')
     if f'Base Git HEAD: {commit}' not in build_info:
         raise ValueError('Build commit differs from HEAD')
@@ -107,13 +112,13 @@ def finalize(runtime, destination):
     if len(binaries) != 2:
         raise ValueError('Expected runtime and source archives')
     hashes = {path.name: stable_sha256(path, interval=15, attempts=2) for path in binaries}
-    hashes['MiniJMP.exe (Windows ZIP/MiniJMP-V1.0/MiniJMP.exe)'] = sha256_file(runtime / 'MiniJMP.exe')
-    hashes['PIReader.exe (Windows ZIP/MiniJMP-V1.0/PIReader/PIReader.exe)'] = sha256_file(
+    hashes['MiniJMP.exe (Windows ZIP/MiniJMP-V1.1/MiniJMP.exe)'] = sha256_file(runtime / 'MiniJMP.exe')
+    hashes['PIReader.exe (Windows ZIP/MiniJMP-V1.1/PIReader/PIReader.exe)'] = sha256_file(
         runtime / 'PIReader' / 'PIReader.exe')
     hash_text = '\n'.join(f'{value}  {name}' for name, value in hashes.items())
     for name in ('VERSION-INFO.md', 'INSTALL-USAGE.md', 'SOURCE-PROVENANCE.md', 'SOURCE-PROVENANCE.csv'):
         source = ROOT / 'docs' / 'release' / name
-        text = source.read_text(encoding='utf-8-sig').replace('{{COMMIT}}', commit).replace('{{TAG}}', 'v1.0.0').replace('{{SHA256}}', hash_text)
+        text = source.read_text(encoding='utf-8-sig').replace('{{COMMIT}}', commit).replace('{{TAG}}', 'v1.1.0').replace('{{SHA256}}', hash_text)
         (destination / name).write_text(text, encoding='utf-8')
     for name in ('THIRD-PARTY-NOTICES.txt', 'LICENSE', 'PI-SDK-NOTICE.txt'):
         shutil.copyfile(runtime / name, destination / name)
@@ -125,8 +130,8 @@ def finalize(runtime, destination):
     (destination / 'BUILD-INFO.txt').write_text(info, encoding='utf-8')
     entries = sorted(path for path in destination.rglob('*') if path.is_file() and path.name != 'SHA256SUMS.txt')
     lines = [f'{sha256_file(path)}  {path.relative_to(destination).as_posix()}' for path in entries]
-    lines.append(f"{sha256_file(runtime / 'MiniJMP.exe')}  ../MiniJMP-V1.0/MiniJMP.exe")
-    lines.append(f"{sha256_file(runtime / 'PIReader' / 'PIReader.exe')}  ../MiniJMP-V1.0/PIReader/PIReader.exe")
+    lines.append(f"{sha256_file(runtime / 'MiniJMP.exe')}  ../MiniJMP-V1.1/MiniJMP.exe")
+    lines.append(f"{sha256_file(runtime / 'PIReader' / 'PIReader.exe')}  ../MiniJMP-V1.1/PIReader/PIReader.exe")
     (destination / 'SHA256SUMS.txt').write_text('\n'.join(lines) + '\n', encoding='ascii')
     for line in lines:
         digest, relative = line.split('  ', 1)

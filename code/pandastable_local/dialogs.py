@@ -792,6 +792,7 @@ class ImportDialog(Frame):
         """Do the import"""
 
         from .csv_import import infer_numeric_columns
+        from .import_limits import read_csv_bounded
 
         if not self.update():
             return
@@ -799,7 +800,7 @@ class ImportDialog(Frame):
             read_kwds = dict(self.kwds)
             if self.converters is None:
                 read_kwds['dtype'] = object
-            self.df = pd.read_csv(self.filename, converters=self.converters, **read_kwds)
+            self.df = read_csv_bounded(self.filename, converters=self.converters, **read_kwds)
             if self.converters is None:
                 self.df = infer_numeric_columns(self.df, decimal=self.kwds['decimal'])
         except Exception as e:

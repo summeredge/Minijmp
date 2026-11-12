@@ -22,6 +22,7 @@ import pyarrow.parquet as pq
 
 from modified_table import MTable
 from pandastable_local import config
+from pandastable_local import import_limits
 from doe_core import validate_worksheet_metadata
 
 
@@ -142,7 +143,11 @@ def _read_frame(content, columns, attrs, pandas_metadata, object_nulls):
     if b'ARROW:schema' in content[-8-footer_size:-8]:
         raise ValueError('不支持包含 Arrow 扩展类型的工作表')
     source = io.BytesIO(content)
-    metadata = pq.read_metadata(source).metadata or {}
+    parquet_info = pq.read_metadata(source)
+    import_limits.check_shape(parquet_info.num_rows, parquet_info.num_columns)
+    if sum(parquet_info.row_group(i).total_byte_size for i in range(parquet_info.num_row_groups)) > import_limits.MAX_EXPANDED_BYTES:
+        raise ValueError('工作表超过 512 MiB 解压上限，请拆分后重试。')
+    metadata = parquet_info.metadata or {}
     # Arrow's serialized schema may invoke registered Python extension types.
     if metadata:
         raise ValueError('不支持包含 Arrow 扩展类型的工作表')
@@ -161,7 +166,16 @@ def _read_frame(content, columns, attrs, pandas_metadata, object_nulls):
     # Attributes are restored from our explicitly typed JSON, never Parquet metadata.
     pandas_metadata = {**pandas_metadata, 'attributes': {}}
     source.seek(0)
-    table = pq.read_table(source, arrow_extensions_enabled=False)
+    batches = []
+    memory = 0
+    start = import_limits.monotonic()
+    for batch in pq.ParquetFile(source, arrow_extensions_enabled=False).iter_batches(batch_size=1024):
+        import_limits.check_deadline(start)
+        memory += batch.nbytes
+        if memory > import_limits.MAX_MEMORY_BYTES:
+            raise ValueError('工作表超过 1 GiB 解析内存上限，请拆分后重试。')
+        batches.append(batch)
+    table = pa.Table.from_batches(batches, schema=pq.read_schema(source))
     table = table.replace_schema_metadata({b'pandas': json.dumps(pandas_metadata).encode('utf-8')})
     frame = table.to_pandas()
     object_fields = {c.get('field_name') for c in column_metadata if c['numpy_type'] == 'object'}
@@ -275,23 +289,30 @@ def read_project_file(filename):
     """Read only the versioned JSON/Parquet project format."""
     if Path(filename).suffix.lower() in ('.pickle', '.pkl'):
         raise ValueError(_LEGACY_TABLE)
+    import_limits.check_file(filename)
     with open(filename, 'rb') as stream:
         if stream.read(2) == b'\x1f\x8b':
             raise ValueError(_LEGACY_PROJECT)
     try:
         with zipfile.ZipFile(filename) as archive:
+            import_limits.check_archive(archive)
             names = archive.namelist()
             if len(names) != len(set(names)) or 'manifest.json' not in names:
                 raise ValueError('工程文件结构无效')
+            if archive.getinfo('manifest.json').file_size > import_limits.MAX_METADATA_BYTES:
+                raise ValueError('工程元数据超过 16 MiB 上限。')
             manifest = json.loads(archive.read('manifest.json'))
             if (not isinstance(manifest, dict) or manifest.get('format') != 'MiniJMP'
                     or type(manifest.get('version')) is not int or manifest['version'] != 1
                     or not isinstance(manifest.get('sheets'), list) or not manifest['sheets']):
                 raise ValueError('不支持的工程格式或版本')
+            if len(manifest['sheets']) > import_limits.MAX_SHEETS:
+                raise ValueError('文件超过 256 个工作表导入上限。')
             data = {'meta': _decode_json(manifest.get('metadata'))}
             if not isinstance(data['meta'], dict):
                 raise ValueError('无效的工程信息')
             paths = {'manifest.json'}
+            total_cells = total_memory = 0
             for index, entry in enumerate(manifest['sheets'], 1):
                 if not isinstance(entry, dict):
                     raise ValueError('无效的工作表信息')
@@ -306,6 +327,12 @@ def read_project_file(filename):
                 data[name] = {'table': _read_frame(archive.read(path), entry.get('columns'),
                                                     entry.get('attrs'), entry.get('pandas'),
                                                     entry.get('object_nulls')), 'meta': meta}
+                frame = data[name]['table']
+                total_cells += frame.shape[0] * frame.shape[1]
+                total_memory += int(frame.memory_usage(index=True, deep=True).sum())
+                import_limits.check_shape(*frame.shape, cells=total_cells)
+                if total_memory > import_limits.MAX_MEMORY_BYTES:
+                    raise ValueError('工程超过 1 GiB 解析内存上限，请拆分后重试。')
             if set(names) != paths:
                 raise ValueError('工程文件结构无效')
             active = data['meta'].get('active')
@@ -781,16 +808,17 @@ class Worksheets:
         if not filename:
             return False
         try:
+            import_limits.check_file(filename)
             if advanced:
                 df = core_orig.ImportDialog(table, filename=filename).df
             elif kwargs:
                 if kwargs.get('dtype') is None and 'converters' not in kwargs:
                     from pandastable_local.csv_import import infer_numeric_columns
                     options = {**kwargs, 'dtype': object}
-                    df = infer_numeric_columns(pd.read_csv(filename, **options),
+                    df = infer_numeric_columns(import_limits.read_csv_bounded(filename, **options),
                                               decimal=kwargs.get('decimal', '.'))
                 else:
-                    df = pd.read_csv(filename, **kwargs)
+                    df = import_limits.read_csv_bounded(filename, **kwargs)
             else:
                 options = core_orig.detect_csv(filename)
                 confirm = options.pop('confirm')
@@ -798,6 +826,7 @@ class Worksheets:
                       else core_orig.read_csv(filename, **options))
             if df is None:
                 return False
+            import_limits.check_frames({'CSV': df})
             self._import_frames({Path(filename).stem: df}, os.path.dirname(os.path.abspath(filename)))
             return True
         except Exception as error:
@@ -811,7 +840,9 @@ class Worksheets:
         if not filename:
             return False
         try:
+            import_limits.check_excel(filename)
             frames = pd.read_excel(filename, sheet_name=None, dtype=object)
+            import_limits.check_frames(frames)
             for df in frames.values():
                 for position in range(df.shape[1]):
                     values = df.iloc[:, position]

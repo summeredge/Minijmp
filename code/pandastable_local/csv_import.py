@@ -8,6 +8,8 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 import pandas as pd
+from .import_limits import check_file, check_shape
+from . import import_limits
 
 
 DELIMITERS = {"Comma": ",", "Tab": "\t", "Semicolon": ";", "Pipe": "|"}
@@ -17,8 +19,13 @@ NUMBER = re.compile(r"[+-]?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\Z"
 def read_records(text, delimiter):
     if '\x00' in text:
         raise ValueError("文件包含 NUL 字符，请检查编码或使用 Advanced Import。")
-    rows = [row for row in csv.reader(io.StringIO(text, newline=""),
-                                     delimiter=delimiter, strict=True) if row]
+    rows = []
+    start = import_limits.monotonic()
+    for row in csv.reader(io.StringIO(text, newline=""), delimiter=delimiter, strict=True):
+        if row:
+            import_limits.check_deadline(start)
+            check_shape(len(rows) + 1, len(row))
+            rows.append(row)
     if not rows or not rows[0]:
         raise ValueError("文件为空。")
     width = len(rows[0])
@@ -75,6 +82,7 @@ def infer_numeric_columns(frame, decimal="."):
 
 
 def detect_csv(filename):
+    check_file(filename)
     raw = Path(filename).read_bytes()
     uncertain_encoding = False
     if raw.startswith((codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE)):
@@ -131,6 +139,7 @@ def detect_csv(filename):
 
 
 def read_csv(filename, encoding, delimiter, header):
+    check_file(filename)
     text = Path(filename).read_bytes().decode(encoding)
     rows = read_records(text, delimiter)
     names = rows.pop(0) if header else list(range(len(rows[0])))

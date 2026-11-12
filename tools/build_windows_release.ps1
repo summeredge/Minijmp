@@ -20,8 +20,11 @@ $versionInfo = Join-Path $root 'packaging\windows\version_info.txt'
 $entry = Join-Path $root 'packaging\windows_entrypoint.py'
 $makeZip = Join-Path $root 'tools\make_zip.py'
 $smoke = Join-Path $root 'tools\smoke_launch.py'
-$releaseVersion = 'V1.0'
-$productVersion = 'v1.0.0'
+$releaseVersion = 'V1.1'
+$productVersion = 'v1.1.0'
+if ($root.Length -gt 80) {
+    throw 'Build path is too long. Place the repository in a local path of at most 80 characters, for example C:\src\MiniJMP.'
+}
 
 if (!(Test-Path -LiteralPath $python -PathType Leaf)) {
     throw "Project Python environment not found: $python"
@@ -253,6 +256,11 @@ $signArgs = @{
 if ($SignToolPath) { $signArgs.SignTool = $SignToolPath }
 $signatureInfo = @(& (Join-Path $root 'tools\sign_minijmp_executables.ps1') @signArgs)
 $signatureInfo | ForEach-Object { Write-Output $_ }
+if ($signatureInfo.Count -ne 2 -or @($signatureInfo | Where-Object {
+    !$_.Trusted -or !$_.IntegrityVerified -or $_.Status -ne 'Valid'
+}).Count) {
+    throw 'Formal release requires valid, trusted Authenticode signatures on both executables.'
+}
 & $python (Join-Path $root 'tools\write_third_party_notices.py') $releaseDir
 if ($LASTEXITCODE -ne 0) { throw 'Generating third-party notices failed.' }
 
@@ -300,6 +308,11 @@ if ($LASTEXITCODE -ne 0) { throw 'SBOM generation failed.' }
 
 # Stage the sources actually used from disk, in TEMP so DLP-synced folders
 # cannot rewrite them mid-archive.
+foreach ($file in Get-ChildItem -LiteralPath $releaseDir -File -Recurse) {
+    if ($file.FullName.Substring($releaseDir.Length).Length + 80 -gt 240) {
+        throw "Runtime entry exceeds the supported installation path budget: $($file.FullName)"
+    }
+}
 $sourceStage = Join-Path $env:TEMP ('MiniJMP-source-' + [guid]::NewGuid().ToString('N'))
 try {
     New-Item -ItemType Directory -Path $sourceStage -Force | Out-Null
