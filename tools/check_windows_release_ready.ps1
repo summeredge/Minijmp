@@ -1,6 +1,7 @@
 ﻿param(
     [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path,
     [switch]$GitOnly,
+    [switch]$InternalReview,
     [string]$CertificateThumbprint = $env:MINIJMP_SIGNING_THUMBPRINT,
     [ValidateSet('CurrentUser', 'LocalMachine')]
     [string]$CertificateStore = 'CurrentUser',
@@ -127,7 +128,7 @@ if (!$GitOnly) {
     }
     $msbuild = Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\MSBuild.exe'
     if (!(Test-Path -LiteralPath $msbuild -PathType Leaf)) { Add-Result 'BLOCKED' '缺少 .NET Framework MSBuild 工具。' }
-    else { Add-Result 'PASS' 'PIReader 将从源码编译；PI SDK DLL 不随运行包分发。' }
+    else { Add-Result 'PASS' 'PIReader 将从源码编译；三个 PI SDK DLL 随运行包提供，源码包排除。' }
     $frameworkRelease = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full' -Name Release -ErrorAction SilentlyContinue).Release
     if (!$frameworkRelease -or $frameworkRelease -lt 528040) { Add-Result 'BLOCKED' '编译 PIReader 需要 .NET Framework 4.8 或更高版本。' }
     if (!$FrameworkReferenceDirectory) {
@@ -142,6 +143,9 @@ if (!$GitOnly) {
         Add-Result 'BLOCKED' '缺少 .NET Framework 4.8 参考程序集清单。'
     }
 
+    if ($InternalReview) {
+        Add-Result 'WARNING' '内部送审模式：代码签名状态：暂未实施，企业审批及替代控制说明由申请人另行提供。'
+    } else {
     $thumbprint = ($CertificateThumbprint -replace '\s', '').ToUpperInvariant()
     if ($thumbprint -notmatch '^[0-9A-F]{40}$') {
         Add-Result 'BLOCKED' '需提供代码签名证书指纹：-CertificateThumbprint 或 MINIJMP_SIGNING_THUMBPRINT。'
@@ -171,6 +175,8 @@ if (!$GitOnly) {
         Add-Result 'BLOCKED' '未找到 Windows SignTool；请安装 Windows SDK 或指定 -SignToolPath。'
     } else {
         Add-Result 'PASS' "找到 Windows SignTool：$SignToolPath"
+    }
+
     }
 
     # The source bundle is built from disk, so untracked sources are included by

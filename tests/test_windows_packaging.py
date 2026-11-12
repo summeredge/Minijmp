@@ -130,7 +130,7 @@ def test_release_builds_pireader_and_excludes_sdk_binaries():
     assert "Copy-Item -LiteralPath (Join-Path $piSource 'PIReader.exe')" not in script
     assert "Copy-Item -LiteralPath $compiledReader -Destination (Join-Path $piTarget 'PIReader.exe')" in script
     assert '$piDllNames' not in script
-    assert 'proprietary OSIsoft DLLs are not distributed' in script
+    assert 'three proprietary OSIsoft DLLs are distributed in PIReader/' in script
     import runpy
     SOURCE_SKIP_PATHS = runpy.run_path(str(ROOT / 'tools/make_zip.py'))['SOURCE_SKIP_PATHS']
     assert {'PIReader/PIReader.exe', 'PIReader/OSIsoft.PISDK.dll',

@@ -123,6 +123,9 @@ def finalize(runtime, destination):
     for name in ('THIRD-PARTY-NOTICES.txt', 'LICENSE', 'PI-SDK-NOTICE.txt'):
         shutil.copyfile(runtime / name, destination / name)
     shutil.copytree(runtime / 'THIRD-PARTY-LICENSES', destination / 'THIRD-PARTY-LICENSES')
+    sdk_info = runtime / 'SDK-COMPONENTS.json'
+    if sdk_info.is_file():
+        shutil.copyfile(sdk_info, destination / sdk_info.name)
     info = build_info
     lock = ROOT / 'packaging/windows/requirements-py311.lock'
     info += '\nDependency lock: packaging/windows/requirements-py311.lock; SHA256 ' + sha256_file(lock)
@@ -132,6 +135,8 @@ def finalize(runtime, destination):
     lines = [f'{sha256_file(path)}  {path.relative_to(destination).as_posix()}' for path in entries]
     lines.append(f"{sha256_file(runtime / 'MiniJMP.exe')}  ../MiniJMP-V1.1/MiniJMP.exe")
     lines.append(f"{sha256_file(runtime / 'PIReader' / 'PIReader.exe')}  ../MiniJMP-V1.1/PIReader/PIReader.exe")
+    for path in sorted((runtime / 'PIReader').glob('OSIsoft.*.dll')):
+        lines.append(f"{sha256_file(path)}  ../MiniJMP-V1.1/PIReader/{path.name}")
     (destination / 'SHA256SUMS.txt').write_text('\n'.join(lines) + '\n', encoding='ascii')
     for line in lines:
         digest, relative = line.split('  ', 1)

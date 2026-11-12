@@ -15,7 +15,7 @@
 | C | code/advanced_regression.py、generalized_regression.py、pls_regression.py、pca_analysis.py等 | 相对固定上游新增的高级回归、PLS、PCA；按项目GPL许可，未逐行排除外部片段 |
 | C | code/doe_*.py、advanced_spc*.py、time_series_analysis.py等 | 新增DOE、高级SPC与时间序列；依赖SciPy/statsmodels等计算，具体第三方依赖另列SBOM；方法参考文献不自动等于复制源码 |
 | D | code/pi_reader.py | 文件头注明复用 PI-Data-Viewer/backend/pi_reader.py；独立许可证据仍待核实。此 Python adapter 与 PIReader/ C# 程序分别登记 |
-| C | PIReader/ | 项目维护者确认由 MiniJMP 项目自研，适用项目 GPL-3.0-or-later。运行包使用签名构建产生的 `PIReader/PIReader.exe`；SBOM 对运行目录中的签名后文件计算 SHA-256，不用仓库旧 EXE |
+| C | PIReader/ | 项目维护者确认由 MiniJMP 项目自研，适用项目 GPL-3.0-or-later。运行包使用本次源码构建产生的 `PIReader/PIReader.exe`；SBOM 对运行目录中的实际文件计算 SHA-256，不用仓库旧 EXE |
 | B，第三方片段 | code/blakerCI.py | 明示由R BlakerCI 1.0-6移植（p-value除外）；Jan Klaschka；CRAN DESCRIPTION为GPL-3，SPDX GPL-3.0-only；源码链接见文件头 |
 | B，第三方片段 | code/nonpara_cor.py::phoeffd | 明示由Hmisc R/hoeffd.s移植；Frank E Harrell Jr及贡献者；当前DESCRIPTION GPL (>=2)，SPDX GPL-2.0-or-later；实际移植版本未记载，不能以当前5.3-0冒充版本 |
 | B，第三方片段；授权D | code/nonpara_cor.py::hoeffd_example | 文件明确copy-pasted自Dicklesworthstone/hoeffdings_d_explainer README。GitHub仓库未显示许可证，license API为404；作者署名保留，SPDX及分发授权待确认，不推断为GPL/MIT。这是正式合规放行阻断 |
@@ -28,3 +28,5 @@
 - Hoeffding复制来源：https://github.com/Dicklesworthstone/hoeffdings_d_explainer ，核对license API无可用许可证；不把公开可读视作授权。
 - PI SDK 属于 OSIsoft/AVEVA 专有第三方软件；三个 DLL 的再分发授权仍未确认。指定构建输入目录不会改变或授予授权。源码 ZIP 排除这些 DLL。
 - 源码清单可支持内部审核，不能代替缺失授权。`code/pi_reader.py` 与 Hoeffding 复制片段的授权缺口仍需补充证据，未解决前不宣称正式合规发布完成。
+
+MiniJMP V1.1 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件无法构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。

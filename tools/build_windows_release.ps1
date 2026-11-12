@@ -1,5 +1,6 @@
 ﻿param(
     [switch]$SkipSmoke,
+    [switch]$InternalReview,
     [string]$CertificateThumbprint = $env:MINIJMP_SIGNING_THUMBPRINT,
     [ValidateSet('CurrentUser', 'LocalMachine')]
     [string]$CertificateStore = 'CurrentUser',
@@ -32,6 +33,7 @@ if (!(Test-Path -LiteralPath $python -PathType Leaf)) {
 if ($env:OS -ne 'Windows_NT') {
     throw 'Build this Windows package on Windows x64.'
 }
+if (!$InternalReview) {
 $CertificateThumbprint = ($CertificateThumbprint -replace '\s', '').ToUpperInvariant()
 if ($CertificateThumbprint -notmatch '^[0-9A-F]{40}$') {
     throw 'Provide a code-signing certificate thumbprint with -CertificateThumbprint or MINIJMP_SIGNING_THUMBPRINT.'
@@ -39,6 +41,7 @@ if ($CertificateThumbprint -notmatch '^[0-9A-F]{40}$') {
 $certificate = Get-Item -LiteralPath "Cert:\$CertificateStore\My\$CertificateThumbprint" -ErrorAction SilentlyContinue
 if (!$certificate -or !$certificate.HasPrivateKey) {
     throw "Code-signing certificate with private key not found in $CertificateStore/My."
+}
 }
 if (!$PiSdkDirectory) { $PiSdkDirectory = Join-Path $root 'PIReader' }
 $piSdkNames = @('OSIsoft.PISDK.dll', 'OSIsoft.PISDKCommon.dll', 'OSIsoft.PITimeServer.dll')
@@ -247,6 +250,35 @@ New-Item -ItemType Directory -Path $piTarget -Force | Out-Null
 Copy-Item -LiteralPath $compiledReader -Destination (Join-Path $piTarget 'PIReader.exe')
 Copy-Item -LiteralPath (Join-Path $piSource 'config.example.txt') -Destination (Join-Path $piTarget 'config.txt')
 Copy-Item -LiteralPath (Join-Path $piSource 'tags.example.txt') -Destination (Join-Path $piTarget 'tags.txt')
+foreach ($sdkName in $piSdkNames) {
+    $sdkInput = Join-Path $PiSdkDirectory $sdkName
+    $sdkOutput = Join-Path $piTarget $sdkName
+    Copy-Item -LiteralPath $sdkInput -Destination $sdkOutput
+    if ((Get-FileHash -LiteralPath $sdkInput -Algorithm SHA256).Hash -ne
+        (Get-FileHash -LiteralPath $sdkOutput -Algorithm SHA256).Hash) {
+        throw "PI SDK copy hash mismatch: $sdkName"
+    }
+}
+$sdkComponents = @(foreach ($sdkName in $piSdkNames) {
+    $sdkPath = Join-Path $piTarget $sdkName
+    [pscustomobject][ordered]@{
+        File = $sdkName
+        AssemblyVersion = [Reflection.AssemblyName]::GetAssemblyName($sdkPath).Version.ToString()
+        FileVersion = (Get-Item -LiteralPath $sdkPath).VersionInfo.FileVersion
+        SHA256 = (Get-FileHash -LiteralPath $sdkPath -Algorithm SHA256).Hash
+        SourceCategory = 'Supplied proprietary OSIsoft/AVEVA PI SDK; compilation reference and bundled runtime component'
+    }
+})
+$sdkComponents | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $releaseDir 'SDK-COMPONENTS.json') -Encoding utf8
+$buildMode = if ($InternalReview) { 'InternalReview (not approved for deployment)' } else { 'Formal trusted signature' }
+if ($InternalReview) {
+    $signatureInfo = @('代码签名状态：暂未实施，企业审批及替代控制说明由申请人另行提供。')
+    foreach ($exe in @((Join-Path $releaseDir 'MiniJMP.exe'), (Join-Path $piTarget 'PIReader.exe'))) {
+        if ((Get-AuthenticodeSignature -FilePath $exe).Status -ne 'NotSigned') {
+            throw "Internal review expects an unsigned source-built executable: $exe"
+        }
+    }
+} else {
 $signArgs = @{
     Thumbprint = $CertificateThumbprint
     StoreLocation = $CertificateStore
@@ -260,6 +292,7 @@ if ($signatureInfo.Count -ne 2 -or @($signatureInfo | Where-Object {
     !$_.Trusted -or !$_.IntegrityVerified -or $_.Status -ne 'Valid'
 }).Count) {
     throw 'Formal release requires valid, trusted Authenticode signatures on both executables.'
+}
 }
 & $python (Join-Path $root 'tools\write_third_party_notices.py') $releaseDir
 if ($LASTEXITCODE -ne 0) { throw 'Generating third-party notices failed.' }
@@ -278,6 +311,8 @@ $treeState = if ($branch -eq 'source bundle') {
 $buildInfo = @(
     "MiniJMP $productVersion Windows x64",
     "Release name: $releaseVersion",
+    "Build mode: $buildMode",
+    'MiniJMP V1.1 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件无法构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。',
     "Base Git HEAD: $head",
     "Git Tag: $productVersion",
     "Build time: $([DateTimeOffset]::Now.ToString('o'))",
@@ -288,8 +323,8 @@ $buildInfo = @(
     "PyInstaller: $pyinstallerVersion (onedir, windowed, noupx, _internal)",
     "Windows: $($os.Caption), version $($os.Version), build $($os.BuildNumber), $($os.OSArchitecture)",
     "Core dependencies: $coreVersions",
-    ("PI SDK build references (build-only; not distributed): " + ($piSdkBuildInputs -join '; ')),
-    'PIReader: built from project source for .NET Framework 4.8, x86; proprietary OSIsoft DLLs are not distributed.',
+    ("PI SDK build references and bundled proprietary runtime files: " + ($piSdkBuildInputs -join '; ')),
+    'PIReader: built from project source for .NET Framework 4.8, x86; three proprietary OSIsoft DLLs are distributed in PIReader/.',
     ("Authenticode: " + ($signatureInfo -join '; ')),
     'The DLLs do not include or register the full PI SDK/PIPC runtime. Target-machine runtime, licensing and PI Server connectivity were not verified.',
     'Defender, TsdEncrypt/DLP and non-admin execution on office machines were not verified by this build.'
@@ -323,6 +358,8 @@ try {
     $sourceInfo = @(
         "MiniJMP $productVersion corresponding source",
         "Release name: $releaseVersion",
+    "Build mode: $buildMode",
+    'MiniJMP V1.1 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件无法构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。',
         "Base Git HEAD: $head",
         "Release branch: $branch",
         "Working tree: $treeState",

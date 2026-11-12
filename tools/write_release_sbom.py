@@ -130,7 +130,7 @@ def pi_runtime_components(runtime):
         if is_program:
             url = 'https://github.com/summeredge/Minijmp'
             license_name, spdx = 'GNU GPL version 3 or later; see LICENSE', 'GPL-3.0-or-later'
-            source = 'signed runtime artifact: PIReader/PIReader.exe; MiniJMP-developed source'
+            source = 'runtime artifact: PIReader/PIReader.exe; MiniJMP-developed source'
         else:
             url = 'https://www.aveva.com/'
             license_name, spdx = '专有组件；再分发授权未确认', ''
@@ -150,7 +150,7 @@ def minijmp_runtime_component(path):
     item = component('MiniJMP.exe', file_version(path) or 'unknown',
                      'https://github.com/summeredge/Minijmp',
                      'GNU GPL version 3 or later; see LICENSE', 'GPL-3.0-or-later',
-                     shipped=True, source='actual signed runtime file; MiniJMP-developed source',
+                     shipped=True, source='actual runtime file; MiniJMP-developed source',
                      kind='file')
     item['hashes'] = [{'alg': 'SHA-256', 'content': sha256_file(path)}]
     return item
@@ -283,11 +283,11 @@ def generate(runtime, destination, build=None):
         if relative == 'MiniJMP.exe':
             components.append(minijmp_runtime_component(path))
             inventory.append([relative, sha256_file(path), path.stat().st_size,
-                              'MiniJMP', 'signed runtime artifact; MiniJMP-developed source'])
+                              'MiniJMP', 'runtime artifact; MiniJMP-developed source'])
             continue
         if relative in {f'PIReader/{name}' for name in PI_RUNTIME_FILES}:
             owner = 'MiniJMP PIReader' if path.name == 'PIReader.exe' else 'OSIsoft PI SDK'
-            source = 'signed runtime artifact; project source build' if path.name == 'PIReader.exe' else 'third-party SDK runtime file'
+            source = 'runtime artifact; project source build' if path.name == 'PIReader.exe' else 'third-party SDK runtime file'
             inventory.append([relative, sha256_file(path), path.stat().st_size, owner, source])
             continue
         source = source_paths.get(relative.removeprefix('_internal/'), '')

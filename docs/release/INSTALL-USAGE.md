@@ -11,7 +11,7 @@
   ```text
   MiniJMP.exe
   _internal/                 Python、Tk 和程序依赖
-  PIReader/                  PIReader.exe、config.txt 与 tags.txt 模板；不含 OSIsoft SDK DLL
+  PIReader/                  PIReader.exe、三个 SDK DLL、干净 config.txt 与 tags.txt 模板
   BUILD-INFO.txt             本次构建信息
   SOURCE-CODE.txt            对应源码包说明
   THIRD-PARTY-NOTICES.txt
@@ -43,7 +43,7 @@
 
 - 当前 `.dexpl` 工程使用版本化 JSON 元数据和 Parquet 表格数据，不使用 pickle。当前版本拒绝打开旧版 pickle 工程和 `.pickle` 单表文件；需要迁移历史工程时，请联系公司 IT 制定隔离环境迁移方案，不要在普通环境打开旧版文件。
 - MiniJMP 不安装 Windows 服务或监听端口。在线文档等外部页面在用户点击后由浏览器打开；PI 网络访问只在用户启动 PI 导入时经外部工具发生。本说明不是网络抓包或企业防火墙验证。
-- `PIReader/PIReader.exe` 是本项目自研并由当前构建签名的程序；签名不表示 Windows 或其他计算机信任签名者。运行包不含 OSIsoft PI SDK DLL；它们仍是专有第三方组件，其再分发授权仍未确认且不因签名而改变。PI 功能需要目标机已具备合法的匹配 PI SDK/PIPC、.NET Framework 4.8、PI Server 访问权限及网络连通性。含凭据的 PI 配置文件由部署方保管并设置适当 ACL。
+MiniJMP V1.1 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件无法构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。 三个 DLL 保持专有第三方身份，再分发授权待企业确认；公开 Git 与源码 ZIP 不含 SDK DLL，不自动安装或注册组件。
 - Defender/EDR、DLP、组织代理、普通用户权限及实际 PI Server 连通性，均须由目标环境单独验收；本说明不宣称已完成这些验证。
 
 未使用PI时，CSV/Excel本地分析、项目保存与随包帮助可离线使用，不需要部署服务端。统计结果可在结果窗口导出或复制；图表可用图窗工具栏保存按钮导出为图片。旧工程应先保留备份，仅打开可信来源文件，旧版本格式兼容性未在企业现场逐一验证。

@@ -1,7 +1,7 @@
 PIReader 与 PI SDK 说明
 
-PIReader/PIReader.exe 是 MiniJMP 项目自研程序，按项目 GPL-3.0-or-later 许可；当前 Windows 运行包将签名后的程序放在 PIReader/PIReader.exe。代码签名不表示 Windows 或其他计算机信任签名者。
+PIReader/PIReader.exe 是 MiniJMP 项目自研程序，按项目 GPL-3.0-or-later 许可；当前 Windows 运行包将本次源码编译的程序放在 PIReader/PIReader.exe。代码签名不表示 Windows 或其他计算机信任签名者。
 
-OSIsoft.PISDK.dll、OSIsoft.PISDKCommon.dll 和 OSIsoft.PITimeServer.dll 仍是 OSIsoft/AVEVA 专有第三方组件，不属于 MiniJMP 自研代码或 GPL 许可；其再分发授权仍未确认。构建从 -PiSdkDirectory 指定的目录读取这三个文件作为编译引用，不将其复制进运行包，也不会安装或注册 SDK；打包工具不核验、不授予或改变其许可与再分发授权。
+MiniJMP V1.1 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件无法构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。 三个 DLL 保持专有第三方身份，再分发授权待企业确认；公开 Git 与源码 ZIP 不含 SDK DLL，不自动安装或注册组件。
 
 PIReader 依赖 .NET Framework 4.8，并需要可访问的 PI Server、配置和标签文件。本次未验证企业 PI 连接；不会自动安装或注册 PI SDK/PIPC 系统组件。

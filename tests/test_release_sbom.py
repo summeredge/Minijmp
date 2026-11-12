@@ -72,7 +72,7 @@ def test_minijmp_runtime_executable_keeps_project_identity_and_hash(tmp_path, mo
     assert item['licenses'] == [{'license': {'id': 'GPL-3.0-or-later'}}]
     props = {p['name']: p['value'] for p in item['properties']}
     assert props['minijmp:distributed'] == 'true'
-    assert props['minijmp:source'] == 'actual signed runtime file; MiniJMP-developed source'
+    assert props['minijmp:source'] == 'actual runtime file; MiniJMP-developed source'
 
 
 def test_generated_sbom_classifies_runtime_dependency_and_signed_executable(tmp_path, monkeypatch):
@@ -173,4 +173,4 @@ def test_pi_executable_hash_comes_from_runtime_copy(tmp_path, monkeypatch):
     assert executable['hashes'] == [{'alg': 'SHA-256', 'content': sbom.sha256_file(runtime_exe)}]
     assert executable['hashes'][0]['content'] != sbom.sha256_file(repo_exe)
     assert properties['minijmp:distributed'] == 'true'
-    assert properties['minijmp:source'] == 'signed runtime artifact: PIReader/PIReader.exe; MiniJMP-developed source'
+    assert properties['minijmp:source'] == 'runtime artifact: PIReader/PIReader.exe; MiniJMP-developed source'

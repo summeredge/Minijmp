@@ -133,13 +133,13 @@ def generate(destination):
         rows.append(f'- {package} — {license_name}; {filename}')
 
     notice = (
-        'THIRD-PARTY NOTICES\n\n'
+        'THIRD-PARTY NOTICES\n\nMiniJMP V1.1 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件无法构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。\n\n'
         'MiniJMP upstream: G.Du, Copyright (C) G.Du 2024-, https://github.com/garrydu/Minijmp .\n'
         'Embedded PandasTable/DataExplore: Copyright (C) Damien Farrell 2014-, GPL-3.0-or-later; https://github.com/dmnfarrell/pandastable .\n'
         'BlakerCI 1.0-6 translated code: Jan Klaschka, GPL-3.0-only; code/blakerCI.py.\n'
         'Hmisc hoeffd.s translation: Frank E Harrell Jr and contributors, GPL-2.0-or-later; original version unknown; code/nonpara_cor.py.\n'
         'hoeffdings_d_explainer: Dicklesworthstone, copied README snippet in code/nonpara_cor.py; license/redistribution authorization UNCONFIRMED; https://github.com/Dicklesworthstone/hoeffdings_d_explainer .\n'
-        'PIReader/ source code is developed in-house for MiniJMP; GPL-3.0-or-later; see LICENSE. The signed runtime executable is PIReader/PIReader.exe.\n'
+        'PIReader/ source code is developed in-house for MiniJMP; GPL-3.0-or-later; see LICENSE. The source-built runtime executable is PIReader/PIReader.exe.\n'
         'The code/pi_reader.py adapter identifies reuse from https://github.com/summeredge/PI-Data-Viewer/backend/pi_reader.py ; separate license evidence remains UNCONFIRMED.\n'
         'OSIsoft/AVEVA PI SDK DLLs remain proprietary third-party components. Packaging does not verify or grant redistribution permission; see PI-SDK-NOTICE.txt.\n\n'
         'MiniJMP is licensed under GNU GPL version 3 or later; see the adjacent LICENSE file.\n'

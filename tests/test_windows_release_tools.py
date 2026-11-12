@@ -295,7 +295,7 @@ def test_release_uses_only_clean_pireader_templates():
     assert 'FrameworkReferenceDirectory' in script and 'FrameworkReferenceDirectory' in precheck
     assert '[Reflection.AssemblyName]::GetAssemblyName($sdkPath).Version' in script
     assert 'Get-FileHash -LiteralPath $sdkPath -Algorithm SHA256' in script
-    assert 'PI SDK build references (build-only; not distributed)' in script
+    assert 'PI SDK build references and bundled proprietary runtime files' in script
     assert "PIReader\\Program.cs" in script and "PIReader\\TimeExpressionParser.cs" in script
     assert "Copy-Item -LiteralPath $compiledReader" in script
     sign = script.index("'tools\\sign_minijmp_executables.ps1') @signArgs")
@@ -323,11 +323,11 @@ def test_pireader_project_identity_matches_release_version():
     assert f'AssemblyInformationalVersion("{versions["product:version_info"]}")' in assembly
 
 
-def test_packaging_describes_sdk_as_compile_only():
+def test_packaging_describes_bundled_proprietary_sdk():
     usage = (ROOT / 'packaging' / 'windows' / 'USAGE.txt').read_text(encoding='utf-8')
     notice = (ROOT / 'packaging' / 'windows' / 'PI-SDK-NOTICE.txt').read_text(encoding='utf-8')
-    assert '不包含 OSIsoft PI SDK DLL' in usage
-    assert '不将其复制进运行包' in notice
+    assert '随附三个 PI SDK 相关组件' in usage
+    assert '随附三个 PI SDK 相关组件' in notice
 
 
 def test_release_bundles_documented_safe_sample_projects_and_keeps_legacy_sources():
@@ -455,7 +455,7 @@ def test_version_identifiers_and_build_info_agree():
     version_info = (ROOT / 'packaging' / 'windows' / 'version_info.txt').read_text(encoding='utf-8')
     assert "StringStruct('Comments', 'MiniJMP V1.1 source baseline')" in version_info
     usage = (ROOT / 'packaging' / 'windows' / 'USAGE.txt').read_text(encoding='utf-8')
-    assert '不包含 OSIsoft PI SDK DLL' in usage
+    assert '随附三个 PI SDK 相关组件' in usage
     assert '许可和再分发授权不因打包或代码签名而改变' in usage
     assert 'HDF5 暂不可导入' in usage
 
@@ -564,3 +564,16 @@ def test_finalize_review_materials_binds_tag_commit_and_deliverable_hashes(tmp_p
     monkeypatch.setattr(subprocess, 'check_output', lambda args, **k: 'b' * 40 if '^{}' in args[-1] else 'a' * 40)
     with pytest.raises(ValueError, match='does not identify'):
         release_metadata.finalize(runtime, destination)
+
+
+def test_internal_review_mode_preserves_formal_signature_gate_and_sdk_hash_check():
+    script = (TOOLS / 'build_windows_release.ps1').read_text(encoding='utf-8-sig')
+    precheck = (TOOLS / 'check_windows_release_ready.ps1').read_text(encoding='utf-8-sig')
+    assert '[switch]$InternalReview' in script and '[switch]$InternalReview' in precheck
+    assert 'if (!$InternalReview)' in script
+    assert 'if ($InternalReview)' in script
+    assert 'Formal release requires valid, trusted Authenticode' in script
+    assert 'Internal review expects an unsigned source-built executable' in script
+    assert 'Copy-Item -LiteralPath $sdkInput -Destination $sdkOutput' in script
+    assert 'PI SDK copy hash mismatch' in script
+    assert 'Build mode: $buildMode' in script
