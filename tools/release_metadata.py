@@ -102,9 +102,9 @@ def finalize(runtime, destination):
     from make_zip import sha256_file, stable_sha256
 
     commit = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
-    tag_commit = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'v1.1.0^{}'], text=True).strip()
+    tag_commit = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'v1.2.0^{}'], text=True).strip()
     if commit != tag_commit:
-        raise ValueError('v1.1.0 does not identify the build commit')
+        raise ValueError('v1.2.0 does not identify the build commit')
     build_info = (runtime / 'BUILD-INFO.txt').read_text(encoding='utf-8-sig')
     if f'Base Git HEAD: {commit}' not in build_info:
         raise ValueError('Build commit differs from HEAD')
@@ -112,13 +112,13 @@ def finalize(runtime, destination):
     if len(binaries) != 2:
         raise ValueError('Expected runtime and source archives')
     hashes = {path.name: stable_sha256(path, interval=15, attempts=2) for path in binaries}
-    hashes['MiniJMP.exe (Windows ZIP/MiniJMP-V1.1/MiniJMP.exe)'] = sha256_file(runtime / 'MiniJMP.exe')
-    hashes['PIReader.exe (Windows ZIP/MiniJMP-V1.1/PIReader/PIReader.exe)'] = sha256_file(
+    hashes['MiniJMP.exe (Windows ZIP/MiniJMP-V1.2/MiniJMP.exe)'] = sha256_file(runtime / 'MiniJMP.exe')
+    hashes['PIReader.exe (Windows ZIP/MiniJMP-V1.2/PIReader/PIReader.exe)'] = sha256_file(
         runtime / 'PIReader' / 'PIReader.exe')
     hash_text = '\n'.join(f'{value}  {name}' for name, value in hashes.items())
     for name in ('VERSION-INFO.md', 'INSTALL-USAGE.md', 'SOURCE-PROVENANCE.md', 'SOURCE-PROVENANCE.csv'):
         source = ROOT / 'docs' / 'release' / name
-        text = source.read_text(encoding='utf-8-sig').replace('{{COMMIT}}', commit).replace('{{TAG}}', 'v1.1.0').replace('{{SHA256}}', hash_text)
+        text = source.read_text(encoding='utf-8-sig').replace('{{COMMIT}}', commit).replace('{{TAG}}', 'v1.2.0').replace('{{SHA256}}', hash_text)
         (destination / name).write_text(text, encoding='utf-8')
     for name in ('THIRD-PARTY-NOTICES.txt', 'LICENSE', 'PI-SDK-NOTICE.txt'):
         shutil.copyfile(runtime / name, destination / name)
@@ -133,10 +133,10 @@ def finalize(runtime, destination):
     (destination / 'BUILD-INFO.txt').write_text(info, encoding='utf-8')
     entries = sorted(path for path in destination.rglob('*') if path.is_file() and path.name != 'SHA256SUMS.txt')
     lines = [f'{sha256_file(path)}  {path.relative_to(destination).as_posix()}' for path in entries]
-    lines.append(f"{sha256_file(runtime / 'MiniJMP.exe')}  ../MiniJMP-V1.1/MiniJMP.exe")
-    lines.append(f"{sha256_file(runtime / 'PIReader' / 'PIReader.exe')}  ../MiniJMP-V1.1/PIReader/PIReader.exe")
+    lines.append(f"{sha256_file(runtime / 'MiniJMP.exe')}  ../MiniJMP-V1.2/MiniJMP.exe")
+    lines.append(f"{sha256_file(runtime / 'PIReader' / 'PIReader.exe')}  ../MiniJMP-V1.2/PIReader/PIReader.exe")
     for path in sorted((runtime / 'PIReader').glob('OSIsoft.*.dll')):
-        lines.append(f"{sha256_file(path)}  ../MiniJMP-V1.1/PIReader/{path.name}")
+        lines.append(f"{sha256_file(path)}  ../MiniJMP-V1.2/PIReader/{path.name}")
     (destination / 'SHA256SUMS.txt').write_text('\n'.join(lines) + '\n', encoding='ascii')
     for line in lines:
         digest, relative = line.split('  ', 1)

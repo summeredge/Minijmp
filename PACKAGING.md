@@ -1,6 +1,6 @@
-# MiniJMP V1.1 Windows 发布
+# MiniJMP V1.2 Windows 发布
 
-唯一构建入口 `tools/build_windows_release.ps1`。版本：显示 V1.1，产品/Tag v1.1.0，Windows文件版本1.1.0.0。保留Beta标签和历史构建，禁止覆盖已有目标。
+唯一构建入口 `tools/build_windows_release.ps1`。版本：显示 V1.2，产品/Tag v1.2.0，Windows文件版本1.2.0.0。保留Beta标签和历史构建，禁止覆盖已有目标。
 
 ## 前置检查与冻结
 
@@ -28,7 +28,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_windows_release_
 
 该命令使用 `pip install --require-hashes --force-reinstall --no-index`，只安装 wheel，并在 `.venv` 记录 pip 安装报告；预检仅在报告中的包名、版本和 SHA-256 均与锁文件一致时报告“已哈希验证安装”。当前 `.venv` 没有此报告时，版本匹配仍只证明版本，不证明原安装文件经过哈希校验。
 
-发布工作区必须在main、干净，且origin/main为HEAD祖先；允许本地快进领先，不自动推送、不修改同步规则。先提交全部版本源码、发布工具及审核模板，创建本地annotated `v1.1.0`，记录完整SHA，然后构建。源码ZIP没有.git时可按SOURCE-BUNDLE-INFO复现基础构建；正式审核包最终化需Git冻结和对应Tag。
+发布工作区必须在main、干净，且origin/main为HEAD祖先；允许本地快进领先，不自动推送、不修改同步规则。先提交全部版本源码、发布工具及审核模板，创建本地annotated `v1.2.0`，记录完整SHA，然后构建。源码ZIP没有.git时可按SOURCE-BUNDLE-INFO复现基础构建；正式审核包最终化需Git冻结和对应Tag。
 
 ## 构建与产物
 
@@ -60,8 +60,8 @@ SOURCE-PROVENANCE列出源码继承/修改/新增/待确认分类。`code/pi_rea
 工具复用make_zip的DLP文件头扫描、CRC、全文件hash与EXE条目hash比较。ZIP落盘后等待120秒沉降，间隔读取一致才写hash，之后再等待90秒复核；不调整Defender/DLP策略。构建目录与新解压目录分别启动冒烟，90秒内识别真实MiniJMP窗口，裸tk标题不算通过。工具写SHA256SUMS时不计算其自身，BUILD-INFO不自包含其自身摘要。
 
 ```powershell
-& .venv/Scripts/python.exe tools/make_zip.py inspect dist/MiniJMP-V1.1-Release/MiniJMP-V1.1-Windows-x64.zip --entry MiniJMP-V1.1/MiniJMP.exe
-& .venv/Scripts/python.exe tools/smoke_launch.py dist/MiniJMP-V1.1/MiniJMP.exe 90
+& .venv/Scripts/python.exe tools/make_zip.py inspect dist/MiniJMP-V1.2-Release/MiniJMP-V1.2-Windows-x64.zip --entry MiniJMP-V1.2/MiniJMP.exe
+& .venv/Scripts/python.exe tools/smoke_launch.py dist/MiniJMP-V1.2/MiniJMP.exe 90
 ```
 
 对应源码保留GPL、原始署名、构建说明；SOURCE-MANIFEST记录源码包逐项摘要。检查SOURCE-BUNDLE-INFO的Commit与BUILD-INFO及annotated tag一致。审核材料中的Commit/hash由release_metadata.py --finalize从冻结源码及实际ZIP填写。
@@ -69,12 +69,12 @@ SOURCE-PROVENANCE列出源码继承/修改/新增/待确认分类。`code/pi_rea
 企业目标机Defender/DLP、普通权限、离线帮助实屏和PI连接仍待现场验收；本机启动冒烟不能替代这些验收。不启动额外统计回归或Minitab对标。
 
 
-V1.1 导入资源与路径要求
+V1.2 导入资源与路径要求
 
 - 文件不超过 256 MiB；单表不超过 200 万行、16384 列，各表总计不超过 1000 万单元格。多表文件最多 256 张表；ZIP 容器最多 4096 项、解压后总计 512 MiB；工程 manifest 最大 16 MiB。解析后的表格数据总内存上限 1 GiB。这些上限不是全部进程内存承诺；导入有额外解析开销。超限请按行/表拆分，不会替换当前工作表。
-- 完整解压到不超过 80 个字符的本地受控运行目录，例如 C:\Apps\MiniJMP-V1.1；构建仓库路径同样不超过 80 个字符。程序会提示过长的运行目录。正式运行包检查各文件路径与 80 字符安装目录的合计不超过 240 字符；不依赖系统长路径开关，解压前由 IT 确认目标路径。
+- 完整解压到不超过 80 个字符的本地受控运行目录，例如 C:\Apps\MiniJMP-V1.2；构建仓库路径同样不超过 80 个字符。程序会提示过长的运行目录。正式运行包检查各文件路径与 80 字符安装目录的合计不超过 240 字符；不依赖系统长路径开关，解压前由 IT 确认目标路径。
 - 安装目录须由 IT 设置为普通用户只读，禁止从下载目录或多人可写共享盘运行。PIReader 固定路径并不防止文件被替换；部署方须在首次运行及更新前核验全包 SHA256SUMS，并使用 EDR 持续监控 EXE/DLL/PYD 的基线完整性。启动前的完整性替代控制须由 IT 审批及留存证据，当前应用没有签名/哈希自校验。
 
 增量 CSV、Excel XML 预检及 Parquet 批次解析设 60 秒协作式时间预算；在下一记录/批次检查并拒绝。底层 pandas、xlrd、Arrow 的单次调用无法在同步入口中强制中断，不保证严格的 60 秒进程级超时；文件/展开尺寸和批次资源限制用于减少大文件阻塞。
 
-MiniJMP V1.1 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件不构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。
+MiniJMP V1.2 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件不构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。

@@ -158,7 +158,7 @@ def minijmp_runtime_component(path):
 
 def generate(runtime, destination, build=None):
     runtime, destination = Path(runtime), Path(destination)
-    build = Path(build) if build is not None else ROOT / 'build/windows-pkg-V1.1/work/MiniJMP'
+    build = Path(build) if build is not None else ROOT / 'build/windows-pkg-V1.2/work/MiniJMP'
     destination.mkdir(parents=True, exist_ok=True)
     commit = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
     collected = toc_sources(build)
@@ -317,8 +317,8 @@ def generate(runtime, destination, build=None):
         dependencies.append({'ref': refs[key], 'dependsOn': sorted(set(targets))})
     bom = {'bomFormat': 'CycloneDX', 'specVersion': '1.6', 'serialNumber': 'urn:uuid:' + str(uuid.uuid4()), 'version': 1,
            'metadata': {'timestamp': datetime.now(timezone.utc).isoformat(),
-                        'component': {'type': 'application', 'name': 'MiniJMP', 'version': '1.1.0', 'bom-ref': 'MiniJMP'},
-                        'properties': properties(commit=commit, tag='v1.1.0', lock_sha256=sha256_file(lock),
+                        'component': {'type': 'application', 'name': 'MiniJMP', 'version': '1.2.0', 'bom-ref': 'MiniJMP'},
+                        'properties': properties(commit=commit, tag='v1.2.0', lock_sha256=sha256_file(lock),
                                                  hash_lock_sha256=sha256_file(HASH_LOCK),
                                                  review_status='授权与未知许可未放行；供内部审核')},
            'components': components, 'dependencies': dependencies}

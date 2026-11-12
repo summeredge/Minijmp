@@ -443,17 +443,17 @@ def test_release_precheck_includes_hash_lock():
 def test_version_identifiers_and_build_info_agree():
     levels = release_metadata.check()
     assert [level for level, _ in levels] == ['PASS'], levels
-    assert 'V1.1' in levels[0][1] and '1.1.0.0' in levels[0][1]
+    assert 'V1.2' in levels[0][1] and '1.2.0.0' in levels[0][1]
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
-    assert '$releaseVersion = ' + "'V1.1'" in script
-    assert '$productVersion = ' + "'v1.1.0'" in script
+    assert '$releaseVersion = ' + "'V1.2'" in script
+    assert '$productVersion = ' + "'v1.2.0'" in script
     assert 'Release name: $releaseVersion' in script
     assert 'PIReader: built from project source' in script
     assert 'PI SDK/PIPC runtime' in script
     assert "'--hidden-import', 'pyarrow.parquet'" in script
     assert "names=['numpy','scipy','pandas','pyarrow'" in script
     version_info = (ROOT / 'packaging' / 'windows' / 'version_info.txt').read_text(encoding='utf-8')
-    assert "StringStruct('Comments', 'MiniJMP V1.1 source baseline')" in version_info
+    assert "StringStruct('Comments', 'MiniJMP V1.2 source baseline')" in version_info
     usage = (ROOT / 'packaging' / 'windows' / 'USAGE.txt').read_text(encoding='utf-8')
     assert '随附三个 PI SDK 相关组件' in usage
     assert '许可和再分发授权不因打包或代码签名而改变' in usage
@@ -501,7 +501,7 @@ def test_powershell_scripts_parse_and_avoid_bulk_deletion():
         assert '-Confirm:$false' not in text
 
 
-@pytest.mark.parametrize('latest', ['v1.1.0', 'v2.3.4-beta.12'])
+@pytest.mark.parametrize('latest', ['v1.2.0', 'v2.3.4-beta.12'])
 def test_changes_reads_latest_version_across_major_versions(monkeypatch, latest):
     original_read = release_metadata.read
 
@@ -513,7 +513,7 @@ def test_changes_reads_latest_version_across_major_versions(monkeypatch, latest)
     monkeypatch.setattr(release_metadata, 'read', read)
     assert release_metadata.identifiers()['product:CHANGES'] == latest
     levels = release_metadata.check()
-    assert levels[0][0] == ('PASS' if latest == 'v1.1.0' else 'BLOCKED')
+    assert levels[0][0] == ('PASS' if latest == 'v1.2.0' else 'BLOCKED')
 
 
 def test_version_check_rejects_build_product_drift(monkeypatch):
@@ -534,7 +534,7 @@ def test_finalize_review_materials_binds_tag_commit_and_deliverable_hashes(tmp_p
     lock = repo / 'packaging/windows/requirements-py311.lock'
     lock.parent.mkdir(parents=True)
     lock.write_text('numpy==2.4.6', encoding='utf-8')
-    runtime = tmp_path / 'MiniJMP-V1.1'
+    runtime = tmp_path / 'MiniJMP-V1.2'
     runtime.mkdir()
     for name in ('MiniJMP.exe', 'BUILD-INFO.txt', 'THIRD-PARTY-NOTICES.txt', 'LICENSE', 'PI-SDK-NOTICE.txt'):
         (runtime / name).write_text('test', encoding='utf-8')
@@ -544,18 +544,18 @@ def test_finalize_review_materials_binds_tag_commit_and_deliverable_hashes(tmp_p
     (runtime / 'THIRD-PARTY-LICENSES').mkdir()
     destination = tmp_path / 'review'
     destination.mkdir()
-    for name in ('MiniJMP-V1.1-Windows-x64.zip', 'MiniJMP-V1.1-Source.zip'):
+    for name in ('MiniJMP-V1.2-Windows-x64.zip', 'MiniJMP-V1.2-Source.zip'):
         (destination / name).write_bytes(b'archive')
     monkeypatch.setattr(release_metadata, 'ROOT', repo)
     monkeypatch.setattr(subprocess, 'check_output', lambda *a, **k: 'a' * 40)
     monkeypatch.setattr(make_zip, 'stable_sha256', lambda path, **k: make_zip.sha256_file(path))
     release_metadata.finalize(runtime, destination)
     info = (destination / 'VERSION-INFO.md').read_text(encoding='utf-8')
-    assert 'a' * 40 in info and 'v1.1.0' in info and '{{' not in info
+    assert 'a' * 40 in info and 'v1.2.0' in info and '{{' not in info
     sums = (destination / 'SHA256SUMS.txt').read_text(encoding='ascii')
     assert '  SHA256SUMS.txt' not in sums
-    assert '../MiniJMP-V1.1/MiniJMP.exe' in sums
-    assert '../MiniJMP-V1.1/PIReader/PIReader.exe' in sums
+    assert '../MiniJMP-V1.2/MiniJMP.exe' in sums
+    assert '../MiniJMP-V1.2/PIReader/PIReader.exe' in sums
     assert make_zip.sha256_file(runtime / 'PIReader' / 'PIReader.exe') in info
     for line in sums.splitlines():
         digest, relative = line.split('  ', 1)
@@ -582,4 +582,4 @@ def test_internal_review_mode_preserves_formal_signature_gate_and_sdk_hash_check
 def test_smoke_extraction_temp_name_fits_install_path_budget():
     script = (TOOLS / 'build_windows_release.ps1').read_text(encoding='utf-8-sig')
     assert "('MJ-' + [guid]::NewGuid().ToString('N').Substring(0, 8))" in script
-    assert len(str(Path.home() / 'AppData/Local/Temp' / ('MJ-' + 'a' * 8) / 'MiniJMP-V1.1')) <= 80
+    assert len(str(Path.home() / 'AppData/Local/Temp' / ('MJ-' + 'a' * 8) / 'MiniJMP-V1.2')) <= 80
