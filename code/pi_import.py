@@ -288,8 +288,8 @@ class PIImportDialog(tk.Toplevel):
         def worker():
             try:
                 mailbox.put((True, operation()))
-            except Exception as error:
-                mailbox.put((False, str(error)))
+            except Exception:
+                mailbox.put((False, 'PI 连接、认证或查询失败，请检查配置和查询条件后重试。'))
 
         threading.Thread(target=worker, daemon=True).start()
         self.poll(kind, mailbox)

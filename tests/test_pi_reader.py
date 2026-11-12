@@ -1,6 +1,9 @@
 """Protocol regressions reused from PI-Data-Viewer; no live PI access."""
 import json
+import logging
+import shutil
 import subprocess
+import traceback
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
@@ -122,11 +125,12 @@ def test_pi_subprocess_flags_and_outcomes(monkeypatch, tmp_path, platform, opera
         else:
             assert result.iloc[0, 0] == 1.25
     else:
-        message = ("搜索超时" if operation == "search" else "查询超时") if outcome == "timeout" else "reader stdout\nreader stderr"
+        message = ("搜索超时" if operation == "search" else "查询超时") if outcome == "timeout" else "退出码 1"
         with pytest.raises(RuntimeError, match=message) as error:
             invoke()
         if outcome == "timeout":
-            assert isinstance(error.value.__cause__, subprocess.TimeoutExpired)
+            assert error.value.__cause__ is None
+            assert error.value.__suppress_context__
 
 
 @pytest.mark.parametrize('values,expected', [
@@ -292,7 +296,7 @@ def test_search_pi_tags_does_not_turn_truncation_into_an_exception():
     assert 'if payload.get("truncated"):\n        raise RuntimeError' not in source
 
 
-def test_search_pi_tags_forwards_reader_failure(monkeypatch, tmp_path):
+def test_search_pi_tags_hides_reader_failure(monkeypatch, tmp_path):
     config_path = tmp_path / "config.txt"
     config_path.write_text("shared PIExport-format config", encoding="utf-8")
     install_fixed_reader(monkeypatch, tmp_path)
@@ -303,8 +307,87 @@ def test_search_pi_tags_forwards_reader_failure(monkeypatch, tmp_path):
 
     monkeypatch.setattr(pi_reader.subprocess, "run", fake_run)
 
-    with pytest.raises(RuntimeError, match="PI SDK unavailable"):
+    with pytest.raises(RuntimeError, match="搜索失败（退出码 1）"):
         pi_reader.search_pi_tags("FIC*")
+
+
+@pytest.mark.parametrize('operation', ['query', 'search'])
+@pytest.mark.parametrize('failure', [
+    'authentication', 'query', 'timeout', 'json', 'launch', 'encoding', 'timestamp',
+])
+def test_external_errors_do_not_expose_credentials(
+        monkeypatch, tmp_path, caplog, capsys, operation, failure):
+    secret = 'Fake-PI-Password-Only-For-Tests!'
+    connection = f'UID=test-user;PWD={secret}'
+    config = tmp_path / 'config.txt'
+    config.write_text('dummy config', encoding='utf-8')
+    install_fixed_reader(monkeypatch, tmp_path)
+
+    def fake_run(command, **kwargs):
+        assert kwargs['timeout'] == 300
+        if failure == 'timeout':
+            raise subprocess.TimeoutExpired([connection], 300, output=connection, stderr=secret)
+        if failure == 'launch':
+            raise OSError(connection)
+        if failure == 'encoding':
+            raise UnicodeError(connection)
+        if failure == 'timestamp':
+            payload = {'columns': ['Timestamp', 'A'], 'data': [[connection, 1]]}
+            return subprocess.CompletedProcess(command, 0, json.dumps(payload), '')
+        if failure == 'json':
+            return subprocess.CompletedProcess(command, 0, connection, secret)
+        return subprocess.CompletedProcess(command, 1 if failure == 'authentication' else 7,
+                                           connection, f'{failure}: {secret}')
+
+    monkeypatch.setattr(pi_reader.subprocess, 'run', fake_run)
+    with pytest.raises((RuntimeError, ValueError)) as caught:
+        try:
+            if operation == 'search':
+                pi_reader.search_pi_tags('A*', config_path=config)
+            else:
+                pi_reader.read_pi_data(['A'], '*-1h', '*', config_path=config)
+        except (RuntimeError, ValueError):
+            logging.getLogger('pi-test').exception('PI operation failed')
+            raise
+    diagnostics = ''.join(traceback.format_exception(caught.value))
+    output = capsys.readouterr()
+    for text in (str(caught.value), repr(caught.value), diagnostics, caplog.text,
+                 output.out, output.err):
+        assert secret not in text
+        assert connection not in text
+    if failure in ('authentication', 'query'):
+        assert f'退出码 {1 if failure == "authentication" else 7}' in str(caught.value)
+
+
+def test_pi_reader_top_level_error_output(tmp_path):
+    """Compile only a temporary test executable; never touch release artifacts."""
+    root = Path(__file__).resolve().parents[1]
+    compiler = Path('C:/Windows/Microsoft.NET/Framework/v4.0.30319/csc.exe')
+    libraries = [root / 'PIReader' / f'OSIsoft.{name}.dll'
+                 for name in ('PISDK', 'PISDKCommon', 'PITimeServer')]
+    if not compiler.is_file() or not all(path.is_file() for path in libraries):
+        pytest.skip('Requires Windows C# compiler and local PI SDK reference assemblies')
+    executable = tmp_path / 'PIReader.exe'
+    command = [str(compiler), '/nologo', '/platform:x86', f'/out:{executable}',
+               '/reference:System.Web.Extensions.dll',
+               *[f'/reference:{path}' for path in libraries],
+               str(root / 'PIReader' / 'Program.cs'),
+               str(root / 'PIReader' / 'TimeExpressionParser.cs')]
+    compiled = subprocess.run(command, capture_output=True, text=True, timeout=60)
+    assert compiled.returncode == 0, compiled.stdout + compiled.stderr
+    for library in libraries:
+        shutil.copyfile(library, tmp_path / library.name)
+    secret = 'Fake-CSharp-Password-Only-For-Tests'
+    for args in ([f'--UID=test;PWD={secret}', 'value'],
+                 ['--search', f'--UID=test;PWD={secret}', 'value']):
+        result = subprocess.run([str(executable), *args], capture_output=True,
+                                text=True, encoding='utf-8', timeout=30)
+        assert result.returncode == 1
+        assert result.stdout == ''
+        assert 'ArgumentException' in result.stderr
+        assert 'HRESULT 0x' in result.stderr
+        assert secret not in result.stderr
+        assert 'UID=' not in result.stderr
 
 
 def test_search_pi_tags_rejects_unbounded_mask():

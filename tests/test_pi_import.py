@@ -546,9 +546,9 @@ def test_timestamp_tag_through_reader_and_real_menu(csv_app, monkeypatch, tmp_pa
     error.assert_not_called()
 
 
-def test_long_error_keeps_buttons_visible_and_details_scrollable(csv_app, monkeypatch):
+def test_long_error_is_hidden_and_keeps_buttons_visible(csv_app, monkeypatch):
     app, error = csv_app
-    details = ('PI SDK unavailable / connection failed\n' * 100) + 'END OF ERROR'
+    details = ('PI SDK unavailable / PWD=Fake-Long-Error-Password\n' * 100) + 'END OF ERROR'
     monkeypatch.setattr(pi_reader, 'read_pi_data', Mock(side_effect=RuntimeError(details)))
     old = app.table.model.df.copy(deep=True)
     app.main.deiconify()
@@ -563,14 +563,14 @@ def test_long_error_keeps_buttons_visible_and_details_scrollable(csv_app, monkey
         window.update()
         assert window.winfo_height() == initial_height
         assert window.winfo_reqheight() <= initial_height
-        assert window.status_view.get('1.0', 'end-1c') == '查询失败：' + details
+        status = window.status_view.get('1.0', 'end-1c')
+        assert '检查配置和查询条件后重试' in status
+        assert 'END OF ERROR' not in status
+        assert 'Fake-Long-Error-Password' not in status
         assert str(window.status_view.cget('state')) == 'disabled'
         assert window.import_button.winfo_rooty() + window.import_button.winfo_height() <= (
             window.winfo_rooty() + window.winfo_height())
         assert window.winfo_rooty() + window.winfo_height() <= window.winfo_screenheight()
-        window.status_view.yview_moveto(1)
-        window.update()
-        assert window.status_view.yview()[0] > 0
         cancel = next(widget for widget in window.import_button.master.winfo_children()
                       if widget.winfo_class() == 'TButton' and widget.cget('text') == '取消')
         cancel.invoke()
@@ -582,3 +582,50 @@ def test_long_error_keeps_buttons_visible_and_details_scrollable(csv_app, monkey
         app.main.withdraw()
     assert_frame_equal(app.table.model.df, old)
     error.assert_not_called()
+
+
+@pytest.mark.parametrize('operation', ['search', 'query'])
+@pytest.mark.parametrize('failure', ['authentication', 'query', 'timeout'])
+def test_pi_failure_hides_password_and_allows_retry(
+        tk_root, monkeypatch, tmp_path, caplog, capsys, operation, failure):
+    secret = 'Fake-GUI-PI-Password-For-Tests!'
+    connection = f'UID=test-user;PWD={secret}'
+    config = tmp_path / 'config.txt'
+    config.write_text('dummy config', encoding='utf-8')
+    reader = tmp_path / 'PIReader' / 'PIReader.exe'
+    reader.parent.mkdir()
+    reader.touch()
+    monkeypatch.setattr(pi_reader, 'application_root', lambda: tmp_path)
+    payload = ({'tags': ['A']} if operation == 'search' else
+               {'columns': ['Timestamp', 'A'], 'data': []})
+
+    def fake_run(command, **kwargs):
+        if failure == 'timeout':
+            raise subprocess.TimeoutExpired([connection], 300, output=connection, stderr=secret)
+        return subprocess.CompletedProcess(command, 1, connection, f'{failure}: {secret}')
+
+    monkeypatch.setattr(pi_reader.subprocess, 'run', fake_run)
+    window = PIImportDialog(tk_root)
+    try:
+        window.config.set(str(config))
+        window.tags.insert('1.0', 'A')
+        window.mask.set('A*')
+        getattr(window, operation)()
+        pump(tk_root, lambda: not window.busy)
+        status = window.status_view.get('1.0', 'end-1c')
+        assert '失败' in status
+        assert secret not in status and connection not in status
+        assert window.df is None
+        for button in (window.import_button, window.search_button):
+            assert str(button.cget('state')) == 'normal'
+        monkeypatch.setattr(pi_reader.subprocess, 'run', Mock(return_value=
+            subprocess.CompletedProcess([], 0, json.dumps(payload), '')))
+        getattr(window, operation)()
+        pump(tk_root, lambda: not window.busy)
+        assert '失败' not in window.status_view.get('1.0', 'end-1c')
+        if operation == 'search':
+            assert len(window.results.get_children()) == 1
+        output = capsys.readouterr()
+        assert secret not in caplog.text + output.out + output.err
+    finally:
+        window.cancel()

@@ -607,7 +607,9 @@ namespace PIReader
             }
             catch (Exception exception)
             {
-                Console.Error.WriteLine("PIReader: " + exception.Message);
+                // SDK messages may contain the connection password.
+                Console.Error.WriteLine("PIReader: " + exception.GetType().Name +
+                    " (HRESULT 0x" + exception.HResult.ToString("X8", CultureInfo.InvariantCulture) + ")");
                 return 1;
             }
         }

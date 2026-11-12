@@ -70,24 +70,26 @@ def read_pi_data(tags, start_time, end_time, interval="1m", *, config_path=None)
             timeout=PI_READER_TIMEOUT_SECONDS,
             creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
         )
-    except subprocess.TimeoutExpired as exc:
+    except subprocess.TimeoutExpired:
         raise RuntimeError(
             "PIReader 查询超时，请缩短时间范围或检查 PI 服务器连接"
-        ) from exc
+        ) from None
+    except (OSError, UnicodeError):
+        raise RuntimeError("PIReader 启动或通信失败，请检查程序组件和运行环境") from None
 
     if result.returncode != 0:
-        details = "\n".join(
-            part.strip() for part in (result.stdout, result.stderr) if part and part.strip()
-        )
         raise RuntimeError(
-            "PIReader 未返回数据" + (f"：{details[-4000:]}" if details else "")
+            f"PIReader 查询失败（退出码 {result.returncode}），请检查 PI 连接、认证配置及查询条件"
         )
 
     try:
         payload = json.loads(result.stdout)
-    except json.JSONDecodeError as exc:
-        raise ValueError("PIReader 返回的 JSON 无效") from exc
-    return _read_reader_json(payload)
+    except json.JSONDecodeError:
+        raise ValueError("PIReader 返回的 JSON 无效") from None
+    try:
+        return _read_reader_json(payload)
+    except (ValueError, TypeError, OverflowError):
+        raise ValueError("PIReader 返回的数据格式无效") from None
 
 
 def search_pi_tags(mask, *, config_path=None) -> dict[str, object]:
@@ -120,19 +122,20 @@ def search_pi_tags(mask, *, config_path=None) -> dict[str, object]:
             timeout=PI_READER_TIMEOUT_SECONDS,
             creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
         )
-    except subprocess.TimeoutExpired as exc:
-        raise RuntimeError("PIReader 搜索超时，请检查 PI 服务器连接") from exc
+    except subprocess.TimeoutExpired:
+        raise RuntimeError("PIReader 搜索超时，请检查 PI 服务器连接") from None
+    except (OSError, UnicodeError):
+        raise RuntimeError("PIReader 启动或通信失败，请检查程序组件和运行环境") from None
 
     if result.returncode != 0:
-        details = "\n".join(
-            part.strip() for part in (result.stdout, result.stderr) if part and part.strip()
+        raise RuntimeError(
+            f"PIReader 搜索失败（退出码 {result.returncode}），请检查 PI 连接、认证配置及搜索条件"
         )
-        raise RuntimeError("PIReader 搜索失败" + (f"：{details[-4000:]}" if details else ""))
 
     try:
         payload = json.loads(result.stdout)
-    except json.JSONDecodeError as exc:
-        raise ValueError("PIReader 搜索返回的 JSON 无效") from exc
+    except json.JSONDecodeError:
+        raise ValueError("PIReader 搜索返回的 JSON 无效") from None
     if not isinstance(payload, dict):
         raise ValueError("PIReader 搜索 JSON 必须是对象")
 
