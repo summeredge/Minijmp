@@ -180,3 +180,6 @@ PIReader/tags.txt
 PIReader/OSIsoft.PISDK.dll
 PIReader/OSIsoft.PISDKCommon.dll
 PIReader/OSIsoft.PITimeServer.dll
+
+# Local agent memory and execution logs (never publish)
+.agent-memory/
