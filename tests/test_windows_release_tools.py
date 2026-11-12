@@ -577,3 +577,9 @@ def test_internal_review_mode_preserves_formal_signature_gate_and_sdk_hash_check
     assert 'Copy-Item -LiteralPath $sdkInput -Destination $sdkOutput' in script
     assert 'PI SDK copy hash mismatch' in script
     assert 'Build mode: $buildMode' in script
+
+
+def test_smoke_extraction_temp_name_fits_install_path_budget():
+    script = (TOOLS / 'build_windows_release.ps1').read_text(encoding='utf-8-sig')
+    assert "('MJ-' + [guid]::NewGuid().ToString('N').Substring(0, 8))" in script
+    assert len(str(Path.home() / 'AppData/Local/Temp' / ('MJ-' + 'a' * 8) / 'MiniJMP-V1.1')) <= 80

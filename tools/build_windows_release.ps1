@@ -450,7 +450,7 @@ if ($LASTEXITCODE -ne 0) { throw 'SHA256SUMS was replaced by a DLP container; re
 if (!$SkipSmoke) {
     & $python $smoke (Join-Path $releaseDir 'MiniJMP.exe') 90
     if ($LASTEXITCODE -ne 0) { throw 'Smoke launch of the dist build failed.' }
-    $unzipRoot = Join-Path $env:TEMP ('MiniJMP-unzip-' + [guid]::NewGuid().ToString('N'))
+    $unzipRoot = Join-Path $env:TEMP ('MJ-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
     try {
         & $python -m zipfile -e $releaseZip $unzipRoot
         if ($LASTEXITCODE -ne 0) { throw 'Extracting the runtime archive failed.' }
