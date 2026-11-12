@@ -40,7 +40,7 @@ MiniJMP 是独立的 Windows 桌面统计分析软件，提供表格数据导入
 ## PI 发布边界
 
 - 当前 Windows 构建将源码编译的 `PIReader.exe` 放在运行包 `PIReader/PIReader.exe`；SBOM 记录该运行文件的版本与实际 SHA-256，不取仓库中的旧 EXE。源码包不含 PIReader.exe 或 PI SDK DLL。
-MiniJMP V1.1 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件无法构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。 三个 DLL 保持专有第三方身份，再分发授权待企业确认；公开 Git 与源码 ZIP 不含 SDK DLL，不自动安装或注册组件。
+MiniJMP V1.1 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件不构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。 三个 DLL 保持专有第三方身份，再分发授权待企业确认；公开 Git 与源码 ZIP 不含 SDK DLL，不自动安装或注册组件。
 
 ## 数据与企业验证边界
 

@@ -133,7 +133,7 @@ def generate(destination):
         rows.append(f'- {package} — {license_name}; {filename}')
 
     notice = (
-        'THIRD-PARTY NOTICES\n\nMiniJMP V1.1 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件无法构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。\n\n'
+        'THIRD-PARTY NOTICES\n\nMiniJMP V1.1 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件不构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。\n\n'
         'MiniJMP upstream: G.Du, Copyright (C) G.Du 2024-, https://github.com/garrydu/Minijmp .\n'
         'Embedded PandasTable/DataExplore: Copyright (C) Damien Farrell 2014-, GPL-3.0-or-later; https://github.com/dmnfarrell/pandastable .\n'
         'BlakerCI 1.0-6 translated code: Jan Klaschka, GPL-3.0-only; code/blakerCI.py.\n'

@@ -66,7 +66,7 @@ py -3.12 -m venv .venv
 
 ## PI 历史数据导入（可选）
 
-使用 **文件 → 导入 PI 数据**。Windows 运行包在 `PIReader/` 内提供源码编译的 `PIReader.exe`、三个指定 SDK DLL 和空白配置模板，程序位置固定；可选择配置文件。MiniJMP V1.1 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件无法构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。公开 Git 和源码 ZIP 不含 SDK DLL。
+使用 **文件 → 导入 PI 数据**。Windows 运行包在 `PIReader/` 内提供源码编译的 `PIReader.exe`、三个指定 SDK DLL 和空白配置模板，程序位置固定；可选择配置文件。MiniJMP V1.1 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件不构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。公开 Git 和源码 ZIP 不含 SDK DLL。
 
 详细操作、约束与错误处理见 [PI 数据导入文档](docs/PI-data-import.md)。普通统计功能不依赖 PI SDK。
 
