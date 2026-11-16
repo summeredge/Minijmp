@@ -240,10 +240,10 @@ class ColumnHeader(Canvas):
         colclicked = self.table.get_col_clicked(event)
         if colclicked is None:
             return
-        # set all rows for plotting if no multi selection
-        if len(self.table.multiplerowlist) <= 1:
-            self.table.allrows = True
-
+        # A column header selects the whole column: stale row ranges must not
+        # narrow keyboard copy/paste away from the header menu behaviour.
+        self.table.allrows = True
+        self.table.focus_set()
         self.table.setSelectedCol(colclicked)
         self.drawRect(self.table.currentcol)
         # also draw a copy of the rect to be dragged
@@ -288,9 +288,15 @@ class ColumnHeader(Canvas):
             return
         colclicked = self.table.get_col_clicked(event)
         if colclicked is None or not 0 <= colclicked < self.table.cols:
+            # Empty area right of the last column: only column creation applies.
+            if self.canvasx(event.x) > self.table.tablewidth:
+                self.rightmenu = self.blankAreaMenu(event)
             return
         if colclicked not in self.table.multiplecollist:
             self.handle_left_click(event, allow_resize=False)
+        else:
+            self.table.allrows = True
+            self.table.focus_set()
         self.rightmenu = self.popupMenu(event)
 
             # ADD THESE 3 LINES HERE
@@ -298,6 +304,16 @@ class ColumnHeader(Canvas):
         #     self.rightmenu.update()
         #     self.rightmenu.activate()
         return
+
+    def blankAreaMenu(self, event):
+        """Right-click menu for the empty header area after the last column."""
+
+        popupmenu = Menu(self, tearoff=0)
+        popupmenu.add_command(label='添加列', command=self.table.addColumn)
+        popupmenu.add_command(label='添加多列…', command=self.table.addColumns)
+        popupmenu.post(event.x_root, event.y_root)
+        applyStyle(popupmenu)
+        return popupmenu
 
     def handle_mouse_drag(self, event):
         """Handle column drag, will be either to move cols or resize"""
@@ -391,6 +407,8 @@ class ColumnHeader(Canvas):
             self.drawRect(c, delete=0)
             self.table.drawSelectedCol(c, delete=0)
         self.table.drawMultipleCells()
+        self.table.allrows = True
+        self.table.focus_set()
         return
 
     def handle_left_ctrl_click(self, event):
@@ -410,6 +428,8 @@ class ColumnHeader(Canvas):
             self.drawRect(c, delete=0)
             self.table.drawSelectedCol(c, delete=0)
         self.table.drawMultipleCells()
+        self.table.allrows = True
+        self.table.focus_set()
         return
 
     def handle_double_click(self, event):

@@ -424,3 +424,73 @@ def test_context_copy_paste_leave_empty_tables_unchanged(table, monkeypatch, sha
     assert not table.paste_context_selection('cell', [0], [0])
     assert_frame_equal(table.model.df, original)
     assert warnings
+
+
+def blank_header_event(table):
+    return SimpleNamespace(x=int(table.tablewidth + 20), y=5,
+                           x_root=10, y_root=10)
+
+
+def test_blank_column_header_menu_only_offers_column_creation(table, monkeypatch):
+    calls = []
+    monkeypatch.setattr(table, 'addColumn', lambda: calls.append('single'))
+    table.multiplecollist, table.currentcol = [1], 1
+
+    table.colheader.handle_right_click(blank_header_event(table))
+    menu = table.colheader.rightmenu
+    assert menu_labels(menu) == ['添加列', '添加多列…']
+    assert table.multiplecollist == [1] and table.currentcol == 1
+    invoke(menu, '添加列')
+    assert calls == ['single']
+
+
+def test_blank_column_header_menu_adds_multiple_columns(table, monkeypatch):
+    original = pd.DataFrame([[1, 2], [3, 4]])
+    replace(table, original)
+    monkeypatch.setattr('modified_table.simpledialog.askinteger',
+                        lambda *args, **kwargs: 3)
+
+    table.colheader.handle_right_click(blank_header_event(table))
+    invoke(table.colheader.rightmenu, '添加多列…')
+
+    result = table.model.df
+    assert result.shape == (2, 5)
+    assert len(set(result.columns)) == 5
+    assert result.iloc[:, :2].to_numpy().tolist() == original.to_numpy().tolist()
+
+    for value in (None, 0, -2):
+        monkeypatch.setattr('modified_table.simpledialog.askinteger',
+                            lambda *args, value=value, **kwargs: value)
+        before = table.model.df.copy(deep=True)
+        history = table.prevdf
+        table.addColumns()
+        assert_frame_equal(table.model.df, before)
+        assert table.prevdf is history
+
+
+def test_column_header_keyboard_copy_paste_uses_whole_columns(table, monkeypatch):
+    original = pd.DataFrame([
+        ['a0', 'b0', 'c0'], ['a1', 'b1', 'c1'], ['a2', 'b2', 'c2']
+    ])
+    replace(table, original)
+    written = []
+    monkeypatch.setattr(table, 'clipboard_clear', lambda: None)
+    monkeypatch.setattr(table, 'clipboard_append', written.append)
+    monkeypatch.setattr(table, 'clipboard_get', lambda: 'x0\nx1\nx2')
+    table.multiplerowlist, table.multiplecollist = [0, 2], []
+    table.allrows = False
+
+    table.colheader.handle_left_click(cell_event(table, 0, 1), allow_resize=False)
+    assert table.allrows and table.multiplecollist == [1]
+    assert table.bind('<Control-c>') and table.bind('<Control-v>')
+    assert table.copy(SimpleNamespace(widget=table))
+    assert written[-1].splitlines() == ['b0', 'b1', 'b2']
+
+    assert table.paste(SimpleNamespace(widget=table))
+    assert table.model.df.iloc[:, 1].tolist() == ['x0', 'x1', 'x2']
+    assert table.model.df.iloc[:, 0].tolist() == ['a0', 'a1', 'a2']
+
+    table.colheader.handle_left_ctrl_click(cell_event(table, 0, 2))
+    assert table.multiplecollist == [1, 2] and table.allrows
+    assert table.copy(SimpleNamespace(widget=table))
+    assert written[-1].splitlines() == ['x0\tc0', 'x1\tc1', 'x2\tc2']

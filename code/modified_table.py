@@ -3,7 +3,7 @@ import csv
 import io
 
 import pandas as pd
-from tkinter import END, BooleanVar, StringVar, Entry, Menu, messagebox
+from tkinter import END, BooleanVar, StringVar, Entry, Menu, messagebox, simpledialog
 import numpy as np
 #  import os
 ############ pandastable #############
@@ -545,6 +545,27 @@ class MTable(Table):
                                    parent=self.parentframe):
             return
         self.deleteCells(rows, cols, answer=True)
+
+    def addColumns(self, num=None):
+        """Append empty columns at the end of the sheet."""
+        if not self.requireUnfiltered():
+            return
+        if num is None:
+            num = simpledialog.askinteger('添加多列', '新增列数：', initialvalue=1,
+                                          minvalue=1, parent=self.parentframe)
+        if not num or num < 1:
+            return
+        self.storeCurrent()
+        names = list(self.model.df.columns)
+        for _ in range(int(num)):
+            name = verifyNewColName('新列', names)
+            names.append(name)
+            self.model.addColumn(name, 'object')
+        self.parentframe.configure(width=self.width)
+        self.update_rowcolors()
+        self.redraw()
+        self.tableChanged()
+        return
 
     def fillColumn(self):
         """Fill a column with a data range"""
