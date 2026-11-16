@@ -868,6 +868,18 @@ def main():
     # Create an instance of the custom frame
     _ = Minijmp(root)
 
+    # Close the startup splash screen now that the main window can be shown. The
+    # splash is the process' first window, so the window class keeps Tk's default
+    # icon until the icon is set again after it is gone.
+    try:
+        import pyi_splash
+    except ImportError:
+        pass  # running from source, there is no splash screen
+    else:
+        root.update()
+        pyi_splash.close()
+        root.iconphoto(True, icon)
+
     # Run the application
     root.mainloop()
     return

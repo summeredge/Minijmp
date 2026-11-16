@@ -126,6 +126,7 @@ $required = @(
     'PIReader\Properties\AssemblyInfo.cs', 'tools\sign_minijmp_executables.ps1',
     'packaging\windows\PI-SDK-NOTICE.txt',
     'packaging\windows\USAGE.txt', 'packaging\windows\version_info.txt',
+    'packaging\windows\splash.png',
     'icon\icon_big.ico', 'code\help.json', 'help', 'user_config\default.conf'
 )
 foreach ($item in $required) {
@@ -166,6 +167,10 @@ $pyinstallerArgs = @(
     '--noconfirm', '--clean', '--onedir', '--windowed', '--noupx',
     '--contents-directory', '_internal', '--name', 'MiniJMP',
     '--icon', (Join-Path $root 'icon\icon_big.ico'),
+    # Startup wait image: shown by the bootloader before any Python code runs.
+    # 'active' centers it on the monitor the user launched it from.
+    '--splash', (Join-Path $root 'packaging\windows\splash.png'),
+    '--splash-center', 'active',
     '--version-file', $versionInfo,
     '--specpath', $specPath, '--workpath', $workPath, '--distpath', $rawDist,
     '--paths', (Join-Path $root 'code'),
