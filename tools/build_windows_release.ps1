@@ -236,6 +236,10 @@ $externalIcons = Get-ChildItem -LiteralPath $rawApp -File -Recurse -Filter 'icon
 if ($externalIcons) {
     throw ('Unexpected external runtime icon.png found: ' + (($externalIcons.FullName) -join ', '))
 }
+# pyarrow ships C++ headers, import libraries and the Flight/Substrait/Dataset
+# binaries that MiniJMP never loads; keep Parquet, tables, compute and filesystem.
+& $python (Join-Path $root 'tools\prune_pyinstaller_bundle.py') (Join-Path $rawApp '_internal\pyarrow') *>> $buildLog
+if ($LASTEXITCODE -ne 0) { throw 'Pruning unused pyarrow components failed.' }
 
 Copy-Item -LiteralPath $rawApp -Destination $releaseDir -Recurse
 Copy-Item -LiteralPath (Join-Path $root 'LICENSE') -Destination (Join-Path $releaseDir 'LICENSE')

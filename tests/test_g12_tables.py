@@ -17,7 +17,7 @@ from MiniJMP import Minijmp
 from stat_table import StatTable
 from test_g1_text_output import viewer
 from test_g3_computation_contracts import computation_dump
-from source_baselines import read_source_baseline, normalize_p1_numeric
+from source_baselines import read_source_baseline, normalize_p1_numeric, normalize_deferred_imports
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'c0c2c2aa316e7e0f236e551bf4cd2f60f2e30df3'
@@ -74,8 +74,10 @@ def test_interval_report_keeps_txt_computation_and_exports(before, alpha, scale,
 def test_utilities_change_is_only_interval_report_output():
     old = read_source_baseline(BASE, 'code/utilities.py')
     current = (ROOT/'code/utilities.py').read_text(encoding='utf-8')
-    assert computation_dump(current, 'mean_std_CIs') == computation_dump(old, 'mean_std_CIs')
+    deferred = ast.unparse(normalize_deferred_imports(ast.parse(current), ast.parse(old)))
+    assert computation_dump(deferred, 'mean_std_CIs') == computation_dump(old, 'mean_std_CIs')
     trees = [ast.parse(source) for source in (old, current)]
+    normalize_deferred_imports(trees[1], trees[0])
     normalize_p1_numeric(trees[1], 'utilities.py', trees[0])
     for tree in trees:
         # G17 仅放行已另有数据一致性及热点回归约束的数字清洗函数。

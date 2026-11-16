@@ -1,24 +1,11 @@
 from stat_table import StatTable
-from scipy.special import gammaln
-from scipy import integrate
-from scipy.stats import norm, shapiro, chi2
 from functools import lru_cache
 import numpy as np
-from statsmodels.stats.diagnostic import normal_ad
-from scipy.stats import t as t_dist
 import statistics as stat
 from math import isnan
 import re
 from pandas import DataFrame as DF
 from prettytable import PrettyTable as PT
-######### Own Modules ############
-# from binomial import binomial
-try:
-    from .chi_sq import chi2_test_stdev
-    from .t_test import t_test_1sample
-except BaseException:
-    from chi_sq import chi2_test_stdev
-    from t_test import t_test_1sample
 
 def gen_table(input_list):
     """Return a PrettyTable; widths include full-width Chinese characters.
@@ -153,6 +140,14 @@ def event_count(data, x):
 
 
 def mean_std_CIs(data, alpha=0.05, print_out=False, print_port=print):
+    # Deferred so the startup path does not load scipy through this module.
+    try:
+        from .chi_sq import chi2_test_stdev
+        from .t_test import t_test_1sample
+    except BaseException:
+        from chi_sq import chi2_test_stdev
+        from t_test import t_test_1sample
+
     chi2_r = chi2_test_stdev(
         data,
         1,
@@ -206,6 +201,9 @@ def mean_std_CIs(data, alpha=0.05, print_out=False, print_port=print):
 
 
 def pearson_correlation(x, y, alpha=0.05, print_out=True, print_port=print):
+    from scipy.stats import chi2, norm
+    from scipy.stats import t as t_dist
+
     print = print_port
     x, y = np.asarray(x, dtype=float), np.asarray(y, dtype=float)
     n = len(x)
@@ -295,6 +293,8 @@ def pearson_correlation(x, y, alpha=0.05, print_out=True, print_port=print):
 
 @lru_cache
 def c4_values(n):
+    from scipy.special import gammaln
+
     if not np.isfinite(n) or n <= 1:
         raise ValueError("c4 需要有限且大于 1 的样本量")
     value = np.exp(0.5 * np.log(2 / (n - 1)) + gammaln(n / 2) - gammaln((n - 1) / 2))
@@ -440,6 +440,9 @@ def hash_combined(numbers):
 
 @lru_cache
 def calculate_d2(n):
+    from scipy import integrate
+    from scipy.stats import norm
+
     def integrand(x):
         return 1 - (1 - norm.cdf(x))**n - norm.cdf(x)**n
 
@@ -449,6 +452,9 @@ def calculate_d2(n):
 
 @lru_cache
 def calculate_d3(n):
+    from scipy import integrate
+    from scipy.stats import norm
+
     def inner_integrand(x, y):
         return 1 - norm.cdf(y)**n - (1 - norm.cdf(x))**n + \
             (norm.cdf(y) - norm.cdf(x))**n
@@ -494,6 +500,9 @@ def quantiles(input_data,
 
 
 def norm_test(data, print_out=False, print_port=print):
+    from scipy.stats import shapiro
+    from statsmodels.stats.diagnostic import normal_ad
+
     s1, p1 = shapiro(data)
     s2, p2 = normal_ad(np.array(data, dtype=float))
     if print_out:

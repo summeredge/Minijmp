@@ -68,8 +68,64 @@ def normalize_p1_numeric(tree, module, baseline):
     if module == 'utilities.py':
         current = ast.parse('from scipy.special import gammaln').body[0]
         matches = [i for i, n in enumerate(tree.body) if ast.dump(n) == ast.dump(current)]
-        assert len(matches) == 1
-        tree.body[matches[0]] = ast.parse('from scipy.special import gamma').body[0]
+        if matches:
+            # 重依赖延迟导入后该语句不再位于模块级，无需再做别名归一。
+            assert len(matches) == 1
+            tree.body[matches[0]] = ast.parse('from scipy.special import gamma').body[0]
+    return tree
+
+
+_DEFERRED_IMPORT_ROOTS = {'scipy', 'statsmodels', 'chi_sq', 't_test'}
+
+
+def _import_root(node):
+    if isinstance(node, ast.Import):
+        return {alias.name.split('.')[0] for alias in node.names}
+    if isinstance(node, ast.ImportFrom):
+        return {(node.module or '').lstrip('.').split('.')[0]}
+    return set()
+
+
+def normalize_deferred_imports(tree, baseline):
+    """只放行重依赖导入语句的位置变化；计算与输出语句仍逐字比较。
+
+    启动优化把 scipy/statsmodels 等从模块级移入首次使用的函数：这里剔除这些
+    导入语句（含承载它们的 try/except），并校验延迟导入的名字集合与基线一致。
+    """
+    def names(nodes):
+        found = set()
+        for node in nodes:
+            for inner in ast.walk(node):
+                if (isinstance(inner, (ast.Import, ast.ImportFrom))
+                        and _import_root(inner) & _DEFERRED_IMPORT_ROOTS):
+                    found |= {(alias.asname or alias.name).split('.')[0]
+                              for alias in inner.names}
+        return found
+
+    def strip(nodes):
+        kept = []
+        for node in nodes:
+            if (isinstance(node, (ast.Import, ast.ImportFrom))
+                    and _import_root(node) & _DEFERRED_IMPORT_ROOTS):
+                continue
+            if isinstance(node, ast.Try):
+                node.body = strip(node.body)
+                for handler in node.handlers:
+                    handler.body = strip(handler.body)
+                if not node.body:
+                    continue
+            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                node.body = strip(node.body)
+            kept.append(node)
+        return kept
+
+    assert not [n for n in tree.body if isinstance(n, (ast.Import, ast.ImportFrom))
+                and _import_root(n) & _DEFERRED_IMPORT_ROOTS], 'module-level heavy imports remain'
+    # gammaln/gamma 是 REVIEW 已批准的别名差异，由 normalize_p1_numeric 归一。
+    same = lambda found: {'gamma' if n == 'gammaln' else n for n in found}
+    assert same(names(tree.body)) == same(names(baseline.body)), (
+        sorted(names(baseline.body)), sorted(names(tree.body)))
+    tree.body = strip(tree.body)
     return tree
 
 

@@ -12,17 +12,6 @@ from icon_resource import create_icon_image, create_plot_icon_images
 from modified_table import MTable as Table
 from plots import plot_viewer
 from txt_output import txt_viewer
-from fit_dialog import LinearFitDialog, CorrelationDialog, OrthoFitDialog, ResidDialog, MCorDialog
-from basic_dialogs import DescribeDialog, NormTestDialog, CIDialog, MultiDescribeDialog, FitDistDialog
-from sample_test_dialog import Mean1SampleDialog, Mean1SampleZDialog, Var1SampleDialog, Mean2SampleDialog, PairedTDialog, MultiVarDialog, Prop1SDialog, Prop2SDialog
-from anova_dialog import Anova1WayDialog, TtestDialog, Anova2WayDialog
-from chi2_dialog import Chi2TableDialog, Chi2PropDialog
-from qc_dialog import GRRDialog, CpkDialog, CpkSubDialog, TIDialog, GRR_Nested_Dialog
-from ctrlchart_dialog import IMRDialog, IDialog, MRDialog, XBRDialog, XBSDialog, NPDialog, PDialog, CDialog, UDialog
-from sb_hist_dialog import singleHistoDialog, multiHistoDialog, xyHistoDialog
-from sb_box_dialog import singleBoxDialog, multiBoxDialog
-from sb_misc_dialog import countPlotDialog, linePlotDialog, dotPlotDialog
-from dist_plot_dialog import displayProbDialog, displayProb2xDialog
 from help_link import open_help
 
 
@@ -435,6 +424,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         table.tOut.to_end(defer=True)
 
     def linear_fit(self):
+        from fit_dialog import LinearFitDialog
 
         _ = LinearFitDialog(
             self.table, app=self,
@@ -459,6 +449,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         AdvancedSPCDialog(parent=self.table, df=self.table.model.df, app=self)
 
     def correlation(self):
+        from fit_dialog import CorrelationDialog
 
         _ = CorrelationDialog(
             self.table, app=self,
@@ -467,6 +458,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def ortho_fit(self):
+        from fit_dialog import OrthoFitDialog
 
         _ = OrthoFitDialog(
             self.table, app=self,
@@ -475,6 +467,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def describe(self):
+        from basic_dialogs import DescribeDialog
         _ = DescribeDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -482,6 +475,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def multi_describe(self):
+        from basic_dialogs import MultiDescribeDialog
         _ = MultiDescribeDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -489,6 +483,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def norm_test(self):
+        from basic_dialogs import NormTestDialog
         _ = NormTestDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -496,6 +491,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def resid(self):
+        from fit_dialog import ResidDialog
         _ = ResidDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -503,6 +499,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def confidence_interval(self):
+        from basic_dialogs import CIDialog
         _ = CIDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -510,6 +507,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def multi_cor(self):
+        from fit_dialog import MCorDialog
         _ = MCorDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -517,6 +515,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def mean_1sample(self):
+        from sample_test_dialog import Mean1SampleDialog
         _ = Mean1SampleDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -524,6 +523,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def mean_1sampleZ(self):
+        from sample_test_dialog import Mean1SampleZDialog
         _ = Mean1SampleZDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -531,6 +531,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def var_1sample(self):
+        from sample_test_dialog import Var1SampleDialog
         _ = Var1SampleDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -538,6 +539,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def mean_2samples(self):
+        from sample_test_dialog import Mean2SampleDialog
         _ = Mean2SampleDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -545,6 +547,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def paired_t(self):
+        from sample_test_dialog import PairedTDialog
         _ = PairedTDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -552,6 +555,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def multi_var(self):
+        from sample_test_dialog import MultiVarDialog
         _ = MultiVarDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -559,6 +563,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def prop_1sample(self):
+        from sample_test_dialog import Prop1SDialog
         _ = Prop1SDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -566,6 +571,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def prop_2samples(self):
+        from sample_test_dialog import Prop2SDialog
         _ = Prop2SDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -573,6 +579,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def anova_1way(self):
+        from anova_dialog import Anova1WayDialog
         _ = Anova1WayDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -580,6 +587,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def JMP_t_test(self):
+        from anova_dialog import TtestDialog
         _ = TtestDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -587,6 +595,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def anova_2way(self):
+        from anova_dialog import Anova2WayDialog
         _ = Anova2WayDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -594,6 +603,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def chi2table(self):
+        from chi2_dialog import Chi2TableDialog
         _ = Chi2TableDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -601,6 +611,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def chi2prop(self):
+        from chi2_dialog import Chi2PropDialog
         _ = Chi2PropDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -608,6 +619,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def grr(self):
+        from qc_dialog import GRRDialog
         _ = GRRDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -615,6 +627,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def grr_nst(self):
+        from qc_dialog import GRR_Nested_Dialog
         _ = GRR_Nested_Dialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -622,6 +635,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def cpk(self):
+        from qc_dialog import CpkDialog
         _ = CpkDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -653,6 +667,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return CapabilityDialog(parent=self.table, df=self.table.model.df, app=self, mode=mode)
 
     def cpksub(self):
+        from qc_dialog import CpkSubDialog
         _ = CpkSubDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -660,6 +675,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def ti_norm(self):
+        from qc_dialog import TIDialog
         _ = TIDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -667,6 +683,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def cChartIMR(self):
+        from ctrlchart_dialog import IMRDialog
         _ = IMRDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -674,6 +691,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def cChartI(self):
+        from ctrlchart_dialog import IDialog
         _ = IDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -681,6 +699,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def cChartMR(self):
+        from ctrlchart_dialog import MRDialog
         _ = MRDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -688,6 +707,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def cChartXBR(self):
+        from ctrlchart_dialog import XBRDialog
         _ = XBRDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -695,6 +715,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def cChartXBS(self):
+        from ctrlchart_dialog import XBSDialog
         _ = XBSDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -702,6 +723,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def cChartNP(self):
+        from ctrlchart_dialog import NPDialog
         _ = NPDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -709,6 +731,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def cChartP(self):
+        from ctrlchart_dialog import PDialog
         _ = PDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -716,6 +739,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def cChartC(self):
+        from ctrlchart_dialog import CDialog
         _ = CDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -723,6 +747,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def cChartU(self):
+        from ctrlchart_dialog import UDialog
         _ = UDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -730,6 +755,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def fit_dist(self):
+        from basic_dialogs import FitDistDialog
         _ = FitDistDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -737,6 +763,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def singleHisto(self):
+        from sb_hist_dialog import singleHistoDialog
         _ = singleHistoDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -744,6 +771,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def multiHisto(self):
+        from sb_hist_dialog import multiHistoDialog
         _ = multiHistoDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -751,6 +779,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def xyHisto(self):
+        from sb_hist_dialog import xyHistoDialog
         _ = xyHistoDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -758,6 +787,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def singleBox(self):
+        from sb_box_dialog import singleBoxDialog
         _ = singleBoxDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -765,6 +795,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def multiBox(self):
+        from sb_box_dialog import multiBoxDialog
         _ = multiBoxDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -772,6 +803,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def countPlot(self):
+        from sb_misc_dialog import countPlotDialog
         _ = countPlotDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -787,6 +819,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         BasicPlotDialog(self.table, app=self, df=self.table.model.df, kind=kind)
 
     def linePlot(self):
+        from sb_misc_dialog import linePlotDialog
         _ = linePlotDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -802,6 +835,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def dotPlot(self):
+        from sb_misc_dialog import dotPlotDialog
         _ = dotPlotDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -809,6 +843,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def distDPPlot(self):
+        from dist_plot_dialog import displayProbDialog
         _ = displayProbDialog(
             self.table, app=self,
             df=self.table.model.df,
@@ -816,6 +851,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def dist2XPlot(self):
+        from dist_plot_dialog import displayProb2xDialog
         _ = displayProb2xDialog(
             self.table, app=self,
             df=self.table.model.df,

@@ -1,12 +1,5 @@
 from tkinter import Toplevel, Label, CENTER, LEFT
 import tkinter as tk
-import pandas as pd
-import matplotlib
-import scipy
-import statsmodels
-import prettytable
-import seaborn
-import platform
 ##############
 from pandastable_local.app import DataExplore
 from pandastable_local.dialogs import getParentGeometry

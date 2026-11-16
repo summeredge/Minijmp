@@ -17,8 +17,6 @@ from xml.etree import ElementTree as ET
 
 import pandas as pd
 import numpy as np
-import pyarrow as pa
-import pyarrow.parquet as pq
 
 from modified_table import MTable
 from pandastable_local import config
@@ -134,6 +132,9 @@ _OBJECT_NULLS = {'none': None, 'nan': float('nan'), 'na': pd.NA, 'nat': pd.NaT,
 
 
 def _read_frame(content, columns, attrs, pandas_metadata, object_nulls):
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
     if len(content) < 12 or content[:4] != b'PAR1' or content[-4:] != b'PAR1':
         raise ValueError('工作表 Parquet 文件无效')
     footer_size = int.from_bytes(content[-8:-4], 'little')
@@ -202,6 +203,9 @@ def _read_frame(content, columns, attrs, pandas_metadata, object_nulls):
 
 
 def _write_frame(frame):
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
     if not isinstance(frame, pd.DataFrame):
         raise ValueError('无效的工作表数据')
     columns, attrs = _column_info(frame.columns), _encode_json(frame.attrs)

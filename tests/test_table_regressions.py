@@ -172,13 +172,27 @@ def test_real_import_dialog_preserves_hash_text_and_default_rows(table, tmp_path
 
 
 def test_all_statistics_menu_dialogs_construct_and_close(tk_root):
-    import inspect
+    import ast
+    import importlib
     import MiniJMP
     from dialog import Dialogs
+    # 对话框按需导入，类不再是 MiniJMP 模块属性；按源码中的导入语句收集，
+    # 新增菜单对话框仍会被自动覆盖。
+    modules = {'fit_dialog', 'basic_dialogs', 'sample_test_dialog', 'anova_dialog',
+               'chi2_dialog', 'qc_dialog', 'ctrlchart_dialog', 'sb_hist_dialog',
+               'sb_box_dialog', 'sb_misc_dialog', 'dist_plot_dialog'}
+    source = (Path(MiniJMP.__file__)).read_text(encoding='utf-8')
+    types = set()
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.ImportFrom) and node.module in modules and not node.level:
+            module = importlib.import_module(node.module)
+            for alias in node.names:
+                cls = getattr(module, alias.name, None)
+                if isinstance(cls, type) and issubclass(cls, Dialogs) and cls is not Dialogs:
+                    types.add(cls)
+    types = sorted(types, key=lambda cls: cls.__name__)
     app = SimpleNamespace(dialog_help_msg=lambda **kw: '')
     data = pd.DataFrame({'x': [1., 2., 3.], 'y': [4., 6., 5.], 'group': ['a', 'a', 'b']})
-    types = [cls for _, cls in inspect.getmembers(MiniJMP, inspect.isclass)
-             if issubclass(cls, Dialogs) and cls is not Dialogs]
     assert len(types) >= 40
     for cls in types:
         widget = cls(parent=tk_root, df=data.copy(), title=cls.__name__, app=app)
