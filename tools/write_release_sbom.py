@@ -18,6 +18,7 @@ from packaging.utils import canonicalize_name
 from make_zip import sha256_file
 from release_env import (HASH_LOCK, hash_lock_entries, hash_lock_mismatches,
                          verified_install_hashes)
+from release_metadata import product_version
 from write_third_party_notices import _license_files, _license_summary, _runtime_dependencies
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -156,9 +157,9 @@ def minijmp_runtime_component(path):
     return item
 
 
-def generate(runtime, destination, build=None):
-    runtime, destination = Path(runtime), Path(destination)
-    build = Path(build) if build is not None else ROOT / 'build/windows-pkg-V1.2/work/MiniJMP'
+def generate(runtime, destination, build):
+    runtime, destination, build = Path(runtime), Path(destination), Path(build)
+    product = product_version()
     destination.mkdir(parents=True, exist_ok=True)
     commit = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
     collected = toc_sources(build)
@@ -317,8 +318,8 @@ def generate(runtime, destination, build=None):
         dependencies.append({'ref': refs[key], 'dependsOn': sorted(set(targets))})
     bom = {'bomFormat': 'CycloneDX', 'specVersion': '1.6', 'serialNumber': 'urn:uuid:' + str(uuid.uuid4()), 'version': 1,
            'metadata': {'timestamp': datetime.now(timezone.utc).isoformat(),
-                        'component': {'type': 'application', 'name': 'MiniJMP', 'version': '1.2.0', 'bom-ref': 'MiniJMP'},
-                        'properties': properties(commit=commit, tag='v1.2.0', lock_sha256=sha256_file(lock),
+                        'component': {'type': 'application', 'name': 'MiniJMP', 'version': product.lstrip('v'), 'bom-ref': 'MiniJMP'},
+                        'properties': properties(commit=commit, tag=product, lock_sha256=sha256_file(lock),
                                                  hash_lock_sha256=sha256_file(HASH_LOCK),
                                                  review_status='授权与未知许可未放行；供内部审核')},
            'components': components, 'dependencies': dependencies}

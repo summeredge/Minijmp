@@ -1,11 +1,11 @@
-# MiniJMP V1.2 安装与使用说明
+# MiniJMP V1.2.1 安装与使用说明
 
 > 本说明面向内部审核与 Windows x64 用户；不表示已完成企业现场验收或合规放行。许可状态见 [版本与审核说明](VERSION-INFO.md)。
 
 ## 安装要求与目录
 
 - 目标为 64 位 Windows 桌面环境。当前发布资料未声明最低 Windows 版本；不要据此推定旧版 Windows 已验证。
-- 取得 `MiniJMP-V1.2-Windows-x64.zip` 后，先按随包 `SHA256SUMS.txt` 校验哈希。
+- 取得 `MiniJMP-V1.2.1-Windows-x64.zip` 后，先按随包 `SHA256SUMS.txt` 校验哈希。
 - 将 ZIP 完整解压到用户可读取和执行的位置，保持目录结构。运行目录至少包含：
 
   ```text
