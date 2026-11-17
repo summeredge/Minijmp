@@ -173,6 +173,22 @@ def test_smoke_launch_ignores_placeholder_tk_window(monkeypatch):
     assert found == ['未命名项目 — 工作表1 - Minijmp']
 
 
+def test_smoke_launch_survives_a_legacy_console_code_page(monkeypatch):
+    import io
+
+    run = io.TextIOWrapper(io.BytesIO(), encoding='cp1252')
+    monkeypatch.setattr(sys, 'stdout', run)
+    monkeypatch.setattr(sys, 'stderr', run)
+
+    smoke_launch.printable(sys.stdout)
+    smoke_launch.printable(sys.stderr)
+    print('window after 12s: 未命名项目 — 工作表1 - Minijmp')
+
+    run.seek(0)
+    written = run.buffer.getvalue().decode('cp1252')
+    assert 'window after 12s:' in written and 'Minijmp' in written
+
+
 def test_smoke_launch_uses_pointer_sized_win32_signatures(monkeypatch):
     import ctypes
     from ctypes import wintypes

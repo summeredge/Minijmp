@@ -90,6 +90,9 @@ jobs:
 
       - name: Build the public candidate
         shell: powershell
+        env:
+          # Window titles are Chinese; the runner console defaults to cp1252.
+          PYTHONIOENCODING: utf-8
         run: |
           $python = (Get-Command python).Source
           powershell -NoProfile -ExecutionPolicy Bypass -File tools/build_windows_release.ps1 -Public -PythonPath $python

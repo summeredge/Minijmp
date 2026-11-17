@@ -110,8 +110,21 @@ def wait_for_window(process, timeout, titles=window_titles, sleep=time.sleep):
     return [], time.monotonic() - started, seen
 
 
+def printable(stream):
+    """Keep non-ASCII window titles from failing on a legacy console code page."""
+    reconfigure = getattr(stream, 'reconfigure', None)
+    if reconfigure:
+        try:
+            reconfigure(encoding=stream.encoding or 'utf-8', errors='backslashreplace')
+        except (ValueError, OSError):
+            pass
+    return stream
+
+
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
+    printable(sys.stdout)
+    printable(sys.stderr)
     if len(argv) not in (1, 2):
         print('Usage: smoke_launch.py EXE [TIMEOUT_SECONDS]', file=sys.stderr)
         return 2
