@@ -2,6 +2,13 @@
 
 ## 未发布
 
+### 2026-11-17 GitHub Actions 公开候选包
+
+- 新增 `.github/workflows/release.yml`：推送 `v*` 版本 Tag 或手动指定已有 Tag，即在 `windows-2022` + Python 3.11 上用锁定依赖自动构建公开 Windows 便携版，并校验 Tag、版本、Commit、ZIP CRC、SHA256、包内容、SBOM 与 EXE 版本；版本号、文件名、SBOM 版本均从版本元数据推导，新版本无需修改工作流。
+- 公开候选包不构建 PIReader、不随包 PI SDK、不做代码签名，包内说明明确标注 PI 导入不可用；统计、DOE、绘图、文件处理功能与内部版一致。
+- 候选包只上传 Actions Artifacts；正式 Release 仍需人工批准（`release` Environment 审批 + 仓库变量 `MINIJMP_ENABLE_PUBLISH`），已存在的 Release 不会被覆盖。
+- 本地企业内部构建流程保持不变；`tools/build_windows_release.ps1` 新增 `-Public` 模式与 `-PythonPath` 参数，并新增候选包校验工具 `tools/verify_public_release.py`。
+
 ### 2026-11-16 V1.2.1 内部候选版本
 
 - 「帮助 → 关于」显示版本升级为 V1.2.1，产品版本 v1.2.1，主程序与 PIReader 文件版本统一为 1.2.1.0；发布资料、SBOM 与源码包使用相同版本。

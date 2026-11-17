@@ -1,6 +1,39 @@
-# MiniJMP V1.2.1 Windows 发布
+# MiniJMP Windows 发布
 
-唯一构建入口 `tools/build_windows_release.ps1`。版本：显示 V1.2.1，产品/Tag v1.2.1，Windows文件版本1.2.1.0。保留Beta标签和历史构建，禁止覆盖已有目标。
+唯一构建入口 `tools/build_windows_release.ps1`。版本由元数据统一声明：`packaging/windows/version_info.txt` 给出产品版本与文件版本，脚本中的 `$releaseVersion`/`$productVersion` 必须与之相同。保留Beta标签和历史构建，禁止覆盖已有目标。
+
+## 公开候选包（GitHub Actions）
+
+`.github/workflows/release.yml` 是长期复用的自动构建入口，不绑定任何具体版本：推送符合 `v*` 规则的版本 Tag 即自动触发，也可在 Actions 页面用 `workflow_dispatch` 指定已存在的 Tag 手动触发；默认只产出 Actions Artifacts，不创建 Release。
+
+- 触发后先校验 Tag 格式、Tag 指向的提交、`version_info.txt` 与其他版本标识一致，以及检出目录干净。
+- 运行环境为 `windows-2022` + Python 3.11，依赖来自 `packaging/windows/requirements-py311.lock`；PyInstaller 参数、onedir/windowed、Splash、图标、依赖收集与 pyarrow 裁剪与内部构建共用同一份脚本参数（`-Public` 模式）。
+- `-Public` 不构建 PIReader、不引用 PI SDK、不做代码签名，也不执行本地透明加密的沉降等待，只做一次 CRC/SHA256 复核。
+- 产物：`MiniJMP-<版本>-Windows-x64-portable.zip`、`MiniJMP-<版本>-Source.zip`、`SHA256SUMS-<版本>.txt`，以及 `SBOM.cdx.json`、`SBOM.csv`、`RUNTIME-CONTENTS.csv`、`BUILD-INFO.txt`、`SOURCE-CODE.txt` 和构建/测试记录。
+- 自动校验 Tag/版本/Commit 一致、ZIP CRC 与 SHA256、包内 EXE 与本次构建产物一致、不含三个 OSIsoft DLL/PIReader.exe/PI 配置或凭据、Splash 与图标已嵌入、SBOM 版本一致；任一项失败即中止，不会上传正式 Release。
+
+公开版与企业内部版的区别：
+
+| 项目 | 公开候选包（GitHub Actions） | 企业内部构建（本机） |
+| --- | --- | --- |
+| PIReader / PI SDK | 不构建、不随包；PI 导入不可用，沿用现有“组件缺失”提示 | 从源码构建 PIReader 并随包三个专有 DLL |
+| 代码签名 | 不签名 | `-InternalReview` 不签名；正式模式要求双 EXE 可信签名 |
+| 等待与复核 | 无沉降等待，单次 CRC/SHA256 复核 | 120 秒沉降 + 写入后 90 秒复核 |
+| 产物位置 | Actions Artifacts 候选包 | `dist/` 审核包及 `--finalize` 发布材料 |
+
+## 标准发布流程
+
+1. 完成开发，更新版本信息（`version_info.txt`、脚本中的 `$releaseVersion`/`$productVersion`、README、CHANGES、USAGE、`AssemblyInfo.cs`），提交。
+2. 创建并推送对应的 annotated Tag（`v<版本>`）。
+3. GitHub Actions 自动构建并验证公开候选包，下载 Artifacts。
+4. 在实际 Windows 桌面完成关键 GUI 验收（Splash、窗口焦点、键盘操作、主要功能）。
+5. 检查代码签名、第三方许可与发布条件。
+6. 人工批准正式发布。
+7. GitHub Release 提供运行包、源码包和 SHA256。
+
+正式发布入口默认关闭：需在仓库新建 `release` Environment 并配置必需审批人，再设置仓库变量 `MINIJMP_ENABLE_PUBLISH=true`；之后手动触发工作流并勾选 `publish` 才会创建 Release。构建任务只有 `contents: read`，发布任务单独使用 `contents: write` 且只上传本次构建并验证过的资产；已存在的 Release 不会被覆盖，发布会直接失败。代码签名与部分第三方许可确认之前，保持只生成候选包。
+
+构建失败时在 Actions 运行页面按步骤查看日志：`Check the tag…` 报告 Tag/版本/Commit 问题，`Run the … tests` 报告测试失败，`Build the public candidate` 的 PyInstaller 输出同时作为 artifact 上传，`Verify the candidate…` 列出包内容或校验不一致的具体项。
 
 ## 前置检查与冻结
 

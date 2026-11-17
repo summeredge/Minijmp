@@ -1,6 +1,7 @@
 """Verify the intentional display, product and file version identifiers stay aligned."""
 
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -72,6 +73,34 @@ def release_name(groups):
     major, minor, patch, beta = groups
     return (f'V{major}.{minor}' + (f'.{patch}' if patch != '0' else '') +
             (f'-beta{beta}' if beta else ''))
+
+
+def release_titles(root=ROOT):
+    """Return the product tag and the display release name from version_info.txt."""
+    product = product_version(root)
+    return product, release_name(PRODUCT.fullmatch(product).groups())
+
+
+def verify_tag(tag, root=ROOT):
+    """Return the reasons a tag cannot identify this build; empty when it can."""
+    product = product_version(root)
+    if not tag:
+        return [f'Provide the release tag, such as {product}.']
+    if not PRODUCT.fullmatch(tag):
+        return [f'{tag} is not a vX.Y.Z or vX.Y.Z-beta.N tag.']
+    if tag != product:
+        return [f'Tag {tag} does not match the product version {product} declared in version_info.txt.']
+    try:
+        head = subprocess.check_output(
+            ['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip()
+        tag_commit = subprocess.check_output(
+            ['git', '-C', str(root), 'rev-parse', f'{tag}^{{commit}}'],
+            text=True, stderr=subprocess.DEVNULL).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return [f'The repository has no tag {tag}; create and push it before building.']
+    if tag_commit != head:
+        return [f'Tag {tag} points to {tag_commit}, but HEAD is {head}.']
+    return []
 
 
 def expected(groups):
@@ -168,6 +197,17 @@ def main(argv=None):
     if argv and argv[0] == '--finalize':
         finalize(Path(argv[1]), Path(argv[2]))
         return 0
+    if argv and argv[0] in ('--print-product', '--print-release'):
+        print(release_titles()[0 if argv[0] == '--print-product' else 1])
+        return 0
+    if argv and argv[0] == '--verify-tag':
+        tag = argv[1] if len(argv) > 1 else ''
+        problems = verify_tag(tag)
+        for problem in problems:
+            print(f'BLOCKED: {problem}')
+        if not problems:
+            print(f'PASS: tag {tag} identifies HEAD and matches the declared product version.')
+        return 1 if problems else 0
     levels = check(Path(argv[0]) if argv else ROOT)
     for level, message in levels:
         print(f'{level}: {message}')

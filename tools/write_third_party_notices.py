@@ -99,7 +99,7 @@ def _license_summary(distribution):
     return 'See the included upstream license text.'
 
 
-def generate(destination):
+def generate(destination, public=False):
     destination = Path(destination)
     license_dir = destination / 'THIRD-PARTY-LICENSES'
     license_dir.mkdir(parents=True, exist_ok=True)
@@ -132,17 +132,30 @@ def generate(destination):
         shutil.copyfile(source, license_dir / filename)
         rows.append(f'- {package} — {license_name}; {filename}')
 
+    if public:
+        pi_bundle = ('本公开候选包由 GitHub Actions 自动构建，不包含 OSIsoft/AVEVA PI SDK 组件；'
+                     'PI 数据导入功能不可用，其余统计、DOE、绘图与文件处理功能不受影响。\n\n')
+        pireader_line = ('PIReader/ source code is developed in-house for MiniJMP; GPL-3.0-or-later; see LICENSE. '
+                         'This public candidate does not bundle PIReader.exe.\n')
+        sdk_line = ('OSIsoft/AVEVA PI SDK DLLs remain proprietary third-party components and are not distributed '
+                    'in this public candidate; the internal MiniJMP build ships them under its own terms.\n\n')
+    else:
+        pi_bundle = ('MiniJMP V1.2 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件不构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。\n\n')
+        pireader_line = ('PIReader/ source code is developed in-house for MiniJMP; GPL-3.0-or-later; see LICENSE. '
+                         'The source-built runtime executable is PIReader/PIReader.exe.\n')
+        sdk_line = ('OSIsoft/AVEVA PI SDK DLLs remain proprietary third-party components. Packaging does not verify '
+                    'or grant redistribution permission; see PI-SDK-NOTICE.txt.\n\n')
     notice = (
-        'THIRD-PARTY NOTICES\n\nMiniJMP V1.2 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件不构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。\n\n'
-        'MiniJMP upstream: G.Du, Copyright (C) G.Du 2024-, https://github.com/garrydu/Minijmp .\n'
-        'Embedded PandasTable/DataExplore: Copyright (C) Damien Farrell 2014-, GPL-3.0-or-later; https://github.com/dmnfarrell/pandastable .\n'
-        'BlakerCI 1.0-6 translated code: Jan Klaschka, GPL-3.0-only; code/blakerCI.py.\n'
-        'Hmisc hoeffd.s translation: Frank E Harrell Jr and contributors, GPL-2.0-or-later; original version unknown; code/nonpara_cor.py.\n'
-        'hoeffdings_d_explainer: Dicklesworthstone, copied README snippet in code/nonpara_cor.py; license/redistribution authorization UNCONFIRMED; https://github.com/Dicklesworthstone/hoeffdings_d_explainer .\n'
-        'PIReader/ source code is developed in-house for MiniJMP; GPL-3.0-or-later; see LICENSE. The source-built runtime executable is PIReader/PIReader.exe.\n'
-        'The code/pi_reader.py adapter identifies reuse from https://github.com/summeredge/PI-Data-Viewer/backend/pi_reader.py ; separate license evidence remains UNCONFIRMED.\n'
-        'OSIsoft/AVEVA PI SDK DLLs remain proprietary third-party components. Packaging does not verify or grant redistribution permission; see PI-SDK-NOTICE.txt.\n\n'
-        'MiniJMP is licensed under GNU GPL version 3 or later; see the adjacent LICENSE file.\n'
+        'THIRD-PARTY NOTICES\n\n' + pi_bundle
+        + 'MiniJMP upstream: G.Du, Copyright (C) G.Du 2024-, https://github.com/garrydu/Minijmp .\n'
+        + 'Embedded PandasTable/DataExplore: Copyright (C) Damien Farrell 2014-, GPL-3.0-or-later; https://github.com/dmnfarrell/pandastable .\n'
+        + 'BlakerCI 1.0-6 translated code: Jan Klaschka, GPL-3.0-only; code/blakerCI.py.\n'
+        + 'Hmisc hoeffd.s translation: Frank E Harrell Jr and contributors, GPL-2.0-or-later; original version unknown; code/nonpara_cor.py.\n'
+        + 'hoeffdings_d_explainer: Dicklesworthstone, copied README snippet in code/nonpara_cor.py; license/redistribution authorization UNCONFIRMED; https://github.com/Dicklesworthstone/hoeffdings_d_explainer .\n'
+        + pireader_line
+        + 'The code/pi_reader.py adapter identifies reuse from https://github.com/summeredge/PI-Data-Viewer/backend/pi_reader.py ; separate license evidence remains UNCONFIRMED.\n'
+        + sdk_line
+        + 'MiniJMP is licensed under GNU GPL version 3 or later; see the adjacent LICENSE file.\n'
         'The following runtime dependencies and PyInstaller bootloader were used for this build.\n'
         'License metadata and upstream license files are copied from the locked build environment.\n\n'
         + '\n'.join(rows)
@@ -163,6 +176,6 @@ def generate(destination):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        raise SystemExit('Usage: write_third_party_notices.py DESTINATION')
-    generate(sys.argv[1])
+    if len(sys.argv) not in (2, 3) or (len(sys.argv) == 3 and sys.argv[2] != '--public'):
+        raise SystemExit('Usage: write_third_party_notices.py DESTINATION [--public]')
+    generate(sys.argv[1], public=len(sys.argv) == 3)

@@ -17,7 +17,7 @@ DLP_HEADER = b'%TSD-Header-'
 
 # Corresponding-source inputs; the release ships the whole tree of these paths.
 SOURCE_DIRS = ('code', 'help', 'icon', 'sample_data', 'user_config', 'packaging',
-               'PIReader', 'tests', 'tools', 'docs')
+               'PIReader', 'tests', 'tools', 'docs', '.github')
 SOURCE_FILES = ('.gitignore', 'LICENSE', 'README.md', 'CHANGES', 'AGENTS.md', 'CODING_STANDARDS.md',
                 'CONTRIBUTING.md', 'requirements.txt', 'start.py', 'setup_env.bat',
                 'win_start.bat', 'win_start_no_cmd_win.vbs', 'PACKAGING.md')
