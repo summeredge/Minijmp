@@ -97,48 +97,16 @@ jobs:
           $python = (Get-Command python).Source
           powershell -NoProfile -ExecutionPolicy Bypass -File tools/build_windows_release.ps1 -Public -PythonPath $python
 
-      - name: Verify the candidate archives, digests and executable
+      - name: Verify the candidate and write the job summary
         shell: powershell
         env:
           RELEASE: ${{ steps.meta.outputs.release }}
-        run: |
-          python tools/verify_public_release.py "dist/MiniJMP-$env:RELEASE-Release" --commit $env:GITHUB_SHA
-
-      - name: Write the job summary
-        shell: powershell
-        env:
-          RELEASE: ${{ steps.meta.outputs.release }}
-          PRODUCT: ${{ steps.meta.outputs.product }}
           ARTIFACT: ${{ steps.meta.outputs.artifact }}
         run: |
-          $audit = "dist/MiniJMP-$env:RELEASE-Release"
-          $pythonVersion = (python -c "import sys; print('.'.join(map(str, sys.version_info[:3])))").Trim()
-          $lines = @(
-            '## Windows 公开候选包',
-            '',
-            "- 版本：$env:RELEASE（$env:PRODUCT）",
-            "- Commit：$env:GITHUB_SHA",
-            "- Runner：windows-2022（$env:ImageOS）；Python：$pythonVersion",
-            '- 构建：成功（`-Public`，未签名，不含 PI SDK）',
-            '- 测试：packaging / worksheets / file / clipboard 通过',
-            '- 校验：ZIP CRC、SHA256、包内容、SBOM 与 EXE 版本一致',
-            '',
-            '| 资产 | 大小 | SHA256 |',
-            '| --- | --- | --- |'
-          )
-          foreach ($name in @("MiniJMP-$env:RELEASE-Windows-x64-portable.zip", "MiniJMP-$env:RELEASE-Source.zip")) {
-            $path = Join-Path $audit $name
-            $item = Get-Item -LiteralPath $path
-            $digest = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash
-            $lines += "| $name | $([math]::Round($item.Length / 1MB, 1)) MiB | $digest |"
-          }
-          $lines += @(
-            '',
-            "- 其余资产：SHA256SUMS-$env:RELEASE.txt、SBOM.cdx.json、SBOM.csv、RUNTIME-CONTENTS.csv、BUILD-INFO.txt",
-            "- 下载：本次运行页面的 Artifacts 区域，名称 ``$env:ARTIFACT``。",
-            '- 正式发布仍需人工批准；本次运行不会创建 Release。'
-          )
-          $lines -join "`n" | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Encoding utf8
+          python tools/verify_public_release.py "dist/MiniJMP-$env:RELEASE-Release" `
+            --release $env:RELEASE --commit $env:GITHUB_SHA `
+            --artifact $env:ARTIFACT --summary $env:GITHUB_STEP_SUMMARY
+          if ($LASTEXITCODE -ne 0) { throw 'The candidate failed verification.' }
 
       - name: Upload the candidate artifacts
         uses: actions/upload-artifact@v4
@@ -198,12 +166,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.build.outputs.product }}
+          NOTES: MiniJMP ${{ needs.build.outputs.product }} 公开候选包：经自动构建验证并由人工批准发布。源码包与 SHA256 校验文件见附件。
         run: |
           $ErrorActionPreference = 'Stop'
           gh release view $env:TAG 2>$null | Out-Null
           if ($LASTEXITCODE -eq 0) { throw "Release $env:TAG already exists; refusing to overwrite it." }
           $assets = @(Get-ChildItem -LiteralPath candidate -File | Where-Object {
             $_.Extension -in '.zip', '.json', '.csv', '.txt' } | ForEach-Object { $_.FullName })
-          gh release create $env:TAG --verify-tag --title "MiniJMP $env:TAG" `
-            --notes "MiniJMP $env:TAG 公开候选包：经自动构建验证并人工批准发布。源码包与 SHA256 校验文件见附件。" `
-            @assets
+          gh release create $env:TAG --verify-tag --title "MiniJMP $env:TAG" --notes $env:NOTES @assets

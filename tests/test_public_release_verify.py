@@ -105,6 +105,22 @@ def test_build_info_must_name_release_commit_and_public_mode():
     assert any('Build mode' in problem for problem in problems)
 
 
+def test_summary_reports_version_commit_and_asset_digests(tmp_path):
+    audit = tmp_path / 'MiniJMP-V1.2.2-Release'
+    audit.mkdir()
+    (audit / 'MiniJMP-V1.2.2-Windows-x64-portable.zip').write_bytes(b'x' * 1024)
+    (audit / 'MiniJMP-V1.2.2-Source.zip').write_bytes(b'y' * 2048)
+    digest = verify.sha256_file(audit / 'MiniJMP-V1.2.2-Windows-x64-portable.zip')
+
+    text = verify.summary_markdown(audit, 'V1.2.2', 'v1.2.2', 'f' * 40, 'MiniJMP-V1.2.2-candidate')
+
+    assert '| 资产 | 大小 | SHA256 |' in text
+    assert 'V1.2.2' in text and 'f' * 40 in text and digest in text
+    assert 'MiniJMP-V1.2.2-Source.zip' in text
+    assert 'MiniJMP-V1.2.2-candidate' in text
+    assert '不会创建 Release' in text
+
+
 def test_sbom_must_carry_the_product_version_and_no_distributed_sdk():
     document = {
         'metadata': {

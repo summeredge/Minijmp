@@ -217,11 +217,49 @@ def verify(audit, release=None, commit=None):
     return problems, product
 
 
+def summary_markdown(audit, release, product, commit, artifact):
+    """Return the job summary for a candidate that just passed verification."""
+    import os
+    import platform
+
+    audit = Path(audit)
+    runner = ' '.join(item for item in (os.environ.get('RUNNER_OS', ''), os.environ.get('ImageOS', ''))
+                      if item) or 'unknown runner'
+    lines = [
+        '## Windows 公开候选包',
+        '',
+        f'- 版本：{release}（{product}）',
+        f'- Commit：{commit}',
+        f'- Runner：{runner}；Python {platform.python_version()}',
+        '- 构建：成功（`-Public`，未签名，不含 PI SDK）',
+        '- 测试：packaging / worksheet / file / clipboard 通过（见本作业上方步骤）',
+        '- 校验：ZIP CRC、SHA256、包内容、SBOM 与 EXE 版本一致',
+        '',
+        '| 资产 | 大小 | SHA256 |',
+        '| --- | --- | --- |',
+    ]
+    for name in (f'MiniJMP-{release}-Windows-x64-portable.zip',
+                 f'MiniJMP-{release}-Source.zip'):
+        path = audit / name
+        lines.append(f'| {name} | {path.stat().st_size / 2**20:.1f} MiB | {sha256_file(path)} |')
+    lines += [
+        '',
+        f'- 其余资产：SHA256SUMS-{release}.txt、SBOM.cdx.json、SBOM.csv、'
+        'RUNTIME-CONTENTS.csv、BUILD-INFO.txt',
+        f'- 下载：本次运行页面的 Artifacts 区域，名称 `{artifact}`。',
+        '- 正式发布仍需人工批准；本次运行不会创建 Release。',
+        '',
+    ]
+    return '\n'.join(lines)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('audit', type=Path, help='directory holding the candidate archives')
     parser.add_argument('--release', help='release name, such as V1.2.1; derived from the metadata')
     parser.add_argument('--commit', help='expected Git commit of the build')
+    parser.add_argument('--artifact', default='', help='Actions artifact name for the summary')
+    parser.add_argument('--summary', type=Path, help='append a Markdown summary to this file')
     args = parser.parse_args(sys.argv[1:] if argv is None else argv)
     problems, product = verify(args.audit, args.release, args.commit)
     for problem in problems:
@@ -229,6 +267,12 @@ def main(argv=None):
     if problems:
         return 1
     print(f'PASS: public candidate {product} is consistent, complete and free of PI SDK components.')
+    if args.summary:
+        _, release = release_metadata.release_titles()
+        text = summary_markdown(args.audit, args.release or release, product,
+                                args.commit or '', args.artifact)
+        with args.summary.open('a', encoding='utf-8') as handle:
+            handle.write(text)
     return 0
 
 
