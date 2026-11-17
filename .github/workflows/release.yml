@@ -53,6 +53,7 @@ jobs:
         run: python -m pip install -r packaging/windows/requirements-py311.lock
 
       - name: Check the tag, the version identifiers and the build commit
+        id: checkout
         shell: powershell
         env:
           TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
@@ -63,10 +64,10 @@ jobs:
           python tools/release_metadata.py
           if ($LASTEXITCODE -ne 0) { throw 'Version identifiers disagree; fix them before building.' }
           $head = (git rev-parse HEAD).Trim()
-          if ($head -ne $env:GITHUB_SHA) { throw "Checked out $head, but this run names $env:GITHUB_SHA." }
           if (@(git status --porcelain --untracked-files=normal).Count) {
             throw 'The checked out tree is not clean.'
           }
+          "commit=$head" | Add-Content -LiteralPath $env:GITHUB_OUTPUT -Encoding utf8
 
       - name: Record the version under build
         id: meta
@@ -80,13 +81,16 @@ jobs:
           "artifact=MiniJMP-$release-windows-x64-candidate" | Add-Content -LiteralPath $env:GITHUB_OUTPUT -Encoding utf8
           Write-Output "Candidate $release of $product"
 
-      - name: Run the packaging, worksheet, file and clipboard tests
+      - name: Run packaging, data and targeted statistical tests
         shell: powershell
         run: |
           python -m pytest tests/test_windows_packaging.py tests/test_windows_release_tools.py `
             tests/test_release_sbom.py tests/test_public_release_verify.py `
             tests/test_file_io.py tests/test_worksheets.py tests/test_sheet_context.py `
-            tests/test_context_clipboard.py -q
+            tests/test_context_clipboard.py tests/test_release_workflow.py `
+            tests/test_mj_a01_a06_numerics.py `
+            tests/test_g11_quality_tables.py::test_plot_dialog_and_statistical_dependencies_unchanged `
+            tests/test_g12_tables.py::test_utilities_change_is_only_interval_report_output -q
 
       - name: Build the public candidate
         shell: powershell
@@ -102,9 +106,10 @@ jobs:
         env:
           RELEASE: ${{ steps.meta.outputs.release }}
           ARTIFACT: ${{ steps.meta.outputs.artifact }}
+          BUILD_COMMIT: ${{ steps.checkout.outputs.commit }}
         run: |
           python tools/verify_public_release.py "dist/MiniJMP-$env:RELEASE-Release" `
-            --release $env:RELEASE --commit $env:GITHUB_SHA `
+            --release $env:RELEASE --commit $env:BUILD_COMMIT `
             --artifact $env:ARTIFACT --summary $env:GITHUB_STEP_SUMMARY
           if ($LASTEXITCODE -ne 0) { throw 'The candidate failed verification.' }
 

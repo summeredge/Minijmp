@@ -28,7 +28,7 @@ except:
     from Tkinter import *
     from ttk import *
 import tkinter
-import types, time
+import types
 import numpy as np
 import pandas as pd
 try:
@@ -2524,9 +2524,11 @@ class PlotViewer(Frame):
         """Close the window"""
 
         self.table.pf = None
-        self.animateopts.stop()
-        self._drag_handler = None
-        self.main.destroy()
+        try:
+            self.animateopts.stop()
+        finally:
+            self._drag_handler = None
+            self.main.destroy()
         return
 
 class TkOptions(object):
@@ -3141,6 +3143,11 @@ class AnimateOptions(TkOptions):
                             }
         self.kwds = {}
         self.running = False
+        self._after_id = None
+        self._dataframe = None
+        self._frame_iter = None
+        self._writer = None
+        self._writer_context = None
         return
 
     def showDialog(self, parent, layout='horizontal'):
@@ -3177,80 +3184,86 @@ class AnimateOptions(TkOptions):
         return writer
 
     def update(self):
-        """do live updating"""
+        """Prepare the animation and schedule its first frame."""
 
-        self.applyOptions()
-        savevid = self.kwds['savevideo']
-        videofile  = self.kwds['filename']
-        #if self.kwds['source'] != '':
-        #    self.stream()
-        #else:
-        if savevid == 1:
-            writer = self.getWriter()
-            with writer.saving(self.parent.fig, videofile, 100):
-                self.updateCurrent(writer)
-        else:
-            self.updateCurrent()
+        if not self.running:
+            return
+        try:
+            self.applyOptions()
+            table = self.parent.table
+            self._dataframe = table.model.df
+            kwds = self.kwds
+            self._frame_iter = iter(range(
+                kwds['startrow'], len(self._dataframe) - kwds['window'],
+                kwds['increment']))
+            if kwds['savevideo']:
+                self._writer = self.getWriter()
+                writer_context = self._writer.saving(
+                    self.parent.fig, kwds['filename'], 100)
+                writer_context.__enter__()
+                self._writer_context = writer_context
+            self.parent.clear()
+            self._after_id = self.parent.main.after(0, self.updateCurrent)
+        except Exception as error:
+            self.stop((type(error), error, error.__traceback__))
+            raise
         return
 
-    def updateCurrent(self, writer=None):
-        """Iterate over current table and update plot"""
+    def updateCurrent(self):
+        """Draw one frame and schedule the next on the Tk event loop."""
 
+        self._after_id = None
+        if not self.running:
+            return
         kwds = self.kwds
         table = self.parent.table
-        df = table.model.df
-        titledata = None
-        inc = kwds['increment']
-        w = kwds['window']
-        st = kwds['startrow']
-        delay = float(kwds['delay'])
-        refresh = kwds['tableupdate']
-        expand = kwds['expand']
-        fullxrange = kwds['usexrange']
-        fullyrange = kwds['useyrange']
-        smooth = kwds['smoothing']
-        coltitle = kwds['columntitle']
-        if coltitle != '':
-            titledata = df[coltitle]
-        self.parent.clear()
-        for i in range(st,len(df)-w,inc):
+        df = self._dataframe
+        try:
+            i = next(self._frame_iter)
+        except StopIteration:
+            self.stop()
+            return
+        try:
+            w = kwds['window']
+            delay = float(kwds['delay'])
+            rows = range(i, i + w)
+            if kwds['expand'] == 1:
+                rows = range(kwds['startrow'], i + w)
             cols = table.multiplecollist
-            if expand == 1:
-                rows = range(st,i+w)
-            else:
-                rows = range(i,i+w)
             data = df.iloc[list(rows),cols]
 
-            if smooth == 1:
-                w=int(len(data)/10.0)
-                data = data.rolling(w).mean()
+            if kwds['smoothing'] == 1:
+                smooth_window = int(len(data) / 10.0)
+                data = data.rolling(smooth_window).mean()
 
             self.parent.data = data
             #plot but don't redraw figure until the end
             self.parent.applyPlotoptions()
             self.parent.plotCurrent(redraw=False)
 
-            if titledata is not None:
-                l = titledata.iloc[i]
-                self.parent.setOption('title',l)
-            if fullxrange == 1:
-                self.parent.ax.set_xlim(df.index.min(),df.index.max())
-            if fullyrange == 1:
+            coltitle = kwds['columntitle']
+            if coltitle != '':
+                self.parent.setOption('title', df[coltitle].iloc[i])
+            if kwds['usexrange'] == 1:
+                self.parent.ax.set_xlim(df.index.min(), df.index.max())
+            if kwds['useyrange'] == 1:
                 ymin = df.min(numeric_only=True).min()
                 ymax = df.max(numeric_only=True).max()
-                self.parent.ax.set_ylim(ymin,ymax)
+                self.parent.ax.set_ylim(ymin, ymax)
             #finally draw the plot
             self.parent.canvas.draw()
 
             table.multiplerowlist = rows
-            if refresh == 1:
+            if kwds['tableupdate'] == 1:
                 table.drawMultipleRows(rows)
-            time.sleep(delay)
-            if self.stopthread == True:
-                return
-            if writer is not None:
-                writer.grab_frame()
-        self.running = False
+            if self._writer is not None:
+                self._writer.grab_frame()
+            if self.running:
+                self._after_id = self.parent.main.after(
+                    int(delay * 1000), self.updateCurrent)
+        except Exception as error:
+            self.stop((type(error), error, error.__traceback__))
+            raise
         return
 
     def stream(self):
@@ -3276,28 +3289,31 @@ class AnimateOptions(TkOptions):
         return
 
     def start(self):
-        """start animation using a thread"""
+        """Start animation on the Tk event loop."""
 
-        if self.running == True:
+        if self.running:
             return
-        from threading import Thread
-        self.stopthread = False
         self.running = True
-        t = Thread(target=self.update)
-        t.start()
-        self.thread = t
+        self.update()
         return
 
-    def stop(self):
+    def stop(self, exc_info=None):
         """Stop animation loop"""
 
-        self.stopthread = True
         self.running = False
-        time.sleep(.2)
-        try:
-            self.parent.update_idletasks()
-        except:
-            pass
+        if self._after_id is not None:
+            try:
+                self.parent.main.after_cancel(self._after_id)
+            except tkinter.TclError:
+                pass
+            self._after_id = None
+        writer_context = self._writer_context
+        self._writer_context = None
+        self._writer = None
+        self._frame_iter = None
+        self._dataframe = None
+        if writer_context is not None:
+            writer_context.__exit__(*(exc_info or (None, None, None)))
         return
 
 def addFigure(parent, figure=None, resize_callback=None):

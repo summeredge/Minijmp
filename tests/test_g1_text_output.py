@@ -95,6 +95,31 @@ def test_save_failure_keeps_content_and_reports_error(viewer, tmp_path, monkeypa
     assert viewer.T.get('1.0', 'end-1c') == '保留结果'
 
 
+@pytest.mark.parametrize('failure', ['write', 'replace'])
+def test_save_failure_preserves_existing_file(viewer, tmp_path, monkeypatch, failure):
+    target = tmp_path / '报告.txt'
+    target.write_bytes(b'ORIGINAL REPORT')
+    viewer.add_txt('NEW REPORT')
+    error = Mock()
+    monkeypatch.setattr(txt_output.messagebox, 'showerror', error)
+
+    if failure == 'write':
+        def partial_chunks():
+            yield 'NEW '
+            raise OSError('disk write failed')
+        monkeypatch.setattr(viewer, '_text_chunks', partial_chunks)
+    else:
+        def fail_replace(source, destination):
+            raise OSError('replace failed')
+        monkeypatch.setattr(txt_output.os, 'replace', fail_replace)
+
+    viewer.save(target)
+    error.assert_called_once()
+    assert error.call_args.args[0] == '保存失败'
+    assert target.read_bytes() == b'ORIGINAL REPORT'
+    assert list(tmp_path.iterdir()) == [target]
+
+
 def test_real_theme_switch_keeps_text_font_and_selection(viewer):
     style = viewer.ui_style
     original = style.theme_use()

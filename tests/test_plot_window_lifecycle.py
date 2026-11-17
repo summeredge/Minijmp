@@ -4,6 +4,7 @@ import tkinter as tk
 import numpy as np
 import pandas as pd
 import pytest
+import matplotlib.pyplot as plt
 
 from MiniJMP import Minijmp
 from basic_plot_dialog import BasicPlotDialog
@@ -13,6 +14,8 @@ from sb_box_dialog import singleBoxDialog, multiBoxDialog
 from sb_hist_dialog import singleHistoDialog, multiHistoDialog, xyHistoDialog
 from sb_misc_dialog import countPlotDialog, linePlotDialog, dotPlotDialog
 from dist_plot_dialog import displayProbDialog, displayProb2xDialog
+from modified_table import MTable
+from pandastable_local.plotting import PlotViewer
 
 
 @pytest.fixture
@@ -39,6 +42,29 @@ def make_dialog(app, cls=BasicPlotDialog, **kwargs):
     dialog = cls(app.table, df=app.table.model.df, app=app, **kwargs)
     dialog.main.update()
     return dialog
+
+
+@pytest.fixture
+def animation_plot(tk_root):
+    tk_root.deiconify()
+    frame = tk.Frame(tk_root)
+    frame.pack()
+    table = MTable(frame, dataframe=pd.DataFrame({
+        'x': [1., 2., 3., 4., 5., 6.],
+        'y': [2., 4., 3., 7., 5., 8.]}),
+        showtoolbar=False, showstatusbar=False)
+    table.show()
+    table.multiplecollist = [0, 1]
+    table.multiplerowlist = list(range(6))
+    viewer = PlotViewer(table)
+    viewer.main.update()
+    yield table, frame, viewer
+    if viewer.main.winfo_exists():
+        viewer.close()
+    plt.close(viewer.fig)
+    frame.destroy()
+    tk_root.withdraw()
+    tk_root.update()
 
 
 def select(dialog, widget='variables', last=0):
@@ -314,3 +340,181 @@ def test_ordinary_statistics_close_modal_before_plotting(app, kind):
     assert app.main.grab_current() is None
     assert app.table.pf.main.winfo_viewable()
     assert any(ax.has_data() for ax in app.table.pf.fig.axes)
+
+
+def test_animation_mainloop_stop_restart_updates_sheet_and_video(
+        animation_plot, tk_root, monkeypatch, tmp_path):
+    import threading
+
+    table, _, viewer = animation_plot
+    animate = viewer.animateopts
+    animate.tkvars['increment'].set(2)
+    animate.tkvars['window'].set(2)
+    animate.tkvars['delay'].set(.2)
+    animate.tkvars['tableupdate'].set(1)
+    animate.tkvars['savevideo'].set(1)
+    animate.tkvars['filename'].set(str(tmp_path / 'animation.mp4'))
+
+    writers = []
+    restart_scheduled = [False]
+
+    class Writer:
+        def __init__(self):
+            self.frames = 0
+            self.entered = False
+            self.exited = False
+            self.exit_error = None
+
+        def saving(self, figure, filename, dpi):
+            self.figure = figure
+            self.filename = filename
+            self.dpi = dpi
+            return self
+
+        def __enter__(self):
+            self.entered = True
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            self.exited = True
+            self.exit_error = exc_value
+            return False
+
+        def grab_frame(self):
+            self.frames += 1
+            if self is writers[0] and not restart_scheduled[0]:
+                restart_scheduled[0] = True
+                tk_root.after(0, restart)
+
+    def get_writer():
+        writer = Writer()
+        writers.append(writer)
+        return writer
+
+    monkeypatch.setattr(animate, 'getWriter', get_writer)
+    callback_errors = []
+    monkeypatch.setattr(tk_root, 'report_callback_exception',
+                        lambda *error: callback_errors.append(error))
+    draw_threads = []
+    draw = viewer.canvas.draw
+
+    def record_draw(*args, **kwargs):
+        draw_threads.append(threading.get_ident())
+        return draw(*args, **kwargs)
+
+    monkeypatch.setattr(viewer.canvas, 'draw', record_draw)
+    restarted = []
+
+    def restart():
+        animate.stop()
+        restarted.append(True)
+        animate.start()
+
+    timed_out = [False]
+
+    def timeout():
+        timed_out[0] = True
+        tk_root.quit()
+
+    def check_done():
+        if restarted and not animate.running:
+            tk_root.quit()
+        else:
+            tk_root.after(10, check_done)
+
+    animate.start()
+    timeout_id = tk_root.after(3000, timeout)
+    tk_root.after(0, check_done)
+    tk_root.mainloop()
+    if not timed_out[0]:
+        tk_root.after_cancel(timeout_id)
+
+    assert not timed_out[0]
+    assert not callback_errors
+    assert len(writers) == 2
+    assert [(writer.entered, writer.exited, writer.frames)
+            for writer in writers] == [(True, True, 1), (True, True, 2)]
+    assert all(writer.filename == str(tmp_path / 'animation.mp4')
+               and writer.figure is viewer.fig and writer.dpi == 100
+               and writer.exit_error is None for writer in writers)
+    assert restarted == [True]
+    assert not animate.running and animate._after_id is None
+    assert list(table.multiplerowlist) == [2, 3]
+    assert draw_threads and set(draw_threads) == {threading.get_ident()}
+    viewer.close()
+    assert not viewer.main.winfo_exists()
+    idle_viewer = PlotViewer(table)
+    idle_viewer.close()
+    assert not idle_viewer.main.winfo_exists()
+    plt.close(idle_viewer.fig)
+
+
+def test_plot_viewer_close_destroys_after_video_finalize_error(animation_plot):
+    table, _, viewer = animation_plot
+    animate = viewer.animateopts
+    error = OSError('video finalize failed')
+
+    class FailedWriterContext:
+        def __exit__(self, *exc_info):
+            raise error
+
+    animate.running = True
+    animate._writer_context = FailedWriterContext()
+    with pytest.raises(OSError) as raised:
+        viewer.close()
+
+    assert raised.value is error
+    assert table.pf is None
+    assert not animate.running
+    assert not viewer.main.winfo_exists()
+
+
+def test_animation_slow_frame_close_cancels_late_callback(
+        animation_plot, tk_root, monkeypatch):
+    import time
+
+    table, _, viewer = animation_plot
+    animate = viewer.animateopts
+    animate.tkvars['increment'].set(1)
+    animate.tkvars['window'].set(2)
+    animate.tkvars['delay'].set(.08)
+    callback_errors = []
+    monkeypatch.setattr(tk_root, 'report_callback_exception',
+                        lambda *error: callback_errors.append(error))
+
+    state = {'close_scheduled': False, 'closed_at': None,
+             'watch_finished': False, 'frame_draws': 0}
+    draw = viewer.canvas.draw
+
+    def finish_observation():
+        state['watch_finished'] = True
+        tk_root.quit()
+
+    def close_viewer():
+        viewer.close()
+        state['closed_at'] = time.monotonic()
+        tk_root.after(250, finish_observation)
+
+    def slow_draw(*args, **kwargs):
+        if viewer.ax is not None:
+            state['frame_draws'] += 1
+            if not state['close_scheduled']:
+                state['close_scheduled'] = True
+                tk_root.after(0, close_viewer)
+                time.sleep(.05)
+        return draw(*args, **kwargs)
+
+    monkeypatch.setattr(viewer.canvas, 'draw', slow_draw)
+    animate.start()
+    timeout_id = tk_root.after(2000, tk_root.quit)
+    tk_root.mainloop()
+    tk_root.after_cancel(timeout_id)
+
+    assert state['watch_finished']
+    assert state['closed_at'] is not None
+    assert time.monotonic() - state['closed_at'] >= .2
+    assert state['frame_draws'] == 1
+    assert not viewer.main.winfo_exists()
+    assert table.pf is None
+    assert not animate.running and animate._after_id is None
+    assert not callback_errors

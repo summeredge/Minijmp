@@ -86,7 +86,7 @@ def _import_root(node):
     return set()
 
 
-def normalize_deferred_imports(tree, baseline):
+def normalize_deferred_imports(tree, baseline, *, normalize_baseline=False):
     """只放行重依赖导入语句的位置变化；计算与输出语句仍逐字比较。
 
     启动优化把 scipy/statsmodels 等从模块级移入首次使用的函数：这里剔除这些
@@ -126,7 +126,26 @@ def normalize_deferred_imports(tree, baseline):
     assert same(names(tree.body)) == same(names(baseline.body)), (
         sorted(names(baseline.body)), sorted(names(tree.body)))
     tree.body = strip(tree.body)
+    if normalize_baseline:
+        baseline.body = strip(baseline.body)
     return tree
+
+
+def normalize_review_d2(tree):
+    """仅还原已验收的维度校验及 MJ-A01 的单个表值，其余 d2* 源码仍冻结。"""
+    function = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'd2_2D')
+    approved = ast.parse('''
+"""n >= 2、k >= 1 的整数维度；超出表格上限时沿用末列/末行。"""
+if (isinstance(n, (bool, np.bool_)) or not isinstance(n, (int, np.integer)) or n < 2
+        or isinstance(k, (bool, np.bool_)) or not isinstance(k, (int, np.integer)) or k < 1):
+    raise ValueError("d2 需要整数维度 n >= 2 且 k >= 1。")
+''').body
+    assert [ast.dump(n) for n in function.body[:2]] == [ast.dump(n) for n in approved]
+    del function.body[:2]
+    data = next(n.value for n in function.body if isinstance(n, ast.Assign)
+                and [ast.unparse(t) for t in n.targets] == ['data'])
+    assert data.elts[2].elts[0].value == 1.231
+    data.elts[2].elts[0].value = 1.197
 
 
 def normalize_column_memory(tree, module):

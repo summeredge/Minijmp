@@ -560,6 +560,48 @@ def test_cell_edit_preserves_precision_and_column_types(table):
     assert_frame_equal(model.df, before)
 
 
+def test_float32_cell_edits_validate_target_precision_and_preserve_types(table):
+    replace(table, pd.DataFrame({
+        'numpy32': pd.Series([1.0], dtype='float32'),
+        'nullable32': pd.Series(pd.array([1.0], dtype='Float32')),
+        'numpy64': pd.Series([1.0], dtype='float64'),
+        'nullable64': pd.Series(pd.array([1.0], dtype='Float64')),
+    }))
+    model = table.model
+    dtypes = model.df.dtypes.copy()
+
+    for col in range(4):
+        model.setValueAt('0.1', 0, col)
+    assert model.df.iloc[0, 0] == pytest.approx(float(np.float32(0.1)))
+    assert model.df.iloc[0, 1] == pytest.approx(float(np.float32(0.1)))
+    assert model.df.iloc[0, 2] == 0.1
+    assert model.df.iloc[0, 3] == 0.1
+    model.setValueAt(np.float32(1.2), 0, 2)
+    model.setValueAt(np.float32(1.2), 0, 3)
+    assert model.df.iloc[0, 2] == float(np.float32(1.2))
+    assert model.df.iloc[0, 3] == float(np.float32(1.2))
+    for col in (2, 3):
+        for value in ('1.23456789', '16777217', '1e39'):
+            model.setValueAt(value, 0, col)
+            assert model.df.iloc[0, col] == float(value)
+
+    for col in (0, 1):
+        for value in ('1.23456789', '16777217', '1e39'):
+            before = model.df.copy(deep=True)
+            with pytest.raises(ValueError, match='精度'):
+                model.setValueAt(value, 0, col)
+            assert_frame_equal(model.df, before)
+
+    for col in range(4):
+        model.setValueAt('inf', 0, col)
+        assert np.isposinf(model.df.iloc[0, col])
+        model.setValueAt(float('nan'), 0, col)
+        assert pd.isna(model.df.iloc[0, col])
+        model.setValueAt('', 0, col)
+        assert pd.isna(model.df.iloc[0, col])
+    assert model.df.dtypes.equals(dtypes)
+
+
 def test_existing_column_expansion_apis(table, monkeypatch):
     replace(table, pd.DataFrame({'a': ['x-y', 'y-z']}))
     table.currentcol = 0

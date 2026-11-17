@@ -7,6 +7,7 @@ from pandastable_local.plotting import addButton
 from pandastable_local import images
 from pandastable_local.dialogs import (
     apply_dialog_theme, dialog_style, text_widget_colors)
+from pandastable_local.util import atomic_output
 ############# Own Modules ###########
 from plots import plot_viewer
 from stat_table import RESULT_BACKGROUND, LABEL_CELL_LIMIT, configure_result_styles
@@ -177,8 +178,9 @@ class txt_viewer(plot_viewer):
         if filename:
             self.currentdir = os.path.dirname(os.path.abspath(filename))
             try:
-                with open(filename, 'w', encoding='utf-8') as file:
-                    file.writelines(self._text_chunks())
+                with atomic_output(filename) as temporary:
+                    with open(temporary, 'w', encoding='utf-8') as file:
+                        file.writelines(self._text_chunks())
             except OSError as error:
                 messagebox.showerror('保存失败', str(error), parent=self.master)
         return

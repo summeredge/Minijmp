@@ -17,7 +17,8 @@ from MiniJMP import Minijmp
 from stat_table import StatTable
 from test_g1_text_output import viewer
 from test_g3_computation_contracts import computation_dump
-from source_baselines import read_source_baseline, normalize_p1_numeric, normalize_deferred_imports
+from source_baselines import (read_source_baseline, normalize_p1_numeric,
+                              normalize_deferred_imports, normalize_review_d2)
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'c0c2c2aa316e7e0f236e551bf4cd2f60f2e30df3'
@@ -71,14 +72,56 @@ def test_interval_report_keeps_txt_computation_and_exports(before, alpha, scale,
         assert image.crop((0, 132, image.width, 162)).getextrema() != ((255, 255),)*3
 
 
+@pytest.mark.parametrize('failure', [None, 'write', 'replace'])
+def test_export_png_is_atomic_and_closes_image(tmp_path, monkeypatch, failure):
+    import pandastable_local.util as output_util
+
+    target = tmp_path / '报告.png'
+    if failure:
+        target.write_bytes(b'ORIGINAL REPORT')
+    original_new = Image.new
+    images = []
+
+    def track_new(*args, **kwargs):
+        image = original_new(*args, **kwargs)
+        images.append(image)
+        return image
+
+    monkeypatch.setattr(Image, 'new', track_new)
+    if failure == 'write':
+        def partial_save(image, filename, *args, **kwargs):
+            Path(filename).write_bytes(b'NEW PARTIAL')
+            raise OSError('disk write failed')
+        monkeypatch.setattr(Image.Image, 'save', partial_save)
+    elif failure == 'replace':
+        def fail_replace(source, destination):
+            raise OSError('replace failed')
+        monkeypatch.setattr(output_util.os, 'replace', fail_replace)
+
+    table = StatTable(headers=['指标'], values=[[1.25]])
+    if failure:
+        with pytest.raises(OSError):
+            stat_table.export_png(table, target)
+        assert target.read_bytes() == b'ORIGINAL REPORT'
+    else:
+        stat_table.export_png(table, target)
+        with Image.open(target) as image:
+            image.verify()
+    assert len(images) == 1
+    with pytest.raises(ValueError, match='closed image'):
+        images[0].getpixel((0, 0))
+    assert list(tmp_path.iterdir()) == [target]
+
+
 def test_utilities_change_is_only_interval_report_output():
     old = read_source_baseline(BASE, 'code/utilities.py')
     current = (ROOT/'code/utilities.py').read_text(encoding='utf-8')
     deferred = ast.unparse(normalize_deferred_imports(ast.parse(current), ast.parse(old)))
     assert computation_dump(deferred, 'mean_std_CIs') == computation_dump(old, 'mean_std_CIs')
     trees = [ast.parse(source) for source in (old, current)]
-    normalize_deferred_imports(trees[1], trees[0])
+    normalize_deferred_imports(trees[1], trees[0], normalize_baseline=True)
     normalize_p1_numeric(trees[1], 'utilities.py', trees[0])
+    normalize_review_d2(trees[1])
     for tree in trees:
         # G17 仅放行已另有数据一致性及热点回归约束的数字清洗函数。
         tree.body = [n for n in tree.body if not (
@@ -88,6 +131,25 @@ def test_utilities_change_is_only_interval_report_output():
         function.body = [n for n in function.body if not (
             isinstance(n, ast.If) and isinstance(n.test, ast.Name) and n.test.id == 'print_out')]
     assert ast.dump(trees[0]) == ast.dump(trees[1])
+
+
+@pytest.mark.parametrize('before,after', [
+    ('[1.231,', '[1.232,'),
+    ('[1.414,', '[1.415,'),
+    ('return data[k - 1][n - 2]', 'return data[k - 1][n - 1]'),
+])
+def test_utilities_freezes_reject_unapproved_d2_changes(monkeypatch, before, after):
+    from test_g11_quality_tables import test_plot_dialog_and_statistical_dependencies_unchanged
+    read = Path.read_text
+    target = ROOT / 'code/utilities.py'
+    source = read(target, encoding='utf-8')
+    assert source.count(before) == 1
+    monkeypatch.setattr(Path, 'read_text', lambda path, *args, **kwargs:
+                        source.replace(before, after) if path == target else read(path, *args, **kwargs))
+    for guard in (test_utilities_change_is_only_interval_report_output,
+                  test_plot_dialog_and_statistical_dependencies_unchanged):
+        with pytest.raises(AssertionError):
+            guard()
 
 
 def test_ci_dialog_routes_structured_table_and_keeps_original_text(before, viewer):

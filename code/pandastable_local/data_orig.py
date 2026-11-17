@@ -98,18 +98,24 @@ def _coerce_cell_value(value, dtype):
     if pd.api.types.is_float_dtype(dtype):
         if isinstance(value, (bool, np.bool_)):
             raise ValueError('布尔值不能写入数值列。')
-        if isinstance(value, (str, Decimal, int, np.integer)):
+        numpy_dtype = getattr(dtype, 'numpy_dtype', dtype)
+        is_float32 = np.dtype(numpy_dtype) == np.dtype('float32')
+        if isinstance(value, (str, Decimal, int, np.integer)) or is_float32:
             try:
                 number = Decimal(str(value).strip())
             except (InvalidOperation, ValueError) as error:
                 raise ValueError(f'“{value}”不是有效的数值。') from error
             if number.is_nan():
                 return _missing_cell_value(dtype)
-            converted = float(number)
+            if is_float32:
+                with np.errstate(over='ignore', invalid='ignore'):
+                    converted = np.asarray(number, dtype=numpy_dtype)[()]
+            else:
+                converted = float(number)
             if number.is_finite() and (
                     not np.isfinite(converted) or Decimal(str(converted)) != number):
                 raise ValueError(f'“{value}”超出浮点列可保留的精度。')
-            return converted
+            return float(converted)
         return float(value)
     if pd.api.types.is_datetime64_any_dtype(dtype):
         try:

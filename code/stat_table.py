@@ -161,17 +161,20 @@ def export_png(table, filename):
                          f'含编码副本约 {pixels*8/1024**2:.1f} MiB，超过安全上限。'
                          '请使用 Excel 导出完整数据。')
     image = Image.new('RGB', (width, height), 'white')
-    draw = ImageDraw.Draw(image)
-    draw.text((16, 12), table.title, font=face, fill='#17476b')
-    for r, row in enumerate(rows):
-        x = 16
-        for c, text in enumerate(row):
-            offset = widths[c]-16-face.getlength(text) if c and r else 8
-            draw.text((x+offset, 60+36*r), text, font=face, fill='#202020')
-            x += widths[c]
-    draw.line((16, 90, width-16, 90), fill='#9caab5', width=1)
-    image.save(filename, format='PNG')
-    image.close()
+    try:
+        draw = ImageDraw.Draw(image)
+        draw.text((16, 12), table.title, font=face, fill='#17476b')
+        for r, row in enumerate(rows):
+            x = 16
+            for c, text in enumerate(row):
+                offset = widths[c]-16-face.getlength(text) if c and r else 8
+                draw.text((x+offset, 60+36*r), text, font=face, fill='#202020')
+                x += widths[c]
+        draw.line((16, 90, width-16, 90), fill='#9caab5', width=1)
+        with atomic_output(filename) as temporary:
+            image.save(temporary, format='PNG')
+    finally:
+        image.close()
 
 
 class TableBlock(ttk.Frame):

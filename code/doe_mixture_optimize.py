@@ -45,17 +45,23 @@ def _objective_config(item, spec):
             'weight': float(weight)}
 
 
-def _desirability(value, config):
+def _desirability_info(value, config):
     lower, upper = config['lower'], config['upper']
     if config['goal'] == 'maximize':
-        d = (value - lower) / (upper - lower)
+        raw = (value - lower) / (upper - lower)
     elif config['goal'] == 'minimize':
-        d = (upper - value) / (upper - lower)
+        raw = (upper - value) / (upper - lower)
     else:
         target = config['target']
-        d = ((value - lower) / (target - lower) if value <= target
-             else (upper - value) / (upper - target))
-    return float(np.clip(d, 0.0, 1.0) ** config['weight'])
+        raw = ((value - lower) / (target - lower) if value <= target
+               else (upper - value) / (upper - target))
+    raw = float(np.clip(raw, 0.0, 1.0))
+    if raw <= 0:
+        return 0.0, None
+    if raw >= 1:
+        return 1.0, 0.0
+    log_value = config['weight'] * math.log(raw)
+    return math.exp(log_value), log_value
 
 
 def optimize_mixture(frame, metadata, objectives, conditions=None, terms=None,
@@ -134,16 +140,20 @@ def optimize_mixture(frame, metadata, objectives, conditions=None, terms=None,
             config = configs[0]
             value = predicted[0]
             if config['goal'] == 'maximize':
-                return -value, predicted, 0.0
+                return -value, predicted, 0.0, None
             if config['goal'] == 'minimize':
-                return value, predicted, 0.0
-            return (value - config['target']) ** 2, predicted, 0.0
-        values = [_desirability(value, config)
-                  for value, config in zip(predicted, configs)]
-        if min(values) <= 0:
-            return 1.0, predicted, 0.0
-        aggregate = float(np.prod(values) ** (1 / len(values)))
-        return -aggregate, predicted, aggregate
+                return value, predicted, 0.0, None
+            return (value - config['target']) ** 2, predicted, 0.0, None
+        details = [_desirability_info(value, config)
+                   for value, config in zip(predicted, configs)]
+        log_values = [item[1] for item in details]
+        if any(value is None for value in log_values):
+            # weight <= 10 bounds positive log loss below 7445; true zero ranks worse.
+            # shortcut: a lone zero-plateau start may stall; supply a positive start when needed.
+            return 1e4, predicted, 0.0, None
+        log_aggregate = math.fsum(log_values) / len(log_values)
+        aggregate = math.exp(log_aggregate)
+        return -log_aggregate, predicted, aggregate, log_aggregate
 
     best = None
     for start in feasible_starts:
@@ -154,17 +164,18 @@ def optimize_mixture(frame, metadata, objectives, conditions=None, terms=None,
         try:
             point = np.asarray(normalize_proportions(spec.components, point))
             check_point(spec.components, spec.linear_constraints, point)
-            objective, predicted, aggregate = score(point)
+            objective, predicted, aggregate, log_aggregate = score(point)
             feasible = True
         except (MixtureConstraintError, FloatingPointError):
             feasible = False
             objective = math.inf
-            predicted, aggregate = [], 0.0
+            predicted, aggregate, log_aggregate = [], 0.0, None
         candidate = {'success': bool(result.success), 'feasible': feasible,
                      'message': str(result.message), 'point': point,
                      'settings': settings(point) if feasible else None,
                      'predictions': predicted, 'objective': objective,
-                     'aggregate': aggregate, 'nit': int(result.nit)}
+                     'aggregate': aggregate, 'log_aggregate': log_aggregate,
+                     'nit': int(result.nit)}
         if best is None or (feasible and candidate['objective'] < best['objective']):
             best = candidate
     point = best['point']
@@ -183,7 +194,7 @@ def optimize_mixture(frame, metadata, objectives, conditions=None, terms=None,
             value = best['predictions'][index]
             config['prediction'] = value
             if not single:
-                config['desirability'] = _desirability(value, config)
+                config['desirability'] = _desirability_info(value, config)[0]
         row = (analyses[index]['model'].row(best['settings'])
                if best['feasible'] else None)
         config['intervals'] = _mixture_prediction_intervals(
@@ -205,8 +216,11 @@ def optimize_mixture(frame, metadata, objectives, conditions=None, terms=None,
         objective_value = aggregate
     else:
         objective_value = None
-    if not single and aggregate is not None and aggregate <= 0:
+    if not single and best['feasible'] and best['log_aggregate'] is None:
         status = '综合期望为 0：至少一个响应未进入目标区间'
+    elif (not single and best['feasible'] and aggregate == 0
+          and best['log_aggregate'] is not None):
+        status = '综合期望为正但低于浮点可表示范围'
     elif best['feasible'] and best['success']:
         status = '求解器收敛；结果依赖起点与局部搜索，不宣称全局最优'
     elif best['feasible']:

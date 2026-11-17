@@ -10,7 +10,8 @@ import pytest
 from matplotlib.figure import Figure
 from openpyxl import load_workbook
 from PIL import Image
-from source_baselines import read_source_baseline, normalize_p1_numeric, normalize_p2_legacy
+from source_baselines import (read_source_baseline, normalize_p1_numeric, normalize_p2_legacy,
+                              normalize_deferred_imports, normalize_review_d2)
 
 import GRR
 import cpk
@@ -279,13 +280,25 @@ def test_plot_dialog_and_statistical_dependencies_unchanged():
         if name in ('qc_dialog.py', 'ctrlchart_dialog.py'):
             from source_baselines import normalize_column_memory
             current_tree = normalize_column_memory(ast.parse(current), name)
+            if name == 'ctrlchart_dialog.py':
+                # G5 已验收 NP/C 共用入口的判异开关；仅还原精确的 True 关键字。
+                for cls_name, call_name in (('NPDialog', 'p_np_plot'), ('CDialog', 'cu_plot')):
+                    cls = next(n for n in current_tree.body if isinstance(n, ast.ClassDef) and n.name == cls_name)
+                    calls = [n for n in ast.walk(cls) if isinstance(n, ast.Call)
+                             and isinstance(n.func, ast.Name) and n.func.id == call_name]
+                    assert len(calls) == 1
+                    keywords = [kw for kw in calls[0].keywords if kw.arg == 'detect_rules']
+                    assert len(keywords) == 1 and ast.unparse(keywords[0].value) == 'True'
+                    calls[0].keywords.remove(keywords[0])
             if name == 'qc_dialog.py':
                 normalize_p2_legacy(current_tree, name, ast.parse(before))
             assert ast.dump(current_tree) == ast.dump(ast.parse(before))
         elif name == 'utilities.py':
             # G12 仅迁移区间报告；其余全文及该函数计算仍受保护。
             trees = [ast.parse(source) for source in (before, current)]
+            normalize_deferred_imports(trees[1], trees[0], normalize_baseline=True)
             normalize_p1_numeric(trees[1], 'utilities.py', trees[0])
+            normalize_review_d2(trees[1])
             for tree in trees:
                 # G17 数字清洗由冻结输入对照及热点测试保护，其余源码继续比较。
                 tree.body = [n for n in tree.body if not (
@@ -313,17 +326,35 @@ def test_plot_dialog_and_statistical_dependencies_unchanged():
             trees = [strip_main_guard(normalize_spec_calls(ast.parse(source)))
                      for source in (before, current)]
             assert ast.dump(trees[0]) == ast.dump(trees[1])
+        elif name == 'one_way_ANOVA.py':
+            import copy
+            import hashlib
+            trees = [ast.parse(source) for source in (before, current)]
+            function = next(n for n in trees[1].body if isinstance(n, ast.FunctionDef)
+                            and n.name == 'JMP_ANOVA_t_test')
+            # 667bf6f 的完整已批准函数；LSD 独立参考见 test_statistical_batch2。
+            assert hashlib.sha256(ast.dump(function).encode()).hexdigest() == (
+                'f29e1fef3368e609fb7e006ccf9501ba308259eec7208c82ab1dcd53ed2af3b7')
+            original = next(n for n in trees[0].body if isinstance(n, ast.FunctionDef)
+                            and n.name == 'JMP_ANOVA_t_test')
+            trees[1].body[trees[1].body.index(function)] = copy.deepcopy(original)
+            assert ast.dump(trees[0]) == ast.dump(trees[1])
         else:
             assert current == before.replace('\r\n', '\n')
 
 
-def test_dependency_freeze_rejects_unapproved_calculation(monkeypatch):
+@pytest.mark.parametrize('name,before,after', [
+    ('qc_dialog.py', 'P=P,', 'P=0.5,'),
+    ('ctrlchart_dialog.py', 'detect_rules=True,', 'detect_rules=False,'),
+    ('one_way_ANOVA.py', 'df_error = N - k', 'df_error = N - 1'),
+])
+def test_dependency_freeze_rejects_unapproved_calculation(monkeypatch, name, before, after):
     read = Path.read_text
-    target = ROOT / 'code' / 'qc_dialog.py'
+    target = ROOT / 'code' / name
     source = read(target, encoding='utf-8')
-    assert source.count('P=P,') == 1
+    assert before in source
     monkeypatch.setattr(Path, 'read_text', lambda path, *a, **kw:
-                        source.replace('P=P,', 'P=0.5,') if path == target else read(path, *a, **kw))
+                        source.replace(before, after) if path == target else read(path, *a, **kw))
     with pytest.raises(AssertionError):
         test_plot_dialog_and_statistical_dependencies_unchanged()
 
