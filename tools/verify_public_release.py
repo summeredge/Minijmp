@@ -100,9 +100,10 @@ def build_info_problems(text, release, commit):
 def sbom_problems(document, product):
     """Return version or distribution problems in a CycloneDX document."""
     problems = []
-    metadata = document.get('metadata', {}).get('component', {})
-    if metadata.get('version') != product.lstrip('v'):
-        problems.append(f"SBOM version {metadata.get('version')!r} is not {product.lstrip('v')!r}")
+    metadata = document.get('metadata', {})
+    component = metadata.get('component', {})
+    if component.get('version') != product.lstrip('v'):
+        problems.append(f"SBOM version {component.get('version')!r} is not {product.lstrip('v')!r}")
     properties = {item['name']: item['value'] for item in metadata.get('properties', [])
                   if isinstance(item, dict) and 'name' in item}
     if properties.get('minijmp:tag') != product:

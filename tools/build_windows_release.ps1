@@ -500,14 +500,13 @@ if ($zipExeHash -ne $exeHash) {
 $hashLines = @()
 if ($Public) {
     # A candidate only publishes files that live beside SHA256SUMS, so every
-    # listed digest can be re-checked after download.
+    # listed digest can be re-checked after download. The CSV inventories stay
+    # out: a transparent-encryption client rewrites .csv after it is written.
     $hashLines += "$($digests[$releaseZip])  $archiveName"
     $hashLines += "$($digests[$sourceZip])  MiniJMP-$releaseVersion-Source.zip"
-    foreach ($name in @('SBOM.cdx.json', 'SBOM.csv', 'RUNTIME-CONTENTS.csv')) {
-        $path = Join-Path $auditDir $name
-        if (Test-Path -LiteralPath $path -PathType Leaf) {
-            $hashLines += "$((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash)  $name"
-        }
+    $sbomPath = Join-Path $auditDir 'SBOM.cdx.json'
+    if (Test-Path -LiteralPath $sbomPath -PathType Leaf) {
+        $hashLines += "$((Get-FileHash -LiteralPath $sbomPath -Algorithm SHA256).Hash)  SBOM.cdx.json"
     }
 } else {
     $hashLines += "$exeHash  $exeRelative"

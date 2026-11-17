@@ -107,8 +107,11 @@ def test_build_info_must_name_release_commit_and_public_mode():
 
 def test_sbom_must_carry_the_product_version_and_no_distributed_sdk():
     document = {
-        'metadata': {'component': {'name': 'MiniJMP', 'version': '1.2.1', 'properties': [
-            {'name': 'minijmp:tag', 'value': 'v1.2.1'}]}},
+        'metadata': {
+            'component': {'name': 'MiniJMP', 'version': '1.2.1'},
+            'properties': [{'name': 'minijmp:tag', 'value': 'v1.2.1'},
+                           {'name': 'minijmp:commit', 'value': 'a' * 40}],
+        },
         'components': [{'name': 'OSIsoft.PISDK.dll',
                         'properties': [{'name': 'minijmp:distributed', 'value': 'false'}]}],
     }
