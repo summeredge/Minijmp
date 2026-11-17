@@ -169,13 +169,17 @@ jobs:
         shell: powershell
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
           TAG: ${{ needs.build.outputs.product }}
           NOTES: MiniJMP ${{ needs.build.outputs.product }} 公开候选包：经自动构建验证并由人工批准发布。源码包与 SHA256 校验文件见附件。
         run: |
-          $ErrorActionPreference = 'Stop'
-          gh release view $env:TAG 2>$null | Out-Null
-          if ($LASTEXITCODE -eq 0) { throw "Release $env:TAG already exists; refusing to overwrite it." }
           $sums = @(Get-ChildItem -LiteralPath candidate -Recurse -Filter 'SHA256SUMS-*.txt')[0]
           $assets = @(Get-ChildItem -LiteralPath $sums.Directory.FullName -File | Where-Object {
             $_.Extension -in '.zip', '.json', '.csv', '.txt' } | ForEach-Object { $_.FullName })
+          # gh reports upload progress on stderr; only its exit code decides, and
+          # it refuses to overwrite an existing release.
+          $ErrorActionPreference = 'Continue'
           gh release create $env:TAG --verify-tag --title "MiniJMP $env:TAG" --notes $env:NOTES @assets
+          if ($LASTEXITCODE -ne 0) {
+            throw 'gh release create failed; an existing release is never overwritten.'
+          }
