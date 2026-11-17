@@ -148,7 +148,9 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          $sums = @(Get-ChildItem -LiteralPath candidate -Filter 'SHA256SUMS-*.txt')
+          # The artifact keeps the repository layout, so the candidate directory
+          # is nested below it.
+          $sums = @(Get-ChildItem -LiteralPath candidate -Recurse -Filter 'SHA256SUMS-*.txt')
           if ($sums.Count -ne 1) { throw 'Expected exactly one SHA256SUMS file.' }
           $root = $sums[0].Directory.FullName
           foreach ($line in Get-Content -LiteralPath $sums[0].FullName) {
@@ -171,6 +173,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           gh release view $env:TAG 2>$null | Out-Null
           if ($LASTEXITCODE -eq 0) { throw "Release $env:TAG already exists; refusing to overwrite it." }
-          $assets = @(Get-ChildItem -LiteralPath candidate -File | Where-Object {
+          $sums = @(Get-ChildItem -LiteralPath candidate -Recurse -Filter 'SHA256SUMS-*.txt')[0]
+          $assets = @(Get-ChildItem -LiteralPath $sums.Directory.FullName -File | Where-Object {
             $_.Extension -in '.zip', '.json', '.csv', '.txt' } | ForEach-Object { $_.FullName })
           gh release create $env:TAG --verify-tag --title "MiniJMP $env:TAG" --notes $env:NOTES @assets
