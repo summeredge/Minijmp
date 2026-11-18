@@ -91,7 +91,8 @@ def test_commit_wiring_and_publish_permissions_stay_restricted():
     assert '--commit $env:BUILD_COMMIT' in verify and 'GITHUB_SHA' not in verify
     assert 'permissions:\n  contents: read' in text
     publish = text.split('\n  publish:', 1)[1]
-    assert "github.event_name == 'workflow_dispatch' && inputs.publish &&" in publish
+    assert "github.event_name == 'push' && !github.event.deleted &&" in publish
+    assert 'inputs.publish' not in text
     assert "vars.MINIJMP_ENABLE_PUBLISH == 'true'" in publish
     assert 'environment: release' in publish
     assert 'permissions:\n      contents: write' in publish

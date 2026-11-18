@@ -4,11 +4,11 @@
 
 ## 公开候选包（GitHub Actions）
 
-`.github/workflows/release.yml` 是长期复用的自动构建入口，不绑定任何具体版本：推送符合 `v*` 规则的版本 Tag 即自动触发，也可在 Actions 页面用 `workflow_dispatch` 指定已存在的 Tag 手动触发；默认只产出 Actions Artifacts，不创建 Release。
+`.github/workflows/release.yml` 是公开发布入口。推送符合 `v*` 规则的新版本 Tag 后，Actions 自动构建、校验、上传候选包并创建 GitHub Release。手动运行可指定已有 Tag，仅生成候选包。
 
 - 触发后先校验 Tag 格式、Tag 指向的提交、`version_info.txt` 与其他版本标识一致，以及检出目录干净。
 - 运行环境为 Windows + Python 3.11（默认 `windows-2022`），依赖来自 `packaging/windows/requirements-py311.lock`；PyInstaller 参数、onedir/windowed、Splash、图标、依赖收集与 pyarrow 裁剪与内部构建共用同一份脚本参数（`-Public` 模式）。
-- `-Public` 重新构建 MiniJMP 主程序，并复用通过固定输入校验的原版 PIReader。公开候选包保留 CRC/SHA256 复核和原有发布审批。
+- `-Public` 重新构建 MiniJMP 主程序，并复用通过固定输入校验的原版 PIReader。公开候选包通过 CRC/SHA256 复核后才可发布。
 - 产物：`MiniJMP-<版本>-Windows-x64-portable.zip`、`MiniJMP-<版本>-Source.zip`、`SHA256SUMS-<版本>.txt`，以及 `SBOM.cdx.json`、`SBOM.csv`、`RUNTIME-CONTENTS.csv`、`BUILD-INFO.txt`、`SOURCE-CODE.txt` 和构建/测试记录。
 - 自动校验 Tag/版本/Commit 一致、ZIP CRC 与 SHA256、包内 EXE 与本次构建产物一致、包含 PIReader.exe、干净的 PIReader/config.txt 和 tags.txt 模板，不含三个 OSIsoft DLL、真实账号、密码或企业配置，并核对 PIReader 文件版本、x86 架构、产物摘要和 SBOM、Splash 与图标已嵌入、SBOM 版本一致；任一项失败即中止，不会上传正式 Release。
 
@@ -29,15 +29,11 @@ GitHub 托管 Windows Runner 重新构建 MiniJMP 主程序，直接复用 `pack
 
 ## 标准发布流程
 
-1. 完成开发，更新版本信息（`version_info.txt`、脚本中的 `$releaseVersion`/`$productVersion`、README、CHANGES、USAGE），提交。
-2. 创建并推送对应的 annotated Tag（`v<版本>`）。
-3. GitHub Actions 自动构建并验证公开候选包，下载 Artifacts。
-4. 在实际 Windows 桌面完成关键 GUI 验收（Splash、窗口焦点、键盘操作、主要功能）。
-5. 检查代码签名、第三方许可与发布条件。
-6. 人工批准正式发布。
-7. GitHub Release 提供运行包、源码包和 SHA256。
+1. 更新 MiniJMP 版本信息（`version_info.txt`、脚本中的 `$releaseVersion`/`$productVersion`、关于窗口、README、CHANGES、USAGE），检查发布条件并提交。
+2. 推送对应的 annotated Tag（`v<版本>`）。
+3. GitHub Actions 校验 Tag 与版本，构建并上传 Artifacts。发布任务复核下载的摘要后自动创建 GitHub Release。
 
-正式发布入口默认关闭：需在仓库新建 `release` Environment 并配置必需审批人，再设置仓库变量 `MINIJMP_ENABLE_PUBLISH=true`；之后手动触发工作流并勾选 `publish` 才会创建 Release。构建任务只有 `contents: read`，发布任务单独使用 `contents: write` 且只上传本次构建并验证过的资产；已存在的 Release 不会被覆盖，发布会直接失败。代码签名与部分第三方许可确认之前，保持只生成候选包。
+仓库变量 `MINIJMP_ENABLE_PUBLISH=true` 启用自动发布，`release` Environment 无需配置必需审批人。需要暂停自动发布时，将变量设为 `false`，Tag 推送仍会生成候选包。构建任务使用 `contents: read`，发布任务单独使用 `contents: write`，只发布本次验证通过的资产。已有 Release 受保护，重复发布会失败。
 
 构建失败时在 Actions 运行页面按步骤查看日志：`Check the tag…` 报告 Tag/版本/Commit 问题，`Run the … tests` 报告测试失败，`Build the public candidate` 的 PyInstaller 输出同时作为 artifact 上传，`Verify the candidate…` 列出包内容或校验不一致的具体项。
 

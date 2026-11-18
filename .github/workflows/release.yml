@@ -1,7 +1,6 @@
-name: Windows release candidate
+name: Windows release
 
-# Public Windows candidate: builds, verifies and uploads Actions artifacts.
-# Creating a GitHub Release stays a separate, manually approved job.
+# Build and verify public Windows packages before publishing a pushed version tag.
 on:
   push:
     tags:
@@ -12,11 +11,6 @@ on:
         description: 已存在的版本 Tag（例如 v1.2.1）
         required: true
         type: string
-      publish:
-        description: 人工批准发布（还需仓库变量 MINIJMP_ENABLE_PUBLISH 为 true）
-        required: false
-        default: false
-        type: boolean
 
 permissions:
   contents: read
@@ -132,13 +126,10 @@ jobs:
             docs/release/build-inputs-${{ steps.meta.outputs.release }}.txt
 
   publish:
-    name: Publish the approved release
+    name: Publish the verified release
     needs: build
-    # Reserved entry point. It only runs for a manual dispatch that asks for it,
-    # after the build job verified the candidate, and only when the repository
-    # variable MINIJMP_ENABLE_PUBLISH is true. Tag pushes never publish.
     if: >-
-      github.event_name == 'workflow_dispatch' && inputs.publish &&
+      github.event_name == 'push' && !github.event.deleted &&
       vars.MINIJMP_ENABLE_PUBLISH == 'true'
     runs-on: windows-2022
     environment: release
@@ -178,7 +169,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           TAG: ${{ needs.build.outputs.product }}
-          NOTES: MiniJMP ${{ needs.build.outputs.product }} 公开候选包：经自动构建验证并由人工批准发布。源码包与 SHA256 校验文件见附件。
+          NOTES: MiniJMP ${{ needs.build.outputs.product }} 公开发布包。已通过自动构建与完整性校验。源码包与 SHA256 校验文件见附件。
         run: |
           $sums = @(Get-ChildItem -LiteralPath candidate -Recurse -Filter 'SHA256SUMS-*.txt')[0]
           $assets = @(Get-ChildItem -LiteralPath $sums.Directory.FullName -File | Where-Object {
