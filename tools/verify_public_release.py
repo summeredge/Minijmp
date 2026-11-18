@@ -22,8 +22,10 @@ SKIP_SUFFIXES = ('.pyc', '.pyo', '.log', '.tmp', '.spec', '.pfx', '.p12', '.key'
 RUNTIME_FILES = ('MiniJMP.exe', 'LICENSE', 'README.txt', 'THIRD-PARTY-NOTICES.txt',
                  'PI-SDK-NOTICE.txt', 'PIReader/PIReader.exe', 'PIReader/config.txt', 'PIReader/tags.txt')
 PI_SOURCES = ('PIReader.csproj', 'Program.cs', 'TimeExpressionParser.cs', 'Properties/AssemblyInfo.cs')
+PI_RECORD = 'packaging/windows/pireader/manifest.json'
+PI_INPUT = 'packaging/windows/pireader/PIReader.exe'
 CLEAN_CONFIG = 'Server=\nUser=\nPassword=\nInterval=5m\nBlockDays=7'
-SOURCE_FILES = ('start.py', 'LICENSE', 'PACKAGING.md', 'SOURCE-MANIFEST.txt',
+SOURCE_FILES = (PI_RECORD, 'start.py', 'LICENSE', 'PACKAGING.md', 'SOURCE-MANIFEST.txt',
                 'code/help.json', 'tools/build_windows_release.ps1', 'tools/make_zip.py',
                 'packaging/windows/version_info.txt', 'packaging/windows/requirements-py311.lock',
                 '.github/workflows/release.yml', 'PIReader/config.example.txt',
@@ -56,7 +58,7 @@ def archive_problems(names, root, kind):
             problems.append(f'proprietary PI SDK component in the archive: {name}')
         elif base == 'SDK-COMPONENTS.json':
             problems.append(f'proprietary SDK inventory in the archive: {name}')
-        elif kind == 'source' and relative in ('PIReader/PIReader.exe', 'PIReader/config.txt', 'PIReader/tags.txt'):
+        elif kind == 'source' and relative in ('PIReader/PIReader.exe', 'PIReader/config.txt', 'PIReader/tags.txt', PI_INPUT):
             problems.append(f'PIReader runtime or local PI settings in the archive: {name}')
         elif kind == 'runtime' and relative.startswith('PIReader/') and relative not in RUNTIME_FILES:
             problems.append(f'unexpected PIReader file in a public runtime archive: {name}')
@@ -141,6 +143,26 @@ def sbom_problems(document, product):
     return problems
 
 
+def reader_record(root=release_metadata.ROOT):
+    record = json.loads((root / PI_RECORD).read_text(encoding='utf-8'))
+    for key, pattern in (('version', r'[0-9]+(?:[.][0-9]+){3}'),
+                         ('sha256', r'[0-9A-F]{64}')):
+        value = record.get(key)
+        if not isinstance(value, str) or not re.fullmatch(pattern, value):
+            raise ValueError(f'Invalid {key} in {PI_RECORD}')
+    return record
+
+
+def check_reader_input(root=release_metadata.ROOT):
+    executable = root / PI_INPUT
+    if not executable.is_file():
+        return [f'Fixed PIReader input missing: {executable}']
+    record = reader_record(root)
+    if sha256_file(executable) != record['sha256']:
+        return ['Fixed PIReader SHA256 does not match the approved input record']
+    return executable_problems(executable, record['version'], reader=True)
+
+
 def executable_problems(executable, expected_file_version, *, reader=False):
     """Return problems with the file version, icon and splash payload of an EXE."""
     import pefile
@@ -157,12 +179,17 @@ def executable_problems(executable, expected_file_version, *, reader=False):
                     strings.update({key.decode('utf-8', 'replace'): value.decode('utf-8', 'replace')
                                     for key, value in table.entries.items()})
         file_version = strings.get('FileVersion', '')
+        if reader:
+            clr = pe.OPTIONAL_HEADER.DATA_DIRECTORY[14]
+            flags = pe.get_dword_at_rva(clr.VirtualAddress + 16) if clr.VirtualAddress else None
+            if pe.FILE_HEADER.Machine != 0x14c or flags is None or flags & 0x20002 != 2:
+                problems.append('PIReader must be I386 / Required32Bit')
     finally:
         pe.close()
     if file_version != expected_file_version:
         problems.append(f'EXE file version {file_version!r} is not {expected_file_version!r}')
     if reader:
-        if strings.get("ProductName") != "MiniJMP PI Reader":
+        if strings.get("ProductName") not in ("MiniJMP PI Reader", "PIReader"):
             problems.append("PIReader product name does not match")
         return problems
     if 14 not in resources:  # RT_GROUP_ICON
@@ -181,6 +208,10 @@ def verify(audit, release=None, commit=None):
     release = release or display
     commit = commit or None
     problems = []
+    try:
+        record = reader_record()
+    except (OSError, ValueError) as error:
+        return [str(error)], product
     archive = audit / f'MiniJMP-{release}-Windows-x64-portable.zip'
     source = audit / f'MiniJMP-{release}-Source.zip'
     sums = audit / f'SHA256SUMS-{release}.txt'
@@ -211,8 +242,13 @@ def verify(audit, release=None, commit=None):
             problems.append(f'corrupt source archive entry: {broken}')
         problems.extend(archive_problems(handle.namelist(), f'MiniJMP-{release}-source', 'source'))
         problems.extend(template_problems(handle, f'MiniJMP-{release}-source', 'source'))
-        source_hashes = {name: hashlib.sha256(handle.read(f'MiniJMP-{release}-source/PIReader/{name}')).hexdigest().upper()
-                         for name in PI_SOURCES if f'MiniJMP-{release}-source/PIReader/{name}' in handle.namelist()}
+        source_record = f'MiniJMP-{release}-source/{PI_RECORD}'
+        if source_record in handle.namelist():
+            try:
+                if json.loads(handle.read(source_record)) != record:
+                    problems.append('PIReader source archive input record mismatch')
+            except ValueError:
+                problems.append('PIReader source archive input record is invalid JSON')
         version_info = f'MiniJMP-{release}-source/packaging/windows/version_info.txt'
         if version_info in handle.namelist():
             declared = re.search(r"'ProductVersion', '([^']+)'",
@@ -244,16 +280,19 @@ def verify(audit, release=None, commit=None):
         problems.append(f'missing built executable: {reader}')
     else:
         digest = sha256_file(reader)
+        if reader_hash != record['sha256']:
+            problems.append('Archive PIReader SHA256 differs from the approved fixed input')
         if digest != reader_hash:
             problems.append('PIReader inside the archive differs from the built EXE')
         info = runtime / 'BUILD-INFO.txt'
         text = info.read_text(encoding='utf-8-sig') if info.is_file() else ''
-        for line in [f'PIReader SHA256: {digest}', *(f'PIReader source SHA256 {name}: {value}'
-                                                   for name, value in source_hashes.items())]:
+        for line in ('PIReader: reused verified binary',
+                     f"PIReader version: {record['version']}",
+                     f'PIReader SHA256: {digest}'):
             if line not in text.splitlines():
-                problems.append('PIReader build provenance mismatch: ' + line.split(':', 1)[0])
+                problems.append('PIReader BUILD-INFO mismatch: ' + line.split(':', 1)[0])
         try:
-            problems.extend(executable_problems(reader, release_metadata.identifiers()['product:fileversion'], reader=True))
+            problems.extend(executable_problems(reader, record['version'], reader=True))
         except Exception as error:
             problems.append(f'cannot inspect PIReader.exe: {error}')
 
@@ -271,7 +310,7 @@ def verify(audit, release=None, commit=None):
         else:
             item = components[0]
             props = {p['name']: p['value'] for p in item.get('properties', [])}
-            if (item.get('version') != release_metadata.identifiers()['product:fileversion']
+            if (item.get('version') != record['version']
                     or props.get('minijmp:distributed') != 'true'
                     or {'alg': 'SHA-256', 'content': reader_hash} not in item.get('hashes', [])):
                 problems.append('SBOM PIReader version, distribution or hash mismatch')
@@ -317,6 +356,15 @@ def summary_markdown(audit, release, product, commit, artifact):
 
 
 def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    if argv == ['--check-reader-input']:
+        try:
+            problems = check_reader_input()
+        except Exception as error:
+            problems = [str(error)]
+        for problem in problems:
+            print(f'BLOCKED: {problem}')
+        return int(bool(problems))
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('audit', type=Path, help='directory holding the candidate archives')
     parser.add_argument('--release', help='release name, such as V1.2.1; derived from the metadata')

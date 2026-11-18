@@ -335,8 +335,8 @@ def test_pireader_project_identity_matches_release_version():
     assembly = (ROOT / 'PIReader' / 'Properties' / 'AssemblyInfo.cs').read_text(encoding='utf-8')
     versions = release_metadata.identifiers()
     assert 'AssemblyProduct("MiniJMP PI Reader")' in assembly
-    assert f'AssemblyFileVersion("{versions["product:fileversion"]}")' in assembly
-    assert f'AssemblyInformationalVersion("{versions["product:version_info"]}")' in assembly
+    assert f'AssemblyFileVersion("{versions["file:PIReader"]}")' in assembly
+    assert f'AssemblyInformationalVersion("{versions["product:PIReader"]}")' in assembly
 
 
 def test_packaging_describes_bundled_proprietary_sdk():

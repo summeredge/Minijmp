@@ -1,8 +1,8 @@
 ﻿param(
     [switch]$SkipSmoke,
     [switch]$InternalReview,
-    # Public candidate: source-built PIReader, SDK references used only at build
-    # time; no bundled SDK, code signing or DLP settle windows.
+    # Public candidate: reuse fixed verified PIReader binary
+    # No bundled SDK, code signing or DLP settle windows.
     [switch]$Public,
     [string]$PythonPath,
     [string]$CertificateThumbprint = $env:MINIJMP_SIGNING_THUMBPRINT,
@@ -53,7 +53,13 @@ if (!$certificate -or !$certificate.HasPrivateKey) {
 }
 }
 }
-# Every mode compiles PIReader from the checked source; never reuse an old EXE.
+if ($Public) {
+    $readerRecord = Join-Path $root 'packaging/windows/pireader/manifest.json'
+    $compiledReader = Join-Path (Split-Path $readerRecord) 'PIReader.exe'
+    & $python (Join-Path $root 'tools/verify_public_release.py') --check-reader-input
+    if ($LASTEXITCODE -ne 0) { throw 'Fixed PIReader input verification failed.' }
+    $readerInput = Get-Content -LiteralPath $readerRecord -Raw | ConvertFrom-Json
+} else {
 if (!$PiSdkDirectory) { $PiSdkDirectory = Join-Path $root 'PIReader' }
 $piSdkNames = @('OSIsoft.PISDK.dll', 'OSIsoft.PISDKCommon.dll', 'OSIsoft.PITimeServer.dll')
 if (!$FrameworkReferenceDirectory) {
@@ -69,7 +75,7 @@ if (!$frameworkRelease -or $frameworkRelease -lt 528040) {
 }
 foreach ($sdkName in $piSdkNames) {
     if (!(Test-Path -LiteralPath (Join-Path $PiSdkDirectory $sdkName) -PathType Leaf)) {
-        throw "PI SDK build reference missing: $sdkName in $PiSdkDirectory. Supply legally authorized build references; a public package without PIReader is not allowed. Do not upload proprietary DLLs without company authorization."
+        throw "PI SDK build reference missing: $sdkName in $PiSdkDirectory. Supply legally authorized build references. Do not upload proprietary DLLs without company authorization."
     }
 }
 foreach ($frameworkName in @('mscorlib.dll', 'System.dll', 'System.Core.dll', 'System.Web.Extensions.dll')) {
@@ -91,6 +97,8 @@ $piSdkBuildInputs = foreach ($sdkName in $piSdkNames) {
     $fileVersion = $file.VersionInfo.FileVersion
     $sha256 = (Get-FileHash -LiteralPath $sdkPath -Algorithm SHA256).Hash
     "$sdkName (AssemblyVersion=$assemblyVersion; FileVersion=$fileVersion; SHA256=$sha256)"
+}
+
 }
 
 $envReport = @(& $python (Join-Path $root 'tools\release_env.py') 2>&1)
@@ -173,7 +181,7 @@ $distRoot = Join-Path $root 'dist'
 $buildRoot = Join-Path $root "build\windows-pkg-$releaseVersion"
 $releaseDir = Join-Path $distRoot "MiniJMP-$releaseVersion"
 $auditDir = Join-Path $distRoot "MiniJMP-$releaseVersion-Release"
-# Only the archive name differs between the two modes; every input and step is shared.
+# Public and internal archives use distinct names.
 $archiveName = if ($Public) { "MiniJMP-$releaseVersion-Windows-x64-portable.zip" } else { "MiniJMP-$releaseVersion-Windows-x64.zip" }
 $releaseZip = Join-Path $auditDir $archiveName
 $sourceZip = Join-Path $auditDir "MiniJMP-$releaseVersion-Source.zip"
@@ -230,6 +238,7 @@ $pyinstallerArgs = @(
 )
 
 $envReport | Set-Content -LiteralPath $buildLog -Encoding utf8
+if (!$Public) {
 Write-Output 'Building PIReader from project source...'
 $piBuild = Join-Path $buildRoot 'pireader'
 New-Item -ItemType Directory -Path $piBuild | Out-Null
@@ -246,6 +255,7 @@ $readerArgs = @(
 & $msbuild @readerArgs *>> $buildLog
 if ($LASTEXITCODE -ne 0 -or !(Test-Path -LiteralPath $compiledReader -PathType Leaf)) {
     throw "Compiling PIReader from source failed; see $buildLog"
+}
 }
 "Building MiniJMP $productVersion with PyInstaller" | Add-Content -LiteralPath $buildLog
 # PyInstaller writes ordinary progress to stderr; only its exit code decides.
@@ -267,10 +277,13 @@ if (!(Test-Path -LiteralPath (Join-Path $rawApp 'MiniJMP.exe') -PathType Leaf) -
     !(Test-Path -LiteralPath (Join-Path $rawApp '_internal') -PathType Container)) {
     throw 'PyInstaller did not produce MiniJMP.exe and _internal.'
 }
-$mainInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $rawApp 'MiniJMP.exe'))
-$readerInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($compiledReader)
-if ($readerInfo.ProductName -ne 'MiniJMP PI Reader' -or $readerInfo.FileVersion -ne $mainInfo.FileVersion) {
-    throw 'PIReader product name or file version does not match the MiniJMP build.'
+if (!$Public) {
+    $readerInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($compiledReader)
+    $assemblyInfo = Get-Content -LiteralPath (Join-Path $root 'PIReader/Properties/AssemblyInfo.cs') -Raw
+    $readerVersion = [regex]::Match($assemblyInfo, 'AssemblyFileVersion\("([^"]+)"\)').Groups[1].Value
+    if (!$readerVersion -or $readerInfo.ProductName -ne 'MiniJMP PI Reader' -or $readerInfo.FileVersion -ne $readerVersion) {
+        throw 'PIReader product name or file version does not match its source metadata.'
+    }
 }
 $externalIcons = Get-ChildItem -LiteralPath $rawApp -File -Recurse -Filter 'icon.png'
 if ($externalIcons) {
@@ -285,7 +298,7 @@ Copy-Item -LiteralPath $rawApp -Destination $releaseDir -Recurse
 Copy-Item -LiteralPath (Join-Path $root 'LICENSE') -Destination (Join-Path $releaseDir 'LICENSE')
 $usageText = (Get-Content -LiteralPath (Join-Path $root 'packaging\windows\USAGE.txt') -Raw -Encoding utf8).TrimEnd()
 if ($Public) {
-    $usageText += $nl + $nl + '本公开候选包包含自研 PIReader.exe，不提供三个 OSIsoft 专有 SDK DLL；使用 PI 需要目标电脑合法安装兼容的 PI SDK/PIPC。默认配置为 PIReader/config.txt。未实测企业 PI 连接。'
+    $usageText += $nl + $nl + '本公开候选包包含自研 PIReader.exe，不提供三个 OSIsoft 专有 SDK DLL；使用 PI 需要目标电脑合法安装兼容的 PI SDK/PIPC。默认配置为 PIReader/config.txt。PIReader 版本和摘要见 BUILD-INFO.txt。'
 }
 Set-Content -LiteralPath (Join-Path $releaseDir 'README.txt') -Value $usageText -Encoding utf8
 
@@ -366,7 +379,7 @@ $treeState = if ($branch -eq 'source bundle') {
     'Working tree was clean; build inputs matched Git HEAD.'
 }
 $piBundlingNote = if ($Public) {
-    'Public candidate: PIReader/PIReader.exe built from this source; no OSIsoft SDK DLLs bundled. Default config: PIReader/config.txt. Target machine requires legally installed compatible PI SDK/PIPC; connectivity and licensing are not verified.'
+    'Public candidate: PIReader/PIReader.exe reused from the fixed verified input; no OSIsoft SDK DLLs bundled. Default config: PIReader/config.txt. Target machine requires legally installed compatible PI SDK/PIPC; see BUILD-INFO.txt for the PIReader version and digest.'
 } else {
     'MiniJMP V1.2 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件不构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。'
 }
@@ -393,11 +406,27 @@ if (!$Public) {
         'The DLLs do not include or register the full PI SDK/PIPC runtime. Target-machine runtime, licensing and PI Server connectivity were not verified.'
     )
 } else {
-    $buildInfoLines += ('PI SDK build-only references (not distributed): ' + ($piSdkBuildInputs -join '; '))
+    $buildInfoLines += @(
+        'PIReader: reused verified binary',
+        "PIReader version: $($readerInput.version)"
+    )
+    if ($readerInput.source_commit) {
+        $buildInfoLines += "PIReader source commit: $($readerInput.source_commit)"
+    }
+    if ($readerInput.field_validation) {
+        $buildInfoLines += "PIReader field validation: $($readerInput.field_validation)"
+    }
+    if ($readerInput.source_sha256) {
+        foreach ($sourceHash in $readerInput.source_sha256.PSObject.Properties) {
+            $buildInfoLines += "PIReader source SHA256 $($sourceHash.Name): $($sourceHash.Value)"
+        }
+    }
 }
 $buildInfoLines += "PIReader SHA256: $((Get-FileHash -LiteralPath (Join-Path $piTarget 'PIReader.exe') -Algorithm SHA256).Hash)"
-foreach ($sourceName in @('PIReader.csproj', 'Program.cs', 'TimeExpressionParser.cs', 'Properties/AssemblyInfo.cs')) {
-    $buildInfoLines += "PIReader source SHA256 ${sourceName}: $((Get-FileHash -LiteralPath (Join-Path $piSource $sourceName) -Algorithm SHA256).Hash)"
+if (!$Public) {
+    foreach ($sourceName in @('PIReader.csproj', 'Program.cs', 'TimeExpressionParser.cs', 'Properties/AssemblyInfo.cs')) {
+        $buildInfoLines += "PIReader source SHA256 ${sourceName}: $((Get-FileHash -LiteralPath (Join-Path $piSource $sourceName) -Algorithm SHA256).Hash)"
+    }
 }
 $buildInfoLines += @(
     ("Authenticode: " + ($signatureInfo -join '; ')),
@@ -438,7 +467,7 @@ try {
         "Base Git HEAD: $head",
         "Release branch: $branch",
         "Working tree: $treeState",
-        'This archive holds the on-disk sources and build inputs used for the adjacent binary, including the PIReader project sources and tools/make_zip.py.',
+        'This archive contains the MiniJMP and PIReader project sources. The public PIReader binary input and any recorded provenance are described in packaging/windows/pireader/manifest.json.',
         'SOURCE-MANIFEST.txt lists every staged file except the manifest itself, with its SHA256 at packaging time.',
         'The source ZIP omits .git and OSIsoft PI SDK assemblies; the corresponding SDK and .NET Framework 4.8 build tools must be supplied under their applicable licenses to rebuild PIReader.',
         'Repository origin: https://github.com/summeredge/Minijmp'

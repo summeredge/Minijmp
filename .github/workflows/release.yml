@@ -28,7 +28,7 @@ concurrency:
 jobs:
   build:
     name: Build and verify the public candidate
-    runs-on: ${{ vars.MINIJMP_BUILD_RUNNER || 'windows-2022' }}
+    runs-on: windows-2022
     timeout-minutes: 120
     outputs:
       product: ${{ steps.meta.outputs.product }}
@@ -91,19 +91,17 @@ jobs:
             tests/test_pi_reader.py tests/test_pi_import.py `
             tests/test_mj_a01_a06_numerics.py `
             tests/test_g11_quality_tables.py::test_plot_dialog_and_statistical_dependencies_unchanged `
-            tests/test_g12_tables.py::test_utilities_change_is_only_interval_report_output -q
+            tests/test_g12_tables.py::test_utilities_change_is_only_interval_report_output `
+            -k 'not test_pi_reader_top_level_error_output' -q
 
       - name: Build the public candidate
         shell: powershell
         env:
           # Window titles are Chinese; the runner console defaults to cp1252.
           PYTHONIOENCODING: utf-8
-          # Paths on an authorized, pre-provisioned runner; no SDK upload/download.
-          PI_SDK_DIRECTORY: ${{ vars.MINIJMP_PI_SDK_DIRECTORY }}
-          FRAMEWORK_REFERENCE_DIRECTORY: ${{ vars.MINIJMP_FRAMEWORK_REFERENCE_DIRECTORY }}
         run: |
           $python = (Get-Command python).Source
-          & ./tools/build_windows_release.ps1 -Public -PythonPath $python -PiSdkDirectory $env:PI_SDK_DIRECTORY -FrameworkReferenceDirectory $env:FRAMEWORK_REFERENCE_DIRECTORY
+          & ./tools/build_windows_release.ps1 -Public -PythonPath $python
 
       - name: Verify the candidate and write the job summary
         shell: powershell

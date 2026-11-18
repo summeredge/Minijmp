@@ -124,9 +124,8 @@ def check(root=ROOT):
     if not match:
         return [('BLOCKED', f'version_info.txt ProductVersion is not {SCHEME}.')]
     wanted = expected(match.groups())
-    for name in ('product:USAGE', 'product:README', 'product:build', 'product:CHANGES', 'product:PIReader'):
+    for name in ('product:USAGE', 'product:README', 'product:build', 'product:CHANGES'):
         wanted[name] = found['product:version_info']
-    wanted['file:PIReader'] = wanted['assembly:PIReader'] = wanted['product:fileversion']
 
     problems = []
     for name, value in wanted.items():

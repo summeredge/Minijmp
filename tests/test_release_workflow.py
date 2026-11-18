@@ -103,19 +103,15 @@ def test_commit_wiring_and_publish_permissions_stay_restricted():
         assert regression in checks
 
 
-def test_public_build_requires_sdk_references_and_does_not_upload_them(tmp_path):
-    result = subprocess.run(
-        ['powershell', '-NoProfile', '-File', str(ROOT / 'tools/build_windows_release.ps1'),
-         '-Public', '-PythonPath', sys.executable, '-PiSdkDirectory', str(tmp_path / 'missing-sdk')],
-        capture_output=True, text=True, timeout=30)
-    assert result.returncode != 0
-    assert 'PI SDK build reference missing' in result.stderr
-    assert 'without PIReader is not allowed' in result.stderr
+def test_public_build_requires_fixed_reader_and_no_sdk_settings():
+    script = (ROOT / 'tools/build_windows_release.ps1').read_text(encoding='utf-8-sig')
+    assert '--check-reader-input' in script
     build = step('Build the public candidate')
-    assert '-PiSdkDirectory $env:PI_SDK_DIRECTORY' in build
+    assert '-PiSdkDirectory' not in build and '-FrameworkReferenceDirectory' not in build
     text = WORKFLOW.read_text(encoding='utf-8')
-    assert "vars.MINIJMP_BUILD_RUNNER || 'windows-2022'" in text
-    assert 'PI_SDK_DIRECTORY: ${{ vars.MINIJMP_PI_SDK_DIRECTORY }}' in text
+    assert 'runs-on: windows-2022' in text
+    assert not any(name in text for name in ('MINIJMP_BUILD_RUNNER', 'MINIJMP_PI_SDK_DIRECTORY',
+                                             'MINIJMP_FRAMEWORK_REFERENCE_DIRECTORY'))
 
 
 def test_public_staging_keeps_reader_and_clean_templates_without_sdk(tmp_path):
@@ -125,8 +121,8 @@ def test_public_staging_keeps_reader_and_clean_templates_without_sdk(tmp_path):
     block = "Copy-Item -LiteralPath (Join-Path $root 'packaging\\windows\\PI-SDK-NOTICE.txt')" + block[1].split('$buildMode =', 1)[0]
     target = tmp_path / 'runtime'
     target.mkdir()
-    compiled = tmp_path / 'fresh.exe'
-    compiled.write_bytes(b'fresh compilation fixture')
+    compiled = tmp_path / 'fixed.exe'
+    compiled.write_bytes(b'verified reader fixture')
     script = tmp_path / 'stage.ps1'
     script.write_text("$ErrorActionPreference = 'Stop'\n$Public = $true\n" +
                       "$root = $env:TEST_ROOT\n$releaseDir = $env:TEST_TARGET\n" +

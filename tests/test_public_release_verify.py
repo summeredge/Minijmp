@@ -165,7 +165,7 @@ def test_runtime_requires_all_pi_files():
 
 @pytest.mark.parametrize('fault, expected', [
     ('', ''), ('binary', 'differs from the built EXE'),
-    ('source', 'build provenance mismatch'), ('sbom', 'SBOM PIReader'),
+    ('source', ''), ('record', 'input record mismatch'), ('fixed_hash', 'approved fixed input'), ('sbom', 'SBOM PIReader'),
     ('credentials', 'PI template is not clean'), ('sdk', 'proprietary PI SDK'),
 ])
 def test_complete_candidate_verification(tmp_path, monkeypatch, fault, expected):
@@ -196,10 +196,13 @@ def test_complete_candidate_verification(tmp_path, monkeypatch, fault, expected)
         path = source_dir / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes((ROOT / name).read_bytes() if (ROOT / name).is_file() else b'')
-    lines = [f'Release name: {release}', f'Git Tag: {product}', 'Base Git HEAD: ' + 'a' * 40,
+    record = {'version': '1.0.0.0', 'sha256': 'C' * 64 if fault == 'fixed_hash' else digest}
+    source_record = dict(record, version='2.0.0.0') if fault == 'record' else record
+    (source_dir / verify.PI_RECORD).write_text(json.dumps(source_record), encoding='utf-8')
+    monkeypatch.setattr(verify, 'reader_record', lambda: record)
+    lines = ['PIReader: reused verified binary', 'PIReader version: ' + record['version'],
+             f'Release name: {release}', f'Git Tag: {product}', 'Base Git HEAD: ' + 'a' * 40,
              'Build mode: Public CI candidate', f'PIReader SHA256: {digest}']
-    lines += [f'PIReader source SHA256 {name}: {verify.sha256_file(source_dir / "PIReader" / name)}'
-              for name in verify.PI_SOURCES]
     (runtime / 'BUILD-INFO.txt').write_text('\n'.join(lines), encoding='utf-8')
     if fault == 'source':
         (source_dir / 'PIReader/Program.cs').write_text('changed source', encoding='utf-8')
@@ -214,8 +217,9 @@ def test_complete_candidate_verification(tmp_path, monkeypatch, fault, expected)
         'metadata': {'component': {'version': product.lstrip('v')},
                      'properties': [{'name': 'minijmp:tag', 'value': product}]},
         'components': [{'name': 'PIReader.exe',
-                        'version': verify.release_metadata.identifiers()['product:fileversion'],
-                        'properties': [{'name': 'minijmp:distributed', 'value': 'true'}],
+                        'version': record['version'],
+                        'properties': [{'name': 'minijmp:distributed', 'value': 'true'},
+                                       {'name': 'minijmp:source', 'value': 'reused verified binary'}],
                         'hashes': [{'alg': 'SHA-256', 'content': 'bad' if fault == 'sbom' else digest}]}],
     }), encoding='utf-8')
     (audit / f'SHA256SUMS-{release}.txt').write_text(
@@ -238,3 +242,28 @@ def test_public_notices_describe_source_built_reader(tmp_path, monkeypatch):
     assert 'PIReader/PIReader.exe' in text and 'PIReader/config.txt' in text
     assert 'PI 数据导入功能不可用' not in text
     assert 'Excluding DLLs does not establish compliance' in text
+
+@pytest.mark.parametrize('fault, expected', [
+    ('hash', 'SHA256'), ('missing', 'input missing'), ('pe', 'product name'), ('version', 'version'), ('', ''),
+])
+def test_fixed_reader_preflight(tmp_path, monkeypatch, fault, expected):
+    executable = tmp_path / verify.PI_INPUT
+    executable.parent.mkdir(parents=True)
+    executable.write_bytes(b'original reader fixture')
+    record = {'version': '1.0.0.0', 'sha256': verify.sha256_file(executable)}
+    (tmp_path / verify.PI_RECORD).write_text(json.dumps(record), encoding='utf-8')
+    if fault == 'hash':
+        executable.write_bytes(b'other executable')
+    if fault == 'missing':
+        executable.unlink()
+
+    def inspect(path, version, *, reader):
+        assert (path, version, reader) == (executable, '1.0.0.0', True)
+        return {'pe': ['PIReader product name does not match'],
+                'version': ['EXE file version mismatch']}.get(fault, [])
+
+    monkeypatch.setattr(verify, 'executable_problems', inspect)
+    problems = verify.check_reader_input(tmp_path)
+    assert bool(problems) == bool(expected)
+    if expected:
+        assert expected in problems[0]

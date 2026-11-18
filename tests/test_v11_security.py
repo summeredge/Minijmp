@@ -123,10 +123,10 @@ def test_formal_release_rejects_untrusted_signatures():
     assert '!$_.Trusted -or !$_.IntegrityVerified' in script
 
 
-def test_version_checker_rejects_pireader_drift(monkeypatch):
+def test_version_checker_accepts_independent_pireader_version(monkeypatch):
     sys.path.insert(0, str(ROOT / 'tools'))
     import release_metadata
     found = release_metadata.identifiers()
     found['file:PIReader'] = '1.0.0.0'
     monkeypatch.setattr(release_metadata, 'identifiers', lambda root: found)
-    assert any(level == 'BLOCKED' and 'file:PIReader' in msg for level, msg in release_metadata.check())
+    assert all(level != 'BLOCKED' for level, _ in release_metadata.check())

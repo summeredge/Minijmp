@@ -122,6 +122,17 @@ def file_version(path):
         pe.close()
 
 
+def pi_reader_provenance(runtime):
+    info = Path(runtime) / 'BUILD-INFO.txt'
+    if info.is_file():
+        lines = info.read_text(encoding='utf-8-sig').splitlines()
+        if 'PIReader: reused verified binary' in lines:
+            commit = next((line.removeprefix('PIReader source commit: ') for line in lines
+                           if line.startswith('PIReader source commit: ')), None)
+            return 'reused verified binary' + (f'; source commit {commit}' if commit else '')
+    return 'runtime artifact: PIReader/PIReader.exe; MiniJMP-developed source'
+
+
 def pi_runtime_components(runtime):
     components = []
     for name in PI_RUNTIME_FILES:
@@ -131,7 +142,7 @@ def pi_runtime_components(runtime):
         if is_program:
             url = 'https://github.com/summeredge/Minijmp'
             license_name, spdx = 'GNU GPL version 3 or later; see LICENSE', 'GPL-3.0-or-later'
-            source = 'runtime artifact: PIReader/PIReader.exe; MiniJMP-developed source'
+            source = pi_reader_provenance(runtime)
         else:
             url = 'https://www.aveva.com/'
             license_name, spdx = '专有组件；再分发授权未确认', ''
@@ -288,7 +299,7 @@ def generate(runtime, destination, build):
             continue
         if relative in {f'PIReader/{name}' for name in PI_RUNTIME_FILES}:
             owner = 'MiniJMP PIReader' if path.name == 'PIReader.exe' else 'OSIsoft PI SDK'
-            source = 'runtime artifact; project source build' if path.name == 'PIReader.exe' else 'third-party SDK runtime file'
+            source = pi_reader_provenance(runtime) if path.name == 'PIReader.exe' else 'third-party SDK runtime file'
             inventory.append([relative, sha256_file(path), path.stat().st_size, owner, source])
             continue
         source = source_paths.get(relative.removeprefix('_internal/'), '')

@@ -2,6 +2,11 @@
 
 ## 未发布
 
+### 2026-11-18 PIReader 固定输入发布校验
+
+- 公开构建重新编译 MiniJMP 主程序并复用独立版本的 PIReader `1.0.0.0`。构建核对固定文件的 SHA256、版本、产品名及 x86 架构，源码溯源信息可选。
+- 公开包提供 PIReader 和干净配置模板，继续排除三个专有 SDK DLL。BUILD-INFO 和 SBOM 记录实际版本及摘要，保留现有人工发布审批。
+
 ### 2026-11-18 公开版 PI 组件及默认配置路径修复
 
 - 公开 Windows 构建从当前版本源码编译并保留自研 `PIReader.exe`，随包提供 `PIReader/config.txt` 空白配置和 `tags.txt` 模板，仅排除三个 OSIsoft 专有 SDK DLL；目标电脑需合法安装兼容的 PI SDK/PIPC。

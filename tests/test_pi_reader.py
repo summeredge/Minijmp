@@ -380,7 +380,7 @@ def test_pi_reader_top_level_error_output(tmp_path):
     sys.path.insert(0, str(root / 'tools'))
     import verify_public_release
     assert verify_public_release.executable_problems(
-        executable, verify_public_release.release_metadata.identifiers()['product:fileversion'], reader=True) == []
+        executable, verify_public_release.release_metadata.identifiers()['file:PIReader'], reader=True) == []
     for library in libraries:
         shutil.copyfile(library, tmp_path / library.name)
     secret = 'Fake-CSharp-Password-Only-For-Tests'
