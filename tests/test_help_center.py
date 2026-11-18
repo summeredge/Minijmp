@@ -128,12 +128,13 @@ def test_menu_inventory_and_dialog_ids_match_the_source():
                 if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
             }
             assert dialog_class in calls, (topic["id"], callback)
-        if topic["menu"] in {"Stats", "Quality", "Plots"} or topic["id"] == "files.pi_import":
+        if topic["menu"] in {"Stats", "Quality", "Plots"} or topic["id"] in {
+                "files.pi_import", "table.subset_sheet"}:
             callback = topic["entry"].split(".", 1)[1].split("(", 1)[0]
             assert callback in menu_callbacks, topic["id"]
             assert any("\u4e00" <= char <= "\u9fff" for char in menu_callbacks[callback]), topic["id"]
-    assert len(seen_classes - {"PIImportDialog"}) == 70
-    assert len(seen_classes) == 71
+    assert len(seen_classes - {"PIImportDialog"}) == 71
+    assert len(seen_classes) == 72
 
 
 def test_generated_search_index_matches_every_nonempty_help_section():
@@ -295,7 +296,7 @@ def test_help_paths_stay_relative_after_project_relocation(monkeypatch, tmp_path
 
 def test_pi_import_topic_is_unique_searchable_and_available_offline(monkeypatch):
     topics = help_topics()
-    assert len(topics) == 109
+    assert len(topics) == 110
     assert len({topic['id'] for topic in topics}) == len(topics)
     topic, = [item for item in topics if item['id'] == 'files.pi_import']
     assert topic['entry'] == 'MiniJMP.import_pi_data'

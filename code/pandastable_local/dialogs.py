@@ -24,7 +24,10 @@ import sys,os,types
 import ast
 import tokenize
 import platform
+import operator
+import re
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
 try:
     from tkinter import *
     from tkinter.ttk import *
@@ -1500,6 +1503,244 @@ class FindReplaceDialog(Frame):
         self.table.searchframe=None
         self.destroy()
         return
+
+_SUBSET_COMPARE = {
+    '=': operator.eq, '≠': operator.ne, '>': operator.gt,
+    '≥': operator.ge, '<': operator.lt, '≤': operator.le,
+}
+
+
+def _subset_condition(series, op, first, last):
+    present = series.notna()
+    if op == '为空':
+        return ~present
+    if op == '非空':
+        return present
+
+    dtype = series.dtype
+    if isinstance(dtype, pd.CategoricalDtype):
+        dtype = dtype.categories.dtype
+        series = series.astype(object)
+    kind = pd.api.types.infer_dtype(series, skipna=True) if dtype == object else None
+
+    def parse(value):
+        if pd.api.types.is_datetime64_any_dtype(dtype):
+            value = pd.Timestamp(value)
+            if pd.isna(value):
+                raise ValueError
+        elif pd.api.types.is_timedelta64_dtype(dtype):
+            value = pd.Timedelta(value)
+            if pd.isna(value):
+                raise ValueError
+        elif pd.api.types.is_bool_dtype(dtype) or kind == 'boolean':
+            if op not in ('=', '≠') or value.lower() not in ('true', 'false', '1', '0'):
+                raise ValueError
+            value = value.lower() in ('true', '1')
+        elif pd.api.types.is_integer_dtype(dtype) or kind == 'integer':
+            value = Decimal(value)
+            if not value.is_finite():
+                raise ValueError
+        elif pd.api.types.is_float_dtype(dtype) or kind in ('floating', 'mixed-integer-float'):
+            value = float(value)
+            if not np.isfinite(value):
+                raise ValueError
+        elif kind == 'string' or isinstance(dtype, pd.StringDtype):
+            if op == '区间':
+                raise ValueError
+        else:
+            raise ValueError
+        return value
+
+    if pd.api.types.is_integer_dtype(dtype) or kind == 'integer':
+        # Compare Python integers to Decimal without rounding large identifiers.
+        series = series.astype(object)
+    lower = parse(first)
+    if op == '区间':
+        upper = parse(last)
+        if lower > upper:
+            raise ValueError('区间下限不能大于上限。')
+        matched = series.ge(lower) & series.le(upper)
+    else:
+        matched = _SUBSET_COMPARE[op](series, lower)
+    return present & matched.fillna(False)
+
+
+def subset_row_mask(frame, *, rows=None, conditions=(), match_all=True, exclude=False):
+    """Match against the displayed frame using row and column positions."""
+    if rows is not None:
+        mask = np.zeros(len(frame), dtype=bool)
+        for item in re.split('[,，]', rows):
+            parts = re.fullmatch(r'\s*([0-9]+)\s*(?:-\s*([0-9]+)\s*)?', item)
+            if not parts:
+                raise ValueError('请输入行号或行号范围，例如 1-10,15,20-30。')
+            try:
+                start = int(parts[1])
+                end = int(parts[2] or parts[1])
+            except ValueError:
+                raise ValueError('行号过长。') from None
+            if not 1 <= start <= end <= len(frame):
+                raise ValueError(f'行号范围无效。请输入 1 至 {len(frame)} 之间的行号，且起点不大于终点。'
+                                 if len(frame) else '当前工作表没有可选行。')
+            mask[start - 1:end] = True
+    else:
+        if not conditions:
+            raise ValueError('请至少添加一个条件。')
+        mask = np.full(len(frame), match_all, dtype=bool)
+        for position, op, first, last in conditions:
+            if not 0 <= position < frame.shape[1] or op not in (*_SUBSET_COMPARE, '区间', '为空', '非空'):
+                raise ValueError('请选择条件的列和比较方式。')
+            series = frame.iloc[:, position]
+            try:
+                matched = _subset_condition(series, op, first, last).to_numpy(dtype=bool)
+            except (ValueError, TypeError, OverflowError, InvalidOperation) as error:
+                reason = '区间下限不能大于上限。' if str(error) == '区间下限不能大于上限。' else '比较方式或输入值与列类型不匹配。'
+                raise ValueError(f'列“{series.name}”：{reason}') from None
+            if match_all:
+                mask &= matched
+            else:
+                mask |= matched
+    return ~mask if exclude else mask
+
+
+class SubsetWorksheetDialog(Dialog):
+    def __init__(self, parent, frame, name, valid_name):
+        self.frame = frame
+        self.default_name = name
+        self.valid_name = valid_name
+        self.conditions = []
+        super().__init__(parent, '子集化工作表')
+
+    def body(self, parent):
+        self.mode = StringVar(self, 'conditions')
+        self.exclude = BooleanVar(self)
+        self.match_all = BooleanVar(self, True)
+        self.name = StringVar(self, self.default_name)
+        self.rows = StringVar(self)
+        self.preview = StringVar(self)
+
+        self.modes = Frame(parent)
+        self.modes.pack(fill=X, pady=(0, 6))
+        for label, value in (('按条件', 'conditions'), ('按行号', 'rows')):
+            Radiobutton(self.modes, text=label, variable=self.mode, value=value,
+                        command=self._switch_mode).pack(side=LEFT)
+
+        self.filters_panel = Frame(parent)
+        scroller = VerticalScrolledFrame(self.filters_panel, height=134)
+        scroller.pack(fill=X)
+        self.condition_rows = scroller.interior
+        for index, label in enumerate(('列', '比较方式', '比较值 / 下限', '上限')):
+            Label(self.condition_rows, text=label).grid(row=0, column=index, sticky=W, padx=3)
+        self.add_condition()
+        combine = Frame(self.filters_panel)
+        combine.pack(fill=X, pady=4)
+        Button(combine, text='添加条件', command=self.add_condition).pack(side=LEFT)
+        for label, value in (('且（AND）', True), ('或（OR）', False)):
+            Radiobutton(combine, text=label, variable=self.match_all, value=value).pack(side=LEFT, padx=4)
+
+        self.rows_panel = Frame(parent)
+        Label(self.rows_panel, text='行号（例如 1-10,15,20-30）').pack(anchor=W)
+        Entry(self.rows_panel, textvariable=self.rows).pack(fill=X, pady=4)
+        for variable in (self.rows, self.match_all, self.exclude):
+            variable.trace_add('write', self._clear_preview)
+        self._switch_mode()
+
+        options = Frame(parent)
+        options.pack(fill=X, pady=4)
+        for label, value in (('包含符合的行', False), ('排除符合的行', True)):
+            Radiobutton(options, text=label, variable=self.exclude, value=value).pack(side=LEFT)
+        Label(parent, text='新工作表名称').pack(anchor=W)
+        name_entry = Entry(parent, textvariable=self.name)
+        name_entry.pack(fill=X, pady=(0, 4))
+        preview = Frame(parent)
+        preview.pack(fill=X, pady=4)
+        Button(preview, text='预览行数', command=self.preview_rows).pack(side=LEFT, padx=(0, 6))
+        Label(preview, textvariable=self.preview).pack(side=LEFT)
+        return name_entry
+
+    def buttonbox(self):
+        buttons = Frame(self)
+        buttons.pack(pady=(0, 8))
+        Button(buttons, text='确定', command=self.ok).pack(side=LEFT, padx=5)
+        Button(buttons, text='取消', command=self.cancel).pack(side=LEFT, padx=5)
+        self.bind('<Return>', self.ok)
+        self.bind('<Escape>', self.cancel)
+
+    def _clear_preview(self, *_):
+        self.preview.set('')
+
+    def _switch_mode(self):
+        self.filters_panel.pack_forget()
+        self.rows_panel.pack_forget()
+        panel = self.filters_panel if self.mode.get() == 'conditions' else self.rows_panel
+        panel.pack(fill=X, after=self.modes)
+        self._clear_preview()
+
+    def add_condition(self):
+        parent = self.condition_rows
+        row = parent.grid_size()[1]
+        columns = [f'{i + 1}. {name}' for i, name in enumerate(self.frame.columns)]
+        col = Combobox(parent, values=columns, width=23, state='readonly')
+        if columns:
+            col.current(0)
+        op = Combobox(parent, values=(*_SUBSET_COMPARE, '区间', '为空', '非空'),
+                      width=8, state='readonly')
+        op.current(0)
+        first, last = StringVar(self), StringVar(self)
+        bounds = [Entry(parent, textvariable=value, width=16) for value in (first, last)]
+
+        def update_inputs(event=None):
+            bounds[0].configure(state='disabled' if op.get() in ('为空', '非空') else 'normal')
+            bounds[1].configure(state='normal' if op.get() == '区间' else 'disabled')
+            self._clear_preview()
+
+        condition = (col, op, first, last)
+        def remove_condition():
+            self.conditions.remove(condition)
+            for widget in widgets:
+                widget.destroy()
+            self._clear_preview()
+
+        remove = Button(parent, text='移除', command=remove_condition)
+        widgets = [col, op, *bounds, remove]
+        for index, widget in enumerate(widgets):
+            widget.grid(row=row, column=index, padx=3, pady=2, sticky=EW)
+        col.bind('<<ComboboxSelected>>', self._clear_preview)
+        op.bind('<<ComboboxSelected>>', update_inputs)
+        for value in (first, last):
+            value.trace_add('write', self._clear_preview)
+        self.conditions.append(condition)
+        update_inputs()
+
+    def _mask(self):
+        if self.mode.get() == 'rows':
+            return subset_row_mask(self.frame, rows=self.rows.get(), exclude=self.exclude.get())
+        conditions = [(col.current(), op.get(), first.get(), last.get())
+                      for col, op, first, last in self.conditions]
+        return subset_row_mask(self.frame, conditions=conditions, match_all=self.match_all.get(),
+                               exclude=self.exclude.get())
+
+    def preview_rows(self):
+        try:
+            mask = self._mask()
+        except ValueError as error:
+            self._clear_preview()
+            messagebox.showerror('筛选条件无效', str(error), parent=self)
+            return
+        matched = len(mask) - mask.sum() if self.exclude.get() else mask.sum()
+        self.preview.set(f'匹配 {matched} 行，结果 {mask.sum()} 行')
+
+    def validate(self):
+        try:
+            name = self.name.get()
+            if not self.valid_name(name):
+                raise ValueError('请输入有效的工作表名称（1–80 字符，且不能包含 []:*?/\\、首尾空格或使用保留名称 meta）。')
+            mask = self._mask()
+        except ValueError as error:
+            messagebox.showerror('无法创建子集工作表', str(error), parent=self)
+            return False
+        self.result = name, self.frame.iloc[mask].copy(deep=True)
+        return True
+
 
 class QueryDialog(Frame):
     """Use string query to filter. Will not work with spaces in column

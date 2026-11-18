@@ -23,6 +23,149 @@ def workbook(csv_app, monkeypatch):
     return app, error
 
 
+def test_subset_condition_masks():
+    from pandastable_local.dialogs import subset_row_mask
+
+    frame = pd.DataFrame({
+        '整数': pd.array([9007199254740993, 2, None, 3], dtype='Int64'),
+        '文本': pd.Categorical(['甲', '乙', None, '甲']),
+        '数值': [2.5, 10.0, float('nan'), 4.0],
+    }, index=[42, 7, 42, 1])
+    bounds = (2, '区间', '2.5', '4')
+    text = (1, '=', '甲', '')
+    missing = (0, '为空', '', '')
+    assert subset_row_mask(frame, conditions=[bounds, text]).tolist() == [True, False, False, True]
+    assert subset_row_mask(frame, conditions=[missing, text], match_all=False,
+                           exclude=True).tolist() == [False, True, False, False]
+    for symbol, expected in {
+        '=': [False, False, False, False], '≠': [True, True, False, True],
+        '>': [True, False, False, False], '≥': [True, False, False, False],
+        '<': [False, True, False, True], '≤': [False, True, False, True],
+    }.items():
+        assert subset_row_mask(frame, conditions=[(0, symbol, '9007199254740992.9', '')]).tolist() == expected
+    assert subset_row_mask(frame, conditions=[(1, '非空', '', '')]).tolist() == [True, True, False, True]
+    with pytest.raises(ValueError, match='列类型'):
+        subset_row_mask(frame, conditions=[(0, '=', '甲', '')])
+    with pytest.raises(ValueError, match='下限不能大于上限'):
+        subset_row_mask(frame, conditions=[(2, '区间', '4', '2')])
+
+
+@pytest.mark.parametrize('exclude', [False, True])
+def test_subset_row_positions(exclude):
+    from pandastable_local.dialogs import subset_row_mask
+
+    frame = pd.DataFrame({'列': [1, 2, 3, 4, 5]}, index=[10, 8, 10, 1, 0])
+    assert subset_row_mask(frame, rows=' 4-5，2, 4 ', exclude=exclude).tolist() == [
+        value != exclude for value in (False, True, False, True, True)]
+    for entry in ('', '0', '4-2', '6', '1,,3', '1.5'):
+        with pytest.raises(ValueError, match='行号'):
+            subset_row_mask(frame, rows=entry)
+
+
+@pytest.mark.parametrize('case', ['condition', 'doe', 'empty', 'cancel', 'invalid'])
+def test_subset_menu_dialog_creates_independent_sheet(workbook, tmp_path, monkeypatch, case):
+    from doe_dialog import CreateDOE
+    from pandastable_local.dialogs import SubsetWorksheetDialog
+
+    app, error = workbook
+    menu = app.data_menu['var']
+    commands = {menu.entrycget(i, 'label').strip(): i for i in range(menu.index('end') + 1)
+                if menu.type(i) == 'command'}
+    if case == 'doe':
+        create = CreateDOE(app)
+        create.create()
+        source = app.table
+        metadata = source.doe_metadata
+        assert metadata
+        expected = source.model.df.iloc[1:].copy()
+    else:
+        frame = pd.DataFrame({'n': pd.array([7, None, 8], dtype='Int64'),
+                              'text': ['甲', '乙', '丙']}, index=[10, 2, 10])
+        app.addSheet('原表 子集')
+        source = app.addSheet('原表', frame)
+        menu.invoke(commands['筛选行'])
+        source.qframe.queryvar.set("text != '甲'")
+        source.qframe.query()
+        assert source.filtered
+        assert_frame_equal(source.model.df, frame.iloc[[1, 2]])
+        metadata = None
+        expected = source.model.df.head(0 if case == 'empty' else 1).copy()
+    original_visible = source.model.df.copy()
+    original_full = app._full_frame(source).copy()
+    original_filter = source.filtered
+    original_query = getattr(source, 'qframe', None)
+    original_names = list(app.sheets)
+    default_name = app.getCurrentSheet() + ' 子集'
+    info = Mock()
+    monkeypatch.setattr(worksheets.messagebox, 'showinfo', info)
+
+    class DrivenDialog(SubsetWorksheetDialog):
+        def body(self, parent):
+            entry = super().body(parent)
+            self.after(0, self.drive)
+            return entry
+
+        def drive(self):
+            try:
+                assert self.name.get() == default_name
+                if case in ('cancel', 'invalid', 'doe'):
+                    self.mode.set('rows')
+                    self._switch_mode()
+                    self.rows.set('1' if case != 'invalid' else '0')
+                    self.exclude.set(case == 'doe')
+                    if case == 'doe':
+                        self.name.set('自定义 DOE 子集')
+                else:
+                    _, op, first, _ = self.conditions[0]
+                    if case == 'empty':
+                        first.set('99')
+                    else:
+                        op.set('为空')
+                if case == 'cancel':
+                    self.cancel()
+                    return
+                if case != 'invalid':
+                    self.preview_rows()
+                    assert f'结果 {len(expected)} 行' in self.preview.get()
+                self.ok()
+            finally:
+                if self.winfo_exists():
+                    self.cancel()
+
+    monkeypatch.setattr(worksheets, 'SubsetWorksheetDialog', DrivenDialog)
+    menu.invoke(commands['子集化工作表'])
+    assert_frame_equal(source.model.df, original_visible)
+    assert_frame_equal(app._full_frame(source), original_full)
+    assert source.filtered == original_filter and getattr(source, 'doe_metadata', None) is metadata
+    assert getattr(source, 'qframe', None) is original_query
+    if case in ('cancel', 'invalid'):
+        assert list(app.sheets) == original_names and app.table is source
+        assert error.call_count == (case == 'invalid')
+        return
+
+    name = '自定义 DOE 子集' if case == 'doe' else default_name + ' (2)'
+    assert list(app.sheets) == [*original_names, name] and app.getCurrentSheet() == name
+    assert_frame_equal(app.table.model.df, expected)
+    assert app.table.prevdf is None and getattr(app.table, 'doe_metadata', None) is None
+    assert info.call_count == (case == 'empty')
+    if case == 'condition':
+        app.table.model.df.iat[0, 0] = 123
+        expected.iat[0, 0] = 123
+        assert_frame_equal(source.model.df, original_visible)
+    export = tmp_path / 'subset.csv'
+    monkeypatch.setattr(worksheets.filedialog, 'asksaveasfilename', lambda **kw: str(export))
+    app.export_sheet()
+    exported = pd.read_csv(export, index_col=0)
+    assert exported.shape == expected.shape and list(exported.columns) == list(expected.columns)
+    target = tmp_path / 'subset.dexpl'
+    assert app._save_project(target), error.call_args
+    assert app.load_file(target)
+    assert app.getCurrentSheet() == name
+    assert_frame_equal(app.table.model.df, expected)
+    assert getattr(app.table, 'doe_metadata', None) is None
+    error.assert_not_called()
+
+
 def test_independent_tables_history_names_and_last_delete(workbook):
     app, error = workbook
     first = app.table

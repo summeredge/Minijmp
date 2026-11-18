@@ -20,6 +20,7 @@ import numpy as np
 
 from modified_table import MTable
 from pandastable_local import config
+from pandastable_local.dialogs import SubsetWorksheetDialog
 from pandastable_local import import_limits
 from doe_core import validate_worksheet_metadata
 
@@ -502,8 +503,8 @@ class Worksheets:
     def getCurrentTable(self):
         return self.sheets[self.getCurrentSheet()]
 
-    def addSheet(self, name=None, dataframe=None, meta=None):
-        if self.sheets:
+    def addSheet(self, name=None, dataframe=None, meta=None, *, finish_edits=True):
+        if self.sheets and finish_edits:
             self._finish_edit()
         name = self._unique_name(name or '工作表')
         frame, table = self._make_sheet(dataframe, meta)
@@ -512,6 +513,17 @@ class Worksheets:
         self.nb.select(frame)
         self.table = table
         return table
+
+    def subset_sheet(self):
+        dialog = SubsetWorksheetDialog(self.main, self.getCurrentTable().model.df,
+                                       self.getCurrentSheet()[:67] + ' 子集', self._valid_name)
+        if dialog.result is None:
+            return
+        name, frame = dialog.result
+        # Creating a subset must not commit pending edits in any source sheet.
+        self.addSheet(name, frame, finish_edits=False)
+        if len(frame) == 0:
+            messagebox.showinfo('子集化工作表', '已创建 0 行工作表，保留原有列结构。', parent=self.main)
 
     def copySheet(self):
         self._finish_edit()
