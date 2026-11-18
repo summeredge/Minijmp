@@ -7,7 +7,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PRODUCT = re.compile('v([0-9]+)[.]([0-9]+)[.]([0-9]+)(?:-beta[.]([0-9]+))?')
+PRODUCT = re.compile(
+    'v([0-9]+)[.]([0-9]+)[.]([0-9]+)(?:[.]([0-9]+)|-beta[.]([0-9]+))?')
+SCHEME = 'vX.Y.Z, vX.Y.Z.P or vX.Y.Z-beta.N'
 
 
 def read(root, name):
@@ -64,15 +66,15 @@ def product_version(root=ROOT):
     """Return the product version declared in version_info.txt, such as v1.2.1."""
     value = _between(read(root, 'packaging/windows/version_info.txt'), "'ProductVersion', '", chr(39))
     if not PRODUCT.fullmatch(value or ''):
-        raise ValueError('version_info.txt ProductVersion is not vX.Y.Z or vX.Y.Z-beta.N.')
+        raise ValueError(f'version_info.txt ProductVersion is not {SCHEME}.')
     return value
 
 
 def release_name(groups):
-    """V1.2 for the historical v1.2.0 line; the patch segment shows once it advances (V1.2.1)."""
-    major, minor, patch, beta = groups
-    return (f'V{major}.{minor}' + (f'.{patch}' if patch != '0' else '') +
-            (f'-beta{beta}' if beta else ''))
+    """V1.2 for the historical v1.2.0 line; later segments show once they advance (V1.2.2, V1.2.2.1)."""
+    major, minor, patch, build, beta = groups
+    return (f'V{major}.{minor}' + (f'.{patch}' if patch != '0' or build else '') +
+            (f'.{build}' if build else '') + (f'-beta{beta}' if beta else ''))
 
 
 def release_titles(root=ROOT):
@@ -87,7 +89,7 @@ def verify_tag(tag, root=ROOT):
     if not tag:
         return [f'Provide the release tag, such as {product}.']
     if not PRODUCT.fullmatch(tag):
-        return [f'{tag} is not a vX.Y.Z or vX.Y.Z-beta.N tag.']
+        return [f'{tag} is not a {SCHEME} tag.']
     if tag != product:
         return [f'Tag {tag} does not match the product version {product} declared in version_info.txt.']
     try:
@@ -104,12 +106,13 @@ def verify_tag(tag, root=ROOT):
 
 
 def expected(groups):
-    major, minor, patch, beta = groups
-    numbers = ', '.join((*groups[:3], beta or '0'))
+    major, minor, patch, build, beta = groups
+    fourth = build or beta or '0'
+    numbers = ', '.join((major, minor, patch, fourth))
     return {
         'release': release_name(groups),
         'display:about': release_name(groups).replace('-beta', ' beta'),
-        'product:fileversion': f'{major}.{minor}.{patch}.{beta or 0}',
+        'product:fileversion': f'{major}.{minor}.{patch}.{fourth}',
         'numeric:filevers': numbers,
         'numeric:prodvers': numbers,
     }
@@ -119,7 +122,7 @@ def check(root=ROOT):
     found = identifiers(root)
     match = PRODUCT.fullmatch(found['product:version_info'] or '')
     if not match:
-        return [('BLOCKED', 'version_info.txt ProductVersion is not vX.Y.Z or vX.Y.Z-beta.N.')]
+        return [('BLOCKED', f'version_info.txt ProductVersion is not {SCHEME}.')]
     wanted = expected(match.groups())
     for name in ('product:USAGE', 'product:README', 'product:build', 'product:CHANGES', 'product:PIReader'):
         wanted[name] = found['product:version_info']

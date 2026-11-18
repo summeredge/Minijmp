@@ -459,17 +459,17 @@ def test_release_precheck_includes_hash_lock():
 def test_version_identifiers_and_build_info_agree():
     levels = release_metadata.check()
     assert [level for level, _ in levels] == ['PASS'], levels
-    assert 'V1.2.2' in levels[0][1] and '1.2.2.0' in levels[0][1]
+    assert 'V1.2.2.1' in levels[0][1] and '1.2.2.1' in levels[0][1]
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
-    assert '$releaseVersion = ' + "'V1.2.2'" in script
-    assert '$productVersion = ' + "'v1.2.2'" in script
+    assert '$releaseVersion = ' + "'V1.2.2.1'" in script
+    assert '$productVersion = ' + "'v1.2.2.1'" in script
     assert 'Release name: $releaseVersion' in script
     assert 'PIReader: built from project source' in script
     assert 'PI SDK/PIPC runtime' in script
     assert "'--hidden-import', 'pyarrow.parquet'" in script
     assert "names=['numpy','scipy','pandas','pyarrow'" in script
     version_info = (ROOT / 'packaging' / 'windows' / 'version_info.txt').read_text(encoding='utf-8')
-    assert "StringStruct('Comments', 'MiniJMP V1.2.2 source baseline')" in version_info
+    assert "StringStruct('Comments', 'MiniJMP V1.2.2.1 source baseline')" in version_info
     usage = (ROOT / 'packaging' / 'windows' / 'USAGE.txt').read_text(encoding='utf-8')
     assert '随附三个 PI SDK 相关组件' in usage
     assert '许可和再分发授权不因打包或代码签名而改变' in usage
@@ -517,7 +517,7 @@ def test_powershell_scripts_parse_and_avoid_bulk_deletion():
         assert '-Confirm:$false' not in text
 
 
-@pytest.mark.parametrize('latest', ['v1.2.2', 'v2.3.4-beta.12'])
+@pytest.mark.parametrize('latest', ['v1.2.2.1', 'v2.3.4-beta.12'])
 def test_changes_reads_latest_version_across_major_versions(monkeypatch, latest):
     original_read = release_metadata.read
 
@@ -529,7 +529,7 @@ def test_changes_reads_latest_version_across_major_versions(monkeypatch, latest)
     monkeypatch.setattr(release_metadata, 'read', read)
     assert release_metadata.identifiers()['product:CHANGES'] == latest
     levels = release_metadata.check()
-    assert levels[0][0] == ('PASS' if latest == 'v1.2.2' else 'BLOCKED')
+    assert levels[0][0] == ('PASS' if latest == 'v1.2.2.1' else 'BLOCKED')
 
 
 def test_version_check_rejects_build_product_drift(monkeypatch):
