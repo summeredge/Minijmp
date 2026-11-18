@@ -100,6 +100,8 @@ def test_default_config_path_ignores_legacy_registry_and_env_executables(
     config = project / 'PIReader' / 'config.txt'
     config.parent.mkdir()
     config.touch()
+    (project / 'config.txt').write_text('legacy root config', encoding='utf-8')
+    monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(pi_reader, 'application_root', lambda: project)
     isolated_pi_settings['executable_path'] = str(tmp_path / 'rogue.exe')
     monkeypatch.setenv('PI_READER_EXE', str(tmp_path / 'env-rogue.exe'))
@@ -427,6 +429,8 @@ def test_failed_or_canceled_query_preserves_sheet(csv_app, monkeypatch, failure)
             pump(app.main, lambda: not window.busy)
             assert window.df is None
             assert window.status_view.get('1.0', 'end-1c')
+            if failure == 'missing':
+                assert str(pi_import.Path('missing-config.txt').resolve()) in window.status_view.get('1.0', 'end-1c')
             window.cancel()
     open_menu(app, monkeypatch, action)
     app.main.update()
@@ -627,5 +631,21 @@ def test_pi_failure_hides_password_and_allows_retry(
             assert len(window.results.get_children()) == 1
         output = capsys.readouterr()
         assert secret not in caplog.text + output.out + output.err
+    finally:
+        window.cancel()
+
+
+@pytest.mark.parametrize('saved', [False, True])
+def test_config_environment_and_saved_path_precedence(tk_root, tmp_path, monkeypatch, isolated_pi_settings, saved):
+    environment = tmp_path / 'environment.txt'
+    environment.touch()
+    remembered = tmp_path / 'remembered.txt'
+    remembered.touch()
+    monkeypatch.setenv('PI_CONFIG', str(environment))
+    if saved:
+        isolated_pi_settings['config_path'] = str(remembered)
+    window = PIImportDialog(tk_root)
+    try:
+        assert window.config.get() == pi_import.normalize_pi_path(remembered if saved else environment)
     finally:
         window.cancel()

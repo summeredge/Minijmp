@@ -13,10 +13,7 @@ import verify_public_release as verify
 
 
 RUNTIME_OK = [
-    'MiniJMP-V1.2.1/MiniJMP.exe',
-    'MiniJMP-V1.2.1/LICENSE',
-    'MiniJMP-V1.2.1/README.txt',
-    'MiniJMP-V1.2.1/THIRD-PARTY-NOTICES.txt',
+    *[f'MiniJMP-V1.2.1/{name}' for name in verify.RUNTIME_FILES],
     'MiniJMP-V1.2.1/_internal/python311.dll',
     'MiniJMP-V1.2.1/_internal/pyarrow/parquet.dll',
 ]
@@ -33,8 +30,9 @@ def test_public_runtime_archive_needs_its_core_files_only():
 @pytest.mark.parametrize('extra, expected', [
     ('MiniJMP-V1.2.1/PIReader/OSIsoft.PISDK.dll', 'proprietary PI SDK component'),
     ('MiniJMP-V1.2.1/PIReader/OSIsoft.PITimeServer.dll', 'proprietary PI SDK component'),
-    ('MiniJMP-V1.2.1/PIReader/PIReader.exe', 'PIReader runtime'),
-    ('MiniJMP-V1.2.1/PIReader/config.txt', 'PIReader runtime'),
+    ('MiniJMP-V1.2.1/PIReader/OSIsoft.PISDKCommon.dll', 'proprietary PI SDK component'),
+    ('MiniJMP-V1.2.1/PIReader/company.ini', 'unexpected PIReader file'),
+    ('MiniJMP-V1.2.1/config.txt', 'local PI settings'),
     ('MiniJMP-V1.2.1/SDK-COMPONENTS.json', 'proprietary SDK inventory'),
     ('MiniJMP-V1.2.1/_internal/code/__pycache__/x.pyc', 'build cache'),
     ('MiniJMP-V1.2.1/_internal/tool.pem', 'temporary or signing file'),
@@ -138,3 +136,105 @@ def test_sbom_must_carry_the_product_version_and_no_distributed_sdk():
     leaked = json.loads(json.dumps(document))
     leaked['components'][0]['properties'][0]['value'] = 'true'
     assert any('PI SDK component' in problem for problem in verify.sbom_problems(leaked, 'v1.2.1'))
+
+
+@pytest.mark.parametrize('kind', ['runtime', 'source'])
+@pytest.mark.parametrize('dirty', ['', 'Server=example.invalid', 'User=test-account', 'Password=test-secret', 'tags'])
+def test_pi_templates_reject_nonblank_settings(tmp_path, kind, dirty):
+    import zipfile
+    archive = tmp_path / 'candidate.zip'
+    root = 'candidate'
+    config = 'config.txt' if kind == 'runtime' else 'config.example.txt'
+    tags = 'tags.txt' if kind == 'runtime' else 'tags.example.txt'
+    with zipfile.ZipFile(archive, 'w') as handle:
+        content = verify.CLEAN_CONFIG
+        if dirty and dirty != 'tags':
+            key = dirty.split('=')[0]
+            content = content.replace(key + '=', dirty)
+        handle.writestr(f'{root}/PIReader/{config}', content)
+        handle.writestr(f'{root}/PIReader/{tags}', 'corporate-tag' if dirty == 'tags' else '')
+    with zipfile.ZipFile(archive) as handle:
+        assert bool(verify.template_problems(handle, root, kind)) == bool(dirty)
+
+
+def test_runtime_requires_all_pi_files():
+    for name in ('PIReader.exe', 'config.txt', 'tags.txt'):
+        names = [entry for entry in RUNTIME_OK if not entry.endswith('/' + name)]
+        assert any(name + ' is missing' in p for p in verify.archive_problems(names, 'MiniJMP-V1.2.1', 'runtime'))
+
+
+@pytest.mark.parametrize('fault, expected', [
+    ('', ''), ('binary', 'differs from the built EXE'),
+    ('source', 'build provenance mismatch'), ('sbom', 'SBOM PIReader'),
+    ('credentials', 'PI template is not clean'), ('sdk', 'proprietary PI SDK'),
+])
+def test_complete_candidate_verification(tmp_path, monkeypatch, fault, expected):
+    import zipfile
+    from make_zip import zip_directory
+
+    product, release = verify.release_metadata.release_titles()
+    root = f'MiniJMP-{release}'
+    runtime = tmp_path / root
+    audit = tmp_path / (root + '-Release')
+    audit.mkdir()
+    for name in verify.RUNTIME_FILES:
+        path = runtime / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('', encoding='utf-8')
+    (runtime / '_internal').mkdir()
+    (runtime / '_internal/python311.dll').write_bytes(b'python fixture')
+    reader = runtime / 'PIReader/PIReader.exe'
+    reader.write_bytes(b'fresh source build fixture')
+    digest = verify.sha256_file(reader)
+    (runtime / 'PIReader/config.txt').write_text(verify.CLEAN_CONFIG, encoding='utf-8')
+    if fault == 'credentials':
+        (runtime / 'PIReader/config.txt').write_text('Password=test-secret', encoding='utf-8')
+    if fault == 'sdk':
+        (runtime / 'PIReader/OSIsoft.PISDK.dll').write_bytes(b'forbidden fixture')
+    source_dir = tmp_path / (root + '-source')
+    for name in verify.SOURCE_FILES:
+        path = source_dir / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes((ROOT / name).read_bytes() if (ROOT / name).is_file() else b'')
+    lines = [f'Release name: {release}', f'Git Tag: {product}', 'Base Git HEAD: ' + 'a' * 40,
+             'Build mode: Public CI candidate', f'PIReader SHA256: {digest}']
+    lines += [f'PIReader source SHA256 {name}: {verify.sha256_file(source_dir / "PIReader" / name)}'
+              for name in verify.PI_SOURCES]
+    (runtime / 'BUILD-INFO.txt').write_text('\n'.join(lines), encoding='utf-8')
+    if fault == 'source':
+        (source_dir / 'PIReader/Program.cs').write_text('changed source', encoding='utf-8')
+    archive = audit / (root + '-Windows-x64-portable.zip')
+    source = audit / (root + '-Source.zip')
+    zip_directory(runtime, archive)
+    zip_directory(source_dir, source)
+    if fault == 'binary':
+        reader.write_bytes(b'stale binary')
+    sbom = audit / 'SBOM.cdx.json'
+    sbom.write_text(json.dumps({
+        'metadata': {'component': {'version': product.lstrip('v')},
+                     'properties': [{'name': 'minijmp:tag', 'value': product}]},
+        'components': [{'name': 'PIReader.exe',
+                        'version': verify.release_metadata.identifiers()['product:fileversion'],
+                        'properties': [{'name': 'minijmp:distributed', 'value': 'true'}],
+                        'hashes': [{'alg': 'SHA-256', 'content': 'bad' if fault == 'sbom' else digest}]}],
+    }), encoding='utf-8')
+    (audit / f'SHA256SUMS-{release}.txt').write_text(
+        '\n'.join(f'{verify.sha256_file(p)}  {p.name}' for p in (archive, source, sbom)), encoding='utf-8')
+    # Fixture EXEs are not PE files; real PIReader compilation is tested separately.
+    monkeypatch.setattr(verify, 'executable_problems', lambda *args, **kwargs: [])
+    problems, actual = verify.verify(audit, release, 'a' * 40)
+    assert actual == product
+    if expected:
+        assert any(expected in p for p in problems), problems
+    else:
+        assert problems == []
+
+
+def test_public_notices_describe_source_built_reader(tmp_path, monkeypatch):
+    import write_third_party_notices as notices
+    monkeypatch.setattr(notices, '_runtime_dependencies', lambda: [])
+    notices.generate(tmp_path, public=True)
+    text = (tmp_path / 'THIRD-PARTY-NOTICES.txt').read_text(encoding='utf-8')
+    assert 'PIReader/PIReader.exe' in text and 'PIReader/config.txt' in text
+    assert 'PI 数据导入功能不可用' not in text
+    assert 'Excluding DLLs does not establish compliance' in text

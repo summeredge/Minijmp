@@ -119,8 +119,7 @@ class PIImportDialog(tk.Toplevel):
         body.columnconfigure(1, weight=1)
         body.rowconfigure(2, weight=1)
         root = pi_reader.application_root()
-        default_config = (root / 'config.txt' if (root / 'config.txt').is_file()
-                          else root / 'PIReader' / 'config.txt')
+        default_config = root / 'PIReader' / 'config.txt'
         try:
             self._saved_paths = load_pi_paths()
             self._settings_error = None
@@ -284,10 +283,15 @@ class PIImportDialog(tk.Toplevel):
         self.import_button.configure(state='disabled')
         self.set_status('正在查询…（最多等待 300 秒）')
         mailbox = queue.Queue()
+        config_path = Path(self.config.get()).expanduser().resolve()
 
         def worker():
             try:
                 mailbox.put((True, operation()))
+            except FileNotFoundError:
+                message = (f'找不到 PI 配置文件：{config_path}' if not config_path.is_file()
+                           else 'PIReader 程序组件缺失，请重新安装 MiniJMP。')
+                mailbox.put((False, message))
             except Exception:
                 mailbox.put((False, 'PI 连接、认证或查询失败，请检查配置和查询条件后重试。'))
 

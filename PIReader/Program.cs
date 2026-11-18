@@ -144,7 +144,7 @@ namespace PIReader
 
             return new SearchOptions
             {
-                ConfigPath = values.ContainsKey("--config") ? Required(values, "--config") : "config.txt",
+                ConfigPath = values.ContainsKey("--config") ? Required(values, "--config") : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.txt"),
                 Mask = mask
             };
         }

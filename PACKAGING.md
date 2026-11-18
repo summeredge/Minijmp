@@ -7,16 +7,20 @@
 `.github/workflows/release.yml` 是长期复用的自动构建入口，不绑定任何具体版本：推送符合 `v*` 规则的版本 Tag 即自动触发，也可在 Actions 页面用 `workflow_dispatch` 指定已存在的 Tag 手动触发；默认只产出 Actions Artifacts，不创建 Release。
 
 - 触发后先校验 Tag 格式、Tag 指向的提交、`version_info.txt` 与其他版本标识一致，以及检出目录干净。
-- 运行环境为 `windows-2022` + Python 3.11，依赖来自 `packaging/windows/requirements-py311.lock`；PyInstaller 参数、onedir/windowed、Splash、图标、依赖收集与 pyarrow 裁剪与内部构建共用同一份脚本参数（`-Public` 模式）。
-- `-Public` 不构建 PIReader、不引用 PI SDK、不做代码签名，也不执行本地透明加密的沉降等待，只做一次 CRC/SHA256 复核。
+- 运行环境为 Windows + Python 3.11（默认 `windows-2022`），依赖来自 `packaging/windows/requirements-py311.lock`；PyInstaller 参数、onedir/windowed、Splash、图标、依赖收集与 pyarrow 裁剪与内部构建共用同一份脚本参数（`-Public` 模式）。
+- `-Public` 从当前 Tag 源码编译自研 PIReader.exe，SDK 仅作编译引用，不复制到公开包；不做代码签名，不执行本地透明加密的沉降等待，保留 CRC/SHA256 复核。缺少合法编译引用时明确失败，不产出缺 PIReader 的完整候选包。
 - 产物：`MiniJMP-<版本>-Windows-x64-portable.zip`、`MiniJMP-<版本>-Source.zip`、`SHA256SUMS-<版本>.txt`，以及 `SBOM.cdx.json`、`SBOM.csv`、`RUNTIME-CONTENTS.csv`、`BUILD-INFO.txt`、`SOURCE-CODE.txt` 和构建/测试记录。
-- 自动校验 Tag/版本/Commit 一致、ZIP CRC 与 SHA256、包内 EXE 与本次构建产物一致、不含三个 OSIsoft DLL/PIReader.exe/PI 配置或凭据、Splash 与图标已嵌入、SBOM 版本一致；任一项失败即中止，不会上传正式 Release。
+- 自动校验 Tag/版本/Commit 一致、ZIP CRC 与 SHA256、包内 EXE 与本次构建产物一致、包含 PIReader.exe、干净的 PIReader/config.txt 和 tags.txt 模板，不含三个 OSIsoft DLL、真实账号、密码或企业配置，并核对 PIReader 源码摘要、文件版本、产物摘要和 SBOM、Splash 与图标已嵌入、SBOM 版本一致；任一项失败即中止，不会上传正式 Release。
+
+构建引用必须由公司授权的环境提供。推荐在预先安装合法 SDK 的专用 Windows Runner 上构建，通过仓库变量 `MINIJMP_BUILD_RUNNER` 选择其唯一标签，`MINIJMP_PI_SDK_DIRECTORY` 指向该机的 SDK 引用目录；需要时以 `MINIJMP_FRAMEWORK_REFERENCE_DIRECTORY` 指定完整 net48 参考目录。Runner 必须限制可执行的仓库/版本及管理权限，不用于运行不可信 PR。没有这些设置时默认托管 Runner 缺少 SDK 将失败；流程不上传或下载专有 DLL。向托管 Runner 提供 DLL 前必须另行取得公司授权，不能将 DLL、真实配置或凭据提交 GitHub。没有采用预编译 EXE。
+
+公开运行目录为 `MiniJMP.exe`、`_internal/`、`PIReader/PIReader.exe`、`PIReader/config.txt`、`PIReader/tags.txt`。三个禁入文件为 `OSIsoft.PISDK.dll`、`OSIsoft.PISDKCommon.dll`、`OSIsoft.PITimeServer.dll`。默认配置始终为程序根目录下的 `PIReader/config.txt`，不选择根目录或当前工作目录的 config.txt；手动输入、已保存路径和 `PI_CONFIG` 沿用现有优先级。模板仅在新构建目录中生成，不覆盖安装目录的用户配置。
 
 公开版与企业内部版的区别：
 
 | 项目 | 公开候选包（GitHub Actions） | 企业内部构建（本机） |
 | --- | --- | --- |
-| PIReader / PI SDK | 不构建、不随包；PI 导入不可用，沿用现有“组件缺失”提示 | 从源码构建 PIReader 并随包三个专有 DLL |
+| PIReader / PI SDK | 从源码构建并保留 PIReader；仅排除三个专有 SDK DLL | 从源码构建 PIReader 并随包三个专有 DLL |
 | 代码签名 | 不签名 | `-InternalReview` 不签名；正式模式要求双 EXE 可信签名 |
 | 等待与复核 | 无沉降等待，单次 CRC/SHA256 复核 | 120 秒沉降 + 写入后 90 秒复核 |
 | 产物位置 | Actions Artifacts 候选包 | `dist/` 审核包及 `--finalize` 发布材料 |
@@ -84,7 +88,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/build_windows_release.
 
 PIReader/ 源码由 MiniJMP 项目自研，按项目 GPL-3.0-or-later 许可；Windows 运行包内的源码编译程序位于 `PIReader/PIReader.exe`。SBOM 从实际运行目录读取该实际文件的版本和 SHA-256，不使用仓库内的旧 EXE。源码包仍排除 PIReader.exe、SDK DLL、本机 config.txt/tags.txt 和缓存。
 
-三个 OSIsoft/AVEVA DLL 仍是专有第三方组件，不属于 MiniJMP 自研代码或 GPL 许可，其再分发授权仍未确认。构建使用 `-PiSdkDirectory` 指定的三个 DLL 作为编译引用，并只复制这三个文件到运行目录 PIReader/，不安装或注册这些 DLL；目标机须自行具备合法的匹配 PI SDK/PIPC 运行环境。
+三个 OSIsoft/AVEVA DLL 仍是专有第三方组件，不属于 MiniJMP 自研代码或 GPL 许可，其再分发授权仍未确认。构建使用 `-PiSdkDirectory` 指定的三个 DLL 作为编译引用；公开模式不复制这些 DLL，企业内部模式仍只复制这三个文件到运行目录 PIReader/，不安装或注册这些 DLL；目标机须自行具备合法的匹配 PI SDK/PIPC 运行环境。
 
 SOURCE-PROVENANCE列出源码继承/修改/新增/待确认分类。`code/pi_reader.py` 仍保留其文件头所列 PI-Data-Viewer 来源及许可待核实状态；Hoeffding 复制片段的许可也待补充。即使构建通过也不得宣称整体合规已放行。SBOM记录实际依赖、二进制、未知版本/许可与排除组件，不以requirements清单代替实际打包核对。
 

@@ -196,7 +196,7 @@ def _format_time(value, name: str) -> str:
 
 def _config_path(configured=None) -> Path:
     configured = configured or os.environ.get(_CONFIG_ENV)
-    path = Path(configured).expanduser() if configured else Path.cwd() / "config.txt"
+    path = Path(configured).expanduser() if configured else application_root() / "PIReader" / "config.txt"
     if not path.is_file():
         raise FileNotFoundError(
             f"找不到 PI 配置文件：{path}。请将 {_CONFIG_ENV} 指向现有的 config.txt。"

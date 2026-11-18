@@ -134,11 +134,11 @@ def generate(destination, public=False):
 
     if public:
         pi_bundle = ('本公开候选包由 GitHub Actions 自动构建，不包含 OSIsoft/AVEVA PI SDK 组件；'
-                     'PI 数据导入功能不可用，其余统计、DOE、绘图与文件处理功能不受影响。\n\n')
+                     '包含自研 PIReader.exe；PI 功能需要目标电脑合法安装兼容的 PI SDK/PIPC，默认配置为 PIReader/config.txt。未实测企业 PI 连接。\n\n')
         pireader_line = ('PIReader/ source code is developed in-house for MiniJMP; GPL-3.0-or-later; see LICENSE. '
-                         'This public candidate does not bundle PIReader.exe.\n')
+                         'The source-built runtime executable is PIReader/PIReader.exe; source archives contain its source only.\n')
         sdk_line = ('OSIsoft/AVEVA PI SDK DLLs remain proprietary third-party components and are not distributed '
-                    'in this public candidate; the internal MiniJMP build ships them under its own terms.\n\n')
+                    'in this public candidate. Excluding DLLs does not establish compliance with all license requirements.\n\n')
     else:
         pi_bundle = ('MiniJMP V1.2 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件不构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。\n\n')
         pireader_line = ('PIReader/ source code is developed in-house for MiniJMP; GPL-3.0-or-later; see LICENSE. '

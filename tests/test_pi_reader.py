@@ -372,9 +372,15 @@ def test_pi_reader_top_level_error_output(tmp_path):
                '/reference:System.Web.Extensions.dll',
                *[f'/reference:{path}' for path in libraries],
                str(root / 'PIReader' / 'Program.cs'),
-               str(root / 'PIReader' / 'TimeExpressionParser.cs')]
+               str(root / 'PIReader' / 'TimeExpressionParser.cs'),
+               str(root / 'PIReader' / 'Properties' / 'AssemblyInfo.cs')]
     compiled = subprocess.run(command, capture_output=True, text=True, timeout=60)
     assert compiled.returncode == 0, compiled.stdout + compiled.stderr
+    import sys
+    sys.path.insert(0, str(root / 'tools'))
+    import verify_public_release
+    assert verify_public_release.executable_problems(
+        executable, verify_public_release.release_metadata.identifiers()['product:fileversion'], reader=True) == []
     for library in libraries:
         shutil.copyfile(library, tmp_path / library.name)
     secret = 'Fake-CSharp-Password-Only-For-Tests'
@@ -506,3 +512,23 @@ def test_read_pi_data_converts_timeout_to_user_error(monkeypatch, tmp_path):
             datetime(2024, 1, 1),
             datetime(2024, 1, 1, 0, 1),
         )
+
+
+def test_default_config_uses_application_pi_directory(tmp_path, monkeypatch):
+    root = tmp_path / 'app'
+    (root / 'PIReader').mkdir(parents=True)
+    target = root / 'PIReader/config.txt'
+    target.touch()
+    (root / 'config.txt').touch()
+    (tmp_path / 'config.txt').touch()
+    monkeypatch.setattr(pi_reader, 'application_root', lambda: root)
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv('PI_CONFIG', raising=False)
+    assert pi_reader._config_path() == target
+    target.unlink()
+    with pytest.raises(FileNotFoundError) as error:
+        pi_reader._config_path()
+    assert str(target) in str(error.value)
+    monkeypatch.setenv('PI_CONFIG', str(tmp_path / 'config.txt'))
+    assert pi_reader._config_path() == tmp_path / 'config.txt'
+    assert pi_reader._config_path(root / 'config.txt') == root / 'config.txt'
