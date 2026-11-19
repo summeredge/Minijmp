@@ -4,6 +4,8 @@
 
 ## 当前矩阵
 
+最新菜单映射、产品对照证据和开发顺序见 [Phase 3 基线与差距清单](phase3-baseline.md)。
+
 | 类别 | implemented | partial | unknown | excluded | 总数 |
 |---|---:|---:|---:|---:|---:|
 | screening | 6 | 1 | 0 | 0 | 7 |
