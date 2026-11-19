@@ -137,10 +137,12 @@ def make_import_dialog(filename, monkeypatch, **overrides):
     dialog.filename = filename
     dialog.df = None
     dialog.main = Mock()
+    monkeypatch.setattr(dialogs, "run_import_task",
+                        lambda parent, phase, operation: operation(lambda phase: None))
     dialog.opts = {k: {"type": t, "default": v} for k, (t, v) in defaults.items()}
     dialog.tkvars = {k: Mock(get=Mock(return_value=overrides.get(k, v)))
                      for k, (_, v) in defaults.items()}
-    dialog.showText = Mock()
+    dialog.textpreview = Mock()
     dialog.quit = Mock()
     dialog.previewtable = SimpleNamespace(updateModel=Mock(), showIndex=Mock(), redraw=Mock())
     error = Mock()
@@ -252,17 +254,18 @@ def test_gb18030_dialog_import(tmp_path, monkeypatch):
     error.assert_not_called()
 
 
-def test_worksheet_csv_kwargs_preserve_precision_and_decimal(tmp_path, monkeypatch):
+def test_worksheet_csv_kwargs_preserve_precision_and_decimal(tk_root, tmp_path, monkeypatch):
     from worksheets import Worksheets
 
     filename = tmp_path / "精度.csv"
     filename.write_text('编号;数值\n001;1,25\n002;2,50\n', encoding="utf-8")
     imported = Mock()
     app = SimpleNamespace(
-        main=None,
+        main=tk_root,
         getCurrentTable=lambda: SimpleNamespace(importpath=None, currentdir=str(tmp_path)),
         _import_frames=imported,
     )
+    app._import_file = Worksheets._import_file.__get__(app)
     error = Mock()
     monkeypatch.setattr("worksheets.messagebox.showerror", error)
     assert Worksheets.import_csv(app, filename=filename, sep=";", decimal=",")
@@ -272,7 +275,7 @@ def test_worksheet_csv_kwargs_preserve_precision_and_decimal(tmp_path, monkeypat
     error.assert_not_called()
 
 
-def test_worksheet_excel_import_preserves_exact_numeric_cells_and_sheets(tmp_path, monkeypatch):
+def test_worksheet_excel_import_preserves_exact_numeric_cells_and_sheets(tk_root, tmp_path, monkeypatch):
     from worksheets import Worksheets
 
     filename = tmp_path / "book.xlsx"
@@ -296,10 +299,11 @@ def test_worksheet_excel_import_preserves_exact_numeric_cells_and_sheets(tmp_pat
             target.writestr(item, content)
     imported = Mock()
     app = SimpleNamespace(
-        main=None,
+        main=tk_root,
         getCurrentTable=lambda: SimpleNamespace(currentdir=str(tmp_path)),
         _import_frames=imported,
     )
+    app._import_file = Worksheets._import_file.__get__(app)
     error = Mock()
     monkeypatch.setattr("worksheets.messagebox.showerror", error)
     assert Worksheets.load_excel(app, patched)

@@ -2,7 +2,7 @@
 from pathlib import Path
 from time import monotonic
 import zipfile
-from xml.etree import ElementTree as ET
+from xml.parsers import expat
 
 MAX_FILE_BYTES = 256 * 1024**2
 MAX_EXPANDED_BYTES = 512 * 1024**2
@@ -57,8 +57,17 @@ def read_csv_bounded(filename, **options):
     frames = []
     rows = memory = 0
     start = monotonic()
+    parse_dates = options.get('parse_dates')
+    fixed_types = (options.get('dtype') is object and options.get('converters') is None
+                   and (parse_dates is None or parse_dates is False
+                        or (parse_dates is True and options.get('index_col') is None)))
     with pd.read_csv(filename, chunksize=1000, **options) as reader:
-        for frame in reader:
+        chunk_size = 1000
+        while True:
+            try:
+                frame = reader.get_chunk(chunk_size)
+            except StopIteration:
+                break
             check_deadline(start)
             rows += len(frame)
             check_shape(rows, frame.shape[1])
@@ -66,6 +75,10 @@ def read_csv_bounded(filename, **options):
             if memory > MAX_MEMORY_BYTES:
                 raise ValueError('CSV 超过 1 GiB 解析内存上限，请拆分后重试。')
             frames.append(frame)
+            if fixed_types:
+                chunk_size = max(1000, min(20000, 200000 // max(1, frame.shape[1])))
+    if len(frames) == 1:
+        return frames[0]
     return pd.concat(frames) if frames else pd.DataFrame()
 
 
@@ -94,26 +107,27 @@ def check_excel(filename):
             if sheets > MAX_SHEETS:
                 raise ValueError('文件超过 256 个工作表导入上限。')
             rows = columns = 0
+            def check_cell(tag, attrs):
+                nonlocal rows, columns
+                if tag != 'c' and not tag.endswith('}c'):
+                    return
+                reference = attrs.get('r', '')
+                row_text = reference.lstrip('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
+                row = int(row_text or 0)
+                column = 0
+                for letter in reference[:len(reference) - len(row_text)]:
+                    column = column * 26 + ord(letter.upper()) - ord('A') + 1
+                if row > rows or column > columns:
+                    rows = max(rows, row)
+                    columns = max(columns, column)
+                    check_shape(rows, columns, cells=cells + rows * columns)
+
+            parser = expat.ParserCreate(namespace_separator='}')
+            parser.StartElementHandler = check_cell
             with archive.open(name) as stream:
-                stack = []
-                for event, element in ET.iterparse(stream, events=('start', 'end')):
-                    if event == 'start':
-                        stack.append(element)
-                        continue
+                while block := stream.read(64 * 1024):
                     check_deadline(start)
-                    if element.tag.rsplit('}', 1)[-1] == 'c':
-                        reference = element.get('r', '')
-                        column = 0
-                        for letter in reference:
-                            if not letter.isalpha():
-                                break
-                            column = column * 26 + ord(letter.upper()) - ord('A') + 1
-                        row = reference.lstrip('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
-                        rows = max(rows, int(row or 0))
-                        columns = max(columns, column)
-                        check_shape(rows, columns, cells=cells + rows * columns)
-                    stack.pop()
-                    if stack:
-                        stack[-1].remove(element)
-                    element.clear()
+                    parser.Parse(block, False)
+                parser.Parse(b'', True)
+                check_deadline(start)
             cells += rows * columns

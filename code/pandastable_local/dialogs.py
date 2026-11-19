@@ -26,6 +26,8 @@ import tokenize
 import platform
 import operator
 import re
+import queue
+import threading
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 try:
@@ -577,13 +579,72 @@ class ProgressDialog(Toplevel):
         prog = Progressbar(self, orient='horizontal',
                             length=200, mode='indeterminate')
 
+
+def run_import_task(parent, phase, operation):
+    """Run file work off Tk and wait while Tk continues to dispatch events."""
+    status = Toplevel(parent)
+    status.title('导入数据')
+    status.transient(parent.winfo_toplevel())
+    status.protocol('WM_DELETE_WINDOW', lambda: None)
+    label = Label(status, text=phase, width=36)
+    label.pack(padx=12, pady=12)
+    mailbox = queue.Queue()
+    result = []
+    pending = None
+
+    def worker():
+        try:
+            outcome = operation(lambda value: mailbox.put(('phase', value)))
+        except Exception as error:
+            mailbox.put(('error', error))
+        else:
+            mailbox.put(('done', outcome))
+
+    def poll():
+        nonlocal pending
+        pending = None
+        while True:
+            try:
+                kind, value = mailbox.get_nowait()
+            except queue.Empty:
+                pending = status.after(30, poll)
+                return
+            if kind == 'phase':
+                label.configure(text=value)
+            else:
+                result.append((kind, value))
+                status.destroy()
+                return
+
+    def cleanup(event):
+        if event.widget is status and pending is not None:
+            status.after_cancel(pending)
+
+    status.bind('<Destroy>', cleanup)
+    threading.Thread(target=worker, daemon=True).start()
+    poll()
+    if not result:
+        status.tk.call('tkwait', 'window', status._w)
+    if not result:
+        return None
+    kind, value = result[0]
+    if kind == 'error':
+        raise value
+    return value
+
+
 class CSVPreviewDialog:
     """Confirm only the format choices needed for an uncertain CSV."""
 
     def __init__(self, parent, filename, options):
-        from .csv_import import DELIMITERS
+        from .csv_import import DELIMITERS, csv_sample
         self.filename = filename
         self.df = None
+        self.sample = run_import_task(parent, '正在读取 CSV 样本…',
+                                      lambda phase: csv_sample(filename))
+        self.importing = False
+        if self.sample is None:
+            return
         self.main = Toplevel(parent)
         self.main.title('确认 CSV 导入')
         self.main.transient(parent.winfo_toplevel())
@@ -612,15 +673,16 @@ class CSVPreviewDialog:
         self.main.grab_set()
         self.main.wait_window()
 
-    def read(self):
-        from .csv_import import DELIMITERS, read_csv
-        return read_csv(self.filename, encoding=self.encoding.get(),
-                        delimiter=DELIMITERS[self.delimiter.get()], header=self.header.get())
+    def options(self):
+        from .csv_import import DELIMITERS
+        return dict(encoding=self.encoding.get(),
+                    delimiter=DELIMITERS[self.delimiter.get()], header=self.header.get())
 
     def update_preview(self):
+        from .csv_import import preview_csv
         try:
-            frame = self.read()
-            text = f'{len(frame)} 行 × {len(frame.columns)} 列\n' + frame.head(10).to_string(index=False)
+            frame = preview_csv(*self.sample, **self.options())
+            text = f'预览 {len(frame)} 行 × {len(frame.columns)} 列\n' + frame.head(10).to_string(index=False)
             self.button.configure(state=NORMAL)
         except Exception as error:
             text = str(error)
@@ -631,12 +693,28 @@ class CSVPreviewDialog:
         self.preview.configure(state=DISABLED)
 
     def doImport(self):
+        from .csv_import import read_csv
+        from .import_limits import check_frames
+        if self.importing:
+            return
+        filename, options = self.filename, self.options()
+        self.importing = True
+        self.button.configure(state=DISABLED)
+
+        def read(phase):
+            frame = read_csv(filename, **options, phase=phase)
+            check_frames({'CSV': frame})
+            return frame
+
         try:
-            self.df = self.read()
+            self.df = run_import_task(self.main, '正在读取 CSV…', read)
         except Exception as error:
             messagebox.showerror('CSV import error', str(error), parent=self.main)
-            return
-        self.main.destroy()
+            self.button.configure(state=NORMAL)
+        finally:
+            self.importing = False
+        if self.df is not None:
+            self.main.destroy()
 
 
 class ImportDialog(Frame):
@@ -648,7 +726,7 @@ class ImportDialog(Frame):
         self.parent = parent
         self.filename = filename
         self.df = None
-        self.main = Toplevel()
+        self.main = Toplevel(parent)
         self.master = self.main
         self.main.title('Text Import')
         self.main.protocol("WM_DELETE_WINDOW", self.quit)
@@ -711,7 +789,8 @@ class ImportDialog(Frame):
         self.m.add(tf, weight=1)
         self.previewtable = Table(tf,rows=0,columns=0,editable=False,enable_menus=False)
         self.previewtable.show()
-        self.update()
+        if self.update() is None:
+            return
 
         optsframe.pack(side=TOP,fill=BOTH)
         b = Button(bf, text="Update preview", command=self.update)
@@ -723,23 +802,14 @@ class ImportDialog(Frame):
         self.main.wait_window()
         return
 
-    def showText(self, encoding='utf-8'):
-        """Show text contents"""
-
-        with open(self.filename, 'r', encoding=encoding) as stream:
-            try:
-                text = stream.read()
-            except:
-                text = 'failed to preview this file, change the file encoding and then press update preview'
-        self.textpreview.delete('1.0', END)
-        self.textpreview.insert('1.0', text)
-        return
-
     def update(self):
         """Reload previews"""
 
         from .csv_import import infer_numeric_columns
+        from .import_limits import check_file
 
+        if getattr(self, 'importing', False):
+            return False
         kwds = {}
         other = ['rowsperfile','time format','numbers_as_string']
         for i in self.opts:
@@ -766,26 +836,43 @@ class ImportDialog(Frame):
         if timeformat and timeformat != 'infer':
             kwds['date_format'] = timeformat
         self.kwds = kwds
-        self.showText(encoding=kwds['encoding'])
         self.converters = None
-        read_kwds = dict(kwds)
-        try:
-            if as_string == True:
-                cols = pd.read_csv(self.filename, nrows=0, **kwds).columns
-                self.converters = {col: str for col in cols}
+        filename = self.filename
+
+        def read_preview(phase):
+            check_file(filename)
+            with open(filename, encoding=kwds['encoding'], errors='replace') as stream:
+                text = stream.read(4096)
+            read_kwds = dict(kwds)
+            converters = None
+            if as_string:
+                cols = pd.read_csv(filename, nrows=0, **kwds).columns
+                converters = {col: str for col in cols}
             else:
                 read_kwds['dtype'] = object
-            with pd.read_csv(self.filename, chunksize=500,
-                             converters=self.converters, **read_kwds) as reader:
+            with pd.read_csv(filename, chunksize=500,
+                             converters=converters, **read_kwds) as reader:
                 df = reader.get_chunk()
-            if self.converters is None:
+            if converters is None:
                 df = infer_numeric_columns(df, decimal=kwds['decimal'])
+            return text, df, converters
+
+        self.importing = True
+        try:
+            result = run_import_task(self.main, '正在读取 CSV 样本…', read_preview)
+            if result is None:
+                return None
+            text, df, self.converters = result
+            self.textpreview.delete('1.0', END)
+            self.textpreview.insert('1.0', text)
         except Exception as e:
             messagebox.showerror('CSV import error', str(e), parent=self.main)
             df = pd.DataFrame()
             success = False
         else:
             success = True
+        finally:
+            self.importing = False
         model = TableModel(dataframe=df)
         self.previewtable.updateModel(model)
         self.previewtable.showIndex()
@@ -796,21 +883,33 @@ class ImportDialog(Frame):
         """Do the import"""
 
         from .csv_import import infer_numeric_columns
-        from .import_limits import read_csv_bounded
+        from .import_limits import check_frames, read_csv_bounded
 
-        if not self.update():
+        if getattr(self, 'importing', False) or not self.update():
             return
+        filename, converters = self.filename, self.converters
+        read_kwds = dict(self.kwds)
+        if converters is None:
+            read_kwds['dtype'] = object
+
+        def read(phase):
+            frame = read_csv_bounded(filename, converters=converters, **read_kwds)
+            if converters is None:
+                phase('正在转换列类型…')
+                infer_numeric_columns(frame, decimal=read_kwds['decimal'])
+            check_frames({'CSV': frame})
+            return frame
+
+        self.importing = True
         try:
-            read_kwds = dict(self.kwds)
-            if self.converters is None:
-                read_kwds['dtype'] = object
-            self.df = read_csv_bounded(self.filename, converters=self.converters, **read_kwds)
-            if self.converters is None:
-                self.df = infer_numeric_columns(self.df, decimal=self.kwds['decimal'])
+            self.df = run_import_task(self.main, '正在读取 CSV…', read)
         except Exception as e:
             messagebox.showerror('CSV import error', str(e), parent=self.main)
             return
-        self.quit()
+        finally:
+            self.importing = False
+        if self.df is not None:
+            self.quit()
         return
 
     def quit(self):

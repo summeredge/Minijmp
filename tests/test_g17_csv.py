@@ -1,6 +1,7 @@
 """CSV compatibility and per-call work bounds; no timing thresholds."""
 import codecs
 import csv
+import builtins
 from collections import Counter
 from unittest.mock import Mock
 
@@ -21,25 +22,21 @@ from pandastable_local import csv_import
 def test_encodings_decode_each_attempt_once(tmp_path, monkeypatch, encoding, bom,
                                           detected, confirm):
     text = 'name,value\n' + ('\u20ac' if encoding == 'cp1252' else '中文') + ',1\n'
-    calls = []
-
-    class Payload(bytes):
-        def decode(self, encoding, *args, **kwargs):
-            calls.append(encoding)
-            return super().decode(encoding, *args, **kwargs)
-
     path = tmp_path / 'encoded.csv'
     path.write_bytes(bom + text.encode(encoding))
-    raw = Payload(path.read_bytes())
-    monkeypatch.setattr(csv_import.Path, 'read_bytes', lambda self: raw)
+    decode = Mock(wraps=csv_import._decode_sample)
+    monkeypatch.setattr(csv_import, '_decode_sample', decode)
+    stream_open = Mock(wraps=builtins.open)
+    monkeypatch.setattr(csv_import, 'open', stream_open, raising=False)
     options = csv_import.detect_csv(path)
     assert options == dict(encoding=detected, delimiter=',', header=True, confirm=confirm)
-    assert calls == (['utf-16'] if detected == 'utf-16' else
+    assert [call.args[1] for call in decode.call_args_list] == (['utf-16'] if detected == 'utf-16' else
                      ['utf-8-sig', 'gb18030', 'cp1252'] if detected == 'cp1252' else
                      ['utf-8-sig', 'gb18030'] if detected == 'gb18030' else ['utf-8-sig'])
-    calls.clear()
+    stream_open.assert_called_once_with(path, 'rb')
+    stream_open.reset_mock()
     frame = csv_import.read_csv(path, detected, ',', True)
-    assert calls == [detected]
+    stream_open.assert_called_once_with(path, encoding=detected, newline='')
     assert frame.iloc[0].tolist() == [text.splitlines()[1].split(',')[0], 1]
 
 
@@ -130,7 +127,7 @@ def test_numeric_inference_handles_pd_na_and_chinese_columns():
 
 @pytest.mark.parametrize('tail', ['3', '3,4,5', '"unterminated,3', '3,\x00'])
 @pytest.mark.parametrize('operation', ['detect', 'read'])
-def test_strict_validation_reaches_file_tail(tmp_path, tail, operation):
+def test_strict_validation_rejects_errors_within_detection_sample(tmp_path, tail, operation):
     path = tmp_path / 'damaged.csv'
     path.write_text('a,b\n' + '1,2\n' * 12000 + tail, encoding='utf-8')
     with pytest.raises((ValueError, csv.Error)):
@@ -138,6 +135,44 @@ def test_strict_validation_reaches_file_tail(tmp_path, tail, operation):
             csv_import.detect_csv(path)
         else:
             csv_import.read_csv(path, 'utf-8', ',', True)
+
+
+def test_full_read_rejects_malformed_record_after_sample(tmp_path):
+    path = tmp_path / 'damaged.csv'
+    path.write_text('name,value\n' + 'item,1\n' * 12000 + 'other,2,3\n', encoding='utf-8')
+    options = csv_import.detect_csv(path)
+    assert not options.pop('confirm')
+    with pytest.raises(ValueError, match='12002'):
+        csv_import.read_csv(path, **options)
+
+
+def test_sample_boundary_keeps_multiline_records_and_checks_remaining_rows(tmp_path):
+    path = tmp_path / 'sample.csv'
+    with path.open('w', encoding='utf-8', newline='') as stream:
+        writer = csv.writer(stream)
+        writer.writerow(['label', 'value'])
+        writer.writerow(['first', '1'])
+        writer.writerow(['early\n' + '中文' * 35000 + '\nlate', '2'])
+        writer.writerow(['last', 'text'])
+    options = csv_import.detect_csv(path)
+    assert options == dict(encoding='utf-8-sig', delimiter=',', header=True, confirm=False)
+    options.pop('confirm')
+    assert csv_import.read_csv(path, **options, verify_header=True) is None
+    frame = csv_import.read_csv(path, **options)
+    assert frame['value'].tolist() == ['1', '2', 'text']
+    assert frame['label'].iloc[1].endswith('\nlate')
+
+
+def test_encoding_fallback_after_ascii_sample(tmp_path):
+    path = tmp_path / 'late.csv'
+    path.write_bytes(b'name,value\n' + b'row,1\n' * 12000 + '中文,2\n'.encode('gb18030'))
+    assert csv_import.detect_csv(path)['encoding'] == 'utf-8-sig'
+    with pytest.raises(UnicodeDecodeError):
+        csv_import.read_csv(path, 'utf-8-sig', ',', True)
+    options = csv_import.detect_csv(path, retry_encoding=True)
+    assert options.pop('confirm')
+    assert options['encoding'] == 'gb18030'
+    assert csv_import.read_csv(path, **options).iloc[-1].tolist() == ['中文', 2]
 
 
 @pytest.mark.parametrize('raw', [b'', b'\xef\xbb\xbf', b'\xff\xfea', b'a,b\n\x81'])

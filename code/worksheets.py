@@ -20,7 +20,7 @@ import numpy as np
 
 from modified_table import MTable
 from pandastable_local import config
-from pandastable_local.dialogs import SplitWorksheetDialog, SubsetWorksheetDialog
+from pandastable_local.dialogs import SplitWorksheetDialog, SubsetWorksheetDialog, run_import_task
 from pandastable_local import import_limits
 from doe_core import validate_worksheet_metadata
 
@@ -390,36 +390,72 @@ def _restore_excel_precision(filename, frames):
             target = targets[sheet.get(relation_id)]
             path = (target.lstrip("/") if target.startswith("/") else
                     posixpath.normpath(posixpath.join("xl", target)))
-            root = ET.fromstring(workbook.read(path))
             replacements = {}
-            for cell in root.iter(main_ns + "c"):
-                if cell.get("t") not in (None, "n"):
-                    continue
-                value = cell.find(main_ns + "v")
-                reference = cell.get("r", "")
-                split = next((i for i, char in enumerate(reference) if not char.isalpha()), 0)
-                if value is None or not value.text or split == 0:
-                    continue
-                column = 0
-                for char in reference[:split].upper():
-                    column = column * 26 + ord(char) - ord("A") + 1
-                row, column = int(reference[split:]) - 2, column - 1
-                if row < 0 or row >= len(frame) or column < 0 or column >= frame.shape[1]:
-                    continue
-                current = frame.iat[row, column]
-                if pd.isna(current) or not isinstance(current, Number):
-                    continue
-                try:
-                    if Decimal(value.text) == Decimal(str(current)):
+            columns = [frame.iloc[:, i].array for i in range(frame.shape[1])]
+            column_numbers = {}
+            row_tag, cell_tag, value_tag = (main_ns + tag for tag in ("row", "c", "v"))
+            with workbook.open(path) as stream:
+                sheet_data = None
+                for event, element in ET.iterparse(stream, events=("start", "end")):
+                    if event == "start":
+                        if element.tag == main_ns + "sheetData":
+                            sheet_data = element
                         continue
-                except InvalidOperation:
-                    continue
-                replacements.setdefault(column, {})[row] = value.text
+                    if element.tag != row_tag or sheet_data is None:
+                        continue
+                    for cell in element.iter(cell_tag):
+                        if cell.get("t") not in (None, "n"):
+                            continue
+                        value = cell.findtext(value_tag)
+                        reference = cell.get("r", "")
+                        letters = reference.rstrip("0123456789")
+                        if not value or not letters or letters == reference:
+                            continue
+                        if letters not in column_numbers:
+                            column = 0
+                            for char in letters.upper():
+                                column = column * 26 + ord(char) - ord("A") + 1
+                            column_numbers[letters] = column - 1
+                        column = column_numbers[letters]
+                        row = int(reference[len(letters):]) - 2
+                        if not (0 <= row < len(frame) and 0 <= column < len(columns)):
+                            continue
+                        current = columns[column][row]
+                        if not isinstance(current, Number) or pd.isna(current):
+                            continue
+                        parsed = str(current)
+                        try:
+                            if value != parsed and Decimal(value) != Decimal(parsed):
+                                replacements.setdefault(column, {})[row] = value
+                        except InvalidOperation:
+                            continue
+                    sheet_data.remove(element)
+                    element.clear()
             for column, cells in replacements.items():
                 values = frame.iloc[:, column].astype(object)
                 for row, value in cells.items():
                     values.iloc[row] = value
                 frame.isetitem(column, values)
+
+
+def _read_excel(filename, phase):
+    import_limits.check_excel(filename)
+    phase('正在读取 Excel 工作表…')
+    frames = pd.read_excel(filename, sheet_name=None, dtype=object)
+    import_limits.check_frames(frames)
+    phase('正在校验 Excel 数值精度…')
+    for df in frames.values():
+        for position in range(df.shape[1]):
+            values = df.iloc[:, position]
+            inferred = values.infer_objects()
+            # A nullable large-integer column would become float64 here.
+            if inferred.dtype.kind not in 'iuf' or not any(
+                    isinstance(value, int) and abs(value) > 2**53 for value in values):
+                df.isetitem(position, inferred)
+    if Path(filename).suffix.lower() == '.xlsx':
+        # shortcut: XML token recovery is .xlsx-only; legacy .xls stores numeric cells as doubles.
+        _restore_excel_precision(filename, frames)
+    return frames
 
 
 class Worksheets:
@@ -847,7 +883,6 @@ class Worksheets:
 
     def _import_frames(self, frames, directory=None):
         # Build every widget before touching the live notebook.
-        self._finish_edit()
         staged = {}
         try:
             for name, df in frames.items():
@@ -856,77 +891,106 @@ class Worksheets:
                 if directory is not None:
                     staged[name][1].currentdir = directory
                     staged[name][1].importpath = directory
+            for name, (frame, table) in staged.items():
+                self.nb.add(frame, text=name)
+            self._finish_edit()
+            if staged:
+                self.nb.select(frame)
         except Exception:
             for frame, table in staged.values():
                 frame.destroy()
             raise
         for name, (frame, table) in staged.items():
             self.sheets[name], self.sheetframes[name] = table, frame
-            self.nb.add(frame, text=name)
-            self.nb.select(frame)
-        self._sheet_changed()
+        if staged:
+            self._sheet_changed()
+
+    def _import_file(self, filename, kind, load):
+        self._file_import_active = True
+        workbook = getattr(self, 'sheets', None)
+        try:
+            frames = load()
+            if frames is None or getattr(self, 'sheets', None) is not workbook:
+                return False
+            self._import_frames(frames, os.path.dirname(os.path.abspath(filename)))
+            return True
+        except Exception as error:
+            if self.main.winfo_exists():
+                messagebox.showerror(f'{kind} 导入失败', str(error), parent=self.main)
+            return False
+        finally:
+            self._file_import_active = False
 
     def import_csv(self, advanced=False, filename=None, **kwargs):
         from pandastable_local import core_orig
+        from pandastable_local.csv_import import infer_numeric_columns
+        if getattr(self, '_file_import_active', False):
+            return False
         table = self.getCurrentTable()
         filename = filename or filedialog.askopenfilename(parent=self.main,
                     initialdir=table.importpath or table.currentdir,
                     filetypes=[('CSV / 文本', '*.csv *.tsv *.txt')])
         if not filename:
             return False
-        try:
-            import_limits.check_file(filename)
-            if advanced:
-                df = core_orig.ImportDialog(table, filename=filename).df
-            elif kwargs:
-                if kwargs.get('dtype') is None and 'converters' not in kwargs:
-                    from pandastable_local.csv_import import infer_numeric_columns
-                    options = {**kwargs, 'dtype': object}
-                    df = infer_numeric_columns(import_limits.read_csv_bounded(filename, **options),
-                                              decimal=kwargs.get('decimal', '.'))
+
+        def read(phase, options, bounded):
+            if bounded:
+                if options.get('dtype') is None and 'converters' not in options:
+                    df = import_limits.read_csv_bounded(filename, **{**options, 'dtype': object})
+                    phase('正在转换列类型…')
+                    infer_numeric_columns(df, decimal=options.get('decimal', '.'))
                 else:
-                    df = import_limits.read_csv_bounded(filename, **kwargs)
+                    df = import_limits.read_csv_bounded(filename, **options)
             else:
-                options = core_orig.detect_csv(filename)
-                confirm = options.pop('confirm')
-                df = (core_orig.CSVPreviewDialog(table, filename, options).df if confirm
-                      else core_orig.read_csv(filename, **options))
+                df = core_orig.read_csv(filename, **options, phase=phase, verify_header=True)
+            if df is not None:
+                import_limits.check_frames({'CSV': df})
+            return df
+
+        def auto_read(phase):
+            options = core_orig.detect_csv(filename)
+            if options.pop('confirm'):
+                return options, None
+            phase('正在读取 CSV…')
+            try:
+                df = read(phase, options, False)
+            except UnicodeDecodeError:
+                phase('正在检测 CSV 编码…')
+                return core_orig.detect_csv(filename, retry_encoding=True), None
             if df is None:
-                return False
-            import_limits.check_frames({'CSV': df})
-            self._import_frames({Path(filename).stem: df}, os.path.dirname(os.path.abspath(filename)))
-            return True
-        except Exception as error:
-            messagebox.showerror('CSV 导入失败', str(error), parent=self.main)
-            return False
+                options['header'] = None
+            return options, df
+
+        def load():
+            if advanced:
+                if run_import_task(self.main, '正在检查 CSV…',
+                                   lambda phase: import_limits.check_file(filename) or True) is None:
+                    return None
+                df = core_orig.ImportDialog(self.main, filename=filename).df
+            elif kwargs:
+                df = run_import_task(self.main, '正在读取 CSV…',
+                                     lambda phase: read(phase, kwargs, True))
+            else:
+                result = run_import_task(self.main, '正在检测 CSV 格式…', auto_read)
+                if result is None:
+                    return None
+                options, df = result
+                if df is None:
+                    df = core_orig.CSVPreviewDialog(self.main, filename, options).df
+            return None if df is None else {Path(filename).stem: df}
+
+        return self._import_file(filename, 'CSV', load)
 
     def load_excel(self, filename=None):
+        if getattr(self, '_file_import_active', False):
+            return False
         filename = filename or filedialog.askopenfilename(parent=self.main,
                     initialdir=self.getCurrentTable().currentdir,
                     filetypes=[('Excel', '*.xlsx *.xls')])
         if not filename:
             return False
-        try:
-            import_limits.check_excel(filename)
-            frames = pd.read_excel(filename, sheet_name=None, dtype=object)
-            import_limits.check_frames(frames)
-            for df in frames.values():
-                for position in range(df.shape[1]):
-                    values = df.iloc[:, position]
-                    large_integer = any(isinstance(value, int) and abs(value) > 2**53
-                                        for value in values if not pd.isna(value))
-                    # A nullable large-integer column would become float64 here.
-                    if not large_integer:
-                        df.isetitem(position, values.infer_objects())
-            if Path(filename).suffix.lower() == '.xlsx':
-                # shortcut: XML token recovery is .xlsx-only; legacy .xls stores numeric cells as doubles.
-                # Recover numeric tokens rounded by the Excel engine from the source XML.
-                _restore_excel_precision(filename, frames)
-            self._import_frames(frames, os.path.dirname(os.path.abspath(filename)))
-            return True
-        except Exception as error:
-            messagebox.showerror('Excel 导入失败', str(error), parent=self.main)
-            return False
+        return self._import_file(filename, 'Excel', lambda: run_import_task(
+            self.main, '正在检查 Excel 文件…', lambda phase: _read_excel(filename, phase)))
 
     def import_pi_data(self):
         from pi_import import PIImportDialog

@@ -513,8 +513,10 @@ def test_open_cancel_preserves_project(workbook, tmp_path, monkeypatch):
 def test_excel_widget_failure_leaves_no_extra_tabs(workbook, tmp_path, monkeypatch):
     app, error = workbook
     original = app.table
-    monkeypatch.setattr(worksheets.pd, 'read_excel', lambda *a, **k: {
-        'one': pd.DataFrame({'x': [1]}), 'two': pd.DataFrame({'x': [2]})})
+    path = tmp_path / 'book.xlsx'
+    with pd.ExcelWriter(path) as writer:
+        for name in ('one', 'two'):
+            pd.DataFrame({'x': [1]}).to_excel(writer, sheet_name=name, index=False)
     make = app._make_sheet
     calls = []
     def fail_second(*args):
@@ -523,7 +525,8 @@ def test_excel_widget_failure_leaves_no_extra_tabs(workbook, tmp_path, monkeypat
             raise RuntimeError('widget allocation failure')
         return make(*args)
     monkeypatch.setattr(app, '_make_sheet', fail_second)
-    assert not app.load_excel(tmp_path / 'book.xlsx')
+    assert not app.load_excel(path)
+    assert len(calls) == 2
     assert len(app.nb.tabs()) == len(app.sheets) == 1
     assert app.table is original
     error.assert_called_once()

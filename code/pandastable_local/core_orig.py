@@ -513,7 +513,7 @@ class Table(Canvas):
         if self.filtered:
             self.delete('colrect')
 
-        self.rowrange = list(range(0, self.rows))
+        self.rowrange = range(self.rows)
         self.configure(scrollregion=(0, 0, self.tablewidth + self.x_start,
                                      self.rowheight * self.rows + 10))
 

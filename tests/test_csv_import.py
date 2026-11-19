@@ -3,6 +3,7 @@ from unittest.mock import Mock
 from pathlib import Path
 import tkinter as tk
 import traceback
+from threading import Event, get_ident
 
 import pandas as pd
 import pytest
@@ -58,6 +59,58 @@ def test_real_file_menu_imports_samples_without_parameter_window(csv_app, monkey
     assert app.table.filename is None and app.table.prevdf is None
     assert app.main.title() == f'未命名项目 — {app.getCurrentSheet()} - Minijmp'
     windows.assert_not_called()
+    error.assert_not_called()
+
+
+@pytest.mark.parametrize('suffix', ['.csv', '.xlsx'])
+def test_import_worker_keeps_tk_responsive_and_blocks_repeat(csv_app, tmp_path, monkeypatch, suffix):
+    import worksheets
+
+    app, error = csv_app
+    original = app.table
+    path = tmp_path / f'background{suffix}'
+    frame = pd.DataFrame({'id': ['001'] * 200, 'value': range(200)})
+    if suffix == '.csv':
+        frame.to_csv(path, index=False)
+        owner, method = core_orig, 'read_csv'
+    else:
+        frame.to_excel(path, index=False)
+        owner, method = worksheets.pd, 'read_excel'
+    read = getattr(owner, method)
+    entered, release = Event(), Event()
+    gui_thread = get_ident()
+    observations = []
+    pending = None
+
+    def gated_read(*args, **kwargs):
+        assert get_ident() != gui_thread
+        entered.set()
+        assert release.wait(5)
+        return read(*args, **kwargs)
+
+    def observe():
+        nonlocal pending
+        pending = None
+        if not entered.is_set():
+            pending = app.main.after(10, observe)
+            return
+        try:
+            observations.append((app.table is original, app.import_csv(filename=path),
+                                 app.load_excel(path)))
+        finally:
+            release.set()
+
+    monkeypatch.setattr(owner, method, gated_read)
+    pending = app.main.after(0, observe)
+    try:
+        imported = app.import_csv(filename=path) if suffix == '.csv' else app.load_excel(path)
+    finally:
+        release.set()
+        if pending is not None:
+            app.main.after_cancel(pending)
+    assert imported and observations == [(True, False, False)]
+    assert_frame_equal(app.table.model.df, frame)
+    assert len(app.nb.tabs()) == 2
     error.assert_not_called()
 
 
