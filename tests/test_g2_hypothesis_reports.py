@@ -306,6 +306,54 @@ def test_bonett_two_sided_report_unchanged_by_one_sided_fields():
     assert result['One tail upper boundary'] == pytest.approx(5.243956, abs=1e-6)
 
 
+def test_multi_variance_bonferroni_intervals_and_pairwise_ratios_match_native():
+    from chi_sq import multi_pop_var_test
+    from statistics import stdev, fmean
+    from scipy.special import gammaln
+    # phase4 multi_variance：原生 95% Bonferroni 区间 (1.98865, 8.61111) 等。
+    groups = {'A': [5, 7, 8, 9, 10, 12, 14, 15],
+              'B': [7, 8, 9, 11, 13, 14, 16, 17],
+              'C': [4, 6, 7, 8, 10, 11, 13, 14]}
+    lines = []
+    result = multi_pop_var_test(list(groups.values()), list(groups),
+                                print_out=True, print_port=lines.append)
+    native = [(1.98865, 8.61111), (2.34825, 8.41017), (2.06587, 8.37558)]
+    from stat_table import StatTable
+    tables = [line for line in lines if isinstance(line, StatTable)]
+    assert len(tables) == 3
+    for row, expected in zip(tables[1].values, native):
+        assert float(row[1]) == pytest.approx(expected[0], abs=.0006)
+        assert float(row[2]) == pytest.approx(expected[1], abs=.0006)
+
+    # 独立参考：单组置信 1-alpha/k 的卡方区间换算为 Bonett 对数区间。
+    from scipy.stats import chi2
+    def bonett_ci(g, alpha):
+        n, s = len(g), stdev(g)
+        trim = sorted(g)[int(n / 2 / (n - 4)**.5):n - int(n / 2 / (n - 4)**.5)] if n > 5 else g
+        kurt = n / (n - 1) / (n - 1) * sum(((x - fmean(trim)) / s)**4 for x in g)
+        se = np.sqrt((kurt - (n - 3) / n) / (n - 1))
+        def bound(a, lower):
+            z = stats.norm.ppf(1 - a / 2)
+            c = n / (n - z)
+            return s * np.sqrt(c * np.exp((-c * z * se) if lower else (c * z * se)))
+        return bound(alpha, True), bound(alpha, False)
+    table_rows = tables[1].values
+    for label, row in zip(groups, table_rows):
+        lo, hi = bonett_ci(groups[label], .05 / 3)
+        assert float(row[1]) == pytest.approx(lo, abs=.0006)
+        assert float(row[2]) == pytest.approx(hi, abs=.0006)
+
+    # 成对比较：对数比近似 + Bonferroni，交换组别后 p 值不变。
+    pairs = tables[2].values
+    assert [(r[0], r[1]) for r in pairs] == [('A', 'B'), ('A', 'C'), ('B', 'C')]
+    swapped = multi_pop_var_test(list(groups.values())[::-1], list(groups),
+                                 print_out=False)
+    assert swapped['Brown_Forsythe']['p'] == pytest.approx(result['Brown_Forsythe']['p'])
+    for row in pairs:
+        assert float(row[2]) == pytest.approx(stdev(groups[row[0]]) / stdev(groups[row[1]]),
+                                              abs=.0006)
+
+
 @pytest.mark.parametrize('mode', ['data', 'summary', 'small'])
 def test_combined_sd_methods_and_unavailable_bonett(report, mode):
     sample = [1, 3] if mode == 'small' else DATA

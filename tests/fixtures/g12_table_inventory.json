@@ -681,12 +681,20 @@
       "sites": [
         "construct:PrettyTable#1",
         "emit:structured:print_port#1",
-        "construct:StatTable#1"
+        "construct:StatTable#1",
+        "construct:gen_table#1",
+        "emit:structured:print_port#2",
+        "construct:StatTable#2",
+        "construct:gen_table#2",
+        "emit:structured:print_port#3",
+        "construct:StatTable#3"
       ],
       "classification": "statistical",
-      "logical_tables": 1,
+      "logical_tables": 3,
       "titles": [
-        "Multi Sample Standard Deviation Test"
+        "Multi Sample Standard Deviation Test",
+        "标准差 95% Bonferroni 置信区间",
+        "标准差比的多重比较"
       ],
       "entry_points": [
         "MultiVarDialog.apply",

@@ -12,6 +12,7 @@ from unittest.mock import Mock
 import numpy as np
 import pytest
 from scipy import stats
+from stat_table import StatTable
 from source_baselines import read_source_baseline
 from test_review003_anova import matrix_reference
 
@@ -114,7 +115,18 @@ def test_f01_group_mean_work(monkeypatch):
 def test_f11_numerical_report_and_scipy(old, groups):
     from chi_sq import multi_pop_var_test
     labels = list('ABC')[:len(groups)]
-    same_call(multi_pop_var_test, old.chi_sq.multi_pop_var_test, groups, labels, print_out=True)
+    before_lines, after_lines = [], []
+    before = old.chi_sq.multi_pop_var_test(groups, labels, print_out=True,
+                                           print_port=before_lines.append)
+    after = multi_pop_var_test(groups, labels, print_out=True,
+                               print_port=after_lines.append)
+    # G06 只新增联合区间与成对比较表；原有字典、文本与首张表保持一致。
+    equal(after, before)
+    new_lines = [l for l in after_lines if l not in before_lines]
+    assert len(new_lines) == 3
+    assert sum(isinstance(l, StatTable) for l in new_lines) == 2
+    assert [str(l) for l in after_lines if l in before_lines] == [
+        str(l) for l in before_lines]
     result = multi_pop_var_test(groups, labels)
     for name, center in [('Levene', 'mean'), ('Brown_Forsythe', 'median')]:
         reference = stats.levene(*groups, center=center)
@@ -145,7 +157,8 @@ def test_f11_statistics_count(monkeypatch):
         monkeypatch.setattr(chi_sq.stat, name, spy)
     groups = [list(np.random.default_rng(i).normal(size=20)) for i in range(3)]
     chi_sq.multi_pop_var_test(groups, list('ABC'))
-    assert spies['mean'].call_count == 12  # 3 original + 3*3 transformed.
+    # 3 原始 + 9 变换 + 3 组联合区间(trimmed_mean) + 3 对比较 ×2(trimmed_mean)。
+    assert spies['mean'].call_count == 21
     assert spies['variance'].call_count == spies['median'].call_count == 3
 
 

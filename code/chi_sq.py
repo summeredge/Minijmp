@@ -9,9 +9,9 @@ from prettytable import PrettyTable as PT
 ########### Own Modules ############
 #  from utilities import mean_std_CIs
 try:
-    from .bonett import var_1sample as bonett_var_1sample
+    from .bonett import var_1sample as bonett_var_1sample, pair_ratio
 except BaseException:
-    from bonett import var_1sample as bonett_var_1sample
+    from bonett import var_1sample as bonett_var_1sample, pair_ratio
 
 
 def chi2_test_stdev(data_list, s0, print_out=False, alpha=0.05,
@@ -312,7 +312,18 @@ def multi_pop_var_test(data, labels, print_out=False, print_port=print,
     res["Levene"] = Levene(data)
     res["Brown_Forsythe"] = Brown_Forsythe(data)
 
+    # 每组的联合区间：Bonett 区间在 alpha/k 下计算，与目标产品的
+    # "95% Bonferroni 标准差置信区间"一致（单组置信水平 1-alpha/k）。
+    joint = [bonett_var_1sample(group, alpha=alpha / len(data), s0=stat.stdev(group))
+             if len(data) > 1 else None for group in data]
+    comparisons = [
+        {"groups": (labels[i], labels[j]), **dict(zip(
+            ("ratio", "Bonett CI", "adjusted p"), pair_ratio(
+                data[i], data[j], m=len(data) * (len(data) - 1) / 2, alpha=alpha)))}
+        for i in range(len(data)) for j in range(i + 1, len(data))] if len(data) > 1 else []
+
     if print_out:
+        from utilities import gen_table
         print = print_port
         print("\n---- Multi Sample Standard Deviation Test ----")
         t = PT()
@@ -354,6 +365,39 @@ def multi_pop_var_test(data, labels, print_out=False, print_port=print,
         print("O'Brien[.5]       p = %.3f" % res["OBrien"]["p"])
         print("Levene            p = %.3f" % res["Levene"]["p"])
         print("Brown-Forsythe    p = %.3f" % res["Brown_Forsythe"]["p"])
+
+        if comparisons:
+            # 联合区间与目标产品 "95% Bonferroni 标准差置信区间"同口径。
+            values, display = [], []
+            for label, ci in zip(labels, joint):
+                lo, hi = ci["Bonett CI"]
+                values.append([label, lo, hi])
+                display.append([str(label), '%.3f' % lo, '%.3f' % hi])
+            t = gen_table([['组别', '联合区间下限', '联合区间上限'], *display])
+            t.align = 'r'
+            t.align['组别'] = 'l'
+            print(StatTable(t, f"标准差 {100 - 100 * alpha:.0f}% Bonferroni 置信区间"
+                              f"（单组置信 {100 - 100 * alpha / len(data):.4f}%）",
+                t.field_names, values, display=display))
+
+            pct_joint = "%.1f%% Bonferroni" % (100 - 100 * alpha)
+            values, display = [], []
+            for row in comparisons:
+                lo, hi = row["Bonett CI"]
+                values.append([row["groups"][0], row["groups"][1], row["ratio"],
+                               lo, hi, row["adjusted p"]])
+                display.append([str(row["groups"][0]), str(row["groups"][1]),
+                                '%.3f' % row["ratio"], '%.3f' % lo, '%.3f' % hi,
+                                '%.3f' % row["adjusted p"]])
+            t = gen_table([['组别 1', '组别 2', '标准差比', pct_joint + ' 区间下限',
+                            pct_joint + ' 区间上限', '调整 p 值'], *display])
+            t.align = 'r'
+            t.align['组别 1'] = 'l'
+            t.align['组别 2'] = 'l'
+            print(StatTable(t, '标准差比的多重比较（Bonett 对数近似，Bonferroni 调整）',
+                t.field_names, values, display=display))
+            print("多重比较沿用 Bonett 对数尺度正态近似，按比较数 m 以 Bonferroni 分摊显著性水平；"
+                  "区间为成对标准差比的联合区间，与目标产品的全局多重比较 p 口径不同。")
 
     if len(data) == 2:
         res2 = several_tests_stdev_2sided(data[0], data[1], print_out=False)
