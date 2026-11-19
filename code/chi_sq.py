@@ -453,6 +453,8 @@ def var_1sample(data=None, sample_n=None, sample_std=None,
     chi2_res = chi2_var_1sample(data=data, sample_n=sample_n, sample_std=sample_std,
                                 print_out=False, alpha=alpha, s0=s0)
     bonett_res = {"Bonett p": np.nan,
+                  "Bonett p lt": np.nan,
+                  "Bonett p gt": np.nan,
                   "Bonett CI": (np.nan, np.nan),
                   "One tail lower boundary": np.nan,
                   "One tail upper boundary": np.nan}
@@ -466,16 +468,21 @@ def var_1sample(data=None, sample_n=None, sample_std=None,
         print = print_port
         print("\n---- 单样本标准差检验 ----")
         print(f'显著性水平 α = {alpha:.3f}；置信水平 = {1-alpha:.1%}')
-        print(f'原假设 H0: σ = σ0；σ0 = {format_stat(s0)}；备择假设 H1: σ ≠ σ0')
+        print(f'原假设 H0: σ = σ0；σ0 = {format_stat(s0)}；'
+              '备择假设 H1: σ ≠ σ0（左尾 σ < σ0，右尾 σ > σ0）')
         for title, rows, values in [
             ('样本统计', [['样本', 'N', '标准差'],
                           ['样本', chi2_res['n'], format_stat(chi2_res['stdev'])]], [
                 ['样本', chi2_res['n'], chi2_res['stdev']]]),
-            ('检验结果（双侧）', [['方法', 'p 值'],
-                          ['卡方', format_stat(chi2_res['p'])],
-                          ['Bonett', format_stat(bonett_res['Bonett p'])]], [
-                ['卡方', chi2_res['p']],
-                ['Bonett', bonett_res['Bonett p']]]),
+            ('检验结果', [['方法', '双侧 p 值', '左尾 p 值', '右尾 p 值'],
+                          ['卡方', format_stat(chi2_res['p']),
+                           format_stat(chi2_res['p lt']), format_stat(chi2_res['p gt'])],
+                          ['Bonett', format_stat(bonett_res['Bonett p']),
+                           format_stat(bonett_res['Bonett p lt']),
+                           format_stat(bonett_res['Bonett p gt'])]], [
+                ['卡方', chi2_res['p'], chi2_res['p lt'], chi2_res['p gt']],
+                ['Bonett', bonett_res['Bonett p'], bonett_res['Bonett p lt'],
+                 bonett_res['Bonett p gt']]]),
             ('总体标准差的置信区间', [['方法', '双侧下限', '双侧上限', '单侧置信下限', '单侧置信上限'],
                           ['卡方', format_stat(chi2_res['CI 95'][0]), format_stat(chi2_res['CI 95'][1]),
                            format_stat(chi2_res['CI lower']), format_stat(chi2_res['CI upper'])],

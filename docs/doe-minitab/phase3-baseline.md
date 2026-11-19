@@ -20,7 +20,7 @@ P1 优先补影响结论或常用报告的缺口，由低侵入且参考已就�
 | G03 | P1 · 尾部规格决策价值高，区间需逐分布验证 | Individual Distribution Identification 提供拟合参数区间及百分位数不确定性 | `FitDistDialog → dist_fit.compare_dist` 有点拟合、拟合优度和点百分位，缺对应区间 | 首批 Normal 与两参数 Lognormal。用 [phase6](../../Out/statistics_minitab19_parity/phase6/case_inputs.json) 含并列值和缺失值两例，冻结同参数化的原生估计表及 RPTILE 5%、50%、95% 的 SE/CI，按同估计口径对比。另校验非法非正值及不可估区间状态，保留点估计。 |
 | G04 | P1 · 计数回归选模，改动集中于报告 | Poisson 模型摘要提供偏差 R²、调整偏差 R² 和 AICc | `generalized_regression` 提供偏差、AIC/BIC 及三项选模统计 | 用 [phase4](../../Out/statistics_minitab19_parity/phase4/comparison.csv) `poisson`，按相同有效 N、参数数目及截距/offset 设定独立拟合空模型与全模型，并按 Minitab 定义算三项，与原生摘要比对。样本不足使 AICc 分母非正时须显示不可用。 |
 | G07 | P1 · 非正态过程的覆盖判断，低至中成本 | 正态容差区间入口同时提供非参数次序统计量法 | `TIDialog` 已支持正态法和非参数法，非参数法待原生取证 | 输入 1–100，双侧 90% 总体覆盖、95% 置信。用独立二项概率求达到目标的对称秩，精确比较上下限秩和实际置信度，并取 Minitab 原生端点。加 1–10 样本不足例，要求显示实际可达置信度或清晰的不可用状态。 [Minitab 容差区间公式](https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/quality-tools/how-to/tolerance-intervals-normal-distribution/methods-and-formulas/methods-and-formulas/) |
-| G05 | P2 · 专用单侧方差推断，需单独验证尾概率 | 单标准差检验提供单侧 Bonett 检验 | Bonett 已有单侧界，缺同口径单侧 p | 重用 phase4 `one_variance_right`（σ₀=3、90%），按公开方法反解匹配的单侧界并核对原生右尾 p；补取左尾输出检验尾向。冻结既有双侧 Bonett 和卡方字段。 |
+| G05 | P2 · 专用单侧方差推断，需单独验证尾概率 | 单标准差检验提供单侧 Bonett 检验 | 报告已输出左尾、右尾 p 值，与单侧界同口径 | 重用 phase4 `one_variance_right`（σ₀=3、90%），按公开方法反解匹配的单侧界并核对原生右尾 p；补取左尾输出检验尾向。冻结既有双侧 Bonett 和卡方字段。 |
 | G06 | P2 · 方差差异定位，需控制多重性 | 等方差检验提供多重比较输出及 Bonferroni 标记的区间 | `multi_pop_var_test` 缺原生多重比较检验对应 p，现有均值中心 Levene 仍是独立方法 | 重用 phase4 `multi_variance` 三组独立样本。先确认原生 Multiple Comparisons p 的检验口径及区间置信定义。冻结原生 p、各组区间和显示精度，以官方公式独立复算；既有 Levene 和 Brown–Forsythe 输出另回归。 |
 | G09 | P2 · 二元回归选模与拟合检查，先补可解释的统计量 | Minitab 二元 Logistic 摘要和拟合优度表提供调整偏差 R²、AICc、偏差与 Pearson 检验及 Hosmer–Lemeshow | 通用 `advanced_regression` 有 McFadden R²、AIC/BIC、Pearson 统计量与总体 LR，缺对应报告字段。历史 BFGS 协方差判断需用当前入口复核 | 先用 phase4 `binary_logistic` 冻结相同编码的原生汇总，独立用空模型及全模型对数似然核对调整偏差 R²、AICc。拟合优度另用六个重复预测模式、每模式 20 次且两类均出现的数据，按冻结的聚合与自由度定义比较偏差/Pearson；HL 用另一个至少十个不同拟合概率的案例，冻结组数、并列处理、组内观测/期望和 χ²/p。未分组稀疏数据继续明确不可用。 |
 | G08 | P2 · SCR-002，多分类筛选有价值，设计构造和可估性成本高 | DSD 接受二水平分类因子，分类设计每复制用两个伪中心点 | 现有限定 4–12 连续加 2–4 分类，另有全连续或一分类路径。其余组合的产品边界需实证 | 先在目标版本导出 13 连续 + 3 分类、1 重复、关闭随机化的原生设计。成功后将该组合冻结为首个扩展案例，比较合法水平、总行数、伪中心点数量和主效应秩，并用实际设计矩阵独立核验主效应方差与二因子混杂。若产品拒绝该组合，保留待取证，选择一项已导出的未覆盖组合后才立项。 [Minitab DSD 设计矩阵](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/screening/analyze-screening-design/methods-and-formulas/model-information/) |
@@ -28,6 +28,8 @@ P1 优先补影响结论或常用报告的缺口，由低侵入且参考已就�
 ## 本轮验收
 
 - G01：双样本 t 检验报告按 μ₂−μ₁ 同时显示左尾上界和右尾下界，使用单侧 t 分位数。Phase 4 pooled 交换组别后与原生 90% 下界 1.374 一致。Phase 5 Welch 用 SciPy 独立检验确认分数自由度和两种单侧界，保留与 Minitab 19 整数自由度的历史方法差异。样本交换、原双侧统计和报告导出通过定向验证。
+
+- G05：单标准差检验报告新增左尾、右尾 Bonett p 值，与既有单侧置信界同口径。方向侧 p 等于既有双侧 p 的一半，另一侧取补，两侧和为 1；不改变双侧 Bonett p、双侧/单侧置信界和卡方结果。Phase 4 `one_variance`（σ₀=3、90%）得双侧 0.4066、右尾 0.2033、左尾 0.7967，用独立正态界反解在七个 σ₀ 取值上复算一致。待 Minitab 原生单侧 p 取证。
 
 - G04：Phase 4 Poisson 摘要三项与原生显示一致（64.11%、59.48%、72.12）。独立斜率 score 求根及 Poisson 对数似然复算通过。偏差 R² 为 1−D/D₀，调整值为 max(0, 1−(D+k−1)/D₀)，AICc 为 AIC+2k(k+1)/(n−k−1)。k 含截距，n 为有效行数，分母无效时留空。广义回归定向 11 项通过。[Minitab 定义](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/regression/how-to/fit-poisson-model/methods-and-formulas/model-summary/)
 

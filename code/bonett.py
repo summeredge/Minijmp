@@ -53,7 +53,16 @@ def var_1sample(data, alpha=0.05, s0=None):
     else:
         p = solution(r, se, n, negative=True)
 
+    # 双侧 p 由区间倍率反解，等价于 Z=Φ⁻¹(1-p/2) 的双侧正态检验。单侧界用
+    # ratio(2a)，故方向侧 p=a=p/2，另一侧由 H0 下 Z 的对称性取 1-p/2。
+    if r > 1:
+        p_lt, p_gt = p / 2, 1 - p / 2
+    else:
+        p_lt, p_gt = 1 - p / 2, p / 2
+
     return {"Bonett p": p,
+            "Bonett p lt": p_lt,
+            "Bonett p gt": p_gt,
             "Bonett CI": (ll, ul),
             #  "CI upper limit": ul,
             "One tail lower boundary": lb,

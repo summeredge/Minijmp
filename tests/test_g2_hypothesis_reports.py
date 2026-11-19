@@ -247,6 +247,65 @@ def test_chi_square_sd_tails_and_legacy_reference_ranges(report, s0, alpha, summ
     assert '样本标准差的抽样分布中央区间' in text
 
 
+def bonett_tail_reference(data, s0):
+    """独立参考：直接反解使单侧界等于 σ0 的水平，不经过生产实现的取半逻辑。"""
+    n = len(data)
+    s = np.std(data, ddof=1)
+    trimmed = np.sort(data)[int(n / 2 / (n - 4)**.5):n - int(n / 2 / (n - 4)**.5)] if n > 5 else data
+    m = float(np.mean(trimmed))
+    kurt = n / (n - 1) / (n - 1) * sum(((x - m) / s)**4 for x in data)
+    se = float(np.sqrt((kurt - (n - 3) / n) / (n - 1)))
+    r = s0 / s
+
+    def bound(a, upper):
+        z = stats.norm.ppf(1 - a)
+        c = n / (n - z)
+        return np.sqrt(c * np.exp((1 if upper else -1) * c * z * se))
+
+    def invert(upper):
+        # 单侧界用 1-alpha 置信：传入 ratio 的是 2*alpha，等价于 z=Φ⁻¹(1-alpha)。
+        lo, hi = 1e-9, .4999999
+        if (bound(lo, upper) > r) == (bound(hi, upper) > r):
+            return None
+        for _ in range(200):
+            mid = (lo + hi) / 2
+            if (bound(mid, upper) > r) == (bound(lo, upper) > r):
+                lo = mid
+            else:
+                hi = mid
+        return (lo + hi) / 2
+
+    # σ0 低于样本标准差时右尾可拒绝，用下界求 p；反之用上界求左尾 p。
+    if r < 1:
+        right = invert(upper=False)
+        return 1 - right, right
+    left = invert(upper=True)
+    return left, 1 - left
+
+
+def test_bonett_one_sided_p_values_match_independent_bound_inversion():
+    case = [5, 7, 8, 9, 10, 12, 14, 15]
+    for s0 in (1.0, 2.0, 3.0, 3.46, 4.0, 6.0, 12.0):
+        result = bonett_reference(case, alpha=.1, s0=s0)
+        lt_ref, gt_ref = bonett_tail_reference(case, s0)
+        assert result['Bonett p lt'] == pytest.approx(lt_ref, abs=1e-5)
+        assert result['Bonett p gt'] == pytest.approx(gt_ref, abs=1e-5)
+        assert result['Bonett p lt'] + result['Bonett p gt'] == pytest.approx(1, abs=1e-9)
+        assert 2 * min(result['Bonett p lt'], result['Bonett p gt']) == pytest.approx(
+            result['Bonett p'], abs=1e-5)
+        # 方向：σ0 小于样本标准差时拒绝右尾假设，大于时拒绝左尾假设。
+        assert (result['Bonett p lt'] < .5) == (s0 > np.std(case, ddof=1))
+
+
+def test_bonett_two_sided_report_unchanged_by_one_sided_fields():
+    # Phase 4 one_variance_right：σ0=3、90% 置信，既有双侧 p 与区间必须保持。
+    result = bonett_reference([5, 7, 8, 9, 10, 12, 14, 15], alpha=.1, s0=3)
+    assert result['Bonett p'] == pytest.approx(0.406641, abs=1e-6)
+    assert result['Bonett CI'] == pytest.approx((2.492784, 6.059838), abs=1e-6)
+    assert result['One tail lower boundary'] == pytest.approx(2.724854, abs=1e-6)
+    assert result['One tail upper boundary'] == pytest.approx(5.243956, abs=1e-6)
+
+
 @pytest.mark.parametrize('mode', ['data', 'summary', 'small'])
 def test_combined_sd_methods_and_unavailable_bonett(report, mode):
     sample = [1, 3] if mode == 'small' else DATA
@@ -255,19 +314,21 @@ def test_combined_sd_methods_and_unavailable_bonett(report, mode):
     result, text, tables = report(var_1sample, s0=2, alpha=.01, **extra)
     chi = chi2_var_1sample(s0=2, alpha=.01, **extra)
     bonett = bonett_reference(sample, s0=2, alpha=.01) if mode == 'data' else None
-    assert tables[1].field_names == ['方法', 'p 值']
+    assert tables[1].field_names == ['方法', '双侧 p 值', '左尾 p 值', '右尾 p 值']
     assert tables[2].field_names == ['方法', '双侧下限', '双侧上限', '单侧置信下限', '单侧置信上限']
     assert [row[0] for row in tables[1].rows] == ['卡方', 'Bonett']
     assert result['p'] == chi['p']
-    numeric_cells(tables[1].rows[0][1:], [chi['p']])
+    numeric_cells(tables[1].rows[0][1:], [chi['p'], chi['p lt'], chi['p gt']])
     numeric_cells(tables[2].rows[0][1:], [*chi['CI 95'], chi['CI lower'], chi['CI upper']])
     if bonett is None:
         assert np.isnan(result['Bonett p'])
-        assert tables[1].rows[1][1:] == ['*']
+        assert np.isnan(result['Bonett p lt']) and np.isnan(result['Bonett p gt'])
+        assert tables[1].rows[1][1:] == ['*'] * 3
         assert tables[2].rows[1][1:] == ['*'] * 4
     else:
         assert result['Bonett p'] == bonett['Bonett p']
-        numeric_cells(tables[1].rows[1][1:], [bonett['Bonett p']])
+        numeric_cells(tables[1].rows[1][1:], [bonett['Bonett p'], bonett['Bonett p lt'],
+                                              bonett['Bonett p gt']])
         numeric_cells(tables[2].rows[1][1:], [*bonett['Bonett CI'], bonett['One tail lower boundary'], bonett['One tail upper boundary']])
     assert '近似推断' in text and '重尾分布需谨慎' in text
 
