@@ -17,7 +17,7 @@ P1 优先补影响结论或常用报告的缺口，由低侵入且参考已就�
 |---|---|---|---|---|
 | G01 | P1 · 单侧决策常用，计算与报告改动小 | 双样本 t 支持方向一致的单侧置信界 | `t_test_2samples` 输出双侧 CI 与单侧 p，已补齐两种单侧界 | 重用 [phase4](../../Out/statistics_minitab19_parity/phase4/case_inputs.json) `two_sample_pooled_t`，同数据双向分别用 t 分位数和存档 Minitab 下界核对；交换样本后上界等于原下界取负。另用 [phase5](../../Out/statistics_minitab19_parity/phase5/case_inputs.json) Welch 缺失样本按分数自由度独立计算；冻结原双侧结果。 |
 | G02 | P1 · 预测诊断常用，现有线性模型可复用 | 回归及验收用 ANOVA 配置报告预测 R²，可由 PRESS 导出 | 完整 OLS、单/双因子 ANOVA 对应报告已补齐两项指标；PLS 已有其自身 CV/PRESS | 用 [phase4](../../Out/statistics_minitab19_parity/phase4/comparison.csv) `ols_multiple`、`ols_categorical`、`one_way_anova`、`two_way_anova`，使用同一模型矩阵逐行留一独立重拟合，计算 PRESS 及 1−PRESS/SST，核对原生字段显示精度。留一后不可估或 SST 为零时输出不可用。 |
-| G03 | P1 · 尾部规格决策价值高，区间需逐分布验证 | Individual Distribution Identification 提供拟合参数区间及百分位数不确定性 | `FitDistDialog → dist_fit.compare_dist` 有点拟合、拟合优度和点百分位，缺对应区间 | 首批 Normal 与两参数 Lognormal。用 [phase6](../../Out/statistics_minitab19_parity/phase6/case_inputs.json) 含并列值和缺失值两例，冻结同参数化的原生估计表及 RPTILE 5%、50%、95% 的 SE/CI，按同估计口径对比。另校验非法非正值及不可估区间状态，保留点估计。 |
+| G03 | P1 · 尾部规格决策价值高，区间需逐分布验证 | Individual Distribution Identification 提供拟合参数区间及百分位数不确定性 | 正态、对数正态已输出参数与百分位数 SE/CI；其他分布保持原输出 | 首批 Normal 与两参数 Lognormal。用 [phase6](../../Out/statistics_minitab19_parity/phase6/case_inputs.json) 含并列值和缺失值两例，冻结同参数化的原生估计表及 RPTILE 5%、50%、95% 的 SE/CI，按同估计口径对比。另校验非法非正值及不可估区间状态，保留点估计。 |
 | G04 | P1 · 计数回归选模，改动集中于报告 | Poisson 模型摘要提供偏差 R²、调整偏差 R² 和 AICc | `generalized_regression` 提供偏差、AIC/BIC 及三项选模统计 | 用 [phase4](../../Out/statistics_minitab19_parity/phase4/comparison.csv) `poisson`，按相同有效 N、参数数目及截距/offset 设定独立拟合空模型与全模型，并按 Minitab 定义算三项，与原生摘要比对。样本不足使 AICc 分母非正时须显示不可用。 |
 | G07 | P1 · 非正态过程的覆盖判断，低至中成本 | 正态容差区间入口同时提供非参数次序统计量法 | `TIDialog` 已支持正态法和非参数法，非参数法待原生取证 | 输入 1–100，双侧 90% 总体覆盖、95% 置信。用独立二项概率求达到目标的对称秩，精确比较上下限秩和实际置信度，并取 Minitab 原生端点。加 1–10 样本不足例，要求显示实际可达置信度或清晰的不可用状态。 [Minitab 容差区间公式](https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/quality-tools/how-to/tolerance-intervals-normal-distribution/methods-and-formulas/methods-and-formulas/) |
 | G05 | P2 · 专用单侧方差推断，需单独验证尾概率 | 单标准差检验提供单侧 Bonett 检验 | 报告已输出左尾、右尾 p 值，与单侧界同口径 | 重用 phase4 `one_variance_right`（σ₀=3、90%），按公开方法反解匹配的单侧界并核对原生右尾 p；补取左尾输出检验尾向。冻结既有双侧 Bonett 和卡方字段。 |
@@ -30,6 +30,8 @@ P1 优先补影响结论或常用报告的缺口，由低侵入且参考已就�
 - G01：双样本 t 检验报告按 μ₂−μ₁ 同时显示左尾上界和右尾下界，使用单侧 t 分位数。Phase 4 pooled 交换组别后与原生 90% 下界 1.374 一致。Phase 5 Welch 用 SciPy 独立检验确认分数自由度和两种单侧界，保留与 Minitab 19 整数自由度的历史方法差异。样本交换、原双侧统计和报告导出通过定向验证。
 
 - G05：单标准差检验报告新增左尾、右尾 Bonett p 值，与既有单侧置信界同口径。方向侧 p 等于既有双侧 p 的一半，另一侧取补，两侧和为 1；不改变双侧 Bonett p、双侧/单侧置信界和卡方结果。Phase 4 `one_variance`（σ₀=3、90%）得双侧 0.4066、右尾 0.2033、左尾 0.7967，用独立正态界反解在七个 σ₀ 取值上复算一致。待 Minitab 原生单侧 p 取证。
+
+- G03：正态与两参数对数正态新增参数、5%/50%/95% 百分位数的标准误与 95% 置信区间。参数区间为均值 t 区间、标准差卡方区间；百分位数方差取 sigma²/n + z²sigma²(1−c4²)，区间沿正态分位数对称展开，属渐近近似。Phase 6 `normal_ties` 正态百分位数 55.5720/62.55/69.5280 与 SE 1.03448/0.670773 完全复现，对数正态 55.6147/62.4039/70.022 与 SE 0.94964/0.69093/1.1956 一致。对数正态参数仍在对数尺度报告，区间按 exp() 换回原尺度。其他分布输出未变。
 
 - G04：Phase 4 Poisson 摘要三项与原生显示一致（64.11%、59.48%、72.12）。独立斜率 score 求根及 Poisson 对数似然复算通过。偏差 R² 为 1−D/D₀，调整值为 max(0, 1−(D+k−1)/D₀)，AICc 为 AIC+2k(k+1)/(n−k−1)。k 含截距，n 为有效行数，分母无效时留空。广义回归定向 11 项通过。[Minitab 定义](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/regression/how-to/fit-poisson-model/methods-and-formulas/model-summary/)
 

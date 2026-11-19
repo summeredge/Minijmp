@@ -1947,6 +1947,16 @@
       "tests": ["tests/test_g4_quality_reports.py::test_nonparametric_tolerance_order_statistics"],
       "exception_reason": ""
     },
+    "dist_fit.py::print_intervals": {
+      "sites": ["construct:gen_table#1", "emit:structured:print_port#1", "construct:StatTable#1", "construct:gen_table#2", "emit:structured:print_port#2", "construct:StatTable#2"],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": ["{fit_name} 参数估计与置信区间", "{fit_name} 百分位数估计与置信区间"],
+      "entry_points": ["fit_norm", "fit_lognorm", "FitDistDialog.apply"],
+      "status": "已迁移 StatTable",
+      "tests": ["tests/test_g3_distribution_reports.py::test_parameter_and_percentile_intervals_match_phase6_native_percentiles"],
+      "exception_reason": ""
+    },
     "two_way_anova.py::two_way_anova": {
       "sites": [
         "construct:gen_table#1",
@@ -2518,6 +2528,13 @@
       "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
     },
     "dist_fit.py::print_table": {
+      "ports": [
+        "print"
+      ],
+      "classification": "statistical",
+      "review": "仅审计函数与端口名称；不冻结普通输出计数或字符串内容。"
+    },
+    "dist_fit.py::print_intervals": {
       "ports": [
         "print"
       ],

@@ -82,7 +82,11 @@ def test_text_values_and_real_exports(name, tmp_path):
         if name == 'fit_lognorm':
             parameters[0] = math.log(parameters[0])
         assert [row[1] for row in tables[0].values] == parameters
-        assert tables[1].values == [list(result['ABL'])]
+        offset = 2 if name in ('fit_norm', 'fit_lognorm') else 0
+        if offset:
+            assert [row[0] for row in tables[1].values] == ['mu', 'sigma']
+            assert [row[0] for row in tables[2].values] == [5, 50, 95]
+        assert tables[1 + offset].values == [list(result['ABL'])]
     elif name == 'compare':
         assert tables[-1].values == [[r[0], r[1][1], r[-1], r[1][2], r[1][0]] for r in result]
     for index, table in enumerate(tables):

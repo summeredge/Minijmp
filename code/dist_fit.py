@@ -2,6 +2,8 @@ from stat_table import StatTable
 from scipy.stats import norm, gamma, weibull_min, lognorm, johnsonsu, expon
 #  from scipy.stats import gamma as gamma
 from scipy.stats import t as t_dist
+from scipy.stats import chi2 as chi2_dist
+from scipy.special import gammaln
 from math import log as ln
 from math import exp
 from numpy import nan
@@ -32,7 +34,50 @@ def ABL(rv, data, k):
     return (-2 * log_likelihood, AICc, BIC)
 
 
-def print_table(fit_name, para_names, paras, abl, a2, p, print_port=print):
+def _c4(n):
+    """无偏标准差相对总体标准差的期望比 c4(n)。"""
+    return (2 / (n - 1))**.5 * exp(gammaln(n / 2) - gammaln((n - 1) / 2))
+
+
+def norm_intervals(u, s, n, percentiles=(5, 50, 95), alpha=.05):
+    """正态参数与百分位数的渐近 SE/CI；s 为样本标准差（含 c4 修正）。
+
+    Minitab 口径：百分位数方差 = sigma^2/n + z^2 sigma^2 (1 - c4^2)，
+    z 为该百分位对应的标准正态分位数；区间用正态分位数展开。
+    """
+    tq = t_dist.ppf(1 - alpha / 2, n - 1)
+    sem = s / n**.5
+    ll_sd = s * ((n - 1) / chi2_dist.ppf(1 - alpha / 2, n - 1))**.5
+    ul_sd = s * ((n - 1) / chi2_dist.ppf(alpha / 2, n - 1))**.5
+    c4 = _c4(n)
+    parameters = [('mu', u, sem, u - tq * sem, u + tq * sem),
+                  ('sigma', s, s * (1 - c4**2)**.5, ll_sd, ul_sd)]
+    intervals = []
+    for pct in percentiles:
+        zq = norm.ppf(pct / 100)
+        value = u + zq * s
+        se = (s**2 / n + zq**2 * s**2 * (1 - c4**2))**.5
+        half = norm.ppf(1 - alpha / 2) * se
+        intervals.append((pct, value, se, value - half, value + half))
+    return parameters, intervals
+
+
+def lognorm_intervals(mu, sigma, n, alpha=.05):
+    """对数正态：参数在对数尺度报告；百分位数 exp() 回原尺度，SE 按 Delta 法缩放。"""
+    parameters, intervals = norm_intervals(mu, sigma, n, alpha=alpha)
+    return parameters, [(pct, exp(value), exp(value) * se, exp(lo), exp(hi))
+                        for pct, value, se, lo, hi in intervals]
+
+
+def fit_intervals(name, mu, sigma, n):
+    """仅正态与两参数对数正态提供参数/百分位数区间；n<=1 时不可估。"""
+    if n <= 1:
+        return None
+    return (norm_intervals if name == "Normal" else lognorm_intervals)(mu, sigma, n)
+
+
+def print_table(fit_name, para_names, paras, abl, a2, p, print_port=print,
+                intervals=None):
     print = print_port
     print("候选分布：" + fit_name)
     t = gen_table([['参数', '估计值']])
@@ -41,7 +86,10 @@ def print_table(fit_name, para_names, paras, abl, a2, p, print_port=print):
     t.align['估计值'] = 'r'
     print(StatTable(t, fit_name + ' 参数估计', t.field_names,
         [[name, value] for name, value in zip(para_names, paras)], display=[[str(v) for v in row] for row in t.rows]))
-    print("参数置信区间：现有方法未计算。")
+    if intervals is None:
+        print("参数置信区间：现有方法未计算。")
+    else:
+        print_intervals(fit_name, intervals, print_port=print_port)
     t = gen_table([['-2*LogLikelihood', 'AICc', 'BIC'],
                    [format_stat(value) for value in abl]])
     t.align = 'r'
@@ -58,6 +106,29 @@ def print_table(fit_name, para_names, paras, abl, a2, p, print_port=print):
     print("AICc、BIC 用于同一数据下候选模型的相对比较，值越小越优；它们与 AD 统计量含义不同。")
     print("* 表示不可用或未计算的统计量。")
     return
+
+
+def print_intervals(fit_name, intervals, print_port=print):
+    """正态/对数正态新增的参数与百分位数区间表；95% 为原生对照口径。"""
+    parameters, percentiles = intervals
+    print = print_port
+    t = gen_table([['参数', '估计值', '标准误', '置信下限', '置信上限'],
+                   *[[row[0], *[format_stat(v) for v in row[1:]]] for row in parameters]])
+    t.align = 'r'
+    t.align['参数'] = 'l'
+    print(StatTable(t, fit_name + ' 参数估计与 95.0% 置信区间',
+        t.field_names, [list(row) for row in parameters],
+        display=[[str(v) for v in row] for row in t.rows]))
+    t = gen_table([['百分比', '百分位数', '标准误', '置信下限', '置信上限'],
+                   *[[f'{row[0]:g}', *[format_stat(v) for v in row[1:]]] for row in percentiles]])
+    t.align = 'r'
+    t.align['百分比'] = 'l'
+    print(StatTable(t, fit_name + ' 百分位数估计与 95.0% 置信区间',
+        t.field_names, [list(row) for row in percentiles],
+        display=[[str(v) for v in row] for row in t.rows]))
+    print("标准误与区间为渐近近似：均值方差取 sigma^2/n，标准差取 sigma^2(1-c4^2)；"
+          "百分位数区间沿正态近似对称展开，不是精确置信区间。")
+    print("参数区间：均值为 t 区间，标准差为卡方区间；对数正态在对数尺度估计后换算回原尺度。")
 
 
 def AD(rv, data):
@@ -151,11 +222,12 @@ def fit_norm(data, print_out=True, print_port=print):
     # Keep the sample sigma for reporting/AD; likelihood uses the MLE sigma.
     abl = ABL(norm(u, stat.pstdev(data)), data, 2)
     a2, p = goodness_of_fit(rv, data, normal=True)
+    intervals = fit_intervals("Normal", u, s, len(data))
     if print_out:
         print_port("\n---- 分布拟合 ----")
         print_port("样本量 N = %d" % len(data))
         print_table("正态 Normal", ("总体均值 mu", "总体标准差 sigma"),
-                    (u, s), abl, a2, p, print_port=print_port)
+                    (u, s), abl, a2, p, print_port=print_port, intervals=intervals)
         print_port("正态分布：mu 为均值，sigma 为标准差；沿用样本均值和样本标准差估计。")
     return {"fits": (u, s), "ABL": abl, "rv": rv}
 
@@ -255,11 +327,12 @@ def fit_lognorm(data,
     # AIC/BIC remain likelihood-based even though the reported sigma is unbiased.
     abl = ABL(lognorm(stat.pstdev(log_data), loc=0, scale=s), data, 2)
     a2, p = goodness_of_fit(rv, data, fitted_distribution="Lognormal")
+    intervals = fit_intervals("Lognormal", ln(s), a, len(data))
     if print_out:
         print_port("\n---- 分布拟合 ----")
         print_port("样本量 N = %d" % len(data))
         print_table("对数正态 Lognormal", ("对数均值 mu", "对数标准差 sigma"),
-                    (ln(s), a), abl, a2, p, print_port=print_port)
+                    (ln(s), a), abl, a2, p, print_port=print_port, intervals=intervals)
         print_port("对数正态分布：位置固定为 0；mu、sigma 分别为 ln(X) 的均值、无偏样本标准差；AICc/BIC 按最大似然估计计算；SciPy scale = exp(mu)；输入值须 > 0。")
     return {"fits": (s, a), "ABL": abl, "rv": rv}
 

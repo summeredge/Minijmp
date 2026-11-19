@@ -10,6 +10,7 @@ import pandas as pd
 import pytest
 from matplotlib.figure import Figure
 from scipy import stats
+from scipy.special import gammaln
 
 import basic_dialogs
 import dist_fit
@@ -116,25 +117,34 @@ def test_all_fits_values_fields_parameter_order_and_output_switch(case, print_ou
     if not print_out:
         assert tables == [] and lines == []
     else:
-        assert len(tables) == 3
+        with_intervals = name in ('Normal', 'Lognormal')
+        assert len(tables) == (5 if with_intervals else 3)
         assert tables[0].field_names == ['参数', '估计值']
         displayed = (np.log(fits[0]), fits[1]) if name == 'Lognormal' else fits
         assert tables[0].rows == [list(row) for row in zip(labels, formatted(displayed))]
-        assert tables[1].field_names == ['-2*LogLikelihood', 'AICc', 'BIC']
-        assert tables[1].rows == [formatted(abl)]
-        assert tables[2].field_names == ['拟合优度方法', 'AD 统计量', '近似 p 值']
-        assert tables[2].rows == [['Anderson-Darling', *formatted(gof)]]
+        offset = 2 if with_intervals else 0
+        if with_intervals:
+            assert tables[1].field_names == ['参数', '估计值', '标准误', '置信下限', '置信上限']
+            assert [row[0] for row in tables[1].rows] == ['mu', 'sigma']
+            assert tables[2].field_names == ['百分比', '百分位数', '标准误', '置信下限', '置信上限']
+            assert [row[0] for row in tables[2].rows] == ['5', '50', '95']
+        assert tables[1 + offset].field_names == ['-2*LogLikelihood', 'AICc', 'BIC']
+        assert tables[1 + offset].rows == [formatted(abl)]
+        assert tables[2 + offset].field_names == ['拟合优度方法', 'AD 统计量', '近似 p 值']
+        assert tables[2 + offset].rows == [['Anderson-Darling', *formatted(gof)]]
         text = '\n'.join(lines)
         assert '样本量 N = 13' in text
         assert name in text
-        assert text.index('---- 分布拟合 ----') < text.index('样本量 N') < text.index('候选分布') < text.index('参数置信区间')
-        assert '参数置信区间：现有方法未计算' in text
+        assert text.index('---- 分布拟合 ----') < text.index('样本量 N') < text.index('候选分布')
+        assert ('参数置信区间：现有方法未计算' in text) is (name not in ('Normal', 'Lognormal'))
+        assert ('渐近近似' in text) is (name in ('Normal', 'Lognormal'))
         assert 'p = 0.000' in text and '不代表概率严格为零' in text
         assert '未拒绝 H0 不等于证明' in text
         assert '未进行分布专用校准' not in text
         for table in tables:
             for column in table.field_names:
-                assert table.align[column] == ('l' if column in ['参数', '拟合优度方法'] else 'r')
+                assert table.align[column] == (
+                    'l' if column in ['参数', '拟合优度方法', '百分比'] else 'r')
         if name == "Student's t":
             assert '并非标准差' in text
         if name == 'Lognormal':
@@ -143,6 +153,50 @@ def test_all_fits_values_fields_parameter_order_and_output_switch(case, print_ou
         if name in ['Gamma', 'Lognormal', 'Exponential', 'Weibull']:
             assert '位置固定为 0' in text
     assert capsys.readouterr().out == ''
+
+
+def test_parameter_and_percentile_intervals_match_phase6_native_percentiles():
+    """Phase 6 normal_ties：原生百分位数 55.5720/62.55/69.5280，SE 1.03448/0.670773。"""
+    values = [59, 61, 55, 66, 52, 60, 61, 51, 60, 61, 56, 65, 63, 58, 59, 61,
+              62, 65, 63, 62, 63, 64, 65, 64, 68, 64, 69, 62, 64, 67, 65,
+              66, 62, 66, 65, 60, 68, 62, 68, 70]
+    lines, tables = [], []
+    original = dist_fit.gen_table
+    dist_fit.gen_table = lambda rows: tables.append(original(rows)) or tables[-1]
+    try:
+        dist_fit.fit_norm(values, print_port=lines.append)
+    finally:
+        dist_fit.gen_table = original
+    percentiles = tables[2]
+    assert [row[1] for row in percentiles.rows] == ['55.572', '62.550', '69.528']
+    assert [row[2] for row in percentiles.rows] == ['1.034', '0.671', '1.034']
+    # 参数表：mu 的 SE = s/sqrt(n)，sigma 的 SE = s*sqrt(1-c4^2)。
+    params = tables[1]
+    assert [row[0] for row in params.rows] == ['mu', 'sigma']
+    se = np.std(values, ddof=1)
+    c4_check = np.sqrt(2 / (len(values) - 1)) * np.exp(
+        gammaln(len(values) / 2) - gammaln((len(values) - 1) / 2))
+    assert float(params.rows[0][2]) == pytest.approx(se / len(values)**.5, abs=.0006)
+    assert float(params.rows[1][2]) == pytest.approx(se * np.sqrt(1 - c4_check**2), abs=.0006)
+
+    # 独立参考：方差 sigma^2/n + z^2 sigma^2 (1-c4^2)，正态分位数展开。
+    n = len(values)
+    s = np.std(values, ddof=1)
+    c4 = np.sqrt(2 / (n - 1)) * np.exp(
+        gammaln(n / 2) - gammaln((n - 1) / 2))
+    for pct, row in zip((5, 50, 95), percentiles.rows):
+        z = stats.norm.ppf(pct / 100)
+        expected_se = np.sqrt(s**2 / n + z**2 * s**2 * (1 - c4**2))
+        assert float(row[2]) == pytest.approx(expected_se, abs=.0006)
+    log_tables, log_lines = [], []
+    dist_fit.gen_table = lambda rows: log_tables.append(original(rows)) or log_tables[-1]
+    try:
+        dist_fit.fit_lognorm(values, print_port=log_lines.append)
+    finally:
+        dist_fit.gen_table = original
+    log_percentiles = log_tables[2]
+    assert [row[1] for row in log_percentiles.rows] == ['55.615', '62.404', '70.022']
+    assert [row[2] for row in log_percentiles.rows] == ['0.950', '0.691', '1.196']
 
 
 def test_normal_information_criteria_use_mle_without_changing_sample_fit():
@@ -262,7 +316,7 @@ def test_small_sample_missing_aicc_and_weights_preserve_nan_order(tables):
     comparison = tables[-1]
     assert [row[2] for row in comparison.rows] == ['*'] * 6
     assert [row[1] for row in comparison.rows] == ['*', '*', '*', '*', '16.159', '*']
-    assert tables[1].rows == [['7.297', '*', '9.494']]
+    assert tables[3].rows == [['7.297', '*', '9.494']]
     lines = []
     dist_fit.compare_dist([1., 2., 3.], print_port=lines.append, selected=['Normal', 'Exponential'])
     assert 'AICc 或权重为 * 时，现有排序不提供有效的优劣结论。' in lines
@@ -328,7 +382,7 @@ def test_fit_dialog_apply_cleans_selected_data_and_routes_actual_reports(monkeyp
         app=SimpleNamespace(print=lines.append))
     assert basic_dialogs.FitDistDialog.apply(dialog) is None
     from stat_table import StatTable
-    assert sum(isinstance(line, StatTable) for line in lines) == 10
+    assert sum(isinstance(line, StatTable) for line in lines) == 12
     assert calls.call_args.args == ([*DATA, 5.],)
     assert calls.call_args.kwargs == dict(print_out=True, print_port=lines.append, selected=selected)
     pd.testing.assert_frame_equal(frame, original)
@@ -378,7 +432,8 @@ def test_histogram_apply_uses_same_frozen_rv_and_curve_without_changing_source(m
             assert any('拟合失败' in line for line in lines)
             return
         from stat_table import StatTable
-        assert sum(isinstance(line, StatTable) for line in lines) == 3
+        assert sum(isinstance(line, StatTable) for line in lines) == (
+            5 if distribution == 'Lognormal' else 3)
         expected = dist_fit.fit_lognorm([*DATA, 5.], print_out=False)['rv']
         np.testing.assert_array_equal(rv.pdf(DATA), expected.pdf(DATA))
         assert len(figure.axes) == 2
@@ -429,7 +484,8 @@ def test_scoped_source_legacy_report_patterns_and_public_contracts():
     assert signature.parameters['print_out'].default is True
     assert signature.parameters['print_port'].default is print
     assert signature.parameters['selected'].default == [case[0] for case in CASES]
-    assert list(inspect.signature(dist_fit.print_table).parameters) == ['fit_name', 'para_names', 'paras', 'abl', 'a2', 'p', 'print_port']
+    assert list(inspect.signature(dist_fit.print_table).parameters) == [
+        'fit_name', 'para_names', 'paras', 'abl', 'a2', 'p', 'print_port', 'intervals']
     source = Path(dist_fit.__file__).read_bytes().decode('utf-8')
     tree = ast.parse(source)
     functions = {node.name: ast.get_source_segment(source, node) for node in tree.body if isinstance(node, ast.FunctionDef)}
