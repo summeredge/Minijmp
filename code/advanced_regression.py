@@ -696,6 +696,10 @@ def fit_regression(df, y, x, model='OLS', categorical=(), degree=1, interactions
         if not nonlinear:
             mean = np.average(response, weights=w)
             total = np.sum(w*(response-mean)**2)
+            if model == 'OLS':
+                from utilities import prediction_statistics
+                metrics['press'], metrics['pred_r_squared'] = prediction_statistics(
+                    residual, influence['leverage'], total)
             sse = metrics['sse']
             ssr = max(0., total-sse)
             f_stat = ssr/(p-1)/scale if p > 1 and scale > 0 else np.nan

@@ -270,6 +270,7 @@ def test_real_application_route_gui_and_txt(viewer, tmp_path, case, monkeypatch)
 
 
 def test_plot_dialog_and_statistical_dependencies_unchanged():
+    from source_baselines import normalize_phase3_press
     for name in ('qc_dialog.py', 'ctrlchart_dialog.py', 'cpk_plot.py', 'grr_plot.py',
                  'chart_style.py', 'utilities.py', 'two_way_anova.py', 'one_way_ANOVA.py'):
         # 合并时 main 已含 G9/G10 呈现迁移；仍逐字保护这三个共享模块。
@@ -296,6 +297,7 @@ def test_plot_dialog_and_statistical_dependencies_unchanged():
         elif name == 'utilities.py':
             # G12 仅迁移区间报告；其余全文及该函数计算仍受保护。
             trees = [ast.parse(source) for source in (before, current)]
+            normalize_phase3_press(trees[1])
             normalize_deferred_imports(trees[1], trees[0], normalize_baseline=True)
             normalize_p1_numeric(trees[1], 'utilities.py', trees[0])
             normalize_review_d2(trees[1])
@@ -310,6 +312,7 @@ def test_plot_dialog_and_statistical_dependencies_unchanged():
             assert ast.dump(trees[0]) == ast.dump(trees[1])
         elif name == 'two_way_anova.py':
             trees = [ast.parse(source) for source in (before, current)]
+            normalize_phase3_press(trees[1])
             from source_baselines import normalize_review003
             normalize_review003(trees[1])
             for tree in trees:
@@ -330,6 +333,7 @@ def test_plot_dialog_and_statistical_dependencies_unchanged():
             import copy
             import hashlib
             trees = [ast.parse(source) for source in (before, current)]
+            normalize_phase3_press(trees[1])
             function = next(n for n in trees[1].body if isinstance(n, ast.FunctionDef)
                             and n.name == 'JMP_ANOVA_t_test')
             # 667bf6f 的完整已批准函数；LSD 独立参考见 test_statistical_batch2。

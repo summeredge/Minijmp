@@ -52,7 +52,7 @@ def test_one_way_values_intervals_types_and_summary(monkeypatch, alpha, print_ou
     expected = {'F': 41.86, 'p': stats.f_oneway(*DATA).pvalue,
         'df B': 2, 'df W': 7, 'df TTL': 9, 'MSB': 89.7,
         'MSW': 15 / 7, 'MSE': 15 / 7, 'MSA': 89.7}
-    assert list(result) == list(expected) + ['CI']
+    assert list(result) == list(expected) + ['CI', 'press', 'pred_r_squared']
     for key, value in expected.items():
         assert result[key] == pytest.approx(value)
         expected_type = int if key.startswith('df ') else (
@@ -159,9 +159,9 @@ def test_two_way_models_exact_fields_values_and_absent_interaction(monkeypatch, 
         'p A': stats.f.sf(5.4, 1, 4) if interaction else stats.f.sf(135 / 23, 1, 5),
         'p B': stats.f.sf(121 / 15, 1, 4) if interaction else stats.f.sf(605 / 69, 1, 5),
         'p AB': stats.f.sf(.6, 1, 4) if interaction else -1}
-    assert list(result) == list(expected)
-    assert result == pytest.approx(expected)
-    for key in result:
+    assert list(result) == list(expected) + ['press', 'pred_r_squared']
+    assert {key: result[key] for key in expected} == pytest.approx(expected)
+    for key in expected:
         integer = key == 'N' or key.startswith('DF ') or (
             not interaction and key in ['SSAB', 'MSAB', 'F AB', 'p AB'])
         typ = int if integer else float if interaction and key in ['SSE', 'MSE'] else np.float64

@@ -359,8 +359,17 @@ def test_f08_two_way_balanced_and_unbalanced(old, corrected_additive_old, data, 
         actual = two_way_anova(data, interaction=False)
         for key, value in matrix_reference(data, False).items():
             assert actual[key] == pytest.approx(value, rel=1e-9, abs=1e-10)
-    same_call(two_way_anova, old.two_way_anova.two_way_anova if interaction else corrected_additive_old,
-              data, interaction=interaction, print_out=True)
+    before_lines, after_lines = [], []
+    expected = old.two_way_anova.two_way_anova if interaction else corrected_additive_old
+    before = expected(data, interaction=interaction, print_out=True, print_port=before_lines.append)
+    after = two_way_anova(data, interaction=interaction, print_out=True, print_port=after_lines.append)
+    # The two new fields and their report line are checked against explicit leave-one-out fits.
+    assert set(after) - set(before) == {'press', 'pred_r_squared'}
+    equal({key: after[key] for key in before}, before)
+    summary = [line for line in after_lines if line.startswith('模型摘要 · PRESS = ')]
+    assert len(summary) == 1
+    after_lines.remove(summary[0])
+    assert list(map(str, after_lines)) == list(map(str, before_lines))
 
 
 def test_f08_cell_means_count(monkeypatch):

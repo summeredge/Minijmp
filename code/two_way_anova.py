@@ -5,10 +5,10 @@ import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from pandas import DataFrame as DF
 ######## Own Modules ##########
-from utilities import group_by2factors, gen_table, format_stat
+from utilities import group_by2factors, gen_table, format_stat, prediction_statistics
 
 
-def SSA_SSB(data):
+def SSA_SSB(data, *, return_model=False):
     # Source: https://www.pythonfordatascience.org/factorial-anova-python/
     # The direct output of the stats model python is different from Minitab
     # and JMP.
@@ -34,13 +34,14 @@ def SSA_SSB(data):
     #  C(A, Sum):C(B, Sum)      30.603340
     #  Residual                157.680773
     #  Name: sum_sq, dtype: float64
-    return (anova_table.sum_sq.iloc[1],  # SSA
+    sums = (anova_table.sum_sq.iloc[1],  # SSA
             anova_table.sum_sq.iloc[2],  # SSB
             anova_table.sum_sq.iloc[3])  # SSAB
+    return (*sums, full_model) if return_model else sums
     # Both type III
 
 
-def SSA_SSB_simple(data):
+def SSA_SSB_simple(data, *, return_model=False):
     l = []
     for i, ith_A in enumerate(data):
         for j, ith_A_jth_B in enumerate(ith_A):
@@ -54,9 +55,10 @@ def SSA_SSB_simple(data):
 
     # To get the complete ANOVA table with Type 3 SS
     anova_table = sm.stats.anova_lm(full_model, typ=3)
-    return (anova_table.sum_sq.iloc[1],  # SSA
+    sums = (anova_table.sum_sq.iloc[1],  # SSA
             anova_table.sum_sq.iloc[2],  # SSB
             full_model.ssr)
+    return (*sums, full_model) if return_model else sums
 
 
 def two_way_anova(data, factor_listA=None, print_port=print, interaction=True,
@@ -101,7 +103,7 @@ def two_way_anova(data, factor_listA=None, print_port=print, interaction=True,
 #                for bi in range(b) for k in d[ai][bi]])
 #    print(SST-Re_SS_B)
     if interaction:
-        SSA, SSB, SSAB = SSA_SSB(d)
+        SSA, SSB, SSAB, fit = SSA_SSB(d, return_model=True)
         SSE = 0
         for row in d:
             for cell in row:
@@ -109,8 +111,9 @@ def two_way_anova(data, factor_listA=None, print_port=print, interaction=True,
                     mean = stat.mean(cell)
                     SSE += sum((x - mean)**2 for x in cell)
     else:
-        SSA, SSB, SSE = SSA_SSB_simple(d)
+        SSA, SSB, SSE, fit = SSA_SSB_simple(d, return_model=True)
         SSAB = 0
+    press, pred_r_squared = prediction_statistics(fit.resid, fit.get_influence().hat_matrix_diag, SST)
 
     DFA = a - 1
     DFB = b - 1
@@ -162,6 +165,7 @@ def two_way_anova(data, factor_listA=None, print_port=print, interaction=True,
             t.align[column] = "r"
         print(StatTable(t, '方差分析表', t.field_names, values,
             display=[[str(cell) for cell in row] for row in t.rows]))
+        print(f"模型摘要 · PRESS = {format_stat(press)}，预测 R² = {format_stat(pred_r_squared)}")
         print("各项 F 检验的 H0 为对应模型项效应为零；主效应应结合所选模型解释。")
         if interaction:
             print("交互作用检验因子效应是否随另一因子的水平改变。")
@@ -171,7 +175,8 @@ def two_way_anova(data, factor_listA=None, print_port=print, interaction=True,
     return {"N": n, "SSE": SSE, "MSE": MSE, "SSA": SSA, "MSA": MSA,
             "SSB": SSB, "SSAB": SSAB, "MSB": MSB, "MSAB": MSAB, "DF A": DFA,
             "DF B": DFB, "DF AB": DFAB, "F A": FA, "F B": FB, "F AB": FAB,
-            "p A": PA, "p B": PB, "p AB": PAB}
+            "p A": PA, "p B": PB, "p AB": PAB,
+            "press": press, "pred_r_squared": pred_r_squared}
 
 # The results were tested with Minitab express and JMP 17
 # for both balanced and unbalanced data sets

@@ -36,6 +36,51 @@ def strip_main_guard(tree):
     return tree
 
 
+def normalize_phase3_press(tree):
+    """保留既有 ANOVA 守卫，仅移除由独立留一测试接管的 PRESS 增量。"""
+    if isinstance(tree, ast.Module):
+        tree.body = [node for node in tree.body if not (
+            isinstance(node, ast.FunctionDef) and node.name == 'prediction_statistics')]
+        for node in tree.body:
+            if isinstance(node, ast.ImportFrom) and node.module == 'utilities':
+                node.names = [name for name in node.names if name.name != 'prediction_statistics']
+    for fn in ast.walk(tree):
+        if not isinstance(fn, ast.FunctionDef):
+            continue
+        if fn.name in ('SSA_SSB', 'SSA_SSB_simple') and [a.arg for a in fn.args.kwonlyargs] == ['return_model']:
+            fn.args.kwonlyargs.clear()
+            fn.args.kw_defaults.clear()
+            assign, ret = fn.body[-2:]
+            assert ast.unparse(assign.targets[0]) == 'sums'
+            assert ast.unparse(ret.value) == '(*sums, full_model) if return_model else sums'
+            fn.body[-2:] = [ast.Return(value=assign.value)]
+        if fn.name not in ('one_way_anova', 'two_way_anova'):
+            continue
+        fn.body = [node for node in fn.body if not (
+            isinstance(node, ast.Assign) and ast.unparse(node.targets[0]) == '(press, pred_r_squared)'
+            and isinstance(node.value, ast.Call) and ast.unparse(node.value.func) == 'prediction_statistics')]
+        for node in fn.body:
+            if isinstance(node, ast.If) and ast.unparse(node.test) == 'interaction':
+                for branch in (node.body, node.orelse):
+                    call = branch[0]
+                    if isinstance(call, ast.Assign) and ast.unparse(call.value) in (
+                        'SSA_SSB(d, return_model=True)', 'SSA_SSB_simple(d, return_model=True)',
+                    ):
+                        assert ast.unparse(call.targets[0].elts[-1]) == 'fit'
+                        call.targets[0].elts.pop()
+                        call.value.keywords.clear()
+            if isinstance(node, ast.If) and ast.unparse(node.test) == 'print_out':
+                report = ast.parse('print(f"模型摘要 · PRESS = {format_stat(press)}，预测 R² = {format_stat(pred_r_squared)}")').body[0]
+                node.body = [statement for statement in node.body if ast.dump(statement) != ast.dump(report)]
+            if isinstance(node, ast.Return):
+                fields = {'press', 'pred_r_squared'}
+                entries = [(key, val) for key, val in zip(node.value.keys, node.value.values)
+                           if not (isinstance(key, ast.Constant) and key.value in fields
+                                   and ast.unparse(val) == key.value)]
+                node.value.keys[:], node.value.values[:] = zip(*entries)
+    return tree
+
+
 def normalize_p2_legacy(tree, module, baseline):
     """仅接管 REVIEW-018/019 的精确函数；含报告在内的任何后续变动均拒绝。"""
     name = {'cpk.py': 'cpk', 'qc_dialog.py': 'CpkSubDialog.apply'}[module]

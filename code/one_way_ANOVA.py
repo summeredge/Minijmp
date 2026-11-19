@@ -4,7 +4,7 @@ import numpy as np
 from scipy.stats import f as f_dist
 from scipy.stats import t as t_test
 ########### Own Modules ############
-from utilities import make_dict, gen_table, format_stat
+from utilities import make_dict, gen_table, format_stat, prediction_statistics
 from t_test import t_test_1sample
 
 
@@ -33,6 +33,10 @@ def one_way_anova(data, labels, print_out=False, print_port=print,
                     for v in dict_data[groups[i]]])
                for i in range(k)])
     SST = SSB + SSW
+    # The projection onto group means has diagonal 1/n within each group.
+    press, pred_r_squared = prediction_statistics(
+        np.concatenate([np.asarray(dict_data[key]) - center for key, center in zip(groups, means)]),
+        np.repeat(1 / np.asarray(ns), ns), SST)
 
     df_between = k - 1
     df_within = N - k
@@ -78,12 +82,14 @@ def one_way_anova(data, labels, print_out=False, print_port=print,
             t.align[column] = "r"
         print(StatTable(t, '方差分析表', t.field_names, values,
             display=[[str(cell) for cell in row] for row in t.rows]))
+        print(f"模型摘要 · PRESS = {format_stat(press)}，预测 R² = {format_stat(pred_r_squared)}")
         print("模型假设：观测独立，组内误差近似正态且方差相等；本报告未检验这些条件。")
         print("* 表示不适用或不可用；p 值显示为 0.000 是舍入结果，不代表概率严格为零。")
 
     return {"F": F, "p": p,
             "df B": df_between, "df W": df_within, "df TTL": df_total,
-            "MSB": MSB, "MSW": MSW, "MSE": MSW, "MSA": MSB, "CI": CIs
+            "MSB": MSB, "MSW": MSW, "MSE": MSW, "MSA": MSB, "CI": CIs,
+            "press": press, "pred_r_squared": pred_r_squared
             }
 
 # The means compare each pair in JMP uses pooled t-test

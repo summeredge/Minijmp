@@ -20,7 +20,7 @@ import txt_output
 from cpk_plot import cpk_plot
 from utilities import format_stat
 from test_g1_text_output import viewer
-from source_baselines import (read_source_baseline, normalize_p1_numeric, normalize_p2_legacy,
+from source_baselines import (read_source_baseline, normalize_p1_numeric, normalize_p2_legacy, normalize_phase3_press,
                               normalize_spec_calls, strip_main_guard)
 
 
@@ -590,7 +590,7 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
         old = read_source_baseline(baseline, f'code/{name}')
         if name in {'one_way_ANOVA.py', 'two_way_anova.py'}:
             # G9 仅迁移报告；计算守卫继续保留，完整 TXT 由 G9 固定夹具验证。
-            current = ast.parse((ROOT / 'code' / name).read_text(encoding='utf-8'))
+            current = normalize_phase3_press(ast.parse((ROOT / 'code' / name).read_text(encoding='utf-8')))
             current.body = [node for node in current.body if not (
                 isinstance(node, ast.ImportFrom) and node.module == 'stat_table')]
             original = ast.parse(old)
@@ -614,7 +614,7 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
                 ComputationOnly().visit(original))
             continue
         if name == 'utilities.py':
-            current = ast.parse((ROOT / 'code' / name).read_text(encoding='utf-8'))
+            current = normalize_phase3_press(ast.parse((ROOT / 'code' / name).read_text(encoding='utf-8')))
             original = ast.parse(old)
             normalize_p1_numeric(current, name, original)
             for tree in (current, original):

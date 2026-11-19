@@ -42,6 +42,7 @@ HEADERS = {'model': '模型', 'n_obs': '有效样本数', 'n_parameters': '参�
            'sse': '残差平方和', 'rmse': '均方根误差', 'residual_std': '残差标准差',
            'r_squared': 'R²', 'adj_r_squared': '调整 R²', 'pseudo_r_squared': 'McFadden 伪 R²',
            'deviance_r_squared': '偏差 R²', 'adj_deviance_r_squared': '调整偏差 R²', 'aicc': 'AICc',
+           'press': 'PRESS', 'pred_r_squared': '预测 R²',
            'auc': 'AUC', 'term': '模型项', 'estimate': '估计值', 'std_error': '标准误',
            'statistic': '统计量', 'statistic_type': '统计量类型', 'p_value': 'p 值',
            'ci_lower': '置信下限', 'ci_upper': '置信上限', 'source': '变异来源',

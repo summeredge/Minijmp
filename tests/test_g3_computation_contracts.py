@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 import pytest
-from source_baselines import normalize_review003
+from source_baselines import normalize_phase3_press, normalize_review003
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = json.loads((ROOT / 'tests/fixtures/g3_computation_baseline.json').read_text(encoding='utf-8'))
@@ -76,7 +76,10 @@ def computation_dump(source, function):
         assert calls == 1
         node.body = body
     if function == 'two_way_anova':
+        normalize_phase3_press(node)
         normalize_review003(node)
+    elif function == 'one_way_anova':
+        normalize_phase3_press(node)
     return ast.dump(WithoutReports().visit(node), include_attributes=False)
 
 

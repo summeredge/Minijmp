@@ -26,6 +26,16 @@ def format_stat(value):
     return '*' if value is None or np.isnan(value) else '%.3f' % value
 
 
+def prediction_statistics(residual, leverage, total_ss):
+    """OLS leave-one-out statistics from the fitted model's projection diagonal."""
+    remaining = 1 - np.asarray(leverage)
+    if np.any(remaining <= np.finfo(float).eps * len(remaining)):
+        return np.nan, np.nan
+    deleted_residual = np.asarray(residual) / remaining
+    press = float(deleted_residual @ deleted_residual)
+    return press, 1 - press / total_ss if total_ss > 0 else np.nan
+
+
 def split_string(text, delimiters):
     # Create a regular expression pattern from the delimiters
     pattern = '|'.join(map(re.escape, delimiters))
