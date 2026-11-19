@@ -246,6 +246,12 @@ def fit_generalized(df, y, x, model, *, categorical=(), degree=1, interactions=F
         source['leverage'], source['cooks_distance'] = influence.hat_matrix_diag, influence.cooks_distance[0]
         dispersion = float(pearson @ pearson/(n-p))
         metrics.update(deviance=float(fit.deviance), pearson_chi2=float(pearson @ pearson), dispersion=dispersion)
+        null_deviance = fit.null_deviance
+        metrics.update(
+            deviance_r_squared=1-fit.deviance/null_deviance if null_deviance > 0 else np.nan,
+            adj_deviance_r_squared=max(0., 1-(fit.deviance+p-1)/null_deviance) if null_deviance > 0 else np.nan,
+            aicc=metrics['aic']+2*p*(p+1)/(n-p-1) if n > p+1 else np.nan,
+        )
         diagnostics = [('Deviance', fit.deviance, stats.chi2.sf(fit.deviance, n-p), '渐近 χ² 上尾；稀疏计数近似可能不准。'),
             ('Pearson', pearson @ pearson, stats.chi2.sf(pearson @ pearson, n-p), 'H0: Poisson 方差等于均值；渐近 χ² 上尾。')]
         tables['coefficients'] = _coefficient_table(names, np.asarray(fit.params), covariance, n-p, alpha, True)

@@ -1,4 +1,6 @@
 """独立解析/似然参考；不以 statsmodels 自身输出作为唯一基准。"""
+import json
+from pathlib import Path
 from threading import Event
 
 import numpy as np
@@ -9,6 +11,39 @@ from scipy import optimize, stats
 from scipy.special import expit, gammaln, xlogy
 
 from advanced_regression import fit_regression
+
+
+def test_poisson_phase4_model_summary():
+    archive = Path(__file__).resolve().parents[1] / 'Out/statistics_minitab19_parity/phase4'
+    case = json.loads((archive / 'case_inputs.json').read_text(encoding='utf-8'))['cases']['poisson']
+    x, y = np.asarray(case['x']), np.asarray(case['y'])
+    frame = pd.DataFrame({'x': [*x, np.nan], 'y': [*y, 50]})
+    result = fit_regression(frame, 'y', ['x'], model='Poisson', missing='drop')
+    summary = result.tables['summary'].iloc[0]
+    n, k = len(y), 2
+    # Profile out the intercept and solve the slope score directly.
+    def rate(slope):
+        w = np.exp(slope*x)
+        return w*y.sum()/w.sum()
+
+    mu = rate(optimize.brentq(lambda s: x @ (y-rate(s)), -2, 2))
+    ll = stats.poisson.logpmf(y, mu).sum()
+    null = stats.poisson.logpmf(y, y.mean()).sum()
+    saturated = stats.poisson.logpmf(y, y).sum()
+    total, error = 2*(saturated-null), 2*(saturated-ll)
+    assert (summary.n_obs, summary.n_parameters) == (n, k)
+    assert_allclose([summary.log_likelihood, summary.deviance, summary.aic, summary.bic],
+                    [ll, error, -2*ll+2*k, -2*ll+k*np.log(n)])
+    expected = [1-error/total, 1-(error+k-1)/total, -2*ll+2*k*n/(n-k-1)]
+    actual = summary[['deviance_r_squared', 'adj_deviance_r_squared', 'aicc']].to_numpy(dtype=float)
+    assert_allclose(actual, expected)
+    assert_allclose(actual*[100, 100, 1], [64.11, 59.48, 72.12], rtol=0, atol=.005)
+
+
+def test_poisson_summary_undefined_denominators():
+    frame = pd.DataFrame({'x': [0, 1, 2], 'y': [2, 2, 2]})
+    summary = fit_regression(frame, 'y', ['x'], model='Poisson').tables['summary'].iloc[0]
+    assert summary[['deviance_r_squared', 'adj_deviance_r_squared', 'aicc']].isna().all()
 
 
 @pytest.mark.parametrize('link', ['log', 'sqrt', 'identity'])
