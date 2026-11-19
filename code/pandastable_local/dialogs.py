@@ -51,6 +51,7 @@ import numpy as np
 import pandas as pd
 from .data import TableModel
 from . import util, images
+from .import_limits import MAX_SHEETS
 
 def setGeometry(win, width=None):
     """Set window geometry to center of screen"""
@@ -1740,6 +1741,112 @@ class SubsetWorksheetDialog(Dialog):
             return False
         self.result = name, self.frame.iloc[mask].copy(deep=True)
         return True
+
+
+def split_worksheet_groups(frame, columns, existing_names, unique_name):
+    """Return (category label, worksheet name, row positions) in first-seen order."""
+    if not columns:
+        raise ValueError('请至少选择一个分类列。')
+    if not len(frame):
+        raise ValueError('当前工作表没有可见数据行。')
+
+    names = set(existing_names)
+    result = []
+    keys = [frame.iloc[:, column] for column in columns]
+    positions = pd.Series(np.arange(len(frame)), index=frame.index)
+    try:
+        groups = positions.groupby(keys, sort=False, dropna=False, observed=True)
+        count = groups.ngroups
+        if not count:
+            raise ValueError('所选分类列没有可生成的分组。')
+        if len(names) + count > MAX_SHEETS:
+            raise ValueError(f'当前可见 {len(frame)} 行，拆分将生成 {count} 张工作表，超过工程的 {MAX_SHEETS} 张工作表上限。')
+        # Group iteration includes missing categorical keys that .indices can omit.
+        for values, rows in groups:
+            raw_name = '_'.join('缺失' if pd.api.types.is_scalar(value) and pd.isna(value)
+                                else str(value) for value in values)
+            name = unique_name(raw_name, names)
+            names.add(name)
+            result.append((raw_name, name, rows.to_numpy()))
+    except TypeError as error:
+        raise ValueError('所选分类列含有无法分组的值。') from error
+    return result
+
+
+class SplitWorksheetDialog(Dialog):
+    def __init__(self, parent, frame, existing_names, unique_name):
+        self.frame = frame
+        self.existing_names = existing_names
+        self.unique_name = unique_name
+        super().__init__(parent, '按类别拆分工作表')
+
+    def body(self, parent):
+        Label(parent, text='分类列（可多选）').pack(anchor=W)
+        columns = Frame(parent)
+        columns.pack(fill=X, pady=(2, 8))
+        scroll = Scrollbar(columns, orient=VERTICAL)
+        scroll.pack(side=RIGHT, fill=Y)
+        self.columns = Listbox(columns, selectmode=MULTIPLE, exportselection=False,
+                               height=6, yscrollcommand=scroll.set)
+        self.columns.configure(**listbox_colors(dialog_style(self)))
+        self.columns.pack(side=LEFT, fill=X, expand=True)
+        scroll.configure(command=self.columns.yview)
+        for position, name in enumerate(self.frame.columns, 1):
+            self.columns.insert(END, f'{position}. {name}')
+        self.columns.bind('<<ListboxSelect>>', self._clear_preview)
+
+        controls = Frame(parent)
+        controls.pack(fill=X, pady=(0, 4))
+        Button(controls, text='预览', command=self.preview_sheets).pack(side=LEFT, padx=(0, 8))
+        self.summary = StringVar(self, f'当前可见 {len(self.frame)} 行')
+        Label(controls, textvariable=self.summary).pack(side=LEFT)
+
+        preview = Frame(parent)
+        preview.pack(fill=BOTH, expand=True)
+        scroll = Scrollbar(preview, orient=VERTICAL)
+        scroll.pack(side=RIGHT, fill=Y)
+        self.preview = Treeview(preview, columns=('name', 'rows'), show='headings', height=7,
+                                yscrollcommand=scroll.set)
+        self.preview.heading('name', text='工作表名称')
+        self.preview.heading('rows', text='行数')
+        self.preview.column('name', width=310)
+        self.preview.column('rows', width=75, anchor=E, stretch=False)
+        self.preview.pack(side=LEFT, fill=BOTH, expand=True)
+        scroll.configure(command=self.preview.yview)
+        return self.columns
+
+    def buttonbox(self):
+        buttons = Frame(self)
+        buttons.pack(pady=(0, 8))
+        Button(buttons, text='确定', command=self.ok).pack(side=LEFT, padx=5)
+        Button(buttons, text='取消', command=self.cancel).pack(side=LEFT, padx=5)
+        self.bind('<Return>', self.ok)
+        self.bind('<Escape>', self.cancel)
+
+    def _clear_preview(self, event=None):
+        self.preview.delete(*self.preview.get_children())
+        self.summary.set(f'当前可见 {len(self.frame)} 行')
+
+    def _groups(self):
+        try:
+            return split_worksheet_groups(self.frame, self.columns.curselection(),
+                                          self.existing_names, self.unique_name)
+        except ValueError as error:
+            messagebox.showerror('无法拆分工作表', str(error), parent=self)
+            return None
+
+    def preview_sheets(self):
+        self._clear_preview()
+        groups = self._groups()
+        if groups is None:
+            return
+        for _, name, positions in groups:
+            self.preview.insert('', END, values=(name, len(positions)))
+        self.summary.set(f'当前可见 {len(self.frame)} 行，预计生成 {len(groups)} 张工作表')
+
+    def validate(self):
+        self.result = self._groups()
+        return self.result is not None
 
 
 class QueryDialog(Frame):

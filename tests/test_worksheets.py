@@ -166,6 +166,146 @@ def test_subset_menu_dialog_creates_independent_sheet(workbook, tmp_path, monkey
     error.assert_not_called()
 
 
+def test_split_worksheet_groups_by_position_and_first_appearance():
+    from pandastable_local.dialogs import split_worksheet_groups
+
+    frame = pd.DataFrame({
+        '装置': pd.Categorical(['B', None, 'A', 'B', 'B'], categories=['A', 'B', '未出现']),
+        '日期': pd.to_datetime(['2026-11-19', '2026-11-19', None, None, '2026-11-19']),
+    }, index=[4, 4, 0, 8, 2])
+    frame.columns = ['分类', '分类']
+    namer = worksheets.Worksheets()._unique_name
+    single = split_worksheet_groups(frame, [0], (), namer)
+    assert [(name, positions.tolist()) for _, name, positions in single] == [
+        ('B', [0, 3, 4]), ('缺失', [1]), ('A', [2])]
+    multiple = split_worksheet_groups(frame, [0, 1], (), namer)
+    assert [(name, positions.tolist()) for _, name, positions in multiple] == [
+        ('B_2026-11-19 000000', [0, 4]), ('缺失_2026-11-19 000000', [1]),
+        ('A_缺失', [2]), ('B_缺失', [3])]
+
+
+def test_split_worksheet_names_use_existing_rules():
+    from pandastable_local.dialogs import split_worksheet_groups
+
+    long = '类' * 70
+    frame = pd.DataFrame({'类别': ['A/B', 'A:B', long + '甲', long + '乙', '缺失', None, '/']})
+    groups = split_worksheet_groups(frame, [0], ['AB', '缺失'], worksheets.Worksheets()._unique_name)
+    assert [name for _, name, _ in groups] == [
+        'AB (2)', 'AB (3)', long, f'{long} (2)', '缺失 (2)', '缺失 (3)', '工作表']
+
+
+def test_project_category_codes_restore_ordered_labels_and_reject_invalid_position():
+    labels = pd.date_range('2026-11-19', periods=3, tz='Asia/Shanghai')
+    frame = pd.DataFrame({'日期类别': pd.Categorical.from_codes([1, -1], labels, ordered=True)})
+    content, columns, attrs, metadata, nulls = worksheets._write_frame(frame)
+    assert_frame_equal(worksheets._read_frame(content, columns, attrs, metadata, nulls), frame)
+    metadata['minijmp_categories'][0][0] = 1
+    with pytest.raises(ValueError, match='无效的分类列信息'):
+        worksheets._read_frame(content, columns, attrs, metadata, nulls)
+
+
+@pytest.mark.parametrize('case', ['create', 'doe', 'cancel', 'no_columns', 'empty', 'sheet_limit',
+                                  'failed_creation'])
+def test_split_worksheet_menu_dialog_preview_and_creation(workbook, tmp_path, monkeypatch, case):
+    from doe_dialog import CreateDOE
+    from pandastable_local.dialogs import SplitWorksheetDialog
+
+    app, error = workbook
+    menu = app.data_menu['var']
+    commands = {menu.entrycget(i, 'label').strip(): i for i in range(menu.index('end') + 1)
+                if menu.type(i) == 'command'}
+    if case == 'doe':
+        CreateDOE(app).create()
+        source = app.table
+        assert source.doe_metadata
+        expected_frames = [source.model.df.iloc[[i]].copy() for i in range(len(source.model.df))]
+    else:
+        frame = pd.DataFrame({'装置': pd.Categorical(['隐藏', 'B', None, 'A', 'B']),
+                              '班组': pd.array([0, 2, 2, 1, 2], dtype='Int64'),
+                              '可见': [False, True, True, True, True]},
+                             index=[9, 0, 5, 0, 2])
+        app.addSheet('B_2')
+        source = app.addSheet('源表', frame.iloc[:0].copy() if case == 'empty' else frame)
+        if case != 'empty':
+            menu.invoke(commands['筛选行'])
+            source.qframe.queryvar.set('可见 == True')
+            source.qframe.query()
+            assert source.filtered
+            assert_frame_equal(source.model.df, frame.iloc[1:])
+        expected_frames = [frame.iloc[rows].copy() for rows in ([1, 4], [2], [3])]
+    original_full = app._full_frame(source).copy()
+    original_visible = source.model.df.copy()
+    original_names = list(app.sheets)
+    source_name = app.getCurrentSheet()
+    filter_state = source.filtered, getattr(source, 'qframe', None)
+    metadata = getattr(source, 'doe_metadata', None)
+    preview = []
+
+    if case == 'failed_creation':
+        build = app._make_sheet
+        monkeypatch.setattr(app, '_make_sheet', Mock(side_effect=[build(expected_frames[0]),
+                                                                 RuntimeError('模拟建表失败')]))
+    if case == 'sheet_limit':
+        monkeypatch.setattr('pandastable_local.dialogs.MAX_SHEETS', len(original_names) + 1)
+
+    class DrivenDialog(SplitWorksheetDialog):
+        def body(self, parent):
+            focus = super().body(parent)
+            self.after(0, self.drive)
+            return focus
+
+        def drive(self):
+            try:
+                if case != 'no_columns':
+                    self.columns.selection_set(0, 0 if case == 'doe' else 1)
+                if case not in ('no_columns', 'empty', 'sheet_limit'):
+                    self.preview_sheets()
+                    preview.extend(self.preview.item(item, 'values') for item in self.preview.get_children())
+                    assert f'当前可见 {len(original_visible)} 行，预计生成 {len(expected_frames)} 张工作表' == self.summary.get()
+                    assert list(app.sheets) == original_names
+                if case != 'cancel':
+                    self.ok()
+            finally:
+                if self.winfo_exists():
+                    self.cancel()
+
+    monkeypatch.setattr(worksheets, 'SplitWorksheetDialog', DrivenDialog)
+    menu.invoke(commands['按类别拆分工作表'])
+    assert_frame_equal(source.model.df, original_visible)
+    assert_frame_equal(app._full_frame(source), original_full)
+    assert (source.filtered, getattr(source, 'qframe', None)) == filter_state
+    assert getattr(source, 'doe_metadata', None) is metadata
+    if case not in ('create', 'doe'):
+        assert list(app.sheets) == original_names and app.getCurrentSheet() == source_name
+        assert error.call_count == (case != 'cancel')
+        return
+
+    names = list(app.sheets)[len(original_names):]
+    assert len(names) == len(expected_frames) and app.getCurrentSheet() == names[0]
+    if case == 'create':
+        assert names == ['B_2 (2)', '缺失_2', 'A_1']
+    assert preview == [(name, str(len(frame))) for name, frame in zip(names, expected_frames)]
+    for name, expected in zip(names, expected_frames):
+        assert_frame_equal(app.sheets[name].model.df, expected)
+        assert getattr(app.sheets[name], 'doe_metadata', None) is None
+    if case == 'create':
+        app.table.model.df.iat[0, 1] = 123
+        expected_frames[0].iat[0, 1] = 123
+        assert_frame_equal(source.model.df, original_visible)
+        export = tmp_path / 'split.csv'
+        monkeypatch.setattr(worksheets.filedialog, 'asksaveasfilename', lambda **kw: str(export))
+        app.export_sheet()
+        assert pd.read_csv(export, index_col=0)['班组'].tolist() == [123, 2]
+    target = tmp_path / 'split.dexpl'
+    assert app._save_project(target), error.call_args
+    assert app.load_file(target)
+    assert app.getCurrentSheet() == names[0]
+    for name, expected in zip(names, expected_frames):
+        assert_frame_equal(app.sheets[name].model.df, expected)
+        assert getattr(app.sheets[name], 'doe_metadata', None) is None
+    error.assert_not_called()
+
+
 def test_independent_tables_history_names_and_last_delete(workbook):
     app, error = workbook
     first = app.table

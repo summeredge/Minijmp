@@ -29,8 +29,8 @@ $versionInfo = Join-Path $root 'packaging\windows\version_info.txt'
 $entry = Join-Path $root 'packaging\windows_entrypoint.py'
 $makeZip = Join-Path $root 'tools\make_zip.py'
 $smoke = Join-Path $root 'tools\smoke_launch.py'
-$releaseVersion = 'V1.2.2.2'
-$productVersion = 'v1.2.2.2'
+$releaseVersion = 'V1.2.2.3'
+$productVersion = 'v1.2.2.3'
 if ($root.Length -gt 80) {
     throw 'Build path is too long. Place the repository in a local path of at most 80 characters, for example C:\src\MiniJMP.'
 }

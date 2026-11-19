@@ -118,6 +118,7 @@ class Minijmp(Worksheets, Minijmp_pre):
             '06日期/时间转换': {'cmd': lambda: self._call('convertDates')},
             '22筛选行': {'cmd': lambda: self._call('queryBar')},
             '23子集化工作表': {'cmd': self.subset_sheet},
+            '24按类别拆分工作表': {'cmd': self.split_worksheet},
             '32拆分数据列': {'cmd': lambda: self._call('splitColumn')},
             '33堆叠所选列': {'cmd': lambda: self._call('stackColumn')},
             '34全部列排序': {'cmd': lambda: self._call('sortAll')},

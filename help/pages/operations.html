@@ -14,6 +14,7 @@
       <a href="#files.csv_advanced_import">高级导入</a><a href="#files.pi_import">导入 PI 数据</a><a href="#files.excel_import">Excel 导入</a>
       <a href="#files.csv_export">CSV 导出</a><a href="#table.edit">编辑表格</a>
       <a href="#table.view">视图</a><a href="#table.data_menu">数据菜单</a>
+      <a href="#table.split_worksheet">按类别拆分工作表</a>
       <a href="#table.tools_menu">工具菜单</a><a href="#table.context_menu">右键菜单</a>
     </nav>
 
@@ -89,6 +90,13 @@
       <p>选择「数据 → 子集化工作表」。按条件可设置列比较、闭区间、为空或非空，多个条件统一使用且（AND）或或（OR）。文本区分大小写，使用精确匹配或按文本顺序比较。缺失值使用为空或非空判断，普通比较跳过缺失值。</p>
       <p>按行号可输入 1-10,15,20-30。两种模式都在当前可见行内操作，行号按显示顺序从 1 开始。选择包含或排除，点击「预览行数」检查匹配行数和结果行数。</p>
       <p>确认后切换到独立的新工作表，保留全部列、数据类型和原行顺序。零行结果会保留列结构。原表和筛选状态保持原样，结果表使用普通数据工作表格式。</p>
+    </section>
+
+    <section class="topic" id="table.split_worksheet">
+      <h2>按类别拆分工作表</h2>
+      <p>选择「数据 → 按类别拆分工作表」，选中一个或多个分类列。每种取值或取值组合生成一张工作表，缺失值也参与分组。若已筛选，只拆分当前可见行。</p>
+      <p>点击「预览」查看可见总行数、预计生成的表数及各表名称和行数。组合名称用下划线连接，缺失值显示为「缺失」，表名沿用现有的清理和去重规则。</p>
+      <p>点击「确定」创建并切换到第一张结果表。各表按分组首次出现的顺序排列，保留全部列、数据类型及组内行顺序。原表与筛选状态保持原样，结果表为普通数据工作表。拆分后的工程最多包含 256 张工作表。</p>
     </section>
 
     <section class="topic" id="table.tools_menu">

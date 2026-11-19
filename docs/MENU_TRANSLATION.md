@@ -127,6 +127,7 @@
 | Date/Time Conversion | 日期/时间转换 |
 | Filter Rows | 筛选行 |
 | Subset Worksheet | 子集化工作表 |
+| Split Worksheet | 按类别拆分工作表 |
 | Split Data Column | 拆分数据列 |
 | Stack Selected Columns | 堆叠所选列 |
 | Sort All Columns | 全部列排序 |

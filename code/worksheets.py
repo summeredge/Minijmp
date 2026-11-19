@@ -20,7 +20,7 @@ import numpy as np
 
 from modified_table import MTable
 from pandastable_local import config
-from pandastable_local.dialogs import SubsetWorksheetDialog
+from pandastable_local.dialogs import SplitWorksheetDialog, SubsetWorksheetDialog
 from pandastable_local import import_limits
 from doe_core import validate_worksheet_metadata
 
@@ -155,6 +155,9 @@ def _read_frame(content, columns, attrs, pandas_metadata, object_nulls):
         raise ValueError('不支持包含 Arrow 扩展类型的工作表')
     if not isinstance(pandas_metadata, dict):
         raise ValueError('无效的工作表类型信息')
+    categories = pandas_metadata.get('minijmp_categories', [])
+    if not isinstance(categories, list):
+        raise ValueError('无效的分类列信息')
     column_metadata = pandas_metadata.get('columns')
     column_indexes = pandas_metadata.get('column_indexes')
     if (not isinstance(column_metadata, list) or not isinstance(column_indexes, list)
@@ -166,7 +169,9 @@ def _read_frame(content, columns, attrs, pandas_metadata, object_nulls):
                    for c in column_indexes)):
         raise ValueError('工作表包含不支持的数据类型')
     # Attributes are restored from our explicitly typed JSON, never Parquet metadata.
-    pandas_metadata = {**pandas_metadata, 'attributes': {}}
+    pandas_metadata = {key: value for key, value in pandas_metadata.items()
+                       if key != 'minijmp_categories'}
+    pandas_metadata['attributes'] = {}
     source.seek(0)
     batches = []
     memory = 0
@@ -196,6 +201,19 @@ def _read_frame(content, columns, attrs, pandas_metadata, object_nulls):
             raise ValueError('无效的缺失值信息')
         seen.add((item[0], item[1]))
         frame.iat[item[1], item[0]] = _OBJECT_NULLS[item[2]]
+    restored_categories = set()
+    for item in categories:
+        if (not isinstance(item, list) or len(item) != 4 or type(item[0]) is not int
+                or not 0 <= item[0] < frame.shape[1] or item[0] in restored_categories
+                or not _safe_dtype(item[1]) or item[1] == 'category'
+                or not isinstance(item[2], list) or type(item[3]) is not bool
+                or frame.iloc[:, item[0]].dtype.kind != 'i'):
+            raise ValueError('无效的分类列信息')
+        position, dtype, values, ordered = item
+        labels = pd.Index(_decode_json(values), dtype=dtype, tupleize_cols=False)
+        restored = pd.Categorical.from_codes(frame.iloc[:, position], labels, ordered=ordered)
+        frame.isetitem(position, restored)
+        restored_categories.add(position)
     frame.columns = _restore_columns(columns)
     frame.attrs = _decode_json(attrs)
     if not isinstance(frame.attrs, dict):
@@ -232,8 +250,18 @@ def _write_frame(frame):
     normalized.attrs = {}
     normalized.columns = [f'column_{index:06d}' for index in range(frame.shape[1])]
     try:
+        categories = []
+        for index, dtype in enumerate(frame.dtypes):
+            if isinstance(dtype, pd.CategoricalDtype):
+                labels = dtype.categories
+                values = labels.asi8 if isinstance(labels, (pd.DatetimeIndex, pd.TimedeltaIndex)) else labels
+                categories.append([index, str(labels.dtype), _encode_json(values.tolist()), dtype.ordered])
+                # Parquet omits the Arrow schema in safe projects, so save codes and the full category index.
+                normalized.isetitem(index, frame.iloc[:, index].cat.codes)
         table = pa.Table.from_pandas(normalized, preserve_index=None)
         pandas_metadata = json.loads(table.schema.metadata[b'pandas'])
+        if categories:
+            pandas_metadata['minijmp_categories'] = categories
         output = io.BytesIO()
         # Statistics can copy cell text into the footer checked for extension markers.
         pq.write_table(table, output, store_schema=False, write_statistics=False)
@@ -524,6 +552,29 @@ class Worksheets:
         self.addSheet(name, frame, finish_edits=False)
         if len(frame) == 0:
             messagebox.showinfo('子集化工作表', '已创建 0 行工作表，保留原有列结构。', parent=self.main)
+
+    def split_worksheet(self):
+        source = self.getCurrentSheet()
+        frame = self.getCurrentTable().model.df
+        dialog = SplitWorksheetDialog(self.main, frame, self.sheets, self._unique_name)
+        if dialog.result is None:
+            return
+
+        created = []
+        try:
+            for raw_name, _, positions in dialog.result:
+                self.addSheet(raw_name, frame.iloc[positions].copy(deep=True), finish_edits=False)
+                created.append(self.getCurrentSheet())
+        except Exception as error:
+            for name in reversed(created):
+                self._dispose_sheet(self.sheets.pop(name), self.sheetframes.pop(name))
+            self.nb.select(self.sheetframes[source])
+            self.table = self.sheets[source]
+            messagebox.showerror('拆分工作表失败', f'无法创建拆分结果：{error}', parent=self.main)
+            return
+
+        self.nb.select(self.sheetframes[created[0]])
+        self.table = self.sheets[created[0]]
 
     def copySheet(self):
         self._finish_edit()
