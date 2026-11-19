@@ -226,6 +226,8 @@ def t_test_2samples(l1=None, l2=None,
               print_out=False, print_port=None):
         ta2 = t_test.ppf(alpha / 2, df)
         CI = (dx + ta2 * s, dx - ta2 * s)
+        margin = t_test.ppf(1 - alpha, df) * s
+        lower, upper = dx - margin, dx + margin
         t = (dx - d0) / s
         pl = t_test.cdf(t, df)
         pu = 1 - pl
@@ -244,8 +246,12 @@ def t_test_2samples(l1=None, l2=None,
                     ['左尾', 'mu2 - mu1 < d0', t, df, pl],
                     ['右尾', 'mu2 - mu1 > d0', t, df, pu]]),
                 ('总体均值差 μ2 - μ1 的置信区间', [['区间', '下限', '上限'],
-                              ['双侧置信区间', format_stat(CI[0]), format_stat(CI[1])]], [
-                    ['双侧置信区间', CI[0], CI[1]]])]:
+                              ['双侧置信区间', format_stat(CI[0]), format_stat(CI[1])],
+                              ['单侧置信上界（左尾）', '', format_stat(upper)],
+                              ['单侧置信下界（右尾）', format_stat(lower), '']], [
+                    ['双侧置信区间', CI[0], CI[1]],
+                    ['单侧置信上界（左尾）', None, upper],
+                    ['单侧置信下界（右尾）', lower, None]])]:
                 print(heading)
                 table = gen_table(rows)
                 table.align = 'r'
@@ -254,7 +260,7 @@ def t_test_2samples(l1=None, l2=None,
                     display=[[str(cell) for cell in row] for row in table.rows]))
             print('p 值保留三位小数，0.000 为舍入显示。')
         return {"CI": CI, "p": p, "p lower": pl, "p upper": pu, "t": t,
-                "df": df}
+                "df": df, "CI lower one-sided": lower, "CI upper one-sided": upper}
 
     #  summarized = False
     #  if n1 is not None and n2 is not None:

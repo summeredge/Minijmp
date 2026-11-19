@@ -15,7 +15,7 @@ P1 优先补影响结论或常用报告的缺口，由低侵入且参考已就�
 
 | ID | 优先级与依据 | Minitab 能力 | MiniJMP 当前差距 | 独立验收案例与通过条件 |
 |---|---|---|---|---|
-| G01 | P1 · 单侧决策常用，计算与报告改动小 | 双样本 t 支持方向一致的单侧置信界 | `t_test_2samples` 输出双侧 CI 与单侧 p，缺单侧 CI 字段 | 重用 [phase4](../../Out/statistics_minitab19_parity/phase4/case_inputs.json) `two_sample_pooled_t`，同数据双向分别用 t 分位数和存档 Minitab 下界核对；交换样本后上界等于原下界取负。另用 [phase5](../../Out/statistics_minitab19_parity/phase5/case_inputs.json) Welch 缺失样本按分数自由度独立计算；冻结原双侧结果。 |
+| G01 | P1 · 单侧决策常用，计算与报告改动小 | 双样本 t 支持方向一致的单侧置信界 | `t_test_2samples` 输出双侧 CI 与单侧 p，已补齐两种单侧界 | 重用 [phase4](../../Out/statistics_minitab19_parity/phase4/case_inputs.json) `two_sample_pooled_t`，同数据双向分别用 t 分位数和存档 Minitab 下界核对；交换样本后上界等于原下界取负。另用 [phase5](../../Out/statistics_minitab19_parity/phase5/case_inputs.json) Welch 缺失样本按分数自由度独立计算；冻结原双侧结果。 |
 | G02 | P1 · 预测诊断常用，现有线性模型可复用 | 回归及验收用 ANOVA 配置报告预测 R²，可由 PRESS 导出 | 完整 OLS、单/双因子 ANOVA 对应报告缺该字段；PLS 已有其自身 CV/PRESS | 用 [phase4](../../Out/statistics_minitab19_parity/phase4/comparison.csv) `ols_multiple`、`ols_categorical`、`one_way_anova`、`two_way_anova`，使用同一模型矩阵逐行留一独立重拟合，计算 PRESS 及 1−PRESS/SST，核对原生字段显示精度。留一后不可估或 SST 为零时输出不可用。 |
 | G03 | P1 · 尾部规格决策价值高，区间需逐分布验证 | Individual Distribution Identification 提供拟合参数区间及百分位数不确定性 | `FitDistDialog → dist_fit.compare_dist` 有点拟合、拟合优度和点百分位，缺对应区间 | 首批 Normal 与两参数 Lognormal。用 [phase6](../../Out/statistics_minitab19_parity/phase6/case_inputs.json) 含并列值和缺失值两例，冻结同参数化的原生估计表及 RPTILE 5%、50%、95% 的 SE/CI，按同估计口径对比。另校验非法非正值及不可估区间状态，保留点估计。 |
 | G04 | P1 · 计数回归选模，改动集中于报告 | Poisson 模型摘要提供偏差 R²、调整偏差 R² 和 AICc | `generalized_regression` 提供偏差、AIC/BIC，缺三项选模统计 | 用 [phase4](../../Out/statistics_minitab19_parity/phase4/comparison.csv) `poisson`，按相同有效 N、参数数目及截距/offset 设定独立拟合空模型与全模型，并按 Minitab 定义算三项，与原生摘要比对。样本不足使 AICc 分母非正时须显示不可用。 |
@@ -24,6 +24,10 @@ P1 优先补影响结论或常用报告的缺口，由低侵入且参考已就�
 | G06 | P2 · 方差差异定位，需控制多重性 | 等方差检验提供多重比较输出及 Bonferroni 标记的区间 | `multi_pop_var_test` 缺原生多重比较检验对应 p，现有均值中心 Levene 仍是独立方法 | 重用 phase4 `multi_variance` 三组独立样本。先确认原生 Multiple Comparisons p 的检验口径及区间置信定义。冻结原生 p、各组区间和显示精度，以官方公式独立复算；既有 Levene 和 Brown–Forsythe 输出另回归。 |
 | G09 | P2 · 二元回归选模与拟合检查，先补可解释的统计量 | Minitab 二元 Logistic 摘要和拟合优度表提供调整偏差 R²、AICc、偏差与 Pearson 检验及 Hosmer–Lemeshow | 通用 `advanced_regression` 有 McFadden R²、AIC/BIC、Pearson 统计量与总体 LR，缺对应报告字段。历史 BFGS 协方差判断需用当前入口复核 | 先用 phase4 `binary_logistic` 冻结相同编码的原生汇总，独立用空模型及全模型对数似然核对调整偏差 R²、AICc。拟合优度另用六个重复预测模式、每模式 20 次且两类均出现的数据，按冻结的聚合与自由度定义比较偏差/Pearson；HL 用另一个至少十个不同拟合概率的案例，冻结组数、并列处理、组内观测/期望和 χ²/p。未分组稀疏数据继续明确不可用。 |
 | G08 | P2 · SCR-002，多分类筛选有价值，设计构造和可估性成本高 | DSD 接受二水平分类因子，分类设计每复制用两个伪中心点 | 现有限定 4–12 连续加 2–4 分类，另有全连续或一分类路径。其余组合的产品边界需实证 | 先在目标版本导出 13 连续 + 3 分类、1 重复、关闭随机化的原生设计。成功后将该组合冻结为首个扩展案例，比较合法水平、总行数、伪中心点数量和主效应秩，并用实际设计矩阵独立核验主效应方差与二因子混杂。若产品拒绝该组合，保留待取证，选择一项已导出的未覆盖组合后才立项。 [Minitab DSD 设计矩阵](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/screening/analyze-screening-design/methods-and-formulas/model-information/) |
+
+## 本轮验收
+
+- G01：双样本 t 检验报告按 μ₂−μ₁ 同时显示左尾上界和右尾下界，使用单侧 t 分位数。Phase 4 pooled 交换组别后与原生 90% 下界 1.374 一致。Phase 5 Welch 用 SciPy 独立检验确认分数自由度和两种单侧界，保留与 Minitab 19 整数自由度的历史方法差异。样本交换、原双侧统计和报告导出通过定向验证。
 
 ## 产品证据待办
 

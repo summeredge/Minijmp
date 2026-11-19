@@ -1,6 +1,7 @@
 """G2 假设检验：核对真实表格、方法/尾部映射及未格式化的统计结果。"""
 import ast
 import inspect
+import json
 from pathlib import Path
 
 import numpy as np
@@ -147,7 +148,7 @@ def test_paired_unequal_lengths_report_only_actual_pairs(report, l1, l2):
 @pytest.mark.parametrize('pooled', [False, True])
 @pytest.mark.parametrize('d0', [-2, 3])
 @pytest.mark.parametrize('summarized', [False, True])
-def test_two_sample_t_methods_direction_and_only_provided_ci(report, alpha, pooled, d0, summarized):
+def test_two_sample_t_methods_direction_and_ci(report, alpha, pooled, d0, summarized):
     extra = ({'n1': len(DATA), 'n2': len(OTHER), 'u1': np.mean(DATA), 'u2': np.mean(OTHER),
               's1': np.std(DATA, ddof=1), 's2': np.std(OTHER, ddof=1)} if summarized
              else {'l1': DATA, 'l2': OTHER})
@@ -155,7 +156,6 @@ def test_two_sample_t_methods_direction_and_only_provided_ci(report, alpha, pool
     assert len(tables) == 3
     assert ('合并方差 t（pooled）' if pooled else 'Welch t（JMP 17，不等方差）') in text
     assert 'H0: μ2 - μ1 = d0' in text
-    assert '单侧置信' not in text
     numeric_cells(tables[0].rows[0][1:], [len(DATA), np.mean(DATA), np.std(DATA, ddof=1)])
     numeric_cells(tables[0].rows[1][1:], [len(OTHER), np.mean(OTHER), np.std(OTHER, ddof=1)])
     reference = stats.ttest_ind(np.array(OTHER)-d0, DATA, equal_var=pooled)
@@ -171,8 +171,39 @@ def test_two_sample_t_methods_direction_and_only_provided_ci(report, alpha, pool
         numeric_cells(row[2:], [reference.statistic, reference.df, p])
     interval = np.array(reference.confidence_interval(1-alpha)) + d0
     np.testing.assert_allclose(result['CI'], interval)
-    assert len(tables[2].rows) == 1
+    assert len(tables[2].rows) == 3
     numeric_cells(tables[2].rows[0][1:], interval)
+    lower = stats.ttest_ind(OTHER, DATA, equal_var=pooled, alternative='greater').confidence_interval(1-alpha).low
+    upper = stats.ttest_ind(OTHER, DATA, equal_var=pooled, alternative='less').confidence_interval(1-alpha).high
+    assert result['CI lower one-sided'] == pytest.approx(lower)
+    assert result['CI upper one-sided'] == pytest.approx(upper)
+    assert tables[2].rows[1][:2] == ['单侧置信上界（左尾）', '']
+    assert tables[2].rows[2][::2] == ['单侧置信下界（右尾）', '']
+    numeric_cells([tables[2].rows[1][2], tables[2].rows[2][1]], [upper, lower])
+
+
+@pytest.mark.parametrize('phase,case,pooled', [
+    (4, 'two_sample_pooled_t', True), (5, 'welch_t_different_missing', False),
+])
+def test_phase3_two_sample_bounds(phase, case, pooled):
+    archive = ROOT / 'Out/statistics_minitab19_parity' / f'phase{phase}'
+    fixture = json.loads((archive / 'case_inputs.json').read_text(encoding='utf-8'))['cases'][case]
+    a, b = [[x for x in fixture[key] if x is not None] for key in ('sample1', 'sample2')]
+    options = dict(alpha=1-fixture['confidence'], pooled=pooled)
+    result = t_test_2samples(a, b, **options)
+    reverse = t_test_2samples(b, a, **options)
+    for direction, opposite, alternative, endpoint in [
+        ('lower', 'upper', 'greater', 'low'), ('upper', 'lower', 'less', 'high'),
+    ]:
+        reference = stats.ttest_ind(b, a, equal_var=pooled, alternative=alternative)
+        bound = getattr(reference.confidence_interval(fixture['confidence']), endpoint)
+        assert result[f'CI {direction} one-sided'] == pytest.approx(bound)
+        assert result[f'CI {direction} one-sided'] == pytest.approx(-reverse[f'CI {opposite} one-sided'])
+        assert result['df'] == pytest.approx(reference.df)
+    if pooled:
+        assert reverse['CI lower one-sided'] == pytest.approx(1.374, abs=.0005)
+    else:
+        assert result['df'] % 1 != 0
 
 
 @pytest.mark.parametrize('s0', [.5, 5])
