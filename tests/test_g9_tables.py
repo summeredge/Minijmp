@@ -88,7 +88,8 @@ def report(case):
     fields = dict(xvar='X', yvar='Y', u0=3, s0=2, d0=1, alpha=.05, pooled=False,
         sample_mean='', sample_std='', sample_n='', u1='', s1='', n1='', u2='', s2='', n2='',
         event_name='1', event_name2='2', p0=.4, event_cnt='', ttl_cnt='', event_cnt2='', ttl_cnt2='',
-        grouping='组别', comp_mean=True, show_plot=False, zvar='测量', inter=True, rvar='', cnt='', prop=.9)
+        grouping='组别', comp_mean=True, show_plot=False, zvar='测量', inter=True, rvar='', cnt='', prop=.9,
+        ti_method='正态')
     if case.endswith('summary'):
         fields.update(sample_mean=30, sample_std=4, sample_n=20, u1=30, s1=4, n1=20,
                       u2=35, s2=6, n2=25, event_cnt=3, ttl_cnt=20, event_cnt2=8, ttl_cnt2=25)
@@ -146,6 +147,15 @@ class ComputationOnly(ast.NodeTransformer):
 
 def computation_hash(module):
     tree = ast.parse((ROOT / 'code' / f'{module}.py').read_bytes())
+    if module == 'ti':
+        # The new method has its own exact order-statistic reference in G4.
+        tree.body = [node for node in tree.body if not (
+            isinstance(node, ast.FunctionDef) and node.name == 'ti_nonparametric'
+            or isinstance(node, ast.ImportFrom) and node.module == 'bisect'
+            and [alias.name for alias in node.names] == ['bisect_right'])]
+        for node in tree.body:
+            if isinstance(node, ast.ImportFrom) and node.module == 'scipy.stats':
+                node.names = [alias for alias in node.names if alias.name != 'binom']
     if module == 'two_way_anova':
         normalize_review003(tree)
     if module == 'proportion_test':

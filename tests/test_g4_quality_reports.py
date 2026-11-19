@@ -2,6 +2,7 @@
 import ast
 import inspect
 import math
+from fractions import Fraction
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from unittest.mock import Mock
@@ -335,7 +336,7 @@ def dialog_for(df):
                   hist_std='', spec_gap='', ylabel='mm', xlabel='mm', alpha=.05,
                   target=20., lsl=0., usl=50., show_legend=True, show_spec=True,
                   show_within=True, subid='部件', subsize=2, subm='Unbiased Std Dev',
-                  sample_mean='', sample_std='', sample_n='', prop=.9)
+                  sample_mean='', sample_std='', sample_n='', prop=.9, ti_method='正态')
     dialog = SimpleNamespace(remember_columns=Mock(), df=df, app=app, error=Mock(), **{k: variable(v) for k, v in values.items()})
     return dialog, lines, figures
 
@@ -374,6 +375,53 @@ def test_tolerance_summary_dialog_does_not_claim_selected_variable():
     qc_dialog.TIDialog.apply(dialog)
     assert '分析变量：汇总数据（未指定变量名）' in lines[0]
     assert '数据来源：汇总数据' in '\n'.join(lines)
+
+
+@pytest.mark.parametrize('n,coverage,target', [(100, '.9', '.95'), (100, '.85', '.95'),
+                                               (100, '.9', '.85'), (29, '.9', '.95'),
+                                               (10, '.9', '.95'), (2, '.5', '.75')])
+def test_nonparametric_tolerance_order_statistics(n, coverage, target):
+    p, confidence = Fraction(coverage), Fraction(target)
+    sample = list(range(n, 0, -1))
+    rows = []
+    result = ti.ti_nonparametric(sample, P=float(p), alpha=float(1-confidence),
+                                print_out=True, print_port=rows.append)
+    assert sample == list(range(n, 0, -1))
+    assert result == ti.ti_nonparametric(sorted(sample), P=float(p), alpha=float(1-confidence))
+
+    def tail(first):
+        return sum(math.comb(n, j)*(1-p)**j*p**(n-j) for j in range(first, n+1))
+
+    one = max((i for i in range(1, n+1) if tail(i) >= confidence), default=0)
+    two = max((i for i in range(1, n//2+1) if tail(2*i) >= confidence), default=0)
+    assert result['Lower Bound'] == (one or None)
+    assert result['Upper Bound'] == (n-one+1 if one else None)
+    assert result['TI'] == ((two, n-two+1) if two else (None, None))
+    assert result['one_sided_confidence'] == pytest.approx(float(tail(one or 1)))
+    assert result['two_sided_confidence'] == pytest.approx(float(tail(2*(two or 1))))
+    table = next(line for line in rows if hasattr(line, 'values'))
+    assert [row[4:] for row in table.values] == [list(result['TI']),
+                                                [result['Lower Bound'], None],
+                                                [None, result['Upper Bound']]]
+    if not one or not two:
+        assert '样本量不足' in '\n'.join(rows)
+
+
+def test_nonparametric_tolerance_dialog_uses_raw_column_and_validates():
+    dialog, lines, _ = dialog_for(pd.DataFrame({'长度': [*range(1, 101), None]}))
+    dialog.ti_method = variable('非参数')
+    dialog.sample_n, dialog.sample_mean, dialog.sample_std = variable('10'), variable('5'), variable('3')
+    qc_dialog.TIDialog.apply(dialog)
+    dialog.error.assert_not_called()
+    dialog.remember_columns.assert_called_once()
+    assert '有效样本量 N = 100' in '\n'.join(lines)
+    assert '非参数方法' in '\n'.join(lines)
+
+    dialog.prop = variable(1.0)
+    lines.clear()
+    qc_dialog.TIDialog.apply(dialog)
+    dialog.error.assert_called_once()
+    assert not lines
 
 
 @pytest.mark.parametrize('subgroup', [False, True])

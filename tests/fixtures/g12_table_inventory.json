@@ -1933,6 +1933,20 @@
       ],
       "exception_reason": ""
     },
+    "ti.py::ti_nonparametric": {
+      "sites": [
+        "construct:gen_table#1",
+        "emit:structured:print_port#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": ["统计容差区间（非参数方法）"],
+      "entry_points": ["TIDialog.apply（非参数原始样本）"],
+      "status": "已接入 StatTable",
+      "tests": ["tests/test_g4_quality_reports.py::test_nonparametric_tolerance_order_statistics"],
+      "exception_reason": ""
+    },
     "two_way_anova.py::two_way_anova": {
       "sites": [
         "construct:gen_table#1",

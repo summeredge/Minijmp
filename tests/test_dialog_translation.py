@@ -34,19 +34,20 @@ def widgets(parent):
         yield from widgets(child)
 
 
-def app_for(root):
+def app_for(root, data=None):
     output = []
     frame = tk.Frame(root)
-    frame.model = SimpleNamespace(df=pd.DataFrame({'测量': [1., 2., 4., 5.], '分组': ['甲', '甲', '乙', '乙']}))
+    frame.model = SimpleNamespace(df=data if data is not None else pd.DataFrame(
+        {'测量': [1., 2., 4., 5.], '分组': ['甲', '甲', '乙', '乙']}))
     return SimpleNamespace(table=frame, print=lambda *args, **kw: output.append(args),
         dialog_help_msg=lambda **kw: Minijmp_pre.dialog_help_msg(None, **kw), output=output,
         online_documentation=lambda **kw: None)
 
 
-def construct(root, callback):
+def construct(root, callback, data=None):
     root.deiconify()
     root.update()
-    app = app_for(root)
+    app = app_for(root, data)
     before = set(root.winfo_children())
     getattr(MiniJMP.Minijmp, callback)(app)
     top = next(w for w in set(root.winfo_children()) - before if isinstance(w, tk.Toplevel))
@@ -91,6 +92,30 @@ def test_menu_dialog_lifecycle_and_translation(tk_root, callback, cls, title):
         if top.winfo_exists(): top.destroy()
         app.table.destroy()
         tk_root.report_callback_exception = original
+
+
+def test_tolerance_menu_runs_nonparametric_report(tk_root):
+    app, top = construct(tk_root, 'ti_norm', pd.DataFrame({'测量': range(1, 101)}))
+    try:
+        boxes = [w for w in widgets(top) if w.winfo_class() == 'TCombobox']
+        method = next(box for box in boxes if tuple(box.cget('values')) == ('正态', '非参数'))
+        assert method.get() == '正态'
+        method.current(1)
+        column = next(box for box in boxes if '测量' in box.cget('values'))
+        column.set('测量')
+        confirm = next(w for w in widgets(top) if w.winfo_class() in ('TButton', 'Button')
+                       and w.cget('text') == '确定')
+        confirm.invoke()
+        assert not top.winfo_exists()
+        report = '\n'.join(str(args[0]) for args in app.output if args)
+        assert '统计容差区间（非参数方法）' in report
+        assert '有效样本量 N = 100' in report
+        table = next(args[0] for args in app.output if args and hasattr(args[0], 'values'))
+        assert table.values[0][-2:] == [2, 99]
+    finally:
+        if top.winfo_exists():
+            top.destroy()
+        app.table.destroy()
 
 
 @pytest.mark.parametrize('values', [

@@ -19,7 +19,7 @@ P1 优先补影响结论或常用报告的缺口，由低侵入且参考已就�
 | G02 | P1 · 预测诊断常用，现有线性模型可复用 | 回归及验收用 ANOVA 配置报告预测 R²，可由 PRESS 导出 | 完整 OLS、单/双因子 ANOVA 对应报告已补齐两项指标；PLS 已有其自身 CV/PRESS | 用 [phase4](../../Out/statistics_minitab19_parity/phase4/comparison.csv) `ols_multiple`、`ols_categorical`、`one_way_anova`、`two_way_anova`，使用同一模型矩阵逐行留一独立重拟合，计算 PRESS 及 1−PRESS/SST，核对原生字段显示精度。留一后不可估或 SST 为零时输出不可用。 |
 | G03 | P1 · 尾部规格决策价值高，区间需逐分布验证 | Individual Distribution Identification 提供拟合参数区间及百分位数不确定性 | `FitDistDialog → dist_fit.compare_dist` 有点拟合、拟合优度和点百分位，缺对应区间 | 首批 Normal 与两参数 Lognormal。用 [phase6](../../Out/statistics_minitab19_parity/phase6/case_inputs.json) 含并列值和缺失值两例，冻结同参数化的原生估计表及 RPTILE 5%、50%、95% 的 SE/CI，按同估计口径对比。另校验非法非正值及不可估区间状态，保留点估计。 |
 | G04 | P1 · 计数回归选模，改动集中于报告 | Poisson 模型摘要提供偏差 R²、调整偏差 R² 和 AICc | `generalized_regression` 提供偏差、AIC/BIC 及三项选模统计 | 用 [phase4](../../Out/statistics_minitab19_parity/phase4/comparison.csv) `poisson`，按相同有效 N、参数数目及截距/offset 设定独立拟合空模型与全模型，并按 Minitab 定义算三项，与原生摘要比对。样本不足使 AICc 分母非正时须显示不可用。 |
-| G07 | P1 · 非正态过程的覆盖判断，低至中成本 | 正态容差区间入口同时提供非参数次序统计量法 | `TIDialog → ti.ti_norm` 仅有正态法 | 输入 1–100，双侧 90% 总体覆盖、95% 置信。用独立二项概率求达到目标的对称秩，精确比较上下限秩和实际置信度，并取 Minitab 原生端点。加 1–10 样本不足例，要求显示实际可达置信度或清晰的不可用状态。 [Minitab 容差区间公式](https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/quality-tools/how-to/tolerance-intervals-normal-distribution/methods-and-formulas/methods-and-formulas/) |
+| G07 | P1 · 非正态过程的覆盖判断，低至中成本 | 正态容差区间入口同时提供非参数次序统计量法 | `TIDialog` 已支持正态法和非参数法，非参数法待原生取证 | 输入 1–100，双侧 90% 总体覆盖、95% 置信。用独立二项概率求达到目标的对称秩，精确比较上下限秩和实际置信度，并取 Minitab 原生端点。加 1–10 样本不足例，要求显示实际可达置信度或清晰的不可用状态。 [Minitab 容差区间公式](https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/quality-tools/how-to/tolerance-intervals-normal-distribution/methods-and-formulas/methods-and-formulas/) |
 | G05 | P2 · 专用单侧方差推断，需单独验证尾概率 | 单标准差检验提供单侧 Bonett 检验 | Bonett 已有单侧界，缺同口径单侧 p | 重用 phase4 `one_variance_right`（σ₀=3、90%），按公开方法反解匹配的单侧界并核对原生右尾 p；补取左尾输出检验尾向。冻结既有双侧 Bonett 和卡方字段。 |
 | G06 | P2 · 方差差异定位，需控制多重性 | 等方差检验提供多重比较输出及 Bonferroni 标记的区间 | `multi_pop_var_test` 缺原生多重比较检验对应 p，现有均值中心 Levene 仍是独立方法 | 重用 phase4 `multi_variance` 三组独立样本。先确认原生 Multiple Comparisons p 的检验口径及区间置信定义。冻结原生 p、各组区间和显示精度，以官方公式独立复算；既有 Levene 和 Brown–Forsythe 输出另回归。 |
 | G09 | P2 · 二元回归选模与拟合检查，先补可解释的统计量 | Minitab 二元 Logistic 摘要和拟合优度表提供调整偏差 R²、AICc、偏差与 Pearson 检验及 Hosmer–Lemeshow | 通用 `advanced_regression` 有 McFadden R²、AIC/BIC、Pearson 统计量与总体 LR，缺对应报告字段。历史 BFGS 协方差判断需用当前入口复核 | 先用 phase4 `binary_logistic` 冻结相同编码的原生汇总，独立用空模型及全模型对数似然核对调整偏差 R²、AICc。拟合优度另用六个重复预测模式、每模式 20 次且两类均出现的数据，按冻结的聚合与自由度定义比较偏差/Pearson；HL 用另一个至少十个不同拟合概率的案例，冻结组数、并列处理、组内观测/期望和 χ²/p。未分组稀疏数据继续明确不可用。 |
@@ -32,6 +32,8 @@ P1 优先补影响结论或常用报告的缺口，由低侵入且参考已就�
 - G04：Phase 4 Poisson 摘要三项与原生显示一致（64.11%、59.48%、72.12）。独立斜率 score 求根及 Poisson 对数似然复算通过。偏差 R² 为 1−D/D₀，调整值为 max(0, 1−(D+k−1)/D₀)，AICc 为 AIC+2k(k+1)/(n−k−1)。k 含截距，n 为有效行数，分母无效时留空。广义回归定向 11 项通过。[Minitab 定义](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/regression/how-to/fit-poisson-model/methods-and-formulas/model-summary/)
 
 - G02：完整 OLS、分类 OLS、单因子 ANOVA、含交互双因子 ANOVA 的预测 R² 分别与 Phase 4 原生值 99.60%、82.71%、71.64%、76.12% 一致。四案 PRESS 及无交互双因子分支均通过独立逐行留一重拟合。PRESS 无直接原生字段，采用逐行留一作为数值依据。保留负预测 R²；不可留一估计时两项留空。
+
+- G07：连续总体次序统计量法。选择使 Bin(n, 1−P) 的上尾概率 Pr(Y≥r)（单侧）或 Pr(Y≥2r)（对称双侧）达到目标置信水平的最大秩 r。用精确有理数二项尾和独立验证。1–100 样本、90% 覆盖、95% 目标置信，双侧 [2, 99]（实际 99.22%），单侧下限 5、上限 96（各 97.63%）。1–10 无可用端点，双侧和单侧最高分别为 26.39% 和 65.13%。真实 Tk 菜单确认与既有正态报告测试通过。待 Minitab 原生对标。
 
 ## 产品证据待办
 

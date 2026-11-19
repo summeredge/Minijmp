@@ -270,7 +270,30 @@ def normalize_column_memory(tree, module):
         remove_exact(function, 'self.remember_columns(roles=None if "ID" in m else ("xvar",))'
                      if name == 'CpkSubDialog' else 'self.remember_columns()')
     if module == 'qc_dialog.py':
-        function = next(n for n in classes['TIDialog'].body if isinstance(n, ast.FunctionDef) and n.name == 'apply')
+        tolerance = classes['TIDialog']
+        function = next(n for n in tolerance.body if isinstance(n, ast.FunctionDef) and n.name == 'apply')
+        # G07 的选择分支及输入验证由非参数对话框测试接管。
+        options = [n for n in function.body if isinstance(n, ast.If)
+                   and ast.unparse(n.test) == "self.ti_method.get() == '非参数'"]
+        assert len(options) == 1
+        function.body.remove(options[0])
+        selection = next(n for n in tolerance.body
+                         if isinstance(n, ast.FunctionDef) and n.name == 'createWidgets')
+        for statement in (
+            "method = tk.LabelFrame(m, text='方法')",
+            "method.pack(side=TOP, fill=BOTH, padx=2)",
+            "self.ti_method = tk.StringVar(value='正态')",
+            "ttk.Combobox(method, values=('正态', '非参数'), textvariable=self.ti_method, "
+            "state='readonly', width=14).pack(side=LEFT, padx=2)",
+        ):
+            remove_exact(selection, statement)
+        labels = [node for node in ast.walk(selection) if isinstance(node, ast.Constant)
+                  and node.value == '汇总数据（仅正态方法，优先使用）']
+        assert len(labels) == 1
+        labels[0].value = '汇总数据（优先使用）'
+        imports = next(n for n in tree.body if isinstance(n, ast.ImportFrom) and n.module == 'ti')
+        assert [name.name for name in imports.names] == ['ti_norm', 'ti_nonparametric']
+        imports.names.pop()
         remove_exact(function, 'if result is not None and None in [mean, n, std]:\n    self.remember_columns()')
         assignment = next(n for n in function.body if isinstance(n, ast.Assign)
                           and ast.unparse(n.targets[0]) == 'result')

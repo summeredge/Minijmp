@@ -9,7 +9,7 @@ from dialog import Dialogs
 from GRR import grr_master, grr_nested
 from utilities import is_void, is_number, grouping_by_labels, number_list, get_number
 from cpk_plot import cpk_plot
-from ti import ti_norm
+from ti import ti_norm, ti_nonparametric
 from grr_plot import grr_plot
 
 
@@ -532,6 +532,12 @@ class TIDialog(Dialogs):
     column_roles = (('xvar', True),)
 
     def createWidgets(self, m):
+        method = tk.LabelFrame(m, text='方法')
+        method.pack(side=TOP, fill=BOTH, padx=2)
+        self.ti_method = tk.StringVar(value='正态')
+        ttk.Combobox(method, values=('正态', '非参数'), textvariable=self.ti_method,
+                     state='readonly', width=14).pack(side=LEFT, padx=2)
+
         f = tk.LabelFrame(m, text='样本值')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.xvar = tk.StringVar(value="")
@@ -540,7 +546,7 @@ class TIDialog(Dialogs):
             width=14)
         w.pack(side=LEFT, padx=2)
 
-        master = tk.LabelFrame(m, text='汇总数据（优先使用）')
+        master = tk.LabelFrame(m, text='汇总数据（仅正态方法，优先使用）')
         master.pack(side=TOP, fill=BOTH, padx=2)
         self.sample_mean = tk.StringVar(value="")
         self.sample_std = tk.StringVar(value="")
@@ -588,6 +594,20 @@ class TIDialog(Dialogs):
             data = number_list(self.df[self.xvar.get()])
         except BaseException:
             data = None
+
+        if self.ti_method.get() == '非参数':
+            lines = []
+            try:
+                ti_nonparametric(data, alpha=self.alpha.get(), P=self.prop.get(),
+                                 print_out=True, print_port=lines.append)
+            except (ValueError, tk.TclError) as exc:
+                self.error(str(exc))
+                return
+            self.app.print(f'分析变量：{self.xvar.get()}。')
+            for line in lines:
+                self.app.print(line)
+            self.remember_columns()
+            return
 
         alpha = self.alpha.get()
         if alpha > 0.5 or alpha <= 0:

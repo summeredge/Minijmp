@@ -1,8 +1,9 @@
 from stat_table import StatTable
+from bisect import bisect_right
     
 import numpy as np
 from scipy import integrate
-from scipy.stats import chi2, ncx2, norm, nct
+from scipy.stats import binom, chi2, ncx2, norm, nct
 from statistics import mean, stdev
 from utilities import gen_table, format_stat
 
@@ -83,6 +84,50 @@ def ti_norm(data=None, alpha=0.05, P=0.9,
         print("容差区间针对总体个体的覆盖，不是总体参数的置信区间，也不是未来观测值的预测区间。")
 
     return {"TI": ti, "Upper Bound": ul, "Lower Bound": ll}
+
+
+def ti_nonparametric(data, alpha=0.05, P=0.9, print_out=False, print_port=print):
+    if not 0 < alpha < 1 or not 0 < P < 1:
+        raise ValueError('总体覆盖比例和置信水平必须严格介于 0 与 1 之间。')
+    sample = np.asarray(data, dtype=float)
+    if sample.ndim != 1 or not sample.size or not np.isfinite(sample).all():
+        raise ValueError('非参数容差区间需要一列有限数值的原始样本。')
+    sample = np.sort(sample)
+    n, target = len(sample), 1-alpha
+
+    def one_conf(rank):
+        return binom.sf(rank-1, n, 1-P)
+
+    def two_conf(rank):
+        return binom.sf(2*rank-1, n, 1-P)
+
+    one = bisect_right(range(1, n+1), -target, key=lambda rank: -one_conf(rank))
+    two = bisect_right(range(1, n//2+1), -target, key=lambda rank: -two_conf(rank))
+    lower, upper = (sample[one-1], sample[n-one]) if one else (None, None)
+    interval = (sample[two-1], sample[n-two]) if two else (None, None)
+    confidence_one, confidence_two = one_conf(one or 1), two_conf(two or 1)
+
+    if print_out:
+        title = '统计容差区间（非参数方法）'
+        print_port(f'\n---- {title} ----')
+        print_port(f'有效样本量 N = {n}。次序统计量法假定样本独立且总体分布连续。')
+        headers = ['限类型', '总体覆盖比例', '目标置信水平', '可达置信水平', '下容差限', '上容差限']
+        values = [
+            ['双侧区间', P, target, confidence_two, *interval],
+            ['单侧下限', P, target, confidence_one, lower, None],
+            ['单侧上限', P, target, confidence_one, None, upper],
+        ]
+        display = [[label, f'{coverage:.2%}', f'{requested:.2%}', f'{achieved:.2%}',
+                    format_stat(lo), format_stat(hi)]
+                   for label, coverage, requested, achieved, lo, hi in values]
+        table = gen_table([headers, *display])
+        print_port(StatTable(table, title, headers, values, display=display,
+            number_formats=['General', '0.00%', '0.00%', '0.00%', '0.000', '0.000']))
+        if not (one and two):
+            print_port('样本量不足时，仅报告该类型可达的最高置信水平，容差限显示为 *。')
+
+    return {'TI': interval, 'Upper Bound': upper, 'Lower Bound': lower,
+            'one_sided_confidence': confidence_one, 'two_sided_confidence': confidence_two}
 
 
 if __name__ == "__main__":
