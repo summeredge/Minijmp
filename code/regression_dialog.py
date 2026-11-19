@@ -23,6 +23,7 @@ TABLE_TITLES = {
     'x_scores': 'X 得分', 'y_scores': 'Y 得分', 'x_loadings': 'X 载荷',
     'y_loadings': 'Y 载荷', 'variance': '解释方差', 'vip': '变量重要性（VIP）',
     'cv': '交叉验证', 'cv_predictions': '交叉验证预测',
+    'gof': 'Hosmer–Lemeshow 分组',
 }
 PLOTS = {'实测与预测': 'observed', '残差与拟合值': 'residual', '残差 QQ': 'qq',
          '残差序列': 'sequence', '影响点诊断': 'influence', '系数置信区间': 'coefficients',
@@ -59,6 +60,9 @@ HEADERS = {'model': '模型', 'n_obs': '有效样本数', 'n_parameters': '参�
            'mean_ci_upper': '均值置信上限', 'pi_lower': '观测预测下限', 'pi_upper': '观测预测上限',
            'probability': '事件概率', 'predicted_class': '预测类别',
            'response': '响应', 'category': '类别', 'level': '类别水平', 'code': '编码',
+           'group': '组', 'size': '组大小', 'successes': '观测成功数',
+           'expected_success': '期望成功数', 'failures': '观测失败数',
+           'expected_failure': '期望失败数',
            'reference': '参考类别', 'actual_class': '实际类别', 'count': '频数',
            'component': '潜变量', 'n_components': '潜变量数', 'variable': '变量',
            'score_x': 'X 得分', 'score_y': 'Y 得分', 'loading': '载荷',
@@ -380,7 +384,7 @@ class RegressionDialog:
         self.tabs.clear()
         self.tables.clear()
         for key, frame in result.tables.items():
-            if not self.diagnostics.get() and key in ('diagnostics', 'vif', 'observations'):
+            if not self.diagnostics.get() and key in ('diagnostics', 'vif', 'observations', 'gof'):
                 continue
             if not frame.empty:
                 self.show_table(key, frame)

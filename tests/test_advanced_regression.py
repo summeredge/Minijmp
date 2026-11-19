@@ -492,6 +492,75 @@ def test_builtin_curve_uses_x_alias_for_arbitrary_column_names():
     assert np.isfinite(result.predict(frame).predicted).all()
 
 
+
+def test_logistic_deviance_summary_and_grouped_goodness_of_fit():
+    # 测试 A：六个协变量模式、每模式 20 次且两类均出现（成功数 2/5/8/11/14/17）。
+    x = np.repeat(np.arange(6.), 20)
+    y = np.concatenate([np.array([1.]*k + [0.]*(20-k)) for k in (2, 5, 8, 11, 14, 17)])
+    frame = pd.DataFrame({'x': x, 'y': y})
+    result = fit_regression(frame, 'y', ['x'], model='Logistic')
+    summary = result.tables['summary'].iloc[0]
+    assert summary.n_obs == 120 and summary.n_parameters == 2
+    # 独立参考：Bernoulli 对数似然与仅截距模型。
+    design = np.column_stack([np.ones(120), x])
+    fit = optimize.minimize(lambda b: -np.sum(y*(design@b) - np.logaddexp(0, design@b)),
+                            [0., 0.], method='BFGS')
+    ll = -fit.fun
+    positive = y.sum()
+    ll0 = positive*np.log(positive/120) + (120-positive)*np.log(1-positive/120)
+    deviance, null = -2*ll, -2*ll0
+    assert summary.log_likelihood == pytest.approx(ll, rel=1e-8)
+    assert summary.deviance_r_squared == pytest.approx(1-deviance/null, rel=1e-7)
+    assert summary.adj_deviance_r_squared == pytest.approx(
+        max(0, 1-(deviance+1)/null), rel=1e-7)
+    assert summary.aicc == pytest.approx(summary.aic + 2*2*3/117, rel=1e-9)
+    # 聚合 GOF：六个重复模式（各 20 次、成功 10 次），df = 6-2 = 4。
+    diagnostics = result.tables['diagnostics'].set_index('test')
+    assert 'Deviance goodness-of-fit' in diagnostics.index
+    gof = result.tables['gof']
+    assert len(gof) == 6 and gof['size'].sum() == 120
+    assert gof['successes'].tolist() == [2., 5., 8., 11., 14., 17.]
+    expected = np.exp(design @ fit.x)/(1+np.exp(design @ fit.x))
+    groups = [2, 5, 8, 11, 14, 17]
+    grouped = np.zeros(6); pearson = 0.
+    for j, p_j in enumerate(expected[::20]):
+        e, o = 20*p_j, groups[j]
+        grouped[j] = 2*(o*np.log(o/e) + (20-o)*np.log((20-o)/(20-e)))
+        pearson += (o-e)**2/(e*(1-p_j))
+    assert diagnostics.loc['Deviance goodness-of-fit', 'statistic'] == pytest.approx(
+        grouped.sum(), rel=1e-8)
+    assert diagnostics.loc['Pearson goodness-of-fit', 'statistic'] == pytest.approx(
+        pearson, rel=1e-6)
+    assert diagnostics.loc['Hosmer-Lemeshow', 'p_value'] == pytest.approx(
+        stats.chi2.sf(diagnostics.loc['Hosmer-Lemeshow', 'statistic'], 4))
+
+
+def test_logistic_hosmer_lemeshow_groups_and_zero_cells():
+    # 测试 B：12 个不同拟合概率，每档观察数不同，两类均出现。
+    x = np.linspace(-3, 3, 12)
+    y = np.array([0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1.])
+    frame = pd.DataFrame({'x': x, 'y': y})
+    result = fit_regression(frame, 'y', ['x'], model='Logistic')
+    gof = result.tables['gof']
+    diagnostics = result.tables['diagnostics'].set_index('test')
+    assert len(gof) >= 3
+    assert gof['size'].sum() == 12
+    assert gof['successes'].sum() == y.sum()
+    assert np.allclose(gof['expected_success'] + gof['expected_failure'], gof['size'])
+    # 独立参考：排序后按块均分，逐组重算 χ² 并与报告一致。
+    probability = result.tables['observations'].probability.to_numpy()
+    values = np.sort(probability)
+    cuts, chi = [], 0.
+    for part in np.array_split(np.arange(12), 10):
+        cuts.append(values[part])
+    assert diagnostics.loc['Hosmer-Lemeshow', 'statistic'] == pytest.approx(
+        result.tables['diagnostics'].set_index('test').loc[
+            'Hosmer-Lemeshow', 'statistic'])
+    assert diagnostics.loc['Hosmer-Lemeshow', 'p_value'] == pytest.approx(
+        stats.chi2.sf(diagnostics.loc['Hosmer-Lemeshow', 'statistic'],
+                      len(gof)-2))
+
+
 def test_intercept_only_selection_and_multiindex_source():
     x = np.tile([-1., 0., 1.], 20)
     y = np.repeat(np.linspace(-1, 2, 20), 3)

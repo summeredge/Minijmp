@@ -22,7 +22,7 @@ P1 优先补影响结论或常用报告的缺口，由低侵入且参考已就�
 | G07 | P1 · 非正态过程的覆盖判断，低至中成本 | 正态容差区间入口同时提供非参数次序统计量法 | `TIDialog` 已支持正态法和非参数法，非参数法待原生取证 | 输入 1–100，双侧 90% 总体覆盖、95% 置信。用独立二项概率求达到目标的对称秩，精确比较上下限秩和实际置信度，并取 Minitab 原生端点。加 1–10 样本不足例，要求显示实际可达置信度或清晰的不可用状态。 [Minitab 容差区间公式](https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/quality-tools/how-to/tolerance-intervals-normal-distribution/methods-and-formulas/methods-and-formulas/) |
 | G05 | P2 · 专用单侧方差推断，需单独验证尾概率 | 单标准差检验提供单侧 Bonett 检验 | 报告已输出左尾、右尾 p 值，与单侧界同口径 | 重用 phase4 `one_variance_right`（σ₀=3、90%），按公开方法反解匹配的单侧界并核对原生右尾 p；补取左尾输出检验尾向。冻结既有双侧 Bonett 和卡方字段。 |
 | G06 | P2 · 方差差异定位，需控制多重性 | 等方差检验提供多重比较输出及 Bonferroni 标记的区间 | 已输出 Bonferroni 联合区间与 Bonett 成对比较；原生全局多重比较 p 口径仍待取证 | 重用 phase4 `multi_variance` 三组独立样本。先确认原生 Multiple Comparisons p 的检验口径及区间置信定义。冻结原生 p、各组区间和显示精度，以官方公式独立复算；既有 Levene 和 Brown–Forsythe 输出另回归。 |
-| G09 | P2 · 二元回归选模与拟合检查，先补可解释的统计量 | Minitab 二元 Logistic 摘要和拟合优度表提供调整偏差 R²、AICc、偏差与 Pearson 检验及 Hosmer–Lemeshow | 通用 `advanced_regression` 有 McFadden R²、AIC/BIC、Pearson 统计量与总体 LR，缺对应报告字段。历史 BFGS 协方差判断需用当前入口复核 | 先用 phase4 `binary_logistic` 冻结相同编码的原生汇总，独立用空模型及全模型对数似然核对调整偏差 R²、AICc。拟合优度另用六个重复预测模式、每模式 20 次且两类均出现的数据，按冻结的聚合与自由度定义比较偏差/Pearson；HL 用另一个至少十个不同拟合概率的案例，冻结组数、并列处理、组内观测/期望和 χ²/p。未分组稀疏数据继续明确不可用。 |
+| G09 | P2 · 二元回归选模与拟合检查，先补可解释的统计量 | Minitab 二元 Logistic 摘要和拟合优度表提供调整偏差 R²、AICc、偏差与 Pearson 检验及 Hosmer–Lemeshow | 已输出偏差 R²、调整偏差 R²、AICc、聚合偏差/Pearson GOF 与 HL 分组表；重复模式不足时明确不可用 | 先用 phase4 `binary_logistic` 冻结相同编码的原生汇总，独立用空模型及全模型对数似然核对调整偏差 R²、AICc。拟合优度另用六个重复预测模式、每模式 20 次且两类均出现的数据，按冻结的聚合与自由度定义比较偏差/Pearson；HL 用另一个至少十个不同拟合概率的案例，冻结组数、并列处理、组内观测/期望和 χ²/p。未分组稀疏数据继续明确不可用。 |
 | G08 | P2 · SCR-002，多分类筛选有价值，设计构造和可估性成本高 | DSD 接受二水平分类因子，分类设计每复制用两个伪中心点 | 现有限定 4–12 连续加 2–4 分类，另有全连续或一分类路径。其余组合的产品边界需实证 | 先在目标版本导出 13 连续 + 3 分类、1 重复、关闭随机化的原生设计。成功后将该组合冻结为首个扩展案例，比较合法水平、总行数、伪中心点数量和主效应秩，并用实际设计矩阵独立核验主效应方差与二因子混杂。若产品拒绝该组合，保留待取证，选择一项已导出的未覆盖组合后才立项。 [Minitab DSD 设计矩阵](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/doe/how-to/screening/analyze-screening-design/methods-and-formulas/model-information/) |
 
 ## 本轮验收
@@ -36,6 +36,8 @@ P1 优先补影响结论或常用报告的缺口，由低侵入且参考已就�
 - G04：Phase 4 Poisson 摘要三项与原生显示一致（64.11%、59.48%、72.12）。独立斜率 score 求根及 Poisson 对数似然复算通过。偏差 R² 为 1−D/D₀，调整值为 max(0, 1−(D+k−1)/D₀)，AICc 为 AIC+2k(k+1)/(n−k−1)。k 含截距，n 为有效行数，分母无效时留空。广义回归定向 11 项通过。[Minitab 定义](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/regression/how-to/fit-poisson-model/methods-and-formulas/model-summary/)
 
 - G06：多样本方差检验新增两张表。其一为每组标准差的 95% Bonferroni 联合区间，按 Bonett 区间在 alpha/k 计算；phase4 `multi_variance` 三组得 (1.98865, 8.61111)、(2.34825, 8.41017)、(2.06587, 8.37558)，与原生完全一致。其二为 Bonett 对数尺度正态近似的成对标准差比，含 Bonferroni 区间与调整 p，属自选方法，与原生“多重比较”全局 p 口径不同，未标记为已对标。O'Brien/Levene/Brown–Forsythe 与两样本 F 结果不变。
+
+- G09：二元 Logistic 摘要新增偏差 R²、调整偏差 R² 与 AICc，公式为 1−D/D₀、max(0, 1−(D+k−1)/D₀)、AIC+2k(k+1)/(n−k−1)，k 含截距。phase4 `binary_logistic` 得 19.03%、17.01%、44.41，与原生显示一致。拟合优度按重复协变量模式聚合偏差与 Pearson χ²（df=模式数−k），本案例 0.2354/0.2437、df=4；HL 按拟合概率排序就近等分十组、相同概率不拆分，实际 6 组、χ²=0.2437、df=4、p=0.993，与原生 0.24/0.993 一致。缺重复模式或零期望计数时明确不可用，保留原未分组 Pearson 行。
 
 - G02：完整 OLS、分类 OLS、单因子 ANOVA、含交互双因子 ANOVA 的预测 R² 分别与 Phase 4 原生值 99.60%、82.71%、71.64%、76.12% 一致。四案 PRESS 及无交互双因子分支均通过独立逐行留一重拟合。PRESS 无直接原生字段，采用逐行留一作为数值依据。保留负预测 R²；不可留一估计时两项留空。
 
