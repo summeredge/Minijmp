@@ -85,10 +85,11 @@ def _dsd_matrix_for_key(key):
         categorical_count = int(suffix)
     except ValueError as error:
         raise KeyError(key) from error
+    # 4–12 连续 × 2–4 分类，另加首个扩展 13 连续 × 3 分类（沿用同一构造）。
+    supported = (4 <= continuous_count <= 12 and 2 <= categorical_count <= 4) or (
+        continuous_count, categorical_count) == (13, 3)
     if (not separator or prefix != f'dsd{continuous_count}'
-            or suffix != str(categorical_count)
-            or not 4 <= continuous_count <= 12
-            or not 2 <= categorical_count <= 4
+            or suffix != str(categorical_count) or not supported
             or (continuous_count, categorical_count) == (4, 2)):
         raise KeyError(key)
     return _multi_categorical_dsd_matrix(continuous_count, categorical_count)
@@ -111,9 +112,10 @@ def create_dsd(spec, replicates=1, measured=False, blocks=1, center_points=None)
     categorical_count = len(types) - continuous_count
     if types == ['continuous'] * 4 + ['categorical'] * 2:
         key, source = 'dsd4c2', 'foldover.dsd4c2'
-    elif (4 <= continuous_count <= 12 and 2 <= categorical_count <= 4
-          and (continuous_count, categorical_count) != (4, 2)
-          and types == ['continuous'] * continuous_count + ['categorical'] * categorical_count):
+    elif ((4 <= continuous_count <= 12 and 2 <= categorical_count <= 4)
+          or (continuous_count, categorical_count) == (13, 3)
+          ) and (continuous_count, categorical_count) != (4, 2) \
+            and types == ['continuous'] * continuous_count + ['categorical'] * categorical_count:
         key = f'dsd{continuous_count}c{categorical_count}'
         source = f'jones.{key}'
     elif 2 <= len(types) <= 48 and types == ['continuous'] * (len(types) - 1) + ['categorical']:
@@ -123,7 +125,8 @@ def create_dsd(spec, replicates=1, measured=False, blocks=1, center_points=None)
         key = f'dsd{len(types)}'
         source = f'conference.{key}'
     else:
-        raise ValueError('当前支持 2–48 个连续因子、1–47 连续加 1 分类，及 4–12 连续加 2–4 分类（保留既有 4+2 构造）')
+        raise ValueError('当前支持 2–48 个连续因子、1–47 连续加 1 分类，4–12 连续加 2–4 分类，'
+                         '及 13 连续加 3 分类（保留既有 4+2 构造）')
     if center_points is None:
         center_count = spec.center_point_count or 0
     elif (isinstance(center_points, bool) or not isinstance(center_points, Integral)

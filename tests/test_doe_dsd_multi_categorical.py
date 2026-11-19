@@ -169,6 +169,57 @@ def test_multi_categorical_matrix_matches_independent_exhaustive_d_optimum(
         _reference_max_logdet(continuous_count, categorical_count), abs=1e-10)
 
 
+
+def test_thirteen_continuous_three_categorical_extends_the_same_construction():
+    # G08 首个扩展：13 连续 + 3 分类。基础 dsd16 存在，矩阵沿用同一构造。
+    matrix = np.asarray(_dsd_matrix_for_key('dsd13c3'), dtype=int)
+    base = MATRICES['dsd16']
+    assert len(matrix) == len(base) + 1 == 34
+    assert matrix.shape == (34, 16)
+    assert set(np.unique(matrix)) <= {-1, 0, 1}
+    foldover_pairs = (len(base) - 1) // 2
+    np.testing.assert_array_equal(matrix[foldover_pairs:2 * foldover_pairs],
+                                  -matrix[:foldover_pairs])
+    np.testing.assert_array_equal(matrix[-1], -matrix[-2])
+    np.testing.assert_array_equal(matrix.sum(axis=0), 0)
+    # 连续因子保留各自的低/中心/高水平，分类因子只有两个非零水平。
+    assert all(set(matrix[:, column]) == {-1, 0, 1} for column in range(13))
+    assert all(set(matrix[:, column]) == {-1, 1} for column in range(13, 16))
+    assert all(np.count_nonzero(matrix[:, column] == 0) == 4 for column in range(13))
+    # 主效应满秩，且 D-最优与独立穷举 LAPACK 参考一致。
+    main = np.column_stack((np.ones(len(matrix), dtype=int), matrix))
+    assert np.linalg.matrix_rank(main) == 17
+    sign, logdet = np.linalg.slogdet(main.T @ main)
+    assert sign > 0
+    assert logdet == pytest.approx(_reference_max_logdet(13, 3), abs=1e-10)
+    # 二因子混杂：每个主效应正交于二阶交互列，与其余组合一致。
+    second_order = np.column_stack([
+        matrix[:, i] * matrix[:, j]
+        for i in range(16) for j in range(i, 16) if i != j or i < 13])
+    np.testing.assert_array_equal(matrix.T @ second_order, 0)
+
+
+def test_thirteen_continuous_three_categorical_production_entry_roundtrip():
+    # 生产入口：GUI 同路径的 spec → create_dsd → 工作表元数据 → 保存/读取。
+    spec = _spec(13, 3)
+    frame, meta = create_dsd(spec, replicates=2)
+    assert len(frame) == 68
+    points = frame['点类型'].value_counts().to_dict()
+    assert points == {'screening': 64, 'pseudo_center': 4}
+    columns = [f'设定_X{i}' for i in range(1, 14)] + [f'设定_C{i}' for i in range(1, 4)]
+    assert set(frame[columns[:13]].stack().unique()) <= {-1, 0, 1}
+    assert set(frame[columns[13:]].stack().unique()) == {'低1', '高1', '低2', '高2', '低3', '高3'}
+    identity = dict(meta['design'])
+    assert identity['screening_matrix']['construction_id'] == 'dsd13c3.v1'
+    assert identity['screening_matrix']['source_id'] == 'jones.dsd13c3'
+    restored = DesignSpec.from_dict(identity)
+    assert restored.screening_matrix == spec.screening_matrix | {
+        'matrix_sha256': identity['screening_matrix']['matrix_sha256']}
+    # 既有组合不受影响。
+    legacy = create_dsd(_spec(12, 4), replicates=1)[0]
+    assert len(legacy) == len(MATRICES['dsd16']) + 1
+
+
 def test_d_optimal_tie_uses_first_configuration_in_b_then_z_order():
     expected, maximum_count = _exact_reference_first_max(5, 2)
     assert maximum_count >= 4

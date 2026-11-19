@@ -50,6 +50,8 @@ _SCREENING_SOURCES = {
     ("definitive_screening", f"dsd{m}c{c}.v1", "mathematical_construction",
      f"jones.dsd{m}c{c}")
     for m in range(4, 13) for c in range(2, 5) if (m, c) != (4, 2)
+} | {("definitive_screening", "dsd13c3.v1", "mathematical_construction",
+      "jones.dsd13c3")
 }
 _POINT_TYPES = frozenset({"factorial", "center", "axial", "edge", "screening",
                           "pseudo_center", "taguchi"})
@@ -1545,6 +1547,7 @@ def _validate_screening_construction(result):
             categorical_count == 0 and 2 <= continuous_count <= 48
             or categorical_count == 1 and 1 <= continuous_count <= 47
             or (continuous_count, categorical_count) == (4, 2)
+            or (continuous_count, categorical_count) == (13, 3)
             or (2 <= categorical_count <= 4 and 4 <= continuous_count <= 12
                 and (continuous_count, categorical_count) != (4, 2)))
         if (key != expected_key or not supported_range
