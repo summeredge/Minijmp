@@ -53,7 +53,7 @@ P1 优先补影响结论或常用报告的缺口，由低侵入且参考已就�
 
 | ID | 优先级 | 产品能力与本地现状 | 独立案例与完成条件 |
 |---|---|---|---|
-| E01 | P1 · 影响二元响应推断，先定位 | Minitab 二元响应面提供系数、SE、Wald z。MiniJMP 有相同字段，历史 `BIN-RSM` 的 A、A²、B²、A*C 四项 z 超差，原因未定 | 以 [Fisher 修复验收](../../Out/minitab19_parity/supplemental/binary/fisher_diagnosis/repair_acceptance.md) 的数据及编码重放，同步导出全精度系数、概率、设计矩阵、协方差和 z。用独立 grouped-logit 拟合与最终 Fisher 矩阵定位首个差异。严格保留历史 1e-9 规则，以四项均通过或形成可复现、有方法证据的差异结论关闭调查。 |
+| E01 | P1 · 二元响应面 Wald z | 未解决的数值差异。A、A²、B²、A*C 在原 1e-9 规则下仍超差，现有证据不足以唯一归因 | Minitab 19 的 `CTOLERANCE 1e-10` 和 `1e-12` 均回读相同的 β、FITS、SE 和 M2。M2 与终点 Fisher 的最大元素差均为 1.536e-10。MiniJMP 保留最终 Fisher 实现。见 [E01 原生对照](../../Out/minitab19_parity/supplemental/binary/fisher_diagnosis/m2_investigation/e01_convergence.md)。 |
 | E02 | P2 · FAC-012 扩展边界 | Minitab FOLD 文档列两水平部分因子与 PB。本地已支持限定正规/PB 一次折叠，分类、中心点或区组 PB 及再次折叠仍受限。裂区 Foldover 的产品支持未证实 | 先以 PB12（一个二水平分类因子、配置中心点）尝试对该因子执行 FOLD，获取实际命令与输出。若该配置受支持，再按原生点集核验折叠水平、中心点/区组处理、响应保留与新增行空值。以 FOLD-REG 和 FOLD-PB 回归已有范围。 [Minitab Session Commands](https://support.minitab.com/en-us/minitab/session-command-help/) |
 
 取证时冻结输入、产品版本、界面选项或原生命令、原始输出、字段与精度。整数、标签和秩精确比较；复用历史案例沿用其字段容差，新显示型参考按单字段最后一位的半单位判断。新取证先确定口径与容差，再比较。矩阵中其余待取证项及 DOE 行内其余范围限制作为调查入口，厂商选项、实际用途和验收案例充分后再定开发优先级。GEN-012/013/014 保持既有状态。
