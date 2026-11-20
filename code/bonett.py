@@ -1,6 +1,7 @@
 from scipy.stats import norm
+from scipy.optimize import brentq
 import statistics as stats
-from math import exp, log as ln
+from math import exp, log as ln, nextafter
 
 
 def trimmed_mean(data):
@@ -32,6 +33,20 @@ def solution(r, se, n, negative=False):
         else:
             right = mid
     return left
+
+
+def _one_sided_p(r, se, n, lower):
+    sign = -1 if lower else 1
+
+    def log_bound_error(z):
+        scale = (n - z) / n
+        return -ln(scale) + sign * z * se / scale - 2 * ln(r)
+
+    # The lower bound has a maximum. The rightmost root gives the smallest alpha.
+    left = max(-38., n - n * n * se) if lower else -38.
+    if (lower and log_bound_error(left) < 0) or (not lower and log_bound_error(left) > 0):
+        return 1.
+    return norm.sf(brentq(log_bound_error, left, nextafter(float(n), 0.)))
 
 
 def pair_ratio(data1, data2, m=1, alpha=.05):
@@ -72,16 +87,9 @@ def var_1sample(data, alpha=0.05, s0=None):
     else:
         p = solution(r, se, n, negative=True)
 
-    # 双侧 p 由区间倍率反解，等价于 Z=Φ⁻¹(1-p/2) 的双侧正态检验。单侧界用
-    # ratio(2a)，故方向侧 p=a=p/2，另一侧由 H0 下 Z 的对称性取 1-p/2。
-    if r > 1:
-        p_lt, p_gt = p / 2, 1 - p / 2
-    else:
-        p_lt, p_gt = 1 - p / 2, p / 2
-
     return {"Bonett p": p,
-            "Bonett p lt": p_lt,
-            "Bonett p gt": p_gt,
+            "Bonett p lt": _one_sided_p(r, se, n, lower=False),
+            "Bonett p gt": _one_sided_p(r, se, n, lower=True),
             "Bonett CI": (ll, ul),
             #  "CI upper limit": ul,
             "One tail lower boundary": lb,
