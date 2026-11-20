@@ -345,7 +345,12 @@ def test_multi_variance_bonferroni_intervals_and_pairwise_ratios_match_native():
 
     # 成对比较：对数比近似 + Bonferroni，交换组别后 p 值不变。
     pairs = tables[2].values
+    assert tables[2].headers[5:] == ['p 值', '调整 p 值', '显著差异']
     assert [(r[0], r[1]) for r in pairs] == [('A', 'B'), ('A', 'C'), ('B', 'C')]
+    for row in pairs:
+        # 原始 p 与调整 p 同源：调整值 = min(1, m·原始值)，m = 3 个成对比较。
+        assert float(row[6]) == pytest.approx(min(1, 3 * float(row[5])), abs=.001)
+        assert row[7] == ('是' if float(row[6]) < .05 else '否')
     swapped = multi_pop_var_test(list(groups.values())[::-1], list(groups),
                                  print_out=False)
     assert swapped['Brown_Forsythe']['p'] == pytest.approx(result['Brown_Forsythe']['p'])

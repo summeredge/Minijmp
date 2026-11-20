@@ -316,11 +316,14 @@ def multi_pop_var_test(data, labels, print_out=False, print_port=print,
     # "95% Bonferroni 标准差置信区间"一致（单组置信水平 1-alpha/k）。
     joint = [bonett_var_1sample(group, alpha=alpha / len(data), s0=stat.stdev(group))
              if len(data) > 1 else None for group in data]
+    pair_count = len(data) * (len(data) - 1) / 2
     comparisons = [
         {"groups": (labels[i], labels[j]), **dict(zip(
-            ("ratio", "Bonett CI", "adjusted p"), pair_ratio(
-                data[i], data[j], m=len(data) * (len(data) - 1) / 2, alpha=alpha)))}
+            ("ratio", "Bonett CI", "p", "adjusted p"),
+            pair_ratio(data[i], data[j], m=pair_count, alpha=alpha)))}
         for i in range(len(data)) for j in range(i + 1, len(data))] if len(data) > 1 else []
+    for row in comparisons:
+        row["significant"] = bool(row["adjusted p"] < alpha)
 
     if print_out:
         from utilities import gen_table
@@ -385,15 +388,18 @@ def multi_pop_var_test(data, labels, print_out=False, print_port=print,
             for row in comparisons:
                 lo, hi = row["Bonett CI"]
                 values.append([row["groups"][0], row["groups"][1], row["ratio"],
-                               lo, hi, row["adjusted p"]])
+                               lo, hi, row["p"], row["adjusted p"],
+                               '是' if row["significant"] else '否'])
                 display.append([str(row["groups"][0]), str(row["groups"][1]),
                                 '%.3f' % row["ratio"], '%.3f' % lo, '%.3f' % hi,
-                                '%.3f' % row["adjusted p"]])
+                                '%.3f' % row["p"], '%.3f' % row["adjusted p"],
+                                '是' if row["significant"] else '否'])
             t = gen_table([['组别 1', '组别 2', '标准差比', pct_joint + ' 区间下限',
-                            pct_joint + ' 区间上限', '调整 p 值'], *display])
+                            pct_joint + ' 区间上限', 'p 值', '调整 p 值', '显著差异'], *display])
             t.align = 'r'
             t.align['组别 1'] = 'l'
             t.align['组别 2'] = 'l'
+            t.align['显著差异'] = 'l'
             print(StatTable(t, '标准差比的多重比较（Bonett 对数近似，Bonferroni 调整）',
                 t.field_names, values, display=display))
             print("多重比较沿用 Bonett 对数尺度正态近似，按比较数 m 以 Bonferroni 分摊显著性水平；"

@@ -35,7 +35,7 @@ def solution(r, se, n, negative=False):
 
 
 def pair_ratio(data1, data2, m=1, alpha=.05):
-    """Bonett 对数尺度近似的标准差比：比值、Bonferroni 区间与调整 p。
+    """Bonett 对数尺度近似的标准差比：比值、区间与原始/调整 p。
 
     log(s1/s2) 的方差取两侧 (n-1) 归一化超额峰度项之和；m 为成对比较数。
     """
@@ -48,9 +48,9 @@ def pair_ratio(data1, data2, m=1, alpha=.05):
 
     ratio_ = stats.stdev(data1) / stats.stdev(data2)
     se = (log_var(data1) + log_var(data2))**.5
-    p = min(1, m * 2 * (1 - norm.cdf(abs(ln(ratio_)) / se)))
+    raw = 2 * (1 - norm.cdf(abs(ln(ratio_)) / se))
     half = norm.ppf(1 - alpha / (2 * m)) * se
-    return ratio_, (ratio_ * exp(-half), ratio_ * exp(half)), p
+    return ratio_, (ratio_ * exp(-half), ratio_ * exp(half)), raw, min(1, m * raw)
 
 
 def var_1sample(data, alpha=0.05, s0=None):
