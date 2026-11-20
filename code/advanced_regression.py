@@ -390,46 +390,47 @@ def _select(design, data, y, w, model, selection, criterion, cancel):
     return final_fit, current, pd.DataFrame(rows.values(), columns=TABLE_COLUMNS['comparison'])
 
 
-def _binary_gof(y, probability, k, groups=10):
-    """聚合二元拟合优度与 Hosmer–Lemeshow。
+def _binary_gof(y, matrix, probability, k, groups=10):
+    """聚合二元拟合优度与 Hosmer–Lemeshow，两者独立判定可用性。
 
-    按协变量模式聚合（重复预测概率必然同组）；偏差/Pearson 与 df=m-k。
-    HL 将拟合概率排序分成 groups 个等大小组，不拆开并列概率，取各组的
-    平均拟合概率；零期望计数或有效组数不足 3 时返回 None。
+    聚合按设计矩阵的真实协变量模式分组：相同设计行同组，不同设计行即使
+    拟合概率相同也不合并。无重复模式、零期望计数或 df<=0 时 deviance/
+    pearson 为 None。HL 只按拟合概率排序分 groups 组，不拆开并列概率，
+    不要求重复模式；分组或期望计数无效时 hl_square/hl_df/cells 为 None。
     """
-    pattern, inverse = np.unique(np.round(probability, 12), return_inverse=True)
+    _, first, inverse = np.unique(matrix, axis=0, return_index=True, return_inverse=True)
     counts = np.bincount(inverse).astype(float)
     successes = np.bincount(inverse, weights=y)
+    pattern = probability[first]
     expected = pattern * counts
-    if np.any(expected <= 0) or np.any(counts - expected <= 0):
-        return None
-    deviance = 2*np.sum(xlogy(successes, successes/expected) +
-                        xlogy(counts-successes, (counts-successes)/(counts-expected)))
-    pearson = np.sum((successes-expected)**2/(expected*(1-pattern)))
     df = len(counts) - k
+    deviance = pearson = None
+    if (len(counts) < len(matrix) and df > 0 and np.all(expected > 0)
+            and np.all(counts - expected > 0)):
+        deviance = 2*np.sum(xlogy(successes, successes/expected) +
+                            xlogy(counts-successes, (counts-successes)/(counts-expected)))
+        pearson = np.sum((successes-expected)**2/(expected*(1-pattern)))
     order = np.argsort(probability, kind='stable')
-    values = probability[order]
     # 组边界取就近的“概率变化点”，确保相同拟合概率不会被拆到两组。
-    valid = np.flatnonzero(np.diff(values) != 0) + 1
-    if valid.size == 0:
-        return None
-    cuts = sorted({int(valid[np.argmin(np.abs(valid - len(order)*(i + 1)/groups))])
-                   for i in range(groups - 1)})
-    segments = [order[start:stop] for start, stop in
-                zip([0, *cuts], [*cuts, len(order)]) if stop > start]
-    cells = []
-    for starts in segments:
-        prob = probability[starts].mean()
-        size, observed = len(starts), y[starts].sum()
-        exp1, exp0 = prob*size, (1-prob)*size
-        if exp1 <= 0 or exp0 <= 0:
-            return None
-        cells.append((size, observed, exp1, size-observed, exp0))
-    chi_square = sum((o1-e1)**2/e1 + (o0-e0)**2/e0
-                     for _, o1, e1, o0, e0 in cells)
-    df_hl = len(cells) - 2
-    return dict(deviance=deviance, df=df, pearson=pearson,
-                hl_square=chi_square, hl_df=df_hl, cells=cells)
+    valid = np.flatnonzero(np.diff(probability[order]) != 0) + 1
+    hl_square = hl_df = cells = None
+    if valid.size:
+        cuts = sorted({int(valid[np.argmin(np.abs(valid - len(order)*(i + 1)/groups))])
+                       for i in range(groups - 1)})
+        segments = [order[start:stop] for start, stop in
+                    zip([0, *cuts], [*cuts, len(order)]) if stop > start]
+        cells = [(len(s), y[s].sum(), probability[s].mean()*len(s),
+                  len(s) - y[s].sum(), (1-probability[s].mean())*len(s))
+                 for s in segments]
+        if any(e1 <= 0 or e0 <= 0 for _, _, e1, _, e0 in cells):
+            cells = None
+        else:
+            hl_square = sum((o1-e1)**2/e1 + (o0-e0)**2/e0
+                            for _, o1, e1, o0, e0 in cells)
+            hl_df = len(cells) - 2
+    return dict(deviance=deviance, df=df if deviance is not None else None, pearson=pearson,
+                hl_square=hl_square, hl_df=hl_df if hl_square is not None else None,
+                cells=cells)
 
 
 def _coefficient_table(names, params, covariance, df_resid, alpha, logistic=False):
@@ -733,28 +734,33 @@ def fit_regression(df, y, x, model='OLS', categorical=(), degree=1, interactions
              '二元观测 Pearson χ²；未分组数据不提供拟合优度 p 值。'),
             ('Likelihood ratio', fit.llr, fit.llr_pvalue,
              '相对仅截距模型；H0: 所有斜率为零，渐近卡方上尾。')], columns=TABLE_COLUMNS['diagnostics'])
-        gof = _binary_gof(response, fitted_values, p)
-        if gof is not None:
-            tables['diagnostics'] = pd.concat([tables['diagnostics'], pd.DataFrame([
-                ('Deviance goodness-of-fit', gof['deviance'],
-                 stats.chi2.sf(gof['deviance'], gof['df']) if gof['df'] > 0 else np.nan,
-                 f'按重复协变量模式聚合；df = 模式数 - 参数数 = {gof["df"]}。'),
-                ('Pearson goodness-of-fit', gof['pearson'],
-                 stats.chi2.sf(gof['pearson'], gof['df']) if gof['df'] > 0 else np.nan,
-                 f'按重复协变量模式聚合；df = 模式数 - 参数数 = {gof["df"]}。'),
-                ('Hosmer-Lemeshow', gof['hl_square'],
-                 stats.chi2.sf(gof['hl_square'], gof['hl_df']) if gof['hl_df'] > 0 else np.nan,
-                 f'拟合概率排序分 10 组、并列不拆分，实际 {len(gof["cells"])} 组；'
-                 f'df = 组数 - 2 = {gof["hl_df"]}。')],
-                columns=TABLE_COLUMNS['diagnostics'])], ignore_index=True)
+        gof = _binary_gof(response, matrix, fitted_values, p)
+        grouped = gof['deviance'] is not None
+        unavailable = ('不可用：无重复协变量模式、存在零期望计数或自由度不足；'
+                       '不用未分组残差平方和代填。')
+        rows = [
+            (name, gof[key], stats.chi2.sf(gof[key], gof['df']) if grouped else np.nan,
+             f'按重复协变量模式聚合；df = 模式数 - 参数数 = {gof["df"]}。' if grouped
+             else unavailable)
+            for name, key in (('Deviance goodness-of-fit', 'deviance'),
+                              ('Pearson goodness-of-fit', 'pearson'))]
+        hl = gof['cells'] is not None
+        rows.append(('Hosmer-Lemeshow', gof['hl_square'],
+                     stats.chi2.sf(gof['hl_square'], gof['hl_df']) if hl and gof['hl_df'] > 0
+                     else np.nan,
+                     f'拟合概率排序分 10 组、并列不拆分，实际 {len(gof["cells"])} 组；'
+                     f'df = 组数 - 2 = {gof["hl_df"]}。' if hl
+                     else '不可用：有效分组数不足或存在零期望计数。'))
+        tables['diagnostics'] = pd.concat(
+            [tables['diagnostics'], pd.DataFrame(rows, columns=TABLE_COLUMNS['diagnostics'])],
+            ignore_index=True)
+        if hl:
             tables['gof'] = pd.DataFrame(
                 [(f'{index+1}', *row) for index, row in enumerate(gof['cells'])],
                 columns=GOF_COLUMNS)
-            notes.append('偏差/Pearson 拟合优度按重复协变量模式聚合，需至少一个真实重复模式；'
-                         '不可估时该行显示不可用，不用未分组残差平方和代填。')
-        else:
-            notes.append('偏差/Pearson 与 Hosmer–Lemeshow 拟合优度不可估：缺少重复协变量模式、'
-                         '存在零期望计数或有效分组数不足。')
+        notes.append('偏差/Pearson 拟合优度按设计矩阵的重复协变量模式聚合，需至少一个真实重复模式；'
+                     '不可估时该行显示不可用，不用未分组残差平方和代填。'
+                     'Hosmer–Lemeshow 按拟合概率分组，不要求重复模式，另行判定可用性。')
         notes.append('Logistic：标准化 Pearson 残差；杠杆来自 sqrt(p*(1-p))*X；Cook 为 GLM 一阶近似，非逐点删除重拟合。无 OLS R²/RMSE/ANOVA/观测PI。')
     else:
         whitened = residual*np.sqrt(w)

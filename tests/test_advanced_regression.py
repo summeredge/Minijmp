@@ -561,6 +561,34 @@ def test_logistic_hosmer_lemeshow_groups_and_zero_cells():
                       len(gof)-2))
 
 
+def test_logistic_grouped_gof_unavailable_without_repeated_patterns():
+    # 12 个互不相同的 x 值 -> 12 个不同设计行，没有真实重复协变量模式。
+    x = np.linspace(-3, 3, 12)
+    y = np.array([0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1.])
+    result = fit_regression(pd.DataFrame({'x': x, 'y': y}), 'y', ['x'], model='Logistic')
+    diagnostics = result.tables['diagnostics'].set_index('test')
+    assert len(np.unique(x)) == len(x)
+    for name in ('Deviance goodness-of-fit', 'Pearson goodness-of-fit'):
+        assert np.isnan(diagnostics.loc[name, 'statistic'])
+        assert np.isnan(diagnostics.loc[name, 'p_value'])
+        assert '不可用' in diagnostics.loc[name, 'definition']
+    # HL 只依赖拟合概率分组，无重复模式时仍独立给出有效检验。
+    hl = diagnostics.loc['Hosmer-Lemeshow']
+    assert np.isfinite(hl['statistic']) and 0 <= hl['p_value'] <= 1
+
+
+def test_logistic_grouping_uses_design_rows_not_equal_probabilities():
+    # 四种设计行、每种重复两次、拟合概率全为 0.5：按概率分组会把 8 行误并为
+    # 1 个模式（df=-1），按设计行分组得到 4 个模式（df=4-2=2）。
+    from advanced_regression import _binary_gof
+    matrix = np.repeat(np.column_stack([np.ones(4), [1., 2., 3., 4.]]), 2, axis=0)
+    gof = _binary_gof(np.tile([1., 0.], 4), matrix, np.full(8, .5), 2)
+    assert len(np.unique(matrix, axis=0)) == 4
+    assert gof['df'] == 2
+    assert gof['deviance'] == pytest.approx(0., abs=1e-12)
+    assert gof['pearson'] == pytest.approx(0., abs=1e-12)
+
+
 def test_intercept_only_selection_and_multiindex_source():
     x = np.tile([-1., 0., 1.], 20)
     y = np.repeat(np.linspace(-1, 2, 20), 3)
