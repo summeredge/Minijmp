@@ -1,0 +1,166 @@
+id,metric,minitab,minijmp_or_independent,status,source
+G05,p lt sigma0=3,0.709,0.7091321644042957,PASS,G05_left
+G05,p gt sigma0=4,0.866,0.8659560191875034,PASS,G05_right_at_4
+G05,p gt sigma0=12,1.000,1.0,PASS,G05_right_at_12
+G05,p gt sigma0=3,0.203,0.20332159547940382,PASS,phase4:one_variance_right
+G05,90% upper,5.24,5.24395583173934,PASS,G05_left
+G05,90% lower,2.72,2.7248538893300784,PASS,phase4:one_variance_right
+G05,two-sided p,0.407,0.40664096633911134,PASS,phase4:one_variance_two_sided
+G05,two-sided CI lower,2.49,2.4927840680450783,PASS,phase4:one_variance_two_sided
+G05,two-sided CI upper,6.06,6.059838011016726,PASS,phase4:one_variance_two_sided
+G03,normal_ties Normal location,62.55000,62.55,PASS,G03_normal_ties_NORMAL
+G03,normal_ties Normal scale,4.24234,4.242338493971915,PASS,G03_normal_ties_NORMAL
+G03,normal_ties Normal 5% point,55.5720,55.571974141434445,PASS,G03_normal_ties_NORMAL
+G03,normal_ties Normal 5% SE,1.03448,1.0344810255720716,PASS,G03_normal_ties_NORMAL
+G03,normal_ties Normal 5% lower,53.5,53.54442858862313,PASS,G03_normal_ties_NORMAL
+G03,normal_ties Normal 5% upper,57.6,57.599519694245764,PASS,G03_normal_ties_NORMAL
+G03,normal_ties Normal 50% point,62.55,62.55,PASS,G03_normal_ties_NORMAL
+G03,normal_ties Normal 50% SE,0.670773,0.6707726123179877,PASS,G03_normal_ties_NORMAL
+G03,normal_ties Normal 50% lower,61.2,61.23530983804089,PASS,G03_normal_ties_NORMAL
+G03,normal_ties Normal 50% upper,63.9,63.8646901619591,PASS,G03_normal_ties_NORMAL
+G03,normal_ties Normal 95% point,69.5280,69.52802585856554,PASS,G03_normal_ties_NORMAL
+G03,normal_ties Normal 95% SE,1.03448,1.0344810255720713,PASS,G03_normal_ties_NORMAL
+G03,normal_ties Normal 95% lower,67.5,67.50048030575422,PASS,G03_normal_ties_NORMAL
+G03,normal_ties Normal 95% upper,71.6,71.55557141137686,PASS,G03_normal_ties_NORMAL
+G03,normal_ties Normal parameter SE/CI,,reported,NOT_RUN,G03_normal_ties_NORMAL
+G03,normal_ties Lognormal location,4.13363,4.133628194098822,PASS,G03_normal_ties_LNORMAL
+G03,normal_ties Lognormal scale,0.07002,0.07002465883410854,PASS,G03_normal_ties_LNORMAL
+G03,normal_ties Lognormal 5% point,55.6147,55.614718088029605,PASS,G03_normal_ties_LNORMAL
+G03,normal_ties Lognormal 5% SE,0.949638,0.9496377126034524,PASS,G03_normal_ties_LNORMAL
+G03,normal_ties Lognormal 5% lower,53.8,53.78426310265613,PASS,G03_normal_ties_LNORMAL
+G03,normal_ties Lognormal 5% upper,57.5,57.507469463837644,PASS,G03_normal_ties_LNORMAL
+G03,normal_ties Lognormal 50% point,62.4039,62.40392625185875,PASS,G03_normal_ties_LNORMAL
+G03,normal_ties Lognormal 50% SE,0.690928,0.690928203544056,PASS,G03_normal_ties_LNORMAL
+G03,normal_ties Lognormal 50% lower,61.1,61.06431947306204,PASS,G03_normal_ties_LNORMAL
+G03,normal_ties Lognormal 50% upper,63.8,63.77292083579738,PASS,G03_normal_ties_LNORMAL
+G03,normal_ties Lognormal 95% point,70.0219,70.02193206272165,PASS,G03_normal_ties_LNORMAL
+G03,normal_ties Lognormal 95% SE,1.19565,1.1956451400304708,PASS,G03_normal_ties_LNORMAL
+G03,normal_ties Lognormal 95% lower,67.7,67.71729043122377,PASS,G03_normal_ties_LNORMAL
+G03,normal_ties Lognormal 95% upper,72.4,72.4050082124321,PASS,G03_normal_ties_LNORMAL
+G03,normal_ties Lognormal parameter SE/CI,,reported,NOT_RUN,G03_normal_ties_LNORMAL
+G03,right_skew_ties_missing Normal location,6.84615,6.846153846153846,PASS,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Normal scale,10.59753,10.59753236879663,PASS,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Normal 5% point,-10.5852,-10.585235707396922,PASS,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Normal 5% SE,4.58536,4.585360629378432,PASS,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Normal 5% lower,-19.6,-19.572377397106564,PASS,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Normal 5% upper,-1.6,-1.5980940176872807,PASS,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Normal 50% point,6.84615,6.846153846153846,PASS,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Normal 50% SE,2.93923,2.939226642237354,PASS,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Normal 50% lower,1.1,1.0853754849680373,PASS,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Normal 50% upper,12.6,12.606932207339653,PASS,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Normal 95% point,24.2775,24.27754339970461,PASS,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Normal 95% SE,4.58536,4.585360629378431,PASS,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Normal 95% lower,15.3,15.290401709994969,PASS,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Normal 95% upper,33.3,33.26468508941425,PASS,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Normal parameter SE/CI,,reported,NOT_RUN,G03_right_skew_ties_missing_NORMAL
+G03,right_skew_ties_missing Lognormal location,1.32400,1.3240019224401576,PASS,G03_right_skew_ties_missing_LNORMAL
+G03,right_skew_ties_missing Lognormal scale,0.99331,0.9933117805172877,PASS,G03_right_skew_ties_missing_LNORMAL
+G03,right_skew_ties_missing Lognormal 5% point,0.733557,0.7335565689397008,PASS,G03_right_skew_ties_missing_LNORMAL
+G03,right_skew_ties_missing Lognormal 5% SE,0.315274,0.3152738445248385,PASS,G03_right_skew_ties_missing_LNORMAL
+G03,right_skew_ties_missing Lognormal 5% lower,0.3,0.31593472476582357,PASS,G03_right_skew_ties_missing_LNORMAL
+G03,right_skew_ties_missing Lognormal 5% upper,1.7,1.7032165116811366,PASS,G03_right_skew_ties_missing_LNORMAL
+G03,right_skew_ties_missing Lognormal 50% point,3.75843,3.7584322754649047,PASS,G03_right_skew_ties_missing_LNORMAL
+G03,right_skew_ties_missing Lognormal 50% SE,1.03543,1.035429749925067,PASS,G03_right_skew_ties_missing_LNORMAL
+G03,right_skew_ties_missing Lognormal 50% lower,2.2,2.1903063277883392,PASS,G03_right_skew_ties_missing_LNORMAL
+G03,right_skew_ties_missing Lognormal 50% upper,6.4,6.449240907558275,PASS,G03_right_skew_ties_missing_LNORMAL
+G03,right_skew_ties_missing Lognormal 95% point,19.2566,19.256610556530166,PASS,G03_right_skew_ties_missing_LNORMAL
+G03,right_skew_ties_missing Lognormal 95% SE,8.27626,8.276261027080935,PASS,G03_right_skew_ties_missing_LNORMAL
+G03,right_skew_ties_missing Lognormal 95% lower,8.3,8.293609809661605,PASS,G03_right_skew_ties_missing_LNORMAL
+G03,right_skew_ties_missing Lognormal 95% upper,44.7,44.71117627138514,PASS,G03_right_skew_ties_missing_LNORMAL
+G03,right_skew_ties_missing Lognormal parameter SE/CI,,reported,NOT_RUN,G03_right_skew_ties_missing_LNORMAL
+G07,n100 TI,"(2.0, 98.0)","(2.0, 99.0)",METHOD_DIFF,G07_n100_0
+G07,n100 TI confidence (%),97.6,99.21635128788155,METHOD_DIFF,G07_n100_0
+G07,native two-sided confidence (%) from native ranks,97.6,97.62889173365231,PASS,G07_n100_0
+G07,n100 Lower Bound,5.0,5.0,PASS,G07_n100_-1
+G07,n100 Lower Bound confidence (%),97.6,97.62889173365231,PASS,G07_n100_-1
+G07,n100 Upper Bound,96.0,96.0,PASS,G07_n100_1
+G07,n100 Upper Bound confidence (%),97.6,97.62889173365231,PASS,G07_n100_1
+G07,n1 TI,unavailable,unavailable,PASS,G07_n1_0
+G07,n1 Lower Bound,unavailable,unavailable,PASS,G07_n1_-1
+G07,n1 Upper Bound,unavailable,unavailable,PASS,G07_n1_1
+G07,n2 TI,"(1.0, 2.0)","(None, None)",METHOD_DIFF,G07_small_0
+G07,n2 TI confidence (%),1.0,0.9999999999999996,PASS,G07_small_0
+G07,n2 Lower Bound,1.0,,METHOD_DIFF,G07_small_-1
+G07,n2 Lower Bound confidence (%),19.0,18.999999999999996,PASS,G07_small_-1
+G07,n2 Upper Bound,2.0,,METHOD_DIFF,G07_small_1
+G07,n2 Upper Bound confidence (%),19.0,18.999999999999996,PASS,G07_small_1
+G07,n3 TI,"(1.0, 3.0)","(None, None)",METHOD_DIFF,G07_small_0
+G07,n3 TI confidence (%),2.8,2.799999999999999,PASS,G07_small_0
+G07,n3 Lower Bound,1.0,,METHOD_DIFF,G07_small_-1
+G07,n3 Lower Bound confidence (%),27.1,27.099999999999998,PASS,G07_small_-1
+G07,n3 Upper Bound,3.0,,METHOD_DIFF,G07_small_1
+G07,n3 Upper Bound confidence (%),27.1,27.099999999999998,PASS,G07_small_1
+G07,n4 TI,"(1.0, 4.0)","(None, None)",METHOD_DIFF,G07_small_0
+G07,n4 TI confidence (%),5.2,5.229999999999997,PASS,G07_small_0
+G07,n4 Lower Bound,1.0,,METHOD_DIFF,G07_small_-1
+G07,n4 Lower Bound confidence (%),34.4,34.39,PASS,G07_small_-1
+G07,n4 Upper Bound,4.0,,METHOD_DIFF,G07_small_1
+G07,n4 Upper Bound confidence (%),34.4,34.39,PASS,G07_small_1
+G07,n5 TI,"(1.0, 5.0)","(None, None)",METHOD_DIFF,G07_small_0
+G07,n5 TI confidence (%),8.1,8.145999999999995,PASS,G07_small_0
+G07,n5 Lower Bound,1.0,,METHOD_DIFF,G07_small_-1
+G07,n5 Lower Bound confidence (%),41.0,40.95100000000001,PASS,G07_small_-1
+G07,n5 Upper Bound,5.0,,METHOD_DIFF,G07_small_1
+G07,n5 Upper Bound confidence (%),41.0,40.95100000000001,PASS,G07_small_1
+G07,n6 TI,"(1.0, 6.0)","(None, None)",METHOD_DIFF,G07_small_0
+G07,n6 TI confidence (%),11.4,11.426499999999992,PASS,G07_small_0
+G07,n6 Lower Bound,1.0,,METHOD_DIFF,G07_small_-1
+G07,n6 Lower Bound confidence (%),46.9,46.855900000000005,PASS,G07_small_-1
+G07,n6 Upper Bound,6.0,,METHOD_DIFF,G07_small_1
+G07,n6 Upper Bound confidence (%),46.9,46.855900000000005,PASS,G07_small_1
+G07,n7 TI,"(1.0, 7.0)","(None, None)",METHOD_DIFF,G07_small_0
+G07,n7 TI confidence (%),15.0,14.969439999999992,PASS,G07_small_0
+G07,n7 Lower Bound,1.0,,METHOD_DIFF,G07_small_-1
+G07,n7 Lower Bound confidence (%),52.2,52.17031,PASS,G07_small_-1
+G07,n7 Upper Bound,7.0,,METHOD_DIFF,G07_small_1
+G07,n7 Upper Bound confidence (%),52.2,52.17031,PASS,G07_small_1
+G07,n8 TI,"(1.0, 8.0)","(None, None)",METHOD_DIFF,G07_small_0
+G07,n8 TI confidence (%),18.7,18.68952699999998,PASS,G07_small_0
+G07,n8 Lower Bound,1.0,,METHOD_DIFF,G07_small_-1
+G07,n8 Lower Bound confidence (%),57.0,56.953279,PASS,G07_small_-1
+G07,n8 Upper Bound,8.0,,METHOD_DIFF,G07_small_1
+G07,n8 Upper Bound confidence (%),57.0,56.953279,PASS,G07_small_1
+G07,n9 TI,"(1.0, 9.0)","(None, None)",METHOD_DIFF,G07_small_0
+G07,n9 TI confidence (%),22.5,22.515902199999978,PASS,G07_small_0
+G07,n9 Lower Bound,1.0,,METHOD_DIFF,G07_small_-1
+G07,n9 Lower Bound confidence (%),61.3,61.25795110000001,PASS,G07_small_-1
+G07,n9 Upper Bound,9.0,,METHOD_DIFF,G07_small_1
+G07,n9 Upper Bound confidence (%),61.3,61.25795110000001,PASS,G07_small_1
+G07,n10 TI,"(1.0, 10.0)","(None, None)",METHOD_DIFF,G07_small_0
+G07,n10 TI confidence (%),26.4,26.39010708999998,PASS,G07_small_0
+G07,n10 Lower Bound,1.0,,METHOD_DIFF,G07_small_-1
+G07,n10 Lower Bound confidence (%),65.1,65.13215599,PASS,G07_small_-1
+G07,n10 Upper Bound,10.0,,METHOD_DIFF,G07_small_1
+G07,n10 Upper Bound confidence (%),65.1,65.13215599,PASS,G07_small_1
+G08,runs,34,34,PASS,G08_13plus3 / native worksheet
+G08,pseudo-centers,2,2,PASS,G08_13plus3 / native worksheet
+G08,main rank,17,17,PASS,G08_13plus3 / native worksheet
+G08,main vs 2FI max cross-product,0,0,PASS,G08_13plus3 / native worksheet
+G08,main plus 2FI rank,33,33,PASS,G08_13plus3 / native worksheet
+G08,levels,"((-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 1), (-1, 1), (-1, 1))","((-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 0, 1), (-1, 1), (-1, 1), (-1, 1))",PASS,G08_13plus3 / native worksheet
+G08,same rows in standard order,True,False,METHOD_DIFF,G08_13plus3 / native worksheet
+G08,point multiset overlap,34,0,METHOD_DIFF,G08_13plus3 / native worksheet
+G06,Bonferroni A lower,1.98865,1.9886452592680128,PASS,phase4:VARTEST
+G06,Bonferroni A upper,8.61111,8.611112348759162,PASS,phase4:VARTEST
+G06,Bonferroni B lower,2.34825,2.3482493215328795,PASS,phase4:VARTEST
+G06,Bonferroni B upper,8.41017,8.410170466495401,PASS,phase4:VARTEST
+G06,Bonferroni C lower,2.06587,2.0658656494766627,PASS,phase4:VARTEST
+G06,Bonferroni C upper,8.37558,8.375582128403892,PASS,phase4:VARTEST
+G06,global MC p (independent Minitab formula),0.966,0.965541767650044,PASS,phase4:VARTEST
+G06,global MC vs MiniJMP,0.966,pairwise Bonett / Bonferroni,METHOD_DIFF,phase4:VARTEST
+G09,Bernoulli deviance,40.05,40.049662506754416,PASS,phase4:GZLM
+G09,Bernoulli Pearson,36.57,36.570667157420964,PASS,phase4:GZLM
+G09,Bernoulli df,34,34,PASS,phase4:GZLM
+G09,Bernoulli deviance p,0.219,0.2194750501013731,PASS,phase4:GZLM
+G09,Bernoulli Pearson p,0.350,0.3502395891068006,PASS,phase4:GZLM
+G09,deviance R2 (%),19.03,19.02817690115691,PASS,phase4:GZLM
+G09,adjusted deviance R2 (%),17.01,17.00639149696812,PASS,phase4:GZLM
+G09,AICc,44.41,44.41329887039078,PASS,phase4:GZLM
+G09,grouped deviance,40.05,0.23535278177260244,METHOD_DIFF,phase4:GZLM
+G09,grouped Pearson,36.57,0.2437383223137607,METHOD_DIFF,phase4:GZLM
+G09,grouped df,34,4,METHOD_DIFF,phase4:GZLM
+G09,grouped deviance p,0.219,0.9935960814079877,METHOD_DIFF,phase4:GZLM
+G09,grouped pearson p,0.350,0.9931505918455003,METHOD_DIFF,phase4:GZLM
+G09,HL chi-square,0.24,0.24373832231376152,PASS,phase4:GZLM
+G09,HL df,4,4,PASS,phase4:GZLM
+G09,HL p,0.993,0.9931505918455003,PASS,phase4:GZLM
