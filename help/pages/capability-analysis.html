@@ -121,6 +121,13 @@
     </ul>
     <p>相关帮助：<a href="../index.html#quality.capability">旧 Cpk</a>、<a href="../index.html#quality.capability_subgroups">旧含子组 Cpk</a>、<a href="../index.html#quality.advanced_spc">高级 SPC 控制图</a>。</p>
   </section>
+  <section id="quality.binomial_capability">
+    <h2>二项过程能力</h2>
+    <p>选择「质量 → 二项过程能力」。每行代表一个按采集顺序排列的子组。选取不合格品数列，指定检验总数列或输入固定检验总数。总数必须为正整数，不合格品数须为 0 到该组检验总数之间的整数。缺失或非法计数会提示所在行。</p>
+    <p>总体不合格率为总不合格品数除以总检验数。报告同时显示百分比、PPM 和标准正态右尾概率等于总体不合格率时的 Process Z。零事件时 Z 为正无穷，全组不合格时 Z 为负无穷。双侧 Clopper–Pearson 精确区间默认 95%，百分比、PPM 与 Z 的区间由比例区间变换而得，Z 的上下界顺序反转。</p>
+    <p>「稳定性与累计图」选项卡显示 P 控制图及按原行顺序累计的加权不合格率。先结合规则信号和采样条件评估稳定性；子组过少或控制限退化时无法据此评估。区间基于共同不合格率和独立检验。本分析只估计能力，不设能力目标或自动判定达标。</p>
+    <p>本入口使用样本估计不合格率，未提供历史不合格率、目标值、额外拟合诊断图或泊松能力。</p>
+  </section>
 </main>
 </body>
 </html>

@@ -272,6 +272,7 @@ class Minijmp(Worksheets, Minijmp_pre):
             '11Box-Cox / Johnson 变换': {'cmd': lambda: self.capability_analysis('变换诊断')},
             '12正态能力 Sixpack': {'cmd': lambda: self.capability_analysis('正态 Sixpack')},
             '13非正态能力 Sixpack': {'cmd': lambda: self.capability_analysis('非正态 Sixpack')},
+            '14二项过程能力': {'cmd': self.binomial_capability},
             '22容差区间': {'cmd': self.ti_norm},
             '32控制图 I-MR': {'cmd': self.cChartIMR},
             '33控制图 I（单值）': {'cmd': self.cChartI},
@@ -667,6 +668,10 @@ class Minijmp(Worksheets, Minijmp_pre):
     def capability_analysis(self, mode):
         from capability_dialog import CapabilityDialog
         return CapabilityDialog(parent=self.table, df=self.table.model.df, app=self, mode=mode)
+
+    def binomial_capability(self):
+        from capability_dialog import BinomialCapabilityDialog
+        return BinomialCapabilityDialog(self.table, self)
 
     def cpksub(self):
         from qc_dialog import CpkSubDialog

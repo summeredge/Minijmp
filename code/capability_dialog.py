@@ -413,3 +413,103 @@ class CapabilityDialog:
         self.executor.shutdown(wait=False, cancel_futures=True)
         if event is None:
             self.main.destroy()
+
+
+class BinomialCapabilityDialog:
+    def __init__(self, source, app):
+        self.app = SheetApp(app, source)
+        self.df = source.model.df.copy(deep=True)
+        self.main = tk.Toplevel(source)
+        self.main.title('二项过程能力')
+        self.main.geometry('820x480')
+        apply_dialog_theme(self.main)
+        self.main.bind('<Escape>', lambda event: self.main.destroy())
+        self.main.bind('<F1>', self.help)
+
+        controls = ttk.Frame(self.main, padding=6)
+        controls.pack(fill='x')
+        controls.columnconfigure(1, weight=1)
+        self.labels = [f'[{i + 1}] {name}' for i, name in enumerate(self.df.columns)]
+        self.fields = {}
+        for row, (key, label, default, choices) in enumerate([
+            ('defects', '不合格品数列', '', self.labels),
+            ('sizes', '检验总数列（可空）', '', [''] + self.labels),
+            ('fixed', '固定检验总数（未选列时）', '', None),
+            ('confidence', '置信水平（%）', '95', None),
+        ]):
+            ttk.Label(controls, text=label).grid(row=row, column=0, sticky='w', padx=4, pady=2)
+            var = self.fields[key] = tk.StringVar(self.main, default)
+            widget = (ttk.Entry(controls, textvariable=var) if choices is None else
+                      ttk.Combobox(controls, textvariable=var, values=choices, state='readonly'))
+            widget.grid(row=row, column=1, sticky='ew', padx=4, pady=2)
+        actions = ttk.Frame(self.main, padding=6)
+        actions.pack(fill='x')
+        ttk.Button(actions, text='分析', command=self.fit).pack(side='left')
+        ttk.Button(actions, text='帮助', command=self.help).pack(side='right')
+        ttk.Button(actions, text='关闭', command=self.main.destroy).pack(side='right', padx=4)
+        self.status = tk.StringVar(self.main, '按打开时的工作表快照和行顺序分析。')
+        ttk.Label(self.main, textvariable=self.status, wraplength=760).pack(fill='x', padx=8)
+        self.notebook = ttk.Notebook(self.main)
+        self.notebook.pack(fill='both', expand=True, padx=6, pady=4)
+
+    def fit(self):
+        from capability import analyze_binomial_capability
+        from chart_style import style_axes
+        from control_chart import p_np_plot
+        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+        from matplotlib.figure import Figure
+
+        for tab in self.notebook.winfo_children():
+            tab.destroy()
+        fields = {key: var.get() for key, var in self.fields.items()}
+        try:
+            self.app.getCurrentTable()
+            if not fields['defects']:
+                raise ValueError('请选择不合格品数列。')
+            defects = self.df.iloc[:, self.labels.index(fields['defects'])]
+            sizes = (self.df.iloc[:, self.labels.index(fields['sizes'])] if fields['sizes']
+                     else fields['fixed'].strip())
+            confidence = float(fields['confidence']) / 100
+            summary, groups = analyze_binomial_capability(defects, sizes, confidence)
+        except (ValueError, RuntimeError) as exc:
+            self.status.set(str(exc))
+            return
+
+        figure = Figure(figsize=(9, 6), layout='constrained')
+        p_ax, cumulative_ax = figure.subplots(2, 1)
+        events = p_np_plot(p=groups['不合格率'].tolist(), n=groups['检验总数'].tolist(),
+                           xLabels=groups['子组'].tolist(), xlabel='子组', ylabel='不合格率',
+                           ax=p_ax, detect_rules=True)
+        p_ax.set_title('P 控制图')
+        cumulative_ax.plot(groups['子组'], groups['累计不合格率'], marker='o')
+        cumulative_ax.set_xlim(.5, len(groups) + .5)
+        cumulative_ax.set(xlabel='子组', ylabel='累计不合格率')
+        style_axes(cumulative_ax)
+        if len(groups) == 1 or summary.iloc[0, 1] in (0, 1):
+            stability = '子组不足或控制限退化，无法据此评估稳定性。'
+        elif events:
+            stability = f'P 图检出 {len(events)} 个规则信号，请先调查过程稳定性。'
+        else:
+            stability = 'P 图规则 1–4 未检出信号。'
+        self.status.set(
+            f'双侧 Clopper–Pearson 精确区间，置信水平 {confidence:.6%}。'
+            f'{stability} 能力估计基于共同不合格率与独立检验；本分析未设目标，不判定是否达标。')
+        for title, frame in [('二项能力统计', summary), ('子组明细', groups)]:
+            tab = ttk.Frame(self.notebook)
+            self.notebook.add(tab, text=title)
+            values = list(frame.itertuples(index=False, name=None))
+            table = StatTable(title=title, headers=list(frame.columns), values=values,
+                              display=[[f'{value:.8g}' if isinstance(value, float) else str(value)
+                                        for value in row] for row in values])
+            TableBlock(tab, table, paginate=True).pack(fill='both', expand=True)
+        graph = ttk.Frame(self.notebook)
+        self.notebook.add(graph, text='稳定性与累计图')
+        canvas = FigureCanvasTkAgg(figure, master=graph)
+        CapabilityToolbar(canvas, graph)
+        canvas.get_tk_widget().pack(fill='both', expand=True)
+        canvas.draw()
+
+    def help(self, event=None):
+        from help_link import open_help
+        open_help('quality.binomial_capability', parent=self.main)
+        return 'break'

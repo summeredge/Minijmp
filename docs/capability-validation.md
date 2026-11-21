@@ -71,3 +71,42 @@ $python = 'C:\Users\shaoy\Documents\Minijmp\.venv\Scripts\python.exe'
 - 只验证当前Windows字体/DPI和最小窗口尺寸，没有宣称覆盖全部缩放比例或与商业Minitab逐值、逐像素完全相同。
 
 复杂度审查采用no-stop-gpt Audit：保留直接SciPy拟合与单一结果字典；复用现有表格/来源适配/图窗，删掉五个多余菜单转发方法。后台Future、取消Event和深拷贝分别对应计算状态、迟到结果丢弃及来源快照边界；局部标准导航是现有图窗缺少坐标缩放的必要补充，不引入通用图形编辑器、缓存、兼容层或新依赖。
+
+## 二项属性能力 F2-P0-1
+
+| 生产入口 | 独立参考 | 覆盖范围 |
+| --- | --- | --- |
+| `capability.analyze_binomial_capability` 的汇总、PPM 和 Process Z | 固定数据手算加权汇总，标准库 NormalDist 反演 | 等长、不等长、全零、全不合格、无穷界 |
+| 同入口的 Clopper–Pearson 双侧区间 | 枚举二项概率质量点，验证两尾各等于 α/2；边界用幂方程闭式解 | 90% 一般区间，95% 两端边界；Z 区间反序 |
+| 同入口的累计比例 | 固定前缀分别手算 | 原行顺序、不等长按检验数加权 |
+| `BinomialCapabilityDialog.fit` | Tk 菜单真实调用与既有 P 图回归 | 当前来源快照、选列、固定样本量、非法计数提示、图和表 |
+
+没有假设检验的 p 值或并列规则。双侧区间等尾，假设检验单位相互独立且具有共同不合格率。P 图沿用现有 3σ 控制限及规则 1–4；规则信号用于检查稳定性，目标达标另行判断。
+
+### Minitab 22 原生命令
+
+2026-11-21 通过独立进程 COM `Mtb.Application` 取得 22.6（文件版本 22.6.0.0）的存储值。输入 C1 为 1、4、2、0，C2 为 20、100、30、50。执行以下命令，使用默认 95% 置信水平。
+
+```text
+BCAPA C1 C2;
+NOCHART;
+PAVERAGE C3;
+PALC C4;
+PAUC C5;
+PPM C6;
+PPML C7;
+PPMU C8;
+ZPROCESS C9;
+ZPLC C10;
+ZPUC C11.
+```
+
+| 指标 | 估计值 | 下限 | 上限 |
+| --- | ---: | ---: | ---: |
+| 总体不合格率 | 0.035 | 0.0141855258986459 | 0.0707809983509771 |
+| PPM | 35000 | 14185.5258986459 | 70780.9983509771 |
+| Process Z | 1.81191067274624 | 1.46999910379542 | 2.19211710763098 |
+
+原生案例以相对容差 1e-9 检查。等长及全零、全不合格子组以独立数学参考验收；厂商边界显示、图形和控制规则默认选项尚未逐项对照。MiniJMP 拒绝缺失计数，并保持原分析顺序；Minitab 命令手册描述缺失点留空和其他图跳过的处理。历史不合格率、目标、直方图及样本量诊断图留在本轮范围外。[Minitab 命令与存储字段](https://support.minitab.com/en-us/minitab/session-command-help/)
+
+相关回归命令为 `python -m pytest tests/test_binomial_capability.py tests/test_help_center.py tests/test_g12_inventory.py tests/test_menu_localization.py tests/test_g5_spc_reports.py tests/test_review_proportions.py tests/test_capability.py -k "not computation_plotting_ast_matches_frozen_structure" -q`，使用项目 Python 3.12.3，共 299 项通过。此前直接运行时，8 项 G5 旧 AST 冻结比较失败；对本任务开始前的 0eadb8a 源码和冻结夹具复算，得到同样的 8 项差异。本轮仅在通过的定向命令中排除这些已复现的既有失败，冻结基线、SPC 实现与原比率检验均未修改。

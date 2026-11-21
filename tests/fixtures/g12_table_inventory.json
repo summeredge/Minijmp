@@ -191,7 +191,7 @@
     "bonett.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "capability.py": "P0 独立正态/非正态能力、MLE/参数自举、Box-Cox/Johnson SU 正逆变换与原序子组；只产生数值DataFrame，由capability_dialog.stat_table统一展示，不新增StatTable生产位置。",
     "capability_compare.py": "改善前后能力对比：阶段划分复用improvement_chart.split_phases，单阶段能力复用capability.analyze_capability；只产生数值DataFrame，由capability_dialog.stat_table统一展示，不新增StatTable生产位置。",
-    "capability_dialog.py": "P0 完整能力窗口；stat_table 将核心结果与控制图诊断 DataFrame 转为 StatTable，report 复用同一表；来源快照与后台取消沿用 SheetApp/线程 Future。",
+    "capability_dialog.py": "二项能力单独生成能力统计和子组明细；P0 完整能力窗口 stat_table 将核心结果与控制图诊断 DataFrame 转为 StatTable，report 复用同一表；来源快照与后台取消沿用 SheetApp/线程 Future。",
     "capability_plots.py": "P0 六图、变换前后图与逐点控制限诊断；不构造统计展示表，不改旧 SPC 算法。",
     "chart_style.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "chi2_dialog.py": "存在已逐函数分类的表格生产位置；见 producers。",
@@ -549,6 +549,25 @@
       "status": "专项验证结果见阶段记录",
       "tests": [
         "tests/test_time_series_analysis_dialog.py::test_analyze_forecast_export_and_source_binding"
+      ],
+      "exception_reason": ""
+    },
+    "capability_dialog.py::BinomialCapabilityDialog.fit": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "二项能力统计",
+        "子组明细"
+      ],
+      "entry_points": [
+        "Minijmp.binomial_capability -> BinomialCapabilityDialog.fit"
+      ],
+      "status": "二项能力与子组结果的结构化 Tk 报告",
+      "tests": [
+        "tests/test_binomial_capability.py::test_binomial_menu_workflow"
       ],
       "exception_reason": ""
     },
@@ -3389,15 +3408,15 @@
   "summary": {
     "python_files": 162,
     "files_with_production_sites": 38,
-    "producer_scopes": 71,
-    "constructor_calls": 141,
+    "producer_scopes": 72,
+    "constructor_calls": 142,
     "constructors": {
       "gen_table": 55,
-      "StatTable": 82,
+      "StatTable": 83,
       "PrettyTable": 4
     },
-    "statistical_source_positions": 77,
-    "logical_statistical_tables": 229,
+    "statistical_source_positions": 78,
+    "logical_statistical_tables": 231,
     "table_text_conversions": {
       "to_string": 2,
       "pred_table": 1,

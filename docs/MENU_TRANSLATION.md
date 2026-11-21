@@ -204,6 +204,7 @@
 | Cpk with Subgroups | 含子组的 Cpk |
 | Normal Capability Analysis (Complete) | 正态过程能力（完整） |
 | Nonnormal Capability Analysis | 非正态过程能力 |
+| Binomial Capability Analysis | 二项过程能力 |
 | Box-Cox / Johnson Transformation | Box-Cox / Johnson 变换 |
 | Normal Capability Sixpack | 正态能力 Sixpack |
 | Nonnormal Capability Sixpack | 非正态能力 Sixpack |

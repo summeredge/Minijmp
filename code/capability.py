@@ -392,3 +392,47 @@ def analyze_capability(data, lsl=None, usl=None, target=None, subgroup_size=1,
                 source_index=source_index, source_row=source_row, subgroup_ids=ids,
                 tables=tables, k=k, confidence=confidence, intervals=intervals,
                 sigma_ci=sigma_ci, z=z)
+def analyze_binomial_capability(defectives, sizes, confidence=.95):
+    """Estimate the pooled binomial rate and its monotone transformations."""
+    from itertools import repeat
+    from proportion_test import integer_count
+
+    def count(value):
+        if isinstance(value, (bool, np.bool_)):
+            return None
+        return integer_count(value)
+
+    defects = [count(value) for value in defectives]
+    totals = [count(value) for value in (
+        repeat(sizes, len(defects)) if pd.api.types.is_scalar(sizes) else sizes)]
+    if not defects or len(defects) != len(totals):
+        raise ValueError('需要至少一个子组，且两列行数必须一致。')
+    for row, (d, n) in enumerate(zip(defects, totals), 1):
+        if d is None or n is None or n <= 0 or not 0 <= d <= n:
+            raise ValueError(f'第 {row} 行：检验总数须为正整数，不合格品数须为 0 到检验总数之间的整数。')
+    if not 0 < confidence < 1:
+        raise ValueError('置信水平须严格介于 0% 与 100% 之间。')
+
+    events, total = sum(defects), sum(totals)
+    rate = events / total
+    lower, upper = stats.binomtest(events, total).proportion_ci(
+        confidence_level=confidence, method='exact')
+    summary = pd.DataFrame([
+        ('总体不合格率', rate, lower, upper),
+        ('百分比不合格率 (%)', 100 * rate, 100 * lower, 100 * upper),
+        ('PPM', 1e6 * rate, 1e6 * lower, 1e6 * upper),
+        ('Process Z', stats.norm.isf(rate), stats.norm.isf(upper), stats.norm.isf(lower)),
+    ], columns=['指标', '估计值', '置信下限', '置信上限'])
+    cumulative = []
+    running_defects = running_total = 0
+    for d, n in zip(defects, totals):
+        running_defects += d
+        running_total += n
+        cumulative.append(running_defects / running_total)
+    subgroups = pd.DataFrame({
+        '子组': range(1, len(defects) + 1),
+        '不合格品数': defects, '检验总数': totals,
+        '不合格率': [d / n for d, n in zip(defects, totals)],
+        '累计不合格率': cumulative,
+    })
+    return summary, subgroups

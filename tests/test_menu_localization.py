@@ -141,7 +141,7 @@ EXPECTED_LAYOUT = {
             '列联表与卡方检验', '比率卡方检验', '试验设计（DOE）'],
     '质量': ['量具 R&R 研究（交叉）', '量具 R&R 研究（嵌套）', 'sep',
             '过程能力分析 (Cpk)', '含子组的 Cpk', '正态过程能力（完整）', '非正态过程能力',
-            'Box-Cox / Johnson 变换', '正态能力 Sixpack', '非正态能力 Sixpack', 'sep', '容差区间', 'sep',
+            'Box-Cox / Johnson 变换', '正态能力 Sixpack', '非正态能力 Sixpack', '二项过程能力', 'sep', '容差区间', 'sep',
             '控制图 I-MR', '控制图 I（单值）', '控制图 MR（移动极差）',
             '控制图 Xbar-R', '控制图 Xbar-S', '高级 SPC 控制图', 'sep',
             '控制图 NP', '控制图 P',
