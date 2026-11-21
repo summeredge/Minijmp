@@ -240,7 +240,7 @@ $pyinstallerArgs = @(
 if ($PlotlyPilot) {
     & $python -c "import plotly, tkwry"
     if ($LASTEXITCODE -ne 0) { throw 'Install the Plotly pilot wheels from requirements.txt first.' }
-    $pyinstallerArgs = @('--collect-data', 'plotly') + $pyinstallerArgs
+    $pyinstallerArgs = @('--collect-data', 'plotly', '--collect-submodules', 'tkwry') + $pyinstallerArgs
 } else {
     $pyinstallerArgs = @('--exclude-module', 'plotly', '--exclude-module', 'tkwry') + $pyinstallerArgs
 }

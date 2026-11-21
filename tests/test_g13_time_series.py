@@ -1,6 +1,8 @@
 """G13: real curves, raw values, axes, native dialog and viewer integration."""
 import ast
 import inspect
+from pathlib import Path
+import sys
 from types import SimpleNamespace
 import tkinter as tk
 
@@ -19,7 +21,7 @@ from matplotlib.dates import AutoDateLocator, ConciseDateFormatter
 import time_series
 from time_series import (AXIS_MODES, axis_assignments, default_time_column,
                          prepare_time_series, time_series_plot)
-from time_series_dialog import TimeSeriesDialog
+from time_series_dialog import ENGINES, TimeSeriesDialog
 
 
 @pytest.fixture
@@ -383,10 +385,10 @@ def test_grouped_line_existing_behavior(figure):
 def test_plotly_axis_mapping_and_sorted_gaps(mode, refs):
     pytest.importorskip('plotly')
     frame = pd.DataFrame({
-        '时间': ['2026-11-02', '2026-11-01', '2026-11-03'],
-        '压力': ['Bad', '1.1', '2.2'],
-        '温度': [20, 10, 30],
-        '流量': [200, 100, 300],
+        '时间': ['2026-11-02', '2026-11-01', '2026-11-03', '2026-11-01'],
+        '压力': ['Bad', '1.1', '2.2', None],
+        '温度': [20, 10, 30, 11],
+        '流量': [200, 100, 300, 110],
     })
     columns = ['压力', '温度', '流量']
     prepared = prepare_time_series(frame, columns, '时间')
@@ -394,8 +396,62 @@ def test_plotly_axis_mapping_and_sorted_gaps(mode, refs):
         prepared, columns, '时间', dict(zip(columns, [3, 1, 2])), mode,
         '趋势', '', {}, True, False)
     assert [trace.yaxis for trace in fig.data] == refs
-    assert list(fig.data[0].y) == [1.1, None, 2.2]
+    assert list(fig.data[0].y) == [1.1, None, None, 2.2]
     assert list(fig.data[0].x) == [
-        '2026-11-01T00:00:00', '2026-11-02T00:00:00', '2026-11-03T00:00:00']
+        '2026-11-01T00:00:00', '2026-11-01T00:00:00', '2026-11-02T00:00:00',
+        '2026-11-03T00:00:00']
+    assert list(fig.data[1].y) == [10, 11, 20, 30]
     assert fig.layout.xaxis.rangeslider.visible
     assert not fig.layout.xaxis.showgrid
+
+
+def test_plotly_sample_axis_preserves_input_order(data):
+    pytest.importorskip('plotly')
+    columns = ['温度']
+    prepared = prepare_time_series(data, columns, None)
+    fig = time_series.plotly_time_series(
+        prepared, columns, None, {}, AXIS_MODES[0], '趋势', '样本',
+        {1: '温度'}, True, True)
+    trace = fig.data[0]
+    assert list(trace.x) == [1, 2, 3, 4]
+    assert list(trace.y) == [30., 10., 11., None]
+    assert not trace.connectgaps
+    assert fig.layout.xaxis.title.text == '样本'
+
+
+def test_plotly_host_replacement_and_cleanup(dialog, monkeypatch):
+    pytest.importorskip('plotly')
+
+    class EmbeddedFrame(tk.Frame):
+        def __init__(self, parent, **kwargs):
+            super().__init__(parent)
+
+        def when_failed(self, callback):
+            pass
+
+    monkeypatch.setitem(sys.modules, 'tkwry', SimpleNamespace(WebView=EmbeddedFrame))
+    choose(dialog)
+    dialog.engine.set(ENGINES[1])
+    dialog.apply()
+    first = dialog.app._time_series_plotly_viewer
+    first.main.update()
+    assert first.webview.winfo_ismapped()
+    assert first.webview.winfo_width() == first.main.winfo_width()
+    first_directory = Path(first.directory.name)
+    dialog.apply()
+    second = dialog.app._time_series_plotly_viewer
+    assert not first.main.winfo_exists()
+    assert not first_directory.exists()
+    second_directory = Path(second.directory.name)
+    second.close()
+    assert dialog.app._time_series_plotly_viewer is None
+    assert not second_directory.exists()
+
+    def fail_creation(*args, **kwargs):
+        raise RuntimeError('WebView test failure')
+
+    monkeypatch.setitem(sys.modules, 'tkwry', SimpleNamespace(WebView=fail_creation))
+    windows = set(dialog.main.master.winfo_children())
+    dialog.apply()
+    assert set(dialog.main.master.winfo_children()) == windows
+    assert 'WebView test failure' in dialog.output[-1]

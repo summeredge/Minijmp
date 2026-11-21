@@ -45,6 +45,7 @@ body > div { height: 100%; }</style>''', 1)
             ttk.Button(tools, text='导出 HTML…', command=self.export).pack(side=LEFT, padx=4, pady=3)
             ttk.Label(tools, text='独立 HTML · 工程和 PDF 报告不包含此图').pack(side=LEFT, padx=4)
             frame = ttk.Frame(self.main)
+            frame.pack(fill=BOTH, expand=True)
             self.webview = WebView(frame, app=self.directory.name, csp=False, open_external=False)
             self.webview.pack(fill=BOTH, expand=True)
             self.webview.when_failed(self.creation_failed)
@@ -73,9 +74,8 @@ body > div { height: 100%; }</style>''', 1)
         self.close()
 
     def close(self):
-        if self.webview is not None:
-            self.webview.destroy()
         if self.main.winfo_exists():
+            # tkwry releases the native view when its host frame is destroyed.
             self.main.destroy()
 
     def _destroyed(self, event):
