@@ -1,6 +1,7 @@
 ﻿param(
     [switch]$SkipSmoke,
     [switch]$InternalReview,
+    [switch]$PlotlyPilot,
     # Public candidate: reuse fixed verified PIReader binary
     # No bundled SDK, code signing or DLP settle windows.
     [switch]$Public,
@@ -236,6 +237,13 @@ $pyinstallerArgs = @(
     '--add-data', ((Join-Path $root 'sample_data\dists.dexpl') + ':sample_data'),
     $entry
 )
+if ($PlotlyPilot) {
+    & $python -c "import plotly, tkwry"
+    if ($LASTEXITCODE -ne 0) { throw 'Install the Plotly pilot wheels from requirements.txt first.' }
+    $pyinstallerArgs = @('--collect-data', 'plotly') + $pyinstallerArgs
+} else {
+    $pyinstallerArgs = @('--exclude-module', 'plotly', '--exclude-module', 'tkwry') + $pyinstallerArgs
+}
 
 $envReport | Set-Content -LiteralPath $buildLog -Encoding utf8
 if (!$Public) {

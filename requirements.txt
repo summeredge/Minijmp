@@ -11,6 +11,8 @@ openpyxl>=3.1.0
 xlrd>=2.0.1
 patsy>=0.5.6
 pillow>=10.4.0
+plotly==7.1.0; sys_platform == "win32"
+tkwry==0.1.9; sys_platform == "win32"
 prettytable>=3.11.0
 pyparsing>=3.1.4
 python-dateutil>=2.9.0.post0

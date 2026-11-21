@@ -8,6 +8,82 @@ import os
 from collections import OrderedDict
 
 
+class PlotlyViewer:
+    """Standalone Tk plot window for the time-series pilot."""
+
+    def __init__(self, parent, figure):
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+        from tkinter import ttk
+
+        from tkwry import WebView
+
+        self.main = Toplevel(parent)
+        self.main.title('Plot Viewer — Plotly（试验）')
+        self.main.geometry('1000x750+120+0')
+        self.main.minsize(420, 320)
+        self.webview = None
+        self.directory = None
+        self.main.bind('<Destroy>', self._destroyed, add='+')
+        self.main.protocol('WM_DELETE_WINDOW', self.close)
+        try:
+            html = figure.to_html(
+                include_plotlyjs=True, include_mathjax=False,
+                config=dict(responsive=True, scrollZoom=True, displaylogo=False,
+                            displayModeBar=True, modeBarButtonsToRemove=['toImage']),
+            )
+            self.html = html.replace('<head>', '''<head>
+<meta http-equiv="Content-Security-Policy"
+ content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval';
+ style-src 'unsafe-inline'; img-src data: blob:; worker-src blob:">
+<style>html, body { height: 100%; margin: 0; overflow: hidden; }
+body > div { height: 100%; }</style>''', 1)
+            self.directory = TemporaryDirectory(prefix='minijmp-plotly-')
+            Path(self.directory.name, 'index.html').write_text(self.html, encoding='utf-8')
+            tools = ttk.Frame(self.main)
+            tools.pack(fill=X)
+            ttk.Button(tools, text='导出 HTML…', command=self.export).pack(side=LEFT, padx=4, pady=3)
+            ttk.Label(tools, text='独立 HTML · 工程和 PDF 报告不包含此图').pack(side=LEFT, padx=4)
+            frame = ttk.Frame(self.main)
+            self.webview = WebView(frame, app=self.directory.name, csp=False, open_external=False)
+            self.webview.pack(fill=BOTH, expand=True)
+            self.webview.when_failed(self.creation_failed)
+        except Exception:
+            self.close()
+            raise
+
+    def export(self):
+        from pathlib import Path
+        from tkinter import filedialog, messagebox
+
+        path = filedialog.asksaveasfilename(
+            parent=self.main, defaultextension='.html', filetypes=[('HTML', '*.html')])
+        if path:
+            try:
+                Path(path).write_text(self.html, encoding='utf-8')
+            except OSError as exc:
+                messagebox.showerror('无法导出 HTML', str(exc), parent=self.main)
+
+    def creation_failed(self, error):
+        from tkinter import messagebox
+
+        messagebox.showerror('无法启动 Plotly',
+                             f'请确认已安装 Microsoft Edge WebView2 Runtime。\n{error}',
+                             parent=self.main)
+        self.close()
+
+    def close(self):
+        if self.webview is not None:
+            self.webview.destroy()
+        if self.main.winfo_exists():
+            self.main.destroy()
+
+    def _destroyed(self, event):
+        if event.widget is self.main and self.directory is not None:
+            self.directory.cleanup()
+            self.directory = None
+
+
 class plot_viewer(PlotViewer):
     def __init__(self, table, parent=None, showoptions=True, figsize=(10, 7), register=True):
 

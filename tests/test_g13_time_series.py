@@ -373,3 +373,29 @@ def test_grouped_line_existing_behavior(figure):
               x='x', y='y', errorbar=None)
     np.testing.assert_equal(ax.lines[0].get_xdata(), [1, 2])
     np.testing.assert_equal(ax.lines[0].get_ydata(), [3, 7])
+
+
+@pytest.mark.parametrize('mode, refs', [
+    (AXIS_MODES[0], ['y', 'y', 'y']),
+    (AXIS_MODES[1], ['y2', 'y', 'y2']),
+    (AXIS_MODES[2], ['y3', 'y', 'y2']),
+])
+def test_plotly_axis_mapping_and_sorted_gaps(mode, refs):
+    pytest.importorskip('plotly')
+    frame = pd.DataFrame({
+        '时间': ['2026-11-02', '2026-11-01', '2026-11-03'],
+        '压力': ['Bad', '1.1', '2.2'],
+        '温度': [20, 10, 30],
+        '流量': [200, 100, 300],
+    })
+    columns = ['压力', '温度', '流量']
+    prepared = prepare_time_series(frame, columns, '时间')
+    fig = time_series.plotly_time_series(
+        prepared, columns, '时间', dict(zip(columns, [3, 1, 2])), mode,
+        '趋势', '', {}, True, False)
+    assert [trace.yaxis for trace in fig.data] == refs
+    assert list(fig.data[0].y) == [1.1, None, 2.2]
+    assert list(fig.data[0].x) == [
+        '2026-11-01T00:00:00', '2026-11-02T00:00:00', '2026-11-03T00:00:00']
+    assert fig.layout.xaxis.rangeslider.visible
+    assert not fig.layout.xaxis.showgrid

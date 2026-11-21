@@ -185,3 +185,58 @@ def time_series_plot(figure, data, columns, time_column=None, assignments=None,
         ax.tick_params(axis='y', colors=color)
         ax.spines['left' if number == 1 else 'right'].set_color(color)
     return axes
+
+
+def plotly_time_series(prepared, columns, time_column, assignments, mode,
+                       title, xlabel, ylabels, legend, grid):
+    from html import escape
+    from plotly import graph_objects as go
+
+    x, ys = prepared
+    dated = time_column is not None
+    hover_x = [str(pd.Timestamp(value)) for value in x] if dated else None
+    # Plotly date axes ignore offsets. Use UTC for aware data, as Matplotlib does.
+    if dated:
+        times = pd.DatetimeIndex(x)
+        if times.tz is not None:
+            times = times.tz_convert(None)
+        plot_x = [value.isoformat() for value in times]
+    else:
+        plot_x = x.tolist()
+    assigned = axis_assignments(columns, assignments, mode)
+    used = sorted(set(assigned.values()))
+    right_axes = len(used) - int(used[0] == 1)
+    right_edge = 1 - min(.55, .11 * max(0, right_axes - 1))
+    fig = go.Figure()
+    fig.update_layout(
+        template='plotly_white', title=escape(title), showlegend=legend,
+        font=dict(family='Microsoft YaHei, Segoe UI, sans-serif'),
+        margin=dict(l=75, r=90, t=85, b=65),
+        legend=dict(orientation='h', y=1.02, yanchor='bottom'),
+        xaxis=dict(title=escape(xlabel or (str(time_column) if dated else '样本序号')),
+                   type='date' if dated else 'linear', domain=[0, right_edge],
+                   showgrid=grid, rangeslider=dict(visible=dated, thickness=.12)),
+    )
+    axis_refs = {}
+    for index, number in enumerate(used):
+        members = [c for c in columns if assigned[c] == number]
+        suffix = '' if index == 0 else str(index + 1)
+        axis = dict(title=escape(ylabels.get(number) or ', '.join(map(str, members))),
+                    side='left' if number == 1 else 'right',
+                    showgrid=grid and index == 0, zeroline=False, automargin=True)
+        if index:
+            right_index = index - int(used[0] == 1)
+            axis.update(overlaying='y', anchor='free',
+                        position=right_edge + (1 - right_edge) * right_index / max(1, right_axes - 1))
+        fig.update_layout(**{'yaxis' + suffix: axis})
+        axis_refs[number] = 'y' + suffix
+    for column in columns:
+        values = ys[column]
+        fig.add_trace(go.Scatter(
+            x=plot_x, y=[None if pd.isna(v) else v for v in values],
+            yaxis=axis_refs[assigned[column]], name=escape(str(column)), mode='lines+markers',
+            marker=dict(size=4), connectgaps=False,
+            customdata=list(zip(hover_x if dated else plot_x, map(str, values))),
+            hovertemplate='%{customdata[0]}<br>%{customdata[1]}<extra>%{fullData.name}</extra>',
+        ))
+    return fig
