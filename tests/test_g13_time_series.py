@@ -433,18 +433,28 @@ def test_plotly_host_replacement_and_cleanup(dialog, monkeypatch):
     choose(dialog)
     dialog.engine.set(ENGINES[1])
     dialog.apply()
-    first = dialog.app._time_series_plotly_viewer
+    table = dialog.app.table
+    first = table._time_series_plotly_viewer
     first.main.update()
     assert first.webview.winfo_ismapped()
     assert first.webview.winfo_width() == first.main.winfo_width()
     first_directory = Path(first.directory.name)
-    dialog.apply()
-    second = dialog.app._time_series_plotly_viewer
+    from sheet_context import SheetApp
+
+    second_dialog = TimeSeriesDialog(table, df=dialog.df, app=SheetApp(dialog.app, table),
+                                     title='时间序列图')
+    try:
+        choose(second_dialog)
+        second_dialog.engine.set(ENGINES[1])
+        second_dialog.apply()
+        second = table._time_series_plotly_viewer
+    finally:
+        second_dialog.main.destroy()
     assert not first.main.winfo_exists()
     assert not first_directory.exists()
     second_directory = Path(second.directory.name)
     second.close()
-    assert dialog.app._time_series_plotly_viewer is None
+    assert table._time_series_plotly_viewer is None
     assert not second_directory.exists()
 
     def fail_creation(*args, **kwargs):

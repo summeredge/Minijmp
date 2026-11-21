@@ -177,15 +177,16 @@ class TimeSeriesDialog(SBDialog):
             except Exception as exc:
                 self.error(f'无法启动 Plotly 试验图窗：{exc}')
                 return
-            previous = getattr(self.app, '_time_series_plotly_viewer', None)
-            self.app._time_series_plotly_viewer = viewer
+            table = self.app.table
+            previous = getattr(table, '_time_series_plotly_viewer', None)
+            table._time_series_plotly_viewer = viewer
             if previous is not None:
                 previous.close()
 
             def clear_viewer(event):
                 if (event.widget is viewer.main
-                        and self.app._time_series_plotly_viewer is viewer):
-                    self.app._time_series_plotly_viewer = None
+                        and table._time_series_plotly_viewer is viewer):
+                    table._time_series_plotly_viewer = None
 
             viewer.main.bind('<Destroy>', clear_viewer, add='+')
             if self.main.grab_current() is self.main:
