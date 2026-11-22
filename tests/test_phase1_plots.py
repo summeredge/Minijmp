@@ -253,6 +253,10 @@ def test_real_menu_dialog_plot_save(app, sample, kind, label, monkeypatch, tmp_p
     errors = []
     dialog.error = errors.append
     if kind in ('contour', 'scatter3d', 'surface'):
+        if kind != 'contour':
+            assert dialog.engine.get() == 'Matplotlib'
+        else:
+            assert not hasattr(dialog, 'engine')
         for var, col in zip(dialog.xyz, sample.columns):
             var.set(col)
     else:
@@ -309,15 +313,70 @@ def test_dialog_invalid_does_not_replace_plot(kind, cols, values, message):
     original = dialog.df.copy(deep=True)
     dialog.variables = SimpleNamespace(getSelectedItem=lambda: cols)
     dialog.xyz = [SimpleNamespace(get=lambda c=c: c) for c in cols]
+    dialog.engine = SimpleNamespace(get=lambda: 'Plotly（试验）')
     dialog.labels = SimpleNamespace(get=lambda: '')
     errors = []
     dialog.error = errors.append
     def forbidden():
         pytest.fail('无效输入不得替换当前图形')
     dialog.showPlotViewer = forbidden
+    dialog.show_plotly_preview = lambda *args: forbidden()
     dialog.apply()
     assert len(errors) == 1 and message in errors[0], errors
     pd.testing.assert_frame_equal(dialog.df, original)
+
+
+def test_plotly_3d_data_and_window_replacement(app, monkeypatch):
+    pytest.importorskip('plotly')
+    import plots
+    from basic_plot_dialog import BasicPlotDialog
+    from sbplot_dialog import PLOT_ENGINES
+
+    class Viewer:
+        def __init__(self, table, figure, *, on_ready):
+            self.main = tk.Toplevel(table)
+            self.figure = figure
+            self.ready = on_ready
+
+        def close(self):
+            self.main.destroy()
+
+    monkeypatch.setattr(plots, 'PlotlyViewer', Viewer)
+    data = pd.DataFrame({'x': [1., 0., 0., .3, np.inf],
+                         'y': [0., 1., 0., .2, 2.],
+                         'z': [2., 3., 1., 1.7, 5.]})
+    expected = data.iloc[:4]
+    mesh = PlotViewer.meshData(None, *expected.to_numpy().T)
+    for kind in ('scatter3d', 'surface'):
+        dialog = BasicPlotDialog(app.table, df=data, app=app, kind=kind)
+        dialog.error = pytest.fail
+        for var, column in zip(dialog.xyz, data.columns):
+            var.set(column)
+        dialog.engine.set(PLOT_ENGINES[1])
+        dialog.preview()
+        previews = app.table._plotly_previews
+        first = previews[kind][1]
+        first.ready()
+        trace, = first.figure.data
+        assert trace.type == kind
+        scene = first.figure.layout.scene
+        assert [axis.title.text for axis in (scene.xaxis, scene.yaxis, scene.zaxis)] == list(data)
+        coordinates = expected.to_numpy().T if kind == 'scatter3d' else mesh
+        for actual, target in zip((trace.x, trace.y, trace.z), coordinates):
+            np.testing.assert_array_equal(actual, target)
+        if kind == 'surface':
+            assert np.isnan(trace.z).any() and trace.connectgaps is False
+            assert trace.showscale
+        dialog.preview()
+        replacement = previews[kind][1]
+        replacement.ready()
+        assert not first.main.winfo_exists()
+        dialog.quit()
+    assert set(previews) == {'scatter3d', 'surface'}
+    for viewer, _ in list(previews.values()):
+        assert viewer.main.winfo_exists()
+        viewer.close()
+    assert not previews
 
 
 def test_duplicate_index_labels_and_missing_preserve_rows(app, sample, monkeypatch):

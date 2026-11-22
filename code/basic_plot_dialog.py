@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from dialog import addListBox
-from sbplot_dialog import SBDialog
+from sbplot_dialog import PLOT_ENGINES, SBDialog
 from chart_style import style_axes
 
 
@@ -31,6 +31,13 @@ class BasicPlotDialog(SBDialog):
                 ttk.Combobox(row, values=self.cols, textvariable=var,
                              state='readonly').pack(side=tk.LEFT, fill=tk.X, expand=True)
                 self.xyz.append(var)
+            if self.kind in ('scatter3d', 'surface'):
+                row = ttk.Frame(m)
+                row.pack(fill=tk.X, padx=4, pady=2)
+                ttk.Label(row, text='绘图引擎').pack(side=tk.LEFT)
+                self.engine = tk.StringVar(self.main, value=PLOT_ENGINES[0])
+                ttk.Combobox(row, values=PLOT_ENGINES, textvariable=self.engine,
+                             state='readonly').pack(side=tk.LEFT, fill=tk.X, expand=True)
         else:
             frame, self.variables = addListBox(m, values=self.cols, label='数值列（可多选）')
             frame.pack(fill=tk.BOTH, expand=True, padx=4, pady=2)
@@ -93,6 +100,34 @@ class BasicPlotDialog(SBDialog):
                 mesh = PlotViewer.meshData(self, *data.to_numpy().T)
         except (ValueError, TypeError) as error:
             self.error(str(error))
+            return
+
+        if self.kind in ('scatter3d', 'surface') and self.engine.get() == PLOT_ENGINES[1]:
+            import plotly.graph_objects as go
+
+            hover = 'X: %{x}<br>Y: %{y}<br>Z: %{z}<extra></extra>'
+            if self.kind == 'scatter3d':
+                from matplotlib import colormaps
+                from matplotlib.colors import to_hex
+
+                x, y, z = data.to_numpy().T
+                trace = go.Scatter3d(
+                    x=x, y=y, z=z, mode='markers', hovertemplate=hover,
+                    marker=dict(size=5, opacity=.9, color=to_hex(colormaps['Spectral'](2 / 3)),
+                                line=dict(color='black', width=1)),
+                )
+            else:
+                x, y, z = mesh
+                trace = go.Surface(x=x, y=y, z=z, colorscale='Spectral',
+                                   showscale=True, connectgaps=False, hovertemplate=hover)
+            figure = go.Figure(trace)
+            figure.update_layout(
+                scene=dict(xaxis_title=cols[0], yaxis_title=cols[1], zaxis_title=cols[2],
+                           dragmode='orbit'),
+                margin=dict(l=0, r=0, b=0, t=32),
+            )
+            self.show_plotly_preview(self.kind, figure)
+            self.remember_columns()
             return
 
         pf = self.showPlotViewer()
