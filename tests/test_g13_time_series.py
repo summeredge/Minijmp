@@ -21,7 +21,8 @@ from matplotlib.dates import AutoDateLocator, ConciseDateFormatter
 import time_series
 from time_series import (AXIS_MODES, axis_assignments, default_time_column,
                          prepare_time_series, time_series_plot)
-from time_series_dialog import ENGINES, TimeSeriesDialog
+from sbplot_dialog import PLOT_ENGINES
+from time_series_dialog import TimeSeriesDialog
 
 
 @pytest.fixture
@@ -225,6 +226,7 @@ def dialog(tk_root, data):
     app.showPlotViewer = lambda **kw: Minijmp.showPlotViewer(app, **kw)
     app.replacePlotViewer = lambda *args, **kw: Minijmp.replacePlotViewer(app, *args, **kw)
     instance = TimeSeriesDialog(parent, df=data, app=app, title='时间序列图')
+    instance.engine.set(PLOT_ENGINES[0])
     instance.output = output
     yield instance
     if parent.pf is not None: parent.pf.close()
@@ -434,7 +436,7 @@ def test_plotly_host_replacement_and_cleanup(dialog, monkeypatch):
 
     monkeypatch.setitem(sys.modules, 'tkwry', SimpleNamespace(WebView=EmbeddedFrame))
     choose(dialog)
-    dialog.engine.set(ENGINES[1])
+    dialog.engine.set(PLOT_ENGINES[1])
     dialog.apply()
     table = dialog.app.table
     first = table._time_series_plotly_viewer
@@ -451,7 +453,7 @@ def test_plotly_host_replacement_and_cleanup(dialog, monkeypatch):
                                      title='时间序列图')
     try:
         choose(second_dialog)
-        second_dialog.engine.set(ENGINES[1])
+        assert second_dialog.engine.get() == PLOT_ENGINES[1]
         second_dialog.apply()
         second = table._time_series_plotly_viewer
     finally:

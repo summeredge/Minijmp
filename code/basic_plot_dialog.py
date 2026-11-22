@@ -32,12 +32,7 @@ class BasicPlotDialog(SBDialog):
                              state='readonly').pack(side=tk.LEFT, fill=tk.X, expand=True)
                 self.xyz.append(var)
             if self.kind in ('scatter3d', 'surface'):
-                row = ttk.Frame(m)
-                row.pack(fill=tk.X, padx=4, pady=2)
-                ttk.Label(row, text='绘图引擎').pack(side=tk.LEFT)
-                self.engine = tk.StringVar(self.main, value=PLOT_ENGINES[0])
-                ttk.Combobox(row, values=PLOT_ENGINES, textvariable=self.engine,
-                             state='readonly').pack(side=tk.LEFT, fill=tk.X, expand=True)
+                self.plot_engine_selector(m).pack(fill=tk.X, padx=4, pady=2)
         else:
             frame, self.variables = addListBox(m, values=self.cols, label='数值列（可多选）')
             frame.pack(fill=tk.BOTH, expand=True, padx=4, pady=2)

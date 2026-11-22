@@ -295,6 +295,7 @@ def test_pi_negative_measurements_with_status_gap_are_selectable(csv_app, monkey
     original = data.copy(deep=True)
     assert data[tag].dtype == object and data[tag].iloc[2] == 'Bad Input'
     dialog = TimeSeriesDialog(app.table, df=data, app=app, title='时间序列图')
+    dialog.engine.set('Matplotlib')
     try:
         assert dialog.xvar.get() == 'Timestamp'
         assert dialog.ylist.get(0, 'end') == (tag,)
@@ -338,6 +339,7 @@ def test_pi_strings_reach_real_y_candidates_and_plot(csv_app, monkeypatch):
     assert data['Mixed'].tolist() == ['Bad Input', '4', None, 'Shutdown']
     assert data['Precise'].iloc[0] == '0.123456789012345678901'
     dialog = TimeSeriesDialog(app.table, df=data, app=app, title='时间序列图')
+    dialog.engine.set('Matplotlib')
     try:
         assert dialog.xvar.get() == 'Timestamp'
         assert dialog.ylist.get(0, 'end') == ('Tag',)

@@ -9,15 +9,12 @@ from pandas.api.types import is_numeric_dtype
 from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
 
 from dialog import addListBox
-from sbplot_dialog import SBDialog
+from sbplot_dialog import PLOT_ENGINES, SBDialog
 from time_series import (AXIS_MODES, default_time_column, axis_assignments,
                          is_numeric_y_candidate,
                          prepare_time_series, time_series_plot, plotly_time_series)
 
 from plots import PlotlyViewer
-
-
-ENGINES = ('Matplotlib', 'Plotly（试验）')
 
 
 class TimeSeriesDialog(SBDialog):
@@ -34,7 +31,6 @@ class TimeSeriesDialog(SBDialog):
         self.xlabel = tk.StringVar()
         self.show_legend = tk.BooleanVar(value=True)
         self.grid = tk.BooleanVar(value=True)
-        self.engine = tk.StringVar(value=ENGINES[0])
         self.statusvar = tk.StringVar(value='')
 
         frame = ttk.LabelFrame(master, text='X 轴')
@@ -99,9 +95,7 @@ class TimeSeriesDialog(SBDialog):
         ttk.Label(settings, text='Y 轴标题（留空自动生成）').grid(row=2, column=2, padx=4)
         ttk.Checkbutton(settings, text='显示图例', variable=self.show_legend).grid(row=0, column=2)
         ttk.Checkbutton(settings, text='显示网格', variable=self.grid).grid(row=1, column=2)
-        ttk.Label(settings, text='绘图引擎').grid(row=3, column=0, sticky='w')
-        ttk.Combobox(settings, textvariable=self.engine, values=ENGINES,
-                     state='readonly').grid(row=3, column=1, sticky='ew')
+        self.plot_engine_selector(settings).grid(row=3, column=0, columnspan=3, sticky='w')
         settings.columnconfigure(1, weight=1)
         ttk.Label(master, textvariable=self.statusvar, wraplength=420).pack(
             anchor=tk.W, padx=4)
@@ -164,7 +158,7 @@ class TimeSeriesDialog(SBDialog):
         except ValueError as exc:
             self.error(str(exc))
             return
-        if self.engine.get() == ENGINES[1]:
+        if self.engine.get() == PLOT_ENGINES[1]:
             try:
                 figure = plotly_time_series(
                     prepared, columns, time_column, self.assignments, self.mode.get(),

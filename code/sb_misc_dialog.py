@@ -270,12 +270,7 @@ class dotPlotDialog(SBDialog):
         self.add_xy_plot_settings(m)
         self.add_y_refs(m)
         self.add_palette_selection(m)
-        engine = ttk.Frame(m)
-        engine.pack(fill=X, padx=4, pady=2)
-        ttk.Label(engine, text='绘图引擎').pack(side=LEFT)
-        self.engine = tk.StringVar(self.main, value=PLOT_ENGINES[0])
-        ttk.Combobox(engine, values=PLOT_ENGINES, textvariable=self.engine,
-                     state='readonly').pack(side=LEFT, padx=4)
+        self.plot_engine_selector(m).pack(fill=X, padx=4, pady=2)
         return
 
     def prepare_preview(self):

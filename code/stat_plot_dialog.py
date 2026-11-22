@@ -93,7 +93,7 @@ class StatPlotDialog(SBDialog):
         self.grid = tk.BooleanVar(self.main, value=True)
         self.show_legend = tk.BooleanVar(self.main, value=True)
         if self.kind == 'bubble':
-            self.engine = self.field(m, '绘图引擎', PLOT_ENGINES[0], PLOT_ENGINES)
+            self.plot_engine_selector(m).pack(fill=tk.X, padx=4, pady=2)
         ttk.Checkbutton(m, text='显示网格', variable=self.grid).pack(side=tk.LEFT)
         if self.kind in ('bubble', 'ecdf'):
             ttk.Checkbutton(m, text='显示图例', variable=self.show_legend).pack(side=tk.LEFT)

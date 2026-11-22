@@ -9,6 +9,39 @@ from stat_plot_dialog import StatPlotDialog, TITLES
 from test_phase1_plots import app
 
 
+@pytest.mark.parametrize('kind', ['time', 'scatter', 'bubble', 'scatter3d', 'surface'])
+def test_plot_engine_radio_choices(app, sample, kind):
+    from tkinter import ttk
+    from basic_plot_dialog import BasicPlotDialog
+    from sb_misc_dialog import dotPlotDialog
+    from time_series_dialog import TimeSeriesDialog
+
+    classes = {'time': TimeSeriesDialog, 'scatter': dotPlotDialog, 'bubble': StatPlotDialog}
+    options = {'kind': kind} if kind in ('bubble', 'scatter3d', 'surface') else {}
+    dialog = classes.get(kind, BasicPlotDialog)(app.table, df=sample, app=app, **options)
+
+    def descendants(widget):
+        for child in widget.winfo_children():
+            yield child
+            yield from descendants(child)
+
+    try:
+        buttons = [w for w in descendants(dialog.main)
+                   if isinstance(w, ttk.Radiobutton) and w.cget('variable') == str(dialog.engine)]
+        assert [w.cget('text') for w in buttons] == ['Plotly（试验）', 'Matplotlib']
+        assert buttons[0].master is buttons[1].master
+        assert all(w.pack_info()['side'] == 'left' for w in buttons)
+        assert buttons[0].instate(['selected'])
+        buttons[1].invoke()
+        assert dialog.engine.get() == 'Matplotlib'
+        assert buttons[1].instate(['selected']) and buttons[0].instate(['!selected'])
+        buttons[0].invoke()
+        assert dialog.engine.get() == 'Plotly（试验）'
+        assert buttons[0].instate(['selected']) and buttons[1].instate(['!selected'])
+    finally:
+        dialog.quit()
+
+
 @pytest.fixture
 def sample():
     return pd.DataFrame({'x': [1., 2., 2., 4., np.nan, np.inf],
@@ -44,6 +77,8 @@ def test_real_menu_output_and_export(app, sample, kind, monkeypatch, tmp_path):
                  if menu.type(i) == 'command' and menu.entrycget(i, 'label').strip() == TITLES[kind])
     menu.invoke(index)
     dialog, = dialogs
+    if kind == 'bubble':
+        dialog.engine.set('Matplotlib')
     cols = {'bubble': ['x', 'y', 'size'], 'marginal': ['x', 'y'],
             'stem': ['x'], 'probability': ['x']}.get(kind, ['x', 'y'])
     select(dialog, cols)
@@ -80,6 +115,8 @@ def test_real_menu_output_and_export(app, sample, kind, monkeypatch, tmp_path):
 @pytest.mark.parametrize('kind', ['bubble', 'ecdf', 'individual', 'interval'])
 def test_independent_references(app, sample, kind):
     dialog = StatPlotDialog(app.table, df=sample, app=app, kind=kind)
+    if kind == 'bubble':
+        dialog.engine.set('Matplotlib')
     select(dialog, ['x', 'y', 'size'] if kind == 'bubble' else ['x'])
     dialog.apply()
     ax = app.table.pf.ax
@@ -115,6 +152,8 @@ def test_invalid_preserves_viewer(app, sample, kind, bad, monkeypatch):
     if bad == 'empty':
         sample['x'] = np.nan
     dialog = StatPlotDialog(app.table, df=sample, app=app, kind=kind)
+    if kind == 'bubble':
+        dialog.engine.set('Matplotlib')
     select(dialog, ['x', 'y', 'size'] if kind == 'bubble' else ['x'])
     if bad == 'selection':
         if kind == 'bubble':
@@ -367,8 +406,7 @@ def test_plotly_scatter_mapping(app, sample, monkeypatch, mode):
 
     dialog = dotPlotDialog(app.table, df=sample, app=app)
     try:
-        assert dialog.engine.get() == PLOT_ENGINES[0]
-        dialog.engine.set(PLOT_ENGINES[1])
+        assert dialog.engine.get() == PLOT_ENGINES[1]
         dialog.yvar.set('x')
         dialog.xvar.set('y')
         if mode == 'grouped':
@@ -418,8 +456,7 @@ def test_plotly_bubble_area_and_window_replacement(app, sample, monkeypatch):
     monkeypatch.setattr(plots, 'PlotlyViewer', Viewer)
     dialog = StatPlotDialog(app.table, df=sample, app=app, kind='bubble')
     try:
-        assert dialog.engine.get() == PLOT_ENGINES[0]
-        dialog.engine.set(PLOT_ENGINES[1])
+        assert dialog.engine.get() == PLOT_ENGINES[1]
         select(dialog, ['x', 'y', 'size'])
         dialog.group.set('group')
         dialog.preview()

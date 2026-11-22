@@ -654,6 +654,7 @@ def test_dialogs_keep_source_after_switch(workbook):
                                               'x': [1., 2., 3.]}))
     describe = DescribeDialog(source, df=source.model.df, app=app, title='描述性统计')
     trend = TimeSeriesDialog(source, df=source.model.df, app=app, title='时间序列图')
+    trend.engine.set('Matplotlib')
     try:
         app.addSheet('当前', pd.DataFrame({'x': [100., 200., 300.]}))
         describe.xvar.set('x')

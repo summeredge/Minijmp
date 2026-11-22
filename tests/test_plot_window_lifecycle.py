@@ -113,6 +113,8 @@ def test_plot_entries_release_modal_and_accept_input(app, kind, tmp_path):
                          'stat-probability': 'probability'}[kind]}
                if kind in ('scatter', 'stat-interval', 'stat-probability') else {})
     dialog = make_dialog(app, classes[kind], **options)
+    if kind in ('time', 'dot'):
+        dialog.engine.set('Matplotlib')
     if kind == 'time':
         select(dialog, 'ylist', 1)
         dialog.update_variables()

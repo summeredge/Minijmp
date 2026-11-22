@@ -254,7 +254,7 @@ def test_real_menu_dialog_plot_save(app, sample, kind, label, monkeypatch, tmp_p
     dialog.error = errors.append
     if kind in ('contour', 'scatter3d', 'surface'):
         if kind != 'contour':
-            assert dialog.engine.get() == 'Matplotlib'
+            dialog.engine.set('Matplotlib')
         else:
             assert not hasattr(dialog, 'engine')
         for var, col in zip(dialog.xyz, sample.columns):
@@ -352,7 +352,7 @@ def test_plotly_3d_data_and_window_replacement(app, monkeypatch):
         dialog.error = pytest.fail
         for var, column in zip(dialog.xyz, data.columns):
             var.set(column)
-        dialog.engine.set(PLOT_ENGINES[1])
+        assert dialog.engine.get() == PLOT_ENGINES[1]
         dialog.preview()
         previews = app.table._plotly_previews
         first = previews[kind][1]

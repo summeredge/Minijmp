@@ -14,6 +14,15 @@ PLOT_ENGINES = ('Matplotlib', 'Plotly（试验）')
 
 
 class SBDialog(Dialogs):
+    def plot_engine_selector(self, parent):
+        row = ttk.Frame(parent)
+        ttk.Label(row, text='绘图引擎：').pack(side=tk.LEFT)
+        self.engine = tk.StringVar(self.main, value=PLOT_ENGINES[1])
+        for engine in reversed(PLOT_ENGINES):
+            ttk.Radiobutton(row, text=engine, value=engine, variable=self.engine).pack(
+                side=tk.LEFT, padx=4)
+        return row
+
     def show_plotly_preview(self, kind, figure):
         """Replace this worksheet's plot of the same kind after WebView starts."""
         from plots import PlotlyViewer
