@@ -10,7 +10,49 @@ from dialog import Dialogs
 from utilities import get_number, is_void, is_number, grouping_by_labels, transpose_2D_list, number_list
 
 
+PLOT_ENGINES = ('Matplotlib', 'Plotly（试验）')
+
+
 class SBDialog(Dialogs):
+    def show_plotly_preview(self, kind, figure):
+        """Replace this worksheet's plot of the same kind after WebView starts."""
+        from plots import PlotlyViewer
+
+        table = self.app.getCurrentTable()
+        if not hasattr(table, '_plotly_previews'):
+            table._plotly_previews = {}
+        previews = table._plotly_previews
+        active, pending = previews.get(kind, (None, None))
+
+        def ready():
+            current, waiting = previews.get(kind, (None, None))
+            if waiting is viewer:
+                previews[kind] = (viewer, None)
+                if current is not None:
+                    current.close()
+
+        def cleanup(event):
+            if event.widget is not viewer.main:
+                return
+            current, waiting = previews.get(kind, (None, None))
+            if current is viewer:
+                current = None
+            if waiting is viewer:
+                waiting = None
+            if current is None and waiting is None:
+                previews.pop(kind, None)
+            else:
+                previews[kind] = (current, waiting)
+
+        viewer = PlotlyViewer(table, figure, on_ready=ready)
+        previews[kind] = (active, viewer)
+        viewer.main.bind('<Destroy>', cleanup, add='+')
+        if self.main.grab_current() is self.main:
+            self.main.grab_release()
+        if pending is not None:
+            pending.close()
+        viewer.main.lift()
+
     def buttonsFrame(self):
         #  self.palette = 'pastel'
         bf = Frame(self.main)

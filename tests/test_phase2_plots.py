@@ -357,3 +357,100 @@ def test_stem_does_not_round_through_binary_float(app, value, exponent, row):
     _, data, _ = dialog.prepare()
     assert row in stem_leaf(data[0][1], exponent)
     dialog.quit()
+
+
+@pytest.mark.parametrize('mode', ['single', 'grouped', 'stacked'])
+def test_plotly_scatter_mapping(app, sample, monkeypatch, mode):
+    pytest.importorskip('plotly')
+    from sb_misc_dialog import dotPlotDialog
+    from sbplot_dialog import PLOT_ENGINES
+
+    dialog = dotPlotDialog(app.table, df=sample, app=app)
+    try:
+        assert dialog.engine.get() == PLOT_ENGINES[0]
+        dialog.engine.set(PLOT_ENGINES[1])
+        dialog.yvar.set('x')
+        dialog.xvar.set('y')
+        if mode == 'grouped':
+            dialog.grouping.set('group')
+        elif mode == 'stacked':
+            for name in ('y', 'size'):
+                dialog.grpvar.selection_set(dialog.cols.index(name))
+        dialog.yref.set('4, 6')
+        dialog.yref_label.set(True)
+        dialog.y_min.set('0')
+        captured = {}
+        monkeypatch.setattr(dialog, 'show_plotly_preview', captured.__setitem__)
+        dialog.preview()
+        figure = captured['scatter']
+        assert all(trace.mode == 'markers' for trace in figure.data)
+        if mode == 'single':
+            expected = [([1, 2, 2, 4], [3, 5, 7, 9])]
+        elif mode == 'grouped':
+            assert [trace.name for trace in figure.data] == ['a', 'b']
+            expected = [([1, 2], [3, 5]), ([2, 4], [7, 9])]
+        else:
+            assert [trace.name for trace in figure.data] == ['y', 'size']
+            expected = [([1, 2, 2, 4], [3, 5, 7, 9]), ([1, 2, 2, 4], [0, 2, 4, 8])]
+        assert [(list(trace.x), list(trace.y)) for trace in figure.data] == expected
+        assert [shape.y0 for shape in figure.layout.shapes] == [4, 6]
+        assert [annotation.text for annotation in figure.layout.annotations] == ['4.0', '6.0']
+        assert tuple(figure.layout.yaxis.range) == (0, None)
+    finally:
+        dialog.quit()
+
+
+def test_plotly_bubble_area_and_window_replacement(app, sample, monkeypatch):
+    pytest.importorskip('plotly')
+    import tkinter as tk
+    import plots
+    from sbplot_dialog import PLOT_ENGINES
+
+    class Viewer:
+        def __init__(self, table, figure, *, on_ready):
+            self.main = tk.Toplevel(table)
+            self.figure = figure
+            self.ready = on_ready
+
+        def close(self):
+            self.main.destroy()
+
+    monkeypatch.setattr(plots, 'PlotlyViewer', Viewer)
+    dialog = StatPlotDialog(app.table, df=sample, app=app, kind='bubble')
+    try:
+        assert dialog.engine.get() == PLOT_ENGINES[0]
+        dialog.engine.set(PLOT_ENGINES[1])
+        select(dialog, ['x', 'y', 'size'])
+        dialog.group.set('group')
+        dialog.preview()
+        previews = app.table._plotly_previews
+        first = previews['bubble'][1]
+        first.ready()
+        a, b = first.figure.data
+        assert list(a.x) == [2] and list(a.customdata) == [2]
+        assert list(b.x) == [2, 4] and list(b.customdata) == [4, 8]
+        assert list(a.marker.size) == [.25] and list(b.marker.size) == [.5, 1]
+        assert a.marker.sizemode == b.marker.sizemode == 'area'
+        assert a.marker.sizeref == b.marker.sizeref
+        assert '%{customdata}' in a.hovertemplate
+
+        dialog.preview()
+        failed = previews['bubble'][1]
+        failed.close()
+        assert previews['bubble'] == (first, None)
+        assert first.main.winfo_exists()
+
+        dialog.show_plotly_preview('scatter', first.figure)
+        scatter = previews['scatter'][1]
+        scatter.ready()
+        dialog.preview()
+        second = previews['bubble'][1]
+        assert first.main.winfo_exists()
+        second.ready()
+        assert not first.main.winfo_exists()
+        assert scatter.main.winfo_exists()
+        second.close()
+        scatter.close()
+        assert not previews
+    finally:
+        dialog.quit()

@@ -427,6 +427,9 @@ def test_plotly_host_replacement_and_cleanup(dialog, monkeypatch):
             super().__init__(parent)
 
         def when_failed(self, callback):
+            assert not self.winfo_manager()
+
+        def expose(self, callback, *, name):
             pass
 
     monkeypatch.setitem(sys.modules, 'tkwry', SimpleNamespace(WebView=EmbeddedFrame))
@@ -435,6 +438,9 @@ def test_plotly_host_replacement_and_cleanup(dialog, monkeypatch):
     dialog.apply()
     table = dialog.app.table
     first = table._time_series_plotly_viewer
+    assert first.webview is None
+    first.main.update_idletasks()
+    assert first.webview is None
     first.main.update()
     assert first.webview.winfo_ismapped()
     assert first.webview.winfo_width() == first.main.winfo_width()
@@ -462,6 +468,92 @@ def test_plotly_host_replacement_and_cleanup(dialog, monkeypatch):
 
     monkeypatch.setitem(sys.modules, 'tkwry', SimpleNamespace(WebView=fail_creation))
     windows = set(dialog.main.master.winfo_children())
+    from tkinter import messagebox
+
+    errors = []
+    monkeypatch.setattr(messagebox, 'showerror', lambda title, message, **kwargs: errors.append(message))
     dialog.apply()
+    pending = table._time_series_plotly_viewer
+    pending.close()
+    dialog.main.update()
+    assert not errors
     assert set(dialog.main.master.winfo_children()) == windows
-    assert 'WebView test failure' in dialog.output[-1]
+
+    dialog.apply()
+    dialog.main.update()
+    assert set(dialog.main.master.winfo_children()) == windows
+    assert table._time_series_plotly_viewer is None
+    assert 'WebView test failure' in errors[0]
+
+
+def test_plotly_export_formats(tk_root, monkeypatch, tmp_path):
+    from base64 import b64encode
+    from io import BytesIO
+    from tkinter import filedialog, messagebox
+    from urllib.parse import quote
+    from xml.etree import ElementTree
+
+    from PIL import Image
+    from plots import PlotlyViewer
+    go = pytest.importorskip('plotly.graph_objects')
+
+    class EmbeddedFrame(tk.Frame):
+        def __init__(self, parent, **kwargs):
+            super().__init__(parent)
+
+        def when_failed(self, callback):
+            pass
+
+        def expose(self, callback, *, name):
+            self.finish_export = callback
+
+        def eval_js(self, script, *, on_error):
+            self.script = script
+
+    monkeypatch.setitem(sys.modules, 'tkwry', SimpleNamespace(WebView=EmbeddedFrame))
+    errors = []
+    monkeypatch.setattr(messagebox, 'showerror', lambda title, text, **kwargs: errors.append(text))
+    viewer = PlotlyViewer(tk_root, go.Figure(go.Scatter(y=[1, 2])))
+    try:
+        tk_root.update()
+        png = BytesIO()
+        Image.new('RGB', (2, 2)).save(png, format='PNG')
+        svg = '<svg xmlns="http://www.w3.org/2000/svg"><text>趋势</text></svg>'
+        svg_url = 'data:image/svg+xml,' + quote(svg)
+        for label, suffix, data_url in [
+            ('PNG 图片', '.png', 'data:image/png;base64,' + b64encode(png.getvalue()).decode()),
+            ('SVG 矢量图', '.svg', svg_url),
+            ('Plotly HTML', '.html', None),
+        ]:
+            def choose_path(**kwargs):
+                assert kwargs['filetypes'][0] == ('PNG 图片', '*.png')
+                kwargs['typevariable'].set(label)
+                return str(tmp_path / '趋势')
+
+            monkeypatch.setattr(filedialog, 'asksaveasfilename', choose_path)
+            viewer.export()
+            if data_url:
+                assert 'Plotly.toImage(graph' in viewer.webview.script
+                request = viewer._image_export[2]
+                viewer.webview.finish_export('old-request', data_url, None)
+                assert not (tmp_path / ('趋势' + suffix)).exists()
+                viewer.webview.finish_export(request, data_url, None)
+
+        assert (tmp_path / '趋势.png').read_bytes() == png.getvalue()
+        assert ElementTree.parse(tmp_path / '趋势.svg').getroot().tag.endswith('}svg')
+        html = (tmp_path / '趋势.html').read_text(encoding='utf-8')
+        assert 'plotly.js v' in html and 'Plotly.newPlot(' in html
+        assert '<script src=' not in html
+        assert not errors
+
+        monkeypatch.setattr(filedialog, 'asksaveasfilename', lambda **kwargs: '')
+        viewer.export()
+        assert len(list(tmp_path.iterdir())) == 3
+
+        missing = tmp_path / 'missing' / '错误.svg'
+        monkeypatch.setattr(filedialog, 'asksaveasfilename', lambda **kwargs: str(missing))
+        viewer.export()
+        viewer.webview.finish_export(viewer._image_export[2], svg_url, None)
+        assert errors and viewer.main.winfo_exists() and not missing.exists()
+    finally:
+        viewer.close()

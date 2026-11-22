@@ -12,9 +12,9 @@ import seaborn as sns
 from scipy import stats
 
 from dialog import addListBox
-from sbplot_dialog import SBDialog
+from sbplot_dialog import PLOT_ENGINES, SBDialog
 from chart_style import style_axes
-from sb_misc import interval_plot
+from sb_misc import interval_plot, plotly_scatter
 
 
 TITLES = {'bubble': '气泡图', 'ecdf': '经验累积分布函数图',
@@ -92,6 +92,8 @@ class StatPlotDialog(SBDialog):
         self.yref = self.field(m, '水平参考值（可选）')
         self.grid = tk.BooleanVar(self.main, value=True)
         self.show_legend = tk.BooleanVar(self.main, value=True)
+        if self.kind == 'bubble':
+            self.engine = self.field(m, '绘图引擎', PLOT_ENGINES[0], PLOT_ENGINES)
         ttk.Checkbutton(m, text='显示网格', variable=self.grid).pack(side=tk.LEFT)
         if self.kind in ('bubble', 'ecdf'):
             ttk.Checkbutton(m, text='显示图例', variable=self.show_legend).pack(side=tk.LEFT)
@@ -209,6 +211,19 @@ class StatPlotDialog(SBDialog):
         except (ValueError, TypeError, OverflowError) as error:
             self.error('输入无效：' + str(error))
             return
+        if self.kind == 'bubble' and self.engine.get() == PLOT_ENGINES[1]:
+            try:
+                figure = plotly_scatter(
+                    data, cols[0], cols[1], labels=labels, area=cols[2],
+                    title=self.plot_title.get(), xlabel=self.xlabel.get(), ylabel=self.ylabel.get(),
+                    grid=self.grid.get(), legend=self.show_legend.get(),
+                    refs=() if ref is None else (ref,))
+                self.show_plotly_preview('bubble', figure)
+                self.remember_columns()
+            except ImportError:
+                self.error('Plotly 试验引擎需要 Plotly、tkwry 和 WebView2 Runtime。')
+            return
+
         pf = self.showPlotViewer()
         if self.kind == 'marginal':
             layout = pf.fig.add_gridspec(2, 2, width_ratios=(4, 1), height_ratios=(1, 4))

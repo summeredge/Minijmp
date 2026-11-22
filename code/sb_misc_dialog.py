@@ -4,10 +4,10 @@ import tkinter as tk
 from tkinter import TOP, LEFT, X, BOTH
 ########### Own Modules ###########
 from dialog import addListBox
-from utilities import stack_df_num_cols
-from sb_misc import count_plot, line_plot, dot_plot
+from utilities import stack_df_num_cols, split_string
+from sb_misc import count_plot, line_plot, dot_plot, plotly_scatter
 from sb_box_dialog import singleBoxDialog
-from sbplot_dialog import SBDialog
+from sbplot_dialog import PLOT_ENGINES, SBDialog
 
 
 class countPlotDialog(singleBoxDialog):
@@ -270,6 +270,12 @@ class dotPlotDialog(SBDialog):
         self.add_xy_plot_settings(m)
         self.add_y_refs(m)
         self.add_palette_selection(m)
+        engine = ttk.Frame(m)
+        engine.pack(fill=X, padx=4, pady=2)
+        ttk.Label(engine, text='绘图引擎').pack(side=LEFT)
+        self.engine = tk.StringVar(self.main, value=PLOT_ENGINES[0])
+        ttk.Combobox(engine, values=PLOT_ENGINES, textvariable=self.engine,
+                     state='readonly').pack(side=LEFT, padx=4)
         return
 
     def prepare_preview(self):
@@ -301,6 +307,10 @@ class dotPlotDialog(SBDialog):
                 grp = None
             self.make_working_df(cols=cols)
 
+        if self.engine.get() == PLOT_ENGINES[1]:
+            self.plotly_preview(yvar, xvar, grp)
+            return
+
         pf = self.showPlotViewer()
         pf.ax = pf.fig.add_subplot(111)
 
@@ -324,3 +334,35 @@ class dotPlotDialog(SBDialog):
             ax_margin=self.ax_margin_v,
             palette=self.palette.get())
         return
+
+    def plotly_preview(self, x, y, group):
+        from math import isfinite
+
+        import numpy as np
+        import pandas as pd
+
+        data = self.working_df
+        numeric = data[[x] if x == y else [x, y]].apply(pd.to_numeric, errors='coerce')
+        valid = np.isfinite(numeric).all(axis=1)
+        labels = data[group] if group is not None else None
+        if labels is not None:
+            valid &= labels.notna()
+            labels = labels.loc[valid]
+        if not valid.any():
+            self.error('没有完整配对的有限数值观测。')
+            return
+        try:
+            refs = [float(value) for value in split_string(self.yref.get(), [',', ' ', ';', ':', '|'])
+                    if value]
+        except ValueError:
+            refs = []
+        try:
+            figure = plotly_scatter(
+                numeric.loc[valid], x, y, labels=labels, palette=self.palette.get(),
+                xlabel=self.xlabel_v, ylabel=self.ylabel_v, grid=self.grid_v,
+                legend=self.show_legend_v and group is not None, y_min=self.y_min_v,
+                y_max=self.y_max_v, refs=[ref for ref in refs if isfinite(ref)],
+                label_refs=self.yref_label.get())
+            self.show_plotly_preview('scatter', figure)
+        except ImportError:
+            self.error('Plotly 试验引擎需要 Plotly、tkwry 和 WebView2 Runtime。')
