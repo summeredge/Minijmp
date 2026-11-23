@@ -436,3 +436,58 @@ def analyze_binomial_capability(defectives, sizes, confidence=.95):
         '累计不合格率': cumulative,
     })
     return summary, subgroups
+
+
+def analyze_poisson_capability(defects, sizes, confidence=.95, target=None):
+    """Return pooled defects per unit, its exact interval, and ordered subgroups."""
+    from itertools import accumulate, repeat
+    from proportion_test import integer_count
+
+    counts = [None if isinstance(value, (bool, np.bool_)) else integer_count(value)
+              for value in defects]
+    exposures = list(repeat(sizes, len(counts)) if pd.api.types.is_scalar(sizes) else sizes)
+    if not counts or len(counts) != len(exposures):
+        raise ValueError('需要至少一个子组，且两列行数必须一致。')
+    for row, (count, exposure) in enumerate(zip(counts, exposures), 1):
+        if count is None or count < 0:
+            raise ValueError(f'第 {row} 行：缺陷数须为非负整数。')
+        try:
+            size = float(exposure) if not isinstance(exposure, (bool, np.bool_)) else np.nan
+        except (TypeError, ValueError, OverflowError):
+            size = np.nan
+        if not np.isfinite(size) or size <= 0:
+            raise ValueError(f'第 {row} 行：检验单位数须为有限正数。')
+        exposures[row - 1] = size
+    if not 0 < confidence < 1:
+        raise ValueError('置信水平须严格介于 0% 与 100% 之间。')
+    if target is not None and (not np.isfinite(target) or target < 0):
+        raise ValueError('目标 DPU 须为有限非负数。')
+
+    cumulative_counts = list(accumulate(counts))
+    cumulative_exposure = list(accumulate(exposures))
+    events, total = cumulative_counts[-1], cumulative_exposure[-1]
+    if not np.isfinite(total):
+        raise ValueError('总检验单位数超出数值范围。')
+    rate = events / total
+    tail = (1 - confidence) / 2
+    lower = stats.chi2.ppf(tail, 2 * events) / 2 / total if events else 0.
+    upper = stats.chi2.isf(tail, 2 * (events + 1)) / 2 / total
+    dpu = [count / size for count, size in zip(counts, exposures)]
+    rows = [
+        ('Mean DPU', rate, lower, upper),
+        ('子组数', len(counts), None, None),
+        ('总缺陷数', events, None, None),
+        ('总检验单位数', total, None, None),
+        ('最小 DPU', min(dpu), None, None),
+        ('最大 DPU', max(dpu), None, None),
+    ]
+    if target is not None:
+        rows += [('目标 DPU', target, None, None),
+                 ('Mean DPU − 目标', rate - target, None, None)]
+    summary = pd.DataFrame(rows, columns=['指标', '估计值', '置信下限', '置信上限'], dtype=object)
+    subgroups = pd.DataFrame({
+        '子组': range(1, len(counts) + 1),
+        '缺陷数': counts, '检验单位数': exposures, 'DPU': dpu,
+        '累计 DPU': [count / size for count, size in zip(cumulative_counts, cumulative_exposure)],
+    })
+    return summary, subgroups

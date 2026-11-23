@@ -513,3 +513,101 @@ class BinomialCapabilityDialog:
         from help_link import open_help
         open_help('quality.binomial_capability', parent=self.main)
         return 'break'
+
+
+class PoissonCapabilityDialog:
+    def __init__(self, source, app):
+        self.app = SheetApp(app, source)
+        self.df = source.model.df.copy(deep=True)
+        self.main = tk.Toplevel(source)
+        self.main.title('泊松过程能力')
+        self.main.geometry('900x650')
+        apply_dialog_theme(self.main)
+        self.main.bind('<Escape>', lambda event: self.main.destroy())
+        self.main.bind('<F1>', self.help)
+
+        controls = ttk.Frame(self.main, padding=6)
+        controls.pack(fill='x')
+        controls.columnconfigure(1, weight=1)
+        self.labels = [f'[{i + 1}] {name}' for i, name in enumerate(self.df.columns)]
+        self.fields = {}
+        for row, (key, label, default, choices) in enumerate([
+            ('defects', '缺陷数列', '', self.labels),
+            ('sizes', '检验单位数列（可空）', '', [''] + self.labels),
+            ('fixed', '固定检验单位数（未选列时）', '', None),
+            ('confidence', '置信水平（%）', '95', None),
+            ('target', '目标 DPU（可空）', '', None),
+        ]):
+            ttk.Label(controls, text=label).grid(row=row, column=0, sticky='w', padx=4, pady=2)
+            var = self.fields[key] = tk.StringVar(self.main, default)
+            widget = (ttk.Entry(controls, textvariable=var) if choices is None else
+                      ttk.Combobox(controls, textvariable=var, values=choices, state='readonly'))
+            widget.grid(row=row, column=1, sticky='ew', padx=4, pady=2)
+        actions = ttk.Frame(self.main, padding=6)
+        actions.pack(fill='x')
+        ttk.Button(actions, text='分析', command=self.fit).pack(side='left')
+        ttk.Button(actions, text='帮助', command=self.help).pack(side='right')
+        ttk.Button(actions, text='关闭', command=self.main.destroy).pack(side='right', padx=4)
+        self.status = tk.StringVar(self.main)
+        ttk.Label(self.main, textvariable=self.status, wraplength=850).pack(fill='x', padx=8)
+        self.notebook = ttk.Notebook(self.main)
+        self.notebook.pack(fill='both', expand=True, padx=6, pady=4)
+
+    def fit(self):
+        from capability import analyze_poisson_capability
+        from capability_plots import plot_poisson_capability
+        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+        from matplotlib.figure import Figure
+
+        for tab in self.notebook.winfo_children():
+            tab.destroy()
+        fields = {key: var.get() for key, var in self.fields.items()}
+        try:
+            self.app.getCurrentTable()
+            if not fields['defects']:
+                raise ValueError('请选择缺陷数列。')
+            defects = self.df.iloc[:, self.labels.index(fields['defects'])]
+            sizes = (self.df.iloc[:, self.labels.index(fields['sizes'])] if fields['sizes']
+                     else fields['fixed'])
+            try:
+                confidence = float(fields['confidence']) / 100
+                target = float(fields['target']) if fields['target'].strip() else None
+            except ValueError:
+                raise ValueError('请输入数值形式的置信水平和目标 DPU。') from None
+            summary, groups = analyze_poisson_capability(defects, sizes, confidence, target)
+        except (ValueError, RuntimeError) as exc:
+            self.status.set(str(exc))
+            return
+
+        figure = Figure(figsize=(9, 5), layout='constrained')
+        events = plot_poisson_capability(summary, groups, figure)
+        if len(groups) == 1 or summary.iloc[0, 1] == 0:
+            stability = '单个子组或全零缺陷，无法据此评估稳定性。'
+        elif events:
+            stability = f'U 图检出 {len(events)} 个规则信号，请先调查过程稳定性。'
+        else:
+            stability = 'U 图规则 1–4 未检出信号。'
+        unit = fields['sizes'] or '固定输入采用的计量单位'
+        self.status.set(
+            f'DPU 单位：缺陷数／检验单位（{unit}）。双侧精确泊松区间 {confidence:.6%}，'
+            f'假设子组相互独立且具有共同缺陷率。{stability}')
+        for title, frame in [('泊松能力统计', summary), ('子组明细', groups)]:
+            tab = ttk.Frame(self.notebook)
+            self.notebook.add(tab, text=title)
+            values = list(frame.itertuples(index=False, name=None))
+            table = StatTable(title=title, headers=list(frame.columns), values=values,
+                              display=[['' if value is None else
+                                        f'{value:.8g}' if isinstance(value, float) else str(value)
+                                        for value in row] for row in values])
+            TableBlock(tab, table, paginate=True).pack(fill='both', expand=True)
+        graph = ttk.Frame(self.notebook)
+        self.notebook.add(graph, text='稳定性与诊断图')
+        canvas = FigureCanvasTkAgg(figure, master=graph)
+        CapabilityToolbar(canvas, graph)
+        canvas.get_tk_widget().pack(fill='both', expand=True)
+        canvas.draw()
+
+    def help(self, event=None):
+        from help_link import open_help
+        open_help('quality.poisson_capability', parent=self.main)
+        return 'break'

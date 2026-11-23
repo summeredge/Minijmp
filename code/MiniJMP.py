@@ -273,6 +273,7 @@ class Minijmp(Worksheets, Minijmp_pre):
             '12正态能力 Sixpack': {'cmd': lambda: self.capability_analysis('正态 Sixpack')},
             '13非正态能力 Sixpack': {'cmd': lambda: self.capability_analysis('非正态 Sixpack')},
             '14二项过程能力': {'cmd': self.binomial_capability},
+            '15泊松过程能力': {'cmd': self.poisson_capability},
             '22容差区间': {'cmd': self.ti_norm},
             '32控制图 I-MR': {'cmd': self.cChartIMR},
             '33控制图 I（单值）': {'cmd': self.cChartI},
@@ -672,6 +673,10 @@ class Minijmp(Worksheets, Minijmp_pre):
     def binomial_capability(self):
         from capability_dialog import BinomialCapabilityDialog
         return BinomialCapabilityDialog(self.table, self)
+
+    def poisson_capability(self):
+        from capability_dialog import PoissonCapabilityDialog
+        return PoissonCapabilityDialog(self.table, self)
 
     def cpksub(self):
         from qc_dialog import CpkSubDialog

@@ -110,3 +110,55 @@ ZPUC C11.
 原生案例以相对容差 1e-9 检查。等长及全零、全不合格子组以独立数学参考验收；厂商边界显示、图形和控制规则默认选项尚未逐项对照。MiniJMP 拒绝缺失计数，并保持原分析顺序；Minitab 命令手册描述缺失点留空和其他图跳过的处理。历史不合格率、目标、直方图及样本量诊断图留在本轮范围外。[Minitab 命令与存储字段](https://support.minitab.com/en-us/minitab/session-command-help/)
 
 相关回归命令为 `python -m pytest tests/test_binomial_capability.py tests/test_help_center.py tests/test_g12_inventory.py tests/test_menu_localization.py tests/test_g5_spc_reports.py tests/test_review_proportions.py tests/test_capability.py -k "not computation_plotting_ast_matches_frozen_structure" -q`，使用项目 Python 3.12.3，共 299 项通过。此前直接运行时，8 项 G5 旧 AST 冻结比较失败；对本任务开始前的 0eadb8a 源码和冻结夹具复算，得到同样的 8 项差异。本轮仅在通过的定向命令中排除这些已复现的既有失败，冻结基线、SPC 实现与原比率检验均未修改。
+
+## 泊松属性能力 F2-P0-2（2026-11-23）
+
+「质量 → 泊松过程能力」以来源工作表快照为输入，每行一个子组。总体 DPU 使用总缺陷数除以总暴露量。暴露量可用统一的长度、面积、时间或件数单位。目标差值取 Mean DPU 减去目标，仅作描述性比较。缺失、非法计数和非法暴露量须先修正。
+
+总缺陷数为 D、总暴露量为 N 时，双侧等尾区间下限为 `χ²(α/2, 2D)/(2N)`，上限为 `χ²(1−α/2, 2D+2)/(2N)`。D 为零时下限取零，上限为 `−log(α/2)/N`。区间依赖独立子组和共同泊松缺陷率。诊断及目标比较无正式检验、p 值或并列规则。
+
+| 生产入口 | 独立验证及实际覆盖 |
+| --- | --- |
+| `analyze_poisson_capability` | `test_poisson_reference` 用固定前缀手算总体及累计率、最小最大值和目标差，并独立求和验证区间两尾各为 0.05。等长和不等长均通过，含缺陷数超过暴露量和正小数暴露量。 |
+| 同统计入口的边界 | `test_zero_defects` 用闭式解验证正上限，覆盖单组及多组全零。非零单组、负数/小数计数、非法暴露量、不等列长、缺失和非有限值均通过。 |
+| `plot_poisson_capability` | `test_plot_values_and_diagnostics` 独立核对逐组 3σ 控制限、U 图信号、累计图顺序，以及拟合累计概率的零点 `exp(−8)` 和不等长 DPU 散点。规则 1–4 沿用既有 SPC 路径。 |
+| `PoissonCapabilityDialog.fit` | `test_poisson_menu_workflow` 在真实 Windows Tk 从菜单打开并选列，切表和改变源表后仍使用原快照，核对汇总及子组表、特殊原因提示、实际显示的 Matplotlib 画布、非法分母及固定小数分母。二项真实 Tk 回归通过。 |
+
+### Minitab 19 原生存储参考
+
+独立 COM `DispatchEx('Mtb.Application')` 返回 `Version=19.1`、`AppPath=D:\Program\Minitab 19\Mtb.exe`，文件版本为 **19.1.0.1**。确认新项目的命令历史为空后用 `SET` 写入 C1 = 1、4、2、0 和 C2 = 20、100、30、50，随后运行以下命令，使用默认 95% 区间。
+
+```text
+PCAPA C1 C2;
+TARGET 0.04;
+NOCHART;
+DPU C3;
+DPUL C4;
+DPUU C5;
+DMINIMUM C6;
+DMAXIMUM C7;
+DTARGET C8.
+```
+
+| 存储列 | 指标 | COM 实读值 |
+| --- | --- | ---: |
+| C3 | Mean DPU | 0.035 |
+| C4 | 95% 下限 | 0.014071815257655851 |
+| C5 | 95% 上限 | 0.07211337680851168 |
+| C6 | 最小 DPU | 0 |
+| C7 | 最大 DPU | 0.06666666666666667 |
+| C8 | 目标 DPU | 0.04 |
+
+六项均通过 `test_minitab_19_pcapa_fixed_reference` 的相对容差 1e-9 比较。原生取证限于这一组整数暴露量数据及数值存储。零缺陷、小数暴露量和非默认置信水平由独立数学参考验收。保留厂商界面、图形、历史率和选项的对照缺口。等长诊断使用经验/拟合累计概率对照。不含 DPMO 或 S1 泊松率检验。[Minitab 统计量](https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-analysis/poisson-capability-analysis/methods-and-formulas/capability-statistics/) · [Minitab 区间公式](https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/capability-analysis/how-to/capability-analysis/poisson-capability-analysis/methods-and-formulas/confidence-intervals-and-bounds/) · [PCAPA 命令与存储](https://support.minitab.com/en-us/minitab/media/pdfs/notranslate/session_commands.pdf)
+
+### 回归结果
+
+项目 `.venv\Scripts\python.exe`（Python 3.11.9、SciPy 1.15.3、pandas 3.0.6）运行：
+
+```powershell
+& $python tools/build_help_index.py
+& $python -m pytest tests/test_poisson_capability.py tests/test_binomial_capability.py tests/test_menu_localization.py tests/test_help_center.py tests/test_g12_inventory.py tests/test_g5_spc_reports.py -q --tb=short -k 'not computation_plotting_ast_matches_frozen_structure'
+& $python -m pytest tests/test_poisson_capability.py::test_poisson_menu_workflow tests/test_help_center.py::test_menu_inventory_and_dialog_ids_match_the_source tests/test_help_center.py::test_pi_import_topic_is_unique_searchable_and_available_offline -q --tb=short
+```
+
+首次执行 221 通过、3 失败、8 排除。修复有尾随空格的工作表列名选择及帮助清单计数后，单独复测的 3 项均通过，累计覆盖 224 项。8 项排除均为上述已知的 G5 AST 冻结差异，SPC 实现与冻结夹具未改。未运行全量测试。

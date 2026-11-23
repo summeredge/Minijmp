@@ -571,6 +571,25 @@
       ],
       "exception_reason": ""
     },
+    "capability_dialog.py::PoissonCapabilityDialog.fit": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 2,
+      "titles": [
+        "泊松能力统计",
+        "子组明细"
+      ],
+      "entry_points": [
+        "Minijmp.poisson_capability -> PoissonCapabilityDialog.fit"
+      ],
+      "status": "泊松能力与子组结果的结构化 Tk 报告",
+      "tests": [
+        "tests/test_poisson_capability.py::test_poisson_menu_workflow"
+      ],
+      "exception_reason": ""
+    },
     "capability_dialog.py::CapabilityDialog.stat_table": {
       "sites": [
         "construct:StatTable#1"

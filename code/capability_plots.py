@@ -12,7 +12,45 @@ from matplotlib.patches import Patch
 from scipy import special, stats
 
 from chart_style import font_families, style_axes
-from control_chart import x_mR, xBar_R
+from control_chart import cu_plot, x_mR, xBar_R
+
+
+def plot_poisson_capability(summary, groups, figure):
+    """Draw U, cumulative DPU and the diagnostic for the exposure pattern."""
+    rate, lower, upper = summary.iloc[0, 1:]
+    counts = groups['缺陷数'].tolist()
+    sizes = groups['检验单位数'].tolist()
+    labels = groups['子组'].tolist()
+    grid = figure.add_gridspec(2, 2)
+    u_ax = figure.add_subplot(grid[0, :])
+    cumulative_ax = figure.add_subplot(grid[1, 0])
+    diagnostic_ax = figure.add_subplot(grid[1, 1])
+    events = cu_plot(c=counts, n=sizes, xLabels=labels, xlabel='子组',
+                     ylabel='DPU', ax=u_ax, detect_rules=True)
+    u_ax.set_title('U 控制图')
+
+    cumulative_ax.axhspan(lower, upper, alpha=.15, label='总体置信区间')
+    cumulative_ax.axhline(rate, linestyle='--', color='black', label='Mean DPU')
+    cumulative_ax.plot(labels, groups['累计 DPU'], marker='o')
+    cumulative_ax.set(title='累计 DPU', xlabel='子组', ylabel='DPU', xlim=(.5, len(labels) + .5))
+    cumulative_ax.legend()
+    style_axes(cumulative_ax)
+
+    if all(size == sizes[0] for size in sizes):
+        observed, frequencies = np.unique(counts, return_counts=True)
+        fitted = stats.poisson.cdf(observed, rate * sizes[0])
+        empirical = frequencies.cumsum() / len(counts)
+        diagnostic_ax.plot([0, 1], [0, 1], '--', color='gray')
+        diagnostic_ax.scatter(fitted, empirical)
+        diagnostic_ax.set(title='泊松拟合诊断', xlabel='拟合累计概率', ylabel='经验累计概率',
+                          xlim=(-.03, 1.03), ylim=(-.03, 1.03))
+    else:
+        diagnostic_ax.scatter(sizes, groups['DPU'])
+        diagnostic_ax.axhline(rate, linestyle='--', color='black', label='Mean DPU')
+        diagnostic_ax.set(title='缺陷率与检验单位数', xlabel='检验单位数', ylabel='DPU')
+        diagnostic_ax.legend()
+    style_axes(diagnostic_ax)
+    return events
 
 
 def _specs(ax, result, vertical=True):
