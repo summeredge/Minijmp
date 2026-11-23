@@ -578,6 +578,10 @@ class Worksheets:
         self.table = table
         return table
 
+    def worksheet_calculation(self, mode):
+        from worksheet_calculations import WorksheetCalculationDialog
+        WorksheetCalculationDialog(self, mode)
+
     def subset_sheet(self):
         dialog = SubsetWorksheetDialog(self.main, self.getCurrentTable().model.df,
                                        self.getCurrentSheet()[:67] + ' 子集', self._valid_name)

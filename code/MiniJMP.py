@@ -120,6 +120,7 @@ class Minijmp(Worksheets, Minijmp_pre):
             '23子集化工作表': {'cmd': self.subset_sheet},
             '24按类别拆分工作表': {'cmd': self.split_worksheet},
             '32拆分数据列': {'cmd': lambda: self._call('splitColumn')},
+            '33逆堆叠列': {'cmd': lambda: self.worksheet_calculation('逆堆叠列')},
             '33堆叠所选列': {'cmd': lambda: self._call('stackColumn')},
             '34全部列排序': {'cmd': lambda: self._call('sortAll')},
             '35所选列排序': {'cmd': lambda: self._call('sortSelected')},
@@ -146,7 +147,11 @@ class Minijmp(Worksheets, Minijmp_pre):
             '14合并/拼接表': {'cmd': lambda: self._call('doCombine')},
             '15透视表': {'cmd': lambda: self._call('pivot')},
             '16逆透视表': {'cmd': lambda: self._call('melt')},
-            '17时间序列重抽样': {'cmd': lambda: self._call('resample')}
+            '17时间序列重抽样': {'cmd': lambda: self._call('resample')},
+            '18sep': '',
+            '19从列随机抽样': {'cmd': lambda: self.worksheet_calculation('从列随机抽样')},
+            '20生成随机数据': {'cmd': lambda: self.worksheet_calculation('生成随机数据')},
+            '21概率分布': {'cmd': lambda: self.worksheet_calculation('概率分布')},
         }
         self.table_menu = self.createPulldown(self.menu, self.table_menu)
         self.menu.add_cascade(label='工具', menu=self.table_menu['var'])

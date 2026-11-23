@@ -177,6 +177,21 @@ class MTable(Table):
         if formula.get('warning'):
             messagebox.showwarning('公式', formula['warning'], parent=self.parentframe)
 
+    def add_calculation_column(self, name, values, *, broadcast=False):
+        if self.filtered:
+            raise ValueError('筛选中的工作表请将计算结果写入新工作表。')
+        frame = self.model.df
+        if name in frame.columns:
+            raise ValueError(f'列“{name}”已存在，请输入新的列名。')
+        updated = frame.copy(deep=True)
+        if broadcast and not len(frame):
+            updated = updated.reindex(range(1))
+        updated.insert(len(updated.columns), name, values[0] if broadcast else values)
+        self.storeCurrent()
+        self.model.df = updated
+        self.redraw()
+        self.tableChanged()
+
     def refresh_formulas(self, force=False):
         """Recalculate in dependency order; manual mode only marks results stale."""
         formulas = self.formulas
