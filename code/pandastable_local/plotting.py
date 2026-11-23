@@ -836,12 +836,23 @@ class PlotViewer(Frame):
         self._drag_handler = handlers.DragHandler(self)
         self._drag_handler.connect()
 
+    _plotly_kinds = ('scatter', 'line', 'bar', 'histogram')
+
     def startPreview(self, publish, source_name):
         self._preview_publish = publish
         self.table._plot_preview = self
         self.role_kinds = (*self.role_kinds, 'barh', 'histogram', 'boxplot', 'density')
         self._plot_title = f'通用绘图器 · {source_name}'
         self.main.title(f'{self._plot_title} · 预览')
+        self.plotly_viewer = None
+        self.engine = StringVar(self.main, value='Matplotlib')
+        self.engine_panel = Frame(self.ctrlfr, padding=(4, 2))
+        self.engine_panel.pack(side=TOP, fill=X, before=self.sectionbar)
+        for engine in ('Matplotlib', 'Plotly（试验）'):
+            Radiobutton(self.engine_panel, text=engine, value=engine,
+                        variable=self.engine).pack(side=LEFT, padx=(0, 4))
+        self.engine_message = StringVar(self.main)
+        Label(self.engine_panel, textvariable=self.engine_message, wraplength=260).pack(fill=X)
         self.preview_actions = Frame(self.plot_tools, padding=(4, 2))
         self.preview_actions.pack(side=TOP, fill=X)
         self.confirm_button = Button(self.preview_actions, text='确认图形', command=self.confirmPreview)
@@ -851,7 +862,8 @@ class PlotViewer(Frame):
         self.preview_status = Label(self.statusbar, textvariable=self.preview_error, wraplength=420)
         self.preview_status.pack(side=TOP, anchor='w')
         self._preview_traces = [(var, var.trace_add('write', self._schedulePreview))
-                                for var in (*self.mplopts.tkvars.values(), self.rangevar)]
+                                for var in (*self.mplopts.tkvars.values(), self.rangevar, self.engine,
+                                            *(self.labelopts.tkvars[key] for key in ('title', 'xlabel', 'ylabel')))]
         self.syncRoleState()
         self._renderPreview()
 
@@ -879,26 +891,88 @@ class PlotViewer(Frame):
         self._preview_after = None
         self.preview_error.set('')
         kind = self._roleOption('kind')
+        use_roles = (not from_selection and kind in self.role_kinds and
+                     not self.globalopts['3D plot'] and (self._role_mode or self.ycols))
+        plotly_requested = self.engine.get() != 'Matplotlib'
+        use_plotly = (plotly_requested and kind in self._plotly_kinds and
+                      not self.globalopts['3D plot'] and not self.globalopts['grid layout'])
+        self.engine_message.set(
+            '工程与 PDF 使用 Matplotlib 图形。' if use_plotly else
+            '当前图型或布局使用 Matplotlib。' if plotly_requested else '')
         try:
-            if (not from_selection and kind in self.role_kinds and
-                    not self.globalopts['3D plot'] and (self._role_mode or self.ycols)):
-                self.plotRoles()
+            if use_plotly:
+                self._renderPlotly(kind, use_roles)
             else:
-                self._role_mode = False
-                self.replot()
+                self._closePlotly()
+                if use_roles:
+                    self.plotRoles()
+                else:
+                    self._role_mode = False
+                    self.replot()
+        except ImportError:
+            self.showWarning('Plotly 需要 Plotly、tkwry 和 WebView2 Runtime。')
         except (ValueError, TypeError, IndexError, KeyError, ArithmeticError, tkinter.TclError) as exc:
             self.showWarning(str(exc))
-        if not self.preview_error.get() and not any(ax.has_data() for ax in self.fig.axes):
+        if not use_plotly and not self.preview_error.get() and not any(ax.has_data() for ax in self.fig.axes):
             self.showWarning('选区没有可绘制的数据。')
-        state = DISABLED if self.preview_error.get() else NORMAL
+        if use_plotly and self.preview_error.get() and self.plotly_viewer:
+            if self.plotly_viewer.main.winfo_exists():
+                self.plotly_viewer.main.withdraw()
+        state = DISABLED if use_plotly or self.preview_error.get() else NORMAL
         self.confirm_button.configure(state=state)
         self.save_button.configure(state=state)
+
+    def _renderPlotly(self, kind, use_roles):
+        from plots import PlotlyViewer, general_plotly_figure
+
+        self._role_mode = bool(use_roles)
+        self.data = self._roleSource() if use_roles else self.table.getSelectedDataFrame()
+        data = self.roleData(self.data, kind) if use_roles else self.data
+        if not use_roles:
+            group = self._roleOption('by')
+            if group:
+                if group not in data:
+                    raise ValueError('分组列必须包含在工作表选区中。')
+                numeric = data.drop(columns=group).select_dtypes(include=['number', 'bool'])
+                if kind in ('bar', 'line'):
+                    # The selection-based Matplotlib path plots group means.
+                    data = numeric.groupby(data[group], observed=True, sort=kind == 'bar').mean()
+                elif kind == 'scatter' and len(numeric.columns) >= 2:
+                    traces = [(f'{name}（{label}）', y.where(data[group].eq(label).fillna(False)))
+                              for label in data[group].dropna().unique()
+                              for name, y in numeric.iloc[:, 1:].items()]
+                    names = self._uniqueColumns([name for name, _ in traces], used=numeric.columns[:1])
+                    data = pd.concat([numeric.iloc[:, 0], *(y.rename(name) for name, (_, y) in
+                                                          zip(names, traces))], axis=1)
+                else:
+                    data = numeric
+        options = self.mplopts.tkvars
+        figure = general_plotly_figure(
+            data, kind, bins=options['bins'].get() if kind == 'histogram' else 20,
+            legend=bool(options['legend'].get()), grid=bool(options['grid'].get()),
+            **{key: self.labelopts.tkvars[key].get() for key in ('title', 'xlabel', 'ylabel')},
+        )
+        viewer = self.plotly_viewer
+        if viewer is None or not viewer.main.winfo_exists():
+            viewer = self.plotly_viewer = PlotlyViewer(self.main, figure, live=True)
+            viewer.main.title(f'{self._plot_title} · Plotly（试验）')
+        else:
+            viewer.update_figure(figure)
+            if viewer.main.state() == 'withdrawn':
+                viewer.main.deiconify()
+        self.updateInputSummary()
+
+    def _closePlotly(self):
+        if self.plotly_viewer is not None:
+            self.plotly_viewer.close()
+            self.plotly_viewer = None
 
     def _flushPreview(self):
         if self._preview_after is not None:
             self.main.after_cancel(self._preview_after)
             self._renderPreview()
-        return not self.preview_error.get() and any(ax.has_data() for ax in self.fig.axes)
+        return (not self.confirm_button.instate(['disabled']) and not self.preview_error.get()
+                and any(ax.has_data() for ax in self.fig.axes))
 
     def confirmPreview(self):
         if self._preview_publish is None or not self._flushPreview():
@@ -908,6 +982,7 @@ class PlotViewer(Frame):
         self._endPreview()
         self.preview_actions.destroy()
         self.preview_status.destroy()
+        self.engine_panel.destroy()
         self.main.title(self._plot_title)
 
     def _endPreview(self):
@@ -916,6 +991,7 @@ class PlotViewer(Frame):
         if self._preview_after is not None:
             self.main.after_cancel(self._preview_after)
             self._preview_after = None
+        self._closePlotly()
         for var, trace in self._preview_traces:
             var.trace_remove('write', trace)
         self._preview_publish = None
@@ -1575,6 +1651,7 @@ class PlotViewer(Frame):
         self.ax = None
         self.canvas.draw()
         if self._preview_publish is not None:
+            self._closePlotly()
             self.showWarning('图形已清除，请调整选项或重新绘图。')
         else:
             self.table.plotted = None
@@ -2616,7 +2693,7 @@ class PlotViewer(Frame):
     def savePlot(self, filename=None):
         """Save the current plot"""
 
-        if self._preview_publish is not None and not self._flushPreview():
+        if getattr(self, '_preview_publish', None) is not None and not self._flushPreview():
             return
         ftypes = [('png','*.png'),('jpg','*.jpg'),('tif','*.tif'),('pdf','*.pdf'),
                     ('eps','*.eps'),('svg','*.svg')]

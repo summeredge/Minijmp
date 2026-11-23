@@ -251,6 +251,8 @@ def test_source_switch_invalid_and_deleted_sheet(app, sample, kind, monkeypatch)
     source.model.df = sample
     before = sample.copy(deep=True)
     dialog = StatPlotDialog(source, df=sample, app=app, kind=kind)
+    if kind == 'bubble':
+        dialog.engine.set('Matplotlib')  # This case inspects the registered Matplotlib figure.
     cols = {'bubble': ['x', 'y', 'size'], 'marginal': ['x', 'y']}.get(kind, ['x'])
     select(dialog, cols)
     other = app.addSheet('另一工作表', dataframe=pd.DataFrame({'x': [999.]}))

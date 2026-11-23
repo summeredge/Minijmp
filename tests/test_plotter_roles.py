@@ -411,3 +411,163 @@ def test_preview_reports_invalid_roles_and_removes_pending_update(tk_root):
         viewer.close()
         table.destroy()
         frame.destroy()
+
+
+def test_general_plotly_data_and_histogram_edges():
+    import pytest
+    from plots import general_plotly_figure
+    pytest.importorskip('plotly')
+
+    data = pd.DataFrame({'Y': [1., np.nan, 3., 4.], 'Z': [2., 4., 6., np.nan]},
+                        index=pd.Index([30, 10, 20, 30], name='X'))
+    options = dict(bins=2, legend=True, grid=True, title='标题', xlabel='', ylabel='')
+    line = general_plotly_figure(data, 'line', **options)
+    assert list(line.data[0].x) == [30, 10, 20, 30]
+    np.testing.assert_allclose(line.data[0].y, [1, np.nan, 3, 4])
+    assert not line.data[0].connectgaps and line.layout.xaxis.title.text == 'X'
+    bar = general_plotly_figure(data, 'bar', **options)
+    assert list(bar.layout.xaxis.ticktext) == ['30', '10', '20', '30']
+    assert list(bar.data[0].x) == [0, 1, 2, 3]
+    assert list(bar.data[0].y) == [1, 0, 3, 4]
+    scatter = general_plotly_figure(data.reset_index(), 'scatter', **options)
+    assert [list(trace.y) for trace in scatter.data] == [[1, 3, 4], [2, 4, 6]]
+    assert list(scatter.data[0].x) == [30, 20, 30]
+    hist = general_plotly_figure(data, 'histogram', **options)
+    assert [list(trace.y) for trace in hist.data] == [[2, 1], [1, 2]]
+    assert list(hist.data[0].width) == [2.5, 2.5]
+    assert hist.layout.yaxis.title.text == '频数' and hist.layout.showlegend
+    assert hist.layout.title.text == '标题' and hist.layout.yaxis.showgrid
+
+
+def test_general_plotly_live_webview_and_exports(tk_root, monkeypatch, tmp_path):
+    import json
+    import sys
+    import time
+    from tkinter import filedialog, messagebox
+
+    import pytest
+    from PIL import Image
+    from MiniJMP import Minijmp
+    from test_regression_dialog import dispose
+
+    if sys.platform != 'win32':
+        pytest.skip('原生验证需要 Windows WebView2')
+    pytest.importorskip('plotly')
+    pytest.importorskip('tkwry')
+    monkeypatch.setattr(Minijmp, 'start_logging', lambda self: None)
+    errors = []
+    monkeypatch.setattr(messagebox, 'showerror', lambda *args, **kw: errors.append(args))
+    monkeypatch.setattr(tk_root, 'report_callback_exception', lambda *args: errors.append(args))
+    app = Minijmp(parent=tk_root)
+    source = app.addSheet('Plotly 来源', DATA.copy())
+    original = source.model.df.copy()
+    source.multiplerowlist = list(range(len(DATA)))
+    source.multiplecollist = [0, 1]
+    previous = app.showPlotViewer()
+    previous.fig.add_subplot().plot([1, 2], [3, 4])
+
+    def wait_until(condition):
+        end = time.monotonic() + 18
+        while not condition() and not errors and time.monotonic() < end:
+            tk_root.update()
+            time.sleep(.02)
+        assert not errors, errors
+        assert condition()
+
+    def js(browser, expression):
+        result = []
+        browser.webview.eval_js_with_callback(expression, result.append, on_error=errors.append)
+        wait_until(lambda: result)
+        return json.loads(result[0])
+
+    try:
+        app.plot_selected()
+        viewer = source._plot_preview
+        buttons = [widget for widget in viewer.engine_panel.winfo_children()
+                   if widget.winfo_class() == 'TRadiobutton']
+        assert [button.cget('text') for button in buttons] == ['Matplotlib', 'Plotly（试验）']
+        assert viewer.engine.get() == 'Matplotlib'
+        viewer.xcombo.current(3)
+        viewer.ylistbox.selection_set(0)
+        viewer.xcombo.event_generate('<<ComboboxSelected>>')
+        for kind in ('line', 'scatter', 'bar', 'histogram'):
+            viewer.mplopts.tkvars['kind'].set(kind)
+            tk_root.update()
+            assert not viewer.confirm_button.instate(['disabled']), viewer.preview_error.get()
+            assert viewer.ax.has_data()
+        viewer.mplopts.tkvars['kind'].set('scatter')
+        buttons[1].invoke()
+        tk_root.update()
+        browser = viewer.plotly_viewer
+        assert browser is not None, viewer.preview_error.get()
+        wait_until(lambda: browser._live_ready)
+        assert browser.main.winfo_viewable()
+        assert viewer.confirm_button.instate(['disabled'])
+        assert js(browser, "document.querySelector('.js-plotly-plot').data[0].x") == [10, 11, 12, 13]
+
+        app.addSheet('其他来源', pd.DataFrame({'压力': [999.]}))
+        viewer.ylistbox.selection_clear(0, 'end')
+        viewer.ylistbox.selection_set(1)
+        viewer.ylistbox.event_generate('<<ListboxSelect>>')
+        viewer.labelopts.tkvars['title'].set('实时压力')
+        tk_root.update()
+        assert viewer.plotly_viewer is browser
+        assert viewer.table is source
+        for kind, expected in [('line', 'scatter'), ('bar', 'bar'), ('histogram', 'bar')]:
+            viewer.mplopts.tkvars['kind'].set(kind)
+            viewer.mplopts.tkvars['bins'].set(3)
+            tk_root.update()
+            assert viewer.plotly_viewer is browser
+            graph = "document.querySelector('.js-plotly-plot')"
+            assert js(browser, f"[{graph}.data[0].type, {graph}.data[0].name, {graph}.layout.title.text]") == [
+                expected, '压力', '实时压力']
+        assert js(browser, f"{graph}.data[0].y") == [1, 1, 2]
+
+        for filename in ('preview.html', 'preview.png'):
+            output = tmp_path / filename
+            monkeypatch.setattr(filedialog, 'asksaveasfilename', lambda **kwargs: str(output))
+            browser.export()
+            wait_until(output.is_file)
+        assert 'Plotly.newPlot' in (tmp_path / 'preview.html').read_text(encoding='utf-8')
+        html = (tmp_path / 'preview.html').read_text(encoding='utf-8')
+        assert json.dumps('实时压力') in html and '<script src=' not in html
+        assert js(browser, f'{graph}._context.scrollZoom') is True
+        with Image.open(tmp_path / 'preview.png') as image:
+            assert image.width > 100
+            image.verify()
+
+        viewer.mplopts.tkvars['kind'].set('scatter')
+        viewer.bycombo.current(4)
+        viewer.bycombo.event_generate('<<ComboboxSelected>>')
+        tk_root.update()
+        assert js(browser, f"{graph}.data.map(trace => [trace.name, trace.x])") == [
+            ['压力（A）', [10, 11]], ['压力（B）', [12, 13]]]
+        viewer.bycombo.current(0)
+        viewer.bycombo.event_generate('<<ComboboxSelected>>')
+        viewer.mplopts.tkvars['kind'].set('boxplot')
+        tk_root.update()
+        assert viewer.engine.get() == 'Plotly（试验）'
+        assert '使用 Matplotlib' in viewer.engine_message.get()
+        assert not browser.main.winfo_exists() and browser.directory is None
+        assert viewer.ax.has_data()
+        viewer.mplopts.tkvars['kind'].set('line')
+        tk_root.update()
+        replacement = viewer.plotly_viewer
+        assert replacement is not None and replacement is not browser
+        buttons[0].invoke()
+        tk_root.update()
+        assert not replacement.main.winfo_exists()
+        assert viewer.ycols == ['压力'] and viewer.xcol == '流量'
+        assert viewer.ax.has_data() and not viewer.confirm_button.instate(['disabled'])
+
+        buttons[1].invoke()
+        tk_root.update()
+        browser = viewer.plotly_viewer
+        viewer.close()
+        assert not browser.main.winfo_exists() and browser.directory is None
+        assert source._plot_preview is None and source.pf is previous
+        assert not app.plots
+        pd.testing.assert_frame_equal(source.model.df, original)
+        assert not errors
+    finally:
+        dispose(app)

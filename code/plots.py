@@ -8,10 +8,75 @@ import os
 from collections import OrderedDict
 
 
-class PlotlyViewer:
-    """Standalone Tk plot window for the time-series pilot."""
+def general_plotly_figure(data, kind, *, bins, legend, grid, title, xlabel, ylabel):
+    """Render the same role/selection frame used by the general plotter."""
+    import numpy as np
+    import pandas as pd
+    from plotly import graph_objects as go
 
-    def __init__(self, parent, figure, *, on_ready=None):
+    numeric = data.select_dtypes(include=['number', 'bool']).astype(float)
+    numeric = numeric.where(np.isfinite(numeric))
+    fig = go.Figure()
+    xaxis = {}
+    if kind == 'scatter':
+        if len(numeric.columns) < 2:
+            raise ValueError('散点图需要一个数值 X 列和至少一个数值 Y 列。')
+        x = numeric.iloc[:, 0]
+        xlabel = xlabel or str(x.name)
+        for name, y in numeric.iloc[:, 1:].items():
+            keep = x.notna() & y.notna()
+            if keep.any():
+                fig.add_scatter(x=x[keep].tolist(), y=y[keep].tolist(), name=str(name), mode='markers')
+    elif kind == 'histogram':
+        values = [y.dropna().to_numpy() for _, y in numeric.items()]
+        if bins < 1:
+            raise ValueError('直方图分箱数必须为正整数。')
+        if values and any(len(y) for y in values):
+            edges = np.histogram_bin_edges(np.concatenate(values), bins=bins)
+            centers = edges[:-1] + np.diff(edges) / 2
+            bounds = np.column_stack((edges[:-1], edges[1:])).tolist()
+            for name, y in zip(numeric.columns, values):
+                if len(y):
+                    counts, _ = np.histogram(y, bins=edges)
+                    fig.add_bar(x=centers.tolist(), y=counts.tolist(), width=np.diff(edges).tolist(),
+                                name=str(name), customdata=bounds,
+                                hovertemplate='%{customdata[0]} ～ %{customdata[1]}<br>频数：%{y}')
+        ylabel = ylabel or '频数'
+        fig.update_layout(barmode='overlay')
+        fig.update_traces(opacity=.65)
+    else:
+        xlabel = xlabel or str(data.index.name or '')
+        x = data.index.tolist()
+        if kind == 'bar':
+            labels = [str(value) if pd.notna(value) else '（缺失）' for value in x]
+            # Row positions keep duplicate categories as separate bars.
+            x = list(range(len(labels)))
+            xaxis.update(tickmode='array', tickvals=x, ticktext=labels)
+            for name, y in numeric.items():
+                if y.notna().any():
+                    fig.add_bar(x=x, y=y.fillna(0).tolist(), name=str(name), customdata=labels,
+                                hovertemplate='%{customdata}<br>%{y}')
+            fig.update_layout(barmode='group')
+        else:
+            for name, y in numeric.items():
+                if y.notna().any():
+                    fig.add_scatter(x=x, y=y.tolist(), name=str(name), mode='lines',
+                                    connectgaps=False)
+    if not fig.data:
+        raise ValueError('没有可绘制的有限数值或完整的 X/Y 配对。')
+    fig.update_layout(template='plotly_white', title=title, showlegend=legend,
+                      xaxis=dict(title=xlabel, showgrid=grid, **xaxis),
+                      yaxis=dict(title=ylabel, showgrid=grid))
+    return fig
+
+
+class PlotlyViewer:
+    """Tk window for interactive Plotly figures and standalone exports."""
+
+    _config = dict(responsive=True, scrollZoom=True, displaylogo=False,
+                   displayModeBar=True, modeBarButtonsToRemove=['toImage'])
+
+    def __init__(self, parent, figure, *, on_ready=None, live=False):
         from pathlib import Path
         from tempfile import TemporaryDirectory
         from tkinter import ttk
@@ -26,20 +91,19 @@ class PlotlyViewer:
         self._webview_job = None
         self._image_export = None
         self.directory = None
+        self._live = live
+        self._live_ready = False
+        self._live_figure = None
         self.main.bind('<Destroy>', self._destroyed, add='+')
         self.main.protocol('WM_DELETE_WINDOW', self.close)
         try:
-            html = figure.to_html(
-                include_plotlyjs=True, include_mathjax=False,
-                config=dict(responsive=True, scrollZoom=True, displaylogo=False,
-                            displayModeBar=True, modeBarButtonsToRemove=['toImage']),
-            )
-            self.html = html.replace('<head>', '''<head>
-<meta http-equiv="Content-Security-Policy"
- content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval';
- style-src 'unsafe-inline'; img-src data: blob:; worker-src blob:">
-<style>html, body { height: 100%; margin: 0; overflow: hidden; }
-body > div { height: 100%; }</style>''', 1)
+            post_script = None
+            if live:
+                post_script = """
+                    window.minijmpPlotUpdate = Promise.resolve();
+                    window.tkwry?.call('live_plot_ready').catch(console.error);
+                """
+            self.html = self._figure_html(figure, post_script)
             self.directory = TemporaryDirectory(prefix='minijmp-plotly-')
             Path(self.directory.name, 'index.html').write_text(self.html, encoding='utf-8')
             tools = ttk.Frame(self.main)
@@ -53,12 +117,53 @@ body > div { height: 100%; }</style>''', 1)
             self.close()
             raise
 
+    @classmethod
+    def _figure_html(cls, figure, post_script=None):
+        html = figure.to_html(
+            include_plotlyjs=True, include_mathjax=False, post_script=post_script,
+            config=cls._config,
+        )
+        return html.replace('<head>', '''<head>
+<meta http-equiv="Content-Security-Policy"
+ content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval';
+ style-src 'unsafe-inline'; img-src data: blob:; worker-src blob:">
+<style>html, body { height: 100%; margin: 0; overflow: hidden; }
+body > div { height: 100%; }</style>''', 1)
+
+    def update_figure(self, figure):
+        self._live_figure = figure
+        if self._live_ready:
+            self._render_live_figure()
+
+    def _live_plot_ready(self):
+        self._live_ready = True
+        if self._live_figure is not None:
+            self._render_live_figure()
+
+    def _render_live_figure(self):
+        import json
+        spec = self._live_figure.to_json()
+        config = json.dumps(self._config)
+        self.webview.eval_js(f"""
+            window.minijmpPlotUpdate = window.minijmpPlotUpdate.then(() => {{
+                const figure = {spec};
+                return Plotly.react(document.querySelector('.js-plotly-plot'), figure.data, figure.layout, {config});
+            }}).catch(error => window.tkwry.call('live_plot_error', String(error)));
+        """, on_error=self._live_plot_error)
+
+    def _live_plot_error(self, error):
+        from tkinter import messagebox
+        messagebox.showerror('无法更新 Plotly 图形', str(error), parent=self.main)
+
     def _create_webview(self, webview_type, frame, on_ready):
         self._webview_job = None
         try:
             self.webview = webview_type(frame, app=self.directory.name, csp=False, open_external=False)
             self.webview.when_failed(self.creation_failed)
             self.webview.expose(self._finish_image_export, name='finish_image_export')
+            if self._live:
+                self.webview.expose(self._live_plot_ready, name='live_plot_ready')
+                self.webview.expose(self._live_plot_error, name='live_plot_error')
             if on_ready is not None:
                 self.webview.when_ready(on_ready)
             frame.pack(fill=BOTH, expand=True)
@@ -87,7 +192,8 @@ body > div { height: 100%; }</style>''', 1)
                     return
             suffix = path.suffix.lower()
             if suffix == '.html':
-                path.write_text(self.html, encoding='utf-8')
+                html = (self.html if self._live_figure is None else self._figure_html(self._live_figure))
+                path.write_text(html, encoding='utf-8')
             elif suffix in ('.png', '.svg'):
                 self._export_image(path, suffix[1:])
             else:
@@ -111,6 +217,7 @@ body > div { height: 100%; }</style>''', 1)
                 (async () => {{
                     let image;
                     try {{
+                        await window.minijmpPlotUpdate;
                         const graph = document.querySelector('.js-plotly-plot');
                         if (!graph || !graph._fullLayout) throw Error('图形仍在加载，请稍后重试。');
                         image = await Plotly.toImage(graph, {{...{options},
