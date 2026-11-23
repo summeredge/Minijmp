@@ -32,3 +32,7 @@
 ## 验证
 
 复用 F0 已记录的 382 项回归通过结果。F0/F1 审计轮仅变更审计文档，核对 CSV 解析、功能 ID、DOE 引用、源码与测试文件链接、去重计数及任务映射。
+
+## F2 已验收范围
+
+- **T1 · F0-BASE-017**：移动平均以直接窗口求和、简单指数平滑以闭式加权和、双指数平滑以精确线性序列、加法及乘法 Winters 以逐期独立标量计算核对。共 263 项时间序列测试通过，含真实 Tk 分析、绘图、新表与导出流程。Minitab 19.1 原生 MA / SES / DES 在同一组 12 个观测上，一期拟合和三步预测一致（绝对误差小于 1e-12）；MA 与 SES 残差按相同拟合计算。加法 Winters 原生预测 34.826519、36.426928、41.001028，MiniJMP 为 31.869948、34.641288、40.037308，初始化约定不同。原生乘法及 22 实机未测。[Winters 递推与厂商初始化](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/time-series/how-to/winters-method/methods-and-formulas/methods-and-formulas/)

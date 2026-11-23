@@ -4,7 +4,7 @@ analyze_time_series(df, y, time=None, other=None, interval='1s', missing='error'
     duplicates='error', irregular='error', lags=20, period=None,
     decomposition='additive', order=(1,0,0), seasonal_order=(0,0,0,0),
     forecast_steps=10, alpha=.05, cancel=None, analysis='all') -> TimeSeriesResult
-analysis: correlation/decomposition/stationarity/ARIMA/SARIMA/all。
+analysis: correlation/decomposition/stationarity/ARIMA/SARIMA/all 及 SMOOTHING 所列平滑模式。
 
 tables schema（英文列名为 GUI/plots 合约，按选择生成；无选择无对应表）：
   data: source_row, source_index, source_rows, source_indices, sequence, time,
@@ -308,6 +308,112 @@ def _orders(order, seasonal_order, seasonal):
     return order, seasonal_order
 
 
+def _forecast_table(data, step, predicted, ci=None):
+    forecast_steps = len(predicted)
+    future = pd.DataFrame({'step': np.arange(1, forecast_steps + 1),
+                           'sequence': np.arange(len(data) + 1, len(data) + forecast_steps + 1),
+                           'time': pd.NaT, 'elapsed': pd.NaT, 'predicted': predicted})
+    if ci is not None:
+        future['ci_lower'], future['ci_upper'] = ci.T
+    if step is not None and forecast_steps:
+        try:
+            delta = pd.timedelta_range(start=step, periods=forecast_steps, freq=step)
+            future['elapsed'] = data.elapsed.iloc[-1] + delta
+            if data.time.notna().any():
+                future['time'] = data.time.iloc[-1] + delta
+        except (ValueError, OverflowError) as exc:
+            raise ValueError('预测时间超出日期/时间间隔范围，请缩短预测步数。') from exc
+    future['source_row'] = pd.array([pd.NA] * forecast_steps, dtype='Int64')
+    future['source_index'] = None
+    future['source_rows'] = [[] for _ in range(forecast_steps)]
+    future['source_indices'] = [[] for _ in range(forecast_steps)]
+    return future
+
+
+SMOOTHING = ('moving_average', 'single_exponential', 'double_exponential', 'winters')
+
+
+def _weight(value, label):
+    if isinstance(value, (bool, np.bool_)) or not isinstance(value, (int, float, np.number)) or not 0 <= value <= 1:
+        raise ValueError(f'{label}必须在 0 至 1 之间。')
+    return float(value)
+
+
+def _smooth(data, step, method, steps, window, level_weight, trend_weight,
+            seasonal_weight, period, mode, cancel, notes):
+    y = data.value.to_numpy()
+    fitted = np.full(len(y), np.nan)
+    horizons = np.arange(1, steps + 1)
+    if method == 'moving_average':
+        window = _integer(window, '移动平均窗口', 1)
+        if window > len(y):
+            raise ValueError('移动平均窗口不能超过观测数。')
+        smoothed = data.value.rolling(window).mean().to_numpy()
+        fitted[1:] = smoothed[:-1]
+        predicted = np.full(steps, smoothed[-1])
+        notes.append(f'尾随窗口为 {window}；首个平滑值在第 {window} 行，拟合值滞后一期，未来各步为最后一个窗口均值。')
+    else:
+        level_weight = _weight(level_weight, '水平权重')
+        trend = 0.
+        seasonal = None
+        if method == 'single_exponential':
+            level = y[:6].mean()
+            notes.append('初始水平为前 min(6, n) 个观测的平均值；拟合使用上一期水平，未来各步使用末期水平。')
+        elif method == 'double_exponential':
+            if len(y) < 2:
+                raise ValueError('双指数平滑至少需要两个观测。')
+            trend_weight = _weight(trend_weight, '趋势权重')
+            trend, level = np.polyfit(np.arange(1, len(y) + 1), y, 1)
+            notes.append('以时间序号回归的截距、斜率初始化水平和趋势；未来第 h 步为末期水平加 h 倍末期趋势。')
+        else:
+            cycle = _integer(period, '季节周期', 2)
+            if len(y) < 2 * cycle:
+                raise ValueError('Winters 平滑至少需要两个完整周期。')
+            if mode not in ('additive', 'multiplicative'):
+                raise ValueError('Winters 模式必须为 additive 或 multiplicative。')
+            if mode == 'multiplicative' and np.any(y <= 0):
+                raise ValueError('乘法 Winters 要求所有观测严格为正。')
+            trend_weight = _weight(trend_weight, '趋势权重')
+            seasonal_weight = _weight(seasonal_weight, '季节权重')
+            first, second = y[:cycle], y[cycle:2 * cycle]
+            level = first.mean()
+            trend = (second.mean() - level) / cycle
+            seasonal = first / level if mode == 'multiplicative' else first - level
+            notes.append('Winters 以前两周期初始化：首周期均值为初始水平，两周期均值差除以周期为趋势；首周期用比值或差值初始化季节项。')
+        smoothed = np.empty(len(y))
+        for i, value in enumerate(y):
+            if i % 1024 == 0:
+                _check_cancel(cancel)
+            baseline = level + trend
+            phase = i % len(seasonal) if seasonal is not None else None
+            factor = seasonal[phase] if seasonal is not None else 0.
+            multiplicative = seasonal is not None and mode == 'multiplicative'
+            fitted[i] = baseline * factor if multiplicative else baseline + factor
+            adjusted = value / factor if multiplicative else value - factor
+            updated = level_weight * adjusted + (1 - level_weight) * baseline
+            if method != 'single_exponential':
+                trend = trend_weight * (updated - level) + (1 - trend_weight) * trend
+            level = updated
+            if multiplicative and level <= 0:
+                raise ValueError('乘法 Winters 的更新水平非正，请调整权重或使用加法模式。')
+            if seasonal is not None:
+                observed_season = value / level if multiplicative else value - level
+                factor = seasonal_weight * observed_season + (1 - seasonal_weight) * factor
+                seasonal[phase] = factor
+            smoothed[i] = level * factor if multiplicative else level + factor
+        predicted = level + horizons * trend
+        if seasonal is not None:
+            factors = seasonal[(len(y) + horizons - 1) % len(seasonal)]
+            predicted = predicted * factors if multiplicative else predicted + factors
+        if not np.isfinite(np.r_[fitted, smoothed]).all():
+            raise ValueError('平滑结果包含非有限值，请检查数据尺度和权重。')
+    if not np.isfinite(predicted).all():
+        raise ValueError('预测包含非有限值，请检查数据尺度和权重。')
+    notes.append('残差为观测减一期拟合值；平滑分析输出点预测。')
+    return {'smoothing': data.assign(smoothed=smoothed, fitted=fitted, residual=y-fitted),
+            'forecast': _forecast_table(data, step, predicted)}
+
+
 def _fit_model(data, series, step, lags, order, seasonal_order, seasonal,
                forecast_steps, alpha, cancel, notes):
     _nonconstant(series.to_numpy())
@@ -344,22 +450,7 @@ def _fit_model(data, series, step, lags, order, seasonal_order, seasonal,
     predicted = np.asarray(prediction.predicted_mean)
     if not np.isfinite(np.r_[predicted, ci.ravel()]).all():
         raise ValueError('预测或区间包含非有限值，请检查模型阶数。')
-    future = pd.DataFrame({'step': np.arange(1, forecast_steps + 1),
-                           'sequence': np.arange(len(data) + 1, len(data) + forecast_steps + 1),
-                           'time': pd.NaT, 'elapsed': pd.NaT, 'predicted': predicted,
-                           'ci_lower': ci[:, 0], 'ci_upper': ci[:, 1]})
-    if step is not None:
-        try:
-            delta = pd.timedelta_range(start=step, periods=forecast_steps, freq=step)
-            future['elapsed'] = data.elapsed.iloc[-1] + delta
-            if data.time.notna().any():
-                future['time'] = data.time.iloc[-1] + delta
-        except (ValueError, OverflowError) as exc:
-            raise ValueError('预测时间超出日期/时间间隔范围，请缩短预测步数。') from exc
-    future['source_row'] = pd.array([pd.NA] * forecast_steps, dtype='Int64')
-    future['source_index'] = None
-    future['source_rows'] = [[] for _ in range(forecast_steps)]
-    future['source_indices'] = [[] for _ in range(forecast_steps)]
+    future = _forecast_table(data, step, predicted, ci)
     summary = pd.DataFrame([{'model': 'SARIMA' if seasonal else 'ARIMA', 'order': order,
                             'seasonal_order': seasonal_order, 'nobs': len(data),
                             'effective_nobs': fit.nobs_effective,
@@ -381,10 +472,11 @@ def analyze_time_series(df, y, time=None, other=None, interval='1s', missing='er
                         duplicates='error', irregular='error', lags=20, period=None,
                         decomposition='additive', order=(1, 0, 0),
                         seasonal_order=(0, 0, 0, 0), forecast_steps=10, alpha=.05,
-                        cancel=None, analysis='all'):
+                        cancel=None, analysis='all', window=3, level_weight=.2,
+                        trend_weight=.2, seasonal_weight=.2):
     """按模块顶部合约返回纯计算结果；all 的部分失败见 status/notes。"""
     _check_cancel(cancel)
-    choices = ('correlation', 'decomposition', 'stationarity', 'ARIMA', 'SARIMA', 'all')
+    choices = ('correlation', 'decomposition', 'stationarity', 'ARIMA', 'SARIMA', 'all', *SMOOTHING)
     if analysis not in choices:
         raise ValueError(f'analysis 必须为 {choices}。')
     lags = _integer(lags, 'lags')
@@ -420,6 +512,10 @@ def analyze_time_series(df, y, time=None, other=None, interval='1s', missing='er
         _check_cancel(cancel)
 
     values = series.to_numpy()
+    if analysis in SMOOTHING:
+        steps = _integer(forecast_steps, 'forecast_steps', 0)
+        run(analysis, lambda: _smooth(data, step, analysis, steps, window, level_weight,
+                                      trend_weight, seasonal_weight, period, decomposition, cancel, notes))
     if analysis in ('correlation', 'all'):
         run('correlation', lambda: _correlation_tables(data, lags, alpha, cancel, notes))
     if analysis in ('decomposition', 'all'):

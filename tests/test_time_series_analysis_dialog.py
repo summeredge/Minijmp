@@ -142,3 +142,23 @@ def test_cancel_and_source_change_are_explicit(tk_root, monkeypatch):
     finally:
         dialog.close()
         dispose(app)
+
+
+def test_moving_average_gui_plots_and_stores_result(tk_root, monkeypatch):
+    dialog, app, source, data = make_dialog(tk_root, monkeypatch)
+    try:
+        dialog.fields['analysis'].set('移动平均')
+        dialog.fields['window'].set('4')
+        dialog.fields['forecast_steps'].set('3')
+        dialog.run_button.invoke()
+        finish(tk_root, dialog)
+        assert list(dialog.result.tables['forecast'].step) == [1, 2, 3]
+        dialog.plot()
+        dialog.error.assert_not_called()
+        assert [line.get_label() for line in source.pf.fig.axes[0].lines] == ['观测', '平滑', '预测']
+        dialog.to_sheet()
+        assert '平滑值' in app.table.model.df
+        pd.testing.assert_frame_equal(source.model.df, data)
+    finally:
+        dialog.close()
+        dispose(app)

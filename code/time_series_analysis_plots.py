@@ -15,7 +15,7 @@ from chart_style import style_axes
 
 
 _KINDS = ('series', 'acf', 'pacf', 'ccf', 'decomposition', 'trend',
-          'residual', 'residual_qq', 'forecast')
+          'residual', 'residual_qq', 'forecast', 'smoothing')
 
 
 def _time_values(axis, table, mode):
@@ -136,6 +136,14 @@ def time_series_analysis_plot(result, kind, figure, on_pick=None):
         if kind == 'series':
             _, valid = time_line(axis, table, 'value', '观测')
             axis.set(ylabel='数值', title='时间序列')
+        elif kind == 'smoothing':
+            time_line(axis, table, 'value', '观测')
+            _, valid = time_line(axis, table, 'smoothed', '平滑', mapped=False)
+            future = result.tables['forecast']
+            if not future.empty:
+                time_line(axis, future, 'predicted', '预测', mapped=False)
+            axis.set(ylabel='数值', title='平滑与预测')
+            axis.legend()
         elif kind == 'trend':
             time_line(axis, table, 'value', '观测')
             _, valid = time_line(axis, table, 'fitted', '趋势', mapped=False)

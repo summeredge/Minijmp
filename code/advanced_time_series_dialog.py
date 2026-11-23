@@ -13,13 +13,13 @@ from sheet_context import SheetApp, export_source_labels
 from stat_table import StatTable, TableBlock
 
 
-TITLES = {'summary': '模型摘要', 'prepared': '分析数据', 'acf': '自相关', 'pacf': '偏自相关',
+TITLES = {'smoothing': '平滑与拟合', 'summary': '模型摘要', 'prepared': '分析数据', 'acf': '自相关', 'pacf': '偏自相关',
           'ccf': '交叉相关', 'stationarity': '平稳性检验', 'decomposition': '季节分解',
           'trend': '趋势分析', 'residuals': '模型残差', 'forecast': '预测', 'diagnostics': '残差诊断',
           'coefficients': '模型参数', 'data': '分析数据', 'status': '各项执行状态',
           'trend_coefficients': '趋势参数', 'model_summary': '模型摘要',
           'model_coefficients': '模型参数', 'residual_acf': '残差自相关'}
-HEADERS = {'source_row': '来源行号', 'source_rows': '来源行号集合', 'source_index': '来源索引',
+HEADERS = {'smoothed': '平滑值', 'source_row': '来源行号', 'source_rows': '来源行号集合', 'source_index': '来源索引',
            'timestamp': '时间 / 序号', 'value': '观测值', 'other': '配对观测值',
            'lag': '滞后', 'correlation': '相关系数', 'ci_lower': '区间下限', 'ci_upper': '区间上限',
            'mean': '预测均值', 'fitted': '拟合值', 'observed': '观测值', 'trend': '趋势',
@@ -39,7 +39,10 @@ HEADERS = {'source_row': '来源行号', 'source_rows': '来源行号集合', 's
            'diagnostic_used': '用于残差诊断', 'df': '自由度'}
 ANALYSES = {'相关分析': 'correlation', '趋势与季节分解': 'decomposition', '平稳性检验': 'stationarity',
             'ARIMA 建模': 'ARIMA', 'SARIMA 建模': 'SARIMA', '全部分析': 'all'}
-PLOTS = {'原始序列': 'series', '自相关 ACF': 'acf', '偏自相关 PACF': 'pacf', '交叉相关 CCF': 'ccf',
+SMOOTHING_OPTIONS = {'移动平均': 'moving_average', '简单指数平滑': 'single_exponential',
+                     '双指数平滑': 'double_exponential', 'Winters 平滑': 'winters'}
+ANALYSES.update(SMOOTHING_OPTIONS)
+PLOTS = {'平滑与预测': 'smoothing', '原始序列': 'series', '自相关 ACF': 'acf', '偏自相关 PACF': 'pacf', '交叉相关 CCF': 'ccf',
          '趋势分析': 'trend', '季节分解': 'decomposition', '模型残差': 'residual',
          '残差 QQ': 'residual_qq', '模型预测': 'forecast'}
 
@@ -86,9 +89,11 @@ class TimeSeriesAnalysisDialog:
             (('analysis', '分析功能', '相关分析', list(ANALYSES)), ('lags', '最大滞后', '20', None)),
             (('missing', '缺失值', '报错', ['报错', '删除不完整行']), ('duplicates', '重复时间戳', '报错', ['报错', '保留首个', '保留末个', '均值聚合'])),
             (('irregular', '不规则采样', '报错', ['报错', '按观测顺序等距']), ('period', '季节周期（样本数）', '12', None)),
-            (('decomposition', '季节分解模式', '加法', ['加法', '乘法']), ('forecast_steps', '预测步数', '10', None)),
+            (('decomposition', '季节模式', '加法', ['加法', '乘法']), ('forecast_steps', '预测步数', '10', None)),
             (('order', 'ARIMA 阶数 p,d,q', '1,0,0', None), ('seasonal_order', '季节阶数 P,D,Q,s', '0,0,0,0', None)),
-            (('confidence', '置信水平（%）', '95', None), None),
+            (('confidence', '置信水平（%）', '95', None), ('window', '移动平均窗口', '3', None)),
+            (('level_weight', '水平权重', '0.2', None), ('trend_weight', '趋势权重', '0.2', None)),
+            (('seasonal_weight', '季节权重', '0.2', None), None),
         ]
         for row, pair in enumerate(specs):
             for col, spec in zip((0, 2), pair):
@@ -140,17 +145,23 @@ class TimeSeriesAnalysisDialog:
         fields = {key: value.get().strip() for key, value in self.fields.items()}
         analysis = ANALYSES[fields['analysis']]
         model = analysis in ('ARIMA', 'SARIMA', 'all')
+        smoothing = analysis in SMOOTHING_OPTIONS.values()
         return dict(y=fields['y'], time=fields['time'] or None,
                     other=(fields['other'] or None) if ANALYSES[fields['analysis']] in ('correlation', 'all') else None,
                     interval=fields['interval'], analysis=analysis,
                     missing='error' if fields['missing'] == '报错' else 'drop',
                     duplicates={'报错': 'error', '保留首个': 'first', '保留末个': 'last', '均值聚合': 'mean'}[fields['duplicates']],
                     irregular='error' if fields['irregular'] == '报错' else 'sequence',
-                    lags=int(fields['lags']), period=int(fields['period']) if fields['period'] and analysis in ('decomposition', 'all') else None,
+                    lags=int(fields['lags']), period=int(fields['period']) if fields['period'] and analysis in ('decomposition', 'all', 'winters') else None,
                     decomposition='additive' if fields['decomposition'] == '加法' else 'multiplicative',
                     order=tuple(int(x.strip()) for x in fields['order'].split(',')) if model else (1, 0, 0),
                     seasonal_order=tuple(int(x.strip()) for x in fields['seasonal_order'].split(',')) if model else (0, 0, 0, 0),
-                    forecast_steps=int(fields['forecast_steps']) if model else 10, alpha=1-float(fields['confidence'])/100)
+                    forecast_steps=int(fields['forecast_steps']) if model or smoothing else 10,
+                    alpha=.05 if smoothing else 1-float(fields['confidence'])/100,
+                    window=int(fields['window']) if analysis == 'moving_average' else 3,
+                    level_weight=float(fields['level_weight']) if smoothing and analysis != 'moving_average' else .2,
+                    trend_weight=float(fields['trend_weight']) if analysis in ('double_exponential', 'winters') else .2,
+                    seasonal_weight=float(fields['seasonal_weight']) if analysis == 'winters' else .2)
 
     def analyze(self):
         if self.future is not None:
@@ -203,7 +214,10 @@ class TimeSeriesAnalysisDialog:
         self.notes.delete('1.0', 'end')
         self.notes.insert('1.0', '\n'.join(result.notes))
         self.notes.configure(state='disabled')
-        if self.tabs:
+        if 'smoothing' in self.tabs:
+            self.plot_kind.set('平滑与预测')
+            self.notebook.select(self.tabs['smoothing'])
+        elif self.tabs:
             self.notebook.select(next(iter(self.tabs.values())))
         self.status.set('分析完成；采样与方法约定见说明页，预测行不关联历史工作表行号。')
         status = result.tables.get('status')
