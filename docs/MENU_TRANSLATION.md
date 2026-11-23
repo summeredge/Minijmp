@@ -130,6 +130,7 @@
 | Split Worksheet | 按类别拆分工作表 |
 | Split Data Column | 拆分数据列 |
 | Stack Selected Columns | 堆叠所选列 |
+| Unstack Columns | 逆堆叠列 |
 | Sort All Columns | 全部列排序 |
 | Sort Selected Colunms | 所选列排序 |
 | Copy Row 1 to Headers | 首行提升为列名 |
@@ -152,6 +153,9 @@
 | Pivot Table | 透视表 |
 | Melt Table | 逆透视表 |
 | Time Series Resampling | 时间序列重抽样 |
+| Sample From Columns | 从列随机抽样 |
+| Random Data | 生成随机数据 |
+| Probability Distributions | 概率分布 |
 
 ## 计算（Calculator）
 

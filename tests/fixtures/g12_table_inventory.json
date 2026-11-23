@@ -170,6 +170,7 @@
     "two_way_anova.py",
     "txt_output.py",
     "utilities.py",
+    "worksheet_calculations.py",
     "worksheet_formulas.py",
     "worksheets.py"
   ],
@@ -330,6 +331,7 @@
     "two_way_anova.py": "存在已逐函数分类的表格生产位置；见 producers。",
     "txt_output.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "utilities.py": "存在已逐函数分类的表格生产位置；见 producers。",
+    "worksheet_calculations.py": "逆堆叠、随机与概率计算直接写入工作表，不生成统计报告。",
     "worksheet_formulas.py": "列公式的受限表达式求值、依赖排序与计算器对话框；无统计表构造或报告输出。",
     "worksheets.py": "工作表生命周期及工程/导入管理；无独立统计表构造或报告输出。"
   },

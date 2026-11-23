@@ -176,7 +176,11 @@ class WorksheetCalculationDialog:
             if constant:
                 values = [float(fields['constant'])]
             else:
-                col = self.df.iloc[:, self.columns.index(fields['input'])].replace({pd.NA: np.nan})
+                col = self.df.iloc[:, self.columns.index(fields['input'])]
+                if (pd.api.types.is_datetime64_any_dtype(col.dtype) or
+                        pd.api.types.is_timedelta64_dtype(col.dtype) or
+                        pd.api.types.is_complex_dtype(col.dtype)):
+                    raise ValueError('请输入实数列。')
                 values = pd.to_numeric(col, errors='raise').to_numpy(dtype=float, na_value=np.nan)
             output = distribution_values(distribution, pars, OPERATIONS[fields['operation']], values)
             if fields['output'] == '新工作表':

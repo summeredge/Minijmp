@@ -13,9 +13,9 @@
 
 | 状态 | 数量 |
 | --- | ---: |
-| 已实现 | 136 |
-| 部分实现 | 9 |
-| 未实现 | 6 |
+| 已实现 | 139 |
+| 部分实现 | 8 |
+| 未实现 | 4 |
 | 待核实 | 14 |
 | 不适用 | 2 |
 | DOE 交叉引用 | 36 |
@@ -36,3 +36,4 @@ F1 将 16 条开发缺口分入 10 个工作包。Q1 关闭后剩余 **15 条开
 ## F2 已验收范围
 
 - **T1 · F0-BASE-017**：移动平均以直接窗口求和、简单指数平滑以闭式加权和、双指数平滑以精确线性序列、加法及乘法 Winters 以逐期独立标量计算核对。共 263 项时间序列测试通过，含真实 Tk 分析、绘图、新表与导出流程。Minitab 19.1 原生 MA / SES / DES 在同一组 12 个观测上，一期拟合和三步预测一致（绝对误差小于 1e-12）；MA 与 SES 残差按相同拟合计算。加法 Winters 原生预测 34.826519、36.426928、41.001028，MiniJMP 为 31.869948、34.641288、40.037308，初始化约定不同。原生乘法及 22 实机未测。[Winters 递推与厂商初始化](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/time-series/how-to/winters-method/methods-and-formulas/methods-and-formulas/)
+- **D1 · F0-NEW-006 / 008 / 009**：逆堆叠以独立 pandas 切片与对齐验收，含标签冲突、缺失和大整数；抽样和生成检查固定种子、逐行配对及无放回约束；三类分布和边界以 SciPy 核对。真实 Tk 经菜单写新表及当前表新列，源列保持原值。19.1 原生验证不等长逆堆叠、两种抽样和正态生成的固定种子复现，以及正态 PDF 和二项 CDF 数值。泊松逆 CDF 在 p=0/0.5/1 的原生结果是 0/2/缺失，SciPy 口径是 −1/2/+∞。[厂商逆 CDF 约定](https://support.minitab.com/en-us/minitab/help-and-how-to/probability-distributions-random-data-and-resampling-analyses/supporting-topics/data/why-the-icdf-may-not-exist/)

@@ -10,7 +10,7 @@
 | P1 · Q2 量具与子组 SPC | NEW-028 未实现，Type 1 Gage Study / Gage Linearity and Bias；BASE-051 部分实现，EWMA / CUSUM | 第一批做单标准件偏倚、Cg/Cgk 和运行图；第二批核验多标准件线性和子组平滑图。验收覆盖零变差、标准值、子组大小及外部基线。 | 复用量具图形与 advanced_spc；子组方法和多标准件选项需补证。高 |
 | P1 · S2 基础推断选项与功效 | BASE-003、BASE-025 部分实现，Normality Test / Equal Variances；NEW-026 未实现，Power and Sample Size | 先做非 DOE 的一、双样本 t 功效及样本量反解，校验最小整数解。补正态性方法和全局方差检验前先落实分布假设、选项及独立参考。 | 复用基本统计菜单和 doe_power 的输入/求根模式；后两组厂商选项待补证。高 |
 | P1 · T1 时间序列扩展 | BASE-017 部分实现 | 已完成尾随移动平均、固定权重简单和双指数平滑、两周期初始化的加法与乘法 Winters。 | 居中移动平均、自动 ARIMA 权重、历史预测原点、平滑区间和 Winters 厂商初始化待办。 |
-| P1 · D1 逆堆叠与 Calc | NEW-006 部分实现，Unstack Columns；NEW-008、NEW-009 未实现，Random Data / Sample From Columns / Probability Distributions | 保留组内原序与不等长列；实现固定种子抽样及常用正态、二项、泊松概率／逆概率；验收重复标签、缺失、边界概率和当前表存储。 | 复用 modified_table、工作表状态及 SciPy；再核实厂商存储选项。中 |
+| P1 · D1 逆堆叠与 Calc | NEW-006、NEW-008、NEW-009 已实现本轮范围 | 逆堆叠、固定种子抽样与随机生成、三种分布计算和结果写表均已验收。 | 多数据列批量逆堆叠、其他分布及厂商存储、随机流和逆 CDF 端点约定待办。 |
 | P2 · Q3 罕见事件图 | NEW-031 未实现，G/T | 先 G 图，验收日期、机会数、until/between 和控制限；T 图在持续时间模型范围确认后实施。 | 复用 SPC 输出与日期转换；T 对话框待核。高 |
 | P2 · G1 实时绘图预览 | NEW-038 部分实现，Graph Builder | 在通用绘图器加入候选图型和变量变化后的预览；验收切表、取消及缺失值。 | 复用 plot_selected；依赖渲染生命周期核验。中 |
 | P2 · DOE 扩展 | SCR-002、FAC-012 部分实现，DSD / Fold Design | 按专项验收 ID 扩展有需求的分类组合与 Foldover 配置；验收设计规模、秩、别名及已有配置回归。 | 复用 doe_dsd 和 DOE 因子设计管线；先核定合法配置，保留 E02。高 |
