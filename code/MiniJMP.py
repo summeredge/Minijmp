@@ -389,11 +389,14 @@ class Minijmp(Worksheets, Minijmp_pre):
         return
 
     def plot_selected(self):
-        if hasattr(self.table, 'pf') and self.table.pf is not None:
-            self.addPlot()
-            self.table.pf.close()
-        self._call('plotSelected')
-        return
+        table = self.getCurrentTable()
+        viewer = getattr(table, '_plot_preview', None)
+        if viewer is not None:
+            viewer.main.deiconify()
+            viewer.main.lift()
+            return
+        viewer = plotting.PlotViewer(table, register=False)
+        viewer.startPreview(self.replacePlotViewer, self.getCurrentSheet())
 
     def showPlotViewer(self, parent=None, figsize=(10, 7), save_last=True, table=None,
                        deferred=False):

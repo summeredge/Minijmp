@@ -708,11 +708,13 @@ class PlotViewer(Frame):
         layout: 'horizontal' or 'vertical'
     """
 
-    def __init__(self, table, parent=None, showoptions=True):
+    _preview_publish = None
+
+    def __init__(self, table, parent=None, showoptions=True, *, register=True):
 
         self.parent = parent
         self.table = table
-        if table is not None:
+        if table is not None and register:
             self.table.pf = self #opaque ref
         #self.mode = '2d'
         self.showoptions = showoptions
@@ -741,9 +743,12 @@ class PlotViewer(Frame):
         self.gridaxes = {}
         self._role_mode = False
         self._role_columns = None
+        self._preview_after = None
         #reset style if it been set globally
         self.style = None
         self.setupGUI()
+        if self.parent is None:
+            self.main.bind('<Destroy>', self._plotDestroyed, add='+')
         self.updateStyle()
         self.currentdir = os.path.expanduser('~')
         return
@@ -772,7 +777,7 @@ class PlotViewer(Frame):
 
         side = LEFT
         #add button toolbar
-        addButton(bf, '从选区重新绘图', self.replot, images.plot(),
+        addButton(bf, '从选区重新绘图', self._redrawSelection, images.plot(),
                   PLOT_LABELS['redraw from table selection'], side=side,
                   compound="left")
         addButton(bf, '应用设置并重绘', self.updatePlot, images.refresh(),
@@ -784,7 +789,7 @@ class PlotViewer(Frame):
                   '放大', side=side)
         addButton(bf, '清除', self.clear, images.plot_clear(),
                   '清除图形', side=side)
-        addButton(bf, '保存', self.savePlot, images.save(),
+        self.save_button = addButton(bf, '保存', self.savePlot, images.save(),
                   '保存图形', side=side)
 
         self.globalvars = {}
@@ -830,6 +835,106 @@ class PlotViewer(Frame):
         from . import handlers
         self._drag_handler = handlers.DragHandler(self)
         self._drag_handler.connect()
+
+    def startPreview(self, publish, source_name):
+        self._preview_publish = publish
+        self.table._plot_preview = self
+        self.role_kinds = (*self.role_kinds, 'barh', 'histogram', 'boxplot', 'density')
+        self._plot_title = f'通用绘图器 · {source_name}'
+        self.main.title(f'{self._plot_title} · 预览')
+        self.preview_actions = Frame(self.plot_tools, padding=(4, 2))
+        self.preview_actions.pack(side=TOP, fill=X)
+        self.confirm_button = Button(self.preview_actions, text='确认图形', command=self.confirmPreview)
+        self.confirm_button.pack(side=LEFT, padx=(0, 4))
+        Button(self.preview_actions, text='取消预览', command=self.close).pack(side=LEFT)
+        self.preview_error = StringVar(self.main)
+        self.preview_status = Label(self.statusbar, textvariable=self.preview_error, wraplength=420)
+        self.preview_status.pack(side=TOP, anchor='w')
+        self._preview_traces = [(var, var.trace_add('write', self._schedulePreview))
+                                for var in (*self.mplopts.tkvars.values(), self.rangevar)]
+        self.syncRoleState()
+        self._renderPreview()
+
+    def _redrawSelection(self):
+        if self._preview_publish is None:
+            self.replot()
+            return
+        if self._preview_after is not None:
+            self.main.after_cancel(self._preview_after)
+        self._renderPreview(from_selection=True)
+
+    def _drawRoles(self):
+        if self._preview_publish is None:
+            self.plotRoles()
+        else:
+            self._role_mode = True
+            self._schedulePreview()
+
+    def _schedulePreview(self, *args):
+        if self._preview_publish is not None and self._preview_after is None:
+            # One UI event can change several related variables (e.g. Reset).
+            self._preview_after = self.main.after_idle(self._renderPreview)
+
+    def _renderPreview(self, *, from_selection=False):
+        self._preview_after = None
+        self.preview_error.set('')
+        kind = self._roleOption('kind')
+        try:
+            if (not from_selection and kind in self.role_kinds and
+                    not self.globalopts['3D plot'] and (self._role_mode or self.ycols)):
+                self.plotRoles()
+            else:
+                self._role_mode = False
+                self.replot()
+        except (ValueError, TypeError, IndexError, KeyError, ArithmeticError, tkinter.TclError) as exc:
+            self.showWarning(str(exc))
+        if not self.preview_error.get() and not any(ax.has_data() for ax in self.fig.axes):
+            self.showWarning('选区没有可绘制的数据。')
+        state = DISABLED if self.preview_error.get() else NORMAL
+        self.confirm_button.configure(state=state)
+        self.save_button.configure(state=state)
+
+    def _flushPreview(self):
+        if self._preview_after is not None:
+            self.main.after_cancel(self._preview_after)
+            self._renderPreview()
+        return not self.preview_error.get() and any(ax.has_data() for ax in self.fig.axes)
+
+    def confirmPreview(self):
+        if self._preview_publish is None or not self._flushPreview():
+            return
+        self._preview_publish(self)
+        self.table.plotted = 'main'
+        self._endPreview()
+        self.preview_actions.destroy()
+        self.preview_status.destroy()
+        self.main.title(self._plot_title)
+
+    def _endPreview(self):
+        if self._preview_publish is None:
+            return
+        if self._preview_after is not None:
+            self.main.after_cancel(self._preview_after)
+            self._preview_after = None
+        for var, trace in self._preview_traces:
+            var.trace_remove('write', trace)
+        self._preview_publish = None
+        self.table._plot_preview = None
+
+    def _plotDestroyed(self, event):
+        if event.widget is self.main:
+            try:
+                if self.animateopts.running:
+                    self.animateopts.stop()
+            finally:
+                self._releasePlot()
+
+    def _releasePlot(self):
+        self._endPreview()
+        for table in (self.table, getattr(self.table, 'child', None)):
+            if getattr(table, 'pf', None) is self:
+                table.pf = None
+        self._drag_handler = None
 
     def _flow_panelhead(self, event=None):
         """Stack the panel switches when the dock is narrow."""
@@ -974,7 +1079,7 @@ class PlotViewer(Frame):
                                    values=['全部行', '选中行'])
         self.rangecombo.grid(row=1, column=1, sticky='ew')
         icon = images.plot()
-        self.roleplotbtn = Button(plot, text='绘图', command=self.plotRoles,
+        self.roleplotbtn = Button(plot, text='绘图', command=self._drawRoles,
                                   image=icon, compound='left')
         self.roleplotbtn.image = icon
         self.roleplotbtn.grid(row=2, column=0, sticky='ew', pady=(3, 0), padx=(0, 3))
@@ -1099,6 +1204,9 @@ class PlotViewer(Frame):
         finally:
             self._syncingRole = False
         self.setRoleMessage('')
+        if self._preview_publish is not None:
+            self._role_mode = True
+            self._schedulePreview()
 
     def _roleByChanged(self, *args):
         """A group chosen in Basic Options is the same state as the new control."""
@@ -1139,17 +1247,18 @@ class PlotViewer(Frame):
             return
         kind = self._roleOption('kind')
         supported = kind in self.role_kinds and not self.globalopts['3D plot']
-        for widget in (self.xcombo, self.bycombo):
-            widget.configure(state='readonly' if supported else 'disabled')
+        self.xcombo.configure(state='readonly' if supported and kind not in
+                              ('histogram', 'boxplot', 'density') else 'disabled')
+        self.bycombo.configure(state='readonly' if supported else 'disabled')
         self.ylistbox.configure(state=NORMAL if supported else DISABLED)
         self.roleplotbtn.configure(state=NORMAL if supported else DISABLED)
         if kind not in self.role_kinds:
-            self.setRoleMessage('列角色适用于折线图、散点图、条形图和面积图；'
-                                '其他类型请在“基本选项”中设置。')
+            self.setRoleMessage('此图形使用工作表选区。')
         elif self.globalopts['3D plot']:
             self.setRoleMessage('三维图形不使用列角色配置。')
         else:
-            hint = ('散点图需要 X 轴列。' if kind == 'scatter'
+            hint = ('选择要绘制的 Y 轴列。' if kind in ('histogram', 'boxplot', 'density')
+                    else '散点图需要 X 轴列。' if kind == 'scatter'
                     else 'X 轴留空时使用行索引。')
             self.setRoleMessage(hint + '分组列可不选。')
 
@@ -1197,6 +1306,12 @@ class PlotViewer(Frame):
         """Build the plotting frame from explicit X, Y and group roles."""
 
         xcol, ycols, groupcol = self.xcol, list(self.ycols), self.groupcol
+        if kind in ('histogram', 'boxplot', 'density'):
+            xcol = None
+        if not df.columns.is_unique:
+            raise ValueError('工作表含重复列名，请先区分列名。')
+        if groupcol is not None and groupcol not in df.columns:
+            raise ValueError('分组列已不在来源工作表，请重新选择。')
         if not ycols:
             raise ValueError('请至少选择一个 Y 轴列。')
         for column in ycols + ([xcol] if xcol is not None else []):
@@ -1207,10 +1322,12 @@ class PlotViewer(Frame):
         if kind == 'scatter' and xcol is not None and any(
                 self._roleColumnIndex(xcol) == self._roleColumnIndex(y) for y in ycols):
             raise ValueError('散点图的 X 轴列与 Y 轴列不能是同一个源列，请重新选择。')
-        if xcol is not None and kind == 'scatter' and not pd.api.types.is_numeric_dtype(df[xcol]):
+        if xcol is not None and kind == 'scatter' and (
+                not pd.api.types.is_numeric_dtype(df[xcol]) or pd.api.types.is_complex_dtype(df[xcol])):
             raise ValueError('散点图的 X 轴列“%s”不是数值列。' % xcol)
         for column in ycols:
-            if not pd.api.types.is_numeric_dtype(df[column]):
+            if (not pd.api.types.is_numeric_dtype(df[column]) or
+                    pd.api.types.is_complex_dtype(df[column])):
                 raise ValueError('Y 轴列“%s”不是可绘图的数值列。' % column)
         by2 = self._roleOption('by2')
         groups = [groupcol] if groupcol is not None else []
@@ -1245,7 +1362,10 @@ class PlotViewer(Frame):
         if kind == 'scatter':
             display = self._roleColumnText(xcol)
             xlabel = self._uniqueColumns([display], used=plotdata.columns)[0]
-            plotdata.insert(0, xlabel, pd.to_numeric(work[xcol], errors='coerce'))
+            x = pd.to_numeric(work[xcol], errors='coerce')
+            if self._preview_publish is not None and not (x.notna() & plotdata.notna().any(axis=1)).any():
+                raise ValueError('选定的 X 和 Y 列没有成对的有效观测。')
+            plotdata.insert(0, xlabel, x)
         elif xcol is not None:
             plotdata.index = pd.Index(work[xcol].to_numpy(),
                                       name=self._roleColumnText(xcol))
@@ -1303,6 +1423,8 @@ class PlotViewer(Frame):
             self.globalopts[name] = self.globalvars[name].get()
             if name == '3D plot' and hasattr(self, 'kindcombo'):
                 self.syncRoleState()
+            if name in ('3D plot', 'grid layout'):
+                self._schedulePreview()
             #print (self.globalopts)
         except:
             logging.error("Exception occurred", exc_info=True)
@@ -1362,6 +1484,14 @@ class PlotViewer(Frame):
                 names += ' 等 %d 列' % len(data.columns)
             text = '当前绘图数据（工作表选区）：%d 行 × %d 列｜%s' % (
                 len(data), len(data.columns), names)
+        if self._preview_publish is not None and data is not None and not data.empty:
+            checked = data
+            if self._role_mode:
+                columns = [col for col in [self.xcol, *self.ycols, self.groupcol]
+                           if col is not None and col in data.columns]
+                checked = data[columns]
+            if checked.isna().to_numpy().any():
+                text += '｜含缺失值'
         self.inputvar.set(text)
         return text
 
@@ -1377,6 +1507,9 @@ class PlotViewer(Frame):
     def updatePlot(self):
         """Update the current plot with new options, keeping its data."""
 
+        if self._preview_publish is not None:
+            self._schedulePreview()
+            return
         self.applyPlotoptions()
         if getattr(self, '_role_mode', False):
             if self.globalopts['3D plot'] or self._roleOption('kind') not in self.role_kinds:
@@ -1392,7 +1525,7 @@ class PlotViewer(Frame):
     def refreshCurrent(self):
         """Re-draw with the active source: column roles or table selection."""
 
-        if getattr(self, '_role_mode', False):
+        if self._preview_publish is not None or getattr(self, '_role_mode', False):
             self.updatePlot()
         else:
             self.replot()
@@ -1441,7 +1574,10 @@ class PlotViewer(Frame):
         self.fig.clear()
         self.ax = None
         self.canvas.draw()
-        self.table.plotted=None
+        if self._preview_publish is not None:
+            self.showWarning('图形已清除，请调整选项或重新绘图。')
+        else:
+            self.table.plotted = None
         self.gridaxes = {}
         return
 
@@ -1643,8 +1779,9 @@ class PlotViewer(Frame):
             by = by2 = ''
             useindex = True
         #print (kwds)
-        if self._checkNumeric(data) == False and kind != 'venn':
-            self.showWarning('no numeric data to plot')
+        if kind != 'venn' and (self._checkNumeric(data) == False or
+                (self._preview_publish is not None and not data.select_dtypes(include='number').notna().to_numpy().any())):
+            self.showWarning('选区没有可绘制的数值。')
             return
 
         kwds['edgecolor'] = 'black'
@@ -2479,6 +2616,8 @@ class PlotViewer(Frame):
     def savePlot(self, filename=None):
         """Save the current plot"""
 
+        if self._preview_publish is not None and not self._flushPreview():
+            return
         ftypes = [('png','*.png'),('jpg','*.jpg'),('tif','*.tif'),('pdf','*.pdf'),
                     ('eps','*.eps'),('svg','*.svg')]
         if filename == None:
@@ -2494,6 +2633,11 @@ class PlotViewer(Frame):
     def showWarning(self, text='plot error', ax=None):
         """Show warning message in the plot window"""
 
+        if self._preview_publish is not None:
+            self.preview_error.set(str(text))
+            self.confirm_button.configure(state=DISABLED)
+            self.save_button.configure(state=DISABLED)
+            return
         if ax==None:
             ax = self.fig.add_subplot(111)
         ax.clear()
@@ -2521,15 +2665,17 @@ class PlotViewer(Frame):
         return
 
     def close(self):
-        """Close the window"""
+        """Close the window without disturbing another viewer on the same sheet."""
 
-        self.table.pf = None
+        if not self.main.winfo_exists():
+            return
         try:
             self.animateopts.stop()
         finally:
-            self._drag_handler = None
+            if self.parent is not None:
+                self._releasePlot()
             self.main.destroy()
-        return
+
 
 class TkOptions(object):
     """Class to generate tkinter widget dialog for dict of options"""

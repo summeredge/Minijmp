@@ -207,10 +207,7 @@ def test_options_toggle_and_close_restore_state(tk_root, tmp_path):
         table.destroy()
 
 
-def test_help_anchor_and_plot_selected_callback_stay_compatible(tk_root):
-    from types import SimpleNamespace
-    from unittest.mock import Mock
-    from MiniJMP import Minijmp
+def test_general_plotter_help_anchor_stays_compatible():
     import json
     from pathlib import Path
 
@@ -221,10 +218,6 @@ def test_help_anchor_and_plot_selected_callback_stay_compatible(tk_root):
     assert topic['entry'] == 'MiniJMP.plot_selected'
     assert (root / 'help/pages/graphs.html').read_text(encoding='utf-8').count(
         'id="plots.plot_wizard"') == 1
-    table = SimpleNamespace(pf=None)
-    app = SimpleNamespace(table=table, _call=Mock(), addPlot=Mock())
-    Minijmp.plot_selected(app)
-    app._call.assert_called_once_with('plotSelected')
 
 
 def test_showoptions_false_initializes_hidden_and_cycles(tk_root, tmp_path):

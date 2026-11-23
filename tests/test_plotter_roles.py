@@ -309,3 +309,105 @@ def test_linked_formula_results_flow_into_replotted_roles(tk_root):
         viewer.close()
         table.destroy()
         frame.destroy()
+
+
+def test_menu_preview_updates_saves_and_cancels_on_its_source(tk_root, monkeypatch, tmp_path):
+    from MiniJMP import Minijmp
+    from test_regression_dialog import dispose
+
+    monkeypatch.setattr(Minijmp, 'start_logging', lambda self: None)
+    errors = []
+    monkeypatch.setattr(tk_root, 'report_callback_exception', lambda *args: errors.append(args))
+    app = Minijmp(parent=tk_root)
+    source = app.addSheet('来源', DATA.copy())
+    source.multiplecollist = [0, 1]
+    source.multiplerowlist = [0, 1, 2, 3]
+    previous = app.showPlotViewer()
+    previous.fig.add_subplot().plot([10, 20], [30, 40])
+    try:
+        menu = app.plots_menu['var']
+        entry = next(i for i in range(menu.index('end') + 1)
+                     if menu.type(i) == 'command' and menu.entrycget(i, 'label').strip() == '通用绘图器')
+        menu.invoke(entry)
+        viewer = source._plot_preview
+        assert viewer is not previous and source.pf is previous
+        assert len(viewer.ax.lines) == 2
+        viewer.kindcombo.current(viewer.mplopts.kinds.index('scatter'))
+        viewer.kindcombo.event_generate('<<ComboboxSelected>>')
+        viewer.xcombo.current(3)
+        viewer.ylistbox.selection_set(0)
+        viewer.xcombo.event_generate('<<ComboboxSelected>>')
+        viewer.main.update()
+        np.testing.assert_allclose(scatter_offsets(viewer)[0], DATA[['流量', '温度']])
+        viewer.ylistbox.selection_clear(0, 'end')
+        viewer.ylistbox.selection_set(1)
+        viewer.ylistbox.event_generate('<<ListboxSelect>>')
+        viewer.main.update()
+        np.testing.assert_allclose(scatter_offsets(viewer)[0], DATA[['流量', '压力']])
+        assert not viewer.save_button.instate(['disabled'])
+
+        other = app.addSheet('其他', pd.DataFrame({'温度': [999.], '流量': [1000.]}))
+        assert app.getCurrentTable() is other
+        viewer.mplopts.tkvars['kind'].set('histogram')
+        viewer.mplopts.tkvars['bins'].set(7)
+        viewer.main.update()
+        assert viewer.table is source
+        assert len(viewer.ax.patches) == 7
+        viewer.savePlot(str(tmp_path / 'preview.png'))
+        assert (tmp_path / 'preview.png').stat().st_size > 1000
+        assert source.pf is previous and not app.plots and getattr(other, 'pf', None) is None
+        viewer.close()
+        assert source.pf is previous and source._plot_preview is None and not app.plots
+
+        app.nb.select(app.sheetframes['来源'])
+        app._sheet_changed()
+        app.plot_selected()
+        viewer = source._plot_preview
+        app.nb.select(app.sheetframes['其他'])
+        app._sheet_changed()
+        viewer.confirm_button.invoke()
+        assert source.pf is viewer and source._plot_preview is None and getattr(other, 'pf', None) is None
+        assert not previous.main.winfo_exists()
+        assert next(iter(app.plots)).startswith('来源 ')
+        archived = next(iter(app.plots.values()))
+        assert any(list(line.get_ydata()) == [30, 40] for ax in archived.axes for line in ax.lines)
+        viewer.main.destroy()
+        assert source.pf is None
+        assert not errors
+    finally:
+        dispose(app)
+
+
+def test_preview_reports_invalid_roles_and_removes_pending_update(tk_root):
+    data = pd.DataFrame({'X': [1., np.nan], 'Y': [np.nan, 2.], '标签': ['a', 'b']})
+    table, frame, viewer = make_viewer(tk_root, data)
+    try:
+        table.multiplecollist = [0, 1]
+        table.multiplerowlist = [0, 1]
+        viewer.startPreview(lambda pending: None, '来源')
+        assert '缺失值' in viewer.inputvar.get()
+        viewer.mplopts.tkvars['kind'].set('scatter')
+        viewer.xcombo.current(1)
+        viewer.ylistbox.selection_set(1)
+        viewer.xcombo.event_generate('<<ComboboxSelected>>')
+        viewer.main.update()
+        assert '成对' in viewer.preview_error.get()
+        assert viewer.confirm_button.instate(['disabled'])
+        assert viewer.save_button.instate(['disabled'])
+
+        viewer.ylistbox.selection_clear(0, 'end')
+        viewer.ylistbox.selection_set(2)
+        viewer.ylistbox.event_generate('<<ListboxSelect>>')
+        viewer.main.update()
+        assert '数值列' in viewer.preview_error.get()
+
+        viewer.mplopts.tkvars['kind'].set('line')
+        assert viewer._preview_after is not None
+        viewer.main.destroy()
+        tk_root.update()
+        assert viewer._preview_after is None
+        assert table._plot_preview is None
+    finally:
+        viewer.close()
+        table.destroy()
+        frame.destroy()

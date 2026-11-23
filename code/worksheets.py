@@ -654,7 +654,7 @@ class Worksheets:
         child_viewer = getattr(getattr(table, 'child', None), 'pf', None)
         if child_viewer is not None and child_viewer is not getattr(table, 'pf', None):
             child_viewer.close()
-        for attr in ('tOut', 'pf'):
+        for attr in ('tOut', '_plot_preview', 'pf'):
             viewer = getattr(table, attr, None)
             if viewer is not None:
                 viewer.close()
