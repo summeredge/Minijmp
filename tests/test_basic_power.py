@@ -8,6 +8,7 @@ from statsmodels.stats.power import TTestPower, TTestIndPower, FTestAnovaPower
 
 from basic_power import basic_power
 from utilities import normality_option
+from test_csv_import import csv_app
 
 
 @pytest.mark.parametrize('direction, sm_direction', [('greater','larger'),('less','smaller'),('two-sided','two-sided')])
@@ -119,5 +120,80 @@ def test_graphical_multiple_comparisons_equal_sizes():
     p, bounds = equal_variances_mc(shifted)
     assert p < .05
     assert bounds[2,0] > bounds[:2,1].max()
-    with pytest.raises(ValueError,match='样本量相同'):
-        equal_variances_mc([*groups[:2],groups[2][1:]])
+
+
+@pytest.mark.parametrize('lengths', [(9,15,21,15), (15,15,15,15)])
+def test_graphical_multiple_comparisons_against_integral_and_least_squares(lengths):
+    from itertools import combinations
+    from scipy.integrate import quad
+    from scipy.optimize import brentq
+    from chi_sq import equal_variances_mc
+
+    rng = np.random.default_rng(61)
+    groups = [rng.normal(size=n)*scale for n, scale in zip(lengths, [1, 1.3, 1.6, 1.2])]
+    k = len(groups)
+    pairs = list(combinations(range(k), 2))
+    incidence = np.zeros((len(pairs), k))
+    widths = []
+    for row, (i, j) in enumerate(pairs):
+        incidence[row, [i,j]] = 1
+        a, b = groups[i], groups[j]
+        moments = []
+        for g in (a,b):
+            trim = int(len(g)/(2*sqrt(len(g)-4)))
+            trimmed = sorted(g)[trim:len(g)-trim]
+            moments.append(sum((value-np.mean(trimmed))**4 for value in g))
+        pooled = (len(a)+len(b))*sum(moments)/sum(
+            sum((value-g.mean())**2 for value in g) for g in (a,b))**2
+        widths.append(sqrt(sum((pooled-1+3/len(g))/(len(g)-1) for g in (a,b))))
+    fitted = np.linalg.lstsq(incidence, widths, rcond=None)[0]
+    sizes = np.array(lengths)
+    std = np.array([g.std(ddof=1) for g in groups])
+
+    def normal_range_cdf(q):
+        return k*quad(lambda t: stats.norm.pdf(t)*(stats.norm.cdf(t+q)-stats.norm.cdf(t))**(k-1),
+                      -12, 12, epsabs=1e-12)[0]
+
+    def bounds_at(q, correction):
+        center = std/np.sqrt(1-correction/sizes)
+        factor = np.exp(q*fitted/(2*sqrt(2)))
+        return center/factor, center*factor
+
+    alpha = .05
+    q = brentq(lambda q: normal_range_cdf(q) - (1-alpha), 0, 8)
+    correction = stats.norm.isf(alpha/2) if len(set(lengths)) == 1 else q/sqrt(2)
+    p, bounds = equal_variances_mc(groups, alpha)
+    np.testing.assert_allclose(bounds, np.column_stack(bounds_at(q, correction)), rtol=1e-10)
+
+    def separation(q):
+        low, high = bounds_at(q, q/sqrt(2))
+        return low.max()-high.min()
+
+    contact = brentq(separation, 0, 6)
+    assert p == pytest.approx(1-normal_range_cdf(contact), abs=1e-10)
+    reverse_p, reverse_bounds = equal_variances_mc(groups[::-1], alpha)
+    assert reverse_p == pytest.approx(p, abs=1e-12)
+    np.testing.assert_allclose(reverse_bounds[::-1], bounds)
+
+def test_unequal_variance_dialog_publishes_intervals_to_source(csv_app):
+    from sample_test_dialog import MultiVarDialog
+
+    app, error = csv_app
+    groups = [pd.Series(np.arange(n)**1.3) for n in (10, 15, 25)]
+    source = pd.concat(groups, axis=1)
+    source.columns = ['A', 'B', 'C']
+    app.addSheet('方差来源', source)
+    table = app.getCurrentTable()
+    dialog = MultiVarDialog(table, source, app=app)
+    dialog.grpcols = list(source.columns)
+    dialog.mc.set(True)
+    dialog.bartlett.set(True)
+    app.addSheet('其他工作表', pd.DataFrame({'Y':[1]}))
+    dialog.apply()
+    ax = table.pf.fig.axes[0]
+    assert len(ax.collections[0].get_segments()) == 3
+    assert [tick.get_text() for tick in ax.get_yticklabels()] == list(source.columns)
+    assert getattr(app.getCurrentTable(), 'pf', None) is None
+    assert table.tOut is not None
+    error.assert_not_called()
+    dialog.quit()

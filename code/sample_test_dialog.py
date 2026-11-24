@@ -446,7 +446,7 @@ class MultiVarDialog(Dialogs):
         ttk.Checkbutton(m, text='附加 Bartlett 全局检验（正态总体）',
                         variable=self.bartlett).pack(anchor='w')
         self.mc = tk.BooleanVar(m, False)
-        ttk.Checkbutton(m, text='附加图形多重比较（等样本量）', variable=self.mc).pack(anchor='w')
+        ttk.Checkbutton(m, text='附加图形多重比较（至少三组）', variable=self.mc).pack(anchor='w')
         self.add_alpha(m)
         return
 
@@ -491,15 +491,36 @@ class MultiVarDialog(Dialogs):
             except ValueError as exc:
                 self.error(str(exc))
                 return
-            self.app.print(f'图形多重比较的全局 p = {pvalue:.6g}。区间用于组间比较。')
+            self.app.print(f'Banga–Fox 图形多重比较的全局 p = {pvalue:.6g}。区间用于组间比较。')
             self.app.print(StatTable(title='标准差多重比较区间',
                                     headers=['组别', '下界', '上界'],
                                     values=[(label, *bounds) for label,bounds in zip(self.grpcols,intervals)]))
+            self._plot_mc(intervals)
         multi_pop_var_test(data, self.grpcols, print_out=True,
                            print_port=self.app.print,
                            alpha=alpha)
         self.remember_columns()
         return
+
+    def _plot_mc(self, intervals):
+        from chart_style import style_axes
+
+        viewer = self.app.showPlotViewer(deferred=True)
+        try:
+            ax = viewer.fig.add_subplot(111)
+            positions = range(len(self.grpcols))
+            ax.hlines(positions, intervals[:, 0], intervals[:, 1])
+            ax.plot(intervals.ravel(), [i for i in positions for _ in range(2)], '|')
+            ax.set(yticks=list(positions), yticklabels=self.grpcols,
+                   xlabel='标准差', title='标准差多重比较区间')
+            ax.invert_yaxis()
+            style_axes(ax)
+            viewer.canvas.draw()
+            self.app.replacePlotViewer(viewer)
+            viewer.main.deiconify()
+        except Exception:
+            viewer.close()
+            raise
 
 
 class Prop1SDialog(Dialogs):

@@ -565,34 +565,71 @@ if __name__ == "__main__":
     chi_square([[2, 1], [0, 2], [1, 0]])
     chi_square([[138, 165], [5e9, 5e9]])
 
+def _mc_directional_root(log_ratio, ni, nj, width):
+    """Banga–Fox §3.1 的左根。非正根的正态极差上尾概率为 1。"""
+    from scipy.optimize import brentq
+
+    def equation(z):
+        return log_ratio + np.log1p(-z/nj) - np.log1p(-z/ni) - z*width
+
+    if ni < nj:
+        delta = nj-ni
+        # 左根所在的单调区间截止于 L 的唯一极小点。
+        upper = ni - (2*delta/width)/(np.sqrt(delta**2+4*delta/width)+delta)
+        if equation(upper) > 0:
+            return np.inf  # 论文规定该方向的尾概率取 0。
+        if upper <= 0:
+            return 0.
+    else:
+        upper = np.nextafter(float(nj), 0.)
+        if equation(upper) > 0:
+            return upper  # 根与奇点的距离小于浮点分辨率。
+    return brentq(equation, 0., upper) if log_ratio > 0 else 0.
+
+
 def equal_variances_mc(data, alpha=.05):
-    """Banga–Fox graphical multiple comparisons for equal sample sizes."""
+    """Banga–Fox graphical multiple comparisons for three or more groups."""
     from itertools import combinations
     from scipy.stats import norm, studentized_range, trim_mean
 
     k = len(data)
-    if k < 3 or not 0 < alpha < 1 or len({len(group) for group in data}) != 1:
-        raise ValueError('图形多重比较需要至少三组且样本量相同。')
-    n = len(data[0])
-    values = np.asarray(data, dtype=float)
-    if n < 5 or not np.isfinite(values).all():
+    if k < 3 or not 0 < alpha < 1:
+        raise ValueError('图形多重比较需要至少三组，且显著性水平须介于 0 和 1。')
+    values = [np.asarray(group, dtype=float) for group in data]
+    n = np.array([len(group) for group in values])
+    if np.any(n < 5) or any(not np.isfinite(group).all() for group in values):
         raise ValueError('各组至少需要五个有限观测。')
-    log_var = np.log(np.var(values, axis=1, ddof=1)) if np.ptp(values, axis=1).all() else None
-    if log_var is None or not np.isfinite(log_var).all():
+    variances = np.array([np.var(group, ddof=1) for group in values])
+    if not np.all(np.isfinite(variances) & (variances > 0)):
         raise ValueError('各组必须有正且有限的样本方差。')
-    centers = trim_mean(values, proportiontocut=1/(2*np.sqrt(n-4)), axis=1)
-    fourth = np.sum((values-centers[:,None])**4, axis=1)
-    ss = np.sum((values-values.mean(axis=1,keepdims=True))**2,axis=1)
-    pair = list(combinations(range(k), 2))
-    i, j = np.asarray(pair).T
-    pooled = 2*n*(fourth[i]+fourth[j])/(ss[i]+ss[j])**2
-    widths = np.sqrt(2*(pooled-(n-3)/n)/(n-1))
-    incident = np.bincount(i,weights=widths,minlength=k)+np.bincount(j,weights=widths,minlength=k)
+    log_var = np.log(variances)
+    fourth = np.array([np.sum((group-trim_mean(group, 1/(2*np.sqrt(size-4))))**4)
+                       for group, size in zip(values, n)])
+    ss = np.array([np.sum((group-group.mean())**2) for group in values])
+    i, j = np.asarray(list(combinations(range(k), 2))).T
+    ni, nj = n[i], n[j]
+    pooled = (ni+nj)*(fourth[i]+fourth[j])/(ss[i]+ss[j])**2
+    widths = np.sqrt((pooled-(ni-3)/ni)/(ni-1) + (pooled-(nj-3)/nj)/(nj-1))
+    incident = np.bincount(i, weights=widths, minlength=k)+np.bincount(j, weights=widths, minlength=k)
     fitted = (incident-widths.sum()/(k-1))/(k-2)
-    if not np.all(np.isfinite(fitted)&(fitted>0)):
+    if not np.all(np.isfinite(fitted) & (fitted > 0)):
         raise ValueError('无法构造正宽度的图形比较区间。')
-    q = np.sqrt(2)*np.abs(log_var[i]-log_var[j])/(fitted[i]+fitted[j])
-    p = studentized_range.sf(np.max(q), k, np.inf)
-    mid = .5*(log_var-np.log1p(-norm.isf(alpha/2)/n))
-    margin = studentized_range.isf(alpha,k,np.inf)*fitted/(2*np.sqrt(2))
-    return float(p), np.exp(np.column_stack((mid-margin,mid+margin)))
+    gaps, pair_widths = log_var[i]-log_var[j], fitted[i]+fitted[j]
+    roots = np.abs(gaps)/pair_widths
+    for index in np.flatnonzero(ni != nj):
+        a, b = ni[index], nj[index]
+        gap, width = gaps[index], pair_widths[index]
+        roots[index] = max(_mc_directional_root(gap, a, b, width),
+                           _mc_directional_root(-gap, b, a, width))
+    root = np.max(roots)
+    p = 0. if np.isinf(root) else studentized_range.sf(np.sqrt(2)*root, k, np.inf)
+    critical = studentized_range.isf(alpha, k, np.inf)/np.sqrt(2)
+    balanced = np.all(n == n[0])
+    # 不等量按 §3.2 反演，修正项和区间宽度使用同一个临界值。
+    # 等量修正项仅同比例缩放区间，保留原有显示约定。
+    correction = norm.isf(alpha/2) if balanced else critical
+    if correction >= min(n):
+        raise ValueError('显著性水平过小，无法计算图形比较区间的样本量修正。')
+    mid = .5*(log_var-np.log1p(-correction/n))
+    margin = critical*fitted/2
+    return float(p), np.exp(np.column_stack((mid-margin, mid+margin)))
