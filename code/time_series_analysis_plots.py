@@ -141,7 +141,10 @@ def time_series_analysis_plot(result, kind, figure, on_pick=None):
             _, valid = time_line(axis, table, 'smoothed', '平滑', mapped=False)
             future = result.tables['forecast']
             if not future.empty:
-                time_line(axis, future, 'predicted', '预测', mapped=False)
+                line, mask = time_line(axis, future, 'predicted', '预测', mapped=False)
+                if {'ci_lower', 'ci_upper'} <= set(future):
+                    axis.fill_between(line.get_xdata(), future.ci_lower, future.ci_upper,
+                                      where=mask, color=line.get_color(), alpha=.2, label='预测区间')
             axis.set(ylabel='数值', title='平滑与预测')
             axis.legend()
         elif kind == 'trend':

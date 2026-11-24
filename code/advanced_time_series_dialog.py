@@ -13,7 +13,7 @@ from sheet_context import SheetApp, export_source_labels
 from stat_table import StatTable, TableBlock
 
 
-TITLES = {'smoothing': '平滑与拟合', 'summary': '模型摘要', 'prepared': '分析数据', 'acf': '自相关', 'pacf': '偏自相关',
+TITLES = {'model_selection': '模型比较', 'smoothing': '平滑与拟合', 'summary': '模型摘要', 'prepared': '分析数据', 'acf': '自相关', 'pacf': '偏自相关',
           'ccf': '交叉相关', 'stationarity': '平稳性检验', 'decomposition': '季节分解',
           'trend': '趋势分析', 'residuals': '模型残差', 'forecast': '预测', 'diagnostics': '残差诊断',
           'coefficients': '模型参数', 'data': '分析数据', 'status': '各项执行状态',
@@ -38,7 +38,7 @@ HEADERS = {'smoothed': '平滑值', 'source_row': '来源行号', 'source_rows':
            'converged': '收敛', 'burn': '诊断起始扣除步数', 'alpha': '显著性水平',
            'diagnostic_used': '用于残差诊断', 'df': '自由度'}
 ANALYSES = {'相关分析': 'correlation', '趋势与季节分解': 'decomposition', '平稳性检验': 'stationarity',
-            'ARIMA 建模': 'ARIMA', 'SARIMA 建模': 'SARIMA', '全部分析': 'all'}
+            'ARIMA 建模': 'ARIMA', 'SARIMA 建模': 'SARIMA', '自动选择 ARIMA': 'auto_arima', '全部分析': 'all'}
 SMOOTHING_OPTIONS = {'移动平均': 'moving_average', '简单指数平滑': 'single_exponential',
                      '双指数平滑': 'double_exponential', 'Winters 平滑': 'winters'}
 ANALYSES.update(SMOOTHING_OPTIONS)
@@ -90,10 +90,12 @@ class TimeSeriesAnalysisDialog:
             (('missing', '缺失值', '报错', ['报错', '删除不完整行']), ('duplicates', '重复时间戳', '报错', ['报错', '保留首个', '保留末个', '均值聚合'])),
             (('irregular', '不规则采样', '报错', ['报错', '按观测顺序等距']), ('period', '季节周期（样本数）', '12', None)),
             (('decomposition', '季节模式', '加法', ['加法', '乘法']), ('forecast_steps', '预测步数', '10', None)),
-            (('order', 'ARIMA 阶数 p,d,q', '1,0,0', None), ('seasonal_order', '季节阶数 P,D,Q,s', '0,0,0,0', None)),
+            (('order', 'ARIMA 阶数／搜索上限 p,d,q', '1,0,0', None), ('seasonal_order', '季节阶数／搜索上限 P,D,Q,s', '0,0,0,0', None)),
             (('confidence', '置信水平（%）', '95', None), ('window', '移动平均窗口', '3', None)),
             (('level_weight', '水平权重', '0.2', None), ('trend_weight', '趋势权重', '0.2', None)),
-            (('seasonal_weight', '季节权重', '0.2', None), None),
+            (('seasonal_weight', '季节权重', '0.2', None), ('winters_init', 'Winters 初始化', '两周期', ['两周期', '回归（加法）'])),
+            (('origin', '预测原点（可选）', '', None), ('criterion', '自动 ARIMA 准则', 'AICc', ['AICc','AIC','BIC'])),
+            (('centered', '移动平均对齐', '尾随', ['尾随','居中']), ('smoothing_interval', '平滑区间', '不计算', ['不计算','计算'])),
         ]
         for row, pair in enumerate(specs):
             for col, spec in zip((0, 2), pair):
@@ -144,7 +146,7 @@ class TimeSeriesAnalysisDialog:
     def options(self):
         fields = {key: value.get().strip() for key, value in self.fields.items()}
         analysis = ANALYSES[fields['analysis']]
-        model = analysis in ('ARIMA', 'SARIMA', 'all')
+        model = analysis in ('ARIMA', 'SARIMA', 'auto_arima', 'all')
         smoothing = analysis in SMOOTHING_OPTIONS.values()
         return dict(y=fields['y'], time=fields['time'] or None,
                     other=(fields['other'] or None) if ANALYSES[fields['analysis']] in ('correlation', 'all') else None,
@@ -157,7 +159,12 @@ class TimeSeriesAnalysisDialog:
                     order=tuple(int(x.strip()) for x in fields['order'].split(',')) if model else (1, 0, 0),
                     seasonal_order=tuple(int(x.strip()) for x in fields['seasonal_order'].split(',')) if model else (0, 0, 0, 0),
                     forecast_steps=int(fields['forecast_steps']) if model or smoothing else 10,
-                    alpha=.05 if smoothing else 1-float(fields['confidence'])/100,
+                    alpha=1-float(fields['confidence'])/100 if not smoothing or fields['smoothing_interval'] == '计算' else .05,
+                    centered=fields['centered'] == '居中',
+                    origin=int(fields['origin']) if fields['origin'] else None,
+                    smoothing_interval=fields['smoothing_interval'] == '计算',
+                    winters_init='regression' if fields['winters_init'] == '回归（加法）' else 'two_cycle',
+                    arima_criterion=fields['criterion'],
                     window=int(fields['window']) if analysis == 'moving_average' else 3,
                     level_weight=float(fields['level_weight']) if smoothing and analysis != 'moving_average' else .2,
                     trend_weight=float(fields['trend_weight']) if analysis in ('double_exponential', 'winters') else .2,

@@ -162,3 +162,28 @@ def test_moving_average_gui_plots_and_stores_result(tk_root, monkeypatch):
     finally:
         dialog.close()
         dispose(app)
+
+def test_centered_historical_smoothing_gui(tk_root, monkeypatch, tmp_path):
+    dialog, app, source, data = make_dialog(tk_root, monkeypatch)
+    try:
+        dialog.fields['analysis'].set('移动平均')
+        dialog.fields['centered'].set('居中')
+        dialog.fields['origin'].set('20')
+        dialog.fields['smoothing_interval'].set('计算')
+        dialog.fields['window'].set('4')
+        dialog.run_button.invoke()
+        finish(tk_root, dialog)
+        future = dialog.tables['forecast']
+        assert future.time.iloc[0] == data['时间'].iloc[20]
+        assert future.ci_upper.gt(future.ci_lower).all()
+        dialog.plot_kind.set('平滑与预测')
+        dialog.plot()
+        dialog.error.assert_not_called()
+        assert source.pf.fig.axes[0].collections
+        path = tmp_path/'historical.png'
+        source.pf.savePlot(str(path))
+        with Image.open(path) as image:
+            image.verify()
+    finally:
+        dialog.close()
+        dispose(app)

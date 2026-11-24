@@ -48,7 +48,7 @@ CCF: 每个滞后独立重叠段 Pearson corr(Y_t, X_{t-k})，k>0 是 X 领先 Y
 ADF: regression='c', autolag=None，lags 上限 min(请求, n//2-2)，H0 单位根，
 左尾；MacKinnon p/临界值。KPSS: regression='c'，Bartlett HAC，带宽
 min(请求,n-1)，H0 水平平稳，右尾；p 为临界表插值且须报告超界方向。
-ARIMA/SARIMA: statsmodels ARIMA 状态空间高斯极大似然，无自动搜参；不差分
+ARIMA/SARIMA: statsmodels ARIMA 状态空间高斯极大似然；自动搜索在固定差分阶数内比较；不差分
 默认常数，差分默认无趋势。固定参数条件下的未来观测预测区间（不是均值
 置信区间，未含参数估计不确定性）。Ljung-Box 使用去 burn 的创新残差，
 df=lag-(p+q+P+Q)；df<=0 的 p 值不可用，不解释为通过。rmse 同样去 burn。
@@ -73,6 +73,7 @@ import numpy as np
 import pandas as pd
 from pandas.api.types import (is_numeric_dtype, is_bool_dtype, is_complex_dtype,
                               is_datetime64_any_dtype)
+from scipy import stats
 from statsmodels.regression.linear_model import OLS
 from statsmodels.stats.diagnostic import acorr_ljungbox
 from statsmodels.tsa.arima.model import ARIMA
@@ -340,7 +341,7 @@ def _weight(value, label):
 
 
 def _smooth(data, step, method, steps, window, level_weight, trend_weight,
-            seasonal_weight, period, mode, cancel, notes):
+            seasonal_weight, period, mode, cancel, notes, centered, intervals, alpha, winters_init):
     y = data.value.to_numpy()
     fitted = np.full(len(y), np.nan)
     horizons = np.arange(1, steps + 1)
@@ -348,9 +349,17 @@ def _smooth(data, step, method, steps, window, level_weight, trend_weight,
         window = _integer(window, '移动平均窗口', 1)
         if window > len(y):
             raise ValueError('移动平均窗口不能超过观测数。')
-        smoothed = data.value.rolling(window).mean().to_numpy()
-        fitted[1:] = smoothed[:-1]
-        predicted = np.full(steps, smoothed[-1])
+        trailing = data.value.rolling(window).mean()
+        fitted[1:] = trailing.to_numpy()[:-1]
+        predicted = np.full(steps, trailing.iloc[-1])
+        if centered:
+            smoothed = trailing.shift(-((window-1)//2))
+            if window % 2 == 0:
+                smoothed = (smoothed + smoothed.shift(-1))/2
+            smoothed = smoothed.to_numpy()
+            notes.append('居中平滑：奇数宽度放在正中，偶数宽度平均相邻两个窗口；预测使用尾随窗口。')
+        else:
+            smoothed = trailing.to_numpy()
         notes.append(f'尾随窗口为 {window}；首个平滑值在第 {window} 行，拟合值滞后一期，未来各步为最后一个窗口均值。')
     else:
         level_weight = _weight(level_weight, '水平权重')
@@ -379,7 +388,18 @@ def _smooth(data, step, method, steps, window, level_weight, trend_weight,
             level = first.mean()
             trend = (second.mean() - level) / cycle
             seasonal = first / level if mode == 'multiplicative' else first - level
-            notes.append('Winters 以前两周期初始化：首周期均值为初始水平，两周期均值差除以周期为趋势；首周期用比值或差值初始化季节项。')
+            if winters_init == 'regression':
+                if cycle <= 4 or mode != 'additive':
+                    raise ValueError('回归初始化仅适用于周期大于 4 的加法 Winters。')
+                trend, level = np.polyfit(np.arange(1, cycle+1), first, 1)
+                time = np.arange(1, len(y)+1)
+                detrended = y - np.polyval(np.polyfit(time,y,1), time)
+                seasonal = np.array([detrended[i::cycle].mean() for i in range(cycle)])
+                notes.append('Winters 回归初始化：用首周期时间回归得到水平和趋势，用全训练段去趋势后的各季节均值初始化季节项。')
+            elif winters_init == 'two_cycle':
+                notes.append('Winters 以前两周期初始化：首周期均值为初始水平，两周期均值差除以周期为趋势；首周期用比值或差值初始化季节项。')
+            else:
+                raise ValueError('未知 Winters 初始化方式。')
         smoothed = np.empty(len(y))
         for i, value in enumerate(y):
             if i % 1024 == 0:
@@ -409,9 +429,37 @@ def _smooth(data, step, method, steps, window, level_weight, trend_weight,
             raise ValueError('平滑结果包含非有限值，请检查数据尺度和权重。')
     if not np.isfinite(predicted).all():
         raise ValueError('预测包含非有限值，请检查数据尺度和权重。')
-    notes.append('残差为观测减一期拟合值；平滑分析输出点预测。')
-    return {'smoothing': data.assign(smoothed=smoothed, fitted=fitted, residual=y-fitted),
-            'forecast': _forecast_table(data, step, predicted)}
+    residual = y-fitted
+    ci = None
+    if intervals and steps:
+        if method == 'moving_average' and window >= 2:
+            sigma = np.std(y[-window:],ddof=1)
+            margin = stats.t.isf(alpha/2,window-1)*sigma*np.sqrt(1+1/window)
+            notes.append('移动平均区间假设独立正态常均值；用末窗样本方差和末窗均值的标准误估计新观测区间。')
+        elif method in ('single_exponential','double_exponential') or (method == 'winters' and mode == 'additive'):
+            startup = (min(6,len(y)) if method == 'single_exponential' else
+                       2*cycle if method == 'winters' else 2)
+            errors = residual[startup:]
+            margin = None
+            if len(errors) >= 2 and np.sum(errors**2) > 0:
+                offsets = np.arange(1,steps)
+                gain = np.full(steps-1,level_weight)
+                if method != 'single_exponential':
+                    gain += level_weight*trend_weight*offsets
+                if method == 'winters':
+                    gain += seasonal_weight*(1-level_weight)*(offsets % cycle == 0)
+                sigma = np.sqrt(np.mean(errors**2))
+                margin = stats.norm.isf(alpha/2)*sigma*np.sqrt(1+np.r_[0,np.cumsum(gain**2)])
+            notes.append('平滑区间假设独立同方差加性正态创新；用跳过初始化阶段后的一期残差均方估计创新方差，传播未来创新，参数视为固定。')
+        else:
+            margin = None
+        if margin is not None and np.all(np.isfinite(margin)) and np.any(margin > 0):
+            ci = np.column_stack((predicted-margin,predicted+margin))
+        else:
+            notes.append('当前方法或有效误差样本不足，无法给出可靠预测区间。')
+    notes.append('残差为观测减一期拟合值。')
+    return {'smoothing': data.assign(smoothed=smoothed, fitted=fitted, residual=residual),
+            'forecast': _forecast_table(data, step, predicted, ci)}
 
 
 def _fit_model(data, series, step, lags, order, seasonal_order, seasonal,
@@ -468,15 +516,60 @@ def _fit_model(data, series, step, lags, order, seasonal_order, seasonal,
     return tables, fit
 
 
+
+def _search_arima(data, series, step, lags, order, seasonal_order, steps, alpha, criterion, cancel, notes):
+    from itertools import product
+    p_max, d, q_max = _orders(order, seasonal_order, False)[0]
+    if criterion not in ('AIC','AICc','BIC') or d > 2:
+        raise ValueError('请选择 AIC、AICc 或 BIC，且普通差分阶数不得超过 2。')
+    seasonal = tuple(seasonal_order) != (0,0,0,0)
+    P_max,D,Q_max,period = _orders(order, seasonal_order, seasonal)[1]
+    if (p_max+1)*(q_max+1)*(P_max+1)*(Q_max+1) > 64:
+        raise ValueError('候选模型最多 64 个，请降低 AR/MA 最大阶数。')
+    rows, best = [], None
+    for p,q,P,Q in product(range(p_max+1), range(q_max+1),range(P_max+1),range(Q_max+1)):
+        _check_cancel(cancel)
+        model_order = (p,d,q)
+        season = (P,D,Q,period) if P or D or Q else (0,0,0,0)
+        candidate_notes = []
+        row = dict(order=model_order, seasonal_order=season)
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore')
+                tables, fit = _fit_model(data,series,step,lags,model_order,season,any(season),
+                                         steps,alpha,cancel,candidate_notes)
+            row.update(AIC=fit.aic, AICc=fit.aicc, BIC=fit.bic)
+            score = row[criterion]
+            if not np.isfinite(score):
+                raise ValueError('信息准则不可用。')
+            row['status'] = 'ok'
+            if best is None or score < best[0]:
+                best = (score, tables, fit, candidate_notes, row)
+        except (ValueError,np.linalg.LinAlgError) as exc:
+            row['status'] = str(exc)
+        rows.append(row)
+    if best is None:
+        raise ValueError('所有候选模型均无法可靠估计。')
+    _, tables, fit, candidate_notes, chosen = best
+    for row in rows:
+        row['selected'] = row is chosen
+    notes.extend(candidate_notes)
+    notes.append(f'比较固定普通及季节差分阶数的候选模型，按 {criterion} 最小值选择；'
+                 '同分保留首个，失败候选列在比较表。')
+    tables['model_selection'] = pd.DataFrame(rows).sort_values(criterion,na_position='last',kind='stable')
+    return tables, fit
+
+
 def analyze_time_series(df, y, time=None, other=None, interval='1s', missing='error',
                         duplicates='error', irregular='error', lags=20, period=None,
                         decomposition='additive', order=(1, 0, 0),
                         seasonal_order=(0, 0, 0, 0), forecast_steps=10, alpha=.05,
                         cancel=None, analysis='all', window=3, level_weight=.2,
-                        trend_weight=.2, seasonal_weight=.2):
+                        trend_weight=.2, seasonal_weight=.2, centered=False, origin=None,
+                        smoothing_interval=False, winters_init='two_cycle', arima_criterion='AICc'):
     """按模块顶部合约返回纯计算结果；all 的部分失败见 status/notes。"""
     _check_cancel(cancel)
-    choices = ('correlation', 'decomposition', 'stationarity', 'ARIMA', 'SARIMA', 'all', *SMOOTHING)
+    choices = ('correlation', 'decomposition', 'stationarity', 'ARIMA', 'SARIMA', 'auto_arima', 'all', *SMOOTHING)
     if analysis not in choices:
         raise ValueError(f'analysis 必须为 {choices}。')
     lags = _integer(lags, 'lags')
@@ -512,10 +605,18 @@ def analyze_time_series(df, y, time=None, other=None, interval='1s', missing='er
         _check_cancel(cancel)
 
     values = series.to_numpy()
+    train, train_series = data, series
+    if origin is not None:
+        end = _integer(origin, '预测原点', 1)
+        if end > len(data) or analysis not in (*SMOOTHING, 'ARIMA','SARIMA','auto_arima'):
+            raise ValueError('预测原点须为分析序列中的位置，且仅适用于单项拟合或平滑。')
+        train, train_series = data.iloc[:end], series.iloc[:end]
+        notes.append(f'预测原点为预处理后的第 {end} 个观测；拟合和预测只使用截至该位置的数据。')
     if analysis in SMOOTHING:
         steps = _integer(forecast_steps, 'forecast_steps', 0)
-        run(analysis, lambda: _smooth(data, step, analysis, steps, window, level_weight,
-                                      trend_weight, seasonal_weight, period, decomposition, cancel, notes))
+        run(analysis, lambda: _smooth(train, step, analysis, steps, window, level_weight,
+                                      trend_weight, seasonal_weight, period, decomposition, cancel, notes,
+                                      centered, smoothing_interval, alpha, winters_init))
     if analysis in ('correlation', 'all'):
         run('correlation', lambda: _correlation_tables(data, lags, alpha, cancel, notes))
     if analysis in ('decomposition', 'all'):
@@ -540,7 +641,7 @@ def analyze_time_series(df, y, time=None, other=None, interval='1s', missing='er
             notes.append('未指定 period，未推断季节周期，仅输出趋势 OLS。')
     if analysis in ('stationarity', 'all'):
         run('stationarity', lambda: _stationarity(values, lags, alpha, notes))
-    if analysis in ('ARIMA', 'SARIMA', 'all'):
+    if analysis in ('ARIMA', 'SARIMA', 'auto_arima', 'all'):
         def model():
             steps = _integer(forecast_steps, 'forecast_steps', 1)
             seasonal = analysis == 'SARIMA'
@@ -549,8 +650,12 @@ def analyze_time_series(df, y, time=None, other=None, interval='1s', missing='er
                     raise ValueError('seasonal_order 必须是 (P,D,Q,s)。')
                 spec = tuple(_integer(v, 'seasonal_order') for v in seasonal_order)
                 seasonal = spec != (0, 0, 0, 0)
-            tables, fit = _fit_model(data, series, step, lags, order, seasonal_order,
-                                      seasonal, steps, alpha, cancel, notes)
+            if analysis == 'auto_arima':
+                tables, fit = _search_arima(train, train_series, step, lags, order, seasonal_order,
+                                            steps, alpha, arima_criterion, cancel, notes)
+            else:
+                tables, fit = _fit_model(train, train_series, step, lags, order, seasonal_order,
+                                          seasonal, steps, alpha, cancel, notes)
             result.model = fit
             return tables
         run('model', model)
