@@ -145,7 +145,7 @@ def test_normality_table_direct_and_dialog(monkeypatch, dialog):
     lines = []
     if dialog:
         basic_dialogs.NormTestDialog.apply(SimpleNamespace(remember_columns=Mock(),
-            df=pd.DataFrame({'测量': DATA}), xvar=variable('测量'), qq=variable(False),
+            df=pd.DataFrame({'测量': DATA}), xvar=variable('测量'), qq=variable(False), method=variable("Shapiro–Wilk / Anderson–Darling"),
             app=SimpleNamespace(print=lines.append)))
     else:
         result = utilities.norm_test(DATA, print_out=True, print_port=lines.append)

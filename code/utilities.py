@@ -651,3 +651,33 @@ if __name__ == "__main__":
     pearson_correlation([1, 2, 3], [2, 3, 1])
     print(count_2factors(["F", "M", "F", "F", "M", "M"],
                          ["D", "M", "W", "D", 'D', 'M']))
+
+def normality_option(data, method):
+    """Normality with estimated location and scale; calibration depends on method."""
+    from scipy.stats import norm
+    from statsmodels.stats.diagnostic import lilliefors
+
+    x = np.asarray(data, dtype=float)
+    n = len(x)
+    if n < 4 or not np.isfinite(x).all() or np.ptp(x) == 0:
+        raise ValueError('正态性检验需要至少四个有限且不全相同的数值。')
+    if method == 'KS':
+        statistic, p = lilliefors(x, dist='norm', pvalmethod='table')
+        return statistic, p, '均值和标准差由样本估计，p 值用 Lilliefors 校正。'
+    if method != 'Ryan–Joiner':
+        raise ValueError('未知正态性检验。')
+    if n > 5000:
+        raise ValueError('Ryan–Joiner 模拟校准支持至多 5000 个观测。')
+    scores = norm.ppf((np.arange(1, n+1)-.375)/(n+.25))
+    scores /= np.linalg.norm(scores)
+    ordered = np.sort(x)
+    centered = ordered-ordered.mean()
+    statistic = np.dot(centered, scores)/np.linalg.norm(centered)
+    rng = np.random.default_rng(19576)
+    extreme = 0
+    for _ in range(20):
+        simulated = np.sort(rng.normal(size=(250,n)),axis=1)
+        simulated -= simulated.mean(axis=1,keepdims=True)
+        r = np.sum(simulated*scores,axis=1)/np.linalg.norm(simulated,axis=1)
+        extreme += np.count_nonzero(r <= statistic)
+    return statistic, (1+extreme)/5001, 'Blom 正态分数相关；以 5000 次固定种子正态样本校准左尾。'

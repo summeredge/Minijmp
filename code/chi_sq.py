@@ -564,3 +564,35 @@ if __name__ == "__main__":
         1, 3, 4, 2, 2, 1, 3], print_out=True)
     chi_square([[2, 1], [0, 2], [1, 0]])
     chi_square([[138, 165], [5e9, 5e9]])
+
+def equal_variances_mc(data, alpha=.05):
+    """Banga–Fox graphical multiple comparisons for equal sample sizes."""
+    from itertools import combinations
+    from scipy.stats import norm, studentized_range, trim_mean
+
+    k = len(data)
+    if k < 3 or not 0 < alpha < 1 or len({len(group) for group in data}) != 1:
+        raise ValueError('图形多重比较需要至少三组且样本量相同。')
+    n = len(data[0])
+    values = np.asarray(data, dtype=float)
+    if n < 5 or not np.isfinite(values).all():
+        raise ValueError('各组至少需要五个有限观测。')
+    log_var = np.log(np.var(values, axis=1, ddof=1)) if np.ptp(values, axis=1).all() else None
+    if log_var is None or not np.isfinite(log_var).all():
+        raise ValueError('各组必须有正且有限的样本方差。')
+    centers = trim_mean(values, proportiontocut=1/(2*np.sqrt(n-4)), axis=1)
+    fourth = np.sum((values-centers[:,None])**4, axis=1)
+    ss = np.sum((values-values.mean(axis=1,keepdims=True))**2,axis=1)
+    pair = list(combinations(range(k), 2))
+    i, j = np.asarray(pair).T
+    pooled = 2*n*(fourth[i]+fourth[j])/(ss[i]+ss[j])**2
+    widths = np.sqrt(2*(pooled-(n-3)/n)/(n-1))
+    incident = np.bincount(i,weights=widths,minlength=k)+np.bincount(j,weights=widths,minlength=k)
+    fitted = (incident-widths.sum()/(k-1))/(k-2)
+    if not np.all(np.isfinite(fitted)&(fitted>0)):
+        raise ValueError('无法构造正宽度的图形比较区间。')
+    q = np.sqrt(2)*np.abs(log_var[i]-log_var[j])/(fitted[i]+fitted[j])
+    p = studentized_range.sf(np.max(q), k, np.inf)
+    mid = .5*(log_var-np.log1p(-norm.isf(alpha/2)/n))
+    margin = studentized_range.isf(alpha,k,np.inf)*fitted/(2*np.sqrt(2))
+    return float(p), np.exp(np.column_stack((mid-margin,mid+margin)))

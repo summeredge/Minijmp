@@ -442,6 +442,11 @@ class MultiVarDialog(Dialogs):
             f, values=self.cols, width=20, label='列')
         w.pack(side=LEFT, fill=X, padx=10)
 
+        self.bartlett = tk.BooleanVar(m, False)
+        ttk.Checkbutton(m, text='附加 Bartlett 全局检验（正态总体）',
+                        variable=self.bartlett).pack(anchor='w')
+        self.mc = tk.BooleanVar(m, False)
+        ttk.Checkbutton(m, text='附加图形多重比较（等样本量）', variable=self.mc).pack(anchor='w')
         self.add_alpha(m)
         return
 
@@ -466,6 +471,30 @@ class MultiVarDialog(Dialogs):
         except BaseException:
             alpha = 0.05
 
+        if len(data) < 2 or any(len(group) < 3 for group in data):
+            self.error('请选择至少两组，每组至少三个有效观测。')
+            return
+        if self.bartlett.get():
+            from scipy.stats import bartlett
+            from statistics import variance
+            if any(variance(group) <= 0 for group in data):
+                self.error('Bartlett 检验需要所有组的样本方差均为正。')
+                return
+            result = bartlett(*data)
+            self.app.print(f'Bartlett 全局方差检验（假设独立正态总体）\n'
+                           f'χ² = {result.statistic:.6g}，df = {len(data)-1}，p = {result.pvalue:.6g}')
+        if self.mc.get():
+            from chi_sq import equal_variances_mc
+            from stat_table import StatTable
+            try:
+                pvalue, intervals = equal_variances_mc(data, alpha)
+            except ValueError as exc:
+                self.error(str(exc))
+                return
+            self.app.print(f'图形多重比较的全局 p = {pvalue:.6g}。区间用于组间比较。')
+            self.app.print(StatTable(title='标准差多重比较区间',
+                                    headers=['组别', '下界', '上界'],
+                                    values=[(label, *bounds) for label,bounds in zip(self.grpcols,intervals)]))
         multi_pop_var_test(data, self.grpcols, print_out=True,
                            print_port=self.app.print,
                            alpha=alpha)
@@ -728,3 +757,80 @@ class PoissonRateDialog(Dialogs):
 
 class PoissonRate2Dialog(PoissonRateDialog):
     groups = 2
+
+class BasicPowerDialog(Dialogs):
+    methods = {'单样本 t':'t1', '双样本 t':'t2', '单样本 Z':'z1', '双样本 Z':'z2',
+               '单样本比例':'p1', '双样本比例':'p2', '单因子方差分析':'anova'}
+
+    def createWidgets(self, master):
+        form = ttk.Frame(master)
+        form.pack(fill=X)
+        self.fields = {}
+        specs = [('method','检验','单样本 t',list(self.methods)),
+                 ('alternative','备择方向','双侧',['双侧','大于','小于']),
+                 ('n','每组样本量','',None), ('target','目标功效','',None),
+                 ('effect','效应（均值差或组均值偏差 RMS）','',None),
+                 ('sigma','总体标准差','1',None),
+                 ('p0','假设比例／组 2 比例','',None),
+                 ('p1','备择比例／组 1 比例','',None),
+                 ('groups','方差分析组数','2',None)]
+        for row, (key, label, default, choices) in enumerate(specs):
+            ttk.Label(form,text=label).grid(row=row,column=0,sticky='w',padx=4,pady=2)
+            self.fields[key] = var = tk.StringVar(master,value=default)
+            widget = (ttk.Entry(form,textvariable=var,width=18) if choices is None else
+                      ttk.Combobox(form,textvariable=var,values=choices,state='readonly',width=16))
+            widget.grid(row=row,column=1,sticky='ew',padx=4,pady=2)
+        alpha_row = ttk.Frame(form)
+        alpha_row.grid(row=len(specs),columnspan=2,sticky='ew')
+        self.add_alpha(alpha_row)
+
+    def ok(self):
+        from basic_power import basic_power
+        from chart_style import style_axes
+        from stat_table import StatTable
+        try:
+            f = {key: var.get().strip() for key,var in self.fields.items()}
+            method = self.methods[f['method']]
+            alternative = {'双侧':'two-sided','大于':'greater','小于':'less'}[f['alternative']]
+            options = dict(alpha=float(self.alpha.get()),alternative=alternative)
+            if method.startswith('p'):
+                options.update(p0=float(f['p0']),p1=float(f['p1']))
+            else:
+                options.update(sigma=float(f['sigma']))
+                if method == 'anova':
+                    options['groups'] = int(f['groups'])
+            inputs = dict(n=int(f['n']) if f['n'] else None,
+                          target=float(f['target']) if f['target'] else None,
+                          effect=float(f['effect']) if f['effect'] else None)
+            result = basic_power(method, **options, **inputs)
+        except (ValueError, tk.TclError) as exc:
+            self.error(f'请检查输入。{exc}')
+            return
+        n, effect, power = (result[key] for key in ('n','effect','power'))
+        rows = [[f['method'],f['alternative'],options['alpha'],n,effect,power]]
+        self.app.print(StatTable(title='基础功效与样本量',
+                                headers=['检验','方向','α','每组样本量','效应','功效'],values=rows))
+        if method.startswith('p'):
+            self.app.print(f'比例正态近似，比例为 {options["p1"]:.6g} 和 {options["p0"]:.6g}。')
+        else:
+            self.app.print(f'采用共同标准差 {options["sigma"]:.6g}；方差分析为等组样本量。'
+                           if method == 'anova' else f'标准差为 {options["sigma"]:.6g}。')
+        minimum = 2 if method in ('t1','t2','anova') else 1
+        sizes = sorted({minimum,n, *(max(minimum,round(n*step/20)) for step in range(1,31))})
+        if not method.startswith('p'):
+            options['effect'] = effect
+        powers = [basic_power(method,n=size,**options)['power'] for size in sizes]
+        viewer = self.app.showPlotViewer(deferred=True)
+        try:
+            ax = viewer.fig.add_subplot(111)
+            ax.plot(sizes,powers)
+            ax.plot(n,power,'o')
+            ax.set(xlabel='每组样本量',ylabel='功效',ylim=(0,1),title=f['method']+' 功效曲线')
+            style_axes(ax)
+            viewer.canvas.draw()
+            self.app.replacePlotViewer(viewer)
+            viewer.main.deiconify()
+        except Exception:
+            viewer.close()
+            raise
+        self.quit()

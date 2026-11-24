@@ -35,6 +35,7 @@
       <a href="#stats.anova_2way">双因子方差分析</a>
       <a href="#stats.chi2_contingency">列联表卡方检验</a>
       <a href="#stats.chi2_proportion">比例卡方检验</a>
+        <a href="#stats.basic_power">基础功效与样本量</a>
     </nav>
 
     <section class="topic" id="stats.describe">
@@ -59,6 +60,7 @@
       <p><strong>数据与参数：</strong>选择一个数值列；可勾选显示正态 Q–Q 图。界面没有检验方法或 Alpha 选择项，程序固定计算 Shapiro–Wilk 与 Anderson–Darling 检验。</p>
       <p><strong>结果与注意：</strong>结果包含两种检验统计量和 p 值；勾选后另显示样本分位数与正态理论分位数的图。应结合图形、样本量和分析背景判断；不要把 p 值直接解释为“正态的概率”。</p>
       <p><strong>延伸阅读（Minitab 官方背景）：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/normality-test/perform-the-analysis/select-a-test/" target="_blank" rel="noopener noreferrer">正态性检验的选择说明</a>；该页面的可选项不代表 Minijmp 提供相同选择。</p>
+      <p>Ryan–Joiner 使用 Blom 正态分数相关，p 值来自 5000 次固定种子正态样本模拟。KS 用 Lilliefors 表校正样本估计的均值和标准差。两者适用于至少四个有限且不全相同的独立观测。</p>
     </section>
 
     <section class="topic" id="stats.confidence_interval">
@@ -142,6 +144,11 @@
       <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/1-variance/interpret-the-results/all-statistics/" target="_blank" rel="noopener noreferrer">Minitab 单方差结果说明</a>。</p>
     </section>
 
+    <section class="topic" id="stats.basic_power">
+      <h2>基础功效与样本量</h2>
+      <p>选择单样本或双样本 t、Z、比例，或等组样本量单因子 ANOVA。每组样本量、目标功效、效应填写其中两项。比例检验填写两个比例和样本量或目标功效；对极端比例或很小计数，正态近似的精度可能不足。</p>
+      <p>t 使用非中心 t，双样本 t 假设共同标准差。Z 使用已知标准差。ANOVA 使用非中心 F，效应为各组均值对总均值的偏差 RMS。比例使用备择情形下的方差，双比例零假设标准误采用等组样本量合并比例。结果展示每组样本量与功效曲线。</p>
+    </section>
     <section class="topic" id="stats.proportion_1sample">
       <h2>单样本率检验</h2>
       <p><strong>用途：</strong>估计一个事件在总体中的比例，并与假设比例比较。</p>
@@ -192,6 +199,7 @@
       <p><strong>数据与参数：</strong>在列表中选择多个数值列，每列代表一个样本；样本量可以不同。Alpha 初始值为 0.05。此窗口要求各组分列输入，没有堆叠数据和分组列控件。</p>
       <p><strong>结果与注意：</strong>查看各组标准差及方差相等性检验结果。该检验关注组间变异差异，不是均值差异。</p>
       <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/2-variances/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab 方差比较概述</a>（概念参考；Minijmp 的多样本方法以本页为准）。</p>
+      <p>可附加 Bartlett 全局 χ² 检验，要求各组为独立正态总体。等样本量的三组及以上可附加 Banga–Fox 图形多重比较。其 MC 表示多重比较，全局 p 由正态极差分布计算；MC 区间用于组间比较，各组总体标准差的置信区间另列。</p>
     </section>
 
     <section class="topic" id="stats.anova_1way">

@@ -256,6 +256,7 @@ class Minijmp(Worksheets, Minijmp_pre):
             #  '33Mean Comparison t': {'cmd': self.JMP_t_test},
             '35双因子方差分析': {'cmd': self.anova_2way},
             '35固定效应一般线性模型': {'cmd': self.fixed_effects},
+            '36基础功效与样本量': {'cmd': self.basic_power},
             '36试验设计功效与样本量': {'cmd': lambda: AnalyzeDOEPower(self)},
             '42列联表与卡方检验': {'cmd': self.chi2table},
             '43比率卡方检验': {'cmd': self.chi2prop},
@@ -602,6 +603,10 @@ class Minijmp(Worksheets, Minijmp_pre):
     def poisson_rate_2samples(self):
         from sample_test_dialog import PoissonRate2Dialog
         PoissonRate2Dialog(self.table, app=self, df=self.table.model.df, title='双样本泊松率检验')
+
+    def basic_power(self):
+        from sample_test_dialog import BasicPowerDialog
+        BasicPowerDialog(self.table, app=self, df=self.table.model.df, title='基础功效与样本量')
 
     def fixed_effects(self):
         from regression_dialog import FixedEffectsDialog

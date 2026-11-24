@@ -354,7 +354,7 @@ def test_normal_qq_and_residual_dialogs_reach_styled_plot_and_keep_reports():
     output = Mock()
     variable = lambda value: SimpleNamespace(get=lambda: value)
     dialog = SimpleNamespace(remember_columns=Mock(), df=pd.DataFrame({"温度": X, "压力": Y}),
-        xvar=variable("温度"), yvar=variable("压力"), qq=variable(True),
+        xvar=variable("温度"), yvar=variable("压力"), qq=variable(True), method=variable("Shapiro–Wilk / Anderson–Darling"),
         app=SimpleNamespace(print=output, showPlotViewer=lambda: SimpleNamespace(fig=fig)))
     NormTestDialog.apply(dialog)
     assert fig.axes[0].get_ylabel() == "温度"

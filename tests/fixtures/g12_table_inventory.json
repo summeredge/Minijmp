@@ -20,6 +20,7 @@
     "attribute_agreement.py",
     "basic_dialogs.py",
     "basic_plot_dialog.py",
+    "basic_power.py",
     "binomial.py",
     "blakerCI.py",
     "bonett.py",
@@ -185,6 +186,7 @@
     "advanced_time_series_dialog.py": "P1-1 GUI、后台取消、来源快照、结构化报告和导出。",
     "anova_dialog.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "attribute_agreement.py": "P1 质量工具：纯计算、图形或 GUI；仅 QualityToolsDialog.stat_table 构造报告表，逐方法数值验证见 test_quality_tools.py / test_attribute_agreement.py。",
+    "basic_power.py": "基础检验的功效及样本量纯计算。",
     "basic_dialogs.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
     "basic_plot_dialog.py": "第一阶段独立绘图参数对话框，负责数据选择、验证和图形展示；不产生独立统计报告表格，无统计表格构造或表格输出事件，无需纳入 producers。",
     "binomial.py": "无独立统计表构造；输出端口/转发见 output_entry_review，数据矩阵与纯文本理由见 exceptions。",
@@ -1662,6 +1664,44 @@
       "status": "已核对实际生产位置；GUI建模、投影、导出与来源绑定专项已由主端验证",
       "tests": [
         "tests/test_pca_dialog.py::test_fit_project_export_and_source_binding"
+      ],
+      "exception_reason": ""
+    },
+    "sample_test_dialog.py::MultiVarDialog.apply": {
+      "sites": [
+        "emit:structured:print#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "标准差多重比较区间"
+      ],
+      "entry_points": [
+        "MultiVarDialog.apply"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_basic_power.py::test_graphical_multiple_comparisons_equal_sizes"
+      ],
+      "exception_reason": ""
+    },
+    "sample_test_dialog.py::BasicPowerDialog.ok": {
+      "sites": [
+        "emit:structured:print#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 1,
+      "titles": [
+        "基础功效与样本量"
+      ],
+      "entry_points": [
+        "BasicPowerDialog.ok"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_basic_power.py::test_s2_menu_power_report_and_plot"
       ],
       "exception_reason": ""
     },

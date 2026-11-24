@@ -179,6 +179,9 @@ class NormTestDialog(Dialogs):
             f, values=self.cols, textvariable=self.xvar,
             width=14)
         w.pack(side=LEFT, padx=2)
+        self.method = tk.StringVar(m, 'Shapiro–Wilk / Anderson–Darling')
+        ttk.Combobox(f, textvariable=self.method, width=31, state='readonly',
+                     values=['Shapiro–Wilk / Anderson–Darling', 'Ryan–Joiner', 'KS']).pack(side=LEFT, padx=4)
         f = tk.LabelFrame(m, text='绘图')
         f.pack(side=TOP, fill=BOTH, padx=2)
         self.qq = tk.BooleanVar(value=False)
@@ -193,7 +196,19 @@ class NormTestDialog(Dialogs):
                         print_out=True, print_port=self.app.print)
         qq = self.qq.get()
 
-        result = norm_test(x, print_out=True, print_port=self.app.print)
+        method = self.method.get()
+        if method == 'Shapiro–Wilk / Anderson–Darling':
+            result = norm_test(x, print_out=True, print_port=self.app.print)
+        else:
+            from utilities import normality_option
+            try:
+                statistic, pvalue, note = normality_option(x, method)
+            except ValueError as exc:
+                self.error(str(exc))
+                return
+            result = {'statistic': statistic, 'p': pvalue}
+            self.app.print(f'{method} 正态性检验，统计量 = {statistic:.6g}，p = {pvalue:.6g}。\n'
+                           f'原假设为独立同分布的正态总体。{note}')
         if qq:
             pf = self.app.showPlotViewer()
             pf.ax = pf.fig.add_subplot(111)
