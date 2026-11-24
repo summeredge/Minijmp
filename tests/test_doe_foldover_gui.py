@@ -86,6 +86,7 @@ def test_foldover_menu_preview_create_save_reopen_copy_and_analysis(
     assert len(all_folded.model.df) == 16
     assert all_folded.doe_metadata['design']['defining_relations'] == ['I=ABCD']
 
+    app.nb.select(app.sheetframes[source_name])
     dialog = FoldoverDOE(app)
     select_folded(dialog, 'A')
     dialog.preview_button.invoke()
@@ -109,6 +110,10 @@ def test_foldover_menu_preview_create_save_reopen_copy_and_analysis(
     assert added[response].isna().all()
     assert metadata['design']['foldover_lineage']['folded_factors'] == ['A']
     fill_response(folded)
+    second = FoldoverDOE(app)
+    select_folded(second, 'B')
+    second.create_button.invoke()
+    assert len(app.getCurrentTable().model.df) == 32
 
     path = tmp_path / 'fractional-foldover.dexpl'
     assert app._save_project(path)
@@ -118,6 +123,8 @@ def test_foldover_menu_preview_create_save_reopen_copy_and_analysis(
                        and table.doe_metadata['design']['foldover_lineage'] is not None
                        and table.doe_metadata['design']['foldover_lineage']['folded_factors'] == ['A'])
     app.nb.select(app.sheetframes[folded_name])
+    assert any(table.doe_metadata and (table.doe_metadata['design']['foldover_lineage'] or {}).get('batch_id') == 'FOLD2'
+               for table in app.sheets.values())
     reopened = app.getCurrentTable()
     copied = app.copySheet()
     assert copied.doe_metadata == reopened.doe_metadata
@@ -235,6 +242,17 @@ def test_extended_foldover_menu_project_roundtrip(csv_app,tmp_path,monkeypatch):
     dialog.create_button.invoke()
     spl=app.getCurrentTable()
     assert len(spl.model.df)==24
+    response=spl.doe_metadata['column_map']['responses']['Y']
+    spl.model.df[response]=range(24)
+    second=FoldoverDOE(app)
+    select_folded(second,'B')
+    second.create_button.invoke()
+    spl2=app.getCurrentTable()
+    assert len(spl2.model.df)==48, error.call_args_list
+    run_id=spl2.doe_metadata['column_map']['run_id']
+    by_id=spl2.model.df.set_index(run_id)[response]
+    assert by_id.loc[spl.model.df[run_id]].tolist()==list(range(24))
+    assert by_id.drop(spl.model.df[run_id]).isna().all()
     path=tmp_path/'extended-foldover.dexpl'
     assert app._save_project(path),error.call_args_list
     assert app.load_file(path)
@@ -247,4 +265,5 @@ def test_extended_foldover_menu_project_roundtrip(csv_app,tmp_path,monkeypatch):
             matches.append((design.spec.design_type,design.spec.foldover_lineage['batch_id'],len(design.runs)))
     assert ('plackett_burman','FOLD2',56) in matches
     assert ('split_plot','SPLITPLOT_FOLD_V1',24) in matches
+    assert ('split_plot','SPLITPLOT_FOLD_V2',48) in matches
     error.assert_not_called()

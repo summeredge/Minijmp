@@ -182,12 +182,26 @@ def test_unsupported_foldover_factor_selections_fail_without_mutating_source(fol
     pd.testing.assert_frame_equal(source, before)
 
 
-def test_repeat_foldover_and_run_limit_are_rejected():
-    source, metadata = source_design()
-    folded, folded_metadata = create_foldover(source, metadata, "A")
-    with pytest.raises(ValueError, match="再次折叠"):
-        create_foldover(folded, folded_metadata, "B")
+def test_repeat_foldover_preserves_response_and_resolves_aliases():
+    source, metadata = source_design(centers=1)
+    folded, first = create_foldover(source, metadata)
+    response = first["column_map"]["responses"]["Y"]
+    folded[response] = np.arange(len(folded))
+    doubled, second = create_foldover(folded, first, "B")
+    result = restore_design_result(doubled, second)
+    lineage = result.spec.foldover_lineage
+    assert lineage["parent_design_id"] == first["design"]["design_id"]
+    assert lineage["previous"]["batch_id"] == "FOLD1"
+    assert len(lineage["run_map"]) == 16
+    new = doubled["DOE 批次"] == "FOLD2"
+    assert doubled.loc[new, response].isna().all()
+    pd.testing.assert_series_equal(doubled.loc[~new, response].reset_index(drop=True),
+                                   folded[response], check_dtype=False)
+    assert result.spec.aliases == ()
+    assert foldover_summary(doubled, second)["model_rank"] == 16
 
+
+def test_foldover_run_limit_is_rejected():
     large, large_metadata = source_design(replicates=1000)
     with pytest.raises(ValueError, match="10000"):
         create_foldover(large, large_metadata, "A")

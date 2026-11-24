@@ -928,10 +928,12 @@ class DesignSpec:
                 raise ValueError("Foldover 谱系不适用于该设计类型")
             if lineage is not None:
                 extended_pb = self.design_type == 'plackett_burman' and self.construction_version == 'v3'
-                if (not extended_pb and ('previous' in lineage or
-                        self.design_type != 'split_plot' and any(f.factor_type != 'continuous' for f in factors))):
-                    raise ValueError('Foldover 谱系中的分类因子或多批字段不适用')
+                if (not extended_pb and self.design_type != 'split_plot'
+                        and any(f.factor_type != 'continuous' for f in factors)):
+                    raise ValueError('Foldover 谱系中的分类因子不适用')
                 if self.design_type == 'plackett_burman':
+                    if not extended_pb and 'previous' in lineage:
+                        raise ValueError('PB 多批谱系需要 construction v3')
                     if not extended_pb and (self.construction_version != 'v2' or self.block_count is not None):
                         raise ValueError('PB Foldover 需要 construction v2（无区组）或 v3')
                     if self.screening_matrix is None:
@@ -2041,6 +2043,19 @@ def category_combinations(factors):
             for values in product(*(factor.levels for factor in categorical))]
 
 
+def response_dtype_with_missing(column):
+    """保留可以表示空值的类型，并为 NumPy 整数和布尔列保留精度。"""
+    dtype = column.dtype
+    if pd.api.types.is_extension_array_dtype(dtype):
+        return dtype
+    if dtype.kind == "b":
+        return "boolean"
+    if dtype.kind in "iu":
+        prefix = "UInt" if dtype.kind == "u" else "Int"
+        return f"{prefix}{dtype.itemsize * 8}"
+    return dtype
+
+
 def design_from_worksheet(frame, spec, column_map):
     """按显式列名和 iloc 行位置读取运行记录，不使用或修改 DataFrame.index。"""
     if not isinstance(spec, DesignSpec):
@@ -2104,6 +2119,9 @@ def design_from_worksheet(frame, spec, column_map):
         _validate_split_plot_result(result)
     elif spec.design_type == 'plackett_burman' and spec.construction_version == 'v3' and spec.foldover_lineage is not None:
         _validate_pb_foldover(result)
+    elif spec.design_type == 'two_level_fractional' and spec.foldover_lineage is not None:
+        from doe_fractional import _validate_fractional_result
+        _validate_fractional_result(result)
     elif spec.foldover_lineage is not None:
         run_by_id = {_run_id_key(run.run_id): run for run in result.runs}
         lineage = spec.foldover_lineage

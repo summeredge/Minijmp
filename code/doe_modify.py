@@ -27,6 +27,8 @@ def _supported(spec):
 def _reject_folded_screening(spec, action):
     """PB Foldover 的原始/新增批次运行身份不可被通用修改改写。"""
     names = {'plackett_burman':'Plackett–Burman','split_plot':'Split-Plot'}
+    if spec.foldover_lineage is not None and 'previous' in spec.foldover_lineage:
+        names['two_level_fractional'] = '正规部分因子'
     if spec.foldover_lineage is not None and spec.design_type in names:
         raise ValueError(
             f'已折叠的 {names[spec.design_type]} 设计不支持{action}；'
@@ -188,7 +190,8 @@ def modify_summary(frame, metadata):
     return {'design_type': design.spec.design_type, 'runs': len(design.runs),
             'seed': design.spec.seed, 'family': family,
             'can_rerandomize': (family is not None and not split_augmented
-                                and not pb_folded),
+                                and not pb_folded and not (design.spec.foldover_lineage
+                                and 'previous' in design.spec.foldover_lineage)),
             'can_reorder': True,
             'can_renumber': _supports_renumber(design.spec),
             'can_replicate': (spec_allows_replicate(design.spec)
@@ -217,7 +220,8 @@ def _supports_renumber(spec):
         'two_level_full', 'two_level_fractional', 'general_full_factorial',
         'central_composite', 'box_behnken', 'plackett_burman',
         'definitive_screening', 'custom_factorial', 'custom_rsm', 'custom_screening',
-    } and not (spec.design_type == 'plackett_burman' and spec.foldover_lineage is not None)
+    } and not (spec.foldover_lineage is not None and
+               (spec.design_type == 'plackett_burman' or 'previous' in spec.foldover_lineage))
         and not (spec.design_type == 'box_behnken'
                  and spec.block_count not in (None, 1)))
 

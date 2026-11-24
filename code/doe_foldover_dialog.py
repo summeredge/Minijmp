@@ -20,8 +20,6 @@ class FoldoverDOE:
             design_type = design.get('design_type')
             if design_type not in ('two_level_fractional', 'plackett_burman', 'split_plot'):
                 continue
-            if design.get('foldover_lineage') is not None and design_type != 'plackett_burman':
-                continue
             if design_type == 'split_plot' and (design.get('augmentation_lineage') is not None
                                                  or design.get('schema_version',0) < 5):
                 continue

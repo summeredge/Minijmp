@@ -7,7 +7,7 @@ from itertools import product
 import pandas as pd
 
 from doe_core import (DesignResult, DesignSpec, _MAX_SPLIT_PLOT_RUNS, _two_level_code,
-                      design_from_worksheet, restore_design_result,
+                      design_from_worksheet, response_dtype_with_missing, restore_design_result,
                       worksheet_metadata)
 
 
@@ -219,36 +219,7 @@ def append_split_plot_blocks(frame, metadata, count, *, seed=None):
     target_spec = replace(
         spec, design_id=f"SPAPPEND-{digest}", block_count=spec.block_count + count)
 
-    columns = dict(metadata["column_map"])
-    if "batch_id" not in columns:
-        batch_column = "DOE 批次"
-        suffix = 2
-        while batch_column in frame.columns:
-            batch_column = f"DOE 批次_{suffix}"
-            suffix += 1
-        columns["batch_id"] = batch_column
-    batch_id = columns["batch_id"]
-    base = frame.copy(deep=True)
-    if batch_id not in base.columns:
-        base[batch_id] = pd.Series([None] * len(base), dtype=object)
-
-    appended = _appended_layout(
-        spec, spec.block_count + 1, count, run_order_start=len(design.runs))
-    added = _frame_from_layout(spec, appended, columns)
-    for column in base.columns:
-        if column not in added.columns:
-            added[column] = None
-    added = added[base.columns.tolist()]
-    result = pd.concat([base, added], ignore_index=True)
-    run_column = columns["run_id"]
-    for column in columns["responses"].values():
-        values_by_id = dict(zip(frame[run_column], frame[column]))
-        values = [values_by_id.get(run_id) for run_id in result[run_column]]
-        try:
-            result[column] = pd.array(values, dtype=frame[column].dtype)
-        except (TypeError, ValueError) as error:
-            raise ValueError(
-                f"响应列 {column} 无法在保留原类型时为新增运行留空") from error
+    result, columns, appended = _append_split_rows(frame, metadata, spec, count, len(design.runs))
 
     from doe_custom import matrix_sha256
     parent_hash = matrix_sha256(design)
@@ -266,6 +237,42 @@ def append_split_plot_blocks(frame, metadata, count, *, seed=None):
     validate_split_plot_design(result, result_metadata)
     return result, result_metadata
 
+
+
+def _append_split_rows(frame, metadata, spec, count, length, *, foldover=False):
+    columns = dict(metadata["column_map"])
+    if "batch_id" not in columns:
+        batch_column = "DOE 批次"
+        suffix = 2
+        while batch_column in frame.columns:
+            batch_column = f"DOE 批次_{suffix}"
+            suffix += 1
+        columns["batch_id"] = batch_column
+    batch_id = columns["batch_id"]
+    base = frame.copy(deep=True)
+    if batch_id not in base.columns:
+        base[batch_id] = pd.Series([None] * len(base), dtype=object)
+
+    appended = _appended_layout(
+        spec, spec.block_count + 1, count, run_order_start=length)
+    added = _frame_from_layout(spec, appended, columns)
+    for column in base.columns:
+        if column not in added.columns:
+            added[column] = None
+    added = added[base.columns.tolist()]
+    result = pd.concat([base, added], ignore_index=True)
+    run_column = columns["run_id"]
+    for column in columns["responses"].values():
+        values_by_id = dict(zip(frame[run_column], frame[column]))
+        values = [values_by_id.get(run_id) for run_id in result[run_column]]
+        try:
+            dtype = response_dtype_with_missing(frame[column]) if foldover else frame[column].dtype
+            result[column] = pd.array(values, dtype=dtype)
+        except (TypeError, ValueError) as error:
+            raise ValueError(
+                f"响应列 {column} 无法在保留原类型时为新增运行留空") from error
+
+    return result, columns, appended
 
 
 def _split_fold_pairs(spec, base, added, selected):
@@ -290,27 +297,42 @@ def create_split_plot_foldover(frame, metadata, folded_factors=None):
 
     source = validate_split_plot_design(frame,metadata)
     spec = source.spec
-    if spec.foldover_lineage is not None or spec.augmentation_lineage is not None:
-        raise ValueError('请选择尚未折叠或增补的裂区设计。')
-    selected = fold_factor_ids(tuple(f.factor_id for f in spec.factors),folded_factors)
-    result, appended_meta = append_split_plot_blocks(frame,metadata,spec.block_count)
-    appended = validate_split_plot_design(result,appended_meta)
+    if spec.augmentation_lineage is not None or metadata["design"]["schema_version"] < 5:
+        raise ValueError("裂区折叠需要 Schema v5 的完整设计，且未进行通用区组增补。")
+    if 2 * len(source.runs) > _MAX_RUNS:
+        raise ValueError(f"运行总数不能超过 {_MAX_RUNS}")
+    previous = spec.foldover_lineage
+    batch = _next_split_fold_batch(previous)
+    selected = fold_factor_ids(tuple(f.factor_id for f in spec.factors), folded_factors)
+    result, columns, _ = _append_split_rows(frame, metadata, spec, spec.block_count, len(source.runs),
+                                           foldover=True)
+    target = replace(spec, block_count=2 * spec.block_count, foldover_lineage=None)
+    appended = design_from_worksheet(result, target, columns)
     added = [run for run in appended.runs if run.batch_id == _APPEND_BATCH_ID]
-    pairs = _split_fold_pairs(spec,source.runs,added,selected)
-    columns = dict(appended_meta['column_map'])
-    columns['source_run_id'] = _unique_column(result,'DOE 源运行ID')
-    source_by_addition = {target:original for original,target in pairs}
-    result[columns['source_run_id']] = result[columns['run_id']].map(source_by_addition).astype(object)
-    result.loc[result[columns['batch_id']] == _APPEND_BATCH_ID,columns['batch_id']] = _FOLD_BATCH_ID
-    digest = hashlib.sha256((appended.spec.design_id+repr(selected)).encode('utf-8')).hexdigest()[:20]
-    lineage = dict(parent_design_id=spec.design_id,batch_id=_FOLD_BATCH_ID,
-                   folded_factors=selected,run_map=pairs,source_matrix_sha256=matrix_sha256(source),
+    pairs = _split_fold_pairs(spec, source.runs, added, selected)
+    if previous is None:
+        columns["source_run_id"] = _unique_column(result, "DOE 源运行ID")
+        result[columns["source_run_id"]] = pd.Series([None] * len(result), dtype=object)
+    source_by_addition = {target_id: original for original, target_id in pairs}
+    new_rows = result[columns["batch_id"]] == _APPEND_BATCH_ID
+    result.loc[new_rows, columns["source_run_id"]] = result.loc[new_rows, columns["run_id"]].map(source_by_addition)
+    result.loc[new_rows, columns["batch_id"]] = batch
+    digest = hashlib.sha256(repr((spec.design_id, batch, selected)).encode("utf-8")).hexdigest()[:20]
+    lineage = dict(parent_design_id=spec.design_id, batch_id=batch,
+                   folded_factors=selected, run_map=pairs, source_matrix_sha256=matrix_sha256(source),
                    current_matrix_sha256=matrix_sha256(appended))
-    target = replace(appended.spec,design_id=f'SPFOLD-{digest}',augmentation_lineage=None,
-                     foldover_lineage=lineage)
+    if previous is not None:
+        lineage["previous"] = previous
+    target = replace(target, design_id=f"SPFOLD-{digest}", foldover_lineage=lineage)
     result_metadata = worksheet_metadata(result,target,columns)
     validate_split_plot_design(result,result_metadata)
     return result,result_metadata
+
+
+def _next_split_fold_batch(previous):
+    if previous is None:
+        return _FOLD_BATCH_ID
+    return f"SPLITPLOT_FOLD_V{int(previous['batch_id'].rsplit('V', 1)[1]) + 1}"
 
 
 def _validate_split_fold(result):
@@ -318,20 +340,20 @@ def _validate_split_fold(result):
 
     spec = result.spec
     lineage = spec.foldover_lineage
-    base = tuple(run for run in result.runs if run.batch_id is None)
-    added = tuple(run for run in result.runs if run.batch_id == _FOLD_BATCH_ID)
+    base = tuple(run for run in result.runs if run.batch_id != lineage["batch_id"])
+    added = tuple(run for run in result.runs if run.batch_id == lineage["batch_id"])
     count = len({run.block for run in base})
-    if (lineage['batch_id'] != _FOLD_BATCH_ID or spec.block_count != 2*count
+    previous = lineage.get('previous')
+    if (lineage['batch_id'] != _next_split_fold_batch(previous) or spec.block_count != 2*count
             or len(base) != len(added) or len(base)+len(added) != len(result.runs)):
         raise ValueError('裂区折叠须完整保留父区组并追加对应的新区组。')
     source_spec = replace(spec,design_id=lineage['parent_design_id'],block_count=count,
-                          foldover_lineage=None)
+                          foldover_lineage=previous)
     source = DesignResult(source_spec,base)
-    _, _, original = _layout(source_spec)
-    _validate_layout(source_spec,base,original)
+    _validate_split_plot_result(source)
     new_layout = _appended_layout(source_spec,count+1,count,len(base))
     _validate_layout(spec,tuple(replace(run,source_run_id=None) for run in added),
-                     new_layout,batch_id=_FOLD_BATCH_ID)
+                     new_layout,batch_id=lineage["batch_id"])
     pairs = _split_fold_pairs(source_spec,base,added,lineage['folded_factors'])
     source_by_added = {r.run_id:r.source_run_id for r in added}
     if (lineage['run_map'] != pairs or any(source_by_added[target] != source for source,target in pairs)

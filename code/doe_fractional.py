@@ -250,6 +250,10 @@ def create_fractional(spec, replicates=1, center_points=0, measured=False):
 def validate_fractional_design(frame, metadata):
     """恢复 DOE 结构并严格核验生成关系，即使元数据摘要被重新计算也拒绝篡改运行表。"""
     result = restore_design_result(frame, metadata)
+    return result if result.spec.foldover_lineage else _validate_fractional_result(result)
+
+
+def _validate_fractional_result(result):
     spec = result.spec
     lineage = spec.foldover_lineage
     base_ids, generators, base_defining, base_aliases = _fractional_structure(
@@ -263,17 +267,14 @@ def validate_fractional_design(frame, metadata):
     factor_ids = tuple(f.factor_id for f in spec.factors)
     base_runs = ([run for run in result.runs if run.batch_id == "BASE"]
                  if lineage is not None else list(result.runs))
-    added_runs = ([run for run in result.runs
-                   if run.batch_id == lineage["batch_id"]]
-                  if lineage is not None else [])
+    batches = []
+    stage = lineage
+    while stage is not None:
+        batches.append(stage)
+        stage = stage.get("previous")
     if lineage is None and any(run.batch_id is not None or run.source_run_id is not None
                                for run in result.runs):
         raise ValueError("没有 Foldover 谱系的设计不能包含批次或来源运行字段")
-    if lineage is not None and (
-            len(base_runs) + len(added_runs) != len(result.runs)
-            or any(run.source_run_id is not None for run in base_runs)):
-        raise ValueError("Foldover 仅支持一份原始批次和一个新增批次")
-
     base_runs_by_order = sorted(base_runs, key=lambda run: run.standard_order)
     base_count = len(base_runs)
     if [run.standard_order for run in base_runs_by_order] != list(range(1, base_count + 1)):
@@ -308,32 +309,6 @@ def validate_fractional_design(frame, metadata):
             run.run_order != expected_run_orders.get(run.run_id))
            for run in base_runs):
         raise ValueError("原始运行 ID 或随机运行序与设计 seed 不一致")
-    if lineage is not None:
-        if any(run.batch_id != "BASE" for run in base_runs):
-            raise ValueError("Foldover 原始运行必须属于 BASE 批次")
-        folded_factors = lineage["folded_factors"]
-        if folded_factors != tuple(key for key in factor_ids if key in folded_factors):
-            raise ValueError("Foldover 因子顺序与设计因子顺序不一致")
-        additions_by_order = sorted(added_runs, key=lambda run: run.standard_order)
-        if (len(additions_by_order) != sum(run.point_type == "factorial"
-                                          for run in base_runs)
-                or [run.standard_order for run in additions_by_order]
-                != list(range(base_count + 1, base_count + len(additions_by_order) + 1))):
-            raise ValueError("Foldover 新增批次必须逐原始因子运行生成，且标准序连续追加")
-        expected_new_ids = [f"F{i:05d}" for i in range(1, len(additions_by_order) + 1)]
-        expected_new_order = {
-            run_id: base_count + order for order, run_id in enumerate(
-                randomized_run_order(expected_new_ids, spec.seed), 1)
-        }
-        if any(run.run_id != f"F{run.standard_order - base_count:05d}"
-               or run.batch_id != lineage["batch_id"]
-               or (not standard_ordered and
-                   run.run_order != expected_new_order.get(run.run_id))
-               for run in additions_by_order):
-            raise ValueError("Foldover 新增运行 ID、批次或随机顺序无效")
-        if lineage["parent_design_id"] == spec.design_id:
-            raise ValueError("Foldover 父设计不能与当前设计相同")
-
     count = 1 << len(base_ids)
     factorial_runs = [run for run in base_runs if run.point_type == "factorial"]
     centers = [run for run in base_runs if run.point_type == "center"]
@@ -403,32 +378,43 @@ def validate_fractional_design(frame, metadata):
             raise ValueError("DOE 别名定义与生成元不一致")
         return result
 
-    run_by_id = {run.run_id: run for run in result.runs}
-    mapping = dict(lineage["run_map"])
-    if (len(mapping) != len(factorial_runs)
-            or set(mapping) != {run.run_id for run in factorial_runs}
-            or set(mapping.values()) != {run.run_id for run in added_runs}):
-        raise ValueError("Foldover 运行映射必须覆盖每个原始因子运行且一一对应")
-    for source_id, addition_id in lineage["run_map"]:
-        source, addition = run_by_id.get(source_id), run_by_id.get(addition_id)
-        if (source is None or addition is None or source.point_type != "factorial"
-                or addition.source_run_id != source_id
-                or addition.replicate != source.replicate
-                or addition.point_type != "factorial"):
-            raise ValueError("Foldover 谱系与运行批次映射不一致")
-        for factor in spec.factors:
-            expected = source.settings[factor.factor_id]
-            if factor.factor_id in lineage["folded_factors"]:
-                expected = factor.low if expected == factor.high else factor.high
-            if addition.settings[factor.factor_id] != expected:
-                raise ValueError("Foldover 新运行与指定因子的反转不一致")
-    source_hash = foldover_matrix_fingerprint(base_runs, spec.factors)
-    current_hash = foldover_matrix_fingerprint((*base_runs, *added_runs), spec.factors)
-    if (source_hash != lineage["source_matrix_sha256"]
-            or current_hash != lineage["current_matrix_sha256"]):
-        raise ValueError("Foldover 原始或当前模型矩阵摘要不匹配")
+    all_runs = sorted(result.runs, key=lambda run: run.standard_order)
+    for number, stage in enumerate(reversed(batches), 1):
+        sources = [run for run in all_runs[:base_count] if run.point_type == "factorial"]
+        added = all_runs[base_count:base_count + len(sources)]
+        batch = f"FOLD{number}"
+        prefix = "F" if number == 1 else f"F{number}_"
+        expected_ids = [f"{prefix}{i:05d}" for i in range(1, len(sources) + 1)]
+        selected = stage["folded_factors"]
+        expected_order = {run_id: base_count + i for i, run_id in enumerate(
+            randomized_run_order(expected_ids, spec.seed), 1)}
+        if (stage["batch_id"] != batch or not selected
+                or selected != tuple(key for key in factor_ids if key in selected)
+                or [run.run_id for run in added] != expected_ids
+                or stage["run_map"] != tuple((source.run_id, run.run_id)
+                                              for source, run in zip(sources, added))):
+            raise ValueError("Foldover 运行映射或批次无效")
+        for source, run in zip(sources, added):
+            if (run.batch_id != batch or run.source_run_id != source.run_id
+                    or run.replicate != source.replicate or run.point_type != "factorial"
+                    or not standard_ordered and run.run_order != expected_order[run.run_id]):
+                raise ValueError("Foldover 新增运行身份或随机顺序无效")
+            for factor in spec.factors:
+                key = factor.factor_id
+                expected = source.settings[key]
+                if key in selected:
+                    expected = factor.low if expected == factor.high else factor.high
+                if run.settings[key] != expected:
+                    raise ValueError("Foldover 新运行与指定因子的反转不一致")
+        if (foldover_matrix_fingerprint(sources, spec.factors) != stage["source_matrix_sha256"]
+                or foldover_matrix_fingerprint((*sources, *added), spec.factors)
+                != stage["current_matrix_sha256"]):
+            raise ValueError("Foldover 原始或当前模型矩阵摘要不匹配")
+        base_count += len(added)
+    if base_count != len(all_runs) or any(run.source_run_id is not None for run in base_runs):
+        raise ValueError("Foldover 批次未覆盖全部运行")
     coded = [tuple(int(factor_map[key].to_coded(run.settings[key])) for key in factor_ids)
-             for run in (*factorial_runs, *added_runs)]
+             for run in all_runs if run.point_type == "factorial"]
     current_defining, current_aliases = _matrix_structure(coded, factor_ids)
     if (spec.defining_relations != current_defining or spec.aliases != current_aliases):
         raise ValueError("Foldover 当前别名与实际运行矩阵不一致")
