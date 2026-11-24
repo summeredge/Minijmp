@@ -187,3 +187,26 @@ def test_centered_historical_smoothing_gui(tk_root, monkeypatch, tmp_path):
     finally:
         dialog.close()
         dispose(app)
+
+
+
+def test_auto_arima_boxcox_and_constant_gui(tk_root, monkeypatch):
+    dialog, app, source, data = make_dialog(tk_root, monkeypatch)
+    try:
+        dialog.fields['y'].set('Y')
+        dialog.df['Y'] += 20
+        dialog.fields['analysis'].set('自动选择 ARIMA')
+        dialog.fields['arima_boxcox'].set('0')
+        dialog.fields['arima_constant'].set('搜索')
+        dialog.fields['order'].set('0,0,0')
+        dialog.run_button.invoke()
+        finish(tk_root, dialog)
+        assert dialog.tables['model_summary'].boxcox_lambda.iloc[0] == 0
+        assert dialog.tables['model_summary'].deterministic.iloc[0] == 'c'
+        dialog.plot_kind.set('模型预测')
+        dialog.plot()
+        dialog.error.assert_not_called()
+        assert source.pf.fig.axes[0].collections
+    finally:
+        dialog.close()
+        dispose(app)

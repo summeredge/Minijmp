@@ -22,7 +22,8 @@ TITLES = {'model_selection': '模型比较', 'smoothing': '平滑与拟合', 'su
 HEADERS = {'smoothed': '平滑值', 'source_row': '来源行号', 'source_rows': '来源行号集合', 'source_index': '来源索引',
            'timestamp': '时间 / 序号', 'value': '观测值', 'other': '配对观测值',
            'lag': '滞后', 'correlation': '相关系数', 'ci_lower': '区间下限', 'ci_upper': '区间上限',
-           'mean': '预测均值', 'fitted': '拟合值', 'observed': '观测值', 'trend': '趋势',
+           'mean': '预测均值', 'fitted': '拟合值', 'observed': '观测值', 'trend': '趋势', 'deterministic': '常数项／漂移',
+           'boxcox_lambda': 'Box–Cox λ', 'value_transformed': '变换后观测值',
            'seasonal': '季节项', 'residual': '残差', 'statistic': '统计量', 'p_value': 'p 值',
            'test': '检验', 'null': '原假设', 'aic': 'AIC', 'bic': 'BIC', 'n_obs': '样本数',
            'term': '参数', 'estimate': '估计值', 'std_error': '标准误', 'method': '方法',
@@ -95,6 +96,7 @@ class TimeSeriesAnalysisDialog:
             (('level_weight', '水平权重', '0.2', None), ('trend_weight', '趋势权重', '0.2', None)),
             (('seasonal_weight', '季节权重', '0.2', None), ('winters_init', 'Winters 初始化', '两周期', ['两周期', '回归（加法）'])),
             (('origin', '预测原点（可选）', '', None), ('criterion', '自动 ARIMA 准则', 'AICc', ['AICc','AIC','BIC'])),
+            (('arima_constant', '自动 ARIMA 常数项', '默认', ['默认','搜索','包含','排除']), ('arima_boxcox', 'Box–Cox λ（空白、auto 或数值）', '', None)),
             (('centered', '移动平均对齐', '尾随', ['尾随','居中']), ('smoothing_interval', '平滑区间', '不计算', ['不计算','计算'])),
         ]
         for row, pair in enumerate(specs):
@@ -165,6 +167,8 @@ class TimeSeriesAnalysisDialog:
                     smoothing_interval=fields['smoothing_interval'] == '计算',
                     winters_init='regression' if fields['winters_init'] == '回归（加法）' else 'two_cycle',
                     arima_criterion=fields['criterion'],
+                    arima_constant={'默认':'default', '搜索':'search', '包含':'include', '排除':'exclude'}[fields['arima_constant']],
+                    arima_boxcox=(fields['arima_boxcox'] or None) if analysis == 'auto_arima' else None,
                     window=int(fields['window']) if analysis == 'moving_average' else 3,
                     level_weight=float(fields['level_weight']) if smoothing and analysis != 'moving_average' else .2,
                     trend_weight=float(fields['trend_weight']) if analysis in ('double_exponential', 'winters') else .2,

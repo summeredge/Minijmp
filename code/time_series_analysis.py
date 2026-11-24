@@ -389,17 +389,20 @@ def _smooth(data, step, method, steps, window, level_weight, trend_weight,
             trend = (second.mean() - level) / cycle
             seasonal = first / level if mode == 'multiplicative' else first - level
             if winters_init == 'regression':
-                if cycle <= 4 or mode != 'additive':
-                    raise ValueError('回归初始化仅适用于周期大于 4 的加法 Winters。')
-                trend, level = np.polyfit(np.arange(1, cycle+1), first, 1)
+                if mode != 'additive':
+                    raise ValueError('回归初始化仅适用于加法 Winters。')
+                initial_length = max(4, cycle)
+                trend, level = np.polyfit(np.arange(1, initial_length+1), y[:initial_length], 1)
                 time = np.arange(1, len(y)+1)
                 detrended = y - np.polyval(np.polyfit(time,y,1), time)
                 seasonal = np.array([detrended[i::cycle].mean() for i in range(cycle)])
-                notes.append('Winters 回归初始化：用首周期时间回归得到水平和趋势，用全训练段去趋势后的各季节均值初始化季节项。')
+                notes.append(f'Winters 回归初始化：用前 {initial_length} 点的时间回归得到水平和趋势，用全训练段去趋势后的季节均值初始化季节项。')
             elif winters_init == 'two_cycle':
                 notes.append('Winters 以前两周期初始化：首周期均值为初始水平，两周期均值差除以周期为趋势；首周期用比值或差值初始化季节项。')
             else:
                 raise ValueError('未知 Winters 初始化方式。')
+        multiplicative = seasonal is not None and mode == 'multiplicative'
+        scaled_errors = np.empty(len(y)) if multiplicative and intervals else None
         smoothed = np.empty(len(y))
         for i, value in enumerate(y):
             if i % 1024 == 0:
@@ -407,9 +410,10 @@ def _smooth(data, step, method, steps, window, level_weight, trend_weight,
             baseline = level + trend
             phase = i % len(seasonal) if seasonal is not None else None
             factor = seasonal[phase] if seasonal is not None else 0.
-            multiplicative = seasonal is not None and mode == 'multiplicative'
             fitted[i] = baseline * factor if multiplicative else baseline + factor
             adjusted = value / factor if multiplicative else value - factor
+            if scaled_errors is not None:
+                scaled_errors[i] = abs(adjusted - baseline)
             updated = level_weight * adjusted + (1 - level_weight) * baseline
             if method != 'single_exponential':
                 trend = trend_weight * (updated - level) + (1 - trend_weight) * trend
@@ -451,6 +455,15 @@ def _smooth(data, step, method, steps, window, level_weight, trend_weight,
                 sigma = np.sqrt(np.mean(errors**2))
                 margin = stats.norm.isf(alpha/2)*sigma*np.sqrt(1+np.r_[0,np.cumsum(gain**2)])
             notes.append('平滑区间假设独立同方差加性正态创新；用跳过初始化阶段后的一期残差均方估计创新方差，传播未来创新，参数视为固定。')
+        elif method == 'winters' and multiplicative:
+            errors = scaled_errors[cycle-1:]
+            theta = max(level_weight, trend_weight, seasonal_weight)
+            nu = 1-theta
+            def growth(h):
+                return 1 + theta/(1+nu)**3 * (
+                    1+4*nu+5*nu**2 + 2*theta*(1+3*nu)*h + 2*theta**2*h**2)
+            margin = 1.25*stats.norm.isf(alpha/2)*errors.mean()*np.sqrt(growth(horizons)/growth(1))
+            notes.append('乘法 Winters 区间按公开方法计算：季节调整后的一期绝对误差乘以各预测步的放大系数。')
         else:
             margin = None
         if margin is not None and np.all(np.isfinite(margin)) and np.any(margin > 0):
@@ -463,7 +476,7 @@ def _smooth(data, step, method, steps, window, level_weight, trend_weight,
 
 
 def _fit_model(data, series, step, lags, order, seasonal_order, seasonal,
-               forecast_steps, alpha, cancel, notes):
+               forecast_steps, alpha, cancel, notes, trend=None):
     _nonconstant(series.to_numpy())
     order, seasonal_order = _orders(order, seasonal_order, seasonal)
     p, d, q = order
@@ -471,7 +484,7 @@ def _fit_model(data, series, step, lags, order, seasonal_order, seasonal,
     if len(data) - d - D * s <= p + q + P + Q + 3 or (seasonal and len(data) < 2 * s):
         raise ValueError('样本量不足以估计指定 ARIMA/SARIMA 阶数及差分。')
     _check_cancel(cancel)
-    fit = ARIMA(series.to_numpy(), order=order, seasonal_order=seasonal_order).fit()
+    fit = ARIMA(series.to_numpy(), order=order, seasonal_order=seasonal_order, trend=trend).fit()
     _check_cancel(cancel)
     converged = bool(fit.mle_retvals.get('converged', False))
     if not converged:
@@ -517,27 +530,101 @@ def _fit_model(data, series, step, lags, order, seasonal_order, seasonal,
 
 
 
-def _search_arima(data, series, step, lags, order, seasonal_order, steps, alpha, criterion, cancel, notes):
+def _boxcox_series(series, boxcox, period, notes):
+    from scipy.optimize import minimize_scalar
+
+    values = series.to_numpy()
+    if (values <= 0).any():
+        raise ValueError('Box–Cox 要求训练观测严格为正。')
+    if boxcox == 'auto':
+        period = max(2, period)
+        groups = values[len(values) % period:].reshape(-1, period)
+        if len(groups) < 2:
+            raise ValueError('自动 Box–Cox 至少需要两个完整子序列。')
+        log_means = np.log(groups.mean(axis=1))
+        deviations = groups.std(axis=1, ddof=1)
+        if np.count_nonzero(deviations) < 2:
+            raise ValueError('自动 Box–Cox 至少需要两个有变异的子序列。')
+
+        def cv(lam):
+            exponent = (lam-1)*log_means
+            weights = deviations*np.exp(exponent-exponent.max())
+            return weights.std(ddof=1)/weights.mean()
+
+        optimum = minimize_scalar(cv, bounds=(-5, 5), method='bounded').x
+        choices = [*range(-5, 6), .5]
+        lam = min(choices, key=lambda value: abs(value-optimum))
+        notes.append(f'Guerrero 子序列变异系数最小点 λ={optimum:.6g}，取最近的整数或 0.5。')
+    else:
+        lam = float(boxcox)
+        if not -5 <= lam <= 5:
+            raise ValueError('Box–Cox λ 必须介于 -5 和 5。')
+    with np.errstate(over='ignore', invalid='ignore'):
+        transformed = np.sign(lam)*np.power(values, lam) if lam else np.log(values)
+    if not np.isfinite(transformed).all():
+        raise ValueError('Box–Cox 结果超出数值范围，请调整 λ。')
+    return pd.Series(transformed, index=series.index), lam
+
+
+def _restore_arima_forecast(tables, fit, steps, lam, notes):
+    future = tables['forecast']
+    prediction = fit.get_forecast(steps=steps)
+    transformed = future[['predicted', 'ci_lower', 'ci_upper']].to_numpy()
+    with np.errstate(over='ignore', invalid='ignore', divide='ignore'):
+        if lam:
+            base = np.sign(lam)*transformed
+            restored = np.where(base > 0, base**(1/lam), np.nan)
+            factor = 1 + (1-lam)*prediction.var_pred_mean/(2*(lam*transformed[:, 0])**2)
+        else:
+            restored = np.exp(transformed)
+            factor = 1 + prediction.var_pred_mean/2
+        restored[:, 0] *= factor
+    invalid = ~np.isfinite(restored) | (restored <= 0)
+    restored[invalid] = np.nan
+    future[['predicted', 'ci_lower', 'ci_upper']] = restored
+    tables['residuals']['value_transformed'] = fit.model.endog[:, 0]
+    tables['model_summary']['boxcox_lambda'] = lam
+    notes.append(f'Box–Cox λ={lam:g}。预测和区间以原量纲报告，点预测含二阶均值修正；'
+                 '拟合值、残差、参数和信息准则使用变换尺度。')
+    if invalid.any():
+        notes.append('超出 Box–Cox 反变换定义域的预测或区间端点留空。')
+
+
+def _search_arima(data, series, step, lags, order, seasonal_order, steps, alpha, criterion,
+                  cancel, notes, constant, boxcox):
     from itertools import product
     p_max, d, q_max = _orders(order, seasonal_order, False)[0]
     if criterion not in ('AIC','AICc','BIC') or d > 2:
         raise ValueError('请选择 AIC、AICc 或 BIC，且普通差分阶数不得超过 2。')
+    if not isinstance(seasonal_order, (tuple, list)) or len(seasonal_order) != 4:
+        raise ValueError('seasonal_order 必须是 (P,D,Q,s)。')
     seasonal = tuple(seasonal_order) != (0,0,0,0)
     P_max,D,Q_max,period = _orders(order, seasonal_order, seasonal)[1]
-    if (p_max+1)*(q_max+1)*(P_max+1)*(Q_max+1) > 64:
+    if constant not in ('default', 'include', 'exclude', 'search'):
+        raise ValueError('请选择有效的自动 ARIMA 常数项方式。')
+    with_constant = {0: 'c', 1: 't'}.get(d+D)
+    if constant == 'include' and with_constant is None:
+        raise ValueError('总差分阶数大于 1 时无法加入常数或漂移。')
+    trends = {'default': [None], 'include': [with_constant], 'exclude': ['n'],
+              'search': ['n', with_constant] if with_constant else ['n']}[constant]
+    if (p_max+1)*(q_max+1)*(P_max+1)*(Q_max+1)*len(trends) > 64:
         raise ValueError('候选模型最多 64 个，请降低 AR/MA 最大阶数。')
+    if boxcox is not None:
+        series, lam = _boxcox_series(series, boxcox, period, notes)
     rows, best = [], None
-    for p,q,P,Q in product(range(p_max+1), range(q_max+1),range(P_max+1),range(Q_max+1)):
+    for p,q,P,Q,trend in product(range(p_max+1), range(q_max+1), range(P_max+1),
+                                 range(Q_max+1), trends):
         _check_cancel(cancel)
         model_order = (p,d,q)
         season = (P,D,Q,period) if P or D or Q else (0,0,0,0)
         candidate_notes = []
-        row = dict(order=model_order, seasonal_order=season)
+        row = dict(order=model_order, seasonal_order=season,
+                   deterministic=trend or ('n' if d+D else 'c'))
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter('ignore')
                 tables, fit = _fit_model(data,series,step,lags,model_order,season,any(season),
-                                         steps,alpha,cancel,candidate_notes)
+                                         steps,alpha,cancel,candidate_notes,trend=trend)
             row.update(AIC=fit.aic, AICc=fit.aicc, BIC=fit.bic)
             score = row[criterion]
             if not np.isfinite(score):
@@ -553,6 +640,9 @@ def _search_arima(data, series, step, lags, order, seasonal_order, steps, alpha,
     _, tables, fit, candidate_notes, chosen = best
     for row in rows:
         row['selected'] = row is chosen
+    tables['model_summary']['deterministic'] = chosen['deterministic']
+    if boxcox is not None:
+        _restore_arima_forecast(tables, fit, steps, lam, notes)
     notes.extend(candidate_notes)
     notes.append(f'比较固定普通及季节差分阶数的候选模型，按 {criterion} 最小值选择；'
                  '同分保留首个，失败候选列在比较表。')
@@ -566,7 +656,8 @@ def analyze_time_series(df, y, time=None, other=None, interval='1s', missing='er
                         seasonal_order=(0, 0, 0, 0), forecast_steps=10, alpha=.05,
                         cancel=None, analysis='all', window=3, level_weight=.2,
                         trend_weight=.2, seasonal_weight=.2, centered=False, origin=None,
-                        smoothing_interval=False, winters_init='two_cycle', arima_criterion='AICc'):
+                        smoothing_interval=False, winters_init='two_cycle', arima_criterion='AICc',
+                        arima_constant='default', arima_boxcox=None):
     """按模块顶部合约返回纯计算结果；all 的部分失败见 status/notes。"""
     _check_cancel(cancel)
     choices = ('correlation', 'decomposition', 'stationarity', 'ARIMA', 'SARIMA', 'auto_arima', 'all', *SMOOTHING)
@@ -652,7 +743,8 @@ def analyze_time_series(df, y, time=None, other=None, interval='1s', missing='er
                 seasonal = spec != (0, 0, 0, 0)
             if analysis == 'auto_arima':
                 tables, fit = _search_arima(train, train_series, step, lags, order, seasonal_order,
-                                            steps, alpha, arima_criterion, cancel, notes)
+                                            steps, alpha, arima_criterion, cancel, notes,
+                                            arima_constant, arima_boxcox)
             else:
                 tables, fit = _fit_model(train, train_series, step, lags, order, seasonal_order,
                                           seasonal, steps, alpha, cancel, notes)

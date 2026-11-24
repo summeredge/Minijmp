@@ -148,3 +148,83 @@ def test_auto_arima_criterion_and_origin():
     assert ranked.iloc[0].order == winner
     assert ranked.iloc[0].BIC == pytest.approx(reference[winner],rel=1e-6)
     assert list(result.tables['forecast'].sequence) == [61,62]
+
+
+
+@pytest.mark.parametrize('period, native', [
+    (2, [35.198914930535295, 36.400239417887306, 37.68852660434906]),
+    (3, [34.90191502621498, 38.00130245880733, 36.63213676796022]),
+    (4, [34.84128313275227, 37.55571841037086, 37.513233898634745]),
+])
+def test_short_additive_regression_matches_minitab_19(period, native):
+    # TSWINT C1 p; ADDITIVE; WEIGHTS 0.2 0.2 0.2; FORECASTS 3; FSTORE C2.
+    frame = pd.DataFrame({'y':[10,14,13,17,20,16,18,22,21,27,25,28,23,29,31,32,36,30]})
+    result = analyze_time_series(frame, 'y', analysis='winters', period=period,
+                                 winters_init='regression', forecast_steps=3)
+    np.testing.assert_allclose(result.tables['forecast'].predicted, native, rtol=0, atol=1e-12)
+
+
+def test_multiplicative_interval_against_reference_recursion():
+    from scipy.stats import norm
+    values = np.array([12, 18, 13, 22, 15, 24, 20, 25])
+    result = analyze_time_series(pd.DataFrame({'y': values}), 'y',
+        analysis='winters', period=2, decomposition='multiplicative',
+        level_weight=.25, trend_weight=.3, seasonal_weight=.4, smoothing_interval=True,
+        forecast_steps=5)
+    level, slope = 15., 1.25
+    phases = [.8, 1.2]
+    errors = []
+    for i, observed in enumerate(values):
+        phase = i % 2
+        season = phases[phase]
+        errors.append(abs(observed/season-level-slope))
+        next_level = .25*observed/season + .75*(level+slope)
+        slope = .3*(next_level-level) + .7*slope
+        level = next_level
+        phases[phase] = .4*observed/level + .6*season
+    h = np.arange(1, 6)
+    # Expand the published polynomial for theta=.4, nu=.6.
+    polynomial = 6.176 + .896*h + .128*h**2
+    width = 1.25*norm.ppf(.975)*np.mean(errors[1:])*np.sqrt(polynomial/polynomial[0])
+    forecast = result.tables['forecast']
+    np.testing.assert_allclose(forecast.ci_upper-forecast.predicted, width)
+    np.testing.assert_allclose(forecast.predicted-forecast.ci_lower, width)
+
+
+@pytest.mark.parametrize('lam', [-.5, 0, .5])
+def test_auto_arima_boxcox_and_constant_against_white_noise(lam):
+    from scipy.stats import norm
+    rng = np.random.default_rng(530)
+    values = 20*np.exp(rng.normal(scale=.07,size=90))
+    fit = analyze_time_series(pd.DataFrame({'y':values}), 'y', analysis='auto_arima',
+         order=(0,0,0), arima_boxcox=lam, arima_constant='search', forecast_steps=3)
+    assert fit.tables['model_selection'].deterministic.tolist() == ['c', 'n']
+    z = np.sign(lam)*values**lam if lam else np.log(values)
+    mu, variance = z.mean(), z.var()
+    delta = norm.ppf(.975)*np.sqrt(variance)
+    if lam:
+        mean = (np.sign(lam)*mu)**(1/lam)*(1+(1-lam)*variance/(2*(lam*mu)**2))
+        limits = (np.sign(lam)*(mu+np.array([-delta,delta])))**(1/lam)
+    else:
+        mean = np.exp(mu)*(1+variance/2)
+        limits = np.exp(mu+np.array([-delta,delta]))
+    future = fit.tables['forecast']
+    np.testing.assert_allclose(future.predicted, mean, rtol=1e-4)
+    np.testing.assert_allclose(future[['ci_lower','ci_upper']], np.tile(limits,(3,1)), rtol=1e-4)
+    np.testing.assert_allclose(fit.tables['residuals'].value_transformed, z)
+
+
+def test_auto_arima_guerrero_groups_and_random_walk_drift():
+    # All complete pairs have an identical CV. The leading value is omitted
+    # from lambda estimation, but included in the training fit.
+    values = [1, *np.ravel([(scale, 1.2*scale) for scale in range(5, 38)])]
+    result = analyze_time_series(pd.DataFrame({'y':values}), 'y', analysis='auto_arima',
+            order=(0,1,0), arima_boxcox='auto', arima_constant='search', forecast_steps=2)
+    assert result.tables['model_summary'].boxcox_lambda.iloc[0] == 0
+    assert set(result.tables['model_selection'].deterministic) == {'n','t'}
+    walk = 20 + np.cumsum(np.random.default_rng(41).normal(loc=2, size=100))
+    fit = analyze_time_series(pd.DataFrame({'y':walk}), 'y', analysis='auto_arima',
+        order=(0,1,0), arima_constant='search', forecast_steps=2)
+    assert fit.tables['model_summary'].deterministic.iloc[0] == 't'
+    np.testing.assert_allclose(fit.tables['forecast'].predicted,
+                              walk[-1] + np.arange(1,3)*np.diff(walk).mean(), atol=2e-5)
