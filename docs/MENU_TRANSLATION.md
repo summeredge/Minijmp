@@ -191,6 +191,8 @@
 | Two Samples t-test | 双样本 t 检验 |
 | Paired t-test | 配对 t 检验 |
 | Two Proportions Test | 双比率检验 |
+| 1-Sample Poisson Rate | 单样本泊松率检验 |
+| 2-Sample Poisson Rate | 双样本泊松率检验 |
 | Multi-Sample SD Test | 多样本标准差检验 |
 | Power and Sample Size for DOE | 试验设计功效与样本量 |
 | One-Way ANOVA | 单因子方差分析 |

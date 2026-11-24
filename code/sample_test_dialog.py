@@ -656,3 +656,75 @@ class Prop2SDialog(Dialogs):
                      alpha=alpha, print_out=True,
                      print_port=self.app.print)
         return
+
+class PoissonRateDialog(Dialogs):
+    groups = 1
+
+    def createWidgets(self, master):
+        self.counts, self.exposures = [], []
+        for i in range(self.groups):
+            row = ttk.LabelFrame(master, text=f'样本 {i+1}')
+            row.pack(fill=X, padx=4, pady=3)
+            for label, variables in (('事件数', self.counts), ('暴露量', self.exposures)):
+                value = tk.StringVar(master)
+                variables.append(value)
+                ttk.Label(row, text=label).pack(side=LEFT, padx=4)
+                ttk.Entry(row, textvariable=value, width=12).pack(side=LEFT)
+        self.unit, self.null = tk.StringVar(master), tk.StringVar(master, value='1')
+        self.direction = tk.StringVar(master, value='双侧')
+        self.method = tk.StringVar(master, value='精确')
+        fields = (
+            ('暴露量单位', self.unit, ()),
+            ('假设率' if self.groups == 1 else '假设率比（样本 1 / 样本 2）', self.null, ()),
+            ('备择方向', self.direction, ('双侧', '小于', '大于')),
+            ('检验方法', self.method, ('精确', '正态近似')),
+        )
+        for label, variable, values in fields:
+            row = ttk.Frame(master)
+            row.pack(fill=X, padx=4, pady=3)
+            ttk.Label(row, text=label).pack(side=LEFT, padx=4)
+            if values:
+                ttk.Combobox(row, textvariable=variable, values=values,
+                             state='readonly', width=12).pack(side=LEFT)
+            else:
+                ttk.Entry(row, textvariable=variable, width=14).pack(side=LEFT)
+        self.add_alpha(master)
+
+    def ok(self):
+        from proportion_test import poisson_rate
+        try:
+            null = float(self.null.get())
+            alpha = float(self.alpha.get())
+            result = poisson_rate(
+                [v.get() for v in self.counts], [v.get() for v in self.exposures],
+                null, alpha, {'双侧': 'two-sided', '小于': 'less', '大于': 'greater'}[self.direction.get()],
+                'exact' if self.method.get() == '精确' else 'normal',
+            )
+        except (ValueError, OverflowError, tk.TclError) as exc:
+            self.error(f'请检查输入。{exc}')
+            return
+
+        def interval_text(interval):
+            return '不可估计' if interval is None else f'[{interval[0]:.6g}, {interval[1]:.6g}]'
+
+        unit = self.unit.get().strip() or '暴露单位'
+        lines = [f'泊松率检验（{self.method.get()}，{self.direction.get()}）']
+        for i, rate in enumerate(result['rates'], 1):
+            lines.append(f'样本 {i} 率：{rate:.6g} 事件/{unit}')
+            if self.groups == 2:
+                lines.append(f'精确率区间：{interval_text(result["rate_intervals"][i-1])}')
+        if self.groups == 2:
+            ratio = result['ratio']
+            lines.append('率比：不可估计（两组均无事件）' if ratio is None else f'率比：{ratio:.6g}')
+            lines.append(f'率差：{result["difference"]:.6g} 事件/{unit}')
+            lines.append(f'率差正态近似区间：{interval_text(result["difference_ci"])}')
+        label = '率' if self.groups == 1 else '率比'
+        lines.append(f'{1-alpha:.1%} {label}区间：{interval_text(result["interval"])}')
+        statistic = '事件数' if self.method.get() == '精确' else 'Z'
+        lines.append(f'假设{label} = {null:.6g}，{statistic} = {result["statistic"]:.6g}，p = {result["pvalue"]:.6g}')
+        self.app.print('\n'.join(lines))
+        self.quit()
+
+
+class PoissonRate2Dialog(PoissonRateDialog):
+    groups = 2

@@ -294,3 +294,72 @@ if __name__ == "__main__":
     #  print(p_likelihood_ratio(250, .073, 9))
     #  print(p_likelihood_ratio(50, .35, 10))
     #  print(p_sterne(50, .35, 10))
+
+def poisson_rate(counts, exposures, null=1, alpha=0.05,
+                 alternative='two-sided', method='exact'):
+    """Poisson rate or rate ratio. The exact tests and intervals use equal tails."""
+    from scipy.stats import beta, chi2, poisson
+
+    counts = tuple(integer_count(n) for n in counts)
+    exposures = tuple(float(t) for t in exposures)
+    if (len(counts) not in (1, 2) or len(counts) != len(exposures)
+            or any(n is None or n < 0 for n in counts)
+            or any(not np.isfinite(t) or t <= 0 for t in exposures)):
+        raise ValueError('请输入非负整数事件数和有限的正暴露量。')
+    if not 0 < alpha < 1 or not np.isfinite(null) or null <= 0:
+        raise ValueError('显著性水平必须介于 0 和 1 之间，假设率或率比必须为有限正数。')
+    if alternative not in ('less', 'greater', 'two-sided') or method not in ('exact', 'normal'):
+        raise ValueError('无效的检验方向或方法。')
+
+    tail = alpha / 2 if alternative == 'two-sided' else alpha
+    zcrit = norm.isf(tail)
+    rates = tuple(n / t for n, t in zip(counts, exposures))
+    rate_intervals = [
+        (0 if n == 0 or alternative == 'less' else chi2.ppf(tail, 2*n) / (2*t),
+         np.inf if alternative == 'greater' else chi2.isf(tail, 2*n+2) / (2*t))
+        for n, t in zip(counts, exposures)
+    ]
+    x, t1 = counts[0], exposures[0]
+    result = {'rates': rates, 'rate_intervals': rate_intervals}
+    if len(counts) == 1:
+        expected = null*t1
+        low, high = poisson.cdf(x, expected), poisson.sf(x-1, expected)
+        statistic = x
+        interval = rate_intervals[0]
+        if method == 'normal':
+            if min(x, expected) <= 10:
+                raise ValueError('正态近似要求观测计数和零假设期望计数均大于 10。')
+            statistic = (x-expected) / np.sqrt(expected)
+            margin = zcrit*np.sqrt(x)/t1
+            interval = (0 if alternative == 'less' else max(0, rates[0]-margin),
+                        np.inf if alternative == 'greater' else rates[0]+margin)
+    else:
+        y, t2 = counts[1], exposures[1]
+        total = x+y
+        p0 = null*t1/(null*t1+t2)
+        low, high = binom.cdf(x, total, p0), binom.sf(x-1, total, p0)
+        statistic = x
+        lower_p = 0 if x == 0 or alternative == 'less' else beta.ppf(tail, x, y+1)
+        upper_p = 1 if y == 0 or alternative == 'greater' else beta.isf(tail, x+1, y)
+        interval = (lower_p/(1-lower_p)*t2/t1,
+                    np.inf if upper_p == 1 else upper_p/(1-upper_p)*t2/t1)
+        ratio = rates[0]/rates[1] if y else (np.inf if x else None)
+        difference = rates[0]-rates[1]
+        difference_ci = None
+        if min(counts) > 10:
+            margin = zcrit*np.hypot(np.sqrt(x)/t1, np.sqrt(y)/t2)
+            difference_ci = (float('-inf') if alternative == 'less' else difference-margin,
+                             np.inf if alternative == 'greater' else difference+margin)
+        result.update(ratio=ratio, difference=difference, difference_ci=difference_ci)
+        if method == 'normal':
+            if min(x, y, total*p0, total*(1-p0)) <= 10:
+                raise ValueError('正态近似要求两组观测计数和条件期望计数均大于 10。')
+            log_ratio = np.log(ratio)
+            se = np.sqrt(1/x+1/y)
+            statistic = (log_ratio-np.log(null))/se
+            interval = (0 if alternative == 'less' else np.exp(log_ratio-zcrit*se),
+                        np.inf if alternative == 'greater' else np.exp(log_ratio+zcrit*se))
+    if method == 'normal':
+        low, high = norm.cdf(statistic), norm.sf(statistic)
+    pvalue = {'less': low, 'greater': high, 'two-sided': min(1, 2*min(low, high))}
+    return dict(result, interval=interval, statistic=statistic, pvalue=pvalue[alternative])

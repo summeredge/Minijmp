@@ -27,6 +27,8 @@
       <a href="#stats.proportion_1sample">单样本率检验</a>
       <a href="#stats.mean_2sample_t">双样本均值 t 检验</a>
       <a href="#stats.paired_t">配对 t 检验</a>
+      <a href="#stats.poisson_rate_1sample">单样本泊松率检验</a>
+      <a href="#stats.poisson_rate_2samples">双样本泊松率检验</a>
       <a href="#stats.proportion_2sample">双样本率检验</a>
       <a href="#stats.multi_sample_sd">多样本标准差检验</a>
       <a href="#stats.anova_1way">单因子方差分析</a>
@@ -164,6 +166,18 @@
       <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/basic-statistics/how-to/paired-t/interpret-the-results/key-results/" target="_blank" rel="noopener noreferrer">Minitab 配对 t 检验结果说明</a>。</p>
     </section>
 
+    <section class="topic" id="stats.poisson_rate_1sample">
+      <h2>单样本泊松率检验</h2>
+      <p>输入每组的非负整数事件数、正暴露量和暴露量单位。同一比较中的两组应使用相同的暴露量单位，事件应独立并符合恒定泊松率假设。</p>
+      <p>指定每暴露单位的假设事件率。精确检验使用泊松尾概率，区间使用 Garwood 法。 精确双侧 p 值使用较小尾概率的两倍并截断到 1，单侧使用对应尾概率与置信界。</p>
+      <p>正态近似要求相关观测和期望计数大于 10。单样本采用零假设方差检验及观测方差区间。</p>
+    </section>
+    <section class="topic" id="stats.poisson_rate_2samples">
+      <h2>双样本泊松率检验</h2>
+      <p>输入每组的非负整数事件数、正暴露量和暴露量单位。同一比较中的两组应使用相同的暴露量单位，事件应独立并符合恒定泊松率假设。</p>
+      <p>指定样本 1 对样本 2 的假设率比。固定总计数后，样本 1 的事件数服从二项分布，零假设成功概率是 rT₁/(rT₁+T₂)。精确区间将 Clopper–Pearson 界限换算为率比。率差区间采用独立估计的正态近似，低计数时不报告。 精确双侧 p 值使用较小尾概率的两倍并截断到 1，单侧使用对应尾概率与置信界。</p>
+      <p>正态近似要求相关观测和期望计数大于 10。双样本在对数率比尺度上使用 Wald 法。两组都无事件时率比不可估计。</p>
+    </section>
     <section class="topic" id="stats.proportion_2sample">
       <h2>双样本率检验</h2>
       <p><strong>用途：</strong>比较两个样本中指定事件的比例。</p>

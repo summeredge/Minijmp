@@ -250,6 +250,8 @@ class Minijmp(Worksheets, Minijmp_pre):
             '30配对 t 检验': {'cmd': self.paired_t},
             '31双比率检验': {'cmd': self.prop_2samples},
             '32多样本标准差检验': {'cmd': self.multi_var},
+            '32单样本泊松率检验': {'cmd': self.poisson_rate_1sample},
+            '32双样本泊松率检验': {'cmd': self.poisson_rate_2samples},
             '34单因子方差分析': {'cmd': self.anova_1way},
             #  '33Mean Comparison t': {'cmd': self.JMP_t_test},
             '35双因子方差分析': {'cmd': self.anova_2way},
@@ -589,6 +591,14 @@ class Minijmp(Worksheets, Minijmp_pre):
             df=self.table.model.df,
             title='Two Proportions Test')
         return
+
+    def poisson_rate_1sample(self):
+        from sample_test_dialog import PoissonRateDialog
+        PoissonRateDialog(self.table, app=self, df=self.table.model.df, title='单样本泊松率检验')
+
+    def poisson_rate_2samples(self):
+        from sample_test_dialog import PoissonRate2Dialog
+        PoissonRate2Dialog(self.table, app=self, df=self.table.model.df, title='双样本泊松率检验')
 
     def anova_1way(self):
         from anova_dialog import Anova1WayDialog

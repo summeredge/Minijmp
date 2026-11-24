@@ -13,9 +13,9 @@
 
 | 状态 | 数量 |
 | --- | ---: |
-| 已实现 | 140 |
+| 已实现 | 141 |
 | 部分实现 | 7 |
-| 未实现 | 4 |
+| 未实现 | 3 |
 | 待核实 | 14 |
 | 不适用 | 2 |
 | DOE 交叉引用 | 36 |
@@ -25,15 +25,17 @@
 
 ## F1 结论
 
-F1 将 16 条开发缺口分入 10 个工作包。Q1 关闭后剩余 **15 条开发缺口**，其中 P0 为 2 条、P1 为 9 条、P2 为 4 条。14 条待核实记录先补证。历史 19.1 数值覆盖不足及已知方法差异单独跟踪。双因子 ANOVA 按现有范围计已实现，GLM 扩展用独立 ID；容差区间保留实现状态，G07 继续验证。E01、G08、G03、E02 保留现有结论。
+F1 将 16 条开发缺口分入 10 个工作包。S1 完成后剩余 **10 条 F2 开发记录**，其中 P0 为 1 条、P1 为 6 条、P2 为 3 条。14 条待核实记录先补证。历史 19.1 数值覆盖不足及已知方法差异单独跟踪。双因子 ANOVA 按现有范围计已实现，GLM 扩展用独立 ID；容差区间保留实现状态，G07 继续验证。E01、G08、G03、E02 保留现有结论。
 
-2026-11-23，Q1 属性过程能力完成，F0-NEW-029 标记为已实现。二项通过 22.6 原生 BCAPA 固定案例，泊松通过 19.1.0.1 原生 PCAPA 固定案例。S1 泊松率推断与 M1 固定效应 GLM 保留各自的开发状态。交付范围和原生证据见[能力验证](../capability-validation.md)和[开发待办](development-backlog.md)。
+2026-11-23，Q1 属性过程能力完成，F0-NEW-029 标记为已实现。二项通过 22.6 原生 BCAPA 固定案例，泊松通过 19.1.0.1 原生 PCAPA 固定案例。该条记录仅描述 Q1 的验收范围。交付范围和原生证据见[能力验证](../capability-validation.md)和[开发待办](development-backlog.md)。
 
 ## 验证
 
 复用 F0 已记录的 382 项回归通过结果。F0/F1 审计轮仅变更审计文档，核对 CSV 解析、功能 ID、DOE 引用、源码与测试文件链接、去重计数及任务映射。
 
 ## F2 已验收范围
+
+- **S1 · F0-NEW-025**：单样本精确尾概率以泊松质量直接求和核对，零事件上界用闭式结果核对。双样本固定总事件数，用二项质量枚举和区间端点的尾概率校验，覆盖等率、不同暴露量及零事件。正态近似以正态积分和手算标准误核对。真实 Tk 菜单验证双入口、输入错误后可重试及来源表报告。Minitab 19.1 原生 `ONERATE 10 30; TEST 2; ALTERNATIVE 1.` 的样本率 3、95% 下限 2.15940、p 0.022 与 MiniJMP 一致到报告精度。`TWORATE 10 30 20 30; TEST 0; ALTERNATIVE 1.` 的样本率 3.0/1.5、率差 1.5、条件精确 p 0.006 和率差正态下限 0.492737 同样一致。双侧精确 p 使用等尾定义，厂商单样本使用似然比。MiniJMP 双样本近似检验采用对数率比 Wald，原生以率差计算 Z。[单样本方法](https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/basic-statistics/how-to/1-sample-poisson-rate/methods-and-formulas/methods-and-formulas/) · [双样本方法](https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/basic-statistics/how-to/2-sample-poisson-rate/methods-and-formulas/methods-and-formulas/)
 
 - **T1 · F0-BASE-017**：移动平均以直接窗口求和、简单指数平滑以闭式加权和、双指数平滑以精确线性序列、加法及乘法 Winters 以逐期独立标量计算核对。共 263 项时间序列测试通过，含真实 Tk 分析、绘图、新表与导出流程。Minitab 19.1 原生 MA / SES / DES 在同一组 12 个观测上，一期拟合和三步预测一致（绝对误差小于 1e-12）；MA 与 SES 残差按相同拟合计算。加法 Winters 原生预测 34.826519、36.426928、41.001028，MiniJMP 为 31.869948、34.641288、40.037308，初始化约定不同。原生乘法及 22 实机未测。[Winters 递推与厂商初始化](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/time-series/how-to/winters-method/methods-and-formulas/methods-and-formulas/)
 - **D1 · F0-NEW-006 / 008 / 009**：逆堆叠以独立 pandas 切片与对齐验收，含标签冲突、缺失和大整数；抽样和生成检查固定种子、逐行配对及无放回约束；三类分布和边界以 SciPy 核对。相关测试共 188 项通过（含修订帮助主题数量后复验）。真实 Tk 经菜单写新表及当前表新列，源列保持原值。19.1 原生验证不等长逆堆叠、两种抽样和正态生成的固定种子复现，以及正态 PDF 和二项 CDF 数值。泊松逆 CDF 在 p=0/0.5/1 的原生结果是 0/2/缺失，SciPy 口径是 −1/2/+∞。[厂商逆 CDF 约定](https://support.minitab.com/en-us/minitab/help-and-how-to/probability-distributions-random-data-and-resampling-analyses/supporting-topics/data/why-the-icdf-may-not-exist/)
