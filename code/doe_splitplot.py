@@ -6,13 +6,14 @@ from itertools import product
 
 import pandas as pd
 
-from doe_core import (DesignSpec, _MAX_SPLIT_PLOT_RUNS,
+from doe_core import (DesignResult, DesignSpec, _MAX_SPLIT_PLOT_RUNS, _two_level_code,
                       design_from_worksheet, restore_design_result,
                       worksheet_metadata)
 
 
 _MAX_RUNS = _MAX_SPLIT_PLOT_RUNS
 _APPEND_BATCH_ID = "SPLITPLOT_APPEND_V1"
+_FOLD_BATCH_ID = "SPLITPLOT_FOLD_V1"
 
 
 def _layout(spec):
@@ -195,6 +196,8 @@ def append_split_plot_blocks(frame, metadata, count, *, seed=None):
     """追加一次完整区组批次；校验旧随机化前缀并保留原响应列类型。"""
     design = validate_split_plot_design(frame, metadata)
     spec = design.spec
+    if spec.foldover_lineage is not None:
+        raise ValueError('已折叠的裂区设计不能再增补区组。')
     if spec.augmentation_lineage is not None:
         raise ValueError("Split-Plot 当前只支持一次区组增补；请从原始设计一次增加所需区组数")
     if metadata.get("design", {}).get("schema_version", spec.schema_version) < 5:
@@ -264,6 +267,80 @@ def append_split_plot_blocks(frame, metadata, count, *, seed=None):
     return result, result_metadata
 
 
+
+def _split_fold_pairs(spec, base, added, selected):
+    factor_ids = tuple(f.factor_id for f in spec.factors)
+
+    def key(run, *, fold=False):
+        codes = tuple(_two_level_code(f,run.settings[f.factor_id]) for f in spec.factors)
+        if fold:
+            codes = tuple(-level if factor in selected else level
+                          for level,factor in zip(codes,factor_ids))
+        return run.block+(spec.block_count if fold else 0), codes
+
+    target = {key(run):run for run in added}
+    return tuple((run.run_id,target[key(run,fold=True)].run_id)
+                 for run in sorted(base,key=lambda run:run.standard_order))
+
+
+def create_split_plot_foldover(frame, metadata, folded_factors=None):
+    """Fold complete split-plot blocks while preserving the two randomization strata."""
+    from doe_custom import matrix_sha256
+    from doe_foldover import fold_factor_ids, _unique_column
+
+    source = validate_split_plot_design(frame,metadata)
+    spec = source.spec
+    if spec.foldover_lineage is not None or spec.augmentation_lineage is not None:
+        raise ValueError('请选择尚未折叠或增补的裂区设计。')
+    selected = fold_factor_ids(tuple(f.factor_id for f in spec.factors),folded_factors)
+    result, appended_meta = append_split_plot_blocks(frame,metadata,spec.block_count)
+    appended = validate_split_plot_design(result,appended_meta)
+    added = [run for run in appended.runs if run.batch_id == _APPEND_BATCH_ID]
+    pairs = _split_fold_pairs(spec,source.runs,added,selected)
+    columns = dict(appended_meta['column_map'])
+    columns['source_run_id'] = _unique_column(result,'DOE 源运行ID')
+    source_by_addition = {target:original for original,target in pairs}
+    result[columns['source_run_id']] = result[columns['run_id']].map(source_by_addition).astype(object)
+    result.loc[result[columns['batch_id']] == _APPEND_BATCH_ID,columns['batch_id']] = _FOLD_BATCH_ID
+    digest = hashlib.sha256((appended.spec.design_id+repr(selected)).encode('utf-8')).hexdigest()[:20]
+    lineage = dict(parent_design_id=spec.design_id,batch_id=_FOLD_BATCH_ID,
+                   folded_factors=selected,run_map=pairs,source_matrix_sha256=matrix_sha256(source),
+                   current_matrix_sha256=matrix_sha256(appended))
+    target = replace(appended.spec,design_id=f'SPFOLD-{digest}',augmentation_lineage=None,
+                     foldover_lineage=lineage)
+    result_metadata = worksheet_metadata(result,target,columns)
+    validate_split_plot_design(result,result_metadata)
+    return result,result_metadata
+
+
+def _validate_split_fold(result):
+    from doe_custom import matrix_sha256
+
+    spec = result.spec
+    lineage = spec.foldover_lineage
+    base = tuple(run for run in result.runs if run.batch_id is None)
+    added = tuple(run for run in result.runs if run.batch_id == _FOLD_BATCH_ID)
+    count = len({run.block for run in base})
+    if (lineage['batch_id'] != _FOLD_BATCH_ID or spec.block_count != 2*count
+            or len(base) != len(added) or len(base)+len(added) != len(result.runs)):
+        raise ValueError('裂区折叠须完整保留父区组并追加对应的新区组。')
+    source_spec = replace(spec,design_id=lineage['parent_design_id'],block_count=count,
+                          foldover_lineage=None)
+    source = DesignResult(source_spec,base)
+    _, _, original = _layout(source_spec)
+    _validate_layout(source_spec,base,original)
+    new_layout = _appended_layout(source_spec,count+1,count,len(base))
+    _validate_layout(spec,tuple(replace(run,source_run_id=None) for run in added),
+                     new_layout,batch_id=_FOLD_BATCH_ID)
+    pairs = _split_fold_pairs(source_spec,base,added,lineage['folded_factors'])
+    source_by_added = {r.run_id:r.source_run_id for r in added}
+    if (lineage['run_map'] != pairs or any(source_by_added[target] != source for source,target in pairs)
+            or lineage['source_matrix_sha256'] != matrix_sha256(source)
+            or lineage['current_matrix_sha256'] != matrix_sha256(result)):
+        raise ValueError('裂区折叠的父运行映射或矩阵摘要不匹配。')
+    return result
+
+
 def _validate_layout(spec, runs, actual, batch_id=None):
     if len(runs) != len(actual):
         raise ValueError("Split-Plot 运行数与设计定义不一致")
@@ -293,6 +370,8 @@ def _validate_layout(spec, runs, actual, batch_id=None):
 
 def _validate_split_plot_result(result):
     spec = result.spec
+    if spec.foldover_lineage is not None:
+        return _validate_split_fold(result)
     lineage = spec.augmentation_lineage
     if lineage is None:
         _, _, actual = _layout(spec)

@@ -12,15 +12,7 @@ from doe_fractional import (
 _BATCH_ID = "FOLD1"
 
 
-def create_foldover(frame, metadata, folded_factors=None):
-    """创建独立折叠工作表数据；保留来源响应，新增运行响应留空。"""
-    source = validate_fractional_design(frame, metadata)
-    spec = source.spec
-    if spec.foldover_lineage is not None:
-        raise ValueError("不支持对已有 Foldover 设计再次折叠")
-    if any(run.block is not None for run in source.runs):
-        raise ValueError("当前 Foldover 仅支持无区组的正规部分因子设计")
-    factor_ids = tuple(factor.factor_id for factor in spec.factors)
+def fold_factor_ids(factor_ids, folded_factors):
     if folded_factors is None:
         folded = factor_ids
     elif isinstance(folded_factors, str) and folded_factors == "全部":
@@ -35,7 +27,18 @@ def create_foldover(frame, metadata, folded_factors=None):
             or len(set(folded)) != len(folded)
             or any(key not in factor_ids for key in folded)):
         raise ValueError("折叠因子必须是非空且不重复的有效因子子集")
-    folded = tuple(key for key in factor_ids if key in folded)
+    return tuple(key for key in factor_ids if key in folded)
+
+def create_foldover(frame, metadata, folded_factors=None):
+    """创建独立折叠工作表数据；保留来源响应，新增运行响应留空。"""
+    source = validate_fractional_design(frame, metadata)
+    spec = source.spec
+    if spec.foldover_lineage is not None:
+        raise ValueError("不支持对已有 Foldover 设计再次折叠")
+    if any(run.block is not None for run in source.runs):
+        raise ValueError("当前 Foldover 仅支持无区组的正规部分因子设计")
+    factor_ids = tuple(factor.factor_id for factor in spec.factors)
+    folded = fold_factor_ids(factor_ids,folded_factors)
 
     base_runs = tuple(source.runs)
     source_factorial = tuple(sorted(

@@ -34,6 +34,7 @@ _DESIGN_TYPES = frozenset({
 _SCREENING_TYPES = frozenset({"plackett_burman", "definitive_screening"})
 _CUSTOM_TYPES = frozenset({"custom_factorial", "custom_rsm", "custom_screening"})
 _SCREENING_POINTS = _SCREENING_TYPES | {"custom_screening"}
+DSD_MULTI_COUNTS = frozenset((m,c) for m in range(4,15) for c in range(2,5))
 _SCREENING_SOURCES = {
     ("plackett_burman", f"pb{n}.v1", "publication", f"nist.pb{n}")
     for n in (12, 20, 24, 28, 36)
@@ -49,9 +50,7 @@ _SCREENING_SOURCES = {
 } | {("definitive_screening", "dsd4c2.v1", "mathematical_construction", "foldover.dsd4c2")} | {
     ("definitive_screening", f"dsd{m}c{c}.v1", "mathematical_construction",
      f"jones.dsd{m}c{c}")
-    for m in range(4, 13) for c in range(2, 5) if (m, c) != (4, 2)
-} | {("definitive_screening", "dsd13c3.v1", "mathematical_construction",
-      "jones.dsd13c3")
+    for m,c in DSD_MULTI_COUNTS if (m,c) != (4,2)
 }
 _POINT_TYPES = frozenset({"factorial", "center", "axial", "edge", "screening",
                           "pseudo_center", "taguchi"})
@@ -194,12 +193,13 @@ def _string_tuple(values, field_name):
     return result
 
 
-def _freeze_foldover_lineage(value):
+def _freeze_foldover_lineage(value, depth=0):
     if value is None:
         return None
     keys = {"parent_design_id", "batch_id", "folded_factors", "run_map",
             "source_matrix_sha256", "current_matrix_sha256"}
-    if not isinstance(value, Mapping) or set(value) != keys:
+    if (depth >= 10 or not isinstance(value, Mapping)
+            or set(value) not in (keys, keys | {'previous'})):
         raise ValueError("Foldover 谱系字段无效")
     parent = _text(value["parent_design_id"], "parent_design_id", identifier=True)
     batch = _text(value["batch_id"], "batch_id", identifier=True)
@@ -225,9 +225,25 @@ def _freeze_foldover_lineage(value):
         if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
             raise ValueError(f"Foldover {key} 无效")
         hashes[key] = digest
+    if 'previous' in value:
+        previous = _freeze_foldover_lineage(value['previous'], depth+1)
+        if previous is None:
+            raise ValueError('Foldover 前一批谱系无效')
+        hashes['previous'] = previous
     return MappingProxyType({"parent_design_id": parent, "batch_id": batch,
                              "folded_factors": factors, "run_map": tuple(run_map),
                              **hashes})
+
+
+def _serialize_foldover_lineage(lineage):
+    if lineage is None:
+        return None
+    data = dict(lineage)
+    data['folded_factors'] = list(lineage['folded_factors'])
+    data['run_map'] = [list(pair) for pair in lineage['run_map']]
+    if 'previous' in lineage:
+        data['previous'] = _serialize_foldover_lineage(lineage['previous'])
+    return data
 
 
 def _freeze_numeric_map(values, field_name, *, nullable=False, probability=False):
@@ -908,17 +924,18 @@ class DesignSpec:
                 raise ValueError("confounded_block 需要混杂区组生成元")
             lineage = _freeze_foldover_lineage(self.foldover_lineage)
             if lineage is not None and self.design_type not in (
-                    "two_level_fractional", "plackett_burman"):
-                raise ValueError("Foldover 谱系只支持正规两水平部分因子或 Plackett–Burman")
-            if lineage is not None and any(factor.factor_type != "continuous" for factor in factors):
-                raise ValueError("Foldover 不支持分类因子")
-            if lineage is not None and self.design_type == "plackett_burman":
-                if self.block_count is not None:
-                    raise ValueError("PB Foldover 不支持分区组设计")
-                if self.construction_version != "v2":
-                    raise ValueError("PB Foldover 需要 construction v2")
-                if self.screening_matrix is None:
-                    raise ValueError("PB Foldover 必须保留原始 PB 构造身份")
+                    "two_level_fractional", "plackett_burman", "split_plot"):
+                raise ValueError("Foldover 谱系不适用于该设计类型")
+            if lineage is not None:
+                extended_pb = self.design_type == 'plackett_burman' and self.construction_version == 'v3'
+                if (not extended_pb and ('previous' in lineage or
+                        self.design_type != 'split_plot' and any(f.factor_type != 'continuous' for f in factors))):
+                    raise ValueError('Foldover 谱系中的分类因子或多批字段不适用')
+                if self.design_type == 'plackett_burman':
+                    if not extended_pb and (self.construction_version != 'v2' or self.block_count is not None):
+                        raise ValueError('PB Foldover 需要 construction v2（无区组）或 v3')
+                    if self.screening_matrix is None:
+                        raise ValueError('PB Foldover 必须保留原始 PB 构造身份')
             if lineage is not None and (
                     lineage["parent_design_id"] == self.design_id
                     or not set(lineage["folded_factors"]) <= set(ids)):
@@ -960,8 +977,8 @@ class DesignSpec:
             improvement = _freeze_improvement_lineage(self.improvement_lineage)
             lineages = (("optimal", optimal), ("augmentation", augmentation),
                         ("improvement", improvement))
-            if sum(lineage is not None for _, lineage in lineages) > 1:
-                raise ValueError("最优选点、增补与改善谱系不能同时存在")
+            if sum(lineage is not None for _, lineage in lineages) + int(self.foldover_lineage is not None) > 1:
+                raise ValueError("折叠、最优选点、增补与改善谱系不能同时存在")
             for name, lineage in lineages:
                 if lineage is not None and lineage["parent_design_id"] == self.design_id:
                     raise ValueError(f"{name} 父设计不能与当前设计相同")
@@ -1011,14 +1028,7 @@ class DesignSpec:
                 "construction_version": self.construction_version,
                 "randomization_unit": self.randomization_unit,
                 "error_structure": self.error_structure,
-                "foldover_lineage": (None if self.foldover_lineage is None else {
-                    "parent_design_id": self.foldover_lineage["parent_design_id"],
-                    "batch_id": self.foldover_lineage["batch_id"],
-                    "folded_factors": list(self.foldover_lineage["folded_factors"]),
-                    "run_map": [list(pair) for pair in self.foldover_lineage["run_map"]],
-                    "source_matrix_sha256": self.foldover_lineage["source_matrix_sha256"],
-                    "current_matrix_sha256": self.foldover_lineage["current_matrix_sha256"],
-                }),
+                "foldover_lineage": _serialize_foldover_lineage(self.foldover_lineage),
                 "center_point_count": self.center_point_count,
             })
         if self.schema_version >= 5:
@@ -1468,6 +1478,19 @@ def _validate_taguchi_runs(spec, runs):
     return replicates
 
 
+def screening_level_series(values, factor):
+    """Keep a single numeric scalar type when Arrow can store levels losslessly."""
+    values = list(values)
+    if factor.factor_type == 'continuous' and any(isinstance(v,float) for v in values):
+        try:
+            converted = [float(v) for v in values]
+            if all(a == b for a,b in zip(values,converted)):
+                values = converted
+        except OverflowError:
+            pass
+    return pd.Series(values,dtype=object)
+
+
 def _screening_level(factor, value):
     if factor.factor_type == 'categorical':
         if len(factor.levels) != 2 or value not in factor.levels:
@@ -1546,10 +1569,7 @@ def _validate_screening_construction(result):
         supported_range = (
             categorical_count == 0 and 2 <= continuous_count <= 48
             or categorical_count == 1 and 1 <= continuous_count <= 47
-            or (continuous_count, categorical_count) == (4, 2)
-            or (continuous_count, categorical_count) == (13, 3)
-            or (2 <= categorical_count <= 4 and 4 <= continuous_count <= 12
-                and (continuous_count, categorical_count) != (4, 2)))
+            or (continuous_count, categorical_count) in DSD_MULTI_COUNTS)
         if (key != expected_key or not supported_range
                 or any(f.factor_type == 'categorical' and len(f.levels) != 2
                        for f in spec.factors)):
@@ -1571,7 +1591,9 @@ def _validate_screening_construction(result):
         if repetitions != set(range(1, count + 1)) or len(runs) > 10000 or len(runs) % count:
             raise ValueError('PB 重复或运行数与构造不匹配')
         per_rep = len(runs) // count
-        if per_rep < size or (spec.block_count is not None and spec.block_count != count):
+        block_count = (len({run.block for run in runs}) if spec.foldover_lineage is not None
+                       and spec.block_count is not None else spec.block_count)
+        if per_rep < size or (block_count is not None and block_count != count):
             raise ValueError('PB 中心点或区组数与构造不匹配')
         categorical = [f for f in spec.factors if f.factor_type == 'categorical']
         combinations_count = 1 << len(categorical)
@@ -1587,7 +1609,7 @@ def _validate_screening_construction(result):
                 expected = tuple(next(category_levels) if f.factor_type == 'categorical' else 0 for f in spec.factors)
             else:
                 expected = matrix[position][:factor_count]
-            if (run.replicate != rep + 1 or run.block != (rep + 1 if spec.block_count is not None else None)
+            if (run.replicate != rep + 1 or run.block != (rep + 1 if block_count is not None else None)
                     or run.point_type != ('pseudo_center' if center and categorical else 'center' if center else 'factorial')):
                 raise ValueError('PB 重复、区组或点类型与构造不匹配')
             for factor, value in zip(spec.factors, expected):
@@ -1638,6 +1660,9 @@ def _validate_pb_foldover(result):
     spec = result.spec
     lineage = spec.foldover_lineage
     if spec.design_type != 'plackett_burman' or lineage is None:
+        return
+    if spec.construction_version == 'v3':
+        _validate_pb_foldover_batches(result)
         return
     from doe_screening_matrices import MATRICES
 
@@ -1698,6 +1723,75 @@ def _validate_pb_foldover(result):
             if (source_level not in (-1, 1) or added_level not in (-1, 1)
                     or added_level != (-source_level if factor_id in folded else source_level)):
                 raise ValueError('PB Foldover 折叠变换与来源运行不匹配')
+
+
+def pb_foldover_fingerprint(runs, factors):
+    """V3 fingerprint includes centers, block allocation and run order."""
+    rows = [[run.run_id, run.standard_order, run.run_order, run.replicate, run.block, run.point_type,
+             [_screening_level(f,run.settings[f.factor_id]) for f in factors]]
+            for run in sorted(runs,key=lambda run:run.standard_order)]
+    value = json.dumps(rows,ensure_ascii=False,allow_nan=False,separators=(',', ':'))
+    return hashlib.sha256(value.encode('utf-8')).hexdigest()
+
+
+def _validate_pb_foldover_batches(result):
+    spec = result.spec
+    runs = sorted(result.runs,key=lambda run:run.standard_order)
+    initial = [r for r in runs if r.batch_id == 'BASE']
+    if not initial or any(r.source_run_id is not None for r in initial):
+        raise ValueError('PB Foldover 缺少有效的原始批次')
+    stages = []
+    record = spec.foldover_lineage
+    while record is not None:
+        stages.append(record)
+        record = record.get('previous')
+    base_count = len(initial)
+    if spec.seed is None or len(runs) != base_count*(2**len(stages)):
+        raise ValueError('PB Foldover 的运行数与谱系不匹配')
+    if any(r.batch_id != 'BASE' for r in runs[:base_count]):
+        raise ValueError('PB Foldover 原始批次的标准序不匹配')
+    if {r.run_order for r in initial} != set(range(1,base_count+1)):
+        raise ValueError('PB Foldover 原始运行序超出批次')
+    for number, stage in enumerate(reversed(stages),1):
+        source, added = runs[:base_count], runs[base_count:2*base_count]
+        batch = f'FOLD{number}'
+        source_blocks = {r.block for r in source}
+        blocked = source_blocks != {None}
+        if blocked and source_blocks != set(range(1,len(source_blocks)+1)):
+            raise ValueError('PB Foldover 的区组身份不匹配')
+        offset = len(source_blocks) if blocked else 0
+        expected_map = tuple((r.run_id,a.run_id) for r,a in zip(source,added))
+        if (batch != stage['batch_id'] or expected_map != stage['run_map']
+                or not set(stage['folded_factors']) <= {f.factor_id for f in spec.factors}
+                or {r.run_order for r in added} != set(range(base_count+1,2*base_count+1))):
+            raise ValueError('PB Foldover 批次或来源映射不匹配')
+        matches = any(
+            digest(source,spec.factors) == stage['source_matrix_sha256']
+            and digest((*source,*added),spec.factors) == stage['current_matrix_sha256']
+            for digest in ((pb_foldover_fingerprint,foldover_matrix_fingerprint)
+                           if number == 1 and len(stages) > 1 and not blocked
+                           and all(f.factor_type == 'continuous' for f in spec.factors)
+                           and all(r.point_type == 'factorial' for r in (*source,*added))
+                           else (pb_foldover_fingerprint,)))
+        if not matches:
+            raise ValueError('PB Foldover 批次矩阵摘要不匹配')
+        for original, addition in zip(source,added):
+            if (addition.batch_id != batch or addition.source_run_id != original.run_id
+                    or addition.point_type != original.point_type or original.replicate != addition.replicate
+                    or addition.block != (original.block+offset if blocked else None)):
+                raise ValueError('PB Foldover 批次、运行或区组映射不匹配')
+            for factor in spec.factors:
+                key = factor.factor_id
+                level = _screening_level(factor,original.settings[key])
+                expected = (-level if original.point_type == 'factorial'
+                            and key in stage['folded_factors'] else level)
+                if _screening_level(factor,addition.settings[key]) != expected:
+                    raise ValueError('PB Foldover 折叠变换与来源运行不匹配')
+        base_count *= 2
+    actual_blocks = {run.block for run in runs}
+    expected_blocks = {None} if spec.block_count is None else set(range(1,spec.block_count+1))
+    if actual_blocks != expected_blocks:
+        raise ValueError('PB Foldover 实际区组数与设计声明不一致')
 
 
 @dataclass(frozen=True)
@@ -2005,7 +2099,12 @@ def design_from_worksheet(frame, spec, column_map):
         if screening_matrix_sha256(result, base_only=base_only) != spec.screening_matrix["matrix_sha256"]:
             raise ValueError("筛选矩阵摘要与设计不一致")
         _validate_screening_construction(result)
-    if spec.foldover_lineage is not None:
+    if spec.design_type == 'split_plot' and spec.foldover_lineage is not None:
+        from doe_splitplot import _validate_split_plot_result
+        _validate_split_plot_result(result)
+    elif spec.design_type == 'plackett_burman' and spec.construction_version == 'v3' and spec.foldover_lineage is not None:
+        _validate_pb_foldover(result)
+    elif spec.foldover_lineage is not None:
         run_by_id = {_run_id_key(run.run_id): run for run in result.runs}
         lineage = spec.foldover_lineage
         base_runs = [run for run in result.runs if run.batch_id == "BASE"]

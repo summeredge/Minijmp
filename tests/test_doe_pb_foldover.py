@@ -558,41 +558,54 @@ def test_run_limit_guard_rejects_and_source_is_unchanged(monkeypatch):
     pd.testing.assert_frame_equal(frame, before)
 
 
-def test_unsupported_pb_sources_are_rejected():
-    # 分区组 PB 不允许折叠。
-    blocked, blocked_metadata = create_pb(pb_spec(12, 3), 12, replicates=2,
-                                          block_replicates=True)
-    with pytest.raises(ValueError, match='分区组'):
-        create_pb_foldover(blocked, blocked_metadata)
-    # 中心点 PB 不允许折叠。
-    centered, centered_metadata = create_pb(pb_spec(12, 3), 12, center_points=1)
-    with pytest.raises(ValueError, match='中心点'):
-        create_pb_foldover(centered, centered_metadata)
-    # 多个重复批次不允许折叠。
-    repeated, repeated_metadata = create_pb(pb_spec(12, 3), 12, replicates=2)
-    with pytest.raises(ValueError, match='重复批次'):
-        create_pb_foldover(repeated, repeated_metadata)
-    # 分类因子 PB 不允许折叠。
-    categorical = DesignSpec('pb', (FactorSpec('F1', 'F1', -1, 1),
-                                    FactorSpec('F2', 'F2', -1, 1),
-                                    FactorSpec('F3', 'F3', None, None,
-                                               factor_type='categorical',
-                                               levels=('甲', '乙'))), ('Y',), seed=7,
-                            design_type='plackett_burman',
-                            screening_matrix={'construction_id': 'pb12.v1',
-                                              'source_kind': 'publication',
-                                              'source_id': 'nist.pb12',
-                                              'matrix_sha256': '0' * 64})
-    cat_frame, cat_metadata = create_pb(categorical, 12)
-    with pytest.raises(ValueError, match='连续'):
-        create_pb_foldover(cat_frame, cat_metadata)
+@pytest.mark.parametrize('centers,reps,blocks',[(0,1,False),(1,1,False),(0,2,True),(1,2,True)])
+def test_extended_pb_batches_preserve_centers_blocks_and_response(centers,reps,blocks):
+    spec = pb_spec(12,3)
+    category = FactorSpec('F3','F3',None,None,factor_type='categorical',levels=('Low','High'))
+    spec = replace(spec,factors=(*spec.factors[:2],category))
+    frame,meta = create_pb(spec,12,replicates=reps,center_points=centers,block_replicates=blocks)
+    frame['响应_Y'] = pd.array(np.arange(len(frame)),dtype='Float64')
+    original_frame = frame.copy(deep=True)
+    first,first_meta,_ = create_pb_foldover(frame,meta,'F3')
+    first.loc[first[first_meta['column_map']['batch_id']]=='FOLD1','响应_Y'] = 99.
+    second,second_meta,summary = create_pb_foldover(first,first_meta,'F1')
+    pd.testing.assert_frame_equal(frame,original_frame)
+    assert len(second) == 4*(12+2*centers)*reps
+    assert summary['before']['runs'] == len(first)
+    assert summary['batch_id'] == 'FOLD2'
+    assert second_meta['design']['foldover_lineage']['previous'] == first_meta['design']['foldover_lineage']
+    design = restore_design_result(second,json.loads(json.dumps(second_meta)))
+    runs = {r.run_id:r for r in design.runs}
+    stage = design.spec.foldover_lineage
+    for factor in ('F1','F3'):
+        for source_id,addition_id in stage['run_map']:
+            source, addition = runs[source_id],runs[addition_id]
+            expected = dict(source.settings)
+            if source.point_type == 'factorial':
+                expected[factor] = -expected[factor] if factor == 'F1' else (
+                    'High' if expected[factor] == 'Low' else 'Low')
+            assert dict(addition.settings) == expected
+            assert addition.point_type == source.point_type
+            if blocks:
+                assert addition.block == source.block+(2*reps if factor == 'F1' else reps)
+            assert addition.responses['Y'] == (99. if factor == 'F3' else None)
+        stage = stage.get('previous')
+    x = np.array([[r.settings['F1'],r.settings['F2'],1 if r.settings['F3']=='High' else -1] for r in runs.values()])
+    a,b,c = x.T
+    assert summary['after']['joint_rank'] == np.linalg.matrix_rank(np.c_[np.ones(len(x)),x,a*b,a*c,b*c])
+    col = second_meta['column_map']['batch_id']
+    assert second.loc[second[col]=='BASE','响应_Y'].sort_values().to_list() == list(range(len(frame)))
 
 
-def test_second_foldover_and_non_foldover_metadata_changes_are_rejected():
+def test_second_foldover_from_legacy_v2_and_metadata_tampering():
     _, _, folded, folded_metadata = tampered_pb_pairs()
-    with pytest.raises(ValueError, match='再次折叠'):
-        create_pb_foldover(folded, folded_metadata)
-    damaged = json.loads(json.dumps(folded_metadata))
+    second, second_meta, summary = create_pb_foldover(folded,folded_metadata)
+    assert summary['total_runs'] == 2*len(folded)
+    altered = deepcopy(second_meta)
+    altered['design']['foldover_lineage']['previous']['current_matrix_sha256'] = '0'*64
+    with pytest.raises(ValueError,match='摘要'):
+        restore_design_result(second,altered)
+    damaged = deepcopy(folded_metadata)
     damaged['design']['construction_version'] = 'v1'
     with pytest.raises(ValueError, match='v2'):
         restore_design_result(folded, damaged)

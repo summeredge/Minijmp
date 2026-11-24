@@ -759,3 +759,27 @@ def test_dsd_saturated_and_invalid_hierarchy_gui(csv_app, monkeypatch):
     dialog.analyze()
     assert dialog.result is None and '主效应' in error.call_args.args[1]
     dialog.main.destroy()
+
+def test_extended_dsd_menu_roundtrip(csv_app,tmp_path,monkeypatch):
+    from doe_core import restore_design_result
+    app,error=csv_app
+    monkeypatch.setattr('doe_dialog.messagebox.showerror',error)
+    monkeypatch.setattr('worksheets.messagebox.showerror',error)
+    monkeypatch.setattr('worksheets.messagebox.askyesno',lambda *a,**k:True)
+    create=CreateDOE(app,dsd=True)
+    create.factor_count.set('15')
+    create.update_factor_rows()
+    for row in create.fields[13:15]:
+        row[4].insert(0,'Low;High')
+    create.preview()
+    assert '34 次运行' in create.preview_text.get()
+    create.create()
+    source=app.getCurrentTable()
+    assert len(source.model.df)==34
+    assert source.model.df['点类型'].eq('pseudo_center').sum()==2
+    path=tmp_path/'dsd-13-2.dexpl'
+    assert app._save_project(path),error.call_args_list
+    assert app.load_file(path)
+    restored=app.getCurrentTable()
+    assert restore_design_result(restored.model.df,restored.doe_metadata).spec.screening_matrix['construction_id']=='dsd13c2.v1'
+    error.assert_not_called()

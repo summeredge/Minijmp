@@ -4,6 +4,7 @@ from tkinter import messagebox, ttk
 
 from doe_foldover import create_foldover, foldover_summary
 from doe_pb_foldover import create_pb_foldover, pb_foldover_summary
+from doe_splitplot import create_split_plot_foldover, validate_split_plot_design
 from help_link import open_help
 
 
@@ -17,14 +18,19 @@ class FoldoverDOE:
                 continue
             design = metadata['design']
             design_type = design.get('design_type')
-            if design_type not in ('two_level_fractional', 'plackett_burman'):
+            if design_type not in ('two_level_fractional', 'plackett_burman', 'split_plot'):
                 continue
-            if design.get('foldover_lineage') is not None:
+            if design.get('foldover_lineage') is not None and design_type != 'plackett_burman':
+                continue
+            if design_type == 'split_plot' and (design.get('augmentation_lineage') is not None
+                                                 or design.get('schema_version',0) < 5):
                 continue
             try:
                 frame = app._full_frame(table)
                 if design_type == 'plackett_burman':
                     pb_foldover_summary(frame, metadata)
+                elif design_type == 'split_plot':
+                    validate_split_plot_design(frame,metadata)
                 else:
                     foldover_summary(frame, metadata)
             except (ValueError, TypeError, OverflowError, KeyError):
@@ -34,7 +40,7 @@ class FoldoverDOE:
         if not self.sources:
             self.main = None
             messagebox.showerror(
-                'Foldover', '当前工作簿没有可折叠的正规两水平部分因子或 PB 设计。',
+                'Foldover', '当前工作簿没有可折叠的正规两水平部分因子、PB 或裂区设计。',
                 parent=app.main)
             return
 
@@ -123,8 +129,8 @@ class FoldoverDOE:
     def help_topic(self):
         table = self.sources.get(self.source.get())
         design = None if table is None else table.doe_metadata['design']
-        return 'doe.pb' if design and design.get('design_type') == 'plackett_burman' \
-            else 'doe.fractional'
+        topics = {'plackett_burman':'doe.pb','split_plot':'doe.split_plot'}
+        return topics.get(design.get('design_type') if design else None,'doe.fractional')
 
     def _source_changed(self, event=None):
         self._update_factors()
@@ -137,7 +143,9 @@ class FoldoverDOE:
         if design and design.get('design_type') == 'plackett_burman':
             count = len(self.app._full_frame(table))
             self.limits.set(f'来源设计：Plackett–Burman，{count} 次运行。'
-                            '仅支持连续两水平因子、无中心点、无区组、单批次、一次折叠。')
+                            '每次追加来源设计的折叠批次。')
+        elif design and design.get('design_type') == 'split_plot':
+            self.limits.set('来源设计：两水平裂区。新增区组保留整区与子区的随机化结构。')
         else:
             self.limits.set('来源设计：正规两水平部分因子。')
 
@@ -186,6 +194,8 @@ class FoldoverDOE:
         table = self.sources.get(self.source.get())
         if table is not None and table.doe_metadata['design']['design_type'] == 'plackett_burman':
             return self._preview_pb()
+        if table is not None and table.doe_metadata['design']['design_type'] == 'split_plot':
+            return self._preview_split_plot()
         try:
             _, frame, metadata = self._source_data()
             before = foldover_summary(frame, metadata)
@@ -210,6 +220,22 @@ class FoldoverDOE:
             f'{self._resolution(after["resolution"])}\n'
             f'全模型秩：{before["model_rank"]} → {after["model_rank"]}\n'
             '别名变化：\n' + '\n'.join(changes))
+        return True
+
+    def _preview_split_plot(self):
+        try:
+            _, frame, metadata = self._source_data()
+            result, updated = create_split_plot_foldover(frame,metadata,self._selected_factors())
+        except (ValueError, TypeError, OverflowError, KeyError) as error:
+            self._show_preview('预览不可用。')
+            messagebox.showerror('Foldover',str(error),parent=self.main)
+            return False
+        design = metadata['design']
+        rank = 1 << len(design['factors'])
+        self._show_preview(
+            f'运行数：{len(frame)} → {len(result)}；区组数：{design["block_count"]} → {updated["design"]["block_count"]}。\n'
+            f'{self._fold_change(frame,metadata,result,updated)}\n'
+            f'处理模型秩：{rank} → {rank}。完整裂区折叠增加重复，保留整区和子区误差层。')
         return True
 
     def _preview_pb(self):
@@ -242,8 +268,7 @@ class FoldoverDOE:
             f'可单独估计交互：{len(before["estimable"])} → {len(after["estimable"])}；'
             f'不可估计交互：{len(before["unestimable"])} → {len(after["unestimable"])}\n'
             f'{effect}\n'
-            'PB 无正规定义关系；以上为实际编码矩阵的投影结果。\n'
-            '限制：仅连续两水平因子、无中心点、无区组、单批次、一次折叠。')
+            'PB 无正规定义关系；以上为实际编码矩阵的投影结果。')
         return True
 
     def create(self):
@@ -252,7 +277,9 @@ class FoldoverDOE:
             return self._create_pb()
         try:
             name, frame, metadata = self._source_data()
-            folded_frame, folded_metadata = create_foldover(
+            operation = (create_split_plot_foldover if metadata['design']['design_type'] == 'split_plot'
+                         else create_foldover)
+            folded_frame, folded_metadata = operation(
                 frame, metadata, self._selected_factors())
             self.app.addSheet(f'{name} Foldover', folded_frame, {'doe': folded_metadata})
         except (ValueError, TypeError, OverflowError, KeyError) as error:

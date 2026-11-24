@@ -26,9 +26,10 @@ def _supported(spec):
 
 def _reject_folded_screening(spec, action):
     """PB Foldover 的原始/新增批次运行身份不可被通用修改改写。"""
-    if spec.foldover_lineage is not None and spec.design_type == 'plackett_burman':
+    names = {'plackett_burman':'Plackett–Burman','split_plot':'Split-Plot'}
+    if spec.foldover_lineage is not None and spec.design_type in names:
         raise ValueError(
-            f'已折叠的 Plackett–Burman 设计不支持{action}；'
+            f'已折叠的 {names[spec.design_type]} 设计不支持{action}；'
             '原始批次与折叠批次的运行身份必须保留')
 
 
@@ -166,7 +167,7 @@ def modify_summary(frame, metadata):
         design = restore_design_result(frame, metadata)
     family = _supported(design.spec)
     split_augmented = (design.spec.design_type == 'split_plot'
-                       and design.spec.augmentation_lineage is not None)
+                       and (design.spec.augmentation_lineage is not None or design.spec.foldover_lineage is not None))
     append_unsupported = (design.spec.design_type == 'split_plot'
                           and metadata.get('design', {}).get(
                               'schema_version', design.spec.schema_version) < 5)

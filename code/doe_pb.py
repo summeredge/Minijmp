@@ -7,7 +7,7 @@ import pandas as pd
 
 from doe_core import (DesignResult, DesignSpec, RunRecord, _validate_pb_foldover,
                       _validate_screening_construction, category_combinations,
-                      randomized_run_order, screening_matrix_sha256, worksheet_metadata)
+                      randomized_run_order, screening_level_series, screening_matrix_sha256, worksheet_metadata)
 from doe_screening_matrices import MATRICES
 
 
@@ -99,8 +99,9 @@ def create_pb(spec, run_count, replicates=1, measured=False, center_points=0, bl
     identity['matrix_sha256'] = screening_matrix_sha256(result)
     spec = replace(spec, screening_matrix=identity)
     frame = pd.DataFrame(rows)
-    for name in columns['factors'].values():
-        frame[name] = pd.Series([row[name] for row in rows], dtype=object)
+    for factor in spec.factors:
+        name = columns['factors'][factor.factor_id]
+        frame[name] = screening_level_series((row[name] for row in rows),factor)
     for name in (*columns['measured_levels'].values(), *columns['responses'].values()):
         frame[name] = pd.array([None] * total, dtype='Float64')
     return frame, worksheet_metadata(frame, spec, columns)

@@ -192,3 +192,59 @@ def test_foldover_menu_rejects_workbook_without_regular_fractional_source(
     assert dialog is None
     assert list(app.sheets) == names
     error.assert_called_once()
+
+def test_extended_foldover_menu_project_roundtrip(csv_app,tmp_path,monkeypatch):
+    from doe_core import restore_design_result
+    from doe_dialog import CreateDOE
+    from doe_splitplot import create_split_plot
+    from test_doe_splitplot import spec as split_spec
+
+    app,error=csv_app
+    monkeypatch.setattr('doe_foldover_dialog.messagebox.showerror',error)
+    monkeypatch.setattr('doe_dialog.messagebox.showerror',error)
+    monkeypatch.setattr('worksheets.messagebox.showerror',error)
+    monkeypatch.setattr('worksheets.messagebox.askyesno',lambda *a,**k:True)
+    monkeypatch.setattr('worksheets.messagebox.askyesnocancel',lambda *a,**k:False)
+    create=CreateDOE(app,pb=True)
+    create.factor_count.set('3')
+    create.update_factor_rows()
+    create.fields[2][4].insert(0,'Low;High')
+    create.options['中心点数'].delete(0,'end')
+    create.options['中心点数'].insert(0,'1')
+    create.create()
+    pb=app.getCurrentTable()
+    assert len(pb.model.df)==14
+    window=invoke_foldover_menu(app)
+    assert window is not None
+    window.destroy()
+    first=FoldoverDOE(app)
+    select_folded(first,'F3')
+    first.create_button.invoke()
+    assert len(app.getCurrentTable().model.df)==28
+    second=FoldoverDOE(app)
+    select_folded(second,'F1')
+    second.create_button.invoke()
+    pb2=app.getCurrentTable()
+    assert len(pb2.model.df)==56
+    frame,meta=create_split_plot(split_spec())
+    app.addSheet('裂区来源',frame,{'doe':meta})
+    dialog=FoldoverDOE(app)
+    select_folded(dialog,'A')
+    assert dialog.preview()
+    assert '区组数：3 → 6' in dialog.preview_text.get('1.0','end')
+    dialog.create_button.invoke()
+    spl=app.getCurrentTable()
+    assert len(spl.model.df)==24
+    path=tmp_path/'extended-foldover.dexpl'
+    assert app._save_project(path),error.call_args_list
+    assert app.load_file(path)
+    matches=[]
+    for tbl in app.sheets.values():
+        if not tbl.doe_metadata:
+            continue
+        design=restore_design_result(tbl.model.df,tbl.doe_metadata)
+        if design.spec.foldover_lineage:
+            matches.append((design.spec.design_type,design.spec.foldover_lineage['batch_id'],len(design.runs)))
+    assert ('plackett_burman','FOLD2',56) in matches
+    assert ('split_plot','SPLITPLOT_FOLD_V1',24) in matches
+    error.assert_not_called()

@@ -12,7 +12,7 @@ from doe_dsd import _dsd_matrix_for_key, create_dsd, validate_dsd
 from doe_screening_matrices import MATRICES
 
 
-MULTI_CASES = tuple((m, c) for m in range(4, 13) for c in range(2, 5)
+MULTI_CASES = tuple((m, c) for m in range(4, 15) for c in range(2, 5)
                     if (m, c) != (4, 2))
 
 
@@ -365,7 +365,7 @@ def test_mixed_extra_centers_must_cover_all_category_combinations(
         create_dsd(_spec(continuous_count, categorical_count), center_points=center_points)
 
 
-@pytest.mark.parametrize('key', ['dsd3c2', 'dsd13c2', 'dsd4c5', 'dsd4c02', 'pb12'])
+@pytest.mark.parametrize('key', ['dsd3c2', 'dsd15c2', 'dsd4c5', 'dsd4c02', 'pb12'])
 def test_unknown_or_out_of_scope_dsd_matrix_keys_are_rejected(key):
     with pytest.raises(KeyError):
         _dsd_matrix_for_key(key)

@@ -1,4 +1,4 @@
-"""Plackett–Burman 折叠：复制原运行并翻转全部或一个因子。
+"""Plackett–Burman 折叠：复制当前批次范围并翻转选中的因子。
 
 PB 没有正规 defining relation；此处只按实际编码矩阵计算秩、投影与
 完全/部分混杂，不生成正规别名。
@@ -9,12 +9,12 @@ import numpy as np
 import pandas as pd
 
 from doe_core import (RunRecord, _screening_level, foldover_matrix_fingerprint,
-                      randomized_run_order, restore_design_result,
-                      screening_matrix_sha256, worksheet_metadata)
+                      pb_foldover_fingerprint, randomized_run_order, restore_design_result,
+                      screening_level_series, worksheet_metadata)
 from doe_pb import validate_pb
+from doe_foldover import fold_factor_ids
 
 
-BATCH_ID = 'FOLD1'
 MAX_RUNS = 10000
 
 
@@ -83,40 +83,13 @@ def _coded_frame(design):
             [factor.factor_id for factor in factors])
 
 
-def _check_source(design, folded):
-    spec = design.spec
-    if design.spec.foldover_lineage is not None:
-        raise ValueError('不支持对已有 Foldover 设计再次折叠')
-    if any(factor.factor_type != 'continuous' for factor in spec.factors):
-        raise ValueError('PB Foldover 仅支持连续两水平因子')
-    if spec.block_count is not None:
-        raise ValueError('PB Foldover 不支持分区组设计')
-    if len({run.replicate for run in design.runs}) != 1:
-        raise ValueError('PB Foldover 不支持多个重复批次')
-    if any(run.point_type != 'factorial' for run in design.runs):
-        raise ValueError('PB Foldover 不支持中心点或伪中心点')
-    factor_ids = tuple(factor.factor_id for factor in spec.factors)
-    if folded is None:
-        folded = factor_ids
-    elif isinstance(folded, str) and folded == '全部':
-        folded = factor_ids
-    elif isinstance(folded, str):
-        folded = (folded,)
-    elif isinstance(folded, (tuple, list)):
-        folded = tuple(folded)
-    else:
-        raise ValueError('折叠因子必须是全部或因子 ID 列表')
-    if (not folded or any(not isinstance(key, str) for key in folded)
-            or len(set(folded)) != len(folded)
-            or any(key not in factor_ids for key in folded)):
-        raise ValueError('折叠因子必须是非空且不重复的有效因子子集')
-    return tuple(key for key in factor_ids if key in folded)
-
-
 def _settings(factor, source, flip):
     coded = _screening_level(factor, source.settings[factor.factor_id])
-    value = -coded if flip else coded
-    return factor.low if value == -1 else factor.high
+    if not flip or source.point_type != 'factorial':
+        return source.settings[factor.factor_id]
+    if factor.factor_type == 'categorical':
+        return factor.levels[1] if coded == -1 else factor.levels[0]
+    return factor.high if coded == -1 else factor.low
 
 
 def _unique_column(frame, base):
@@ -126,13 +99,6 @@ def _unique_column(frame, base):
         candidate = f'{base} ({index})'
         index += 1
     return candidate
-
-
-def _folded_order(seed, base_count):
-    """新增批次的运行序区间：仅追加在 base_count 之后。"""
-    new_ids = [f'F{i:05d}' for i in range(1, base_count + 1)]
-    return {run_id: base_count + index
-            for index, run_id in enumerate(randomized_run_order(new_ids, seed), 1)}
 
 
 def _nullable_dtype(column):
@@ -149,63 +115,89 @@ def create_pb_foldover(frame, metadata, folded_factors=None):
     """返回 (折叠工作表, 元数据, 摘要)；来源工作表不被修改。"""
     design = restore_design_result(frame, metadata)
     validate_pb(design)
-    folded = _check_source(design, folded_factors)
     spec = design.spec
     factor_ids = tuple(factor.factor_id for factor in spec.factors)
+    folded = fold_factor_ids(factor_ids,folded_factors)
     base_runs = tuple(sorted(design.runs, key=lambda run: run.standard_order))
     if len(base_runs) * 2 > MAX_RUNS:
         raise ValueError(f'折叠后运行总数不能超过 {MAX_RUNS}')
     base_count = len(base_runs)
+    previous = spec.foldover_lineage
+    batch_number = 1 if previous is None else int(previous['batch_id'].removeprefix('FOLD'))+1
+    batch = f'FOLD{batch_number}'
+    extended = (previous is not None or spec.block_count is not None
+                or len({run.replicate for run in base_runs}) != 1
+                or any(run.point_type != 'factorial' for run in base_runs)
+                or any(factor.factor_type == 'categorical' for factor in spec.factors))
     columns = dict(metadata['column_map'])
-    columns['batch_id'] = _unique_column(frame, 'DOE 批次')
-    columns['source_run_id'] = _unique_column(frame, 'DOE 源运行ID')
     original = frame.copy(deep=True).reset_index(drop=True)
-    original[columns['batch_id']] = 'BASE'
-    original[columns['source_run_id']] = None
+    if previous is None:
+        columns['batch_id'] = _unique_column(frame, 'DOE 批次')
+        columns['source_run_id'] = _unique_column(frame, 'DOE 源运行ID')
+        original[columns['batch_id']] = 'BASE'
+        original[columns['source_run_id']] = None
 
     factor_map = {factor.factor_id: factor for factor in spec.factors}
-    order = _folded_order(spec.seed, base_count)
+    prefix = 'F' if batch_number == 1 else f'F{batch_number}_'
+    new_ids = [f'{prefix}{i:05d}' for i in range(1,base_count+1)]
+    block_offset = spec.block_count or 0
+    if block_offset:
+        shuffled = []
+        for block in range(1,block_offset+1):
+            ids = [key for key,run in zip(new_ids,base_runs) if run.block == block]
+            shuffled.extend(randomized_run_order(ids,spec.seed+block))
+        order = {key: base_count+i for i,key in enumerate(shuffled,1)}
+    else:
+        order = {key: base_count+i for i,key in enumerate(
+            randomized_run_order(new_ids,spec.seed),1)}
     additions, addition_records, run_map = [], [], []
-    for index, run in enumerate(base_runs, 1):
-        run_id = f'F{index:05d}'
+    for index, (run_id, run) in enumerate(zip(new_ids,base_runs),1):
         settings = {factor_id: _settings(factor_map[factor_id], run, factor_id in folded)
                     for factor_id in factor_ids}
         row = {column: None for column in frame.columns}
         row[columns['run_id']] = run_id
         row[columns['standard_order']] = base_count + index
-        row[columns['point_type']] = 'factorial'
+        row[columns['point_type']] = run.point_type
+        block = run.block+block_offset if block_offset else None
+        if columns.get('block') is not None:
+            row[columns['block']] = block
         row[columns['replicate']] = run.replicate
         row.update({column: settings[factor_id]
                     for factor_id, column in columns['factors'].items()})
-        row[columns['batch_id']] = BATCH_ID
+        row[columns['batch_id']] = batch
         row[columns['source_run_id']] = run.run_id
         additions.append(row)
         addition_records.append(replace(
             run, run_id=run_id, standard_order=base_count + index,
             run_order=order[run_id],
-            settings=settings, measured_levels={key: None for key in run.measured_levels},
+            settings=settings, block=block, measured_levels={key: None for key in run.measured_levels},
             responses={key: None for key in run.responses},
-            batch_id=BATCH_ID, source_run_id=run.run_id))
+            batch_id=batch, source_run_id=run.run_id))
         run_map.append((run.run_id, run_id))
     for row in additions:
         row[columns['run_order']] = order[row[columns['run_id']]]
 
-    source_hash = foldover_matrix_fingerprint(base_runs, spec.factors)
-    current_hash = foldover_matrix_fingerprint((*base_runs, *addition_records),
-                                               spec.factors)
+    fingerprint = pb_foldover_fingerprint if extended else foldover_matrix_fingerprint
+    source_hash = fingerprint(base_runs,spec.factors)
+    current_hash = fingerprint((*base_runs,*addition_records),spec.factors)
     tag = ('all' if folded == factor_ids else folded[0] if len(folded) == 1
            else 'M' + '-'.join(str(factor_ids.index(key) + 1) for key in folded))
-    lineage = {'parent_design_id': spec.design_id, 'batch_id': BATCH_ID,
+    lineage = {'parent_design_id': spec.design_id, 'batch_id': batch,
                'folded_factors': folded, 'run_map': tuple(run_map),
                'source_matrix_sha256': source_hash,
                'current_matrix_sha256': current_hash}
-    folded_spec = replace(spec, design_id=f'fold-{spec.design_id[:40]}-{tag}',
-                          construction_version='v2', foldover_lineage=lineage)
+    if previous is not None:
+        lineage['previous'] = previous
+    design_id = f'fold-{spec.design_id[:40]}-{tag}' if not extended else f'fold{batch_number}-{spec.design_id[:39]}-{tag}'
+    folded_spec = replace(spec,design_id=design_id,
+                          construction_version='v3' if extended else 'v2',
+                          block_count=2*block_offset or None,foldover_lineage=lineage)
     result = pd.concat((original, pd.DataFrame(additions, columns=original.columns)),
                        ignore_index=True)
     result = result.sort_values(columns['run_order'], kind='stable').reset_index(drop=True)
-    for column in columns['factors'].values():
-        result[column] = result[column].astype(object)
+    for factor in spec.factors:
+        column = columns['factors'][factor.factor_id]
+        result[column] = screening_level_series(result[column],factor)
     for column in (*columns['measured_levels'].values(), *columns['responses'].values()):
         result[column] = pd.array(result[column], dtype=_nullable_dtype(original[column]))
     result_metadata = worksheet_metadata(result, folded_spec, columns)
@@ -219,7 +211,7 @@ def pb_foldover_summary(frame, metadata):
     validate_pb(design)
     coded, names = _coded_frame(design)
     lineage = design.spec.foldover_lineage
-    base = [run for run in design.runs if run.batch_id in (None, 'BASE')]
+    base = [run for run in design.runs if lineage is None or run.batch_id != lineage['batch_id']]
     added = [run for run in design.runs
              if lineage is not None and run.batch_id == lineage['batch_id']]
     before_coded = np.asarray([[float(_screening_level(f, run.settings[f.factor_id]))

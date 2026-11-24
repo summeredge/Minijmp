@@ -294,3 +294,42 @@ def test_v3_rejects_unbalanced_subplots_and_reml():
         DesignSpec("reml-split", spec.factors, ("Y",), seed=1,
                    design_type="split_plot", block_count=2, construction_version="v3",
                    randomization_unit="whole_plot", error_structure="REML")
+
+@pytest.mark.parametrize('factory,fold',[(spec,('A',)),(lambda:v3_spec(factor_count=4,hard=2),('A','D'))])
+def test_split_plot_foldover_preserves_strata_and_sources(factory,fold):
+    from collections import defaultdict
+    from copy import deepcopy
+    import numpy as np
+    import pandas as pd
+    from doe_splitplot import create_split_plot_foldover
+
+    source_spec=factory()
+    frame,meta=create_split_plot(source_spec)
+    frame['响应_Y']=pd.array(np.arange(len(frame)),dtype='Float64')
+    prior=frame.copy(deep=True)
+    out,updated=create_split_plot_foldover(frame,meta,fold)
+    pd.testing.assert_frame_equal(frame,prior)
+    result=validate_split_plot_design(out,updated)
+    assert result.spec.block_count == 2*source_spec.block_count
+    assert len(result.runs)==2*len(frame)
+    runs={r.run_id:r for r in result.runs}
+    plots=defaultdict(list)
+    for src_id,new_id in result.spec.foldover_lineage['run_map']:
+        source,new=runs[src_id],runs[new_id]
+        assert source.responses['Y'] is not None and new.responses['Y'] is None
+        assert new.block == source.block+source_spec.block_count
+        assert new.whole_plot_id != source.whole_plot_id
+        plots[new.whole_plot_id].append((source.whole_plot_id,new.run_order))
+        for factor in source_spec.factors:
+            fid=factor.factor_id
+            lo,hi=factor.levels if factor.factor_type=='categorical' else (factor.low,factor.high)
+            expected=(hi if source.settings[fid]==lo else lo) if fid in fold else source.settings[fid]
+            assert new.settings[fid]==expected
+    for rows in plots.values():
+        assert len({r[0] for r in rows})==1
+        order=sorted(r[1] for r in rows)
+        assert order==list(range(order[0],order[-1]+1))
+    damaged=deepcopy(updated)
+    damaged['design']['foldover_lineage']['folded_factors']=['B']
+    with pytest.raises(ValueError,match='映射'):
+        restore_design_result(out,damaged)

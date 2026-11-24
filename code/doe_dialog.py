@@ -7,7 +7,7 @@ import pandas as pd
 from matplotlib import font_manager
 
 from doe_analysis import analyze_factorial
-from doe_core import DesignSpec, FactorSpec
+from doe_core import DSD_MULTI_COUNTS, DesignSpec, FactorSpec
 from doe_factorial import create_factorial
 from sheet_context import SheetApp
 from stat_table import StatTable, TableBlock
@@ -313,15 +313,13 @@ class CreateDOE:
                          and 1 <= continuous_count <= 47)
             mixed_multi = (types == ['continuous'] * continuous_count
                            + ['categorical'] * categorical_count
-                           and ((4 <= continuous_count <= 12
-                                 and 2 <= categorical_count <= 4)
-                                or (continuous_count, categorical_count) == (13, 3))
+                           and (continuous_count, categorical_count) in DSD_MULTI_COUNTS
                            and (continuous_count, categorical_count) != (4, 2))
             continuous_only = (2 <= len(factors) <= 48
                                and all(kind == 'continuous' for kind in types))
             if not (continuous_only or mixed_one or mixed_two or mixed_multi):
                 raise ValueError('支持 2–48 个连续因子、1–47 个连续因子加 1 个分类因子、'
-                                 '4–12 个连续因子加 2–4 个分类因子，另加 13 连续加 3 分类（4+2 保留原构造），'
+                                 '4–14 个连续因子加 2–4 个分类因子（4+2 保留原构造），'
                                  '并要求连续因子排在分类因子前。')
             if categorical_count and any(len(factor.levels) != 2
                                           for factor in factors if factor.factor_type == 'categorical'):
