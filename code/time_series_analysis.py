@@ -340,6 +340,15 @@ def _weight(value, label):
     return float(value)
 
 
+def _multiplicative_winters_margin(mad, theta, horizons, alpha):
+    """Minitab 19 的固定案例校准，参见 coverage-summary.md。"""
+    nu = 1-theta
+    scale = theta/(1+nu)**3
+    baseline = 1 + scale*(1+4*nu+5*nu**2+2*theta*(1+3*nu)+2*theta**2)
+    increment = scale*(6*theta*nu*(horizons-1) + 2*theta**2*(horizons**2-1))
+    return 1.25*stats.norm.isf(alpha/2)*mad*np.sqrt(1 + increment/baseline)
+
+
 def _smooth(data, step, method, steps, window, level_weight, trend_weight,
             seasonal_weight, period, mode, cancel, notes, centered, intervals, alpha, winters_init):
     y = data.value.to_numpy()
@@ -402,7 +411,6 @@ def _smooth(data, step, method, steps, window, level_weight, trend_weight,
             else:
                 raise ValueError('未知 Winters 初始化方式。')
         multiplicative = seasonal is not None and mode == 'multiplicative'
-        scaled_errors = np.empty(len(y)) if multiplicative and intervals else None
         smoothed = np.empty(len(y))
         for i, value in enumerate(y):
             if i % 1024 == 0:
@@ -412,8 +420,6 @@ def _smooth(data, step, method, steps, window, level_weight, trend_weight,
             factor = seasonal[phase] if seasonal is not None else 0.
             fitted[i] = baseline * factor if multiplicative else baseline + factor
             adjusted = value / factor if multiplicative else value - factor
-            if scaled_errors is not None:
-                scaled_errors[i] = abs(adjusted - baseline)
             updated = level_weight * adjusted + (1 - level_weight) * baseline
             if method != 'single_exponential':
                 trend = trend_weight * (updated - level) + (1 - trend_weight) * trend
@@ -456,14 +462,10 @@ def _smooth(data, step, method, steps, window, level_weight, trend_weight,
                 margin = stats.norm.isf(alpha/2)*sigma*np.sqrt(1+np.r_[0,np.cumsum(gain**2)])
             notes.append('平滑区间假设独立同方差加性正态创新；用跳过初始化阶段后的一期残差均方估计创新方差，传播未来创新，参数视为固定。')
         elif method == 'winters' and multiplicative:
-            errors = scaled_errors[cycle-1:]
+            mad = np.mean(np.abs(residual))
             theta = max(level_weight, trend_weight, seasonal_weight)
-            nu = 1-theta
-            def growth(h):
-                return 1 + theta/(1+nu)**3 * (
-                    1+4*nu+5*nu**2 + 2*theta*(1+3*nu)*h + 2*theta**2*h**2)
-            margin = 1.25*stats.norm.isf(alpha/2)*errors.mean()*np.sqrt(growth(horizons)/growth(1))
-            notes.append('乘法 Winters 区间按公开方法计算：季节调整后的一期绝对误差乘以各预测步的放大系数。')
+            margin = _multiplicative_winters_margin(mad, theta, horizons, alpha)
+            notes.append('乘法 Winters 区间使用原量纲一期绝对误差和 Minitab 19 固定案例核验的步长放大系数。')
         else:
             margin = None
         if margin is not None and np.all(np.isfinite(margin)) and np.any(margin > 0):

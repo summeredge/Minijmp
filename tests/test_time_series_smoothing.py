@@ -177,15 +177,15 @@ def test_multiplicative_interval_against_reference_recursion():
     for i, observed in enumerate(values):
         phase = i % 2
         season = phases[phase]
-        errors.append(abs(observed/season-level-slope))
+        errors.append(abs(observed-(level+slope)*season))
         next_level = .25*observed/season + .75*(level+slope)
         slope = .3*(next_level-level) + .7*slope
         level = next_level
         phases[phase] = .4*observed/level + .6*season
     h = np.arange(1, 6)
-    # Expand the published polynomial for theta=.4, nu=.6.
-    polynomial = 6.176 + .896*h + .128*h**2
-    width = 1.25*norm.ppf(.975)*np.mean(errors[1:])*np.sqrt(polynomial/polynomial[0])
+    # Minitab 19 aggregate calibration expanded at theta=.4.
+    ratio = .9022222222222222 + .08*h + (4/225)*h**2
+    width = 1.25*norm.ppf(.975)*np.mean(errors)*np.sqrt(ratio)
     forecast = result.tables['forecast']
     np.testing.assert_allclose(forecast.ci_upper-forecast.predicted, width)
     np.testing.assert_allclose(forecast.predicted-forecast.ci_lower, width)
