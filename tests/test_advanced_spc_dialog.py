@@ -306,3 +306,20 @@ def test_plot_error_preserves_previous_viewer_and_close_stops_poll(tk_root, monk
         if dialog.main.winfo_exists():
             dialog.close()
         dispose(app)
+
+def test_subgroup_control_chart_gui(tk_root, monkeypatch):
+    dialog, app, source, _, _, _ = make_dialog(tk_root, monkeypatch)
+    try:
+        dialog.df['Y'] = 4
+        dialog.fields['subgroup_size'].set('Y')
+        dialog.fields['mean'].set('0')
+        dialog.fields['sigma'].set('2')
+        dialog.run_button.invoke()
+        finish(tk_root, dialog)
+        np.testing.assert_allclose(dialog.tables['observations'].standard_error, 1)
+        dialog.plot()
+        dialog.error.assert_not_called()
+        assert source.pf is not None
+    finally:
+        dialog.close()
+        dispose(app)

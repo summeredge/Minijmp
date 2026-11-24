@@ -589,3 +589,73 @@ if __name__ == "__main__":
     ]
     #  print([i for i,j,k in zip(Response, Operator, Part) if j==1 and k
     grr_nested(y=Response, op=Operator, part=Part, print_out=True, hist_std=0.5393)
+
+def type1_gage(values, reference, tolerance, percent, multiplier, alpha=.05):
+    """Repeatability and bias for repeated readings of one certified standard."""
+    import numpy as np
+    from scipy.stats import t
+
+    x = np.asarray(values, dtype=float)
+    if x.ndim != 1 or len(x) < 2 or not np.isfinite(x).all():
+        raise ValueError('至少需要两个有限测量值。')
+    if (not all(map(isfinite, (reference, tolerance, percent, multiplier)))
+            or not (tolerance > 0 and 0 < percent <= 100 and multiplier > 0 and 0 < alpha < 1)):
+        raise ValueError('公差和研究变差倍数须为正，公差比例须在 (0, 100] 内，α 须在 (0, 1) 内。')
+    bias = float(x.mean() - reference)
+    sd = float(x.std(ddof=1))
+    spread = multiplier*sd
+    allowance = tolerance*percent/100
+    se = sd/np.sqrt(len(x))
+    margin = t.isf(alpha/2,len(x)-1)*se
+    return {'n': len(x), 'reference': reference, 'mean': float(x.mean()), 'bias': bias,
+            'sd': sd, 'study_variation': spread, 'allowance': allowance,
+            'repeatability_percent': 100*spread/tolerance,
+            'cg': allowance/spread if spread else None,
+            'cgk': (allowance-2*abs(bias))/spread if spread else None,
+            'bias_t': bias/se if se else None,
+            'bias_p': 2*t.sf(abs(bias/se),len(x)-1) if se else None,
+            'bias_lower': bias-margin if se else None,
+            'bias_upper': bias+margin if se else None}
+
+
+def gage_linearity(values, references, parts, alpha=.05):
+    """OLS of measurement minus certified value on certified value."""
+    import numpy as np
+    from scipy.stats import linregress, t
+
+    frame = pd.DataFrame(dict(measurement=np.asarray(values,dtype=float),
+                              reference=np.asarray(references,dtype=float), part=parts))
+    if (not 0 < alpha < 1 or frame.isna().any().any()
+            or not np.isfinite(frame[['measurement','reference']]).all().all()):
+        raise ValueError('测量值、参考值和标准件必须逐行有效；α 须在 (0, 1) 内。')
+    groups = frame.groupby('part', observed=True, sort=False)
+    if len(groups) < 2 or (groups.size() < 2).any() or (groups.reference.nunique() != 1).any():
+        raise ValueError('至少两个标准件，每件至少两次测量，且每件仅允许一个参考值。')
+    if frame.reference.nunique() < 2:
+        raise ValueError('至少需要两个不同的参考值。')
+    frame['bias'] = frame.measurement-frame.reference
+    x, y = frame.reference.to_numpy(), frame.bias.to_numpy()
+    fit = linregress(x,y)
+    fitted = fit.intercept+fit.slope*x
+    s = np.linalg.norm(y-fitted)/np.sqrt(len(x)-2)
+    crit = t.isf(alpha/2, len(x)-2)
+    if s <= np.finfo(float).eps*max(np.linalg.norm(y), np.finfo(float).tiny):
+        s = 0.
+    se_slope = s/np.linalg.norm(x-x.mean())
+    se_intercept = s*np.hypot(1/np.sqrt(len(x)), x.mean()/np.linalg.norm(x-x.mean()))
+    coef = []
+    for name, value, se in (('截距',fit.intercept,se_intercept),('斜率',fit.slope,se_slope)):
+        coef.append((name, value, se, value-crit*se if se else None,
+                     value+crit*se if se else None, 2*t.sf(abs(value/se),len(x)-2) if se else None))
+    by_part = []
+    for part, rows in frame.groupby('part', observed=True, sort=False):
+        n = len(rows)
+        bias = rows.bias.mean()
+        se = rows.bias.std(ddof=1)/np.sqrt(n)
+        margin = t.isf(alpha/2,n-1)*se
+        by_part.append((part, rows.reference.iloc[0], n, bias, bias-margin if se else None,
+                        bias+margin if se else None, 2*t.sf(abs(bias/se),n-1) if se else None))
+    grid = np.linspace(x.min(),x.max(),100)
+    center = fit.intercept+fit.slope*grid
+    margin = crit*s*np.hypot(1/np.sqrt(len(x)), (grid-x.mean())/np.linalg.norm(x-x.mean()))
+    return frame, coef, by_part, (grid, center, center-margin, center+margin)

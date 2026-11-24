@@ -273,6 +273,8 @@ class Minijmp(Worksheets, Minijmp_pre):
             '49sep': '',
             '01量具 R&R 研究（交叉）': {'cmd': self.grr},
             '02量具 R&R 研究（嵌套）': {'cmd': self.grr_nst},
+            '02量具研究（1 型）': {'cmd': self.type1_gage},
+            '02量具线性与偏倚': {'cmd': self.gage_linearity},
             '07过程能力分析 (Cpk)': {'cmd': self.cpk},
             '08含子组的 Cpk': {'cmd': self.cpksub},
             '09正态过程能力（完整）': {'cmd': lambda: self.capability_analysis('正态能力')},
@@ -644,6 +646,14 @@ class Minijmp(Worksheets, Minijmp_pre):
             df=self.table.model.df,
             title='Propabilities Chi SQ Test')
         return
+
+    def type1_gage(self):
+        from qc_dialog import Type1GageDialog
+        Type1GageDialog(self.table, app=self, df=self.table.model.df, title='量具研究（1 型）')
+
+    def gage_linearity(self):
+        from qc_dialog import GageLinearityDialog
+        GageLinearityDialog(self.table, app=self, df=self.table.model.df, title='量具线性与偏倚')
 
     def grr(self):
         from qc_dialog import GRRDialog

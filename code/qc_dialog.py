@@ -627,3 +627,84 @@ class TIDialog(Dialogs):
         if result is not None and None in [mean, n, std]:
             self.remember_columns()
         return
+
+class Type1GageDialog(Dialogs):
+    linearity = False
+
+    def createWidgets(self, master):
+        self.fields = {}
+        specs = [('measurement', '测量列', self.cols)]
+        if self.linearity:
+            specs += [('part', '标准件列', self.cols), ('reference', '参考值列', self.cols)]
+        else:
+            specs += [('reference', '参考值', None), ('tolerance', '全公差宽度', None),
+                      ('percent', '用于 Cg 的公差比例（%）', None),
+                      ('multiplier', '研究变差倍数', None)]
+        for key, label, choices in specs:
+            row = ttk.Frame(master)
+            row.pack(fill=X, padx=6, pady=3)
+            ttk.Label(row, text=label).pack(side=LEFT, padx=(0,8))
+            self.fields[key] = var = tk.StringVar(master)
+            if choices is None:
+                ttk.Entry(row, textvariable=var, width=16).pack(side=LEFT)
+            else:
+                ttk.Combobox(row, textvariable=var, values=choices, state='readonly').pack(side=LEFT)
+        self.add_alpha(master)
+
+    def ok(self):
+        from GRR import type1_gage, gage_linearity
+        from stat_table import StatTable
+        try:
+            fields = {key: var.get() for key,var in self.fields.items()}
+            column = fields.pop('measurement')
+            y = self.df[column]
+            alpha = float(self.alpha.get())
+            if self.linearity:
+                frame, coef, by_part, band = gage_linearity(
+                    y, self.df[fields['reference']], self.df[fields['part']], alpha)
+                reports = [
+                    ('偏倚回归', ['模型项','估计','标准误','置信下限','置信上限','p 值'], coef),
+                    ('各标准件偏倚', ['标准件','参考值','重复数','偏倚','置信下限','置信上限','p 值'], by_part),
+                ]
+            else:
+                result = type1_gage(y, **{key: float(value) for key,value in fields.items()}, alpha=alpha)
+                labels = ['测量数','参考值','均值','偏倚','重复性标准差','研究变差','允许变差',
+                          '重复性占公差（%）','Cg','Cgk','偏倚 t','偏倚 p 值','偏倚置信下限','偏倚置信上限']
+                reports = [('Type 1 量具研究', ['统计量','数值'], list(zip(labels,result.values())))]
+        except (KeyError, TypeError, ValueError, tk.TclError) as exc:
+            self.error(f'请检查输入。{exc}')
+            return
+        for title, headers, rows in reports:
+            self.app.print(StatTable(title=title, headers=headers, values=rows))
+        viewer = self.app.showPlotViewer(deferred=True)
+        try:
+            ax = viewer.fig.add_subplot(111)
+            if self.linearity:
+                grid, center, lower, upper = band
+                ax.scatter(frame.reference, frame.bias, label='测量偏倚')
+                ax.plot(grid, center, label='偏倚回归')
+                if any(upper > lower):
+                    ax.fill_between(grid, lower, upper, alpha=.2, label=f'{1-alpha:.1%} 均值置信带')
+                ax.axhline(0, color='gray', linestyle='--')
+                ax.set(xlabel='参考值', ylabel='偏倚', title='量具线性与偏倚')
+            else:
+                ax.plot(range(1,len(y)+1), y.astype(float), 'o-', label='测量值')
+                reference = result['reference']
+                ax.axhline(reference, color='gray', linestyle='--', label='参考值')
+                for sign in (-1,1):
+                    ax.axhline(reference+sign*result['allowance']/2, color='tomato', linestyle=':')
+                ax.set(xlabel='测量顺序', ylabel=str(column), title='Type 1 量具运行图')
+            ax.legend()
+            from chart_style import style_axes
+            style_axes(ax)
+            viewer.canvas.draw()
+            self.app.replacePlotViewer(viewer)
+            viewer.main.deiconify()
+        except Exception:
+            viewer.close()
+            raise
+        self.quit()
+
+
+class GageLinearityDialog(Type1GageDialog):
+    linearity = True

@@ -117,10 +117,13 @@ def nelson_events(z, rules=tuple(NELSON), cancel=None):
     return sorted(events)
 
 
-def _univariate(values, source, kind, mean, sigma, lam, width, k, h, rules, cancel):
+def _univariate(values, source, kind, mean, sigma, lam, width, k, h, rules, cancel, sizes=None):
     out = source.copy()
     x = values[:, 0]
-    z = (x-mean)/sigma
+    standard_error = sigma if sizes is None else sigma/np.sqrt(sizes)
+    if sizes is not None:
+        out['subgroup_size'], out['standard_error'] = sizes, standard_error
+    z = (x-mean)/standard_error
     if not np.isfinite(z).all():
         raise ValueError('标准化溢出；请检查尺度。')
     out['value'], out['z'] = x, z
@@ -131,6 +134,9 @@ def _univariate(values, source, kind, mean, sigma, lam, width, k, h, rules, canc
         out['statistic'] = mean+lfilter([lam], [1, -(1-lam)], x-mean)
         t = np.arange(1, len(x)+1)
         spread = width*sigma*np.sqrt(lam/(2-lam)*(-np.expm1(2*t*np.log1p(-lam)))) if lam < 1 else np.full(len(x), width*sigma)
+        if sizes is not None:
+            variance = lfilter([lam**2], [1, -(1-lam)**2], standard_error**2)
+            spread = width*np.sqrt(variance)
         out['lower'], out['upper'] = mean-spread, mean+spread
         for i in np.flatnonzero((out.statistic < out.lower) | (out.statistic > out.upper)):
             events.append((int(i), 'EWMA', int(i), float(out.statistic.iloc[i])))
@@ -173,7 +179,7 @@ def _attach_events(out, events, descriptions):
 
 def analyze_spc(df, columns, kind='EWMA', baseline=None, mean=None, sigma=None,
                 ewma_lambda=.2, ewma_width=3., cusum_k=.5, cusum_h=5.,
-                rules=tuple(NELSON), confidence=.95, missing='error', cancel=None):
+                rules=tuple(NELSON), confidence=.95, missing='error', cancel=None, subgroup_size=None):
     """历史 baseline 是独立工作表；None 为当前数据 Phase I 回顾。
 
     mean/sigma 同时给出时为已知参数，仅用于单变量且不能与 baseline 混用。
@@ -198,12 +204,28 @@ def analyze_spc(df, columns, kind='EWMA', baseline=None, mean=None, sigma=None,
     known = mean is not None
     if known and (baseline is not None or kind == 'T2'):
         raise ValueError('已知单变量参数不可与历史基线或多变量 T² 混用。')
-    current, source = _prepare(df, columns, missing)
-    base, base_source = _prepare(baseline, columns, missing) if baseline is not None else (current, source)
+    if subgroup_size is not None and (kind not in ('EWMA', 'CUSUM') or subgroup_size in columns):
+        raise ValueError('子组大小列仅用于 EWMA/CUSUM，且必须不同于均值列。')
+    input_columns = columns if subgroup_size is None else [*columns, subgroup_size]
+    current, source = _prepare(df, input_columns, missing)
+    base, base_source = _prepare(baseline, input_columns, missing) if baseline is not None else (current, source)
     if not known and len(base) < 2:
         raise ValueError('估计基线参数至少需要两个有效观测。')
-    mu = np.array([_number(mean, '已知均值')]) if known else base.mean(axis=0)
-    sd = np.array([_number(sigma, '已知标准差', True)]) if known else base.std(axis=0, ddof=1)
+    sizes = base_sizes = None
+    if subgroup_size is not None:
+        sizes, base_sizes = current[:, 1], base[:, 1]
+        for size in (sizes, base_sizes):
+            if np.any((size < 1) | (size != np.floor(size))):
+                raise ValueError('子组大小必须为正整数。')
+        current, base = current[:, :1], base[:, :1]
+    if known:
+        mu = np.array([_number(mean, '已知均值')])
+        sd = np.array([_number(sigma, '已知标准差', True)])
+    elif sizes is not None:
+        mu = np.average(base, axis=0, weights=base_sizes)
+        sd = np.sqrt(np.sum(base_sizes[:, None]*(base-mu)**2, axis=0)/(len(base)-1))
+    else:
+        mu, sd = base.mean(axis=0), base.std(axis=0, ddof=1)
     if not np.isfinite(mu).all() or not np.isfinite(sd).all() or (sd <= 0).any():
         raise ValueError('基线包含常量列或尺度溢出；标准差须为正。')
     phase = 'known' if known else 'phase2' if baseline is not None else 'phase1'
@@ -211,7 +233,10 @@ def analyze_spc(df, columns, kind='EWMA', baseline=None, mean=None, sigma=None,
              '当前监控阶段：'+phase+'；历史基线参数在监控期间固定。',
              '报警标记表示检测时刻；Nelson 窗口成员另存于 members，不将整窗误作逐点越限。',
              '多个时刻/多个规则的联合误报率不等于单点显著性水平。']
-    if phase == 'phase1':
+    if sizes is not None:
+        notes[0] = '按工作表行序分析相互独立的子组均值；每行标准误为个体标准差 σ/√n。'
+        notes.append('未知参数用基线的组大小加权均值及组间加权残差估计 σ²，分母为子组数减一。')
+    if phase == 'phase1' and sizes is None:
         notes.append('当前数据用于估计自身基线；单变量采用样本标准差 ddof=1，EWMA/CUSUM 限为代入估计的回顾性近似。应先确认基线稳定，再监控独立新样本。')
     if missing == 'drop':
         notes.append('显式删除不完整行后，按剩余观测连续计算；来源行不重编号，间隔与运行段语义可能改变。')
@@ -258,18 +283,22 @@ def analyze_spc(df, columns, kind='EWMA', baseline=None, mean=None, sigma=None,
         h = _number(cusum_h, 'CUSUM h', True) if kind == 'CUSUM' else 5.
         if k < 0:
             raise ValueError('CUSUM k 须非负。')
-        out, events = _univariate(current, source, kind, mu[0], sd[0], lam, width, k, h, rules, cancel)
+        out, events = _univariate(current, source, kind, mu[0], sd[0], lam, width, k, h, rules, cancel, sizes)
         out['phase'] = phase
         if baseline is not None:
-            historical, historical_events = _univariate(base, base_source, kind, mu[0], sd[0], lam, width, k, h, rules, cancel)
+            historical, historical_events = _univariate(base, base_source, kind, mu[0], sd[0], lam, width, k, h, rules, cancel, base_sizes)
             historical['phase'] = 'phase1'
             _attach_events(historical, historical_events, descriptions)
             tables['baseline'] = historical
         if kind == 'EWMA':
             notes.append('Z₀=μ；Z_t=λx_t+(1−λ)Z_(t−1)，上下限 μ±Lσ√[λ/(2−λ)·(1−(1−λ)^(2t))]。监控从 t=1 重新启动，不延续历史末端状态。')
+            if sizes is not None:
+                notes[-1] = 'EWMA 限用 V₀=0，V_t=(1−λ)²V_(t−1)+λ²σ²/n_t，界限为 μ±L√V_t。'
             settings = [('lambda',lam),('L',width)]
         elif kind == 'CUSUM':
             notes.append('z=(x−μ)/σ；C⁺=max(0,C⁺前+z−k)，C⁻=max(0,C⁻前−z−k)，初值零。图上负支画 −C⁻；严格超过 h 报警，报警后不自动复位。新监控独立从零启动。')
+            if sizes is not None:
+                notes[-1] = notes[-1].replace('z=(x−μ)/σ', 'z=(x̄−μ)/(σ/√n)')
             settings = [('k',k),('h',h)]
         else:
             notes.append('Nelson 规则仅作用原始观测；区界点归内区（规则7含±1σ），超区用严格不等式。等于中心打断同侧，相同观测打断趋势/交替。规则5/6当前点也须位于相应同侧超区；规则8要求两侧均有点。')

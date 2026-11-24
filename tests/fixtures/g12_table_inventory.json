@@ -1665,6 +1665,28 @@
       ],
       "exception_reason": ""
     },
+    "qc_dialog.py::Type1GageDialog.ok": {
+      "sites": [
+        "emit:structured:print#1",
+        "construct:StatTable#1"
+      ],
+      "classification": "statistical",
+      "logical_tables": 3,
+      "titles": [
+        "Type 1 量具研究",
+        "偏倚回归",
+        "各标准件偏倚"
+      ],
+      "entry_points": [
+        "Type1GageDialog.ok",
+        "GageLinearityDialog.ok"
+      ],
+      "status": "已迁移 StatTable",
+      "tests": [
+        "tests/test_gage_studies.py::test_gage_menu_and_report"
+      ],
+      "exception_reason": ""
+    },
     "proportion_test.py::prop_2sample": {
       "sites": [
         "construct:gen_table#1",

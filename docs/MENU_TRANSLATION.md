@@ -207,6 +207,8 @@
 | --- | --- |
 | Crossed Gage R&R | 量具 R&R 研究（交叉） |
 | Nested Gage R&R | 量具 R&R 研究（嵌套） |
+| Type 1 Gage Study | 量具研究（1 型） |
+| Gage Linearity and Bias | 量具线性与偏倚 |
 | Process Capability (Cpk) | 过程能力分析 (Cpk) |
 | Cpk with Subgroups | 含子组的 Cpk |
 | Normal Capability Analysis (Complete) | 正态过程能力（完整） |

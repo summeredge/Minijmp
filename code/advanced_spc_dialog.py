@@ -24,6 +24,7 @@ HEADERS = {'parameter': '项目', 'value': '数值', 'variable': '变量', 'mean
            'difference': '均值差（当前−基线）', 'phase': '阶段', 'confidence': '控制限置信度',
            'lower': '下控制限', 'upper': '上控制限', 'center': '中心线', 'method': '计算方法',
            'source_row': '来源行号', 'source_index': '来源索引', 'sequence': '分析序号',
+           'subgroup_size': '子组大小', 'standard_error': '均值标准误',
            'z': '标准化观测', 'statistic': '统计量', 'negative': 'CUSUM 负支',
            'alarm': '异常标记', 'rules': '触发规则', 'rule': '规则', 'description': '规则说明',
            'window_start': '窗口起始序号', 'window_end': '窗口末端序号', 'members': '窗口来源行号',
@@ -91,12 +92,14 @@ class AdvancedSPCDialog:
         parameters.pack(side='left', fill='both', expand=True)
         parameters.columnconfigure(1, weight=1)
         parameters.columnconfigure(3, weight=1)
+        subgroup_columns = [str(c) for c in self.columns]
         specs = [
             (('kind', '控制图', 'EWMA', list(KINDS)), ('baseline', '历史基线', CURRENT, [CURRENT])),
             (('mean', '已知均值（可选）', '', None), ('sigma', '已知标准差（可选）', '', None)),
             (('ewma_lambda', 'EWMA λ', '0.2', None), ('ewma_width', 'EWMA 限宽 L', '3', None)),
             (('cusum_k', 'CUSUM 参考值 k', '0.5', None), ('cusum_h', 'CUSUM 阈值 h', '5', None)),
             (('confidence', 'T² 置信度（%）', '95', ['95', '99']), ('missing', '缺失值', '报错', ['报错', '删除不完整行'])),
+            (('subgroup_size', '子组大小列（可选）', '', ['']+subgroup_columns),),
         ]
         for row, pair in enumerate(specs):
             for col, spec in zip((0, 2), pair):
@@ -176,7 +179,9 @@ class AdvancedSPCDialog:
                     not any(table is item for item in self.app.sheets.values()) or not table.winfo_exists()):
                 raise ValueError('请选择仍打开的其他工作表作为独立历史基线。')
             baseline = table.model.df.copy(deep=True)
-        return dict(columns=columns, kind=kind, baseline=baseline, mean=mean, sigma=sigma,
+        size = self.fields['subgroup_size'].get()
+        subgroup_size = self.columns[[str(c) for c in self.columns].index(size)] if size else None
+        return dict(subgroup_size=subgroup_size, columns=columns, kind=kind, baseline=baseline, mean=mean, sigma=sigma,
                     ewma_lambda=float(fields['ewma_lambda']) if kind == 'EWMA' else .2,
                     ewma_width=float(fields['ewma_width']) if kind == 'EWMA' else 3.,
                     cusum_k=float(fields['cusum_k']) if kind == 'CUSUM' else .5,

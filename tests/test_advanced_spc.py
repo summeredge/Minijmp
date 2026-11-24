@@ -205,3 +205,30 @@ def test_cancel_and_nullable_input():
         analyze_spc(pd.DataFrame({'x':[0.,1.]}),['x'],cancel=event)
     r=analyze_spc(pd.DataFrame({'x':pd.Series([0,pd.NA,1],dtype='Int64')}),['x'],missing='drop')
     assert r.tables['observations'].source_row.tolist()==[1,3]
+
+@pytest.mark.parametrize('kind', ['EWMA','CUSUM'])
+def test_subgroup_variable_size_known_and_historical(kind):
+    from math import sqrt
+    frame = pd.DataFrame({'x':[2.0,2.4,4.0,1.0], 'n':[1,4,9,16]})
+    result = analyze_spc(frame,['x'],kind=kind,mean=2,sigma=1,ewma_lambda=.25,subgroup_size='n')
+    obs = result.tables['observations']
+    np.testing.assert_allclose(obs.standard_error, [1, .5, 1/3, .25])
+    if kind == 'EWMA':
+        for i in range(len(frame)):
+            weights = [.25*.75**(i-j) for j in range(i+1)]
+            center = 2 + sum(w*(v-2) for w,v in zip(weights,frame.x))
+            limit = 2+3*sqrt(sum(w*w/n for w,n in zip(weights,frame.n)))
+            assert obs.statistic.iloc[i] == pytest.approx(center)
+            assert obs.upper.iloc[i] == pytest.approx(limit)
+    else:
+        z = [(x-2)*sqrt(n) for x,n in zip(frame.x,frame.n)]
+        for i in range(len(frame)):
+            assert obs.statistic.iloc[i] == pytest.approx(max(0,*(sum(v-.5 for v in z[j:i+1]) for j in range(i+1))))
+            assert obs.negative.iloc[i] == pytest.approx(-max(0,*(sum(-v-.5 for v in z[j:i+1]) for j in range(i+1))))
+    history = frame.assign(x=[1.,2.,3.,4.])
+    result = analyze_spc(frame,['x'],kind=kind,baseline=history,subgroup_size='n')
+    params = result.tables['parameters'].iloc[0]
+    assert params['mean'] == pytest.approx(10/3)
+    assert params['std'] == pytest.approx(sqrt(62/9))
+    with pytest.raises(ValueError,match='正整数'):
+        analyze_spc(frame.assign(n=1.5),['x'],kind=kind,subgroup_size='n')

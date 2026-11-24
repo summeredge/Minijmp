@@ -32,6 +32,8 @@
     <a href="#quality.control_chart_c">C 图</a>
     <a href="#quality.control_chart_u">U 图</a>
     <a href="improvement-chart.html#quality.improvement_chart">改善前后控制图</a>
+    <a href="#quality.type1_gage">量具研究（1 型）</a>
+    <a href="#quality.gage_linearity">量具线性与偏倚</a>
   </nav>
 
   <section class="topic" id="quality.grr_crossed">
@@ -48,6 +50,14 @@
     <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/measurement-system-analysis/how-to/gage-study/crossed-gage-r-r-study/interpret-the-results/key-results/" target="_blank" rel="noopener noreferrer">Minitab 官方帮助：交叉量具 R&amp;R 结果解读</a>（外部概念参考；Minijmp 的方法和选项以本页为准）。</p>
   </section>
 
+  <section class="topic" id="quality.type1_gage">
+    <h2>量具研究（1 型）</h2>
+    <p>选择单个标准件的重复测量列，填写参考值、全公差宽度、公差比例和研究变差倍数。Cg＝允许变差／研究变差；Cgk 从允许变差中减去两倍绝对偏倚后除以研究变差。偏倚使用单样本双侧 t 检验。零重复性标准差时 Cg、Cgk 和 t 推断显示不可估计。运行图标出参考值和参考值两侧的半允许变差。</p>
+  </section>
+  <section class="topic" id="quality.gage_linearity">
+    <h2>量具线性与偏倚</h2>
+    <p>选择测量、标准件标识和参考值三列。每件至少两次重复测量，每件只能对应一个参考值，至少有两个不同参考值。逐次测量减参考值后做最小二乘线性回归，斜率检验用于评估线性；每件偏倚的置信区间采用各自重复测量的 t 区间。图中的置信带表示平均偏倚。</p>
+  </section>
   <section class="topic" id="quality.grr_nested">
     <h2>嵌套 Gage R&amp;R</h2>
     <p><strong>用途：</strong>用于零件不能被不同操作员重复测量的嵌套设计，例如破坏性测量。每个零件只归属一位操作员，不能估计操作员与零件交互作用。</p>

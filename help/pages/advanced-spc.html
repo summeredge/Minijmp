@@ -11,6 +11,7 @@
   <h1>高级 SPC 控制图</h1>
   <nav class="page-toc" aria-label="本页目录"><a href="#quality.advanced_spc">建模、判异与历史基线</a></nav>
   <section class="topic" id="quality.advanced_spc">
+    <p>对子组 EWMA 或 CUSUM，选择子组均值为分析变量，并指定同表中的正整数子组大小列。已知标准差填写个体过程标准差，程序另算每行均值的标准误。未知时根据基线子组均值和组大小估计。EWMA 逐期更新加权方差，CUSUM 逐组标准化后累加。</p>
     <h2>建模、判异与历史基线</h2>
     <p><strong>入口：</strong>质量 → 高级 SPC 控制图。选择 EWMA、CUSUM、Nelson 或 Hotelling T² 模式，再选择数值变量、参数来源和缺失值处理方式。</p>
     <h3>当前数据、历史基线与已知参数</h3>
