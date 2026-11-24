@@ -9,7 +9,14 @@
 <body>
 <main>
   <h1>完整回归分析</h1>
-  <nav class="page-toc" aria-label="本页目录"><a href="#stats.advanced_regression">建模、诊断与预测</a> · <a href="#poisson">Poisson 回归</a> · <a href="#nominal">名义 Logistic</a> · <a href="#ordinal">有序 Logistic</a> · <a href="#pls">PLS 回归</a></nav>
+  <nav class="page-toc" aria-label="本页目录"><a href="#stats.advanced_regression">建模、诊断与预测</a> · <a href="#poisson">Poisson 回归</a> · <a href="#nominal">名义 Logistic</a> · <a href="#ordinal">有序 Logistic</a> · <a href="#pls">PLS 回归</a> · <a href="#stats.fixed_effects">固定效应一般线性模型</a></nav>
+  <section class="topic" id="stats.fixed_effects">
+    <h2>固定效应一般线性模型</h2>
+    <p>选择连续响应、固定因子和连续协变量。选中的解释列均入模为主效应；交互项每行写一项，例如 A,B。含逗号或首尾空格的列名用双引号括起。高阶交互必须同时列出全部低阶交互。</p>
+    <p>模型含截距，分类因子的首个有效水平为参考水平。每项的 III 型调整平方和比较删除该项编码列前后的残差平方和；有交互时，低阶效应依参考水平和协变量零点定义。各项调整平方和无需加总。F 检验分母为全模型误差均方，自由度为有效行数减设计矩阵秩。</p>
+    <p>可以拒绝缺失行或按本模型所需列整行删除。秩亏、完全混杂及残差自由度不足时拒绝拟合。预测沿用训练时的编码，支持均值置信区间和新观测预测区间。PRESS 使用留一预测残差，杠杆为 1 时不可估计。</p>
+    <p>在结果页查看方差分析、参数、残差和模型诊断。可从选定工作表预测，导出当前结果表或输出完整报告。</p>
+  </section>
   <section class="topic" id="stats.advanced_regression">
     <h2>建模、诊断与预测</h2>
     <p><strong>入口：</strong>统计 → 完整回归分析；Poisson 回归、名义 Logistic 回归、有序 Logistic 回归及 PLS 回归菜单预置同一窗口的模型类型。原有 OLS、WLS、二元 Logistic、非线性、线性回归、残差图和正交回归入口保留。以下介绍各模型的统计约定；训练集拟合良好不等于通过独立预测验证。</p>

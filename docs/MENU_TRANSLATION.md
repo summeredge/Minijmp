@@ -197,6 +197,7 @@
 | Power and Sample Size for DOE | 试验设计功效与样本量 |
 | One-Way ANOVA | 单因子方差分析 |
 | Two-Way ANOVA | 双因子方差分析 |
+| Fit General Linear Model | 固定效应一般线性模型 |
 | Contingency table & Chi2 | 列联表与卡方检验 |
 | Proportion Chi Square | 比率卡方检验 |
 

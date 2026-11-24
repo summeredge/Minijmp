@@ -600,3 +600,53 @@ def test_intercept_only_selection_and_multiindex_source():
     prediction = result.predict(pd.DataFrame(index=index[:3]))
     assert_allclose(prediction.predicted, y.mean())
     assert prediction.source_index.tolist() == list(index[:3])
+
+@pytest.mark.parametrize('formula, factors, covariates, interactions, unbalanced', [
+    ('C(A)', ['A'], [], [], False),
+    ('C(A)*C(B)', ['A','B'], [], [('A','B')], False),
+    ('C(A)*C(B)*C(D) + x + C(A):x', ['A','B','D'], ['x'],
+     [('A','B'), ('A','D'), ('B','D'), ('A','B','D'), ('A','x')], True),
+])
+def test_fixed_effects_reference(formula, factors, covariates, interactions, unbalanced):
+    from itertools import product
+    from statsmodels.formula.api import ols
+    from statsmodels.stats.anova import anova_lm
+
+    rng = np.random.default_rng(17)
+    frame = pd.DataFrame(list(product('ab','cd','ef',range(5))), columns=['A','B','D','rep'])
+    frame['x'] = rng.normal(size=len(frame))
+    frame['y'] = 4+2*(frame.A == 'b') + frame.x + rng.normal(size=len(frame))
+    if unbalanced:
+        frame = frame.drop([3,23,27])
+    columns = factors + covariates
+    result = fit_regression(frame,'y',columns,categorical=factors,
+                            terms=[(c,) for c in columns]+interactions)
+    reference = ols('y ~ '+formula, frame).fit()
+    expected = anova_lm(reference, typ=3).drop(index='Intercept')
+    expected.index = [term.replace('C(', '').replace(')', '') for term in expected.index]
+    actual = result.tables['anova'].set_index('source')
+    assert_allclose(actual.loc[expected.index,'df'], expected.df)
+    assert_allclose(actual.loc[expected.index,'sum_sq'], expected.sum_sq)
+    assert_allclose(actual.loc[expected.index,'p_value'], expected['PR(>F)'], equal_nan=True)
+    names = [term.replace('C(', '').replace(')', '').replace('[T.', "['").replace(']', "']")
+             for term in reference.params.index]
+    assert_allclose(result.tables['coefficients'].set_index('term').loc[names,'estimate'], reference.params)
+    assert_allclose(result.tables['observations'].residual, reference.resid)
+    assert_allclose(result.predict(frame.iloc[:3]).predicted, reference.predict(frame.iloc[:3]))
+    errors = [row.y - ols('y ~ '+formula, frame.drop(idx)).fit().predict(frame.loc[[idx]]).iloc[0]
+              for idx, row in frame.iterrows()]
+    assert result.tables['summary'].press.iloc[0] == pytest.approx(np.dot(errors, errors))
+
+
+def test_fixed_effects_rank_and_missing(data):
+    frame = data.assign(a=np.where(data.x > 0, 'b', 'a'))
+    frame['b'] = frame.a
+    with pytest.raises(ValueError, match='奇异'):
+        fit_regression(frame,'y',['a','b'],categorical=['a','b'],terms=[('a',),('b',)])
+    with pytest.raises(ValueError, match='父项'):
+        fit_regression(frame,'y',['a','x','z'],categorical=['a'],
+                       terms=[('a',),('x',),('z',),('a','x','z')])
+    frame.loc[frame.index[2], 'x'] = np.nan
+    result = fit_regression(frame,'y',['a','x'],categorical=['a'],terms=[('a',),('x',)],missing='drop')
+    assert len(result.tables['observations']) == len(frame)-1
+    assert 3 not in result.tables['observations'].source_row.to_list()

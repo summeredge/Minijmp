@@ -13,8 +13,8 @@
 
 | 状态 | 数量 |
 | --- | ---: |
-| 已实现 | 141 |
-| 部分实现 | 7 |
+| 已实现 | 142 |
+| 部分实现 | 6 |
 | 未实现 | 3 |
 | 待核实 | 14 |
 | 不适用 | 2 |
@@ -25,7 +25,7 @@
 
 ## F1 结论
 
-F1 将 16 条开发缺口分入 10 个工作包。S1 完成后剩余 **10 条 F2 开发记录**，其中 P0 为 1 条、P1 为 6 条、P2 为 3 条。14 条待核实记录先补证。历史 19.1 数值覆盖不足及已知方法差异单独跟踪。双因子 ANOVA 按现有范围计已实现，GLM 扩展用独立 ID；容差区间保留实现状态，G07 继续验证。E01、G08、G03、E02 保留现有结论。
+F1 将 16 条开发缺口分入 10 个工作包。S1 与 M1 完成后剩余 **9 条 F2 开发记录**，其中 P1 为 6 条、P2 为 3 条。14 条待核实记录先补证。历史 19.1 数值覆盖不足及已知方法差异单独跟踪。双因子 ANOVA 按现有范围计已实现，GLM 扩展用独立 ID；容差区间保留实现状态，G07 继续验证。E01、G08、G03、E02 保留现有结论。
 
 2026-11-23，Q1 属性过程能力完成，F0-NEW-029 标记为已实现。二项通过 22.6 原生 BCAPA 固定案例，泊松通过 19.1.0.1 原生 PCAPA 固定案例。该条记录仅描述 Q1 的验收范围。交付范围和原生证据见[能力验证](../capability-validation.md)和[开发待办](development-backlog.md)。
 
@@ -34,6 +34,8 @@ F1 将 16 条开发缺口分入 10 个工作包。S1 完成后剩余 **10 条 F2
 复用 F0 已记录的 382 项回归通过结果。F0/F1 审计轮仅变更审计文档，核对 CSV 解析、功能 ID、DOE 引用、源码与测试文件链接、去重计数及任务映射。
 
 ## F2 已验收范围
+
+- **M1 · F0-NEW-027**：statsmodels 公式模型与 III 型 ANOVA 核对单因子、双因子、三因子交互、非平衡设计及协变量，逐行删除重拟合核对 PRESS。真实 Tk 菜单验证拟合、方差表、预测、来源表图形、Excel 导出和报告。直接相关回归 275 项通过，含既有双因子 ANOVA。Minitab 19.1 原生 GLM 使用响应 [4,6,7,8,10,12,15]、因子 [1,1,1,2,2,2,2] 和协变量 [1,2,3,1,2,3,4]，两项 Adj SS、残差自由度与预测 R² 匹配报告精度，七个拟合值绝对误差小于 1e-12。MiniJMP 使用首水平 0/1 参考编码，原生默认效果编码；有交互时低阶项的检验约定依编码。[Minitab 因子编码](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/anova/how-to/fit-general-linear-model/perform-the-analysis/specify-the-coding-scheme/)
 
 - **S1 · F0-NEW-025**：单样本精确尾概率以泊松质量直接求和核对，零事件上界用闭式结果核对。双样本固定总事件数，用二项质量枚举和区间端点的尾概率校验，覆盖等率、不同暴露量及零事件。正态近似以正态积分和手算标准误核对。真实 Tk 菜单验证双入口、输入错误后可重试及来源表报告。Minitab 19.1 原生 `ONERATE 10 30; TEST 2; ALTERNATIVE 1.` 的样本率 3、95% 下限 2.15940、p 0.022 与 MiniJMP 一致到报告精度。`TWORATE 10 30 20 30; TEST 0; ALTERNATIVE 1.` 的样本率 3.0/1.5、率差 1.5、条件精确 p 0.006 和率差正态下限 0.492737 同样一致。双侧精确 p 使用等尾定义，厂商单样本使用似然比。MiniJMP 双样本近似检验采用对数率比 Wald，原生以率差计算 Z。[单样本方法](https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/basic-statistics/how-to/1-sample-poisson-rate/methods-and-formulas/methods-and-formulas/) · [双样本方法](https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/basic-statistics/how-to/2-sample-poisson-rate/methods-and-formulas/methods-and-formulas/)
 

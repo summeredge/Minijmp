@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import ast
 from dataclasses import dataclass, field
-from itertools import combinations
+from itertools import combinations, product
 import operator
 import warnings
 
@@ -176,9 +176,9 @@ class _Design:
             if len(group) == 1:
                 columns.extend(powers[group[0]])
             else:
-                a, b = group
-                columns.extend((f'{na}:{nb}', va * vb)
-                               for na, va in bases[a] for nb, vb in bases[b])
+                columns.extend((':'.join(name for name, _ in components),
+                                np.prod([values for _, values in components], axis=0))
+                               for components in product(*(bases[c] for c in group)))
         names = [c[0] for c in columns]
         if len(set(names)) != len(names):
             raise ValueError('展开后的模型项名称重复，请重命名输入列。')
@@ -562,7 +562,7 @@ def fit_regression(df, y, x, model='OLS', categorical=(), degree=1, interactions
                    selection='none', criterion='AIC', weight=None, alpha=.05,
                    missing='error', formula='', initial=None, cancel=None,
                    link=None, reference=None, order=None, n_components=None,
-                   max_components=5, scale=True, cv=5):
+                   max_components=5, scale=True, cv=5, terms=None):
     """拟合统一回归；cancel 可为无参数布尔回调或 threading.Event。
 
     Gaussian AIC/BIC 的 k=p+1（包括残差方差），Logistic k=p；与省略尺度参数
@@ -571,6 +571,9 @@ def fit_regression(df, y, x, model='OLS', categorical=(), degree=1, interactions
     interactions 可为布尔值或 [(列A, 列B), ...]。二元响应必须为 0/1。
     非线性不接受权重、分类、多项式、交互或变量筛选，以免隐式忽略选项。
     """
+    if terms is not None and (str(model).lower() != 'ols' or selection != 'none'
+                              or degree != 1 or interactions):
+        raise ValueError('显式模型项仅用于无筛选的一次 OLS 模型。')
     extended = {'poisson': 'Poisson', 'nominal': 'Nominal', 'ordinal': 'Ordinal', 'pls': 'PLS'}
     if str(model).lower() in extended:
         model = extended[str(model).lower()]
@@ -683,7 +686,21 @@ def fit_regression(df, y, x, model='OLS', categorical=(), degree=1, interactions
                                                   selected=True, status='ok')], columns=TABLE_COLUMNS['comparison'])
         notes.append('非线性：最小二乘局部解；系数 t/区间及影响量为雅可比一阶近似；不提供 OLS ANOVA/R²/VIF。')
     else:
-        if isinstance(interactions, (bool, np.bool_)):
+        if terms is not None:
+            groups = set()
+            for term in terms:
+                if not term or len(set(term)) != len(term) or not set(term).issubset(x):
+                    raise ValueError('每个模型项须由所选列构成，项内列名不可重复。')
+                groups.add(tuple(c for c in x if c in term))
+            for group in groups:
+                if any(parent not in groups for parent in combinations(group, len(group)-1)
+                       if len(group) > 1):
+                    raise ValueError('交互项的全部低阶父项必须入模。')
+            if {g[0] for g in groups if len(g) == 1} != set(x):
+                raise ValueError('每个选中的因子和协变量都必须指定主效应。')
+            pairs = sorted((g for g in groups if len(g) > 1),
+                           key=lambda g: (len(g), tuple(x.index(c) for c in g)))
+        elif isinstance(interactions, (bool, np.bool_)):
             pairs = list(combinations(x, 2)) if interactions else []
         else:
             pairs = []
@@ -786,6 +803,25 @@ def fit_regression(df, y, x, model='OLS', categorical=(), degree=1, interactions
                  stats.f.sf(f_stat, p-1, n-p) if p > 1 else np.nan),
                 ('Residual', sse, n-p, scale, np.nan, np.nan),
                 ('Total', total, n-1, np.nan, np.nan, np.nan)], columns=TABLE_COLUMNS['anova'])
+    if terms is not None:
+        # Compare nested column spaces on the same complete cases.
+        row_data = []
+        for group in selected:
+            reduced, _ = design.matrix(data, [g for g in selected if g != group])
+            beta = np.linalg.lstsq(reduced, response, rcond=None)[0]
+            residual_reduced = response - reduced @ beta
+            ss = max(0., float(residual_reduced @ residual_reduced - metrics['sse']))
+            df_term = p - reduced.shape[1]
+            ms = ss/df_term
+            f_stat = ms/scale if scale > 0 else np.nan
+            row_data.append((':'.join(map(str, group)), ss, df_term, ms, f_stat,
+                             stats.f.sf(f_stat, df_term, n-p)))
+        anova = tables['anova']
+        tables['anova'] = pd.concat([anova.iloc[:1], pd.DataFrame(row_data, columns=anova.columns),
+                                     anova.iloc[1:]], ignore_index=True)
+        notes.append('调整平方和（III 型列检验）：逐项删除编码列，保持其他项不变；'
+                     '有交互时低阶效应按参考水平定义。各项 SS 不要求加总为模型 SS。')
+        notes.append('误差均方 = 残差平方和/(n−秩)。预测沿用训练编码；PRESS 为留一预测误差平方和。')
     for key, values in influence.items():
         observations[key] = values
     if not nonlinear:

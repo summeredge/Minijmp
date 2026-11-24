@@ -91,6 +91,9 @@ def column_header(column):
 
 
 class RegressionDialog:
+    fixed_effects = False
+    help_topic = 'stats.advanced_regression'
+
     def __init__(self, parent=None, df=None, app=None, model='OLS'):
         self.app = SheetApp(app, app.getCurrentTable())
         self.df = df.copy(deep=True)
@@ -100,7 +103,7 @@ class RegressionDialog:
         self._closed = False
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='regression')
         self.main = tk.Toplevel(parent)
-        self.main.title('完整回归分析')
+        self.main.title('固定效应一般线性模型' if self.fixed_effects else '完整回归分析')
         self.main.geometry('1120x760')
         self.main.minsize(880, 620)
         apply_dialog_theme(self.main)
@@ -116,50 +119,64 @@ class RegressionDialog:
         self.widgets = {}
         cols = list(self.df.columns)
         self.field(controls, 0, 0, 'y', '响应 Y', '', cols)
-        self.field(controls, 0, 2, 'model', '模型类型', model,
-                   ['OLS', 'WLS', 'Logistic', '非线性', 'Poisson', 'Nominal', 'Ordinal', 'PLS'])
-        parameters = ttk.Notebook(controls)
-        parameters.grid(row=1, column=0, columnspan=4, sticky='ew', pady=4)
-        general = ttk.Frame(parameters, padding=4)
-        extended = ttk.Frame(parameters, padding=4)
-        parameters.add(general, text='模型项与拟合')
-        parameters.add(extended, text='广义模型 / PLS 参数')
-        for page in (general, extended):
-            page.columnconfigure(1, weight=1)
-            page.columnconfigure(3, weight=1)
-        for row, (left, right) in enumerate([
-                (('weight', '权重列（WLS）', '', ['']+cols), ('missing', '缺失值', '报错', ['报错', '删除不完整行'])),
-                (('degree', '多项式次数', '1', ['1', '2', '3']), ('selection', '变量筛选', '不筛选', ['不筛选', '前进', '后退', '双向', '最佳子集'])),
-                (('criterion', '筛选准则', 'AIC', ['AIC', 'BIC', '调整 R²']), ('confidence', '置信水平（%）', '95', None)),
-                (('formula', '曲线 / 自定义公式', 'a*exp(b*x)+c', ['a*exp(b*x)+c', 'a*x**b', 'a/(1+exp(-b*(x-c)))']),
-                 ('initial', '参数初值（如 a=1,b=.1,c=0）', 'a=1,b=0.1,c=0', None)),
-        ]):
-            self.field(general, row, 0, *left)
-            self.field(general, row, 2, *right)
-        self.field(extended, 0, 0, 'link', '链接函数', '', [''])
-        self.field(extended, 0, 2, 'reference', '名义响应参考类别（必填）', '', None)
-        self.field(extended, 1, 0, 'order', '有序响应顺序（低 → 高，逗号分隔）', '', None)
-        self.field(extended, 1, 2, 'n_components', 'PLS 成分数（自动或正整数）', '自动', None)
-        self.field(extended, 2, 0, 'max_components', 'PLS 自动选择最大成分数', '5', None)
-        self.field(extended, 2, 2, 'cv', 'PLS 交叉验证折数（0 禁用）', '5', None)
-        self.scale = tk.BooleanVar(self.main, True)
-        self.scale_check = ttk.Checkbutton(extended, text='PLS 标准化 X/Y（始终中心化）', variable=self.scale)
-        self.scale_check.grid(row=3, column=0, columnspan=2, sticky='w')
-        ttk.Label(extended, text="类别按真实响应匹配；同名数字与文本可写 1 与 '1'。",
-                  wraplength=430).grid(row=3, column=2, columnspan=2, sticky='w')
+        if self.fixed_effects:
+            self.fields['model'] = tk.StringVar(self.main, 'OLS')
+            self.field(controls, 0, 2, 'confidence', '置信水平（%）', '95', None)
+            self.field(controls, 1, 0, 'missing', '缺失值', '报错', ['报错', '删除不完整行'])
+        else:
+            self.field(controls, 0, 2, 'model', '模型类型', model,
+                       ['OLS', 'WLS', 'Logistic', '非线性', 'Poisson', 'Nominal', 'Ordinal', 'PLS'])
+            parameters = ttk.Notebook(controls)
+            parameters.grid(row=1, column=0, columnspan=4, sticky='ew', pady=4)
+            general = ttk.Frame(parameters, padding=4)
+            extended = ttk.Frame(parameters, padding=4)
+            parameters.add(general, text='模型项与拟合')
+            parameters.add(extended, text='广义模型 / PLS 参数')
+            for page in (general, extended):
+                page.columnconfigure(1, weight=1)
+                page.columnconfigure(3, weight=1)
+            for row, (left, right) in enumerate([
+                    (('weight', '权重列（WLS）', '', ['']+cols), ('missing', '缺失值', '报错', ['报错', '删除不完整行'])),
+                    (('degree', '多项式次数', '1', ['1', '2', '3']), ('selection', '变量筛选', '不筛选', ['不筛选', '前进', '后退', '双向', '最佳子集'])),
+                    (('criterion', '筛选准则', 'AIC', ['AIC', 'BIC', '调整 R²']), ('confidence', '置信水平（%）', '95', None)),
+                    (('formula', '曲线 / 自定义公式', 'a*exp(b*x)+c', ['a*exp(b*x)+c', 'a*x**b', 'a/(1+exp(-b*(x-c)))']),
+                     ('initial', '参数初值（如 a=1,b=.1,c=0）', 'a=1,b=0.1,c=0', None)),
+            ]):
+                self.field(general, row, 0, *left)
+                self.field(general, row, 2, *right)
+            self.field(extended, 0, 0, 'link', '链接函数', '', [''])
+            self.field(extended, 0, 2, 'reference', '名义响应参考类别（必填）', '', None)
+            self.field(extended, 1, 0, 'order', '有序响应顺序（低 → 高，逗号分隔）', '', None)
+            self.field(extended, 1, 2, 'n_components', 'PLS 成分数（自动或正整数）', '自动', None)
+            self.field(extended, 2, 0, 'max_components', 'PLS 自动选择最大成分数', '5', None)
+            self.field(extended, 2, 2, 'cv', 'PLS 交叉验证折数（0 禁用）', '5', None)
+            self.scale = tk.BooleanVar(self.main, True)
+            self.scale_check = ttk.Checkbutton(extended, text='PLS 标准化 X/Y（始终中心化）', variable=self.scale)
+            self.scale_check.grid(row=3, column=0, columnspan=2, sticky='w')
+            ttk.Label(extended, text="类别按真实响应匹配；同名数字与文本可写 1 与 '1'。",
+                      wraplength=430).grid(row=3, column=2, columnspan=2, sticky='w')
         variables = ttk.Frame(controls)
         variables.grid(row=2, column=0, columnspan=4, sticky='ew', pady=4)
         variables.columnconfigure(0, weight=1)
         variables.columnconfigure(1, weight=1)
         variables.columnconfigure(2, weight=1)
-        self.x_list = self.listbox(variables, 0, '解释变量 X（Ctrl / Shift 多选）', cols)
-        self.c_list = self.listbox(variables, 1, '分类因子（哑变量；首出现水平为基准）', cols)
-        self.y_list = self.listbox(variables, 2, 'PLS 额外响应 Y（可多选）', cols)
+        if self.fixed_effects:
+            self.x_list = self.listbox(variables, 0, '连续协变量', cols)
+            self.c_list = self.listbox(variables, 1, '固定因子', cols)
+            terms_box = ttk.LabelFrame(variables, text='交互项（每行一项，逗号分隔列名）')
+            terms_box.grid(row=0, column=2, sticky='nsew')
+            self.term_input = tk.Text(terms_box, width=30, height=4)
+            self.term_input.pack(fill='both', expand=True)
+        else:
+            self.x_list = self.listbox(variables, 0, '解释变量 X（Ctrl / Shift 多选）', cols)
+            self.c_list = self.listbox(variables, 1, '分类因子（哑变量；首出现水平为基准）', cols)
+            self.y_list = self.listbox(variables, 2, 'PLS 额外响应 Y（可多选）', cols)
         options = ttk.Frame(controls)
         options.grid(row=3, column=0, columnspan=4, sticky='ew')
         self.interactions = tk.BooleanVar(self.main, False)
         self.diagnostics = tk.BooleanVar(self.main, True)
-        ttk.Checkbutton(options, text='添加两两交互项', variable=self.interactions).pack(side='left')
+        if not self.fixed_effects:
+            ttk.Checkbutton(options, text='添加两两交互项', variable=self.interactions).pack(side='left')
         ttk.Checkbutton(options, text='输出诊断页面', variable=self.diagnostics).pack(side='left')
         self.fit_button = ttk.Button(options, text='建立模型', command=self.fit)
         self.fit_button.pack(side='left', padx=8)
@@ -168,7 +185,8 @@ class RegressionDialog:
         ttk.Button(options, text='帮助', command=self.help).pack(side='right')
         self.progress = ttk.Progressbar(options, mode='indeterminate', length=100)
         self.progress.pack(side='right', padx=8)
-        self.status = tk.StringVar(self.main, '请选择 Y 和 X；源数据按打开窗口时的快照分析。')
+        self.status = tk.StringVar(self.main, '请选择响应和模型主效应。' if self.fixed_effects else
+                                   '请选择 Y 和 X；源数据按打开窗口时的快照分析。')
         ttk.Label(self.main, textvariable=self.status, wraplength=1050).pack(fill='x', padx=8)
         self.notebook = ttk.Notebook(self.main)
         self.notebook.pack(fill='both', expand=True, padx=6, pady=4)
@@ -201,10 +219,13 @@ class RegressionDialog:
         ttk.Button(output_actions, text='导出当前表', command=self.export).pack(side='left', padx=4)
         ttk.Button(output_actions, text='输出完整报告', command=self.report).pack(side='left')
         ttk.Button(prediction_actions, text='关闭', command=self.close).pack(side='right')
-        self.fields['model'].trace_add('write', self.model_changed)
-        self.model_changed()
-        if model in MODEL_PLOTS:
-            parameters.select(extended)
+        if self.fixed_effects:
+            self.update_plots('OLS')
+        else:
+            self.fields['model'].trace_add('write', self.model_changed)
+            self.model_changed()
+            if model in MODEL_PLOTS:
+                parameters.select(extended)
         self.poll_id = self.main.after(100, self.poll)
 
     def field(self, parent, row, col, key, label, default, choices):
@@ -516,7 +537,7 @@ class RegressionDialog:
 
     def help(self, event=None):
         from help_link import open_help
-        open_help('stats.advanced_regression', parent=self.main)
+        open_help(self.help_topic, parent=self.main)
         return 'break'
 
     def close(self, event=None):
@@ -537,3 +558,26 @@ class RegressionDialog:
         self.executor.shutdown(wait=False, cancel_futures=True)
         if event is None:
             self.main.destroy()
+
+
+class FixedEffectsDialog(RegressionDialog):
+    fixed_effects = True
+    help_topic = 'stats.fixed_effects'
+
+    def options(self):
+        import csv
+
+        factors = [self.df.columns[i] for i in self.c_list.curselection()]
+        covariates = [self.df.columns[i] for i in self.x_list.curselection()]
+        x = factors + covariates
+        if set(factors) & set(covariates):
+            raise ValueError('同一列不能同时作为固定因子和连续协变量。')
+        terms = [(c,) for c in x]
+        for row in csv.reader(self.term_input.get('1.0', 'end').splitlines(), skipinitialspace=True):
+            if row:
+                if len(row) < 2:
+                    raise ValueError('每个交互项至少需要两个列名。')
+                terms.append(tuple(row))
+        return dict(y=self.fields['y'].get(), x=x, categorical=factors, terms=terms,
+                    alpha=1-float(self.fields['confidence'].get())/100,
+                    missing='error' if self.fields['missing'].get() == '报错' else 'drop')

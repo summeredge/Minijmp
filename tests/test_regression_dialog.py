@@ -301,3 +301,55 @@ def test_parameter_pages_keep_actions_visible_at_minimum_size(tk_root, monkeypat
     finally:
         dialog.close()
         dispose(app)
+
+def test_fixed_effects_menu_fit_and_diagnostics(tk_root, monkeypatch, tmp_path):
+    from MiniJMP import Minijmp
+    from regression_dialog import FixedEffectsDialog
+    from test_menu_localization import read_menu
+
+    monkeypatch.setattr(Minijmp, 'start_logging', lambda self: None)
+    app = Minijmp(parent=tk_root)
+    rng = np.random.default_rng(700)
+    data = pd.DataFrame({'Y': rng.normal(size=24), 'A': ['a','b']*12, 'X': rng.normal(size=24)})
+    source = app.addSheet('GLM 来源', data)
+    opened = []
+    original = FixedEffectsDialog.__init__
+
+    def capture(self, *args, **kwargs):
+        original(self, *args, **kwargs)
+        opened.append(self)
+
+    monkeypatch.setattr(FixedEffectsDialog, '__init__', capture)
+    try:
+        menu = app.stats_menu['var']
+        menu.invoke(next(i for i, _, label in read_menu(menu) if label.strip() == '固定效应一般线性模型'))
+        dialog = opened[-1]
+        dialog.error = Mock()
+        dialog.fields['y'].set('Y')
+        dialog.c_list.selection_set(1)
+        dialog.x_list.selection_set(2)
+        dialog.term_input.insert('1.0', 'A,X')
+        dialog.fit_button.invoke()
+        finish(tk_root, dialog)
+        assert 'A:X' in set(dialog.tables['anova'].source)
+        other = app.addSheet('GLM 预测', data[['A','X']].iloc[:4].copy())
+        dialog.sheet_name.set('GLM 预测')
+        dialog.predict()
+        finish(tk_root, dialog)
+        assert len(dialog.prediction) == 4
+        dialog.plot()
+        dialog.error.assert_not_called()
+        assert source.pf is not None
+        assert getattr(other, 'pf', None) is None
+        destination = tmp_path/'fixed-effects.xlsx'
+        monkeypatch.setattr('regression_dialog.filedialog.asksaveasfilename', lambda **kw: str(destination))
+        dialog.export()
+        assert destination.is_file()
+        monkeypatch.setattr(app,'print',Mock())
+        dialog.report()
+        assert app.print.call_count > 1
+        assert all(call.kwargs['table'] is source for call in app.print.call_args_list)
+    finally:
+        for dialog in opened:
+            dialog.close()
+        dispose(app)
