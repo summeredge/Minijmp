@@ -151,7 +151,7 @@ def test_invalid_create_and_small_window_actions(csv_app, monkeypatch, kind):
     dialog.factor_count.set('27' if kind == 'pb' else '5')
     dialog.update_factor_rows()
     if kind == 'dsd':
-        dialog.fields[3][4].insert(0, '甲;乙')
+        dialog.fields[2][4].insert(0, '甲;乙')
         dialog.fields[4][4].insert(0, '关;开')
     dialog.create()
     assert list(app.sheets) == original
@@ -760,26 +760,27 @@ def test_dsd_saturated_and_invalid_hierarchy_gui(csv_app, monkeypatch):
     assert dialog.result is None and '主效应' in error.call_args.args[1]
     dialog.main.destroy()
 
-def test_extended_dsd_menu_roundtrip(csv_app,tmp_path,monkeypatch):
+@pytest.mark.parametrize('continuous,categorical,rows', [(13,2,34), (2,6,18)])
+def test_extended_dsd_menu_roundtrip(csv_app,tmp_path,monkeypatch,continuous,categorical,rows):
     from doe_core import restore_design_result
     app,error=csv_app
     monkeypatch.setattr('doe_dialog.messagebox.showerror',error)
     monkeypatch.setattr('worksheets.messagebox.showerror',error)
     monkeypatch.setattr('worksheets.messagebox.askyesno',lambda *a,**k:True)
     create=CreateDOE(app,dsd=True)
-    create.factor_count.set('15')
+    create.factor_count.set(str(continuous+categorical))
     create.update_factor_rows()
-    for row in create.fields[13:15]:
+    for row in create.fields[continuous:continuous+categorical]:
         row[4].insert(0,'Low;High')
     create.preview()
-    assert '34 次运行' in create.preview_text.get()
+    assert f'{rows} 次运行' in create.preview_text.get()
     create.create()
     source=app.getCurrentTable()
-    assert len(source.model.df)==34
+    assert len(source.model.df)==rows
     assert source.model.df['点类型'].eq('pseudo_center').sum()==2
-    path=tmp_path/'dsd-13-2.dexpl'
+    path=tmp_path/f'dsd-{continuous}-{categorical}.dexpl'
     assert app._save_project(path),error.call_args_list
     assert app.load_file(path)
     restored=app.getCurrentTable()
-    assert restore_design_result(restored.model.df,restored.doe_metadata).spec.screening_matrix['construction_id']=='dsd13c2.v1'
+    assert restore_design_result(restored.model.df,restored.doe_metadata).spec.screening_matrix['construction_id']==f'dsd{continuous}c{categorical}.v1'
     error.assert_not_called()

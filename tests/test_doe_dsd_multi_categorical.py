@@ -1,7 +1,10 @@
 """DSD 多二水平分类构造：独立行列式参考、结构和附加中心点。"""
+from collections import Counter
 from dataclasses import replace
+import json
 from fractions import Fraction
 from itertools import product
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -278,6 +281,45 @@ def test_multi_categorical_schur_reference_covers_every_supported_combination(
     assert _exact_determinant((wrong.T @ wrong).tolist()) != best
 
 
+
+NEW_CASES = tuple((m,c) for c in range(2,7) for m in range(1,49-c)
+                  if not (4 <= m <= 14 and c <= 4))
+
+
+@pytest.mark.parametrize('m,c', NEW_CASES)
+def test_new_mixed_dsd_constructions(m, c):
+    coded = np.asarray(_dsd_matrix_for_key(f'dsd{m}c{c}'), dtype=np.int64)
+    conference = np.array(MATRICES[f'dsd{m+c}'], dtype=np.int64)
+    half = (len(conference)-1)//2
+    assert coded.shape == (len(conference)+1, m+c)
+    np.testing.assert_array_equal(coded[:half], -coded[half:-2])
+    np.testing.assert_array_equal(coded[-2], -coded[-1])
+    np.testing.assert_array_equal(coded[-2:, :m], 0)
+    assert np.count_nonzero(np.all(coded[:, :m] == 0, axis=1)) == (4 if m == 1 else 2)
+    assert np.isin(coded[:, m:], [-1,1]).all()
+    np.testing.assert_array_equal(coded[:, :m].T @ coded[:, :m], (2*half-2)*np.eye(m))
+    design = np.column_stack((np.ones(len(coded)), coded))
+    assert np.linalg.matrix_rank(design) == 1+m+c
+    second = np.column_stack([coded[:, i]*coded[:, j] for i in range(m+c)
+                              for j in range(i, m+c) if i < j or i < m])
+    np.testing.assert_array_equal(coded.T @ second, 0)
+
+
+@pytest.mark.parametrize('m,c,rank', [(1,2,8), (3,4,16), (15,5,41), (42,6,97)])
+def test_mixed_dsd_model_rank_and_independent_determinant(m,c,rank):
+    frame, metadata = create_dsd(_spec(m,c))
+    design = restore_design_result(frame, metadata)
+    validate_dsd(design)
+    assert frame['点类型'].eq('pseudo_center').sum() == 2
+    coded = _coded_matrix(frame, design.spec.factors)
+    model = np.column_stack([np.ones(len(frame)), coded, *(
+        coded[:,i]*coded[:,j] for i in range(m+c) for j in range(i,m+c) if i < j or i < m)])
+    assert np.linalg.matrix_rank(model) == rank
+    first_order = model[:, :m+c+1]
+    assert np.linalg.slogdet(first_order.T @ first_order)[1] == pytest.approx(
+        _reference_max_logdet(m,c), rel=1e-12)
+
+
 def test_four_continuous_two_categorical_uses_the_legacy_matrix():
     spec = _spec(4, 2)
     frame, metadata = create_dsd(spec)
@@ -365,7 +407,43 @@ def test_mixed_extra_centers_must_cover_all_category_combinations(
         create_dsd(_spec(continuous_count, categorical_count), center_points=center_points)
 
 
-@pytest.mark.parametrize('key', ['dsd3c2', 'dsd15c2', 'dsd4c5', 'dsd4c02', 'pb12'])
+@pytest.mark.parametrize('key', ['dsd0c2', 'dsd47c2', 'dsd4c7', 'dsd4c02', 'pb12'])
 def test_unknown_or_out_of_scope_dsd_matrix_keys_are_rejected(key):
     with pytest.raises(KeyError):
         _dsd_matrix_for_key(key)
+
+
+
+def _dsd_rank_and_neighborhood(coded, m):
+    first = np.column_stack((np.ones(len(coded)), coded))
+    n = coded.shape[1]
+    second = np.column_stack([coded[:,i]*coded[:,j] for i in range(n)
+                              for j in range(i,n) if i < j or i < m])
+    assert np.linalg.matrix_rank(first) == 1+n
+    np.testing.assert_array_equal(coded.T @ second, 0)
+    cont, cat = coded[:,:m], coded[:,m:]
+    cat_gram = cat @ cat.T
+    neighborhood = Counter(tuple(sorted(zip(a,b))) for a,b in zip(cont@cont.T, cat_gram))
+    return np.linalg.matrix_rank(np.column_stack((first,second))), Counter(cat_gram.ravel()), neighborhood
+
+
+def test_native_dsd_matrices_and_invariants():
+    fixture = Path(__file__).parent / 'fixtures/dsd_f2_closure_native.json'
+    fixtures = json.loads(fixture.read_text(encoding='utf-8'))
+    for key, encoded in fixtures['cases'].items():
+        m,c = map(int,key.split('+'))
+        native = np.array([['-0+'.index(value)-1 for value in row] for row in encoded])
+        local = np.array(_dsd_matrix_for_key(f'dsd{m}c{c}'))
+        assert native.shape == local.shape
+        a_rank, a_gram, a_neighborhood = _dsd_rank_and_neighborhood(local, m)
+        b_rank, b_gram, b_neighborhood = _dsd_rank_and_neighborhood(native, m)
+        if key == '1+2':
+            assert (a_rank,b_rank) == (8,7)
+        else:
+            assert a_rank == b_rank
+        if key == '14+3':
+            assert Counter(map(tuple, local)) == Counter(map(tuple, native))
+        if key in ('13+4','14+4'):
+            assert a_gram != b_gram
+        if key == '13+2':
+            assert a_neighborhood != b_neighborhood

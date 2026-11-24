@@ -34,7 +34,7 @@ _DESIGN_TYPES = frozenset({
 _SCREENING_TYPES = frozenset({"plackett_burman", "definitive_screening"})
 _CUSTOM_TYPES = frozenset({"custom_factorial", "custom_rsm", "custom_screening"})
 _SCREENING_POINTS = _SCREENING_TYPES | {"custom_screening"}
-DSD_MULTI_COUNTS = frozenset((m,c) for m in range(4,15) for c in range(2,5))
+DSD_MULTI_COUNTS = frozenset((m, c) for c in range(2, 7) for m in range(1, 49-c))
 _SCREENING_SOURCES = {
     ("plackett_burman", f"pb{n}.v1", "publication", f"nist.pb{n}")
     for n in (12, 20, 24, 28, 36)

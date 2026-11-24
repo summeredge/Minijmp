@@ -44,33 +44,36 @@ def _multi_categorical_dsd_matrix(continuous_count, categorical_count):
     centers = [index for index, row in enumerate(base) if not any(row)]
     if len(centers) != 1:
         raise ValueError('基础 DSD 必须且只能包含一个全零中心行')
-    rows = [list(row) for index, row in enumerate(base) if index != centers[0]]
-    zero_pairs = []
-    for column in range(continuous_count, factor_count):
-        pair = [index for index, row in enumerate(rows) if row[column] == 0]
-        if len(pair) != 2:
-            raise ValueError('基础 DSD 的分类列必须恰有两个非中心零位')
-        zero_pairs.append(pair)
-
-    best_determinant, best_rows = -1, None
-    # b 优先于 z 枚举；严格大于保留并列时字典序最先的配置。
-    for signs in product((-1, 1), repeat=2 * categorical_count):
-        b, z = signs[:categorical_count], signs[categorical_count:]
-        candidate = [row[:] for row in rows]
-        for column, pair, value in zip(range(continuous_count, factor_count), zero_pairs, z):
-            # 论文将每个分类因子的零位设为 z_j 与 -z_j，以保留折叠配对。
-            candidate[pair[0]][column] = value
-            candidate[pair[1]][column] = -value
-        # 论文的 2×c B 矩阵两行为 b 与 -b。
-        candidate.extend((
-            [0] * continuous_count + list(b),
-            [0] * continuous_count + [-value for value in b],
-        ))
-        first_order = np.column_stack((np.ones(len(candidate), dtype=int), candidate))
-        determinant = _integer_determinant(first_order.T @ first_order)
-        if determinant > best_determinant:
-            best_determinant, best_rows = determinant, candidate
-    return tuple(tuple(row) for row in best_rows)
+    folded = np.asarray([row for index, row in enumerate(base) if index != centers[0]],
+                        dtype=np.int64)
+    continuous = folded[:, :continuous_count]
+    categorical = folded[:, continuous_count:].copy()
+    first, second = np.nonzero(categorical.T == 0)[1].reshape(-1, 2).T
+    columns = np.arange(categorical_count)
+    # 连续因子信息块为 dI。截距与各列正交，可只比较分类信息块的
+    # 整数 Schur 补 dD-B'B。其缩放因子与 b、z 的选择无关。
+    diagonal = len(folded)-2
+    best_determinant, best_signs = 0, None
+    # b 和 -b 生成相同的伪中心点对。固定首符号保留原有并列规则。
+    for b_tail in product((-1, 1), repeat=categorical_count-1):
+        b = (-1, *b_tail)
+        pseudo_information = 2*np.outer(b, b)
+        for z in product((-1, 1), repeat=categorical_count):
+            categorical[first, columns] = z
+            categorical[second, columns] = -np.asarray(z)
+            cross = continuous.T @ categorical
+            information = diagonal*(categorical.T @ categorical+pseudo_information) - cross.T @ cross
+            determinant = _integer_determinant(information)
+            if determinant > best_determinant:
+                best_determinant, best_signs = determinant, (b, z)
+    if best_signs is None:
+        raise ValueError('无法构造满秩的混合 DSD 一阶模型')
+    b, z = best_signs
+    categorical[first, columns] = z
+    categorical[second, columns] = -np.asarray(z)
+    pseudo = (0,) * continuous_count
+    rows = np.column_stack((continuous, categorical)).tolist()
+    return (*map(tuple, rows), pseudo+b, pseudo+tuple(-value for value in b))
 
 
 def _dsd_matrix_for_key(key):
@@ -121,7 +124,7 @@ def create_dsd(spec, replicates=1, measured=False, blocks=1, center_points=None)
         key = f'dsd{len(types)}'
         source = f'conference.{key}'
     else:
-        raise ValueError('当前支持 2–48 个连续因子、1–47 连续加 1 分类，以及 4–14 连续加 2–4 分类（保留既有 4+2 构造）')
+        raise ValueError('当前支持 2–48 个连续因子、1–47 连续加 1 分类，以及 总数不超过 48 的 1 个或更多连续因子加 2–6 个分类因子')
     if center_points is None:
         center_count = spec.center_point_count or 0
     elif (isinstance(center_points, bool) or not isinstance(center_points, Integral)
