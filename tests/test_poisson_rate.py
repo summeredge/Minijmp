@@ -92,4 +92,3 @@ def test_poisson_rate_menu_report(tk_root, monkeypatch):
                 assert '率比：2' in output[-1][0]
     finally:
         dispose(app)
-
