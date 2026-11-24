@@ -12,7 +12,7 @@ from chart_style import style_axes
 
 
 _TITLES = {'EWMA': 'EWMA 控制图', 'CUSUM': 'CUSUM 控制图',
-           'Nelson': 'Nelson 判异规则控制图', 'T2': 'Hotelling T² 控制图'}
+           'Nelson': 'Nelson 判异规则控制图', 'T2': 'Hotelling T² 控制图', 'G': 'G 控制图', 'T': 'T 控制图'}
 
 
 def spc_plot(result, figure, on_pick=None):
@@ -29,7 +29,7 @@ def spc_plot(result, figure, on_pick=None):
     if current is None or current.empty:
         raise ValueError('没有可用的当前监控观测。')
     baseline = result.tables.get('baseline')
-    stages = [(current, '当前监控（Phase II）')]
+    stages = [(current, '事件间隔' if kind in ('G','T') else '当前监控（Phase II）')]
     if baseline is not None and not baseline.empty:
         stages.append((baseline, '历史基线（Phase I）'))
     required = {'sequence', 'statistic', 'lower', 'center', 'upper', 'alarm'}
@@ -58,7 +58,7 @@ def spc_plot(result, figure, on_pick=None):
         sequence = table['sequence'].to_numpy(dtype=float, na_value=np.nan)
         alarm = table['alarm'].fillna(False).to_numpy(dtype=bool)
         columns = ['statistic']
-        labels = ['观测值' if kind == 'Nelson' else 'T²' if kind == 'T2' else 'EWMA 统计量']
+        labels = [{'Nelson': '观测值', 'T2': 'T²', 'G': '机会数', 'T': '持续时间'}.get(kind, 'EWMA 统计量')]
         if kind == 'CUSUM':
             labels = ['正支 C⁺']
             if 'negative' in table:

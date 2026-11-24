@@ -230,6 +230,7 @@
 | Control Chart C | 控制图 C |
 | Control Chart U | 控制图 U |
 | Advanced SPC Control Charts | 高级 SPC 控制图 |
+| Rare Event Charts | 罕见事件控制图 |
 | Pareto Chart | 帕累托图 |
 | Run Chart | 运行图 |
 | Cause-and-Effect Diagram | 因果图 |

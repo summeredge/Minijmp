@@ -13,6 +13,7 @@ from sheet_context import SheetApp, export_source_labels
 from stat_table import StatTable, TableBlock
 
 
+RARE_KINDS = {'G 控制图': 'G', 'T 控制图': 'T'}
 CURRENT = '当前数据（Phase I / 已知参数）'
 KINDS = {'EWMA': 'EWMA', 'CUSUM': 'CUSUM', 'Nelson': 'Nelson', 'Hotelling T²': 'T2'}
 TITLES = {'summary': '模型摘要', 'parameters': '基线参数', 'comparison': '基线与当前对比',
@@ -24,6 +25,7 @@ HEADERS = {'parameter': '项目', 'value': '数值', 'variable': '变量', 'mean
            'difference': '均值差（当前−基线）', 'phase': '阶段', 'confidence': '控制限置信度',
            'lower': '下控制限', 'upper': '上控制限', 'center': '中心线', 'method': '计算方法',
            'source_row': '来源行号', 'source_index': '来源索引', 'sequence': '分析序号',
+           'event_time': '事件日期',
            'subgroup_size': '子组大小', 'standard_error': '均值标准误',
            'z': '标准化观测', 'statistic': '统计量', 'negative': 'CUSUM 负支',
            'alarm': '异常标记', 'rules': '触发规则', 'rule': '规则', 'description': '规则说明',
@@ -31,6 +33,8 @@ HEADERS = {'parameter': '项目', 'value': '数值', 'variable': '变量', 'mean
            'row_variable': '行变量', 'column_variable': '列变量', 'covariance': '协方差'}
 ITEMS = {'chart': '控制图', 'phase': '监控阶段', 'n': '当前样本数', 'baseline_n': '基线样本数',
          'variables': '变量', 'alarm_points': '异常观测数', 'alarm_records': '异常记录数',
+         'probability': '事件概率', 'definition': '机会数口径', 'distribution': '持续时间分布',
+         'shape': '形状', 'scale': '尺度',
          'confidence': '控制限置信度', 'lambda': 'EWMA λ', 'L': 'EWMA 限宽 L',
          'k': 'CUSUM 参考值 k', 'h': 'CUSUM 阈值 h', 'rules': '启用规则'}
 PHASES = {'phase1': 'Phase I（自身基线）', 'phase2': 'Phase II（独立监控）', 'known': '已知参数'}
@@ -58,6 +62,9 @@ def export_frame(frame):
 
 
 class AdvancedSPCDialog:
+    rare = False
+    help_topic = 'quality.advanced_spc'
+
     def __init__(self, parent=None, df=None, app=None):
         source = parent if hasattr(parent, 'model') else app.getCurrentTable()
         self.app = SheetApp(app, source)
@@ -67,7 +74,7 @@ class AdvancedSPCDialog:
         self._closed = False
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='advanced-spc')
         self.main = tk.Toplevel(parent)
-        self.main.title('高级 SPC 控制图')
+        self.main.title('罕见事件控制图' if self.rare else '高级 SPC 控制图')
         self.main.geometry('1120x780')
         self.main.minsize(900, 640)
         apply_dialog_theme(self.main)
@@ -92,31 +99,40 @@ class AdvancedSPCDialog:
         parameters.pack(side='left', fill='both', expand=True)
         parameters.columnconfigure(1, weight=1)
         parameters.columnconfigure(3, weight=1)
-        subgroup_columns = [str(c) for c in self.columns]
-        specs = [
-            (('kind', '控制图', 'EWMA', list(KINDS)), ('baseline', '历史基线', CURRENT, [CURRENT])),
-            (('mean', '已知均值（可选）', '', None), ('sigma', '已知标准差（可选）', '', None)),
-            (('ewma_lambda', 'EWMA λ', '0.2', None), ('ewma_width', 'EWMA 限宽 L', '3', None)),
-            (('cusum_k', 'CUSUM 参考值 k', '0.5', None), ('cusum_h', 'CUSUM 阈值 h', '5', None)),
-            (('confidence', 'T² 置信度（%）', '95', ['95', '99']), ('missing', '缺失值', '报错', ['报错', '删除不完整行'])),
-            (('subgroup_size', '子组大小列（可选）', '', ['']+subgroup_columns),),
-        ]
+        if self.rare:
+            specs = [
+                (('kind','控制图','G 控制图',list(RARE_KINDS)), ('input_kind','数据口径','间隔／between',['间隔／between','含终点／until','事件日期'])),
+                (('width','控制限宽度','3',None), ('probability','G 图历史事件概率（可选）','',None)),
+                (('distribution','T 图分布','指数',['指数','Weibull']), ('scale','T 图历史尺度（可选）','',None)),
+                (('shape','T 图历史形状（可选）','',None),),
+            ]
+        else:
+            subgroup_columns = [str(c) for c in self.columns]
+            specs = [
+                (('kind', '控制图', 'EWMA', list(KINDS)), ('baseline', '历史基线', CURRENT, [CURRENT])),
+                (('mean', '已知均值（可选）', '', None), ('sigma', '已知标准差（可选）', '', None)),
+                (('ewma_lambda', 'EWMA λ', '0.2', None), ('ewma_width', 'EWMA 限宽 L', '3', None)),
+                (('cusum_k', 'CUSUM 参考值 k', '0.5', None), ('cusum_h', 'CUSUM 阈值 h', '5', None)),
+                (('confidence', 'T² 置信度（%）', '95', ['95', '99']), ('missing', '缺失值', '报错', ['报错', '删除不完整行'])),
+                (('subgroup_size', '子组大小列（可选）', '', ['']+subgroup_columns),),
+            ]
         for row, pair in enumerate(specs):
             for col, spec in zip((0, 2), pair):
                 widget = self.field(parameters, row, col, *spec)
                 if spec[0] == 'baseline':
                     self.baseline_box = widget
                     widget.configure(postcommand=self.refresh_baselines)
-        self.refresh_baselines()
-        rules = ttk.LabelFrame(self.main, text='Nelson 判异规则（仅用于 Nelson 图）', padding=4)
-        rules.pack(fill='x', padx=6)
-        self.rules = {}
-        for i, (rule, text) in enumerate(NELSON.items()):
-            variable = self.rules[rule] = tk.BooleanVar(self.main, True)
-            ttk.Checkbutton(rules, text=f'{rule}. {text}', variable=variable).grid(
-                row=i//2, column=i % 2, sticky='w', padx=(0, 12))
-        rules.columnconfigure(0, weight=1)
-        rules.columnconfigure(1, weight=1)
+        if not self.rare:
+            self.refresh_baselines()
+            rules = ttk.LabelFrame(self.main, text='Nelson 判异规则（仅用于 Nelson 图）', padding=4)
+            rules.pack(fill='x', padx=6)
+            self.rules = {}
+            for i, (rule, text) in enumerate(NELSON.items()):
+                variable = self.rules[rule] = tk.BooleanVar(self.main, True)
+                ttk.Checkbutton(rules, text=f'{rule}. {text}', variable=variable).grid(
+                    row=i//2, column=i % 2, sticky='w', padx=(0, 12))
+            rules.columnconfigure(0, weight=1)
+            rules.columnconfigure(1, weight=1)
         commands = ttk.Frame(self.main, padding=(6, 4))
         commands.pack(fill='x')
         self.run_button = ttk.Button(commands, text='开始分析', command=self.analyze)
@@ -127,7 +143,8 @@ class AdvancedSPCDialog:
         ttk.Button(commands, text='帮助', command=self.help).pack(side='right')
         self.progress = ttk.Progressbar(commands, mode='indeterminate', length=100)
         self.progress.pack(side='right', padx=6)
-        self.status = tk.StringVar(self.main, 'T² 可选多个变量；其余图选一列。已知均值和标准差需同时填写，且不与历史基线混用。')
+        self.status = tk.StringVar(self.main, '请选择一列事件日期或间隔。' if self.rare else
+                                   'T² 可选多个变量；其余图选一列。已知均值和标准差需同时填写，且不与历史基线混用。')
         ttk.Label(self.main, textvariable=self.status, wraplength=850).pack(fill='x', padx=8, pady=4)
         self.notebook = ttk.Notebook(self.main)
         self.notebook.pack(fill='both', expand=True, padx=6, pady=4)
@@ -195,11 +212,16 @@ class AdvancedSPCDialog:
             return
         try:
             self.app.getCurrentTable()
-            from advanced_spc import analyze_spc
+            from advanced_spc import analyze_spc, rare_event_chart
             options = self.options()
-            self.pending_origin = '当前数据为窗口打开时的来源快照；基线：'+self.fields['baseline'].get()+'（计算启动时快照）。'
+            if self.rare:
+                operation = rare_event_chart
+                self.pending_origin = '使用打开窗口时的来源工作表快照。'
+            else:
+                operation = analyze_spc
+                self.pending_origin = '当前数据为窗口打开时的来源快照；基线：'+self.fields['baseline'].get()+'（计算启动时快照）。'
             self.cancel_event.clear()
-            self.future = self.executor.submit(analyze_spc, self.df, **options, cancel=self.cancel_event)
+            self.future = self.executor.submit(operation, self.df, **options, cancel=self.cancel_event)
             self.run_button.configure(state='disabled')
             self.cancel_button.configure(state='normal')
             self.progress.start()
@@ -334,11 +356,11 @@ class AdvancedSPCDialog:
 
     def error(self, exc):
         self.status.set('失败：'+str(exc))
-        messagebox.showerror('高级 SPC 控制图', str(exc), parent=self.main)
+        messagebox.showerror(self.main.title(), str(exc), parent=self.main)
 
     def help(self, event=None):
         from help_link import open_help
-        open_help('quality.advanced_spc', parent=self.main)
+        open_help(self.help_topic, parent=self.main)
         return 'break'
 
     def close(self, event=None):
@@ -359,3 +381,25 @@ class AdvancedSPCDialog:
         self.executor.shutdown(wait=False, cancel_futures=True)
         if event is None:
             self.main.destroy()
+
+
+class RareEventDialog(AdvancedSPCDialog):
+    rare = True
+    help_topic = 'quality.rare_events'
+
+    def options(self):
+        selected = self.x_list.curselection()
+        if len(selected) != 1:
+            raise ValueError('请选择一列事件日期或间隔。')
+        fields = {name: variable.get() for name, variable in self.fields.items()}
+        kind = RARE_KINDS[fields['kind']]
+        options = dict(column=self.columns[selected[0]],kind=kind,width=float(fields['width']),
+                       input_kind={'间隔／between':'between','含终点／until':'until',
+                                   '事件日期':'dates'}[fields['input_kind']])
+        if kind == 'G':
+            options['probability'] = float(fields['probability']) if fields['probability'] else None
+        else:
+            options['distribution'] = 'exponential' if fields['distribution'] == '指数' else 'weibull'
+            for key in ('scale','shape'):
+                options[key] = float(fields[key]) if fields[key] else None
+        return options

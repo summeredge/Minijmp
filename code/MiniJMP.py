@@ -292,6 +292,7 @@ class Minijmp(Worksheets, Minijmp_pre):
             '35控制图 Xbar-R': {'cmd': self.cChartXBR},
             '36控制图 Xbar-S': {'cmd': self.cChartXBS},
             '37高级 SPC 控制图': {'cmd': self.advanced_spc},
+            '38罕见事件控制图': {'cmd': self.rare_events},
             '42控制图 NP': {'cmd': self.cChartNP},
             '43控制图 P': {'cmd': self.cChartP},
             '44控制图 C': {'cmd': self.cChartC},
@@ -461,6 +462,10 @@ class Minijmp(Worksheets, Minijmp_pre):
     def time_series_analysis(self):
         from advanced_time_series_dialog import TimeSeriesAnalysisDialog
         TimeSeriesAnalysisDialog(parent=self.table, df=self.table.model.df, app=self)
+
+    def rare_events(self):
+        from advanced_spc_dialog import RareEventDialog
+        RareEventDialog(parent=self.table, df=self.table.model.df, app=self)
 
     def advanced_spc(self):
         from advanced_spc_dialog import AdvancedSPCDialog

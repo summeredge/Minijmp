@@ -13,9 +13,9 @@
 
 | 状态 | 数量 |
 | --- | ---: |
-| 已实现 | 146 |
+| 已实现 | 147 |
 | 部分实现 | 4 |
-| 未实现 | 1 |
+| 未实现 | 0 |
 | 待核实 | 14 |
 | 不适用 | 2 |
 | DOE 交叉引用 | 36 |
@@ -25,7 +25,7 @@
 
 ## F1 结论
 
-F1 将 16 条开发缺口分入 10 个工作包。S2 验收后剩余 **5 条 F2 未完全实现记录**，其中 P1 为 2 条、P2 为 3 条。14 条待核实记录先补证。历史 19.1 数值覆盖不足及已知方法差异单独跟踪。双因子 ANOVA 按现有范围计已实现，GLM 扩展用独立 ID；容差区间保留实现状态，G07 继续验证。E01、G08、G03、E02 保留现有结论。
+F1 将 16 条开发缺口分入 10 个工作包。Q3 验收后仍有 **4 条 F2 部分实现记录**，其中 P1 和 P2 各 2 条。14 条待核实记录先补证。历史 19.1 数值覆盖不足及已知方法差异单独跟踪。双因子 ANOVA 按现有范围计已实现，GLM 扩展用独立 ID；容差区间保留实现状态，G07 继续验证。E01、G08、G03、E02 保留现有结论。
 
 2026-11-23，Q1 属性过程能力完成，F0-NEW-029 标记为已实现。二项通过 22.6 原生 BCAPA 固定案例，泊松通过 19.1.0.1 原生 PCAPA 固定案例。该条记录仅描述 Q1 的验收范围。交付范围和原生证据见[能力验证](../capability-validation.md)和[开发待办](development-backlog.md)。
 
@@ -34,6 +34,8 @@ F1 将 16 条开发缺口分入 10 个工作包。S2 验收后剩余 **5 条 F2 
 复用 F0 已记录的 382 项回归通过结果。F0/F1 审计轮仅变更审计文档，核对 CSV 解析、功能 ID、DOE 引用、源码与测试文件链接、去重计数及任务映射。
 
 ## F2 已验收范围
+
+- **Q3 · F0-NEW-031**：G 图以独立几何 CDF 插值核对控制限，并验证 until 比 between 整体多 1、日期来源行及零间隔。T 图以解析分位数和 Weibull 似然得分核对，含零时长拒绝。真实 Tk 菜单验证两个图形、来源报告及 PNG/Excel 导出。Minitab 19 `GCHART C1; P .1.`（[0,1,12,48,200]）原生图限 0/5.6/61.7、报警点 5；`TCHART C2; WSHAPE 1; WSCALE 3.`（[.25,1.5,3,20,.02]）图限 0.00/2.08/19.82、报警点 4；两例匹配显示精度。本地覆盖严格单点越限规则。[G 图方法](https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/rare-event-charts/g-chart/methods-and-formulas/methods-and-formulas/) · [T 图方法](https://support.minitab.com/en-us/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/rare-event-charts/t-chart/methods-and-formulas/methods-and-formulas/)
 
 - **T1 剩余扩展 · F0-BASE-017**：奇偶居中窗直接求和、历史原点和末窗预测区间按独立公式核对；SES 创新区间按闭式增益验证。自动 ARIMA 在固定差分阶数内用 BIC 与独立 SARIMAX 候选排序比对。真实 Tk 验证时间索引、平滑区间和图形导出。Minitab 19 `MA C1 4; CENTER; SMOOTHED C2.` 的首个居中值 14.75；同数据尾随 MA 原点 10 时三个预测均为 23.75。本地加法回归初始化与 19.1 `TSWINT C1 6; ADDITIVE; FORECASTS 3; FSTORE C2.` 预测 [32.1551917555, 36.7700126128, 36.7222673910] 一致，绝对误差小于 1e-12。乘法原生初始化及厂商的 Box–Cox、常数搜索等自动 ARIMA 选项待补，本条维持部分实现。[Winters 初始化](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/time-series/how-to/winters-method/methods-and-formulas/methods-and-formulas/) · [自动 ARIMA 方法](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/time-series/how-to/forecast-with-best-arima-model/methods-and-formulas/methods/)
 

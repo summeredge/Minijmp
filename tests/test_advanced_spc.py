@@ -232,3 +232,54 @@ def test_subgroup_variable_size_known_and_historical(kind):
     assert params['std'] == pytest.approx(sqrt(62/9))
     with pytest.raises(ValueError,match='正整数'):
         analyze_spc(frame.assign(n=1.5),['x'],kind=kind,subgroup_size='n')
+
+def test_g_chart_independent_quantiles_and_offsets():
+    from math import ceil, log, log1p
+    from scipy.stats import norm
+    from advanced_spc import rare_event_chart
+    between = [0,1,12,48,200]
+    p = .1
+    frame = pd.DataFrame({'x':between, 'until':np.array(between)+1})
+    result = rare_event_chart(frame,'x',probability=p)
+    obs = result.tables['observations']
+    expected = []
+    for q in [norm.cdf(-3),.5,norm.cdf(3)]:
+        k = ceil(log1p(-q)/log(1-p))
+        lo, hi = 1-(1-p)**(k-1), 1-(1-p)**k
+        expected.append(max(0,k-2+(q-lo)/(hi-lo)))
+    np.testing.assert_allclose(obs[['lower','center','upper']].iloc[0],expected)
+    assert list(obs.alarm) == [False,False,False,False,True]
+    until = rare_event_chart(frame,'until',input_kind='until',probability=p)
+    np.testing.assert_allclose(until.tables['observations'][['lower','center','upper']].iloc[0],np.array(expected)+1)
+    assert list(until.tables['observations'].alarm) == list(obs.alarm)
+    assert not rare_event_chart(pd.DataFrame({'x':[0,0]}),'x').tables['observations'].alarm.any()
+    with pytest.raises(ValueError):
+        rare_event_chart(frame,'x',input_kind='until')
+
+
+@pytest.mark.parametrize('distribution,shape', [('exponential',None),('weibull',1.7)])
+def test_rare_event_dates_and_t_distribution(distribution,shape):
+    from scipy.stats import norm
+    from advanced_spc import rare_event_chart
+    dates = pd.DataFrame({'d':['2026-01-01','2026-01-02','2026-01-05']},index=['a','b','c'])
+    g = rare_event_chart(dates,'d',input_kind='dates')
+    assert g.tables['observations'].value.to_list() == [1,3]
+    assert g.tables['observations'].source_row.to_list() == [2,3]
+    assert g.tables['observations'].source_index.to_list() == ['b','c']
+    t = rare_event_chart(dates,'d',kind='T',input_kind='dates',distribution=distribution,shape=shape,scale=3)
+    expected = 3*(-np.log(norm.sf([-3,0,3])))**(1/(shape or 1))
+    np.testing.assert_allclose(t.tables['observations'][['lower','center','upper']].iloc[0],expected)
+    with pytest.raises(ValueError,match='严格大于零'):
+        rare_event_chart(pd.DataFrame({'x':[0,1]}),'x',kind='T')
+    with pytest.raises(ValueError,match='升序'):
+        rare_event_chart(dates.iloc[::-1],'d',input_kind='dates')
+
+
+def test_weibull_estimated_parameters_satisfy_likelihood_scores():
+    from advanced_spc import rare_event_chart
+    x = np.array([.3,.7,1.4,1.5,3.5,5.0,6.7])
+    result = rare_event_chart(pd.DataFrame({'x':x}),'x',kind='T',distribution='weibull')
+    model = result.tables['summary'].set_index('parameter').value
+    shape,scale = model['shape'],model['scale']
+    assert scale == pytest.approx(np.mean(x**shape)**(1/shape),rel=1e-4)
+    assert 1/shape+np.mean(np.log(x))-np.average(np.log(x),weights=x**shape) == pytest.approx(0,abs=1e-4)

@@ -314,3 +314,93 @@ def analyze_spc(df, columns, kind='EWMA', baseline=None, mean=None, sigma=None,
         ['confidence',confidence if kind == 'T2' else np.nan]], columns=['parameter','value'])
     _cancel(cancel)
     return SPCResult(kind, tables, notes)
+
+def rare_event_chart(df, column, kind='G', input_kind='between', distribution='exponential',
+                     probability=None, scale=None, shape=None, width=3., cancel=None):
+    """G and T charts using a median centerline and normal-tail quantile limits."""
+    from scipy.stats import geom, norm, weibull_min
+
+    _cancel(cancel)
+    if kind not in ('G','T') or input_kind not in ('between','until','dates'):
+        raise ValueError('未知图型或数据口径。')
+    if kind == 'T' and input_kind == 'until':
+        raise ValueError('T 图请选择持续时间或事件日期。')
+    if input_kind == 'dates':
+        if column not in df or not df.columns.is_unique:
+            raise ValueError('请选择唯一的事件日期列。')
+        raw = df[column]
+        if pd.api.types.is_numeric_dtype(raw):
+            raise ValueError('日期模式需要日期时间或日期文本列。')
+        time = pd.to_datetime(raw, errors='coerce', format='mixed')
+        if len(time) < 2 or time.isna().any():
+            raise ValueError('至少需要两个有效事件日期；日期不能缺失。')
+        if kind == 'G':
+            time = time.dt.tz_localize(None).dt.normalize()
+        gaps = time.diff().iloc[1:] / pd.Timedelta(days=1)
+        values = gaps.to_numpy()
+        if np.any(values < 0):
+            raise ValueError('事件日期必须按升序排列。')
+        out = pd.DataFrame({'source_row': np.arange(2,len(df)+1),
+                            'source_index': pd.Series(list(df.index[1:]),dtype=object),
+                            'sequence': np.arange(1,len(df)), 'event_time': time.iloc[1:].array})
+    else:
+        array, out = _prepare(df,[column],'error')
+        values = array[:,0]
+    tail = float(norm.sf(_number(width,'控制限宽度',True)))
+    if tail == 0 or 1-tail == 1:
+        raise ValueError('控制限宽度过大，尾概率超出计算精度。')
+    quantiles = np.array([tail,.5,1-tail])
+    if kind == 'G':
+        offset = int(input_kind == 'until')
+        between = values - offset
+        if np.any((between < 0) | (between != np.floor(between))):
+            raise ValueError('G 图要求非负整机会数；until 口径的最小值为 1。')
+        p = 1/(1+between.mean()) if probability is None else _number(probability,'历史事件概率',True)
+        if p > 1:
+            raise ValueError('历史事件概率不能超过 1。')
+        if p == 1:
+            limits = np.full(3,offset)
+        else:
+            # Interpolate the discrete CDF; adjacent upper/lower probabilities differ by pmf.
+            upper = geom.ppf(quantiles,p)
+            lower = upper-1
+            limits = np.maximum(0,lower-1+(quantiles-geom.cdf(lower,p))/geom.pmf(upper,p)) + offset
+        parameters = [('probability',p), ('definition','until' if offset else 'between')]
+        notes = ['G 图假设独立且事件概率恒定。between 以事件之间的机会数为尺度；'
+                 'until 多计终点事件一次。日期以相邻日历日差作为 between 机会数。'
+                 '控制限对几何 CDF 相邻整数点插值后限制在支持范围。']
+    else:
+        if np.any(values <= 0):
+            raise ValueError('T 图持续时间须严格大于零；同一时刻的事件须先核实。')
+        if distribution not in ('exponential','weibull'):
+            raise ValueError('T 图分布须为指数或 Weibull。')
+        if distribution == 'exponential':
+            if shape is not None:
+                raise ValueError('指数模型的形状固定为 1。')
+            shape = 1.
+            scale = values.mean() if scale is None else _number(scale,'尺度',True)
+        elif shape is None and scale is None:
+            if len(values) < 2 or np.ptp(values) == 0:
+                raise ValueError('估计 Weibull 需要至少两个不同的正持续时间。')
+            shape, _, scale = weibull_min.fit(values, floc=0)
+        elif shape is None or scale is None:
+            raise ValueError('历史 Weibull 形状和尺度必须同时输入。')
+        else:
+            shape, scale = _number(shape,'形状',True), _number(scale,'尺度',True)
+        limits = weibull_min.ppf(quantiles,shape,scale=scale)
+        parameters = [('distribution',distribution),('shape',shape),('scale',scale)]
+        notes = ['T 图假设独立正持续时间，日期差以天计算。指数模型形状为 1；'
+                 'Weibull 固定位置为 0。空白参数使用极大似然估计。']
+    if not np.isfinite(limits).all():
+        raise ValueError('控制限不可估计，请检查参数或数据尺度。')
+    out['value'], out['statistic'] = values, values
+    out['lower'], out['center'], out['upper'] = limits
+    events = [(int(i), '越限', int(i), values[i])
+              for i in np.flatnonzero((values<limits[0]) | (values>limits[2]))]
+    alarms = _attach_events(out,events,{})
+    notes.append('中心线是分布中位数，单点严格超限标记异常；样本估计限用于基线回顾。')
+    _cancel(cancel)
+    return SPCResult(kind, {'summary':pd.DataFrame([('chart',kind),('n',len(out)),
+                               ('alarm_points',len(events)),*parameters],columns=['parameter','value']),
+                            'limits':out[['sequence','lower','center','upper']],
+                            'observations':out,'alarms':alarms},notes)

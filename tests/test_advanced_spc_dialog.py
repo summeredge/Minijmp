@@ -323,3 +323,51 @@ def test_subgroup_control_chart_gui(tk_root, monkeypatch):
     finally:
         dialog.close()
         dispose(app)
+
+def test_rare_event_menu_plot_report_and_export(tk_root,monkeypatch,tmp_path):
+    from advanced_spc_dialog import RareEventDialog
+    from test_menu_localization import read_menu
+
+    monkeypatch.setattr(Minijmp,'start_logging',lambda self:None)
+    app = Minijmp(parent=tk_root)
+    source = app.addSheet('罕见事件来源',pd.DataFrame({'days':[.25,1.5,3.,20.],
+                                  'count':[0,2,9,100]}))
+    opened = []
+    original = RareEventDialog.__init__
+
+    def capture(self,*args,**kwargs):
+        original(self,*args,**kwargs)
+        opened.append(self)
+
+    monkeypatch.setattr(RareEventDialog,'__init__',capture)
+    try:
+        menu=app.quality_menu['var']
+        menu.invoke(next(i for i,_,label in read_menu(menu) if label.strip()=='罕见事件控制图'))
+        dialog=opened[-1]
+        dialog.error=Mock()
+        for i,kind in [(1,'G'),(0,'T')]:
+            dialog.x_list.selection_clear(0,'end')
+            dialog.x_list.selection_set(i)
+            dialog.fields['kind'].set(kind+' 控制图')
+            dialog.run_button.invoke()
+            finish(tk_root,dialog)
+            assert dialog.result.kind == kind
+            dialog.plot()
+            dialog.error.assert_not_called()
+            path=tmp_path/(kind+'.png')
+            source.pf.savePlot(str(path))
+            with Image.open(path) as image:
+                image.verify()
+            dialog.notebook.select(dialog.tabs['observations'])
+            path=tmp_path/(kind+'.xlsx')
+            monkeypatch.setattr('advanced_spc_dialog.filedialog.asksaveasfilename',lambda **kw:str(path))
+            dialog.export()
+            assert len(pd.read_excel(path)) == 4
+            app.print=Mock()
+            dialog.report()
+            assert any(isinstance(call.args[0],StatTable) for call in app.print.call_args_list)
+            assert all(call.kwargs['table'] is source for call in app.print.call_args_list)
+    finally:
+        for dialog in opened:
+            dialog.close()
+        dispose(app)

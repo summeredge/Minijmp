@@ -9,7 +9,13 @@
 <body>
 <main>
   <h1>高级 SPC 控制图</h1>
-  <nav class="page-toc" aria-label="本页目录"><a href="#quality.advanced_spc">建模、判异与历史基线</a></nav>
+  <nav class="page-toc" aria-label="本页目录"><a href="#quality.advanced_spc">建模、判异与历史基线</a> · <a href="#quality.rare_events">罕见事件控制图</a></nav>
+  <section class="topic" id="quality.rare_events">
+    <h2>罕见事件控制图</h2>
+    <p>G 图可输入非负整机会数 between，或输入含终点事件的正整数 until。事件日期用按行升序排列的相邻日历日差，按 between 分析。G 用几何分布；不指定历史事件概率时由平均间隔估计。</p>
+    <p>T 图输入正持续时间或事件日期时间。日期时间以天为单位；重复的同一时刻会报错。可选择指数或 Weibull，填写历史参数或由样本估计。</p>
+    <p>以中位数画中心线，控制限采用标准正态尾概率映射到模型的分位数；G 对相邻整数点插值。严格超限的点进入异常报告。可打开图形并保存，或将结果表写到工作表和文件。</p>
+  </section>
   <section class="topic" id="quality.advanced_spc">
     <p>对子组 EWMA 或 CUSUM，选择子组均值为分析变量，并指定同表中的正整数子组大小列。已知标准差填写个体过程标准差，程序另算每行均值的标准误。未知时根据基线子组均值和组大小估计。EWMA 逐期更新加权方差，CUSUM 逐组标准化后累加。</p>
     <h2>建模、判异与历史基线</h2>
