@@ -2,10 +2,12 @@
 import ast
 import inspect
 import json
+from math import erfc, sqrt
 from pathlib import Path
 
 import numpy as np
 import pytest
+from scipy.special import betainc, gammaincc
 from scipy import stats
 from wcwidth import wcswidth
 
@@ -128,6 +130,70 @@ def test_summarized_mean_paths_and_custom_df(report, kind):
     numeric_cells(tables[1].rows[0][2:], [statistic, 20 if kind == 't' else 11, result['p']])
     if kind == 'z':
         assert 'Z 检验使用标准正态分布；自由度为沿用的样本信息，不参与 Z 的 p 值或区间计算。' in text
+
+
+def test_summarized_mean_tests_reject_fractional_sample_size():
+    with pytest.raises(ValueError, match='样本量'):
+        t_test_1sample([], 0, sample_mean=3, sample_std=2, sample_n=2.5)
+    with pytest.raises(ValueError, match='样本量'):
+        z_test_1sample([], 0, 2, sample_mean=3, sample_n=2.5, print_out=False)
+    with pytest.raises(ValueError):
+        t_test_1sample([], 0, sample_mean=np.inf, sample_std=2, sample_n=2)
+    with pytest.raises(ValueError):
+        z_test_1sample([], 0, np.inf, sample_mean=3, sample_n=2, print_out=False)
+
+
+def test_mean_and_standard_deviation_tests_keep_extreme_tail_probabilities():
+    t_result = t_test_1sample([], 0, sample_mean=20, sample_std=1,
+                              sample_n=32, print_out=False)
+    t_stat = 20 * sqrt(32)
+    t_df = 31
+    t_two_sided = betainc(t_df / 2, .5, t_df / (t_df + t_stat**2))
+    assert t_result['p'] == pytest.approx(t_two_sided, rel=1e-12, abs=0)
+    assert t_result['p gt'] == pytest.approx(t_two_sided / 2, rel=1e-12, abs=0)
+    assert t_result['p'] > 0
+
+    two_sample = t_test_2samples(list(range(8)), [100 + value for value in range(8)],
+                                 pooled=True)
+    two_sided = betainc(two_sample['df'] / 2, .5,
+                        two_sample['df'] / (two_sample['df'] + two_sample['t']**2))
+    assert two_sample['p'] == pytest.approx(two_sided, rel=1e-12, abs=0)
+    assert two_sample['p'] > 0
+
+    z_result = z_test_1sample([], 0, 1, sample_mean=10, sample_n=1,
+                              print_out=False)
+    z_two_sided = erfc(10 / sqrt(2))
+    assert z_result['p'] == pytest.approx(z_two_sided, rel=1e-12, abs=0)
+    assert z_result['p gt'] == pytest.approx(z_two_sided / 2, rel=1e-12, abs=0)
+
+
+def test_extreme_t_tail_matches_structured_report_value():
+    emitted = []
+    result = t_test_1sample([], 0, sample_mean=20, sample_std=1,
+                            sample_n=32, print_out=True,
+                            print_port=emitted.append)
+    table = next(block for block in emitted
+                 if getattr(block, 'title', None) == '检验结果')
+    statistic = 20 * sqrt(32)
+    expected = betainc(31 / 2, .5, 31 / (31 + statistic**2)) / 2
+    assert result['p gt'] == pytest.approx(expected, rel=1e-12, abs=0)
+    assert table.values[-1][-1] == result['p gt']
+    assert table.display[-1][-1] == '0.000'
+
+
+def test_chi_square_tests_keep_extreme_right_tail_probabilities():
+    data = np.tile([-1.0, 1.0], 16)
+    df = len(data) - 1
+    statistic = 200.0
+    null_sd = sqrt(df * np.var(data, ddof=1) / statistic)
+    expected = gammaincc(df / 2, statistic / 2)
+
+    right_tail = chi2_test_stdev(data, null_sd)
+    two_sided = chi2_var_1sample(data=data, s0=null_sd)
+    assert right_tail['chi_sq'] == pytest.approx(statistic)
+    assert right_tail['p'] == pytest.approx(expected, rel=1e-12, abs=0)
+    assert two_sided['p gt'] == pytest.approx(expected, rel=1e-12, abs=0)
+    assert two_sided['p'] == pytest.approx(2 * expected, rel=1e-12, abs=0)
 
 
 @pytest.mark.parametrize('l1,l2', [(DATA, OTHER[:4]), (DATA[:4], OTHER)])

@@ -38,6 +38,18 @@ def test_describe_zero_mean_preserves_other_statistics():
     assert np.isnan(result["coefvar"])
 
 
+def test_nonfinite_numeric_values_are_not_observations():
+    from utilities import is_number, number_2lists, number_list
+
+    values = [1, np.inf, -np.inf, np.nan, 2]
+    assert [is_number(value) for value in values] == [True, False, False, False, True]
+    assert number_list(values) == [1.0, 2.0]
+    assert number_2lists([1, np.inf, 3], [4, 5, -np.inf]) == ([1.0], [4.0])
+    result = describe([1, 2, np.inf])
+    assert result["N"] == 2
+    assert result["mean"] == pytest.approx(1.5)
+
+
 @pytest.mark.parametrize("data", [[], [1], [np.nan, "bad"]])
 def test_describe_insufficient_data_retains_no_result_contract(data):
     assert describe(data) is None
@@ -283,8 +295,10 @@ def test_fit_dialog_rejects_unestimable_input_before_plot_creation(dialog_type, 
 @pytest.mark.parametrize("dialog_type, parameters", [
     ("t", {"sample_n": "1", "sample_std": "2", "sample_mean": "3"}),
     ("t", {"sample_n": "5", "sample_std": "0", "sample_mean": "3"}),
+    ("t", {"sample_n": "2.5", "sample_std": "2", "sample_mean": "3"}),
     ("t", {"sample_n": "5", "sample_std": "2", "sample_mean": "3", "alpha": "1"}),
     ("z", {"sample_n": "5", "sample_mean": "3", "s0": "0"}),
+    ("z", {"sample_n": "2.5", "sample_mean": "3", "s0": "2"}),
 ])
 def test_mean_test_dialog_rejects_invalid_summary_parameters(dialog_type, parameters):
     from sample_test_dialog import Mean1SampleDialog, Mean1SampleZDialog

@@ -45,11 +45,11 @@ def prop_2sample(n1=None, n2=None, e1=None,
     Zp = pd / SE_pooled if SE_pooled > 0 else np.nan
     Zs = pd / SE_sep if SE_sep > 0 else np.nan
     pl = norm.cdf(Zs)
-    pu = 1 - pl
+    pu = norm.sf(Zs)
     p = 2 * min(pl, pu)
 
     pl_p = norm.cdf(Zp)
-    pu_p = 1 - pl_p
+    pu_p = norm.sf(Zp)
     p_p = 2 * min(pl_p, pu_p)
 
     rv = hypergeom(n1 + n2, e1 + e2, n1)
@@ -181,8 +181,9 @@ def prop_test_1sample(events=1, N=1, p0=.5, print_port=print,
         raise ValueError('样本量必须为正整数，事件数必须为不超过样本量的非负整数。')
     p = events / N
     Z = (p - p0) / (p0 * (1 - p0) / N)**.5
-    p_norm = (1 - norm.cdf(abs(Z))) * 2
+    p_norm = 2 * norm.sf(abs(Z))
     p_norm_less = norm.cdf(Z)
+    p_norm_greater = norm.sf(Z)
     b_res = binomial(N, p0, x=events, print_out=False)
     #  print(b_res)
     p_bi = b_res["left_acc_p"]
@@ -232,12 +233,12 @@ def prop_test_1sample(events=1, N=1, p0=.5, print_port=print,
                           ['样本', N, events, format_stat(p)]], [
                 ['样本', N, events, p]]),
             ('检验结果', [['方法', '双侧 p 值', '左尾 p 值', '右尾 p 值'],
-                          ['正态近似', format_stat(p_norm), format_stat(p_norm_less), format_stat(1 - p_norm_less)],
+                          ['正态近似', format_stat(p_norm), format_stat(p_norm_less), format_stat(p_norm_greater)],
                           ['Sterne 精确', format_stat(p_s), '*', '*'],
                           ['Blaker 精确', format_stat(p_b), '*', '*'],
                           ['调整 Blaker 精确', format_stat(p_bi_uneq), '*', '*'],
                           ['二项精确', '*', format_stat(p_bi), format_stat(p_bi_r)]], [
-                ['正态近似', p_norm, p_norm_less, 1 - p_norm_less],
+                ['正态近似', p_norm, p_norm_less, p_norm_greater],
                 ['Sterne 精确', p_s, '*', '*'],
                 ['Blaker 精确', p_b, '*', '*'],
                 ['调整 Blaker 精确', p_bi_uneq, '*', '*'],

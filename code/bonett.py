@@ -63,7 +63,7 @@ def pair_ratio(data1, data2, m=1, alpha=.05):
 
     ratio_ = stats.stdev(data1) / stats.stdev(data2)
     se = (log_var(data1) + log_var(data2))**.5
-    raw = 2 * (1 - norm.cdf(abs(ln(ratio_)) / se))
+    raw = 2 * norm.sf(abs(ln(ratio_)) / se)
     half = norm.ppf(1 - alpha / (2 * m)) * se
     return ratio_, (ratio_ * exp(-half), ratio_ * exp(half)), raw, min(1, m * raw)
 

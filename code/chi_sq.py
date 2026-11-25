@@ -20,7 +20,7 @@ def chi2_test_stdev(data_list, s0, print_out=False, alpha=0.05,
     S = stat.variance(data_list) * df
     stdev = stat.stdev(data_list)
     chi_sq = S / s0 / s0
-    p = 1 - chi2.cdf(chi_sq, df)
+    p = chi2.sf(chi_sq, df)
 
     chi2_low0025 = chi2.ppf(alpha / 2, df)
     chi2_high0975 = chi2.ppf(1 - alpha / 2, df)
@@ -105,17 +105,17 @@ def several_tests_stdev_2sided(l1, l2, print_out=True):
 
     f = var1 / var2
     dfn, dfd = n1 - 1, n2 - 1
-    p = (1 - f_dist.cdf(f, dfn, dfd)) * 2
+    p = 2 * f_dist.sf(f, dfn, dfd)
     if p > 1:
         f = var2 / var1
         dfn, dfd = n2 - 1, n1 - 1
-        p = (1 - f_dist.cdf(f, dfn, dfd)) * 2
+        p = 2 * f_dist.sf(f, dfn, dfd)
     res["F"] = {"f": f, "p": p, "dfn": dfn, "dfd": dfd}
 
     #  kp = ((n1 - 1) * k1 + (n2 - 1) * k2) / (n1 + n2 - 2)
     #  SE = (kp / 2 / (n1 - 1) + kp / 2 / (n2 - 1))**.5
     z = (ln(var1) - ln(var2)) / (2 / n1 + 2 / n2)**.5
-    p2 = 2 * (1 - norm.cdf(abs(z)))
+    p2 = 2 * norm.sf(abs(z))
     df = n1 - 1
     res["Bonett"] = {"z": z, "p": p2, "df": df}
 
@@ -171,7 +171,7 @@ def chi_square(data, print_out=True, print_port=print,
 
         df = (a.shape[0] - 1) * (a.shape[1] - 1)
 
-        p = 1 - chi2.cdf(chi_sq, df)
+        p = chi2.sf(chi_sq, df)
     except BaseException:
         chi_sq = p = np.nan
     LR = 0
@@ -182,7 +182,7 @@ def chi_square(data, print_out=True, print_port=print,
                 LR += 2 * xlogy(a[y][x], a[y][x] / expected)
                 e[y][x] = expected
 
-        p_LR = 1 - chi2.cdf(LR, df)
+        p_LR = chi2.sf(LR, df)
     except BaseException:
         p_LR = LR = np.nan
 
@@ -278,7 +278,7 @@ def multi_pop_var_test(data, labels, print_out=False, print_port=print,
         SSW = sum(sum((v - mean)**2 for v in group)
                   for group, mean in zip(data, means))
         F = (SSB / (k - 1)) / (SSW / (N - k))
-        p = 1 - f_dist.cdf(F, k - 1, N - k)
+        p = f_dist.sf(F, k - 1, N - k)
         return {"F": F, "p": p}
 
     def OBrien(data):
@@ -449,7 +449,7 @@ def chi2_var_1sample(data=None, sample_n=None, sample_std=None,
 
     chi_sq = (n - 1) * (std / s0)**2
     p_l = chi2.cdf(chi_sq, df)
-    p_u = 1 - p_l
+    p_u = chi2.sf(chi_sq, df)
     p = 2 * min(p_l, p_u)
 
     if print_out:

@@ -2,6 +2,7 @@ from stat_table import StatTable
 from scipy.stats import t as t_test
 from scipy.stats import norm
 import statistics as stat
+from math import isfinite
 ############ Own Module #############
 #  from utilities import mean_std_CIs
 
@@ -15,19 +16,28 @@ def t_test_1sample(data_list, u0, print_out=False,
         mean = sample_mean
         stdev = sample_std
         n = sample_n
+        n_value = float(n)
+        if not isfinite(n_value) or not n_value.is_integer() or n_value < 2:
+            raise ValueError("样本量必须为不小于 2 的有限整数。")
     else:
         mean = stat.mean(data_list)
         stdev = stat.stdev(data_list)
         n = len(data_list)
 
+    if (not all(isfinite(float(value)) for value in (mean, stdev, n, u0, alpha))
+            or stdev <= 0 or n < 2 or not 0 < alpha < 1):
+        raise ValueError("均值、标准差、样本量及显著性水平必须为有限有效数值。")
+
     t = (mean - u0) / stdev * (n**.5)
 
     if df is None:
         df = n - 1
+    if not isfinite(float(df)) or df <= 0:
+        raise ValueError("自由度必须为有限正数。")
 
-    p = (1 - t_test.cdf(abs(t), df)) * 2
+    p = 2 * t_test.sf(abs(t), df)
     p_l = t_test.cdf(t, df)
-    p_g = 1 - p_l
+    p_g = t_test.sf(t, df)
 
     t_0025 = t_test.ppf(alpha / 2, df)
     t_0975 = t_test.ppf(1 - alpha / 2, df)
@@ -102,11 +112,17 @@ def z_test_1sample(
         n = sample_n
         mean = sample_mean
 
+    n_value = float(n)
+    if (not all(isfinite(float(value)) for value in (mean, s0, n, u0, alpha))
+            or not n_value.is_integer() or n_value < 1 or s0 <= 0
+            or not 0 < alpha < 1):
+        raise ValueError("均值、已知标准差、样本量及显著性水平必须为有限有效数值。")
+
     deno = s0 / (n**.5)
     z = (mean - u0) / deno
-    p = 2 * (1 - norm.cdf(abs(z)))
+    p = 2 * norm.sf(abs(z))
     p_l = norm.cdf(z)
-    p_u = 1 - p_l
+    p_u = norm.sf(z)
 
     df = n - 1
 
@@ -230,8 +246,8 @@ def t_test_2samples(l1=None, l2=None,
         lower, upper = dx - margin, dx + margin
         t = (dx - d0) / s
         pl = t_test.cdf(t, df)
-        pu = 1 - pl
-        p = 2 * (1 - t_test.cdf(abs(t), df))
+        pu = t_test.sf(t, df)
+        p = 2 * t_test.sf(abs(t), df)
         if print_out:
             from utilities import gen_table, format_stat
             print = print_port

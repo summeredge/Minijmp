@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import TOP, BOTH, LEFT, X, ttk
+from math import isfinite
 ###################################
 #  from pandastable_local.dialogs import addListBox
 ########### Own Modules ###########
@@ -85,9 +86,12 @@ class Mean1SampleDialog(Dialogs):
         if u0 is None:
             return
         if ((n is None and (len(x) < 2 or len(set(x)) < 2))
-                or (n is not None and (n < 2 or std <= 0))
-                or alpha is None or not 0 < alpha < 1):
-            self.error('t 检验要求 N ≥ 2、标准差大于 0 且 0 < α < 1。')
+                or (n is not None and (not isfinite(n) or not n.is_integer()
+                                      or n < 2 or not isfinite(mean)
+                                      or not isfinite(std) or std <= 0))
+                or not isfinite(u0) or alpha is None
+                or not isfinite(alpha) or not 0 < alpha < 1):
+            self.error('t 检验要求整数 N ≥ 2、有限正标准差且 0 < α < 1。')
             return
         t_test_1sample(x, u0, print_out=True,
                        sample_mean=mean, sample_n=n,
@@ -167,9 +171,12 @@ class Mean1SampleZDialog(Dialogs):
         if u0 is None or s0 is None:
             return
         alpha = get_number(self.alpha)
-        if (s0 <= 0 or (n is None and not x) or (n is not None and n < 1)
-                or alpha is None or not 0 < alpha < 1):
-            self.error('Z 检验要求 N ≥ 1、已知标准差大于 0 且 0 < α < 1。')
+        if (not isfinite(u0) or not isfinite(s0) or s0 <= 0
+                or (n is None and not x)
+                or (n is not None and (not isfinite(n) or not n.is_integer()
+                                       or n < 1 or not isfinite(mean)))
+                or alpha is None or not isfinite(alpha) or not 0 < alpha < 1):
+            self.error('Z 检验要求整数 N ≥ 1、有限正已知标准差且 0 < α < 1。')
             return
         z_test_1sample(x, u0, s0, print_out=True,
                        sample_mean=mean, sample_n=n,

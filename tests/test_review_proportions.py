@@ -1,5 +1,5 @@
 """REVIEW-004/006/007: independent exact references, not historical golden values."""
-from math import comb
+from math import comb, erfc, sqrt
 
 import numpy as np
 import pandas as pd
@@ -132,6 +132,21 @@ def test_one_sample_accepts_integer_valued_floats():
 def test_one_sample_defaults_do_not_divide_by_zero():
     result = prop_test_1sample()
     assert np.isfinite(result['p norm'])
+
+
+def test_normal_approximation_keeps_extreme_proportion_tails():
+    one = prop_test_1sample(760, 1000, .5)
+    z_one = (.76 - .5) / sqrt(.5 * .5 / 1000)
+    expected_one = erfc(abs(z_one) / sqrt(2))
+    assert one['p norm'] == pytest.approx(expected_one, rel=1e-12, abs=0)
+    assert one['p norm'] > 0
+
+    two = prop_2sample(1000, 1000, 600, 400)
+    z_separate = (.6 - .4) / sqrt(.6 * .4 / 1000 + .4 * .6 / 1000)
+    z_pooled = (.6 - .4) / sqrt(.5 * .5 * (1 / 1000 + 1 / 1000))
+    assert two['p sep'] == pytest.approx(erfc(abs(z_separate) / sqrt(2)), rel=1e-12, abs=0)
+    assert two['p Pooled'] == pytest.approx(erfc(abs(z_pooled) / sqrt(2)), rel=1e-12, abs=0)
+    assert two['p sep'] > 0 and two['p Pooled'] > 0
 
 
 def dialog(**fields):

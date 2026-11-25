@@ -7,6 +7,7 @@ from types import SimpleNamespace
 import numpy as np
 import pandas as pd
 import pytest
+from scipy.special import gammaincc
 from scipy.stats import chi2_contingency
 from wcwidth import wcswidth
 
@@ -25,6 +26,19 @@ def variable(value):
     return SimpleNamespace(get=lambda: value)
 
 
+def test_chi_square_right_tail_probabilities_do_not_collapse_to_zero():
+    observed = np.array([[99, 1], [1, 99]], dtype=float)
+    expected = np.outer(observed.sum(axis=1), observed.sum(axis=0)) / observed.sum()
+    pearson = float(np.sum((observed - expected)**2 / expected))
+    likelihood_ratio = float(2 * np.sum(observed * np.log(observed / expected)))
+    result = chi_sq.chi_square(observed, print_out=False)
+    assert result['chi sq Pearson'] == pytest.approx(pearson)
+    assert result['chi sq LR'] == pytest.approx(likelihood_ratio)
+    assert result['p Pearson'] == pytest.approx(gammaincc(.5, pearson / 2), rel=1e-12, abs=0)
+    assert result['p LR'] == pytest.approx(gammaincc(.5, likelihood_ratio / 2), rel=1e-12, abs=0)
+    assert result['p Pearson'] > 0 and result['p LR'] > 0
+
+
 def assert_result(actual, expected):
     assert type(actual) is dict
     assert list(actual) == KEYS
@@ -32,6 +46,9 @@ def assert_result(actual, expected):
         assert type(actual[key]) is (int if key == 'df' else np.float64)
         if np.isnan(value):
             assert np.isnan(actual[key])
+        elif key in ('p Pearson', 'p LR') and value != 0:
+            # Survival-function evaluation is equivalent but avoids CDF cancellation.
+            assert actual[key] == pytest.approx(value, rel=1e-12, abs=1e-14)
         else:
             assert actual[key] == value
 

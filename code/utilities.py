@@ -2,7 +2,7 @@ from stat_table import StatTable
 from functools import lru_cache
 import numpy as np
 import statistics as stat
-from math import isnan
+from math import isfinite, isnan
 import re
 from pandas import DataFrame as DF
 from prettytable import PrettyTable as PT
@@ -67,12 +67,9 @@ def add_Y_refs(ax, y_values=[], color='gray', linestyle='dashed', label=False,
 
 def is_number(x):
     try:
-        i = float(x)
-        if i > 0 or i <= 0:
-            return True
+        return isfinite(float(x))
     except BaseException:
-        pass
-    return False
+        return False
 
 
 def is_void(x):
@@ -513,8 +510,15 @@ def norm_test(data, print_out=False, print_port=print):
     from scipy.stats import shapiro
     from statsmodels.stats.diagnostic import normal_ad
 
-    s1, p1 = shapiro(data)
-    s2, p2 = normal_ad(np.array(data, dtype=float))
+    values = np.array(data, dtype=float)
+    constant = len(values) > 0 and np.all(values == values[0])
+    if constant:
+        s1 = p1 = s2 = p2 = np.nan
+    else:
+        s1, p1 = shapiro(values)
+        s2, p2 = normal_ad(values)
+        if not np.isfinite(s2):
+            p2 = np.nan
     if print_out:
         print = print_port
         print("\n---- 正态性检验 ----")
@@ -529,6 +533,8 @@ def norm_test(data, print_out=False, print_port=print):
             [['Shapiro-Wilk', s1, p1], ['Anderson-Darling', s2, p2]],
             display=[[str(v) for v in row] for row in table.rows]))
         print("原假设 H0：总体服从正态分布；备择假设 H1：总体不服从正态分布。")
+        if constant:
+            print("样本无变异，正态性检验不可计算。")
         print("未拒绝 H0 不代表证明数据正态；请结合显著性水平和有效性警告判断。")
         print("p 值是在原假设及检验模型成立时，得到当前或更极端检验统计量的概率。")
     return {"shapiro s": s1, "shapiro p": p1, "AD s": s2, "AD p": p2}
@@ -541,7 +547,7 @@ def number_list(data, col_name="unknown", print_out=False,
     for i in l:
         try:
             j = float(i)
-            if j < 0 or j >= 0:
+            if isfinite(j):
                 res.append(j)
         except BaseException:
             pass
@@ -564,10 +570,9 @@ def number_2lists(d1, d2, col_name1="unknown",
         try:
             ii = float(i)
             jj = float(j)
-            if jj < 0 or jj >= 0:
-                if ii < 0 or ii >= 0:
-                    x.append(ii)
-                    y.append(jj)
+            if isfinite(ii) and isfinite(jj):
+                x.append(ii)
+                y.append(jj)
         except BaseException:
             pass
     if print_out:
@@ -630,7 +635,7 @@ def number_2Dlist(df=None, cols=None,
                 converted.append(np.nan)
         columns.append(converted)
     numbers = np.array(columns, dtype=float).T
-    res = numbers[~np.isnan(numbers).any(axis=1)].tolist()
+    res = numbers[np.isfinite(numbers).all(axis=1)].tolist()
     if print_out:
         print = print_port
         print("Received %d cols of data. Found %d rows valid." % (

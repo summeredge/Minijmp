@@ -68,6 +68,20 @@ def test_describe_core_supplement_and_custom_percentiles(monkeypatch):
         assert len({wcswidth(line) for line in str(table).splitlines()}) == 1
 
 
+def test_describe_dialog_counts_nonfinite_values_as_invalid(monkeypatch):
+    tables = capture_tables(monkeypatch, description)
+    errors = []
+    dialog = SimpleNamespace(
+        df=pd.DataFrame({'X': [1.0, np.inf, -np.inf, 2.0]}),
+        xvar=variable('X'), pct=variable('0,50,100'), error=errors.append,
+        app=SimpleNamespace(print=lambda *args, **kwargs: None),
+        remember_columns=lambda: None)
+    basic_dialogs.DescribeDialog.apply(dialog)
+    assert not errors
+    assert tables[0].rows[0][:3] == ['X', '2', 2]
+    assert tables[0].rows[0][3] == '1.500'
+
+
 def test_generator_has_no_invented_missing_count(monkeypatch):
     tables = capture_tables(monkeypatch, description)
     result = description.describe((x for x in [1, 'bad', 3, 4]), print_out=True,
@@ -165,6 +179,19 @@ def test_normality_keeps_small_sample_warning_and_missing_marker():
         result = utilities.norm_test([1., 2.], print_out=True, print_port=lines.append)
     assert np.isnan(result['shapiro p'])
     assert '| Shapiro-Wilk' in '\n'.join(lines) and '*' in '\n'.join(lines)
+
+
+def test_constant_sample_normality_tests_are_unavailable():
+    lines = []
+    result = utilities.norm_test([5.] * 6, print_out=True,
+                                 print_port=lines.append)
+    table = next(block for block in lines
+                 if getattr(block, 'title', None) == '正态性检验')
+    assert all(np.isnan(value) for value in result.values())
+    assert all(np.isnan(value) for row in table.values for value in row[1:])
+    assert table.display == [['Shapiro-Wilk', '*', '*'],
+                             ['Anderson-Darling', '*', '*']]
+    assert '样本无变异，正态性检验不可计算。' in lines
 
 
 @pytest.mark.parametrize('alpha', [.05, .1])

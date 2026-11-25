@@ -168,7 +168,7 @@ def test_number_cleaning_keeps_numpy_complex_conversion_and_warning(dtype):
 @pytest.mark.parametrize('cols', [['a', 'b'], ['b', 'a'], ['a', 'a'], ['a'], ['bad'], ['duplicate']])
 def test_number_cleaning_preserves_float_semantics_and_complete_rows(cols):
     frame = pd.DataFrame({
-        'a': ['1_000', '１２', Decimal('1.25'), True, 'nan', None, 'inf', '-inf', ' 2 ', pd.NA],
+        'a': ['1_000', '１２', Decimal('1.25'), True, 'nan', None, '3.5', '4.5', ' 2 ', pd.NA],
         'b': [2, 'bad', '3', False, 4, 5, 6, 7, 8, 9], 'bad': ['bad'] * 10,
         'duplicate': range(10), 'other': range(10)})
     frame.columns = ['a', 'b', 'bad', 'duplicate', 'duplicate']
@@ -177,6 +177,14 @@ def test_number_cleaning_preserves_float_semantics_and_complete_rows(cols):
     expected = legacy('utilities.py:number_2Dlist')(frame, cols, True, expected_log.append)
     assert number_2Dlist(frame, cols, True, actual_log.append) == expected
     assert actual_log == expected_log
+
+
+def test_number_2dlist_excludes_nonfinite_values_from_complete_rows():
+    frame = pd.DataFrame({
+        'a': [1, np.inf, -np.inf, np.nan, 2],
+        'b': [10, 20, 30, 40, 50],
+    })
+    assert number_2Dlist(frame, ['a', 'b']) == [[1.0, 2.0], [10.0, 50.0]]
 
 
 def test_number_cleaning_empty_and_invalid_selection():
