@@ -111,6 +111,33 @@ def test_orthogonal_parameter_intervals_and_residual_rows(monkeypatch, alpha, ra
     assert '不是单次观测的预测区间' in text
 
 
+def test_orthogonal_parameter_intervals_cover_independent_measurement_error_model(monkeypatch):
+    monkeypatch.setattr(ortho_fit, 'norm_test', lambda *args, **kwargs: {})
+    rng = np.random.default_rng(20261126)
+    n = 100
+    true_x = np.linspace(-4, 4, n)
+    slope, intercept, ratio, sd_x_error = 1.5, .5, 1.5, .5
+    sd_y_error = np.sqrt(ratio) * sd_x_error
+    slopes, intercepts, slope_se, intercept_se = [], [], [], []
+    slope_covered = intercept_covered = 0
+
+    for _ in range(3000):
+        x = true_x + rng.normal(0, sd_x_error, n)
+        y = intercept + slope * true_x + rng.normal(0, sd_y_error, n)
+        fit = ortho_fit.orthogonal_fit(x, y, error_ratio=ratio, print_out=False)
+        slopes.append(fit['slope'])
+        intercepts.append(fit['intercept'])
+        slope_se.append((fit['slope_u'] - fit['slope_l']) / (2 * 1.959963984540054))
+        intercept_se.append((fit['int_u'] - fit['int_l']) / (2 * 1.959963984540054))
+        slope_covered += fit['slope_l'] <= slope <= fit['slope_u']
+        intercept_covered += fit['int_l'] <= intercept <= fit['int_u']
+
+    assert slope_covered / 3000 == pytest.approx(.95, abs=.015)
+    assert intercept_covered / 3000 == pytest.approx(.95, abs=.015)
+    assert np.std(slopes, ddof=1) == pytest.approx(np.mean(slope_se), rel=.08)
+    assert np.std(intercepts, ddof=1) == pytest.approx(np.mean(intercept_se), rel=.08)
+
+
 @pytest.mark.parametrize('method', [ols.linear_fit, ortho_fit.orthogonal_fit])
 def test_regression_print_switch_keeps_raw_return_values(method):
     quiet, loud = [], []

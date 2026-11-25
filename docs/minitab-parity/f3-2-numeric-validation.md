@@ -1,6 +1,6 @@
 # F3-2 全功能数值验证与统计准确性验收
 
-## 当前状态：F3-2A、F3-2B 完成；F3-2C 至 F3-2G 进行中
+## 当前状态：F3-2A、F3-2B、F3-2C 完成；F3-2D 至 F3-2G 进行中
 
 本报告按 F3-2A 至 F3-2G 的工作包持续更新。阶段结束条件是所有适用的数值功能均有证据状态、确定缺陷已修复并验收、方法差异和原生证据缺口已说明。当前结论仅对应已完成的工作包，不代表全产品数值验收完成。
 
@@ -102,14 +102,36 @@ F3-2B 这些修复不改变合理的方法差异。单侧/双侧定义、离散�
 
 Minitab 22.3 未能执行命令，故本包没有新增 22 原生案例。Minitab 19.1.0.1 的既有固定值和 22.6 已归档案例保留原版本，不改作当前实测结果。
 
+## F3-2C：回归、ANOVA、GLM 与 PCA（已完成）
+
+本包核对矩阵中的 11 条记录：`F0-BASE-007/008/011–016/026/027` 与 `F0-NEW-027`。矩阵原生/独立状态保留逐字段结论；缺少的厂商数值证据不以不同库的相同实现代替。
+
+### 独立参考及结果
+
+- **正交与线性回归**：线性回归用独立设计矩阵、闭式最小二乘、协方差矩阵、残差和逐行删除重拟合核对系数推断及 PRESS。正交回归用测量误差加权协方差主方向核对斜率/截距，并以固定真值、独立正态 X/Y 测量误差的生成模型作 3,000 次覆盖仿真（`n=100`、误差方差比 1.5）：斜率和截距 95% 区间覆盖率分别为 95.17% 与 94.90%，区间平均标准误与重复拟合的经验标准差相符。该模拟核对推断近似，不替代 Minitab 同口径原生案例。[Minitab 正交回归方法与近似协方差定义](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/regression/how-to/orthogonal-regression/methods-and-formulas/methods-and-formulas/)
+- **OLS/WLS、二元 Logistic、非线性与预测**：用显式矩阵、闭式系数/协方差、独立似然与梯度/ Hessian，及新数据预测和逐点残差核对。已归档的 Minitab 19 phase4/5 结果继续按各自输入和输出字段保留。
+- **Poisson、名义/有序 Logistic**：Poisson 用独立 Poisson 对数似然优化与 Fisher 信息复算系数、协方差、偏差、预测；名义模型按指定参考类别直接构造类别概率与似然；有序模型独立优化累积链接似然并复核阈值、斜率和类别概率。非典范 Poisson 链接使用的协方差近似与厂商定义不同；名义基准类别及有序阈值/斜率符号按显式类别顺序解读。均未取得 Minitab 同口径的新原生字段。
+- **PLS 与 PCA**：PLS 用 SVD/协方差方向、满秩 OLS 及手工逐折预处理/预测复核 NIPALS 输出、系数与 PRESS/RMSECV；自动成分按本地最小平均标准化 PRESS 规则，不能外推为厂商选择规则。PCA 用独立 `eigh`、投影矩阵、重构和 Hotelling 统计量核对特征值、解释率、载荷/得分及监控输出；等价解按特征向量符号对齐。Minitab 19 phase7/8 固定记录沿用各自字段范围。
+- **单/双因子 ANOVA 与固定效应 GLM**：ANOVA 用受限和对比矩阵分别拟合完整/约束模型并以 SS 差核对 Type III、模型秩和可估性；GLM 用独立公式模型/III 型 ANOVA 核对系数、SS、df、预测与 PRESS。历史 Minitab 19 GLM 固定案例的两项 Adj SS、残差 df、预测 R²及七个拟合值继续保留；首水平参考编码与厂商效果编码在含交互项的低阶检验上属于参数化差异。
+
+### 定向验证与遗留差异
+
+- 定向命令覆盖 11 个回归/模型测试文件，合计 **556 passed、8 failed**：
+
+  ```powershell
+  & $python -m pytest tests/test_statistics_regressions.py tests/test_advanced_regression.py tests/test_generalized_regression.py tests/test_pls_regression.py tests/test_pca_analysis.py tests/test_pca_plots.py tests/test_g3_anova_reports.py tests/test_review003_anova.py tests/test_regression_dialog.py tests/test_phase3_prediction_statistics.py tests/test_g3_computation_contracts.py -q
+  ```
+- 其中 4 项是 F3-2B 尾概率改动影响的 `chi_sq.py` G3 源结构哈希。仅更新对应四个函数的冻结哈希；独立数学用例已由 F3-2B 的 Beta/Gamma/正态尾部断言接管。四项单独复验 **4 passed**。另 4 项是 `dist_fit.py` 的旧 G3 源结构哈希；该生产文件本轮未改，独立分布拟合测试 `test_g3_distribution_reports.py` 已通过。冻结差异保留，不刷新未授权的分布拟合基线。
+- 本包未发现需修改生产统计代码的新缺陷。正交区间的模拟覆盖是大样本近似核验；Minitab 22.3 当前登录受阻，未取得正交、名义/有序 Logistic、PLS 等新原生数值。历史 Minitab 19/22.6 案例不改版本标签。
+
 ## 工作包状态
 
 | 工作包 | 范围 | 状态 | 本阶段结果 |
 |---|---|---|---|
 | F3-2A | 功能 ID 映射、数值适用性、已有证据和缺口排序 | 已完成 | 165 条有效功能记录与 2 条显式排除均唯一映射；142 条适用，25 条不适用 |
 | F3-2B | 基础统计与推断 | 已完成 | 23 条矩阵记录已核对；4 项可复现计算/输入缺陷修复；有限值、样本量、尾概率和结构化报告定向回归通过。原生 Minitab 22.3 因当前登录状态不可用 |
-| F3-2C | 回归、ANOVA、GLM、PCA | 进行中 | 11 条矩阵记录；含从 B 纠正移入的单、双因子 ANOVA |
-| F3-2D | 过程能力、SPC、MSA | 待开始 | — |
+| F3-2C | 回归、ANOVA、GLM、PCA | 已完成 | 11 条矩阵记录；闭式矩阵、独立似然、SVD/eigh、受限 ANOVA 和正交区间覆盖核对；保留原生缺证与 4 项旧 `dist_fit.py` 结构哈希差异 |
+| F3-2D | 过程能力、SPC、MSA | 进行中 | 26 条矩阵记录；复用能力、控制图、量具历史参考，复核差异与矩阵映射 |
 | F3-2E | 时间序列与预测 | 待开始 | — |
 | F3-2F | DOE 数值与模型可估性 | 待开始 | — |
 | F3-2G | 缺陷闭合及最终验收 | 待开始 | — |
