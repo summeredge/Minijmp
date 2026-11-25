@@ -60,8 +60,8 @@ def is_chinese_label(text):
     kept = ('PI', 'CSV', 'Excel', 'PDF', 'SPC', 'DOE', 'Cpk', 'R&R', 'I-MR', 'Del',
             'MR', 'NP', 'Xbar-R', 'Xbar-S', 'hdf5', 'Logistic', 'PLS', 'Box-Cox',
             'Box-Behnken', 'Plackett–Burman', 'DSD', 'Johnson', 'Sixpack',
-            'Taguchi')
-    single = set('PCUtZVCFDI')
+            'Taguchi', 'Xbar')
+    single = set('PCUtZVCFDIRS')
     if not any('一' <= ch <= '鿿' for ch in text):
         return False
     stripped = text
@@ -145,7 +145,7 @@ EXPECTED_LAYOUT = {
             'Box-Cox / Johnson 变换', '正态能力 Sixpack', '非正态能力 Sixpack', '二项过程能力', '泊松过程能力',
             'sep', '容差区间', 'sep',
             '控制图 I-MR', '控制图 I（单值）', '控制图 MR（移动极差）',
-            '控制图 Xbar-R', '控制图 Xbar-S', '高级 SPC 控制图', '罕见事件控制图', 'sep',
+            '控制图 Xbar-R', '控制图 R', '控制图 S', '控制图 Xbar', '控制图 Xbar-S', '高级 SPC 控制图', '罕见事件控制图', 'sep',
             '控制图 NP', '控制图 P',
             '控制图 C', '控制图 U', 'sep', '帕累托图', '运行图', '因果图', '多变异图', '属性一致性分析'],
     '图形': ['通用绘图器', 'sep', '直方图与分布拟合', '分组直方图',
@@ -600,5 +600,51 @@ def test_equivalence_menu_reports_and_interval_plot(app, monkeypatch, kind):
     try:
         assert "90.0%" in viewer.fig.axes[0].get_title()
         assert len(viewer.fig.axes[0].containers) == 1
+    finally:
+        viewer.close()
+
+
+@pytest.mark.parametrize("kind,mode", [("Xbar", "fixed"), ("R", "id"), ("S", "wide")])
+def test_independent_subgroup_chart_menu_report_and_export(app, monkeypatch, tmp_path, kind, mode):
+    import ctrlchart_dialog
+    from stat_table import StatTable
+
+    app.table.model.df = pd.DataFrame({
+        "x": range(1, 13), "id": ["a"]*3 + ["b"]*4 + ["c"]*5,
+        "m1": pd.array([1, 2, 3]+[None]*9, dtype="Int64"),
+        "m2": [2, 4, 6]+[None]*9, "m3": [3, None, 9]+[None]*9,
+    })
+    opened = []
+    original = ctrlchart_dialog.SubgroupChartDialog
+
+    def capture(*args):
+        opened.append(original(*args))
+
+    monkeypatch.setattr(ctrlchart_dialog, "SubgroupChartDialog", capture)
+    menu = pulldown(app, "质量")
+    menu.invoke(next(i for i, _, label in read_menu(menu) if label.strip() == f"控制图 {kind}"))
+    dialog = opened[0]
+    dialog.wide.selection_clear(0, "end")
+    dialog.xvar.set("x")
+    dialog.gid.set("id" if mode == "id" else "")
+    dialog.gsize.set("3" if mode == "fixed" else "")
+    if mode == "wide":
+        for i, col in enumerate(dialog.wide.get(0, "end")):
+            if col in ("m1", "m2", "m3"):
+                dialog.wide.selection_set(i)
+    dialog.run_analysis()
+    viewer = app.table.pf
+    try:
+        assert len(viewer.fig.axes) == 1 and viewer.fig.axes[0].get_title() == kind
+        tables = [b.table for b in app.table.tOut.table_blocks if isinstance(b.table, StatTable)]
+        assert len(tables[0].values) == 1
+        expected = {"fixed": [3, 3, 3, 3], "id": [3, 4, 5], "wide": [3, 2, 3]}
+        assert [row[2] for row in tables[1].values] == expected[mode]
+        assert len(app.project_results) == 1 and "png" in app.project_results[0]
+        columns = {"fixed": ["x"], "id": ["x", "id"], "wide": ["m1", "m2", "m3"]}
+        assert app.project_results[0]["columns"] == columns[mode]
+        target = tmp_path / f"{kind}.png"
+        viewer.savePlot(target)
+        assert target.read_bytes().startswith(b"\x89PNG")
     finally:
         viewer.close()

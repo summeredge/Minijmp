@@ -232,6 +232,9 @@
 | Control Chart I | 控制图 I（单值） |
 | Control Chart MR | 控制图 MR（移动极差） |
 | Control Chart xBar/R | 控制图 Xbar-R |
+| Control Chart R | 控制图 R |
+| Control Chart S | 控制图 S |
+| Control Chart Xbar | 控制图 Xbar |
 | Control Chart xBar/S | 控制图 Xbar-S |
 | Control Chart NP | 控制图 NP |
 | Control Chart P | 控制图 P |

@@ -18,7 +18,19 @@
 
 真实 Windows Tk 回归从七个菜单命令打开对话框、选列、确认并接收结构化报告。核心专项 7 项通过。菜单和 G12 清单回归通过，离线帮助调整项复验 14 项通过。
 
-复用 [F3-1 审计](f3-1-feature-audit.md#原生证据与具体差异)的七种固定输入。历史记录证明 Minitab 19.1.0.1 返回结果对象，缺少各字段可读数值，当前常规安装路径及 COM 注册未找到对应程序。本地独立验证已通过，厂商的 p 值、估计与区间逐字段比较仍待补证。Minitab 的 Wilcoxon 和 Mann–Whitney 公开方法包含连续性修正的正态近似，本地小样本精确结果可能有差异。
+使用独立空白工程在 Minitab 19.1.0.1 复跑 [F3-1 审计](f3-1-feature-audit.md) 的七种固定输入，读取会话文本。结果如下。
+
+| 方法 | MiniJMP | Minitab 19.1.0.1 |
+| --- | --- | --- |
+| 符号 | 负、零、正计数 3、1、8，中位数 6.5，p=0.226563。区间 [3,10]，实际覆盖率 96.14%。 | 同计数及中位数，p=0.227。SINTERVAL 同时给出 [3,10] 与名义 95% 插值区间。 |
+| Wilcoxon | 正秩和 55.5，Walsh 估计 6.5，p=0.050119。[4,9]，覆盖率 95.75%。 | 正秩和 55.5，估计 6.5，p=0.050。WINTERVAL 同端点，正态近似覆盖率 94.54%。 |
+| Mann–Whitney | U=47.5，对应秩和 125.5，位置差 −3，并列修正 p=0.164381。并列时区间不可用。 | 秩和 125.5，差 −3，并列修正 p=0.164，原生区间 (−7,1)。 |
+| Kruskal–Wallis | H=10.384615，df=3，p=0.015564，平均秩 2、5、8、11。 | H=10.38，df=3，p=0.016，平均秩一致。 |
+| Mood | 合并中位数 6.5，组计数一致，χ²=12，p=0.007383。组内 n=3 时请求 95% 的保守区间无界。 | χ²=12，p=0.007。各组显示样本最小值到最大值，并标注实际覆盖率低于 95%。 |
+| Friedman | Q=8，df=2，p=0.018316，处理秩和 4、8、12。 | Q=8，df=2，p=0.018，处理秩和一致。 |
+| 游程 | 阈值 6.5，两侧各 6 个，2 个游程。条件精确 p=0.004329。 | 阈值、计数及游程数相同，近似 p=0.002。 |
+
+本地保留精确概率及离散区间约定。并列位置区间、连续近似覆盖率和厂商插值区间存在上述口径差异。[Wilcoxon 原生方法](https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/nonparametrics/how-to/1-sample-wilcoxon/methods-and-formulas/methods-and-formulas/) · [Mann–Whitney 原生方法](https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/nonparametrics/how-to/mann-whitney-test/methods-and-formulas/methods-and-formulas/)
 
 ## A2 项目工作表合并
 
@@ -36,7 +48,7 @@
 
 `tests/test_variance_ratio.py` 以不完全 Beta 函数验证 F 概率，以分位反演验证方向和区间，以 SciPy 中位数 Levene 和非单位比缩放参考验证 Levene。Bonett 区间端点回代检查尾概率。真实 Tk 验证菜单打开、原始双列 Bonett 和结构化报告。
 
-Minitab 19.1 固定案例的比值为 0.762069。本地 Bonett p=0.536612、区间 (0.280663, 2.044317)，历史原生 p=0.536、区间 (0.281, 2.042)，存在轻微差异。本地 Levene p=0.559034、区间 (0.258530, 2.134600)，与历史原生显示值一致。Bonett 的不等样本量推断仍待扩展。[厂商方法](https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/basic-statistics/how-to/2-variances/methods-and-formulas/methods-and-formulas/) · [Bonett 方法论文](https://support.minitab.com/en-us/minitab/media/pdfs/translate/Bonetts_Method_Two_Variances.pdf)
+Minitab 19.1 固定案例的比值为 0.762069。本地 Bonett p=0.536612、区间 (0.280663, 2.044317)，本轮原生复跑 p=0.536、区间 (0.281, 2.042)，存在轻微差异。本地 Levene p=0.559034、区间 (0.258530, 2.134600)，与历史原生显示值一致。Bonett 的不等样本量推断仍待扩展。[厂商方法](https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/basic-statistics/how-to/2-variances/methods-and-formulas/methods-and-formulas/) · [Bonett 方法论文](https://support.minitab.com/en-us/minitab/media/pdfs/translate/Bonetts_Method_Two_Variances.pdf)
 
 ## A4 基础等效性检验
 
@@ -44,7 +56,7 @@ Minitab 19.1 固定案例的比值为 0.762069。本地 Bonett p=0.536612、区�
 
 两项单侧备择分别为大于下限及小于上限，整体 p 为两项中较大值，两项均小于 α 时判定等效。区间使用 1−2α 的双侧覆盖率。图形展示等效范围、估计差及对应区间。报告另外标出区间完全落在等效界限外的情况。
 
-`tests/test_equivalence.py` 与独立 t 分布及 statsmodels 单双侧概率、Welch 自由度和配对结果一致，覆盖界限附近、区间落在界限外及证据不足。真实 Tk 三个菜单分别验证报告及区间图。历史 Minitab 19 TOST 只有命令对象，未取得可读数值。2×2 交叉和专用生物等效模型不在本轮范围。[TOST 定义](https://support.sas.com/documentation/cdl/en/statug/66103/HTML/default/statug_ttest_details19.htm)
+`tests/test_equivalence.py` 与独立 t 分布及 statsmodels 单双侧概率、Welch 自由度和配对结果一致，覆盖界限附近、区间落在界限外及证据不足。真实 Tk 三个菜单分别验证报告及区间图。Minitab 19.1.0.1 以等效下限 −3、上限 4 复跑三个 TOST 命令，均只返回命令对象，输出计数为 0。2×2 交叉和专用生物等效模型不在本轮范围。[TOST 定义](https://support.sas.com/documentation/cdl/en/statug/66103/HTML/default/statug_ttest_details19.htm)
 
 ## A5 工程结果持久化
 
@@ -54,7 +66,7 @@ Minitab 19.1 固定案例的比值为 0.762069。本地 Bonett p=0.536612、区�
 
 `tests/test_worksheets.py` 增加双工作表、多报告、多图形、活动表、源数据修改、改名、删除及 TXT/XLSX/PNG 导出往返。另验证坏图形在替换当前工程前被拒绝。保留旧工程、原子保存、公式和 DOE 的既有检查。
 
-工程、来源上下文与图窗生命周期回归 88 项通过。添加往返、损坏文件和保存保护检查后，相关工程、菜单、帮助与清单定向核验 63 项通过。
+工程、来源上下文与图窗生命周期回归 88 项通过。添加往返、损坏文件和保存保护检查后，相关工程、菜单、帮助与清单定向核验 63 项通过。另以两个独立进程实际关闭并重启 MiniJMP，恢复双表报告和图形；恢复图形历史导出两页 PDF。
 
 ## A6 分析导航与历史
 
@@ -63,3 +75,26 @@ Minitab 19.1 固定案例的比值为 0.762069。本地 Bonett p=0.536612、区�
 工程保存面板显隐和选中分析。删除会同步历史、图形菜单及下次工程保存，同名或被删除的来源仍遵循工程的工作表归属。已有统计结果窗口和图形菜单可继续使用。厂商命令、宏和自动重放不在交付范围内。
 
 真实 Tk 在两张表分别完成两次等效性分析，检查每次只生成一条包含报告及图形的记录，并从历史打开两类结果，核对输入、参数、取消与报错、删除、切换工作表和关闭后工程重开。工程、帮助、来源和清单定向回归通过。
+
+
+## A7 独立 Xbar、R、S 控制图
+
+“质量”菜单新增三个入口。固定组大小保留原始行分组；标识列复用组合图的分组方式；多测量列按行组成子组。每组至少两个有限观测，极差法允许 2–25 个。Xbar 可选极差法、标准差法及合并标准差估计，也可设历史均值。三个入口均支持历史标准差、控制限倍数和参考线。
+
+通过 x_plot 的单面板配置调用既有 xBar_R、xBar_S 及判异。固定及不等组量用独立均值、极差、Gamma 函数 c4 及控制限公式核验。相同配置下，独立图与组合图的统计、控制限和信号行一致。真实 Tk 从三个菜单分别以固定子组、标识列和多列子组运行，验证单图、统计报告、历史归属和 PNG 导出。
+
+Minitab 19.1.0.1 的 XBAR、RCHART、SCHART 均返回图形。随后用 CONLIMITS、CENLINE 和 PPOINTS 从工作表读回固定输入 1…12、组大小 3 的数值，证据如下。
+
+| 图 | 原生 LCL / CL / UCL | MiniJMP 比较 |
+| --- | --- | --- |
+| Xbar | 4.713110814 / 6.5 / 8.286889186 | 勾选合并标准差时最大绝对误差低于 2e−15。极差估计时为 4.453867918 / 6.5 / 8.546132082，口径不同。原生与本地计算点列均为 2、5、8、11，越限点为 1、4。 |
+| R | 0 / 2 / 5.148493798 | 控制限及点列完全一致。 |
+| S | 0 / 1 / 2.568169603 | 控制限及点列绝对误差不超过 9e−16。 |
+
+原生不等组量、逐项历史参数及其他判异选项未对照。[Minitab 会话命令参考](https://support.minitab.com/en-us/minitab/media/pdfs/notranslate/session_commands.pdf)
+
+## 联合验收
+
+项目虚拟环境 Python 3.11.9。七项新增专项及菜单、工作表、列公式、来源上下文、SPC 报告、质量图、G12 清单和离线帮助联合回归 388 项通过。G5 控制图计算 AST 与更改前一致且通过冻结检查。A5 工程、上下文及图窗生命周期另有 88 项定向通过。未运行全量测试。
+
+矩阵共 208 个不同 ID，扣除 DOE 交叉引用、功能别名和不适用项后为 165 条有效记录。151 已实现、9 部分实现、4 未实现、1 待核实。A3、A4、A5、A6 的矩阵记录仍为部分实现，原因分别为不等组 Bonett、2×2 交叉设计、可编辑图形及私有格式、厂商命令与重放。F2 四条原有部分实现和 NEW-019 外部集成保留。未实现项为 NEW-018 Assistant、NEW-022 可靠性及生存分析、NEW-023 因子/聚类/判别/对应分析、NEW-035 已有图高级布局。GEN-013 厂商自动排除并重拟合仍待核实。

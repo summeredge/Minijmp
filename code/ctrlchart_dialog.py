@@ -5,7 +5,7 @@ from tkinter import TOP, LEFT, X, BOTH, RIGHT
 ###################################
 #  from pandastable_local.dialogs import addListBox
 ########### Own Modules ###########
-from dialog import Dialogs
+from dialog import Dialogs, addListBox
 from utilities import is_number, number_list, filter_voids, grouping_by_labels, get_number
 from control_chart import x_plot, p_np_plot, cu_plot
 import stage_compare
@@ -33,11 +33,12 @@ class IMRDialog(Dialogs):
         self.mean = tk.StringVar(value="")
         self.sigma = tk.StringVar(value="")
 
-        w = tk.Label(f, text='过程均值')
-        w.pack(side=LEFT, fill=X, padx=2)
-        w = tk.Entry(f, textvariable=self.mean,
-                     bg='white', width=15)
-        w.pack(side=LEFT, padx=2, pady=2)
+        if getattr(self, 'kind', None) not in ('R', 'S'):
+            w = tk.Label(f, text='过程均值')
+            w.pack(side=LEFT, fill=X, padx=2)
+            w = tk.Entry(f, textvariable=self.mean,
+                         bg='white', width=15)
+            w.pack(side=LEFT, padx=2, pady=2)
         w = tk.Label(f, text='过程标准差')
         w.pack(side=LEFT, fill=X, padx=2)
         w = tk.Entry(f, textvariable=self.sigma,
@@ -336,7 +337,14 @@ class XBRDialog(IMRDialog):
 
     def get_data(self):
         self.r_or_s()
-        #  self.plot_type = "XBAR_R"
+        result = self.subgroup_data()
+        if result is None:
+            return
+        data, xlabels = result
+        fig, ax, axs = self.get_axs()
+        return data, xlabels, fig, ax, axs
+
+    def subgroup_data(self):
         gsize = get_number(self.gsize)
         xid = self.xvar.get()
         if xid not in list(self.df):
@@ -373,14 +381,134 @@ class XBRDialog(IMRDialog):
                 except BaseException:
                     pass
 
-        fig, ax, axs = self.get_axs()
-        return data, xlabels, fig, ax, axs
+        return data, xlabels
 
 
 class XBSDialog(XBRDialog):
     def r_or_s(self):
         self.plot_type = "XBAR_S"
         return
+
+
+class SubgroupChartDialog(XBRDialog):
+    column_roles = (*XBRDialog.column_roles, ('wide', True))
+    analysis_parameters = (('gsize', '固定子组大小'), ('estimate_by', '估计法'),
+                           ('sigma', '历史标准差'), ('mean', '历史均值'), ('k', '控制限倍数'))
+
+    def __init__(self, parent, df, app, kind):
+        self.kind = kind
+        super().__init__(parent, df, f'控制图 {kind}', app)
+
+    def input_data(self, master):
+        super().input_data(master)
+        frame, self.wide = addListBox(
+            master, [column for column in self.cols if self._column_valid(column, True)],
+            width=24, height=4, label='每行一个子组（所选测量列优先）',
+        )
+        frame.pack(fill=X)
+        self.wide.configure(exportselection=False)
+
+    def more_settings(self, master):
+        self.x_options(master)
+        if self.kind == 'Xbar':
+            self.y_options(master, label1='')
+            self.y_refs(master, label1='')
+        else:
+            self.y_options(master, label2='')
+            self.y_refs(master, label2='')
+
+    def ctrl_chart_setting(self, master):
+        super().ctrl_chart_setting(master)
+        row = ttk.Frame(master)
+        row.pack(fill=X)
+        self.estimate_by = tk.StringVar(value='极差' if self.kind != 'S' else '标准差')
+        if self.kind == 'Xbar':
+            ttk.Label(row, text='过程标准差估计').pack(side=LEFT)
+            ttk.Combobox(row, textvariable=self.estimate_by, values=('极差', '标准差'),
+                         width=8, state='readonly').pack(side=LEFT, padx=3)
+        self.k = tk.StringVar(value='3')
+        ttk.Label(row, text='控制限倍数').pack(side=LEFT)
+        ttk.Entry(row, textvariable=self.k, width=6).pack(side=LEFT, padx=3)
+
+    def ok(self):
+        if self.apply():
+            self.quit()
+
+    def analysis_column_selection(self):
+        selection = super().analysis_column_selection()
+        if selection['wide']:
+            return {key: selection[key] for key in ('wide', 'xlabelID')}
+        if self.gsize.get().strip():
+            return {key: selection[key] for key in ('xvar', 'xlabelID')}
+        return selection
+
+    def apply(self):
+        import numpy as np
+        import pandas as pd
+
+        columns = self.wide.getSelectedItem()
+        is_range = self.estimate_by.get() == '极差'
+        try:
+            if columns:
+                if len(columns) < 2:
+                    raise ValueError('每行子组需要至少两列测量值。')
+                data = self.df[columns].to_numpy(dtype=float, na_value=np.nan)
+                label = self.xlabelID.get()
+                labels = list(self.df[label]) if label in self.cols else list(range(1, len(data)+1))
+            else:
+                if self.gsize.get().strip():
+                    size = get_number(self.gsize)
+                    if size is None or not np.isfinite(size) or size < 2 or int(size) != size:
+                        raise ValueError('固定子组大小须为至少 2 的整数。')
+                result = self.subgroup_data()
+                if result is None:
+                    return False
+                data, labels = result
+            clean = []
+            retained = []
+            for group, name in zip(data, labels):
+                values = pd.Series(group).to_numpy(dtype=float, na_value=np.nan)
+                values = values[np.isfinite(values)].tolist()
+                if values:
+                    clean.append(values)
+                    retained.append(name)
+            if (len(clean) < 2 or any(len(group) < 2 or (is_range and len(group) > 25) for group in clean)):
+                raise ValueError('至少需要两个有效子组，每组不少于 2 个观测。极差法每组最多 25 个。')
+            mean, sigma, k, label_count = map(get_number, (self.mean, self.sigma, self.k, self.max_x_labels))
+            if self.mean.get().strip() and (mean is None or not np.isfinite(mean)):
+                raise ValueError('历史均值须为有限数。')
+            if self.sigma.get().strip() and (sigma is None or not np.isfinite(sigma) or sigma <= 0):
+                raise ValueError('历史标准差须为有限正数。')
+            if k is None or not np.isfinite(k) or k <= 0:
+                raise ValueError('控制限倍数须为有限正数。')
+            if label_count is None or not np.isfinite(label_count) or label_count < 1:
+                raise ValueError('最大标签数须为正数。')
+        except (ValueError, TypeError, KeyError) as exc:
+            self.error(str(exc))
+            return False
+
+        viewer = self.app.showPlotViewer(deferred=True)
+        try:
+            axis = viewer.fig.add_subplot(111)
+            x_plot(
+                clean, xLabels=retained, mean=mean, sigma=sigma, k=k,
+                pooled=self.pooled.get(), all_SD_lines=self.all_lines.get(),
+                xlabel=self.xlabel.get() or (self.xvar.get() if not columns else '子组'),
+                ylabel1=self.y1label.get() or None, ylabel2=self.y2label.get() or None,
+                max_label_num=int(label_count), refY1=self.y1ref.get(), refY2=self.y2ref.get(),
+                plot_type='XBAR_R' if is_range else 'XBAR_S',
+                one_chart=self.kind == 'Xbar', chart_two_only=self.kind != 'Xbar',
+                ax=axis, fig=viewer.fig, print_out=True, print_port=self.app.print, detect_rules=True,
+            )
+            axis.set_title(self.kind)
+            viewer.canvas.draw()
+            self.app.replacePlotViewer(viewer)
+            viewer.main.deiconify()
+        except Exception:
+            viewer.close()
+            raise
+        self.remember_columns()
+        return True
 
 
 class NPDialog(IMRDialog):

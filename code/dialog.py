@@ -457,7 +457,7 @@ class Dialogs(BaseDialog):
 
         if not isinstance(self.app, SheetApp):
             return self.ok()
-        columns = list(dict.fromkeys(c for picks in self._collect_column_selection().values() for c in picks))
+        columns = list(dict.fromkeys(c for picks in self.analysis_column_selection().values() for c in picks))
         parameters = {}
         for attr, label in (*self.analysis_parameters, ('alpha', 'α')):
             variable = getattr(self, attr, None)
@@ -467,6 +467,9 @@ class Dialogs(BaseDialog):
                     parameters[label] = str(value)
         title = DIALOG_TITLES.get(self.title, self.title)
         return self.app.run_analysis(title, columns, parameters, self.ok)
+
+    def analysis_column_selection(self):
+        return self._collect_column_selection()
 
     def ok(self):
         self.quit()

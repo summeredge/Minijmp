@@ -549,7 +549,12 @@ def x_plot(data, bar1=None, pooled=False,
                              ('R' if s['ylabel2'] == 'Range' else 'S'))
         if isinstance(n, list):
             is_range = s['ylabel2'] == 'Range'
-            title = 'Xbar-R' if is_range else 'Xbar-S'
+            if one_chart:
+                title = 'Xbar'
+            elif chart_two_only:
+                title = 'R' if is_range else 'S'
+            else:
+                title = 'Xbar-R' if is_range else 'Xbar-S'
             name1, name2 = 'Xbar 图（子组均值）', 'R 图（子组极差）' if is_range else 'S 图（子组标准差）'
             sizes = n
             notes = ['观测总数：%d' % sum(n),

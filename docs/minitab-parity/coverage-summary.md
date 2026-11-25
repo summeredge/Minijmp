@@ -9,19 +9,19 @@ F0 审计日期为 2026-11-21。仓库为 `D:\MyTools\Minijmp`，分支 `main`�
 - Stat 优先比较了官方 GLM、泊松率、功效、Type 1 量具、属性能力及 G 图的功能范围。Graph 新增 Graph Builder 实时预览。Data 核对了堆叠和逆堆叠。Calc 核对了随机数据及分布计算。矩阵的目标证据、22 实机证据、MiniJMP 源码及数值证据分别记录。[官方 GLM](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/anova/how-to/fit-general-linear-model/before-you-start/overview/) · [逆堆叠](https://support.minitab.com/en-us/minitab/help-and-how-to/manipulate-data-in-worksheets-columns-and-rows/supporting-topics/data-types-and-arrangements/stacked-and-unstacked-data/) · [Graph Builder](https://support.minitab.com/en-us/minitab/help-and-how-to/graphs/graph-builder/overview/)
 - **F0 未完整验收。** Stat、Graph、Data、Calc 的 22.6 实际菜单、默认参数、输入模式和许可差异仍待现场确认。优先补 Q1、S1、M1 对话框和矩阵中的待核实项，包括 Calculator、工作表合并、独立子组图、Additional Tools 和 DOE GEN-013。若继续限定 COM，只能在安全的独立项目中补命令与结果；菜单位置及对话框选项需由用户在 22.6 界面提供观察记录。
 
-## 当前状态与去重（F3-1A A6，2026-11-25）
+## 当前状态与去重（F3-1A，2026-11-25）
 
 | 状态 | 数量 |
 | --- | ---: |
-| 已实现 | 150 |
-| 部分实现 | 10 |
+| 已实现 | 151 |
+| 部分实现 | 9 |
 | 未实现 | 4 |
 | 待核实 | 1 |
 | 不适用 | 2 |
 | DOE 交叉引用 | 36 |
 | 功能别名 | 5 |
 
-[覆盖矩阵](coverage-matrix.csv) 共 208 行，新增 F0-NEW-038，原有 ID 保留。扣除 36 条 DOE 交叉引用、5 条别名后，有 167 条独立审计记录；再扣除 2 条不适用后为 165 条有效记录，其中 1 条待核实，164 条已有功能判定。按 165 条为分母，已实现率为 90.91%，已实现或部分实现为 96.97%，已有判定为 99.39%。DOE 的 80 个专项 ID 保留原有范围和证据，包含已实现、待核实及不适用项。部分记录为功能组，记录数量不等于厂商菜单命令总数。
+[覆盖矩阵](coverage-matrix.csv) 共 208 行，新增 F0-NEW-038，原有 ID 保留。扣除 36 条 DOE 交叉引用、5 条别名后，有 167 条独立审计记录；再扣除 2 条不适用后为 165 条有效记录，其中 1 条待核实，164 条已有功能判定。按 165 条为分母，已实现率为 91.52%，已实现或部分实现为 96.97%，已有判定为 99.39%。DOE 的 80 个专项 ID 保留原有范围和证据，包含已实现、待核实及不适用项。部分记录为功能组，记录数量不等于厂商菜单命令总数。
 
 ## F1 结论
 

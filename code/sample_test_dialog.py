@@ -1061,6 +1061,13 @@ class VarianceRatioDialog(Dialogs):
         if self.apply():
             self.quit()
 
+    def analysis_column_selection(self):
+        if self.input_mode.get() == "汇总":
+            return {}
+        selection = super().analysis_column_selection()
+        key = "group" if self.input_mode.get() == "数值列和分组列" else "second"
+        return {"first": selection["first"], key: selection[key]}
+
     def apply(self):
         from chi_sq import variance_ratio_test
         from stat_table import StatTable

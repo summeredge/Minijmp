@@ -813,7 +813,7 @@
         "{面板名称} 逐点明细"
       ],
       "entry_points": [
-        "x_plot → IMRDialog/IDialog/MRDialog/XBRDialog/XBSDialog.apply",
+        "x_plot → IMRDialog/IDialog/MRDialog/XBRDialog/XBSDialog/SubgroupChartDialog.apply",
         "p_np_plot → PDialog/NPDialog.apply",
         "cu_plot → CDialog/UDialog.apply"
       ],
@@ -829,6 +829,9 @@
         "MR",
         "Xbar-R",
         "Xbar-S",
+        "Xbar",
+        "R",
+        "S",
         "P",
         "NP",
         "C",

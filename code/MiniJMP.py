@@ -307,6 +307,9 @@ class Minijmp(Worksheets, Minijmp_pre):
             '34控制图 MR（移动极差）': {'cmd': self.cChartMR},
             '35控制图 Xbar-R': {'cmd': self.cChartXBR},
             '36控制图 Xbar-S': {'cmd': self.cChartXBS},
+            '36控制图 Xbar': {'cmd': lambda: self.cChartSubgroup('Xbar')},
+            '36控制图 R': {'cmd': lambda: self.cChartSubgroup('R')},
+            '36控制图 S': {'cmd': lambda: self.cChartSubgroup('S')},
             '37高级 SPC 控制图': {'cmd': self.advanced_spc},
             '38罕见事件控制图': {'cmd': self.rare_events},
             '42控制图 NP': {'cmd': self.cChartNP},
@@ -468,7 +471,8 @@ class Minijmp(Worksheets, Minijmp_pre):
         return result
 
     def capture_result_plot(self, viewer, label=None):
-        if label is None and (not viewer.fig.axes or getattr(viewer, '_skip_project_result', False)):
+        if label is None and (not any(axis.has_data() for axis in viewer.fig.axes)
+                              or getattr(viewer, '_skip_project_result', False)):
             return
         record = getattr(viewer, '_project_result', None)
         staged = self._result_scope['records'] if self._result_scope is not None else []
@@ -1018,6 +1022,11 @@ class Minijmp(Worksheets, Minijmp_pre):
             df=self.table.model.df,
             title='Control Chart MR')
         return
+
+    def cChartSubgroup(self, kind):
+        from ctrlchart_dialog import SubgroupChartDialog
+
+        return SubgroupChartDialog(self.table, self.table.model.df, self, kind)
 
     def cChartXBR(self):
         from ctrlchart_dialog import XBRDialog

@@ -9,7 +9,7 @@
 <body>
 <main>
   <h1>质量分析</h1>
-  <p>本页按 Minijmp 当前实现说明 14 个质量分析窗口。能力分析比较数据与规格限；控制图用控制限监视过程稳定性，两类限值用途不同。</p>
+  <p>本页按 Minijmp 当前实现说明质量分析窗口。能力分析比较数据与规格限；控制图用控制限监视过程稳定性，两类限值用途不同。</p>
 
   <nav class="page-toc" aria-label="本页目录">
     <a href="quality-tools.html#quality.pareto">帕累托图</a>
@@ -27,6 +27,7 @@
     <a href="#quality.control_chart_mr">MR 图</a>
     <a href="#quality.control_chart_xbar_r">Xbar-R 图</a>
     <a href="#quality.control_chart_xbar_s">Xbar-S 图</a>
+    <a href="#quality.control_chart_independent">独立 Xbar、R、S 图</a>
     <a href="#quality.control_chart_np">NP 图</a>
     <a href="#quality.control_chart_p">P 图</a>
     <a href="#quality.control_chart_c">C 图</a>
@@ -232,6 +233,12 @@
     <p><strong>结果：</strong>绘制单位缺陷率，中心线按单位大小加权，控制限随单位大小变化。异常点以红色叉号标记，文本报告列出触发的 Test 1–4 和检测窗口。</p>
     <p><strong>注意：</strong>当前实现中，填写 Axis Label Col. 与留空该列会走不同的 U 图数据缩放路径；未选标签列时可能重复按单位大小缩放。请核对输入与图上比率，必要时选择标签列后再比较结果。</p>
     <p><strong>延伸阅读：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/quality-and-process-improvement/control-charts/how-to/attributes-charts/u-chart/before-you-start/overview/" target="_blank" rel="noopener noreferrer">Minitab U 控制图概述</a>（Minijmp 的参数以本页为准）。</p>
+  </section>
+  <section class="topic" id="quality.control_chart_independent">
+    <h2>独立 Xbar、R、S 控制图</h2>
+    <p>在“质量”菜单分别选择“控制图 Xbar”“控制图 R”或“控制图 S”。观测列可按固定行数分组或按子组标识列分组，也可选择多列测量值，让每行成为一个子组。选中的多测量列优先。</p>
+    <p>固定分组保留原行边界；排除非有限测量后，每个保留组须至少有两个观测。允许子组大小不同，极差法要求每组最多 25 个观测。可指定历史标准差、控制限所用的标准差倍数及参考线，Xbar 另可指定历史均值和选择极差或标准差估计法。勾选合并标准差使用组内合并估计。</p>
+    <p>独立图沿用组合控制图同面板的统计量、中心线、控制限及异常信号。报告显示对应单图及逐点明细，图窗可导出 PNG 等格式。</p>
   </section>
 </main>
 </body>
