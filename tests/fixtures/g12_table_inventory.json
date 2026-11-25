@@ -151,6 +151,7 @@
     "quality_tools_plots.py",
     "regression_dialog.py",
     "regression_plots.py",
+    "result_navigation.py",
     "sample_test_dialog.py",
     "sb_box_dialog.py",
     "sb_boxplot.py",

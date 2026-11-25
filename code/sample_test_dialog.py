@@ -868,6 +868,7 @@ NONPARAMETRIC_TITLES = {
 
 
 class NonparametricDialog(Dialogs):
+    analysis_parameters = (('target', '假设位置或阈值'), ('direction', '备择方向'))
     def __init__(self, parent, df, app, kind):
         self.kind = kind
         self.column_roles = (("samples", True),)
@@ -1038,6 +1039,8 @@ class NonparametricDialog(Dialogs):
 
 class VarianceRatioDialog(Dialogs):
     column_roles = (("first", True), ("second", True), ("group", False))
+    analysis_parameters = (('input_mode', '输入方式'), ('method', '方法'), ('scale', '比值尺度'),
+                           ('target', '假设比值'), ('direction', '备择方向'))
 
     def createWidgets(self, master):
         field = NonparametricDialog._field
@@ -1128,6 +1131,8 @@ EQUIVALENCE_TITLES = {
 
 
 class EquivalenceDialog(Dialogs):
+    analysis_parameters = (('target', '目标'), ('lower', '等效下限'), ('upper', '等效上限'),
+                           ('method', '方法'), ('direction', '差值方向'))
     def __init__(self, parent, df, app, kind):
         self.kind = kind
         self.column_roles = (("first", True),)

@@ -344,6 +344,7 @@ class Dialogs(BaseDialog):
 
     # Explicit roles only: ordinary option controls must never receive column names.
     column_roles = ()
+    analysis_parameters = ()
 
     def _init_column_selection(self, source):
         self._column_key = type(self).__module__ + '.' + type(self).__name__ + ':' + str(getattr(self, 'kind', ''))
@@ -443,13 +444,29 @@ class Dialogs(BaseDialog):
     def buttonsFrame(self):
         bf = ttk.Frame(self.main)
         bf.pack(side=TOP, fill=BOTH)
-        ttk.Button(bf, text='确定', command=self.ok).pack(
+        ttk.Button(bf, text='确定', command=self.run_analysis).pack(
             side=LEFT, fill=X, expand=1, pady=2)
         ttk.Button(bf, text='取消', command=self.quit).pack(
             side=LEFT, fill=X, expand=1, pady=2)
         ttk.Button(bf, text='帮助', command=self.help).pack(
             side=LEFT, fill=X, expand=1, pady=2)
         return
+
+    def run_analysis(self):
+        from sheet_context import SheetApp
+
+        if not isinstance(self.app, SheetApp):
+            return self.ok()
+        columns = list(dict.fromkeys(c for picks in self._collect_column_selection().values() for c in picks))
+        parameters = {}
+        for attr, label in (*self.analysis_parameters, ('alpha', 'α')):
+            variable = getattr(self, attr, None)
+            if isinstance(variable, tk.Variable):
+                value = variable.get() if isinstance(variable, tk.StringVar) else get_number(variable)
+                if value is not None and value != '':
+                    parameters[label] = str(value)
+        title = DIALOG_TITLES.get(self.title, self.title)
+        return self.app.run_analysis(title, columns, parameters, self.ok)
 
     def ok(self):
         self.quit()
@@ -557,7 +574,11 @@ class Dialogs(BaseDialog):
         t = PT()
         t.field_names = ["ERROR"]
         t.add_row([msg])
-        self.app.print("\n" + str(t))
+        from sheet_context import SheetApp
+        if isinstance(self.app, SheetApp):
+            self.app.print_error("\n" + str(t))
+        else:
+            self.app.print("\n" + str(t))
         return
 
 

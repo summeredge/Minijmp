@@ -745,3 +745,79 @@ def test_corrupt_result_png_rejects_project_before_replacing_sheets(workbook, tm
     assert not app.load_file(filename)
     assert app.table is before
     error.assert_called_once()
+
+
+def test_analysis_navigation_groups_publishes_and_restores_history(workbook, tmp_path, monkeypatch):
+    from sample_test_dialog import EquivalenceDialog
+
+    app, error = workbook
+    view_menu = app.view_menu["var"]
+    command = next(i for i in range(view_menu.index("end") + 1)
+                   if view_menu.type(i) == "command"
+                   and view_menu.entrycget(i, "label").strip() == "分析导航")
+    view_menu.invoke(command)
+    nav = app.result_navigation
+    assert nav.winfo_manager() == "pack"
+
+    def perform(table, *, cancel=False, invalid=False):
+        dialog = EquivalenceDialog(table, table.model.df, app, "one")
+        dialog.first.set("x")
+        dialog.lower.set("-1")
+        dialog.upper.set("-3" if invalid else "10")
+        if cancel:
+            dialog.quit()
+            return
+        dialog.run_analysis()
+        if invalid:
+            dialog.quit()
+
+    first = app.table
+    first.model.df = pd.DataFrame({"x": [1., 2., 3., 4.]})
+    perform(first, cancel=True)
+    perform(first, invalid=True)
+    assert app.project_results == []
+    perform(first)
+    perform(first)
+    second = app.addSheet("另一工作表", pd.DataFrame({"x": [3., 4., 7., 8.]}))
+    perform(second)
+    perform(second)
+    assert len(app.project_results) == 4
+    assert [item["source"] for item in app.project_results] == ["工作表1"]*2 + ["另一工作表"]*2
+    last = app.project_results[-1]
+    assert last["columns"] == ["x"] and last["parameters"]["等效下限"] == "-1"
+    assert last["blocks"] and last["png"]
+    assert len(nav.tree.get_children(nav.groups["另一工作表"])) == 2
+    last_item = next(item for item, (record, kind) in nav.by_item.items()
+                     if record is last and kind is None)
+    nav.tree.selection_set(last_item)
+    nav._selection_changed()
+    report = nav.open_selected()
+    assert "输入列 x" in report.T.get("1.0", "end")
+    report.close()
+    plot_item = next(item for item, (record, kind) in nav.by_item.items()
+                     if record is last and kind == "plot")
+    nav.tree.selection_set(plot_item)
+    plot = nav.open_selected()
+    assert plot.fig.axes[0].images
+    plot.close()
+    nav._selection_changed()
+    nav.delete_button.invoke()
+    assert len(app.project_results) == 3
+    assert second.pf._skip_project_result
+    app.nb.select(app.sheetframes["工作表1"])
+    app.nb.update()
+    assert nav.tree.item(nav.groups["工作表1"], "open")
+    selected = nav.tree.get_children(nav.groups["工作表1"])[0]
+    nav.tree.selection_set(selected)
+    nav._selection_changed()
+    filename = tmp_path / "navigation.dexpl"
+    assert app._save_project(filename)
+    assert app.new_file()
+    assert app.load_file(filename)
+    app.nb.update()
+    assert nav.winfo_manager() == "pack"
+    assert nav.selected is app.project_results[0]
+    assert len(app.project_results) == 3
+    view_menu.invoke(command)
+    assert not nav.winfo_manager()
+    error.assert_not_called()

@@ -490,6 +490,8 @@ class Worksheets:
         self.sheets = {}
         self.sheetframes = {}
         self.project_results = []
+        self._plot_records = {}
+        self._result_scope = None
         self.filename = None
         self.addSheet('工作表1')
         self.nb.bind('<<NotebookTabChanged>>', self._sheet_changed)
@@ -542,6 +544,7 @@ class Worksheets:
             self.table = self.getCurrentTable()
             self.table.focus_set()
             self.update_title()
+            self.refresh_result_navigation(focus_sheet=previous is not self.table)
 
     def _show_sheet_context_menu(self, event):
         try:
@@ -589,6 +592,7 @@ class Worksheets:
         self.nb.add(frame, text=name)
         self.nb.select(frame)
         self.table = table
+        self.refresh_result_navigation(focus_sheet=True)
         return table
 
     def merge_project_worksheets(self):
@@ -660,6 +664,7 @@ class Worksheets:
         self.sheetframes = {name if n == old else n: f for n, f in self.sheetframes.items()}
         self.nb.tab(self.sheetframes[name], text=name)
         self.update_title()
+        self.refresh_result_navigation()
         return True
 
     def deleteSheet(self):
@@ -775,7 +780,8 @@ class Worksheets:
                     'meta': self.saveMeta(t, validate_doe=validate_doe)}
                 for n, t in self.sheets.items()}
         data['meta'] = {'active': self.getCurrentSheet(), 'minijmp': 1,
-                        'results': self.project_results}
+                        'results': self.project_results,
+                        'navigation': self.result_navigation_state()}
         return data
 
     def _state(self):
@@ -836,9 +842,11 @@ class Worksheets:
         self.table = self.getCurrentTable()
         for table, frame in old:
             self._dispose_sheet(table, frame)
+        self.project_results = []
         self.updatePlotsMenu()
         self.project_results = data.get('meta', {}).get('results', [])
         self.restore_result_plots()
+        self.restore_result_navigation(data.get('meta', {}).get('navigation', {}))
         self.filename = filename
         if filename:
             self.defaultsavedir = os.path.dirname(os.path.abspath(filename))

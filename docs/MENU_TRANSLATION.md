@@ -116,6 +116,7 @@
 | Dark Theme | 深色主题 |
 | Light Theme | 浅色主题 |
 | View Statistical Results | 查看统计结果 |
+| Analysis Navigator | 分析导航 |
 
 ## 数据（Data）
 

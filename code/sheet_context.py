@@ -36,6 +36,14 @@ class SheetApp:
         self._check_table()
         return self._app.print(txt, end=end, table=self.table)
 
+    def run_analysis(self, title, columns, parameters, action):
+        self._check_table()
+        return self._app.run_sheet_analysis(self.table, title, columns, parameters, action)
+
+    def print_error(self, txt):
+        self._check_table()
+        return self._app.print(txt, table=self.table, record_result=False)
+
     def showPlotViewer(self, parent=None, figsize=(10, 7), save_last=True, deferred=False):
         self._check_table()
         return self._app.showPlotViewer(

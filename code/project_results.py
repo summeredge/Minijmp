@@ -90,6 +90,12 @@ def read_results(archive, entries, paths, sheet_names):
             if not isinstance(block, dict):
                 raise ValueError("无效的工程报告内容。")
             restore_block(block)
+        columns = entry.get("columns", [])
+        parameters = entry.get("parameters", {})
+        if (not isinstance(columns, list) or not all(isinstance(col, str) for col in columns)
+                or not isinstance(parameters, dict)
+                or not all(isinstance(value, str) for value in parameters.values())):
+            raise ValueError("无效的分析历史参数。")
         image_path = entry.pop("image", None)
         if image_path is not None:
             if image_path != f"results/figure_{i:04d}.png" or image_path in paths:

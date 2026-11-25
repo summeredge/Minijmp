@@ -110,6 +110,7 @@ class Minijmp(Worksheets, Minijmp_pre):
                                     'cmd': lambda: self._call(
                                         'setTheme', name='default')},
             '08查看统计结果': {'cmd': self.view_sheet_results},
+            '09分析导航': {'cmd': self.toggle_result_navigation},
         }
         self.view_menu = self.createPulldown(self.menu, self.view_menu)
         self.menu.add_cascade(label='视图', menu=self.view_menu['var'])
@@ -385,12 +386,17 @@ class Minijmp(Worksheets, Minijmp_pre):
         fig = table.pf.fig
         t = time.strftime("%H:%M:%S")
         source = next(name for name, item in self.sheets.items() if item is table)
-        label = f'{source} {t} ({len(self.plots) + 1})'
+        count = len(self.plots) + 1
+        label = f'{source} {t} ({count})'
+        while label in self.plots:
+            count += 1
+            label = f'{source} {t} ({count})'
         # dump and reload the figure to get a new object
         p = pickle.dumps(fig)
         fig = pickle.loads(p)
         self.plots[label] = fig
-        self.capture_result_plot(table.pf, label)
+        record = self.capture_result_plot(table.pf, label)
+        self._plot_records[label] = record
         self._add_stored_plot_menu(label)
 
     def _add_stored_plot_menu(self, label):
@@ -411,34 +417,74 @@ class Minijmp(Worksheets, Minijmp_pre):
 
         if clear:
             self.plots = {}
+            self._plot_records.clear()
             for record in self.project_results:
                 record.pop('png', None)
             self.project_results[:] = [record for record in self.project_results if record['blocks']]
+            self.refresh_result_navigation()
         menu = self.plots_menu['var']
         menu.delete(self.plot_menu_orig_len - 1, menu.index(END))
         return
 
-    def _new_result(self, table, title):
+    def run_sheet_analysis(self, table, title, columns, parameters, action):
+        previous = getattr(table, 'pf', None)
+        context = {'table': table, 'title': title, 'columns': columns, 'parameters': parameters,
+                   'records': [], 'failed': False}
+        old_scope = self._result_scope
+        self._result_scope = context
+        committed = False
+        try:
+            result = action()
+            viewer = getattr(table, 'pf', None)
+            if viewer is not None and viewer is not previous:
+                self.capture_result_plot(viewer)
+            if result is not False and not context['failed']:
+                self.project_results.extend(context['records'])
+                committed = True
+                self.refresh_result_navigation()
+            return result
+        finally:
+            if not committed:
+                viewer = getattr(table, 'pf', None)
+                record = getattr(viewer, '_project_result', None)
+                if any(item is record for item in context['records']):
+                    viewer._skip_project_result = True
+            self._result_scope = old_scope
+
+    def _new_result(self, table, title, *, additional=False):
+        scope = self._result_scope
+        if scope is not None and scope['table'] is table and scope['records'] and not additional:
+            return scope['records'][0]
         source = next(name for name, item in self.sheets.items() if item is table)
         result = dict(source=source, source_label=source, title=title, blocks=[],
                       time=time.strftime('%Y-%m-%d %H:%M:%S'))
-        self.project_results.append(result)
+        if scope is not None and scope['table'] is table:
+            result.update(title=scope['title'] or title, columns=scope['columns'],
+                          parameters=scope['parameters'])
+            scope['records'].append(result)
+        else:
+            self.project_results.append(result)
+            self.refresh_result_navigation()
         return result
 
     def capture_result_plot(self, viewer, label=None):
-        if not viewer.fig.axes and label is None:
+        if label is None and (not viewer.fig.axes or getattr(viewer, '_skip_project_result', False)):
             return
         record = getattr(viewer, '_project_result', None)
-        if record is not None and any(item is record for item in self.project_results):
+        staged = self._result_scope['records'] if self._result_scope is not None else []
+        if record is not None and (any(item is record for item in self.project_results)
+                                   or any(item is record for item in staged)):
             if label is not None:
                 record['png'] = figure_png(viewer.fig)
-            return
+            return record
         if viewer.table in self.sheets.values():
             titles = [ax.get_title() for ax in viewer.fig.axes if ax.get_title()]
             png = figure_png(viewer.fig)
-            record = self._new_result(viewer.table, titles[0] if titles else 'Matplotlib 图形')
+            record = self._new_result(viewer.table, titles[0] if titles else 'Matplotlib 图形',
+                                      additional=bool(staged and 'png' in staged[0]))
             viewer._project_result = record
             record['png'] = png
+            return record
 
     def capture_live_result_plots(self):
         for table in self.sheets.values():
@@ -455,6 +501,7 @@ class Minijmp(Worksheets, Minijmp_pre):
             while label in self.plots:
                 label += ' · 快照'
             self.plots[label] = record['png']
+            self._plot_records[label] = record
             self._add_stored_plot_menu(label)
 
     @staticmethod
@@ -500,13 +547,65 @@ class Minijmp(Worksheets, Minijmp_pre):
             return
         return self.show_result_report(records, f'{source} · 统计结果快照')
 
+    def toggle_result_navigation(self):
+        from result_navigation import ResultNavigation
+
+        pane = getattr(self, 'result_navigation', None)
+        if pane is None:
+            pane = self.result_navigation = ResultNavigation(self)
+        if pane.winfo_manager():
+            pane.pack_forget()
+        else:
+            pane.pack(side='left', fill='y', before=self.nb)
+            pane.refresh()
+
+    def refresh_result_navigation(self, *, focus_sheet=False):
+        pane = getattr(self, 'result_navigation', None)
+        if pane is not None:
+            pane.refresh(focus_sheet=focus_sheet)
+
+    def result_navigation_state(self):
+        pane = getattr(self, 'result_navigation', None)
+        return pane.state() if pane is not None else {}
+
+    def restore_result_navigation(self, state):
+        from result_navigation import ResultNavigation
+
+        pane = getattr(self, 'result_navigation', None)
+        if pane is None and isinstance(state, dict) and state.get('visible') is True:
+            pane = self.result_navigation = ResultNavigation(self)
+        if pane is not None:
+            pane.restore(state if isinstance(state, dict) else {})
+
+    def delete_result(self, record):
+        self.project_results[:] = [item for item in self.project_results if item is not record]
+        for table in self.sheets.values():
+            viewer = getattr(table, 'pf', None)
+            if viewer is not None and getattr(viewer, '_project_result', None) is record:
+                viewer._skip_project_result = True
+        for label, saved in list(self._plot_records.items()):
+            if saved is record:
+                self._plot_records.pop(label)
+                self.plots.pop(label)
+        self.updatePlotsMenu(clear=False)
+        for label in self.plots:
+            self._add_stored_plot_menu(label)
+        self.refresh_result_navigation()
+
     @staticmethod
-    def show_result_report(records, title):
+    def show_result_report(records, title, *, show_history=False):
         from stat_table import StatTable
 
         viewer = txt_viewer(table=None)
         viewer.main.title(title)
         for record in records:
+            if show_history:
+                viewer.add_txt(f"{record['title']} · {record['time']}\n")
+                if record.get('columns'):
+                    viewer.add_txt("输入列 " + '、'.join(record['columns']) + "\n")
+                if record.get('parameters'):
+                    viewer.add_txt('，'.join(f'{key}={value}' for key, value
+                                           in record['parameters'].items()) + "\n")
             for block in record['blocks']:
                 value, end = restore_block(block)
                 if isinstance(value, StatTable):
@@ -544,7 +643,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         child = getattr(table, 'child', None)
         child_previous = getattr(child, 'pf', None)
         if previous is not None and previous.main.winfo_exists():
-            if save_last:
+            if save_last and not getattr(previous, '_skip_project_result', False):
                 self.addPlot(table=table)
             previous.close()
         table.pf = viewer
@@ -559,7 +658,7 @@ class Minijmp(Worksheets, Minijmp_pre):
         else:
             viewer.main.after_idle(capture)
 
-    def print(self, txt, end="\n", table=None):
+    def print(self, txt, end="\n", table=None, record_result=True):
         table = table if table is not None else self.table
         if table.tOut is None:
             table.tOut = txt_viewer(table=table)
@@ -570,12 +669,20 @@ class Minijmp(Worksheets, Minijmp_pre):
         else:
             table.tOut.add_txt(txt + end)
         table.tOut.to_end(defer=True)
+        scope = self._result_scope
+        scoped = scope is not None and scope['table'] is table
+        if not record_result:
+            if scoped:
+                scope['failed'] = True
+            return
         heading = re.match(r'^\s*----\s*(.+?)\s*----', str(txt)) if not isinstance(txt, StatTable) else None
         record = getattr(table, '_current_result', None)
-        if record is None or heading is not None:
+        if scoped or record is None or heading is not None or not any(
+                item is record for item in self.project_results):
             title = heading.group(1) if heading else (txt.title if isinstance(txt, StatTable) else '统计结果')
             record = self._new_result(table, title or '统计结果')
-            table._current_result = record
+            if not scoped:
+                table._current_result = record
         record['blocks'].append(report_block(txt, end))
 
     def linear_fit(self):
