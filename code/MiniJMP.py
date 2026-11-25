@@ -3,6 +3,7 @@ import pickle
 import os
 import platform
 import time
+import re
 ###############################
 from pandastable_local import config, plotting
 # ####### Own Module ###########
@@ -13,6 +14,7 @@ from modified_table import MTable as Table
 from plots import plot_viewer
 from txt_output import txt_viewer
 from help_link import open_help
+from project_results import figure_png, png_image, report_block, restore_block
 
 
 class Minijmp(Worksheets, Minijmp_pre):
@@ -106,7 +108,9 @@ class Minijmp(Worksheets, Minijmp_pre):
                         #         'setTheme', name='bold')}, 
                                 '07浅色主题': {
                                     'cmd': lambda: self._call(
-                                        'setTheme', name='default')}, }
+                                        'setTheme', name='default')},
+            '08查看统计结果': {'cmd': self.view_sheet_results},
+        }
         self.view_menu = self.createPulldown(self.menu, self.view_menu)
         self.menu.add_cascade(label='视图', menu=self.view_menu['var'])
 
@@ -386,25 +390,131 @@ class Minijmp(Worksheets, Minijmp_pre):
         p = pickle.dumps(fig)
         fig = pickle.loads(p)
         self.plots[label] = fig
+        self.capture_result_plot(table.pf, label)
+        self._add_stored_plot_menu(label)
 
+    def _add_stored_plot_menu(self, label):
         def func(label):
-            fig = self.plots[label]
-            win = Toplevel()
-            win.title(label)
-            plotting.addFigure(win, fig)
+            item = self.plots[label]
+            if isinstance(item, bytes):
+                self.show_result_plot(item, label)
+            else:
+                win = Toplevel()
+                win.title(label)
+                plotting.addFigure(win, item)
 
         menu = self.plots_menu['var']
         menu.add_command(label=label, command=lambda: func(label))
-        return
 
     def updatePlotsMenu(self, clear=True):
         """Clear stored plots"""
 
         if clear:
             self.plots = {}
+            for record in self.project_results:
+                record.pop('png', None)
+            self.project_results[:] = [record for record in self.project_results if record['blocks']]
         menu = self.plots_menu['var']
         menu.delete(self.plot_menu_orig_len - 1, menu.index(END))
         return
+
+    def _new_result(self, table, title):
+        source = next(name for name, item in self.sheets.items() if item is table)
+        result = dict(source=source, source_label=source, title=title, blocks=[],
+                      time=time.strftime('%Y-%m-%d %H:%M:%S'))
+        self.project_results.append(result)
+        return result
+
+    def capture_result_plot(self, viewer, label=None):
+        if not viewer.fig.axes and label is None:
+            return
+        record = getattr(viewer, '_project_result', None)
+        if record is not None and any(item is record for item in self.project_results):
+            if label is not None:
+                record['png'] = figure_png(viewer.fig)
+            return
+        if viewer.table in self.sheets.values():
+            titles = [ax.get_title() for ax in viewer.fig.axes if ax.get_title()]
+            png = figure_png(viewer.fig)
+            record = self._new_result(viewer.table, titles[0] if titles else 'Matplotlib 图形')
+            viewer._project_result = record
+            record['png'] = png
+
+    def capture_live_result_plots(self):
+        for table in self.sheets.values():
+            viewer = getattr(table, 'pf', None)
+            if viewer is not None:
+                self.capture_result_plot(viewer)
+
+    def restore_result_plots(self):
+        for index, record in enumerate(self.project_results, 1):
+            if 'png' not in record:
+                continue
+            source = record['source_label'] + ('（已删除）' if record['source'] is None else '')
+            label = f"{source} · {record['title']} ({index})"
+            while label in self.plots:
+                label += ' · 快照'
+            self.plots[label] = record['png']
+            self._add_stored_plot_menu(label)
+
+    @staticmethod
+    def _snapshot_figure(png, figure=None):
+        from matplotlib.figure import Figure
+
+        image = png_image(png)
+        if figure is None:
+            figure = Figure(figsize=(image.width/110, image.height/110), dpi=110)
+        figure.set_layout_engine('none')
+        ax = figure.add_axes((0, 0, 1, 1))
+        ax.imshow(image)
+        ax.axis('off')
+        return figure
+
+    def show_result_plot(self, png, label):
+        viewer = plot_viewer(table=None, showoptions=False)
+        viewer.main.title(label)
+        self._snapshot_figure(png, viewer.fig)
+        viewer.canvas.draw()
+        return viewer
+
+    def pdfReport(self):
+        from tkinter import filedialog
+        from matplotlib.backends.backend_pdf import PdfPages
+        from pandastable_local.util import atomic_output
+
+        filename = filedialog.asksaveasfilename(parent=self.main, defaultextension='.pdf',
+                                                initialdir=self.defaultsavedir,
+                                                filetypes=[('PDF', '*.pdf')])
+        if filename:
+            with atomic_output(filename) as temporary, PdfPages(temporary) as pages:
+                for item in self.plots.values():
+                    pages.savefig(self._snapshot_figure(item) if isinstance(item, bytes) else item)
+
+    def view_sheet_results(self):
+        from tkinter import messagebox
+
+        source = self.getCurrentSheet()
+        records = [record for record in self.project_results if record['source'] == source and record['blocks']]
+        if not records:
+            messagebox.showinfo('统计结果', '当前工作表没有统计结果。', parent=self.main)
+            return
+        return self.show_result_report(records, f'{source} · 统计结果快照')
+
+    @staticmethod
+    def show_result_report(records, title):
+        from stat_table import StatTable
+
+        viewer = txt_viewer(table=None)
+        viewer.main.title(title)
+        for record in records:
+            for block in record['blocks']:
+                value, end = restore_block(block)
+                if isinstance(value, StatTable):
+                    viewer.add_table(value, end)
+                else:
+                    viewer.add_txt(value)
+        viewer.T.see('1.0')
+        return viewer
 
     def plot_selected(self):
         table = self.getCurrentTable()
@@ -440,6 +550,14 @@ class Minijmp(Worksheets, Minijmp_pre):
         table.pf = viewer
         if child is not None and (child_previous is None or child_previous is previous):
             child.pf = viewer
+        def capture():
+            if getattr(table, 'pf', None) is viewer and viewer.main.winfo_exists():
+                self.capture_result_plot(viewer)
+
+        if viewer.fig.axes:
+            capture()
+        else:
+            viewer.main.after_idle(capture)
 
     def print(self, txt, end="\n", table=None):
         table = table if table is not None else self.table
@@ -452,6 +570,13 @@ class Minijmp(Worksheets, Minijmp_pre):
         else:
             table.tOut.add_txt(txt + end)
         table.tOut.to_end(defer=True)
+        heading = re.match(r'^\s*----\s*(.+?)\s*----', str(txt)) if not isinstance(txt, StatTable) else None
+        record = getattr(table, '_current_result', None)
+        if record is None or heading is not None:
+            title = heading.group(1) if heading else (txt.title if isinstance(txt, StatTable) else '统计结果')
+            record = self._new_result(table, title or '统计结果')
+            table._current_result = record
+        record['blocks'].append(report_block(txt, end))
 
     def linear_fit(self):
         from fit_dialog import LinearFitDialog

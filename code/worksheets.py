@@ -23,6 +23,7 @@ from pandastable_local import config
 from pandastable_local.dialogs import SplitWorksheetDialog, SubsetWorksheetDialog, run_import_task
 from pandastable_local import import_limits
 from doe_core import validate_worksheet_metadata
+from project_results import read_results, write_results
 
 
 _LEGACY_PROJECT = '旧版工程使用不安全的 pickle 格式，当前版本禁止直接打开'
@@ -290,8 +291,10 @@ def write_project_file(filename, data):
     if not isinstance(data, dict) or not any(name != 'meta' for name in data):
         raise ValueError('工程中没有工作表')
     _reject_legacy_overwrite(filename)
+    metadata = dict(data.get('meta', {}))
+    results = metadata.pop('results', [])
     manifest = {'format': 'MiniJMP', 'version': 1,
-                'metadata': _encode_json(data.get('meta', {})), 'sheets': []}
+                'metadata': _encode_json(metadata), 'sheets': []}
     temporary = None
     try:
         fd, temporary = tempfile.mkstemp(dir=Path(filename).resolve().parent, suffix='.tmp')
@@ -307,11 +310,17 @@ def write_project_file(filename, data):
                                                'attrs': attrs, 'pandas': pandas_metadata,
                                                'object_nulls': object_nulls,
                                                'metadata': _encode_json(record.get('meta', {}))})
-                archive.writestr('manifest.json', json.dumps(manifest, ensure_ascii=False,
-                                                            allow_nan=False).encode('utf-8'))
+                if results:
+                    manifest['results'] = write_results(archive, results)
+                content = json.dumps(manifest, ensure_ascii=False, allow_nan=False).encode('utf-8')
+                if len(content) > import_limits.MAX_METADATA_BYTES:
+                    raise ValueError('工程元数据超过 16 MiB 上限。')
+                archive.writestr('manifest.json', content)
+                import_limits.check_archive(archive)
             raw.flush()
             os.fsync(raw.fileno())
         _reject_legacy_overwrite(filename)
+        import_limits.check_file(temporary)
         os.replace(temporary, filename)
     finally:
         if temporary and os.path.exists(temporary):
@@ -366,6 +375,9 @@ def read_project_file(filename):
                 import_limits.check_shape(*frame.shape, cells=total_cells)
                 if total_memory > import_limits.MAX_MEMORY_BYTES:
                     raise ValueError('工程超过 1 GiB 解析内存上限，请拆分后重试。')
+            if 'results' in manifest:
+                data['meta']['results'] = read_results(archive, manifest['results'], paths,
+                                                       set(data) - {'meta'})
             if set(names) != paths:
                 raise ValueError('工程文件结构无效')
             active = data['meta'].get('active')
@@ -477,6 +489,7 @@ class Worksheets:
         self.nb.enable_traversal()
         self.sheets = {}
         self.sheetframes = {}
+        self.project_results = []
         self.filename = None
         self.addSheet('工作表1')
         self.nb.bind('<<NotebookTabChanged>>', self._sheet_changed)
@@ -641,6 +654,9 @@ class Worksheets:
             messagebox.showerror('名称无效', '名称须唯一，长度为 1–80，不能包含 []:*?/\\ 或首尾空格。', parent=self.main)
             return False
         self.sheets = {name if n == old else n: t for n, t in self.sheets.items()}
+        for record in self.project_results:
+            if record['source'] == old:
+                record['source'] = record['source_label'] = name
         self.sheetframes = {name if n == old else n: f for n, f in self.sheetframes.items()}
         self.nb.tab(self.sheetframes[name], text=name)
         self.update_title()
@@ -654,6 +670,9 @@ class Worksheets:
         if len(self.sheets) == 1:
             self.addSheet('工作表')
         table, frame = self.sheets.pop(name), self.sheetframes.pop(name)
+        for record in self.project_results:
+            if record['source'] == name:
+                record['source'] = None
         self._dispose_sheet(table, frame)
         self._sheet_changed()
         return True
@@ -755,14 +774,15 @@ class Worksheets:
         data = {n: {'table': self._full_frame(t),
                     'meta': self.saveMeta(t, validate_doe=validate_doe)}
                 for n, t in self.sheets.items()}
-        data['meta'] = {'active': self.getCurrentSheet(), 'minijmp': 1}
+        data['meta'] = {'active': self.getCurrentSheet(), 'minijmp': 1,
+                        'results': self.project_results}
         return data
 
     def _state(self):
         data = self._payload(validate_doe=False)
         # Selecting a tab alone is not a data change.
-        data.pop('meta')
-        return pickle.dumps(data, protocol=pickle.HIGHEST_PROTOCOL)
+        results = data.pop('meta')['results']
+        return pickle.dumps((data, results), protocol=pickle.HIGHEST_PROTOCOL)
 
     def _confirm_discard(self):
         self._finish_edit()
@@ -817,6 +837,8 @@ class Worksheets:
         for table, frame in old:
             self._dispose_sheet(table, frame)
         self.updatePlotsMenu()
+        self.project_results = data.get('meta', {}).get('results', [])
+        self.restore_result_plots()
         self.filename = filename
         if filename:
             self.defaultsavedir = os.path.dirname(os.path.abspath(filename))
@@ -859,6 +881,7 @@ class Worksheets:
             if Path(filename).suffix.lower() != '.dexpl':
                 raise ValueError('项目请保存为 .dexpl；单表请使用“导出当前表”。')
             self._finish_edit()
+            self.capture_live_result_plots()
             data = self._payload(validate_doe=False)
             downgraded = {}
             for name, table in self.sheets.items():

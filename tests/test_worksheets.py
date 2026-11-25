@@ -676,3 +676,72 @@ def test_dialogs_keep_source_after_switch(workbook):
         describe.quit()
         trend.quit()
     error.assert_not_called()
+
+
+def test_project_restores_structured_reports_and_matplotlib_snapshots(workbook, tmp_path):
+    from stat_table import StatTable, export_excel
+
+    app, error = workbook
+    names = ["工作表1", "第二张"]
+    for i, name in enumerate(names):
+        if i:
+            app.addSheet(name, pd.DataFrame({"x": [3, 5]}))
+        else:
+            app.table.model.df = pd.DataFrame({"x": [1, 2]})
+        app.print(f"\n---- 分析 {i+1} ----")
+        app.print(StatTable(title="统计表", headers=["N", "均值"],
+                           values=[(2, (1.5, 4.)[i])]))
+        app.print(f"\n---- 补充分析 {i+1} ----")
+        app.print("文本快照")
+        viewer = app.showPlotViewer(deferred=True)
+        ax = viewer.fig.add_subplot(111)
+        ax.plot([0, 1], [i, 10])
+        ax.set_title(f"Trend {i+1}")
+        app.replacePlotViewer(viewer)
+        if i:
+            app.addPlot()
+    filename = tmp_path / "results.dexpl"
+    assert app._save_project(filename)
+    assert len(app.project_results) == 6
+    assert app.new_file()
+    assert not app.project_results
+    assert app.load_file(filename)
+    assert app.getCurrentSheet() == "第二张"
+    assert list(app.sheets) == names
+    assert [r["title"] for r in app.project_results] == [
+        "分析 1", "补充分析 1", "Trend 1", "分析 2", "补充分析 2", "Trend 2"
+    ]
+    assert len(app.plots) == 2
+    app.table.model.df.loc[0, "x"] = 101
+    report = app.view_sheet_results()
+    try:
+        assert [b.table.values for b in report.table_blocks] == [[[2, 4.]]]
+        report.save(tmp_path / "statistics.txt")
+        export_excel(report.table_blocks[0].table, tmp_path / "statistics.xlsx")
+        assert "文本快照" in (tmp_path / "statistics.txt").read_text(encoding="utf-8")
+    finally:
+        report.close()
+    plot = app.show_result_plot(next(iter(app.plots.values())), "图形快照")
+    try:
+        plot.savePlot(tmp_path / "snapshot.png")
+        assert (tmp_path / "snapshot.png").read_bytes().startswith(b"\x89PNG")
+    finally:
+        plot.close()
+    assert app.renameSheet("新名称")
+    assert any(r["source"] == "新名称" for r in app.project_results)
+    assert app.deleteSheet()
+    assert any(r["source"] is None and r["source_label"] == "新名称" for r in app.project_results)
+    error.assert_not_called()
+
+
+def test_corrupt_result_png_rejects_project_before_replacing_sheets(workbook, tmp_path):
+    app, error = workbook
+    filename = tmp_path / "bad-result.dexpl"
+    data = app._payload()
+    data["meta"]["results"] = [dict(source="工作表1", source_label="工作表1",
+                                   blocks=[], title="图形", time="", png=b"bad")]
+    worksheets.write_project_file(filename, data)
+    before = app.table
+    assert not app.load_file(filename)
+    assert app.table is before
+    error.assert_called_once()

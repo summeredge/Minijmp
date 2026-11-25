@@ -115,6 +115,7 @@
 | Wrap Columns | 列宽自动换行 |
 | Dark Theme | 深色主题 |
 | Light Theme | 浅色主题 |
+| View Statistical Results | 查看统计结果 |
 
 ## 数据（Data）
 

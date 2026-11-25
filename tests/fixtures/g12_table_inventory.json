@@ -143,6 +143,7 @@
     "plots.py",
     "pls_regression.py",
     "poisson.py",
+    "project_results.py",
     "proportion_test.py",
     "qc_dialog.py",
     "quality_tools.py",
@@ -340,6 +341,24 @@
     "worksheets.py": "工作表生命周期及工程/导入管理；无独立统计表构造或报告输出。"
   },
   "producers": {
+    "project_results.py::restore_block": {
+      "sites": [
+        "construct:StatTable#1"
+      ],
+      "classification": "compatibility",
+      "entry_points": [
+        "视图 → 查看统计结果"
+      ],
+      "titles": [
+        "工程结构化结果快照"
+      ],
+      "status": "structured",
+      "logical_tables": 0,
+      "exception_reason": "恢复已序列化的统计表，不计算新的分析结果。",
+      "tests": [
+        "tests/test_worksheets.py::test_project_restores_structured_reports_and_matplotlib_snapshots"
+      ]
+    },
     "GRR.py::_grr_tables": {
       "sites": [
         "construct:gen_table#1",
