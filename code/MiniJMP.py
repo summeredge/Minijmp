@@ -250,6 +250,7 @@ class Minijmp(Worksheets, Minijmp_pre):
             '29双样本 t 检验': {'cmd': self.mean_2samples},
             '30配对 t 检验': {'cmd': self.paired_t},
             '31双比率检验': {'cmd': self.prop_2samples},
+            '32双样本离散度检验': {'cmd': self.variance_ratio},
             '32多样本标准差检验': {'cmd': self.multi_var},
             '32单样本泊松率检验': {'cmd': self.poisson_rate_1sample},
             '32双样本泊松率检验': {'cmd': self.poisson_rate_2samples},
@@ -547,6 +548,11 @@ class Minijmp(Worksheets, Minijmp_pre):
         from sample_test_dialog import NonparametricDialog
 
         return NonparametricDialog(self.table, self.table.model.df, self, kind)
+
+    def variance_ratio(self):
+        from sample_test_dialog import VarianceRatioDialog
+
+        return VarianceRatioDialog(self.table, self.table.model.df, '双样本离散度检验', self)
 
     def mean_1sample(self):
         from sample_test_dialog import Mean1SampleDialog

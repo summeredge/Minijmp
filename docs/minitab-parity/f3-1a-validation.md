@@ -27,3 +27,13 @@
 `tests/test_worksheet_merge.py` 六项通过，涵盖四种连接、组合键、缺失键、日期、文本、大整数、重名列和不等长并列。真实 Tk 菜单验证预览、取消及确认，校验两张源表数据与属性不变。工程、帮助和菜单联合回归通过，G12 文件顺序调整后单独复验 15 项通过。
 
 复用 Minitab 19.1 的重复键案例，得到按行并列 3 行 4 列、全外连接 6 行 4 列，其中 4 行为重复键组合、两侧各 1 行未匹配。原生组合键及缺失键选项无对照数据。
+
+## A3 双样本离散度检验
+
+入口为“统计 → 双样本离散度检验”。原始输入支持独立双列或数值列加二分类列，经典 F 另接受汇总样本量和标准差或方差。三种方法均支持方差及标准差比尺度、非单位假设值、左右侧及双侧备择。旧 `two_pop_var_test` 补上样本标签并复用原有多样本结果。
+
+经典 F 用观测方差比除以假设方差比，按 F 分布求尾概率和反演区间。Bonett 在等量且每组至少六个观测时，以假设比下的合并峰度修正对数比标准误，反演得到近似区间。Levene 以组中位数绝对偏差为输入，将第二组偏差乘假设标准差比，按有符号合并 t 推断，双侧 t² 等于对应 ANOVA F。区间用同一有符号检验反演。多样本检验原计算保持原有方法。
+
+`tests/test_variance_ratio.py` 以不完全 Beta 函数验证 F 概率，以分位反演验证方向和区间，以 SciPy 中位数 Levene 和非单位比缩放参考验证 Levene。Bonett 区间端点回代检查尾概率。真实 Tk 验证菜单打开、原始双列 Bonett 和结构化报告。
+
+Minitab 19.1 固定案例的比值为 0.762069。本地 Bonett p=0.536612、区间 (0.280663, 2.044317)，历史原生 p=0.536、区间 (0.281, 2.042)，存在轻微差异。本地 Levene p=0.559034、区间 (0.258530, 2.134600)，与历史原生显示值一致。Bonett 的不等样本量推断仍待扩展。[厂商方法](https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/basic-statistics/how-to/2-variances/methods-and-formulas/methods-and-formulas/) · [Bonett 方法论文](https://support.minitab.com/en-us/minitab/media/pdfs/translate/Bonetts_Method_Two_Variances.pdf)

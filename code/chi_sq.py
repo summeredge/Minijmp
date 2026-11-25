@@ -422,13 +422,7 @@ def multi_pop_var_test(data, labels, print_out=False, print_port=print,
 
 
 def two_pop_var_test(l1, l2, print_out=True):
-    res = multi_pop_var_test([l1, l2], print_out=print_out)
-    res2 = several_tests_stdev_2sided(l1, l2, print_out=False)
-    if print_out:
-        print("2 Sided F test    p = %.3f" % res2["F"]["p"])
-    res["F"] = res2["F"]
-
-    return res
+    return multi_pop_var_test([l1, l2], ['样本 1', '样本 2'], print_out=print_out)
 
 
 def chi2_var_1sample(data=None, sample_n=None, sample_std=None,
@@ -633,3 +627,99 @@ def equal_variances_mc(data, alpha=.05):
     mid = .5*(log_var-np.log1p(-correction/n))
     margin = critical*fitted/2
     return float(p), np.exp(np.column_stack((mid-margin, mid+margin)))
+
+
+def variance_ratio_test(samples=None, *, summary=None, method="F", target=1.,
+                        scale="variance", alternative="two-sided", alpha=.05):
+    from scipy.optimize import brentq
+    from scipy.stats import t
+    from bonett import trimmed_mean
+
+    if (not np.isfinite(target) or target <= 0 or not 0 < alpha < 1
+            or alternative not in ("two-sided", "less", "greater")):
+        raise ValueError("比值必须为有限正数，且 0 < α < 1。")
+    if samples is not None:
+        groups = [np.asarray(group, dtype=float) for group in samples]
+        groups = [group[np.isfinite(group)] for group in groups]
+        if any(len(group) < 2 for group in groups):
+            raise ValueError("每组至少需要两个有限观测。")
+        ns = [len(group) for group in groups]
+        variances = [group.var(ddof=1) for group in groups]
+    elif summary is not None and method == "F":
+        ns, variances = map(list, zip(*summary))
+    else:
+        raise ValueError("Bonett 和 Levene 需要原始观测。")
+    if any(not np.isfinite(n) or n < 2 or int(n) != n for n in ns):
+        raise ValueError("每组样本量必须是至少为 2 的整数。")
+    if any(not np.isfinite(v) or v <= 0 for v in variances):
+        raise ValueError("两组样本方差均须为有限正数。")
+    n1, n2 = ns
+    v1, v2 = variances
+    log_estimate = np.log(v1) - np.log(v2)
+    log_target = np.log(target) * (2 if scale == "std" else 1)
+    a = alpha / 2 if alternative == "two-sided" else alpha
+    lower = 0.
+    upper = np.inf
+
+    if method == "F":
+        statistic = np.exp(log_estimate - log_target)
+        df = (n1-1, n2-1)
+        p_low, p_high = f_dist.cdf(statistic, *df), f_dist.sf(statistic, *df)
+        if alternative != "less":
+            lower = np.exp(log_estimate) / f_dist.isf(a, *df)
+        if alternative != "greater":
+            upper = np.exp(log_estimate) / f_dist.ppf(a, *df)
+    elif method == "Bonett":
+        if n1 != n2 or n1 < 6:
+            raise ValueError("Bonett 当前支持等样本量且每组至少 6 个观测。")
+        n = n1
+        fourth = [np.sum(((x - trimmed_mean(x.tolist())) / np.sqrt(v))**4)
+                  for x, v in zip(groups, variances)]
+        from scipy.special import expit
+
+        def se(offset):
+            weight = expit(offset)
+            kurtosis = 2*n * (fourth[0]*(1-weight)**2 + fourth[1]*weight**2) / (n-1)**2
+            return np.sqrt(2 * (kurtosis - (n-3)/n) / (n-1))
+
+        offset = log_target - log_estimate
+        statistic = -offset / se(offset)
+        p_low, p_high = norm.cdf(statistic), norm.sf(statistic)
+        critical = norm.isf(a)
+        span = abs(critical) * np.sqrt(4*n*max(fourth)/(n-1)**3) + 1
+
+        if alternative != "less":
+            bound = brentq(lambda z: z + critical*se(z), -span, span)
+            lower = np.exp(log_estimate + bound)
+        if alternative != "greater":
+            bound = brentq(lambda z: z - critical*se(z), -span, span)
+            upper = np.exp(log_estimate + bound)
+    elif method == "Levene":
+        first, second = [np.abs(x - np.median(x)) for x in groups]
+        m1, m2 = first.mean(), second.mean()
+        df = n1 + n2 - 2
+        factor = (1/n1 + 1/n2) / df
+        w1 = factor * np.sum((first - m1)**2)
+        w2 = factor * np.sum((second - m2)**2)
+        if w1 + w2 <= 0:
+            raise ValueError("中位数绝对偏差没有组内变异，无法进行 Levene 检验。")
+        rho = np.exp(log_target / 2)
+        statistic = (m1 - rho*m2) / np.sqrt(w1 + rho*rho*w2)
+        p_low, p_high = t.cdf(statistic, df), t.sf(statistic, df)
+        critical = t.isf(a, df)
+        if critical < 0:
+            raise ValueError("Levene 单侧置信水平须至少为 50%。")
+        if alternative != "less" and m1 > critical*np.sqrt(w1):
+            bound = brentq(lambda r: (m1*r - m2) - critical*np.hypot(np.sqrt(w1)*r, np.sqrt(w2)),
+                           0., 1 + (m2 + critical*np.sqrt(w2))/(m1 - critical*np.sqrt(w1)))
+            lower = 1 / bound**2
+        if alternative != "greater" and m2 > critical*np.sqrt(w2):
+            bound = brentq(lambda r: (m2*r - m1) - critical*np.hypot(np.sqrt(w2)*r, np.sqrt(w1)),
+                           0., 1 + (m1 + critical*np.sqrt(w1))/(m2 - critical*np.sqrt(w2)))
+            upper = bound**2
+    else:
+        raise ValueError("未知离散度检验方法。")
+    pvalue = {"two-sided": 2*min(p_low, p_high), "less": p_low, "greater": p_high}[alternative]
+    power = .5 if scale == "std" else 1.
+    return dict(n=ns, variances=variances, estimate=np.exp(log_estimate*power),
+                statistic=statistic, pvalue=pvalue, interval=(lower**power, upper**power))

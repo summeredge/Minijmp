@@ -1034,3 +1034,87 @@ class NonparametricDialog(Dialogs):
             return "有并列，区间不可用"
         low, high, coverage = interval
         return f"[{low:.8g}, {high:.8g}]（覆盖率 {coverage:.3%}）"
+
+
+class VarianceRatioDialog(Dialogs):
+    column_roles = (("first", True), ("second", True), ("group", False))
+
+    def createWidgets(self, master):
+        field = NonparametricDialog._field
+        self.input_mode = field(master, "输入", "两个样本列", ("两个样本列", "数值列和分组列", "汇总"))
+        self.first = field(master, "第一样本／数值列", values=["", *self.cols])
+        self.second = field(master, "第二样本列", values=["", *self.cols])
+        self.group = field(master, "分组列", values=["", *self.cols])
+        self.summary_scale = field(master, "汇总离散度", "标准差", ("标准差", "方差"))
+        self.summary_n = [field(master, f"样本 {i} 数量") for i in (1, 2)]
+        self.summary_value = [field(master, f"样本 {i} 离散度") for i in (1, 2)]
+        self.method = field(master, "方法", "经典 F", ("经典 F", "Bonett", "Levene"))
+        self.scale = field(master, "比较尺度", "方差比", ("方差比", "标准差比"))
+        self.target = field(master, "假设比值", "1")
+        self.direction = field(master, "备择方向", "双侧", ("双侧", "左侧", "右侧"))
+        self.add_alpha(master)
+
+    def ok(self):
+        if self.apply():
+            self.quit()
+
+    def apply(self):
+        from chi_sq import variance_ratio_test
+        from stat_table import StatTable
+
+        mode = self.input_mode.get()
+        method = self.method.get().replace("经典 ", "")
+        alternative = {"双侧": "two-sided", "左侧": "less", "右侧": "greater"}[self.direction.get()]
+        scale = "std" if self.scale.get() == "标准差比" else "variance"
+        target = get_number(self.target)
+        alpha = get_number(self.alpha)
+        names = [self.first.get(), self.second.get()]
+        samples = summary = None
+        try:
+            if target is None or alpha is None:
+                raise ValueError("请输入假设比值及显著性水平。")
+            if mode == "汇总":
+                values = [float(v.get()) for v in self.summary_value]
+                if any(v <= 0 for v in values):
+                    raise ValueError("汇总离散度须为正数。")
+                if self.summary_scale.get() == "标准差":
+                    values = [v*v for v in values]
+                summary = [(float(n.get()), v) for n, v in zip(self.summary_n, values)]
+                names = ["样本 1", "样本 2"]
+            elif mode == "数值列和分组列":
+                response, group = names[0], self.group.get()
+                if response == group or not self._column_valid(response, True) or group not in self.cols:
+                    raise ValueError("请选择不同的数值列和分组列。")
+                rows = list(self.df.groupby(group, sort=False, observed=True)[response])
+                if len(rows) != 2:
+                    raise ValueError("分组列必须恰有两个组。")
+                names = [str(label) for label, _ in rows]
+                samples = [x.to_numpy(dtype=float, na_value=float("nan")) for _, x in rows]
+            else:
+                if len(set(names)) != 2 or not all(self._column_valid(c, True) for c in names):
+                    raise ValueError("请选择两个不同的数值列。")
+                samples = [self.df[c].to_numpy(dtype=float, na_value=float("nan")) for c in names]
+            res = variance_ratio_test(samples, summary=summary, method=method, target=target,
+                                      scale=scale, alternative=alternative, alpha=alpha)
+        except (ValueError, TypeError, OverflowError) as error:
+            self.error(str(error))
+            return False
+        self.app.print("\n---- 双样本离散度检验 ----")
+        notes = {
+            "F": "经典 F 检验假设两总体正态且样本独立。",
+            "Bonett": "Bonett 使用假设比值下的合并峰度，适用于等样本量、分布形状相近的独立样本。",
+            "Levene": "Levene 使用组中位数绝对偏差并按假设比调整；比值推断要求组分布形状相近。",
+        }
+        self.app.print(notes[method])
+        self.app.print(StatTable(title="样本离散度", headers=("样本", "N", "方差", "标准差"),
+                                 values=[(name, n, v, v**.5)
+                                         for name, n, v in zip(names, res["n"], res["variances"])]))
+        low, high = res["interval"]
+        self.app.print(StatTable(
+            title="双样本离散度检验",
+            headers=("方法", "尺度", "备择", "估计比值", "假设比值", "统计量", "p 值", "置信区间"),
+            values=[(method, self.scale.get(), self.direction.get(), res["estimate"], target,
+                     res["statistic"], res["pvalue"], f"{1-alpha:.1%} [{low:.6g}, {high:.6g}]")],
+        ))
+        self.remember_columns()
+        return True

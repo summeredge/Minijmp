@@ -9,7 +9,7 @@ F0 审计日期为 2026-11-21。仓库为 `D:\MyTools\Minijmp`，分支 `main`�
 - Stat 优先比较了官方 GLM、泊松率、功效、Type 1 量具、属性能力及 G 图的功能范围。Graph 新增 Graph Builder 实时预览。Data 核对了堆叠和逆堆叠。Calc 核对了随机数据及分布计算。矩阵的目标证据、22 实机证据、MiniJMP 源码及数值证据分别记录。[官方 GLM](https://support.minitab.com/en-us/minitab/help-and-how-to/statistical-modeling/anova/how-to/fit-general-linear-model/before-you-start/overview/) · [逆堆叠](https://support.minitab.com/en-us/minitab/help-and-how-to/manipulate-data-in-worksheets-columns-and-rows/supporting-topics/data-types-and-arrangements/stacked-and-unstacked-data/) · [Graph Builder](https://support.minitab.com/en-us/minitab/help-and-how-to/graphs/graph-builder/overview/)
 - **F0 未完整验收。** Stat、Graph、Data、Calc 的 22.6 实际菜单、默认参数、输入模式和许可差异仍待现场确认。优先补 Q1、S1、M1 对话框和矩阵中的待核实项，包括 Calculator、工作表合并、独立子组图、Additional Tools 和 DOE GEN-013。若继续限定 COM，只能在安全的独立项目中补命令与结果；菜单位置及对话框选项需由用户在 22.6 界面提供观察记录。
 
-## 当前状态与去重（F3-1A A2，2026-11-25）
+## 当前状态与去重（F3-1A A3，2026-11-25）
 
 | 状态 | 数量 |
 | --- | ---: |

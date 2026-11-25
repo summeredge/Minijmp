@@ -137,7 +137,7 @@ EXPECTED_LAYOUT = {
             '相关系数矩阵', '完整回归分析', '泊松回归', '名义多分类 Logistic 回归',
             '有序 Logistic 回归', '偏最小二乘回归（PLS）', '主成分分析', '时间序列分析', 'sep', '单样本均值 t 检验', '单样本均值 Z 检验',
             '单样本标准差检验', '单比率检验', '双样本 t 检验', '配对 t 检验',
-            '双比率检验', '单样本泊松率检验', '双样本泊松率检验', '多样本标准差检验', 'sep', '单因子方差分析',
+            '双比率检验', '单样本泊松率检验', '双样本离散度检验', '双样本泊松率检验', '多样本标准差检验', 'sep', '单因子方差分析',
             '双因子方差分析', '固定效应一般线性模型', '基础功效与样本量', '试验设计功效与样本量', 'sep',
             '列联表与卡方检验', '比率卡方检验', '非参数检验', '试验设计（DOE）'],
     '质量': ['量具 R&R 研究（交叉）', '量具 R&R 研究（嵌套）', '量具研究（1 型）', '量具线性与偏倚', 'sep',
@@ -543,3 +543,30 @@ def test_project_worksheet_merge_preview_cancel_and_confirm(app, monkeypatch):
     for table, source in zip((left, right), sources):
         pd.testing.assert_frame_equal(table.model.df, source)
         assert table.model.df.attrs == source.attrs
+
+
+def test_variance_ratio_command_publishes_reports(app, monkeypatch):
+    import sample_test_dialog
+    from stat_table import StatTable
+
+    app.table.model.df = pd.DataFrame({"x": [1., 2., 3., 5., 9., 10.],
+                                       "y": [1., 4., 8., 10., 12., 13.]})
+    reports = []
+    opened = []
+    monkeypatch.setattr(app, "print", lambda report, **kw: reports.append(report))
+    constructor = sample_test_dialog.VarianceRatioDialog
+
+    def capture(*args):
+        opened.append(constructor(*args))
+
+    monkeypatch.setattr(sample_test_dialog, "VarianceRatioDialog", capture)
+    menu = pulldown(app, "统计")
+    menu.invoke(next(i for i, _, label in read_menu(menu) if label.strip() == "双样本离散度检验"))
+    dialog = opened[0]
+    dialog.first.set("x")
+    dialog.second.set("y")
+    dialog.method.set("Bonett")
+    dialog.direction.set("左侧")
+    dialog.ok()
+    tables = [report for report in reports if isinstance(report, StatTable)]
+    assert [report.title for report in tables] == ["样本离散度", "双样本离散度检验"]
