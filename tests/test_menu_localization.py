@@ -137,9 +137,9 @@ EXPECTED_LAYOUT = {
             '相关系数矩阵', '完整回归分析', '泊松回归', '名义多分类 Logistic 回归',
             '有序 Logistic 回归', '偏最小二乘回归（PLS）', '主成分分析', '时间序列分析', 'sep', '单样本均值 t 检验', '单样本均值 Z 检验',
             '单样本标准差检验', '单比率检验', '双样本 t 检验', '配对 t 检验',
-            '双比率检验', '单样本泊松率检验', '双样本离散度检验', '双样本泊松率检验', '多样本标准差检验', 'sep', '单因子方差分析',
+            '双比率检验', '单样本泊松率检验', '双样本泊松率检验', '双样本离散度检验', '多样本标准差检验', 'sep', '单因子方差分析',
             '双因子方差分析', '固定效应一般线性模型', '基础功效与样本量', '试验设计功效与样本量', 'sep',
-            '列联表与卡方检验', '比率卡方检验', '非参数检验', '试验设计（DOE）'],
+            '列联表与卡方检验', '比率卡方检验', '非参数检验', '等效性检验', '试验设计（DOE）'],
     '质量': ['量具 R&R 研究（交叉）', '量具 R&R 研究（嵌套）', '量具研究（1 型）', '量具线性与偏倚', 'sep',
             '过程能力分析 (Cpk)', '含子组的 Cpk', '正态过程能力（完整）', '非正态过程能力',
             'Box-Cox / Johnson 变换', '正态能力 Sixpack', '非正态能力 Sixpack', '二项过程能力', '泊松过程能力',
@@ -570,3 +570,35 @@ def test_variance_ratio_command_publishes_reports(app, monkeypatch):
     dialog.ok()
     tables = [report for report in reports if isinstance(report, StatTable)]
     assert [report.title for report in tables] == ["样本离散度", "双样本离散度检验"]
+
+
+@pytest.mark.parametrize("kind", ["one", "independent", "paired"])
+def test_equivalence_menu_reports_and_interval_plot(app, monkeypatch, kind):
+    from sample_test_dialog import EQUIVALENCE_TITLES
+    from stat_table import StatTable
+
+    app.table.model.df = pd.DataFrame({"x": [1., 3., 5., 6., 7.],
+                                       "y": [1.2, 3.5, 5.1, 6.3, 7.2]})
+    reports, opened = [], []
+    monkeypatch.setattr(app, "print", lambda report, **kwargs: reports.append(report))
+    original = app.equivalence
+    monkeypatch.setattr(app, "equivalence", lambda key: opened.append(original(key)))
+    stats_menu = pulldown(app, "统计")
+    menu = stats_menu.nametowidget(stats_menu.entrycget("等效性检验", "menu"))
+    menu.invoke(EQUIVALENCE_TITLES[kind])
+    dialog = opened[0]
+    dialog.first.set("x")
+    if kind != "one":
+        dialog.second.set("y")
+    dialog.lower.set("-1")
+    dialog.upper.set("9")
+    dialog.ok()
+    assert [item.title for item in reports if isinstance(item, StatTable)] == [
+        "等效性单侧检验", "等效性区间及结论"
+    ]
+    viewer = app.table.pf
+    try:
+        assert "90.0%" in viewer.fig.axes[0].get_title()
+        assert len(viewer.fig.axes[0].containers) == 1
+    finally:
+        viewer.close()

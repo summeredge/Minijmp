@@ -206,6 +206,8 @@
 
 “统计 → 非参数检验”提供单样本符号检验、单样本 Wilcoxon 符号秩检验、Mann–Whitney 检验、Kruskal–Wallis 检验、Mood 中位数检验、Friedman 检验及游程检验。
 
+“统计 → 等效性检验”提供单样本、双独立样本及配对样本三个入口。
+
 ## 质量（Quality）
 
 | 英文原文 | 中文译名 |

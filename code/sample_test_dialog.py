@@ -1118,3 +1118,107 @@ class VarianceRatioDialog(Dialogs):
         ))
         self.remember_columns()
         return True
+
+
+EQUIVALENCE_TITLES = {
+    "one": "单样本等效性检验",
+    "independent": "双独立样本等效性检验",
+    "paired": "配对样本等效性检验",
+}
+
+
+class EquivalenceDialog(Dialogs):
+    def __init__(self, parent, df, app, kind):
+        self.kind = kind
+        self.column_roles = (("first", True),)
+        if kind != "one":
+            self.column_roles += (("second", True),)
+        super().__init__(parent, df, EQUIVALENCE_TITLES[kind], app)
+
+    def createWidgets(self, master):
+        field = NonparametricDialog._field
+        self.first = field(master, "样本列" if self.kind == "one" else "第一样本列", values=self.cols)
+        if self.kind == "one":
+            self.target = field(master, "目标值", "0")
+        else:
+            self.second = field(master, "第二样本列", values=self.cols)
+            self.direction = field(master, "差值方向", "第二列减第一列", ("第二列减第一列", "第一列减第二列"))
+        if self.kind == "independent":
+            self.method = field(master, "方法", "Welch", ("Welch", "等方差"))
+        self.lower = field(master, "等效下限")
+        self.upper = field(master, "等效上限")
+        self.add_alpha(master)
+
+    def ok(self):
+        if self.apply():
+            self.quit()
+
+    def apply(self):
+        from chart_style import style_axes
+        from stat_table import StatTable
+        from t_test import equivalence_tost
+
+        names = [self.first.get()]
+        if self.kind != "one":
+            names.append(self.second.get())
+            if self.direction.get() == "第一列减第二列":
+                names.reverse()
+        lower, upper, alpha = map(get_number, (self.lower, self.upper, self.alpha))
+        target = get_number(self.target) if self.kind == "one" else 0.
+        if len(set(names)) != len(names) or not all(self._column_valid(c, True) for c in names):
+            self.error("请选择所需的不同数值列。")
+            return False
+        if None in (lower, upper, alpha, target):
+            self.error("请输入目标值、等效界限和显著性水平。")
+            return False
+        pooled = self.kind == "independent" and self.method.get() == "等方差"
+        try:
+            res = equivalence_tost(
+                *(self.df[c].to_numpy(dtype=float, na_value=float("nan")) for c in names),
+                lower=lower, upper=upper, alpha=alpha, target=target,
+                paired=self.kind == "paired", pooled=pooled,
+            )
+        except (ValueError, OverflowError) as error:
+            self.error(str(error))
+            return False
+
+        lo, hi = res["interval"]
+        estimate = res["estimate"]
+        viewer = self.app.showPlotViewer(deferred=True)
+        try:
+            ax = viewer.fig.add_subplot(111)
+            ax.axvspan(lower, upper, alpha=.15, color="tab:green")
+            ax.axvline(lower, color="tab:green", linestyle="--")
+            ax.axvline(upper, color="tab:green", linestyle="--")
+            ax.errorbar(estimate, 0, xerr=([estimate-lo], [hi-estimate]),
+                        fmt="o", capsize=6)
+            ax.set(xlabel="均值偏差" if self.kind == "one" else "均值差",
+                   title=f"{self.title} · {1-2*alpha:.1%} 区间", yticks=[])
+            style_axes(ax)
+            viewer.canvas.draw()
+            self.app.replacePlotViewer(viewer)
+            viewer.main.deiconify()
+        except Exception:
+            viewer.close()
+            raise
+        comparison = f"{names[0]} − {target:.8g}" if len(names) == 1 else f"{names[1]} − {names[0]}"
+        method = self.method.get() if self.kind == "independent" else "单样本 t（配对差）" if self.kind == "paired" else "单样本 t"
+        self.app.print(f"\n---- {self.title} ----\n{comparison} · {method} · α={alpha:.8g}")
+        self.app.print("等效界限须在分析前确定。差异检验不显著不能证明等效，两项单侧检验均须显著。")
+        self.app.print(StatTable(
+            title="等效性单侧检验", headers=("备择", "界限", "t", "自由度", "p 值"),
+            values=[("大于下限", lower, res["t_lower"], res["df"], res["p_lower"]),
+                    ("小于上限", upper, res["t_upper"], res["df"], res["p_upper"])],
+        ))
+        if res["equivalent"]:
+            conclusion = "达到统计等效"
+        elif hi < lower or lo > upper:
+            conclusion = "区间完全位于等效界限之外"
+        else:
+            conclusion = "证据不足以判定等效"
+        self.app.print(StatTable(
+            title="等效性区间及结论", headers=("估计值", "置信水平", "区间下限", "区间上限", "结论"),
+            values=[(estimate, f"{1-2*alpha:.1%}", lo, hi, conclusion)],
+        ))
+        self.remember_columns()
+        return True

@@ -340,3 +340,47 @@ if __name__ == "__main__":
     z_test_1sample(l1, 1, 1, print_out=True)
     t_test_2samples(l1, l2, print_out=True)
     paired_t_test(l1, l2, print_out=True)
+
+
+def equivalence_tost(first, second=None, *, lower, upper, alpha=.05,
+                     target=0., paired=False, pooled=False):
+    """Estimate the second-minus-first difference or one-sample target offset."""
+    import numpy as np
+
+    if not np.isfinite([lower, upper, target]).all() or not lower < upper or not 0 < alpha < .5:
+        raise ValueError("等效下限须小于上限，界限与目标须有限，且 0 < α < 0.5。")
+    x = np.asarray(first, dtype=float)
+    y = None if second is None else np.asarray(second, dtype=float)
+    if paired:
+        if y is None or len(x) != len(y):
+            raise ValueError("配对样本需按同一行对应。")
+        valid = np.isfinite(x) & np.isfinite(y)
+        x, y = y[valid] - x[valid], None
+
+    x = x[np.isfinite(x)].tolist()
+    if len(x) < 2:
+        raise ValueError("每组至少需要两个有效观测或配对差。")
+
+    if y is None:
+        if stat.stdev(x) <= 0:
+            raise ValueError("样本或配对差的标准差须为正数。")
+        estimate = stat.mean(x) - target
+        low = t_test_1sample(x, target + lower, alpha=alpha)
+        high = t_test_1sample(x, target + upper, alpha=alpha)
+        interval = (low["u0 lower"] - target, low["u0 upper"] - target)
+        ns = (len(x),)
+    else:
+        y = y[np.isfinite(y)].tolist()
+        if len(y) < 2 or (stat.stdev(x) == 0 and stat.stdev(y) == 0):
+            raise ValueError("每组至少需要两个有效观测，且标准误须为正数。")
+        estimate = stat.mean(y) - stat.mean(x) - target
+        low = t_test_2samples(x, y, d0=target + lower, alpha=alpha, pooled=pooled)
+        high = t_test_2samples(x, y, d0=target + upper, alpha=alpha, pooled=pooled)
+        interval = (low["CI lower one-sided"] - target, low["CI upper one-sided"] - target)
+        ns = (len(x), len(y))
+    df = low["df"]
+    p_lower = t_test.sf(low["t"], df)
+    p_upper = t_test.cdf(high["t"], df)
+    return dict(estimate=estimate, n=ns, df=df, t_lower=low["t"], t_upper=high["t"],
+                p_lower=p_lower, p_upper=p_upper, interval=interval,
+                equivalent=max(p_lower, p_upper) < alpha)

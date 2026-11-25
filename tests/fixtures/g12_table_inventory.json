@@ -1691,6 +1691,28 @@
         "tests/test_menu_localization.py::test_variance_ratio_command_publishes_reports"
       ]
     },
+    "sample_test_dialog.py::EquivalenceDialog.apply": {
+      "sites": [
+        "emit:structured:print#1",
+        "construct:StatTable#1",
+        "emit:structured:print#2",
+        "construct:StatTable#2"
+      ],
+      "classification": "statistical",
+      "entry_points": [
+        "统计 → 等效性检验"
+      ],
+      "titles": [
+        "等效性单侧检验",
+        "等效性区间及结论"
+      ],
+      "status": "structured",
+      "logical_tables": 2,
+      "exception_reason": "",
+      "tests": [
+        "tests/test_menu_localization.py::test_equivalence_menu_reports_and_interval_plot"
+      ]
+    },
     "sample_test_dialog.py::NonparametricDialog.apply": {
       "sites": [
         "construct:StatTable#1",

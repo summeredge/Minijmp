@@ -37,3 +37,11 @@
 `tests/test_variance_ratio.py` 以不完全 Beta 函数验证 F 概率，以分位反演验证方向和区间，以 SciPy 中位数 Levene 和非单位比缩放参考验证 Levene。Bonett 区间端点回代检查尾概率。真实 Tk 验证菜单打开、原始双列 Bonett 和结构化报告。
 
 Minitab 19.1 固定案例的比值为 0.762069。本地 Bonett p=0.536612、区间 (0.280663, 2.044317)，历史原生 p=0.536、区间 (0.281, 2.042)，存在轻微差异。本地 Levene p=0.559034、区间 (0.258530, 2.134600)，与历史原生显示值一致。Bonett 的不等样本量推断仍待扩展。[厂商方法](https://support.minitab.com/en-us/minitab/help-and-how-to/statistics/basic-statistics/how-to/2-variances/methods-and-formulas/methods-and-formulas/) · [Bonett 方法论文](https://support.minitab.com/en-us/minitab/media/pdfs/translate/Bonetts_Method_Two_Variances.pdf)
+
+## A4 基础等效性检验
+
+入口为“统计 → 等效性检验”，提供单样本、双独立样本及配对三项。复用 `code/t_test.py` 的单样本、Welch 及等方差 t 推断，以同行有效配对差计算配对检验。单样本可设目标值，双样本可反转差值方向。上下等效界限可不对称，须事先确定。
+
+两项单侧备择分别为大于下限及小于上限，整体 p 为两项中较大值，两项均小于 α 时判定等效。区间使用 1−2α 的双侧覆盖率。图形展示等效范围、估计差及对应区间。报告另外标出区间完全落在等效界限外的情况。
+
+`tests/test_equivalence.py` 与独立 t 分布及 statsmodels 单双侧概率、Welch 自由度和配对结果一致，覆盖界限附近、区间落在界限外及证据不足。真实 Tk 三个菜单分别验证报告及区间图。历史 Minitab 19 TOST 只有命令对象，未取得可读数值。2×2 交叉和专用生物等效模型不在本轮范围。[TOST 定义](https://support.sas.com/documentation/cdl/en/statug/66103/HTML/default/statug_ttest_details19.htm)
