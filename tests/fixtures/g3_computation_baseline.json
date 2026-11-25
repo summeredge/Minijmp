@@ -52,22 +52,22 @@
   {
     "file": "chi_sq.py",
     "function": "chi_square",
-    "sha256": "0bea4054ce705fbe5c1fcd52801e81a2d28196322da4d8c6806839a2aa0abad4"
+    "sha256": "33a9fff9deccc3ea98cb4f1bb55c64a1cba3b3b7ba83e81eab5985401684f3c6"
   },
   {
     "file": "chi_sq.py",
     "function": "chi2_test_stdev",
-    "sha256": "3a31e8415628e9506a02d97a8ab49ceaf1b184257d765ba80143ab4e99720608"
+    "sha256": "bef0aeab61c5989cec848e6a9b077abc04d41919961e0708ca36c903c6783129"
   },
   {
     "file": "chi_sq.py",
     "function": "chi2_var_1sample",
-    "sha256": "e08a47a0af987abbd140a058b8919c47afb158f2bec9e6f952f620b535b79545"
+    "sha256": "6f5d6064733f7c470f590a0b948ffe505a9a770e2576770d3e4c63b2a09abfbf"
   },
   {
     "file": "chi_sq.py",
     "function": "var_1sample",
-    "sha256": "aebba35db30f629cb765b9903d9a2f4be0341dfb3d94355ff89ffe450ece13a6"
+    "sha256": "977c1272b68629c4bf3acda30bd596ef52fc73132cc1b09d6f003c100ac852da"
   },
   {
     "file": "dist_fit.py",

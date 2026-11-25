@@ -95,6 +95,7 @@ F3-2B 这些修复不改变合理的方法差异。单侧/双侧定义、离散�
 
 - 项目解释器为 `.venv\\Scripts\\python.exe`，Python 3.11.9；NumPy 2.4.6、SciPy 1.15.3、pandas 3.0.6、statsmodels 0.15.0。
 - 首轮 17 个定向测试文件共 **752 passed、12 failed**。其中 6 项是 χ² 旧浮点快照对 `CDF` 与 `sf` 等价实现使用精确相等；将该快照改为相对 `1e-12`、绝对 `1e-14` 比较，`value=0` 仍要求精确为零。独立 `gammaincc` 极端尾参考继续约束精度。
+- G3 计算结构冻结中，因本包改动尾概率而更新的仅是 `chi_square`、`chi2_test_stdev`、`chi2_var_1sample`、`var_1sample` 四个函数的哈希；对应正确性由独立数学断言接管。四个受影响冻结用例复验 **4 passed**，其他函数冻结不变。
 - 首轮另有 1 项 G15 字符串搜索用例失败（本轮未改的 `ß`/`SS` 大小写展开行为）、1 项直方图 UI 用例因 Tcl `init.tcl` 不在当前 Python 安装路径失败，以及 4 项 `test_g16_statistics.py::test_f06_all_fits_and_model_selection` 与较早 `source_baselines` 输出不一致。`code/dist_fit.py` 未在本包修改；当前分布拟合独立公式/参数/报告测试通过。旧源代码比较不是独立数学 oracle，这 4 项仍列为未裁定的历史比较差异，不据此认定统计缺陷。
 - χ² 固定输出与分布拟合复核：`test_g3_chi_square_reports.py::test_fixed_before_values_types_keys_and_print_switch` + `test_g3_distribution_reports.py`，**45 passed**。
 - 常数样本修复及共享正态性调用路径复核：`test_g2_basic_reports.py`、`test_g3_distribution_reports.py`、`test_g3_regression_reports.py`、`test_g16_statistics.py::test_f01_numerical_and_report`，**136 passed**。
