@@ -8,6 +8,7 @@
 
 ### 2026-11-25 统计
 
+- “统计 → 非参数检验”新增符号、Wilcoxon 符号秩、Mann–Whitney、Kruskal–Wallis、Mood 中位数、Friedman 和游程检验。报告提供适用的位置估计、区间及分组秩统计。
 - 时间序列分析支持短周期加法 Winters 回归初始化、乘法 Winters 预测区间，以及自动 ARIMA 的 Box–Cox 变换和常数项或漂移搜索。
 
 ### 2026-11-24 试验设计

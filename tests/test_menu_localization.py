@@ -139,7 +139,7 @@ EXPECTED_LAYOUT = {
             '单样本标准差检验', '单比率检验', '双样本 t 检验', '配对 t 检验',
             '双比率检验', '单样本泊松率检验', '双样本泊松率检验', '多样本标准差检验', 'sep', '单因子方差分析',
             '双因子方差分析', '固定效应一般线性模型', '基础功效与样本量', '试验设计功效与样本量', 'sep',
-            '列联表与卡方检验', '比率卡方检验', '试验设计（DOE）'],
+            '列联表与卡方检验', '比率卡方检验', '非参数检验', '试验设计（DOE）'],
     '质量': ['量具 R&R 研究（交叉）', '量具 R&R 研究（嵌套）', '量具研究（1 型）', '量具线性与偏倚', 'sep',
             '过程能力分析 (Cpk)', '含子组的 Cpk', '正态过程能力（完整）', '非正态过程能力',
             'Box-Cox / Johnson 变换', '正态能力 Sixpack', '非正态能力 Sixpack', '二项过程能力', '泊松过程能力',
@@ -468,3 +468,38 @@ def test_graph_help_directory_and_headings_match_live_menu(app):
     headings = [unescape(text) for text in re.findall(r'<h2>([^<]+)</h2>', page) if text != '目录']
     assert directory == headings
     assert sorted(directory) == sorted(actual)
+
+
+@pytest.mark.parametrize("kind,columns", [
+    ("sign", ("x",)), ("wilcoxon", ("x",)), ("mann", ("x", "y")),
+    ("kruskal", ("x", "y")), ("mood", ("x", "y")),
+    ("friedman", ("x",)), ("runs", ("x",)),
+])
+def test_nonparametric_menu_publishes_report(app, monkeypatch, kind, columns):
+    from sample_test_dialog import NONPARAMETRIC_TITLES
+    from stat_table import StatTable
+
+    app.table.model.df = pd.DataFrame({
+        "x": [1., 2., 3., 4., 6., 5.], "y": [3., 4., 5., 8., 9., 10.],
+        "t": ["A", "B", "C"] * 2, "b": [1, 1, 1, 2, 2, 2],
+    })
+    reports = []
+    dialogs = []
+    monkeypatch.setattr(app, "print", lambda report, **kw: reports.append(report))
+    open_dialog = app.nonparametric
+    monkeypatch.setattr(app, "nonparametric", lambda key: dialogs.append(open_dialog(key)))
+    stats_menu = pulldown(app, "统计")
+    menu = stats_menu.nametowidget(stats_menu.entrycget("非参数检验", "menu"))
+    menu.invoke(NONPARAMETRIC_TITLES[kind])
+    dialog = dialogs[0]
+    dialog.samples.selection_clear(0, "end")
+    for i, column in enumerate(dialog.samples.get(0, "end")):
+        if column in columns:
+            dialog.samples.selection_set(i)
+    if hasattr(dialog, "group"):
+        dialog.group.set("t" if kind == "friedman" else "")
+    if kind == "friedman":
+        dialog.block.set("b")
+    dialog.ok()
+    assert any(isinstance(report, StatTable) and report.title == NONPARAMETRIC_TITLES[kind]
+               for report in reports)

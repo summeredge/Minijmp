@@ -116,6 +116,7 @@
     "modified_app.py",
     "modified_table.py",
     "nonpara_cor.py",
+    "nonparametric_tests.py",
     "one_way_ANOVA.py",
     "ortho_fit.py",
     "pandastable_local/app.py",
@@ -1666,6 +1667,30 @@
         "tests/test_pca_dialog.py::test_fit_project_export_and_source_binding"
       ],
       "exception_reason": ""
+    },
+    "sample_test_dialog.py::NonparametricDialog.apply": {
+      "sites": [
+        "construct:StatTable#1",
+        "construct:StatTable#2",
+        "emit:structured:print#1",
+        "construct:StatTable#3",
+        "emit:structured:print#2"
+      ],
+      "classification": "statistical",
+      "entry_points": [
+        "统计 → 非参数检验"
+      ],
+      "titles": [
+        "非参数检验",
+        "各组统计",
+        "处理秩统计"
+      ],
+      "status": "structured",
+      "logical_tables": 3,
+      "exception_reason": "",
+      "tests": [
+        "tests/test_menu_localization.py::test_nonparametric_menu_publishes_report"
+      ]
     },
     "sample_test_dialog.py::MultiVarDialog.apply": {
       "sites": [

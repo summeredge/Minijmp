@@ -36,6 +36,7 @@
       <a href="#stats.chi2_contingency">列联表卡方检验</a>
       <a href="#stats.chi2_proportion">比例卡方检验</a>
         <a href="#stats.basic_power">基础功效与样本量</a>
+      <a href="#stats.nonparametric">非参数检验</a>
     </nav>
 
     <section class="topic" id="stats.describe">
@@ -232,6 +233,19 @@
       <p><strong>数据与参数：</strong>第一步选择原始分类列，或选择类别 Levels 列和 Counts 频数列。运行后会弹出类别概率输入框；为每个类别填写正数。若概率总和不等于 1，程序会按总和缩放。此分析没有 Alpha 输入项。</p>
       <p><strong>结果与注意：</strong>先列出各类别的估计比例和假设比例，再输出卡方检验结果。检查概率输入顺序与类别顺序一致。</p>
       <p><strong>延伸阅读（Minitab 官方背景）：</strong><a href="https://support.minitab.com/zh-cn/minitab/help-and-how-to/statistics/tables/supporting-topics/chi-square/what-is-a-chi-square-test/" target="_blank" rel="noopener noreferrer">卡方检验的概念说明</a>。</p>
+    </section>
+    <section id="stats.nonparametric">
+      <h2>非参数检验</h2>
+      <p>从“统计 → 非参数检验”中选择方法。符号、符号秩、游程选择单列；Mann–Whitney、Kruskal–Wallis、Mood 可选择多个样本列，或选择一个数值列及分组列。分组输入按首次出现顺序排列。独立组应分别抽样。除 Friedman 外，缺失和非有限数值排除。</p>
+      <ul>
+        <li>符号检验用正差数做精确二项检验，零差排除。样本中位数及双侧次序统计量区间使用全部有限观测。</li>
+        <li>Wilcoxon 符号秩检验排除零差。无绝对差并列且有效数不超过 50 时用精确分布，否则用含并列及连续性修正的正态近似。Hodges–Lehmann 位置为 Walsh 平均值的中位数，位置推断要求对称。</li>
+        <li>Mann–Whitney 报告第一组 U，小样本无并列时采用精确法，其余用含并列及连续性修正的正态近似。成对差值中位数按第一组减第二组。将其解释为中位数差要求组间仅存在位置平移。</li>
+        <li>Kruskal–Wallis 比较合并秩，用并列修正的 H 和卡方近似。Mood 以合并中位数分割上下两侧，相等值计入下侧，以 Pearson 卡方检验并报告各组中位数区间。小组样本时应谨慎解释卡方近似。</li>
+        <li>Friedman 选择响应、处理及区组列。每个区组必须完整，且每种处理只有一个有限观测；按区组内平均秩和并列修正计算，采用卡方近似。</li>
+        <li>游程检验按工作表顺序分辨阈值两侧，排除等于阈值的观测。未填阈值时用样本中位数。报告条件精确双尾概率或含连续性修正的正态近似。</li>
+      </ul>
+      <p>三种方向的符号、Wilcoxon 和 Mann–Whitney 检验均可同时报告双侧区间。离散分布有时只支持更高覆盖率或无界区间。秩位置区间仅在样本无并列时报告，大样本覆盖率为近似值。</p>
     </section>
   </main>
 </body>

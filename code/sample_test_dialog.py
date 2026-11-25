@@ -855,3 +855,182 @@ class BasicPowerDialog(Dialogs):
             viewer.close()
             raise
         self.quit()
+
+NONPARAMETRIC_TITLES = {
+    "sign": "单样本符号检验",
+    "wilcoxon": "单样本 Wilcoxon 符号秩检验",
+    "mann": "Mann–Whitney 检验",
+    "kruskal": "Kruskal–Wallis 检验",
+    "mood": "Mood 中位数检验",
+    "friedman": "Friedman 检验",
+    "runs": "游程检验",
+}
+
+
+class NonparametricDialog(Dialogs):
+    def __init__(self, parent, df, app, kind):
+        self.kind = kind
+        self.column_roles = (("samples", True),)
+        if kind in ("mann", "kruskal", "mood", "friedman"):
+            self.column_roles += (("group", False),)
+        if kind == "friedman":
+            self.column_roles += (("block", False),)
+        super().__init__(parent, df, NONPARAMETRIC_TITLES[kind], app)
+
+    def createWidgets(self, master):
+        grouped = self.kind in ("mann", "kruskal", "mood")
+        frame, self.samples = addListBox(
+            master, [c for c in self.cols if self._column_valid(c, True)],
+            width=24, label="样本列（可多选）" if grouped else "观测列",
+        )
+        if not grouped:
+            self.samples.configure(selectmode=tk.BROWSE)
+        frame.pack(side=TOP, fill=X)
+        if grouped or self.kind == "friedman":
+            self.group = self._field(
+                master, "分组列（可选）" if grouped else "处理列", values=["", *self.cols]
+            )
+        if self.kind == "friedman":
+            self.block = self._field(master, "区组列", values=self.cols)
+        if self.kind in ("sign", "wilcoxon", "runs"):
+            self.target = self._field(
+                master, "阈值（留空使用中位数）" if self.kind == "runs" else "假设位置",
+                default="" if self.kind == "runs" else "0",
+            )
+        if self.kind in ("sign", "wilcoxon", "mann"):
+            self.direction = self._field(master, "备择方向", "双侧", ("双侧", "左侧", "右侧"))
+        self.add_alpha(master)
+
+    @staticmethod
+    def _field(master, label, default="", values=None):
+        row = ttk.Frame(master)
+        row.pack(side=TOP, fill=X, padx=3, pady=2)
+        ttk.Label(row, text=label).pack(side=LEFT)
+        var = tk.StringVar(value=default)
+        if values is None:
+            widget = ttk.Entry(row, textvariable=var, width=17)
+        else:
+            widget = ttk.Combobox(row, textvariable=var, values=values,
+                                  state="readonly", width=15)
+        widget.pack(side=tk.RIGHT)
+        return var
+
+    def ok(self):
+        if self.apply():
+            self.quit()
+
+    def apply(self):
+        import math
+
+        from nonparametric_tests import (
+            friedman_test, grouped_rank_test, mann_whitney_test, runs_test,
+            sign_test, signed_rank_test,
+        )
+        from stat_table import StatTable
+
+        cols = [self.samples.get(i) for i in self.samples.curselection()]
+        alpha = get_number(self.alpha)
+        if alpha is None or not 0 < alpha < 1:
+            self.error("显著性水平必须介于 0 和 1 之间。")
+            return
+        kind = self.kind
+        grouped = kind in ("mann", "kruskal", "mood")
+        if not cols or (not grouped and len(cols) != 1):
+            self.error("请选择所需样本列。")
+            return
+        names = cols
+        direction = getattr(self, "direction", None)
+        alternative = {"双侧": "two-sided", "左侧": "less", "右侧": "greater"}[
+            direction.get() if direction is not None else "双侧"
+        ]
+        notes = []
+        groups = None
+        try:
+            if grouped:
+                group = self.group.get()
+                if group:
+                    if len(cols) != 1 or group in cols:
+                        raise ValueError("分组输入需要一个数值列和一个独立分组列。")
+                    entries = list(self.df.groupby(group, sort=False, observed=True)[cols[0]])
+                    names = [str(label) for label, _ in entries]
+                    samples = [values.to_numpy(dtype=float, na_value=float("nan"))
+                               for _, values in entries]
+                else:
+                    samples = [self.df[col].to_numpy(dtype=float, na_value=float("nan"))
+                               for col in cols]
+                if kind == "mann":
+                    if len(samples) != 2:
+                        raise ValueError("Mann–Whitney 检验需要两个独立样本。")
+                    result = mann_whitney_test(*samples, alternative=alternative, alpha=alpha)
+                    notes.append("估计值采用第一组减第二组。位置差解释要求两组分布仅相差平移。")
+                else:
+                    result = grouped_rank_test(samples, mood=kind == "mood", alpha=alpha)
+                    if kind == "mood":
+                        rows = [(name, n, median, above, below, self._interval(interval))
+                                for name, (n, median, above, below, interval)
+                                in zip(names, result.pop("groups"))]
+                        headers = ("组", "N", "中位数", "上侧", "下侧", "中位数置信区间")
+                    else:
+                        rows = [(name, *row) for name, row in zip(names, result.pop("groups"))]
+                        headers = ("组", "N", "中位数", "平均秩")
+                    groups = StatTable(title="各组统计", headers=headers, values=rows)
+            elif kind == "friedman":
+                names = [cols[0], self.group.get(), self.block.get()]
+                if len(set(names)) != 3 or not all(names):
+                    raise ValueError("请选择三个不同的响应、处理及区组列。")
+                result = friedman_test(self.df, *names)
+                groups = StatTable(title="处理秩统计", headers=("处理", "秩和", "平均秩"),
+                                   values=result.pop("groups"))
+            else:
+                target = self.target.get().strip()
+                target = None if kind == "runs" and not target else float(target)
+                if target is not None and not math.isfinite(target):
+                    raise ValueError("假设位置或阈值必须为有限数。")
+                values = self.df[cols[0]].to_numpy(dtype=float, na_value=float("nan"))
+                if kind == "runs":
+                    result = runs_test(values, target)
+                    notes.append("保留观测顺序，排除阈值相等项。")
+                    notes.append("拒绝随机游程假设。" if result["pvalue"] < alpha
+                                 else "证据不足以拒绝随机游程假设。")
+                else:
+                    test = sign_test if kind == "sign" else signed_rank_test
+                    result = test(values, target, alternative, alpha)
+                    result["target"] = target
+                    if kind == "wilcoxon":
+                        notes.append("位置推断要求分布对称；排除零差，绝对差并列取平均秩。")
+        except (ValueError, TypeError, KeyError) as error:
+            self.error(str(error))
+            return
+
+        labels = {
+            "n": "样本量", "positive": "正差数" if kind == "sign" else "正秩和",
+            "negative": "负差数" if kind == "sign" else "负秩和", "zero": "零差数",
+            "estimate": "位置估计", "statistic": "检验统计量", "pvalue": "p 值",
+            "interval": f"{1-alpha:.1%} 双侧区间", "method": "方法", "df": "自由度",
+            "blocks": "区组数", "pooled_median": "合并中位数", "above": "上侧观测数",
+            "below": "下侧观测数", "omitted_ties": "排除的相等观测数", "threshold": "阈值",
+            "target": "假设位置",
+        }
+        rows = [(labels[key], self._interval(value) if key == "interval" else value)
+                for key, value in result.items()]
+        if direction is not None:
+            rows.append(("备择方向", direction.get()))
+        rows.append(("α", alpha))
+        display = [[label, f"{value:.8g}" if isinstance(value, float) else str(value)]
+                   for label, value in rows]
+        self.app.print(f"\n---- {self.title} ----\n" + "、".join(names))
+        for note in notes:
+            self.app.print(note)
+        self.app.print(StatTable(title=self.title, headers=("项目", "结果"),
+                                 values=rows, display=display))
+        if groups is not None:
+            self.app.print(groups)
+        self.remember_columns()
+        return True
+
+    @staticmethod
+    def _interval(interval):
+        if interval is None:
+            return "有并列，区间不可用"
+        low, high, coverage = interval
+        return f"[{low:.8g}, {high:.8g}]（覆盖率 {coverage:.3%}）"

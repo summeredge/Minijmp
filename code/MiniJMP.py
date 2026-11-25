@@ -262,6 +262,11 @@ class Minijmp(Worksheets, Minijmp_pre):
             '43比率卡方检验': {'cmd': self.chi2prop},
             '06sep': '', '24sep': '', '33sep': '', '40sep': ''}
         self.stats_menu = self.createPulldown(self.menu, self.stats_menu)
+        from sample_test_dialog import NONPARAMETRIC_TITLES
+        nonparametric = Menu(self.stats_menu['var'], tearoff=False)
+        for kind, label in NONPARAMETRIC_TITLES.items():
+            nonparametric.add_command(label=label, command=lambda key=kind: self.nonparametric(key))
+        self.stats_menu['var'].add_cascade(label='非参数检验', menu=nonparametric)
         self.stats_menu['var'].add_cascade(label='试验设计（DOE）', menu=self.doe_menu['var'])
         self.menu.add_cascade(label='统计', menu=self.stats_menu['var'])
 
@@ -536,6 +541,11 @@ class Minijmp(Worksheets, Minijmp_pre):
             df=self.table.model.df,
             title='Multi Column Correlation')
         return
+
+    def nonparametric(self, kind):
+        from sample_test_dialog import NonparametricDialog
+
+        return NonparametricDialog(self.table, self.table.model.df, self, kind)
 
     def mean_1sample(self):
         from sample_test_dialog import Mean1SampleDialog
