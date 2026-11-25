@@ -119,7 +119,7 @@ EXPECTED_LAYOUT = {
                         '因子设计变异性分析'],
     '文件': ['新建项目', '打开项目', '保存', '另存为', 'sep',
             '导入 CSV', '高级导入', '导入 PI 数据', '导入 Excel', '导出 CSV', '导出当前表（单表 / Excel）', 'sep', '退出'],
-    '工作表': ['新增工作表', '复制工作表', '重命名工作表', '删除工作表'],
+    '工作表': ['新增工作表', '复制工作表', '重命名工作表', '删除工作表', '合并项目工作表'],
     '编辑': ['撤销 (Ctrl+Z)', '重做', '粘贴（不含表头）(Ctrl+V)', '粘贴（含表头）',
             '复制整表', '复制所选 (Ctrl+C)', '删除所选并上移', '清除所选 (Del)',
             '查找/替换 (Ctrl+F)', 'sep', '首选项'],
@@ -503,3 +503,43 @@ def test_nonparametric_menu_publishes_report(app, monkeypatch, kind, columns):
     dialog.ok()
     assert any(isinstance(report, StatTable) and report.title == NONPARAMETRIC_TITLES[kind]
                for report in reports)
+
+
+def test_project_worksheet_merge_preview_cancel_and_confirm(app, monkeypatch):
+    left = app.addSheet("左源", pd.DataFrame({"键": [1, 1, 2], "值": [2, 3, 4]}))
+    right = app.addSheet("右源", pd.DataFrame({"键": [1, 1, 3], "值": [5, 6, 7]}))
+    left.model.df.attrs["description"] = "来源属性"
+    sources = [table.model.df.copy(deep=True) for table in (left, right)]
+    opened = []
+    # createPulldown captures the bound callback, so capture the actual dialog constructor.
+    import worksheet_merge
+    constructor = worksheet_merge.WorksheetMergeDialog
+
+    def capture(owner):
+        opened.append(constructor(owner))
+
+    monkeypatch.setattr(worksheet_merge, "WorksheetMergeDialog", capture)
+    count = len(app.sheets)
+    menu = pulldown(app, "工作表")
+    for accept in (False, True):
+        menu.invoke(next(i for i, _, label in read_menu(menu) if label.strip() == "合并项目工作表"))
+        dialog = opened[-1]
+        for i, name in enumerate(("左源", "右源")):
+            dialog.source[i].set(name)
+            dialog._source_changed(i)
+            dialog.key_boxes[i].selection_set(0)
+        dialog.preview()
+        assert len(dialog.grid.get_children()) == 6
+        assert len(app.sheets) == count
+        if accept:
+            dialog.confirm_button.invoke()
+        else:
+            dialog.main.event_generate("<Escape>")
+            if dialog.main.winfo_exists():
+                dialog.main.destroy()
+            assert len(app.sheets) == count
+    result = app.getCurrentTable().model.df
+    assert result.shape == (6, 4) and not result.attrs
+    for table, source in zip((left, right), sources):
+        pd.testing.assert_frame_equal(table.model.df, source)
+        assert table.model.df.attrs == source.attrs

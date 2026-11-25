@@ -578,6 +578,14 @@ class Worksheets:
         self.table = table
         return table
 
+    def merge_project_worksheets(self):
+        from worksheet_merge import WorksheetMergeDialog
+
+        if len(self.sheets) < 2:
+            messagebox.showinfo('合并项目工作表', '项目中至少需要两张工作表。', parent=self.main)
+            return
+        return WorksheetMergeDialog(self)
+
     def worksheet_calculation(self, mode):
         from worksheet_calculations import WorksheetCalculationDialog
         WorksheetCalculationDialog(self, mode)

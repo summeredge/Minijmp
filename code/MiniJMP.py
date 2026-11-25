@@ -76,7 +76,8 @@ class Minijmp(Worksheets, Minijmp_pre):
         sheetmenu = {'01新增工作表': {'cmd': self.addSheet},
                      '02复制工作表': {'cmd': self.copySheet},
                      '03重命名工作表': {'cmd': self.renameSheet},
-                     '04删除工作表': {'cmd': self.deleteSheet}}
+                     '04删除工作表': {'cmd': self.deleteSheet},
+                     '05合并项目工作表': {'cmd': self.merge_project_worksheets}}
         self.sheet_menu = self.createPulldown(self.menu, sheetmenu)
         self.menu.add_cascade(label='工作表', menu=self.sheet_menu['var'])
 

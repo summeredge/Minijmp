@@ -89,6 +89,7 @@
 | Copy Sheet | 复制工作表 |
 | Rename Sheet | 重命名工作表 |
 | Delete Sheet | 删除工作表 |
+| Merge Project Worksheets | 合并项目工作表 |
 
 ## 编辑（Edit）
 
