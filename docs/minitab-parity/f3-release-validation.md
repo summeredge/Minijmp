@@ -6,6 +6,24 @@
 - 维护者确认 PI-Data-Viewer、Python 适配器、PIReader C# 程序及编译产物均为自研，纳入 MiniJMP GPL v3，无须另行取得第三方授权。固定 PIReader 历史构建记录不足不阻塞本次发布，继续复用现有文件。公开包排除三个 OSIsoft/AVEVA 专有 SDK DLL。
 - 复用此前通过的定向测试及 F3-2、F3-3 结果。实际 EXE 代表性操作通过后，为最终候选的构建源码提交创建本地 annotated tag v1.3.0。
 
+### 构建和包体证据
+
+- 最终候选 MiniJMP-V1.3.0-6798296 从干净 Git 提交 6798296212b73397f396a80bf5d0ceaec6be4054 构建。命令为 `./tools/build_windows_release.ps1 -UnreleasedCandidate -PlotlyPilot`。本地交付目录为 `D:\Download\MiniJMP-v1.3.0-candidate-6798296`，旧候选保留作历史记录。
+- `release_metadata.py` 和公开候选验证器通过。便携包与源码包的版本和源码提交一致。两包均排除三个专有 SDK DLL，PIReader 1.0.0.0 复用原固定文件。两包的许可证声明及 SBOM 均记录自研 PI 组件适用 GPL v3。
+- 交付目录包含 BUILD-INFO、SHA256SUMS、SBOM、运行内容清单和许可证材料。以下 SHA-256 从交付目录中的实际文件复核。
+
+| 资产 | 文件名 | 字节 | SHA-256 |
+| --- | --- | ---: | --- |
+| Windows x64 便携运行包 | MiniJMP-V1.3.0-6798296-Windows-x64-portable.zip | 130,741,993 | C177EEBBF9B26D93FA69BA136814504FDF98E3D3DBD3D2AF2DF92E0E51053E9B |
+| 对应源码包 | MiniJMP-V1.3.0-6798296-Source.zip | 17,899,264 | 375A78129388D9255EE2032DEF299C05FFB378654EEBC4DDFFDE9C16D788402C |
+| SBOM（CycloneDX） | SBOM.cdx.json | 591,902 | 13C6787B25550100DD45F03B2FFBE073B5D27A5F90CC6EAF0B62D8BC800EAD5E |
+
+### EXE 验收状态
+
+- 独立解压目录启动通过，实测 EXE 文件版本为 1.3.0.0，产品版本为 v1.3.0。
+- 桌面工具已打开最终候选并捕获主工作表。后续点击帮助菜单时工具报告窗口有用户输入，结合上一候选的子窗口输入限制，本轮交由维护者继续操作。关于窗口与中文帮助正文尚未在最终候选实屏验收。
+- 代表性操作的其余项目待维护者按下方清单完成。实际 EXE 验收通过后，为 6798296212b73397f396a80bf5d0ceaec6be4054 创建本地 annotated tag v1.3.0。
+
 ## 历史候选 V1.3.0-ea0af89（2026-11-26）
 
 以下记录保留该候选构建时的状态。
