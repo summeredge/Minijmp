@@ -196,20 +196,10 @@ def checkDict(d):
     return 1
 
 def getFonts():
-     """Get the current list of system fonts"""
+    """Get the font families available to Matplotlib."""
 
-     import matplotlib.font_manager
-     #l = matplotlib.font_manager.get_fontconfig_fonts()
-     l = matplotlib.font_manager.findSystemFonts()
-     fonts = []
-     for fname in l:
-        try: fonts.append(matplotlib.font_manager.FontProperties(fname=fname).get_name())
-        except RuntimeError: pass
-     fonts = list(set(fonts))
-     fonts.sort()
-     #f = matplotlib.font_manager.FontProperties(family='monospace')
-     #print (matplotlib.font_manager.findfont(f))
-     return fonts
+    import matplotlib.font_manager
+    return sorted(set(matplotlib.font_manager.fontManager.get_font_names()))
 
 def adjustColorMap(cmap, minval=0.0, maxval=1.0, n=100):
     """Adjust colormap to avoid using white in plots"""

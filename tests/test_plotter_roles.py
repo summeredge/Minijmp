@@ -28,6 +28,13 @@ def scatter_offsets(viewer):
             for collection in viewer.ax.collections]
 
 
+def test_font_choices_use_matplotlib_available_fonts():
+    from matplotlib import font_manager
+    from pandastable_local import util
+
+    assert util.getFonts() == sorted(set(font_manager.fontManager.get_font_names()))
+
+
 def test_roles_ignore_source_column_order_and_keep_categorical_groups(tk_root):
     reordered = DATA[['工况', '流量', '压力', '温度']]
     table, frame, viewer = make_viewer(tk_root, reordered)

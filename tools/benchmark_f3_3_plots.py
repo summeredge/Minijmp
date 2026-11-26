@@ -77,6 +77,14 @@ def run(repeats: int, lifecycle_cycles: int, visible: bool) -> dict:
                    showtoolbar=False, showstatusbar=False)
     table.show()
     root.update_idletasks()
+    plot_tables = {}
+    for kind, _ in PLOT_CASES:
+        plot_frame = tk.Frame(root)
+        current = MTable(plot_frame, dataframe=data[kind],
+                         showtoolbar=False, showstatusbar=False)
+        current.show()
+        plot_tables[kind] = current
+    root.update_idletasks()
 
     def heartbeat() -> None:
         nonlocal last_tick, max_main_gap_ms, heartbeat_id
@@ -87,14 +95,11 @@ def run(repeats: int, lifecycle_cycles: int, visible: bool) -> dict:
             heartbeat_id = root.after(10, heartbeat)
 
     def measure_plot(kind: str, count: int, trial: int) -> None:
-        plot_frame = tk.Frame(root)
-        plot_frame.pack(fill="both", expand=True)
-        current = MTable(plot_frame, dataframe=data[kind],
-                         showtoolbar=False, showstatusbar=False)
-        current.show()
-        root.update_idletasks()
-        viewer = PlotViewer(table=current, showoptions=False)
+        current = plot_tables[kind]
+        open_start = time.perf_counter()
+        viewer = PlotViewer(table=current)
         viewer.main.update_idletasks()
+        opened = time.perf_counter()
         viewer.mplopts.tkvars["kind"].set(kind)
         viewer.mplopts.tkvars["use_index"].set(False)
         draw_times: list[float] = []
@@ -123,36 +128,41 @@ def run(repeats: int, lifecycle_cycles: int, visible: bool) -> dict:
         if plotted_rows != count:
             raise AssertionError(f"{kind}: plotted {plotted_rows} rows, expected {count}")
 
-        viewer.labelopts.tkvars["title"].set(f"Refresh {trial}")
-        refresh_start = time.perf_counter()
-        viewer.updatePlot()
-        refreshed = time.perf_counter()
-        if len(draw_times) < 2:
-            raise AssertionError(f"{kind}: expected a parameter refresh draw")
-        if trial:
-            measurements[kind].append({
-                "plot_to_updated_ms": (plotted - start) * 1000,
-                "artist_build_ms": max(0.0, (plotted - start) * 1000 - draw_times[0]),
-                "first_draw_ms": draw_times[0],
-                "parameter_refresh_to_updated_ms": (refreshed - refresh_start) * 1000,
-                "parameter_refresh_draw_ms": draw_times[1],
-                "full_samples": float(count),
-            })
-        weak_figures.append(weakref.ref(viewer.fig))
-        weak_canvases.append(weakref.ref(viewer.canvas))
-        weak_windows.append(weakref.ref(viewer.main))
-        viewer.close()
-        current.destroy()
-        plot_frame.destroy()
-        root.update_idletasks()
-        del viewer, current, plot_frame
+
+        def refresh_and_close() -> None:
+            viewer.labelopts.tkvars["title"].set(f"Refresh {trial}")
+            refresh_start = time.perf_counter()
+            viewer.updatePlot()
+            refreshed = time.perf_counter()
+            if len(draw_times) < 2:
+                raise AssertionError(f"{kind}: expected a parameter refresh draw")
+            if trial:
+                measurements[kind].append({
+                    "viewer_open_ms": (opened - open_start) * 1000,
+                    "open_to_plot_ms": (plotted - open_start) * 1000,
+                    "plot_to_updated_ms": (plotted - start) * 1000,
+                    "artist_build_ms": max(0.0, (plotted - start) * 1000 - draw_times[0]),
+                    "first_draw_ms": draw_times[0],
+                    "parameter_refresh_to_updated_ms": (refreshed - refresh_start) * 1000,
+                    "parameter_refresh_draw_ms": draw_times[1],
+                    "full_samples": float(count),
+                })
+            weak_figures.append(weakref.ref(viewer.fig))
+            weak_canvases.append(weakref.ref(viewer.canvas))
+            weak_windows.append(weakref.ref(viewer.main))
+            viewer.close()
+            root.update_idletasks()
+            progress["plot"] += 1
+            root.after(0, next_plot)
+
+        root.after(15, refresh_and_close)
 
     def measure_lifecycle() -> None:
         index = progress["cycle"]
         kind = "output_window" if index % 2 == 0 else "general_plotter"
         start = time.perf_counter()
         viewer = (plot_viewer(table=None, register=False) if kind == "output_window"
-                  else PlotViewer(table=table, showoptions=False))
+                  else PlotViewer(table=table))
         viewer.main.update_idletasks()
         opened = time.perf_counter()
         viewer.close()
@@ -196,8 +206,7 @@ def run(repeats: int, lifecycle_cycles: int, visible: bool) -> dict:
         case, trial = divmod(progress["plot"], repeats + 1)
         kind, count = PLOT_CASES[case]
         measure_plot(kind, count, trial)
-        progress["plot"] += 1
-        root.after(0, next_plot)
+        return
 
     result: dict = {}
     root.after(0, heartbeat)
@@ -221,7 +230,8 @@ def run(repeats: int, lifecycle_cycles: int, visible: bool) -> dict:
             kind: {
                 "rows": rows,
                 **{metric: summarize([sample[metric] for sample in values])
-                   for metric in ("plot_to_updated_ms", "artist_build_ms", "first_draw_ms",
+                   for metric in ("viewer_open_ms", "open_to_plot_ms", "plot_to_updated_ms",
+                                  "artist_build_ms", "first_draw_ms",
                                   "parameter_refresh_to_updated_ms", "parameter_refresh_draw_ms")},
             }
             for (kind, rows), values in zip(PLOT_CASES, measurements.values())
