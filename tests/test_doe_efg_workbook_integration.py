@@ -1,8 +1,8 @@
 """E/F/G 设计共存于同一 .dexpl 工程时的保存、复制与分析回归。"""
 import copy
-import gzip
+import json
 import math
-import pickle
+import zipfile
 
 import pandas as pd
 from pandas.testing import assert_frame_equal
@@ -369,12 +369,19 @@ def test_efg_designs_share_project_roundtrip_copy_analysis_and_metadata_isolatio
 
     error.assert_not_called()
 
-    with gzip.open(path, "rb") as stream:
-        damaged = pickle.load(stream)
-    damaged[g_name]["meta"]["doe"]["analysis"]["sn_kind"] = "invalid"
     bad_path = tmp_path / "doe-efg-bad-meta.dexpl"
-    with gzip.open(bad_path, "wb") as stream:
-        pickle.dump(damaged, stream, protocol=pickle.HIGHEST_PROTOCOL)
+    from worksheets import _decode_json, _encode_json
+    with zipfile.ZipFile(path) as source:
+        manifest = json.loads(source.read("manifest.json"))
+        sheet = next(entry for entry in manifest["sheets"] if entry["name"] == g_name)
+        metadata = _decode_json(sheet["metadata"])
+        metadata["doe"]["analysis"]["sn_kind"] = "invalid"
+        sheet["metadata"] = _encode_json(metadata)
+        with zipfile.ZipFile(bad_path, "w", compression=zipfile.ZIP_DEFLATED) as damaged:
+            for item in source.infolist():
+                content = (json.dumps(manifest, ensure_ascii=False, allow_nan=False).encode("utf-8")
+                           if item.filename == "manifest.json" else source.read(item.filename))
+                damaged.writestr(item.filename, content)
     live_tables = dict(app.sheets)
     live_active = app.getCurrentTable()
     live_frames = {name: table.model.df.copy(deep=True)

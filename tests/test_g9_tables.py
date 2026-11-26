@@ -88,7 +88,8 @@ def report(case):
     fields = dict(xvar='X', yvar='Y', u0=3, s0=2, d0=1, alpha=.05, pooled=False,
         sample_mean='', sample_std='', sample_n='', u1='', s1='', n1='', u2='', s2='', n2='',
         event_name='1', event_name2='2', p0=.4, event_cnt='', ttl_cnt='', event_cnt2='', ttl_cnt2='',
-        grouping='组别', comp_mean=True, show_plot=False, zvar='测量', inter=True, rvar='', cnt='', prop=.9,
+        grouping='组别', comp_mean=True, bartlett=False, mc=False,
+        show_plot=False, zvar='测量', inter=True, rvar='', cnt='', prop=.9,
         ti_method='正态')
     if case.endswith('summary'):
         fields.update(sample_mean=30, sample_std=4, sample_n=20, u1=30, s1=4, n1=20,
@@ -274,9 +275,9 @@ def test_fixed_txt_and_every_table_reaches_viewer(viewer, tmp_path, case):
     assert '\n'.join(lines) + '\n' == baseline['text'][case]
     tables = [line for line in lines if isinstance(line, StatTable)]
     assert len(tables) == baseline['tables'][case]
-    app = SimpleNamespace(table=viewer.table, tOut=viewer)
+    app = SimpleNamespace(table=viewer.table, tOut=viewer, _result_scope=None)
     for line in lines:
-        Minijmp.print(app, line)
+        Minijmp.print(app, line, record_result=False)
     viewer.main.update()
     assert [block.table for block in viewer.table_blocks] == tables
     target = tmp_path / '原报告.txt'

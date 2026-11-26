@@ -216,6 +216,7 @@ def test_histogram_fit_failure_keeps_valid_preview(app, monkeypatch):
     dialog.fit_dist.set(True)
     output = []
     monkeypatch.setattr(dialog.app, 'print', output.append)
+    monkeypatch.setattr(dialog.app, 'print_error', output.append)
     monkeypatch.setattr('sb_hist_dialog.compare_dist', lambda *a, **k: [])
     dialog.preview()
     assert app.table.pf is not None and not dialog.no_preview

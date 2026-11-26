@@ -32,6 +32,8 @@ def setup(tk_root, monkeypatch):
     opened = []
 
     def create(cls=DescribeDialog, **kwargs):
+        if cls.__name__ == 'SubgroupChartDialog':
+            kwargs.setdefault('kind', 'Xbar')
         obj = cls(source, df=df, app=app, **kwargs)
         opened.append(obj)
         return obj

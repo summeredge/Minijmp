@@ -100,16 +100,24 @@ def test_bad_metadata_does_not_replace_live_workbook(csv_app, tmp_path, monkeypa
     name = define_custom_sheet(app)
     path = tmp_path / "good.dexpl"
     assert app._save_project(path)
-    import gzip
-    import pickle
-    payload = pickle.loads(gzip.decompress(path.read_bytes()))
-    for sheet in payload.values():
-        if isinstance(sheet, dict) and "meta" in sheet:
-            if sheet["meta"].get("doe"):
-                sheet["meta"]["doe"]["design"]["design_type"] = "central_composite"
-    path.write_bytes(gzip.compress(pickle.dumps(payload)))
+    import json
+    import zipfile
+    from worksheets import _decode_json, _encode_json
+    bad_path = tmp_path / "bad-metadata.dexpl"
+    with zipfile.ZipFile(path) as source:
+        manifest = json.loads(source.read("manifest.json"))
+        for sheet in manifest["sheets"]:
+            metadata = _decode_json(sheet.get("metadata"))
+            if metadata.get("doe"):
+                metadata["doe"]["design"]["design_type"] = "invalid_design_type"
+                sheet["metadata"] = _encode_json(metadata)
+        with zipfile.ZipFile(bad_path, "w", compression=zipfile.ZIP_DEFLATED) as damaged:
+            for item in source.infolist():
+                content = (json.dumps(manifest, ensure_ascii=False, allow_nan=False).encode("utf-8")
+                           if item.filename == "manifest.json" else source.read(item.filename))
+                damaged.writestr(item.filename, content)
     before = list(app.sheets)
-    assert not app.load_file(path)
+    assert not app.load_file(bad_path)
     assert list(app.sheets) == before
     assert app.sheets[name].doe_metadata["design"]["design_type"] == "custom_factorial"
 

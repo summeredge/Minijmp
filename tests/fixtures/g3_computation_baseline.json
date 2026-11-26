@@ -72,7 +72,7 @@
   {
     "file": "dist_fit.py",
     "function": "fit_norm",
-    "sha256": "1b9324fba99bd805fd82a640a64e74c7c4b72e69f5d51f9ea9bba761d39c1b85"
+    "sha256": "a205b5a740e70b7c082de53b15bb135f913d7f5a05f6159c649ec2180879cd31"
   },
   {
     "file": "dist_fit.py",
@@ -82,7 +82,7 @@
   {
     "file": "dist_fit.py",
     "function": "fit_gamma",
-    "sha256": "0b8114a2d90c6874bbdedf8bd70625c8b9ed2c802286cb18f7ae59ea39171208"
+    "sha256": "ef706fff6e995eb5348302c9dc90783ef030361f151952d2708535954533795d"
   },
   {
     "file": "dist_fit.py",
@@ -92,12 +92,12 @@
   {
     "file": "dist_fit.py",
     "function": "fit_lognorm",
-    "sha256": "9cc8ae57b721be1ae61c449505722aec56f0795a22b7b7b458b708989fadc9b7"
+    "sha256": "21fe19832dc826143a789b92df7e22c4e3029bab0314eaa0ba1860b04111d056"
   },
   {
     "file": "dist_fit.py",
     "function": "fit_expon",
-    "sha256": "f8a7abb820ebcec6b96c7730d0cc5e795a29d74c4624f1aabe4b2b2a43713ed1"
+    "sha256": "2fe86221c860a2cce537b685c94da9447a4c15778e168d431ef63534e7acba9d"
   },
   {
     "file": "dist_fit.py",

@@ -342,17 +342,40 @@ def test_f06_pdf_dispatch_count():
 
 @pytest.mark.parametrize('data', [[1., 2., 3., 5., 8., 13.], [1., 2., 3.],
                                  [-2., -1., 0., 1., 2.], [0.] * 6])
-def test_f06_all_fits_and_model_selection(old, data):
+def test_f06_all_fits_and_model_selection(data):
     import dist_fit
-    before, after = [], []
-    expected = old.dist_fit.compare_dist(data, print_port=before.append)
-    actual = dist_fit.compare_dist(data, print_port=after.append)
-    assert [r[0] for r in actual] == [r[0] for r in expected]
-    for a, b in zip(actual, expected):
-        equal(a[1], b[1])
-        equal(a[2]['fits'], b[2]['fits'])
-        equal(a[3], b[3])
-    assert list(map(str, after)) == list(map(str, before))
+    actual = dist_fit.compare_dist(data, print_out=False)
+    names = {row[0] for row in actual}
+    if any(value < 0 for value in data):
+        assert names == {'Normal', "Student's t"}
+    elif len(set(data)) == 1:
+        assert names == {'Normal', "Student's t", 'Exponential', 'Weibull'}
+    else:
+        assert names == {'Normal', "Student's t", 'Gamma', 'Lognormal',
+                         'Exponential', 'Weibull'}
+
+    for name, scores, result, weight in actual:
+        assert len(scores) == 3
+        assert result['fits'] and result['rv'] is not None
+        assert 0 <= weight <= 1 or np.isnan(weight)
+        if name == 'Normal':
+            assert result['fits'] == pytest.approx(
+                (np.mean(data), np.std(data, ddof=1)), rel=1e-12, abs=1e-12)
+        elif name == 'Exponential':
+            assert result['fits'] == pytest.approx((np.mean(data),), rel=1e-12, abs=1e-12)
+        elif name == 'Lognormal':
+            log_data = np.log(data)
+            assert result['fits'] == pytest.approx(
+                (np.exp(np.mean(log_data)), np.std(log_data, ddof=1)),
+                rel=1e-12, abs=1e-12)
+
+    aiccs = [row[1][1] for row in actual]
+    if all(np.isfinite(value) for value in aiccs):
+        likelihoods = np.exp(-.5 * (np.asarray(aiccs) - min(aiccs)))
+        expected_weights = likelihoods / likelihoods.sum()
+        assert [row[3] for row in actual] == pytest.approx(expected_weights, rel=1e-12)
+    else:
+        assert all(np.isnan(row[3]) for row in actual)
 
 
 @pytest.mark.parametrize('interaction', [True, False])

@@ -335,6 +335,35 @@ def test_bonett_two_sided_report_unchanged_by_one_sided_fields():
     assert result['One tail upper boundary'] == pytest.approx(5.243956, abs=1e-6)
 
 
+def test_bonett_one_sided_p_values_match_independent_bound_inversion():
+    from scipy.optimize import brentq
+
+    sample = [1, 2, 3, 5, 7, 9]
+    n = len(sample)
+    ordered = sorted(sample)
+    trim = int(n / (2 * np.sqrt(n - 4))) if n > 5 else 0
+    center = np.mean(ordered[trim:n-trim])
+    std = np.std(sample, ddof=1)
+    fourth = n / (n - 1) ** 2 * sum(((x - center) / std) ** 4 for x in sample)
+    se = np.sqrt((fourth - (n - 3) / n) / (n - 1))
+    ratio = 2 / std
+
+    def reference_tail(lower):
+        sign = -1 if lower else 1
+
+        def bound_error(probability):
+            z = stats.norm.isf(probability)
+            scale = (n - z) / n
+            return -np.log(scale) + sign * z * se / scale - 2 * np.log(ratio)
+
+        probability_floor = stats.norm.sf(n - 1e-6)
+        return brentq(bound_error, probability_floor, 1 - 1e-12)
+
+    result = bonett_reference(sample, s0=2)
+    assert result['Bonett p lt'] == pytest.approx(reference_tail(lower=False), abs=1e-12)
+    assert result['Bonett p gt'] == pytest.approx(reference_tail(lower=True), abs=1e-12)
+
+
 def test_multi_variance_bonferroni_intervals_and_pairwise_ratios_match_native():
     from chi_sq import multi_pop_var_test
     from statistics import stdev, fmean

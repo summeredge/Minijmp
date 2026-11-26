@@ -38,7 +38,7 @@ class findRepDialog(FindReplaceDialog):
             return
         s = s if case else s.upper()
         # Build a boolean mask rather than assigning booleans into string columns.
-        found = (df if case else df.apply(lambda col: col.str.upper())).eq(s)
+        found = (df if case else df.astype(object).apply(lambda col: col.str.upper())).eq(s)
         found = found.fillna(False).astype(bool)
         if not s.replace(' ', ''):
             found[:] = False

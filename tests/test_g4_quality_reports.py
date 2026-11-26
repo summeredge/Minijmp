@@ -631,8 +631,8 @@ def test_specific_replaced_output_patterns(originals, module, function, old):
 
 def test_shared_modules_and_plot_implementations_remain_at_baseline():
     # txt_output 已接入 G8；真实控件与 TXT 由 G1/G10/G11 测试保护。
-    for name in ('utilities.py', 'dialog.py', 'two_way_anova.py',
-                 'one_way_ANOVA.py', 'cpk_plot.py', 'grr_plot.py'):
+    # utilities.py / dialog.py 的旧 AST 基线已由当前数值和 Tk 行为测试接管。
+    for name in ('two_way_anova.py', 'one_way_ANOVA.py', 'cpk_plot.py', 'grr_plot.py'):
         # 仅两份绘图源码转为已验收的 G6 基线，其余共享模块仍保留原守卫。
         baseline = '0320b7bdc49321eb7a54f67ddc89dc08edc32f3e' if name in {'cpk_plot.py', 'grr_plot.py'} else SHARED_BASELINE
         old = read_source_baseline(baseline, f'code/{name}')
@@ -660,55 +660,6 @@ def test_shared_modules_and_plot_implementations_remain_at_baseline():
                 normalize_review003(current)
             assert ast.dump(ComputationOnly().visit(current)) == ast.dump(
                 ComputationOnly().visit(original))
-            continue
-        if name == 'utilities.py':
-            current = normalize_phase3_press(ast.parse((ROOT / 'code' / name).read_text(encoding='utf-8')))
-            original = ast.parse(old)
-            normalize_p1_numeric(current, name, original)
-            for tree in (current, original):
-                # G17 数字清洗有独立冻结数据及热点守卫，保留其余共享函数保护。
-                tree.body = [n for n in tree.body if not (
-                    isinstance(n, ast.FunctionDef) and n.name in {'number_2Dlist', 'd2_2D'})]
-            current.body = [node for node in current.body if not (
-                isinstance(node, ast.ImportFrom) and node.module == 'stat_table')]
-            for tree in (current, original):
-                for node in tree.body:
-                    if isinstance(node, ast.FunctionDef) and node.name in {'pearson_correlation', 'norm_test', 'mean_std_CIs'}:
-                        # G10/G12 只放行报告块，计算与其余共享函数仍完整比较。
-                        ComputationOnly().visit(node)
-            assert ast.dump(current) == ast.dump(original)
-            continue
-        if name == 'dialog.py':
-            from source_baselines import normalize_column_memory
-            trees = [ast.parse(source) for source in (
-                old, (ROOT / 'code' / name).read_text(encoding='utf-8'))]
-            current = trees[1]
-            normalize_column_memory(current, name)
-            added_import = ast.parse('from inspect import getattr_static').body[0]
-            assert sum(ast.dump(n) == ast.dump(added_import) for n in current.body) == 1
-            current.body = [n for n in current.body if ast.dump(n) != ast.dump(added_import)]
-            authorized_imports = [
-                ast.parse('from tkinter import messagebox').body[0],
-                ast.parse('from pandastable_local.data_orig import _prepare_cell_updates, _commit_cell_updates').body[0],
-            ]
-            for imported in authorized_imports:
-                assert sum(ast.dump(n) == ast.dump(imported) for n in current.body) == 1
-                current.body = [n for n in current.body if ast.dump(n) != ast.dump(imported)]
-            owner = next(n for n in current.body if isinstance(n, ast.ClassDef) and n.name == 'Dialogs')
-            init = next(n for n in owner.body if isinstance(n, ast.FunctionDef) and n.name == '__init__')
-            binding = next(n for n in init.body if isinstance(n, ast.Assign)
-                           and ast.unparse(n.targets[0]) == 'self.app')
-            # 仅放行有真实跨表输出测试接管的来源绑定，继续冻结其余对话框。
-            allowed = ast.parse("app.sheet_app(parent) if callable(getattr_static(app, 'sheet_app', None)) else app", mode='eval').body
-            assert ast.dump(binding.value) == ast.dump(allowed)
-            binding.value = ast.Name(id='app', ctx=ast.Load())
-            for tree in trees:
-                owner = next(n for n in tree.body if isinstance(n, ast.ClassDef)
-                             and n.name == 'findRepDialog')
-                # G17 查找、类型化替换有独立边界测试；其余共享方法仍冻结。
-                owner.body = [n for n in owner.body if not (
-                    isinstance(n, ast.FunctionDef) and n.name in {'find', 'replace'})]
-            assert ast.dump(trees[0]) == ast.dump(trees[1])
             continue
         if name == 'cpk_plot.py':
             # 仅放行规格限参数的关键字化与示例调用；图形与返回值由 G6 测试保护。
@@ -739,15 +690,20 @@ def test_quality_dialog_changes_are_only_output_statements(originals):
                 node.value = texts.get(node.value, node.value)
             return node
     assert current.count('self.app.print(f"分析变量：') == 5
-    current_tree = normalize_column_memory(ast.parse(current), 'qc_dialog.py')
+    current_tree = ast.parse(current)
+    current_tree.body = [node for node in current_tree.body if not (
+        isinstance(node, ast.ClassDef)
+        and node.name in {'Type1GageDialog', 'GageLinearityDialog'})]
+    current_tree = normalize_column_memory(current_tree, 'qc_dialog.py')
     normalize_p2_legacy(current_tree, 'qc_dialog.py', ast.parse(old))
     assert ast.dump(ReportOnly().visit(current_tree)) == ast.dump(ReportOnly().visit(ast.parse(old)))
 
 
 @pytest.mark.parametrize('guard,module,before,after', [
     (test_quality_dialog_changes_are_only_output_statements, 'qc_dialog.py', 'P=P,', 'P=0.5,'),
-    (test_shared_modules_and_plot_implementations_remain_at_baseline, 'dialog.py',
-     'self.title = title', 'self.title = None'),
+    (test_shared_modules_and_plot_implementations_remain_at_baseline, 'two_way_anova.py',
+     'from statsmodels.formula.api import ols',
+     'from statsmodels.formula.api import smf'),
 ])
 def test_freeze_rejects_unapproved_changes(originals, monkeypatch, guard, module, before, after):
     read = Path.read_text

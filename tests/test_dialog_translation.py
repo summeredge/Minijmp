@@ -700,17 +700,21 @@ def test_real_legacy_menu_entry_opens_all_six_panels(tk_root):
     errors = []
     original = tk_root.report_callback_exception
     tk_root.report_callback_exception = lambda *e: errors.append(e)
-    app = SimpleNamespace(table=table, _call=lambda method: getattr(table, method)())
+    app = SimpleNamespace(table=table, getCurrentTable=lambda: table,
+                          getCurrentSheet=lambda: '工作表1',
+                          replacePlotViewer=lambda *args, **kwargs: None,
+                          _call=lambda method: getattr(table, method)())
     try:
         MiniJMP.Minijmp.plot_selected(app)
         tk_root.update()
-        assert table.pf.main.title() == '通用绘图器'
-        assert [table.pf.nb.tab(tab, 'text') for tab in table.pf.nb.tabs()] == ['数据配置','基本选项','注释','网格布局','其他选项','三维选项','动画']
-        table.pf.close()
-        assert table.pf is None
+        preview = table._plot_preview
+        assert preview.main.title() == '通用绘图器 · 工作表1 · 预览'
+        assert [preview.nb.tab(tab, 'text') for tab in preview.nb.tabs()] == ['数据配置','基本选项','注释','网格布局','其他选项','三维选项','动画']
+        preview.close()
+        assert table._plot_preview is None
         assert not errors
     finally:
-        if getattr(table, 'pf', None) is not None: table.pf.close()
+        if getattr(table, '_plot_preview', None) is not None: table._plot_preview.close()
         frame.destroy()
         tk_root.report_callback_exception = original
 
