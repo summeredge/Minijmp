@@ -299,7 +299,8 @@ def write_project_file(filename, data):
     try:
         fd, temporary = tempfile.mkstemp(dir=Path(filename).resolve().parent, suffix='.tmp')
         with os.fdopen(fd, 'w+b') as raw:
-            with zipfile.ZipFile(raw, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
+            with zipfile.ZipFile(raw, 'w', compression=zipfile.ZIP_DEFLATED,
+                                 compresslevel=1) as archive:
                 for index, (name, record) in enumerate((item for item in data.items() if item[0] != 'meta'), 1):
                     if not Worksheets._valid_name(name) or not isinstance(record, dict):
                         raise ValueError('无效的工作表信息')
