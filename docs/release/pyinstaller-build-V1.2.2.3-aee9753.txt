@@ -1,0 +1,179 @@
+PASS: Python 3.11.9 satisfies >= 3.11.
+PASS: Interpreter is 64-bit.
+PASS: Installed dependencies match requirements-py311.lock.
+PASS: requirements-py311-hashed.lock has complete SHA-256 pins matching requirements-py311.lock.
+WARNING: Installed package versions do not prove the existing environment was installed from hash-verified wheels.
+PASS: python -m pip check passed.
+PASS: PyInstaller 6.22.3 (expected 6.22.3).
+Building MiniJMP v1.2.2.3 with PyInstaller
+120 INFO: PyInstaller: 6.22.3, contrib hooks: 2026.9
+121 INFO: Python: 3.11.9
+138 INFO: Platform: Windows-10-10.0.26300-SP0
+138 INFO: Python environment: C:\Users\shaoy\Documents\Minijmp\.venv
+140 INFO: wrote C:\Users\shaoy\Documents\Minijmp\build\windows-pkg-V1.2.2.3-aee9753\spec\MiniJMP.spec
+145 INFO: Removing temporary files and cleaning cache in C:\Users\shaoy\AppData\Local\pyinstaller
+1930 INFO: Module search paths (PYTHONPATH):
+['C:\\Users\\shaoy\\Documents\\Minijmp',
+ 'C:\\Users\\shaoy\\AppData\\Local\\Programs\\Python\\Python311\\python311.zip',
+ 'C:\\Users\\shaoy\\AppData\\Local\\Programs\\Python\\Python311\\DLLs',
+ 'C:\\Users\\shaoy\\AppData\\Local\\Programs\\Python\\Python311\\Lib',
+ 'C:\\Users\\shaoy\\AppData\\Local\\Programs\\Python\\Python311',
+ 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv',
+ 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages',
+ 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\win32',
+ 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\win32\\lib',
+ 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\pythonwin',
+ 'C:\\Users\\shaoy\\Documents\\Minijmp\\packaging',
+ 'C:\\Users\\shaoy\\Documents\\Minijmp\\code']
+2243 INFO: Appending 'datas' from .spec
+2250 INFO: checking Analysis
+2250 INFO: Building Analysis because Analysis-00.toc is non existent
+2250 INFO: Looking for Python shared library...
+2250 INFO: Using Python shared library: C:\Users\shaoy\AppData\Local\Programs\Python\Python311\python311.dll
+2250 INFO: Running Analysis Analysis-00.toc
+2250 INFO: Target bytecode optimization level: 0
+2250 INFO: Initializing module dependency graph...
+2251 INFO: Initializing module graph hook caches...
+2277 INFO: Analyzing modules for base_library.zip ...
+3063 INFO: Processing standard module hook 'hook-encodings.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+3639 INFO: Processing standard module hook 'hook-heapq.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+4938 INFO: Processing standard module hook 'hook-math.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+5040 INFO: Processing standard module hook 'hook-pickle.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+6736 INFO: Caching module dependency graph...
+6762 INFO: Analyzing C:\Users\shaoy\Documents\Minijmp\packaging\windows_entrypoint.py
+6763 INFO: Processing pre-find-module-path hook 'hook-tkinter.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_find_module_path'
+6795 INFO: TclTkInfo: initializing cached Tcl/Tk info...
+7099 INFO: Processing standard module hook 'hook-_tkinter.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+7168 INFO: Processing standard module hook 'hook-platform.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+7373 INFO: Processing standard module hook 'hook-numpy.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+7888 INFO: Processing pre-safe-import-module hook 'hook-typing_extensions.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+7896 INFO: SetuptoolsInfo: initializing cached setuptools info...
+9290 INFO: Processing standard module hook 'hook-multiprocessing.util.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+9518 INFO: Processing standard module hook 'hook-xml.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+9973 INFO: Processing standard module hook 'hook-_ctypes.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+10613 INFO: Processing standard module hook 'hook-difflib.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+11252 INFO: Processing standard module hook 'hook-sysconfig.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+12397 INFO: Processing standard module hook 'hook-webbrowser.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+14563 INFO: Processing standard module hook 'hook-pandas.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+16183 INFO: Processing standard module hook 'hook-zoneinfo.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+16461 INFO: Processing standard module hook 'hook-scipy.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+17196 INFO: Processing standard module hook 'hook-pytest.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+17488 INFO: Processing standard module hook 'hook-pygments.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+18848 INFO: Processing standard module hook 'hook-py.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+19100 INFO: Processing pre-safe-import-module hook 'hook-packaging.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+19316 INFO: Processing pre-safe-import-module hook 'hook-tomli.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+19317 INFO: Setuptools: 'tomli' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.tomli'!
+19325 INFO: Processing standard module hook 'hook-setuptools.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+19351 INFO: Processing pre-safe-import-module hook 'hook-distutils.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+19354 INFO: Processing pre-find-module-path hook 'hook-distutils.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_find_module_path'
+19682 INFO: Processing standard module hook 'hook-distutils.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+19741 INFO: Processing standard module hook 'hook-distutils.util.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+19806 INFO: Processing standard module hook 'hook-_osx_support.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+20064 INFO: Processing pre-safe-import-module hook 'hook-jaraco.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+20066 INFO: Setuptools: 'jaraco' appears to be a full setuptools-vendored copy - creating alias to 'setuptools._vendor.jaraco'!
+20079 INFO: Processing standard module hook 'hook-setuptools._vendor.jaraco.text.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+20081 INFO: Processing pre-safe-import-module hook 'hook-importlib_resources.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+20086 INFO: Processing standard module hook 'hook-importlib_resources.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+20137 INFO: Processing pre-safe-import-module hook 'hook-zipp.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+20183 INFO: Processing pre-safe-import-module hook 'hook-backports.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+20185 INFO: Setuptools: 'backports' appears to be a full setuptools-vendored copy - creating alias to 'setuptools._vendor.backports'!
+20347 INFO: Processing pre-safe-import-module hook 'hook-more_itertools.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+20350 INFO: Setuptools: 'more_itertools' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.more_itertools'!
+21551 INFO: Processing pre-safe-import-module hook 'hook-wheel.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+21553 INFO: Setuptools: 'wheel' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.wheel'!
+23376 INFO: Processing standard module hook 'hook-scipy.linalg.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+23569 INFO: Processing standard module hook 'hook-scipy.special._ufuncs.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+23880 INFO: Processing standard module hook 'hook-scipy.special._ellip_harm_2.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+24436 INFO: Processing standard module hook 'hook-scipy.spatial._ckdtree.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+24510 INFO: Processing standard module hook 'hook-matplotlib.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+25254 INFO: Processing standard module hook 'hook-matplotlib.backend_bases.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+25413 INFO: Processing standard module hook 'hook-PIL.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+25603 INFO: Processing standard module hook 'hook-PIL.Image.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+26086 INFO: Processing standard module hook 'hook-xml.etree.cElementTree.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+26379 INFO: Processing standard module hook 'hook-PIL.ImageFilter.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+27541 INFO: Processing standard module hook 'hook-matplotlib.backends.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+27721 INFO: Processing standard module hook 'hook-matplotlib.pyplot.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+27843 INFO: Processing standard module hook 'hook-matplotlib.figure.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+28773 INFO: Processing standard module hook 'hook-dateutil.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+28884 INFO: Processing pre-safe-import-module hook 'hook-six.moves.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+30757 INFO: Processing pre-safe-import-module hook 'hook-gi.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+32971 INFO: Processing standard module hook 'hook-scipy.sparse.csgraph.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+33668 INFO: Processing standard module hook 'hook-scipy.spatial.transform.rotation.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+34845 INFO: Processing standard module hook 'hook-scipy.stats._stats.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+38880 INFO: Processing standard module hook 'hook-pandas.io.formats.style.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+40798 INFO: Processing standard module hook 'hook-pyarrow.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+43590 INFO: Processing standard module hook 'hook-pandas.plotting.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+45458 INFO: Processing standard module hook 'hook-openpyxl.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+47918 INFO: Processing standard module hook 'hook-sqlite3.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+48228 INFO: Processing standard module hook 'hook-pandas.io.clipboard.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+48500 INFO: Processing standard module hook 'hook-xml.dom.domreg.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+49757 INFO: Processing standard module hook 'hook-patsy.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+51087 INFO: Processing standard module hook 'hook-narwhals.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+55496 INFO: Processing standard module hook 'hook-statsmodels.tsa.statespace.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+65337 INFO: Processing standard module hook 'hook-prettytable.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+65449 INFO: Processing standard module hook 'hook-wcwidth.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+66020 INFO: Processing standard module hook 'hook-plotly.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+85324 INFO: Processing pre-safe-import-module hook 'hook-win32com.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\pre_safe_import_module'
+87350 INFO: Processing pre-find-module-path hook 'hook-pyi_splash.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_find_module_path'
+87353 INFO: Adding pyi_splash module to application dependencies.
+87361 INFO: Analyzing hidden import 'tkwry.testing'
+87366 INFO: Processing module hooks (post-graph stage)...
+87584 WARNING: Hidden import "importlib_resources.trees" not found!
+87585 INFO: Processing standard module hook 'hook-matplotlib.backends.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+87585 INFO: Matplotlib backend selection method: automatic discovery of used backends
+87697 INFO: Discovered Matplotlib backend(s) via `matplotlib.use()` call in module 'pandastable_local.app': ['TkAgg']
+87830 INFO: The following Matplotlib backends were discovered by scanning for `matplotlib.use()` calls: ['TkAgg']. If your backend of choice is not in this list, either add a `matplotlib.use()` call to your code, or configure the backend collection via hook options (see: https://pyinstaller.org/en/stable/hooks-config.html#matplotlib-hooks).
+88188 INFO: Selected matplotlib backends: ['TkAgg']
+88189 INFO: Extra dists for selected matplotlib backends: []
+88811 INFO: Processing standard module hook 'hook-PIL.SpiderImagePlugin.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+92365 WARNING: Hidden import "scipy.special._cdflib" not found!
+92973 INFO: Processing standard module hook 'hook-_tkinter.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+92974 INFO: Processing standard module hook 'hook-tzdata.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+93666 INFO: Performing binary vs. data reclassification (2436 entries)
+94415 INFO: Looking for ctypes DLLs
+94714 INFO: Analyzing run-time hooks ...
+94733 INFO: Including run-time hook 'pyi_rth_inspect.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+94741 INFO: Including run-time hook 'pyi_rth_pkgutil.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+94747 INFO: Including run-time hook 'pyi_rth_multiprocessing.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+94752 INFO: Including run-time hook 'pyi_rth_setuptools.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+94756 INFO: Including run-time hook 'pyi_rth_mplconfig.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+94763 INFO: Processing pre-find-module-path hook 'hook-_pyi_rth_utils.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_find_module_path'
+94771 INFO: Processing standard module hook 'hook-_pyi_rth_utils.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+94790 INFO: Including run-time hook 'pyi_rth__tkinter.py' from 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+94912 INFO: Creating base_library.zip...
+94936 INFO: Looking for dynamic libraries
+101416 INFO: Extra DLL search directories (AddDllDirectory): ['C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\pyarrow.libs', 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\numpy.libs', 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\pandas.libs', 'C:\\Users\\shaoy\\Documents\\Minijmp\\.venv\\Lib\\site-packages\\scipy.libs']
+101416 INFO: Extra DLL search directories (PATH): []
+106632 INFO: Warnings written to C:\Users\shaoy\Documents\Minijmp\build\windows-pkg-V1.2.2.3-aee9753\work\MiniJMP\warn-MiniJMP.txt
+107033 INFO: Graph cross-reference written to C:\Users\shaoy\Documents\Minijmp\build\windows-pkg-V1.2.2.3-aee9753\work\MiniJMP\xref-MiniJMP.html
+107185 INFO: checking PYZ
+107185 INFO: Building PYZ because PYZ-00.toc is non existent
+107186 INFO: Building PYZ (ZlibArchive) C:\Users\shaoy\Documents\Minijmp\build\windows-pkg-V1.2.2.3-aee9753\work\MiniJMP\PYZ-00.pyz
+110117 INFO: Building PYZ (ZlibArchive) C:\Users\shaoy\Documents\Minijmp\build\windows-pkg-V1.2.2.3-aee9753\work\MiniJMP\PYZ-00.pyz completed successfully.
+110187 INFO: Verifying Tcl/Tk compatibility with splash screen requirements
+110189 INFO: Collecting Tcl/Tk data files for the splash screen
+110399 INFO: checking Splash
+110399 INFO: Building Splash because Splash-00.toc is non existent
+110399 INFO: Building Splash C:\Users\shaoy\Documents\Minijmp\build\windows-pkg-V1.2.2.3-aee9753\work\MiniJMP\Splash-00.res
+110429 INFO: checking PKG
+110429 INFO: Building PKG because PKG-00.toc is non existent
+110429 INFO: Building PKG (CArchive) MiniJMP.pkg
+110487 INFO: Building PKG (CArchive) MiniJMP.pkg completed successfully.
+110488 INFO: Bootloader C:\Users\shaoy\Documents\Minijmp\.venv\Lib\site-packages\PyInstaller\bootloader\Windows-64bit-intel\runw.exe
+110488 INFO: checking EXE
+110488 INFO: Building EXE because EXE-00.toc is non existent
+110488 INFO: Building EXE from EXE-00.toc
+110489 INFO: Copying bootloader EXE to C:\Users\shaoy\Documents\Minijmp\build\windows-pkg-V1.2.2.3-aee9753\work\MiniJMP\MiniJMP.exe
+110835 INFO: Copying icon to EXE
+111011 INFO: Copying version information to EXE
+111182 INFO: Copying 0 resources to EXE
+111182 INFO: Embedding manifest in EXE
+111365 INFO: Appending PKG archive to EXE
+111393 INFO: Fixing EXE headers
+111536 INFO: Building EXE from EXE-00.toc completed successfully.
+111552 INFO: checking COLLECT
+111553 INFO: Building COLLECT because COLLECT-00.toc is non existent
+111553 INFO: Building COLLECT COLLECT-00.toc
+117845 INFO: Building COLLECT COLLECT-00.toc completed successfully.
+117964 INFO: Build complete! The results are available in: C:\Users\shaoy\Documents\Minijmp\build\windows-pkg-V1.2.2.3-aee9753\dist
+pyarrow pruned: 624 files, 33.6 MiB removed
