@@ -1287,7 +1287,8 @@ class MTable(Table):
         """Store current version of the table before a major change is made"""
 
         #  print(len(self.prevdf),self.prevdf_end)
-        prevdf = (self.dataframe if self.filtered else self.model.df).copy()
+        # pandas 3 Copy-on-Write keeps history isolated and defers block copies to writes.
+        prevdf = (self.dataframe if self.filtered else self.model.df).copy(deep=False)
         snapshot = self._formula_snapshot() if hasattr(self, '_formula_state') else None
         if self.prevdf is None:
             self.prevdf = [prevdf]
@@ -1339,7 +1340,7 @@ class MTable(Table):
 
         self.prevdf_end -= 1
         prevdf = self.prevdf[self.prevdf_end]
-        self.model.df = prevdf.copy()
+        self.model.df = prevdf.copy(deep=False)
         if (hasattr(self, 'refresh_formulas')
                 and (not getattr(self, '_formula_history', None)
                      or not self._restore_formula_snapshot(self.prevdf_end))):
@@ -1358,7 +1359,7 @@ class MTable(Table):
             return
         self.prevdf_end += 1
         prevdf = self.prevdf[self.prevdf_end]
-        self.model.df = prevdf.copy()
+        self.model.df = prevdf.copy(deep=False)
         if (hasattr(self, 'refresh_formulas')
                 and (not getattr(self, '_formula_history', None)
                      or not self._restore_formula_snapshot(self.prevdf_end))):

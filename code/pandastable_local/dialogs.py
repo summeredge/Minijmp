@@ -2048,7 +2048,7 @@ class QueryDialog(Frame):
 
         if self.applyqueryvar.get() == 1:
             #replace current dataframe but keep a copy!
-            table.dataframe = table.model.df.copy()
+            table.dataframe = table.model.df.copy(deep=False)
             table.delete('rowrect')
             table.selectNone()
             table.highlighted = None

@@ -194,8 +194,16 @@ def test_all_statistics_menu_dialogs_construct_and_close(tk_root):
     app = SimpleNamespace(dialog_help_msg=lambda **kw: '')
     data = pd.DataFrame({'x': [1., 2., 3.], 'y': [4., 6., 5.], 'group': ['a', 'a', 'b']})
     assert len(types) >= 40
+    special_kinds = {'EquivalenceDialog': 'one',
+                     'NonparametricDialog': 'sign',
+                     'SubgroupChartDialog': 'Xbar'}
     for cls in types:
-        widget = cls(parent=tk_root, df=data.copy(), title=cls.__name__, app=app)
+        options = {'parent': tk_root, 'df': data.copy(), 'app': app}
+        if cls.__name__ in special_kinds:
+            options['kind'] = special_kinds[cls.__name__]
+        else:
+            options['title'] = cls.__name__
+        widget = cls(**options)
         widget.main.withdraw()
         tk_root.update_idletasks()
         assert widget.main.winfo_exists(), cls.__name__
