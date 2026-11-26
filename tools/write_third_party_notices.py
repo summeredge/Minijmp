@@ -133,7 +133,7 @@ def generate(destination, public=False):
         rows.append(f'- {package} — {license_name}; {filename}')
 
     if public:
-        pi_bundle = ('本公开候选包由 GitHub Actions 自动构建，不包含 OSIsoft/AVEVA PI SDK 组件；'
+        pi_bundle = ('本公开候选包不包含 OSIsoft/AVEVA PI SDK 组件；'
                      '包含自研 PIReader.exe；PI 功能需要目标电脑合法安装兼容的 PI SDK/PIPC，默认配置为 PIReader/config.txt。未实测企业 PI 连接。\n\n')
         pireader_line = ('PIReader/ source code is developed in-house for MiniJMP; GPL-3.0-or-later; see LICENSE. '
                          'The public runtime reuses PIReader/PIReader.exe; see BUILD-INFO.txt for its version, digest and any recorded provenance.\n')

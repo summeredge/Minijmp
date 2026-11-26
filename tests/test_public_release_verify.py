@@ -252,6 +252,7 @@ def test_public_notices_describe_source_built_reader(tmp_path, monkeypatch):
     notices.generate(tmp_path, public=True)
     text = (tmp_path / 'THIRD-PARTY-NOTICES.txt').read_text(encoding='utf-8')
     assert 'PIReader/PIReader.exe' in text and 'PIReader/config.txt' in text
+    assert 'GitHub Actions 自动构建' not in text
     assert 'PI 数据导入功能不可用' not in text
     assert 'Excluding DLLs does not establish compliance' in text
 
