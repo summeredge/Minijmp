@@ -580,14 +580,24 @@ class ProgressDialog(Toplevel):
                             length=200, mode='indeterminate')
 
 
-def run_import_task(parent, phase, operation):
+def run_import_task(parent, phase, operation, title=None):
     """Run file work off Tk and wait while Tk continues to dispatch events."""
     status = Toplevel(parent)
-    status.title('导入数据')
+    status.title(f'导入数据：{title}' if title else '导入数据')
     status.transient(parent.winfo_toplevel())
-    status.protocol('WM_DELETE_WINDOW', lambda: None)
     label = Label(status, text=phase, width=36)
     label.pack(padx=12, pady=12)
+    progress = Progressbar(status, mode='indeterminate', length=220)
+    progress.pack(fill=X, padx=12, pady=(0, 8))
+    progress.start(12)
+
+    def close_status():
+        if status.winfo_exists():
+            progress.stop()
+            status.destroy()
+
+    status.protocol('WM_DELETE_WINDOW', close_status)
+    Button(status, text='取消', command=close_status).pack(pady=(0, 10))
     mailbox = queue.Queue()
     result = []
     pending = None
@@ -613,7 +623,7 @@ def run_import_task(parent, phase, operation):
                 label.configure(text=value)
             else:
                 result.append((kind, value))
-                status.destroy()
+                close_status()
                 return
 
     def cleanup(event):

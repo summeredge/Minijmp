@@ -388,7 +388,28 @@ def read_project_file(filename):
         raise ValueError('工程文件无效或已损坏') from error
 
 
-def _restore_excel_precision(filename, frames):
+def _iter_excel_precision_values(workbook, path):
+    main_ns = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+    row_tag, cell_tag, value_tag = (main_ns + tag for tag in ("row", "c", "v"))
+    with workbook.open(path) as stream:
+        sheet_data = None
+        for event, element in ET.iterparse(stream, events=("start", "end")):
+            if event == "start":
+                if element.tag == main_ns + "sheetData":
+                    sheet_data = element
+                continue
+            if element.tag != row_tag or sheet_data is None:
+                continue
+            for cell in element.iter(cell_tag):
+                if cell.get("t") in (None, "n"):
+                    value = cell.findtext(value_tag)
+                    if value:
+                        yield cell.get("r", ""), value
+            sheet_data.remove(element)
+            element.clear()
+
+
+def _restore_excel_precision(filename, frames, precision_values):
     main_ns = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
     relation_id = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
     with zipfile.ZipFile(filename) as workbook:
@@ -402,47 +423,33 @@ def _restore_excel_precision(filename, frames):
             target = targets[sheet.get(relation_id)]
             path = (target.lstrip("/") if target.startswith("/") else
                     posixpath.normpath(posixpath.join("xl", target)))
+            column_numbers = {}
             replacements = {}
             columns = [frame.iloc[:, i].array for i in range(frame.shape[1])]
-            column_numbers = {}
-            row_tag, cell_tag, value_tag = (main_ns + tag for tag in ("row", "c", "v"))
-            with workbook.open(path) as stream:
-                sheet_data = None
-                for event, element in ET.iterparse(stream, events=("start", "end")):
-                    if event == "start":
-                        if element.tag == main_ns + "sheetData":
-                            sheet_data = element
-                        continue
-                    if element.tag != row_tag or sheet_data is None:
-                        continue
-                    for cell in element.iter(cell_tag):
-                        if cell.get("t") not in (None, "n"):
-                            continue
-                        value = cell.findtext(value_tag)
-                        reference = cell.get("r", "")
-                        letters = reference.rstrip("0123456789")
-                        if not value or not letters or letters == reference:
-                            continue
-                        if letters not in column_numbers:
-                            column = 0
-                            for char in letters.upper():
-                                column = column * 26 + ord(char) - ord("A") + 1
-                            column_numbers[letters] = column - 1
-                        column = column_numbers[letters]
-                        row = int(reference[len(letters):]) - 2
-                        if not (0 <= row < len(frame) and 0 <= column < len(columns)):
-                            continue
-                        current = columns[column][row]
-                        if not isinstance(current, Number) or pd.isna(current):
-                            continue
-                        parsed = str(current)
-                        try:
-                            if value != parsed and Decimal(value) != Decimal(parsed):
-                                replacements.setdefault(column, {})[row] = value
-                        except InvalidOperation:
-                            continue
-                    sheet_data.remove(element)
-                    element.clear()
+            source = (precision_values.get(path, {}).items() if precision_values is not None
+                      else _iter_excel_precision_values(workbook, path))
+            for reference, value in source:
+                letters = reference.rstrip("0123456789")
+                if not value or not letters or letters == reference:
+                    continue
+                if letters not in column_numbers:
+                    column = 0
+                    for char in letters.upper():
+                        column = column * 26 + ord(char) - ord("A") + 1
+                    column_numbers[letters] = column - 1
+                column = column_numbers[letters]
+                row = int(reference[len(letters):]) - 2
+                if not (0 <= row < len(frame) and 0 <= column < len(columns)):
+                    continue
+                current = columns[column][row]
+                if not isinstance(current, Number) or pd.isna(current):
+                    continue
+                parsed = str(current)
+                try:
+                    if value != parsed and Decimal(value) != Decimal(parsed):
+                        replacements.setdefault(column, {})[row] = value
+                except InvalidOperation:
+                    continue
             for column, cells in replacements.items():
                 values = frame.iloc[:, column].astype(object)
                 for row, value in cells.items():
@@ -451,7 +458,7 @@ def _restore_excel_precision(filename, frames):
 
 
 def _read_excel(filename, phase):
-    import_limits.check_excel(filename)
+    precision_values = import_limits.check_excel(filename)
     phase('正在读取 Excel 工作表…')
     frames = pd.read_excel(filename, sheet_name=None, dtype=object)
     import_limits.check_frames(frames)
@@ -464,9 +471,10 @@ def _read_excel(filename, phase):
             if inferred.dtype.kind not in 'iuf' or not any(
                     isinstance(value, int) and abs(value) > 2**53 for value in values):
                 df.isetitem(position, inferred)
-    if Path(filename).suffix.lower() == '.xlsx':
+    if (Path(filename).suffix.lower() == '.xlsx'
+            and (precision_values is None or precision_values)):
         # shortcut: XML token recovery is .xlsx-only; legacy .xls stores numeric cells as doubles.
-        _restore_excel_precision(filename, frames)
+        _restore_excel_precision(filename, frames, precision_values)
     return frames
 
 
@@ -976,8 +984,15 @@ class Worksheets:
         if not filename:
             return False
 
-        def read(phase, options, bounded):
+        def read(phase, options, bounded, preserve_text_na=False):
             if bounded:
+                options = dict(options)
+                if preserve_text_na:
+                    if options.get('header') is True:
+                        options['header'] = 0
+                    elif options.get('header') is False:
+                        options['header'] = None
+                    options.setdefault('keep_default_na', False)
                 if options.get('dtype') is None and 'converters' not in options:
                     df = import_limits.read_csv_bounded(filename, **{**options, 'dtype': object})
                     phase('正在转换列类型…')
@@ -996,7 +1011,7 @@ class Worksheets:
                 return options, None
             phase('正在读取 CSV…')
             try:
-                df = read(phase, options, False)
+                df = read(phase, options, True, preserve_text_na=True)
             except UnicodeDecodeError:
                 phase('正在检测 CSV 编码…')
                 return core_orig.detect_csv(filename, retry_encoding=True), None
@@ -1007,14 +1022,17 @@ class Worksheets:
         def load():
             if advanced:
                 if run_import_task(self.main, '正在检查 CSV…',
-                                   lambda phase: import_limits.check_file(filename) or True) is None:
+                                   lambda phase: import_limits.check_file(filename) or True,
+                                   title=Path(filename).name) is None:
                     return None
                 df = core_orig.ImportDialog(self.main, filename=filename).df
             elif kwargs:
                 df = run_import_task(self.main, '正在读取 CSV…',
-                                     lambda phase: read(phase, kwargs, True))
+                                     lambda phase: read(phase, kwargs, True),
+                                     title=Path(filename).name)
             else:
-                result = run_import_task(self.main, '正在检测 CSV 格式…', auto_read)
+                result = run_import_task(self.main, '正在检测 CSV 格式…', auto_read,
+                                         title=Path(filename).name)
                 if result is None:
                     return None
                 options, df = result
@@ -1033,7 +1051,8 @@ class Worksheets:
         if not filename:
             return False
         return self._import_file(filename, 'Excel', lambda: run_import_task(
-            self.main, '正在检查 Excel 文件…', lambda phase: _read_excel(filename, phase)))
+            self.main, '正在检查 Excel 文件…', lambda phase: _read_excel(filename, phase),
+            title=Path(filename).name))
 
     def import_pi_data(self):
         from pi_import import PIImportDialog

@@ -276,6 +276,7 @@ def test_worksheet_csv_kwargs_preserve_precision_and_decimal(tk_root, tmp_path, 
 
 
 def test_worksheet_excel_import_preserves_exact_numeric_cells_and_sheets(tk_root, tmp_path, monkeypatch):
+    from pandastable_local import import_limits
     from worksheets import Worksheets
 
     filename = tmp_path / "book.xlsx"
@@ -297,6 +298,7 @@ def test_worksheet_excel_import_preserves_exact_numeric_cells_and_sheets(tk_root
                         cell.find(namespace + "v").text = exact_values[cell.get("r")]
                 content = ET.tostring(root, encoding="utf-8")
             target.writestr(item, content)
+    assert import_limits.check_excel(patched)
     imported = Mock()
     app = SimpleNamespace(
         main=tk_root,
@@ -314,6 +316,42 @@ def test_worksheet_excel_import_preserves_exact_numeric_cells_and_sheets(tk_root
     assert frames["数据"]["精确值"].tolist() == ["0.123456789012345678", 1.25, 2.5]
     assert frames["其他"]["值"].tolist() == [7]
     error.assert_not_called()
+
+
+def test_excel_precision_scan_skips_workbooks_without_long_numeric_tokens(tmp_path, monkeypatch):
+    import worksheets
+    from pandastable_local import import_limits
+
+    filename = tmp_path / "ordinary.xlsx"
+    pd.DataFrame({"整数": [1, 2], "小数": [0.125, 2.5]}).to_excel(filename, index=False)
+    assert not import_limits.check_excel(filename)
+    restore = Mock(side_effect=AssertionError("无需恢复普通数值精度"))
+    monkeypatch.setattr(worksheets, "_restore_excel_precision", restore)
+    frames = worksheets._read_excel(filename, lambda phase: None)
+    assert frames["Sheet1"].shape == (2, 2)
+    restore.assert_not_called()
+
+
+def test_excel_precision_candidate_limit_falls_back_to_streaming_restore(tmp_path, monkeypatch):
+    import worksheets
+    from pandastable_local import import_limits
+
+    filename = tmp_path / "precision.xlsx"
+    pd.DataFrame({"数值": [1.5]}).to_excel(filename, index=False)
+    patched = tmp_path / "precision-patched.xlsx"
+    namespace = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+    with zipfile.ZipFile(filename) as source, zipfile.ZipFile(patched, "w") as target:
+        for item in source.infolist():
+            content = source.read(item.filename)
+            if item.filename == "xl/worksheets/sheet1.xml":
+                root = ET.fromstring(content)
+                root.find(f".//{namespace}c[@r='A2']/{namespace}v").text = "0.123456789012345678"
+                content = ET.tostring(root, encoding="utf-8")
+            target.writestr(item, content)
+    monkeypatch.setattr(import_limits, "MAX_EXCEL_PRECISION_CELLS", 0)
+    assert import_limits.check_excel(patched) is None
+    frames = worksheets._read_excel(patched, lambda phase: None)
+    assert frames["Sheet1"]["数值"].tolist() == ["0.123456789012345678"]
 
 
 def import_through_menu(filename, **kwargs):

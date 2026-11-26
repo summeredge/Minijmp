@@ -72,7 +72,7 @@ def test_import_worker_keeps_tk_responsive_and_blocks_repeat(csv_app, tmp_path, 
     frame = pd.DataFrame({'id': ['001'] * 200, 'value': range(200)})
     if suffix == '.csv':
         frame.to_csv(path, index=False)
-        owner, method = core_orig, 'read_csv'
+        owner, method = pd, 'read_csv'
     else:
         frame.to_excel(path, index=False)
         owner, method = worksheets.pd, 'read_excel'
@@ -111,6 +111,75 @@ def test_import_worker_keeps_tk_responsive_and_blocks_repeat(csv_app, tmp_path, 
     assert imported and observations == [(True, False, False)]
     assert_frame_equal(app.table.model.df, frame)
     assert len(app.nb.tabs()) == 2
+    error.assert_not_called()
+
+
+def test_auto_csv_import_preserves_text_na_empty_values_and_identifiers(csv_app, tmp_path):
+    app, error = csv_app
+    path = tmp_path / 'mixed-values.csv'
+    path.write_text(
+        '编号,文本,数值,日期\n001,NA,1.25,2026-11-26\n002,,2.5,2026-11-27\n',
+        encoding='utf-8')
+
+    assert app.import_csv(filename=path)
+    frame = app.table.model.df
+    assert frame['编号'].tolist() == ['001', '002']
+    assert frame['文本'].iloc[0] == 'NA' and pd.isna(frame['文本'].iloc[1])
+    assert frame['数值'].tolist() == [1.25, 2.5]
+    assert frame['日期'].tolist() == ['2026-11-26', '2026-11-27']
+    error.assert_not_called()
+
+
+def test_cancelled_background_csv_is_not_published(csv_app, tmp_path, monkeypatch):
+    from pandastable_local import import_limits
+
+    app, error = csv_app
+    original_table = app.table
+    path = tmp_path / 'cancel.csv'
+    path.write_text('id,value\n' + '1,2\n' * 200, encoding='utf-8')
+    entered, release, finished = Event(), Event(), Event()
+    read = import_limits.read_csv_bounded
+
+    def gated_read(*args, **kwargs):
+        entered.set()
+        assert release.wait(5)
+        try:
+            return read(*args, **kwargs)
+        finally:
+            finished.set()
+
+    monkeypatch.setattr(import_limits, 'read_csv_bounded', gated_read)
+    pending = None
+
+    def cancel_when_reading():
+        nonlocal pending
+        pending = None
+        if not entered.is_set():
+            pending = app.main.after(10, cancel_when_reading)
+            return
+        status = next(widget for widget in app.main.winfo_children()
+                      if isinstance(widget, tk.Toplevel)
+                      and widget.title().startswith('导入数据：'))
+        widgets = list(status.winfo_children())
+        while widgets:
+            widget = widgets.pop()
+            widgets.extend(widget.winfo_children())
+            if isinstance(widget, dialogs.Button) and widget.cget('text') == '取消':
+                widget.invoke()
+                return
+        raise AssertionError('导入窗口未显示取消按钮')
+
+    pending = app.main.after(0, cancel_when_reading)
+    try:
+        assert app.import_csv(filename=path) is False
+    finally:
+        release.set()
+        if pending is not None:
+            app.main.after_cancel(pending)
+    assert finished.wait(5)
+    app.main.update_idletasks()
+    assert app.table is original_table
+    assert len(app.nb.tabs()) == 1
     error.assert_not_called()
 
 

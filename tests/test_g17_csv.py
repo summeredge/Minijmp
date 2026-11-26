@@ -8,7 +8,7 @@ from unittest.mock import Mock
 import pandas as pd
 import pytest
 
-from pandastable_local import csv_import
+from pandastable_local import csv_import, import_limits
 
 
 @pytest.mark.parametrize('encoding,bom,detected,confirm', [
@@ -123,6 +123,18 @@ def test_numeric_inference_handles_pd_na_and_chinese_columns():
     assert result['混合状态'].iloc[[0, 2]].tolist() == ['运行', 'NA']
     assert pd.isna(result['混合状态'].iloc[1])
     assert result['精确值'].tolist() == ['0.123456789012345678', '1.25', '2.5']
+
+
+def test_header_is_not_counted_against_import_cell_limit(tmp_path, monkeypatch):
+    monkeypatch.setattr(import_limits, 'MAX_CELLS', 2)
+    path = tmp_path / 'header.csv'
+    path.write_text('id\n1\n2\n', encoding='utf-8')
+    frame = csv_import.read_csv(path, 'utf-8', ',', True)
+    assert frame['id'].tolist() == [1, 2]
+
+    path.write_text('1\n2\n3\n', encoding='utf-8')
+    with pytest.raises(ValueError, match='1000 万单元格'):
+        csv_import.read_csv(path, 'utf-8', ',', False)
 
 
 @pytest.mark.parametrize('tail', ['3', '3,4,5', '"unterminated,3', '3,\x00'])

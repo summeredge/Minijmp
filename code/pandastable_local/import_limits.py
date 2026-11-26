@@ -11,6 +11,8 @@ MAX_METADATA_BYTES = 16 * 1024**2
 MAX_ROWS = 2_000_000
 MAX_COLUMNS = 16_384
 MAX_CELLS = 10_000_000
+# Bound the sparse precision-token cache; denser files use streaming recovery.
+MAX_EXCEL_PRECISION_CELLS = 100_000
 MAX_SHEETS = 256
 MAX_MEMBERS = 4096
 MAX_PARSE_SECONDS = 60
@@ -86,6 +88,9 @@ def check_excel(filename):
     check_file(filename)
     start = monotonic()
     cells = sheets = 0
+    precision_values = {}
+    precision_count = 0
+    precision_overflow = False
     if Path(filename).suffix.lower() == '.xls':
         import xlrd
         with xlrd.open_workbook(filename, on_demand=True) as book:
@@ -97,7 +102,7 @@ def check_excel(filename):
                 cells += sheet.nrows * sheet.ncols
                 check_shape(sheet.nrows, sheet.ncols, cells=cells)
                 book.unload_sheet(index)
-        return
+        return precision_values
     with zipfile.ZipFile(filename) as archive:
         check_archive(archive)
         for name in archive.namelist():
@@ -107,10 +112,23 @@ def check_excel(filename):
             if sheets > MAX_SHEETS:
                 raise ValueError('文件超过 256 个工作表导入上限。')
             rows = columns = 0
+            sheet_precision = {}
+            state = {'numeric': False, 'reading_value': False, 'seen_nonzero': False,
+                     'significant_digits': 0, 'mantissa': True, 'cell_reference': None,
+                     'value_text': None, 'precision_candidate': False}
+
             def check_cell(tag, attrs):
                 nonlocal rows, columns
-                if tag != 'c' and not tag.endswith('}c'):
+                local_tag = tag.rsplit('}', 1)[-1]
+                if local_tag == 'v' and state['numeric']:
+                    state.update(reading_value=True, seen_nonzero=False,
+                                 significant_digits=0, mantissa=True, value_text=None,
+                                 precision_candidate=False)
                     return
+                if local_tag != 'c':
+                    return
+                state['numeric'] = attrs.get('t') in (None, 'n')
+                state['cell_reference'] = attrs.get('r')
                 reference = attrs.get('r', '')
                 row_text = reference.lstrip('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
                 row = int(row_text or 0)
@@ -122,8 +140,48 @@ def check_excel(filename):
                     columns = max(columns, column)
                     check_shape(rows, columns, cells=cells + rows * columns)
 
+            def check_precision(text):
+                if not state['reading_value'] or precision_overflow:
+                    return
+                if state['value_text'] is None:
+                    state['value_text'] = text
+                else:
+                    state['value_text'] += text
+                if state['precision_candidate']:
+                    return
+                for character in text:
+                    if character in 'eE':
+                        state['mantissa'] = False
+                        return
+                    if state['mantissa'] and character.isdigit():
+                        if state['seen_nonzero'] or character != '0':
+                            state['seen_nonzero'] = True
+                            state['significant_digits'] += 1
+                            if state['significant_digits'] > 15:
+                                state['precision_candidate'] = True
+                                return
+
+            def finish_cell(tag):
+                nonlocal precision_count, precision_overflow
+                local_tag = tag.rsplit('}', 1)[-1]
+                if local_tag == 'v':
+                    if state['precision_candidate'] and state['cell_reference']:
+                        precision_count += 1
+                        if precision_count <= MAX_EXCEL_PRECISION_CELLS:
+                            sheet_precision[state['cell_reference']] = state['value_text']
+                        else:
+                            precision_overflow = True
+                            precision_values.clear()
+                            sheet_precision.clear()
+                    state['reading_value'] = False
+                elif local_tag == 'c':
+                    state['numeric'] = False
+                    state['cell_reference'] = None
+
             parser = expat.ParserCreate(namespace_separator='}')
             parser.StartElementHandler = check_cell
+            parser.EndElementHandler = finish_cell
+            parser.CharacterDataHandler = check_precision
             with archive.open(name) as stream:
                 while block := stream.read(64 * 1024):
                     check_deadline(start)
@@ -131,3 +189,6 @@ def check_excel(filename):
                 parser.Parse(b'', True)
                 check_deadline(start)
             cells += rows * columns
+            if sheet_precision:
+                precision_values[name] = sheet_precision
+    return None if precision_overflow else precision_values

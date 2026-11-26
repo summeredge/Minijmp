@@ -21,7 +21,7 @@ def read_records(text, delimiter):
     return _read_records(io.StringIO(text, newline=""), delimiter)
 
 
-def _read_records(lines, delimiter, partial=False):
+def _read_records(lines, delimiter, partial=False, header_rows=0):
     def checked_lines():
         for line in lines:
             if '\x00' in line:
@@ -45,7 +45,7 @@ def _read_records(lines, delimiter, partial=False):
             continue
         import_limits.check_deadline(start)
         width = width or len(row)
-        check_shape(len(rows) + 1, len(row))
+        check_shape(max(0, len(rows) + 1 - header_rows), len(row))
         if len(row) != width:
             raise ValueError(f"第 {len(rows) + 1} 条记录有 {len(row)} 列，预期 {width} 列。请检查分隔符或使用 Advanced Import。")
         rows.append(row)
@@ -193,7 +193,7 @@ def preview_csv(raw, partial, encoding, delimiter, header):
 def read_csv(filename, encoding, delimiter, header, *, phase=None, verify_header=False):
     check_file(filename)
     with open(filename, encoding=encoding, newline="") as stream:
-        rows = _read_records(stream, delimiter)
+        rows = _read_records(stream, delimiter, header_rows=int(header is True))
     if phase is not None:
         phase('正在转换列类型…')
     if verify_header and _infer_header(rows) is not header:
