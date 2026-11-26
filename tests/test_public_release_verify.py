@@ -101,6 +101,14 @@ def test_build_info_must_name_release_commit_and_public_mode():
     problems = verify.build_info_problems(
         good.replace('Public CI candidate', 'InternalReview'), 'V1.2.1', 'a' * 40)
     assert any('Build mode' in problem for problem in problems)
+    candidate = good.replace('Release name: V1.2.1', 'Release name: V1.2.1-a1b2c3d')
+    candidate = candidate.replace('Public CI candidate', 'Unreleased Public candidate')
+    candidate = candidate.replace('Git Tag: v1.2.1', 'Git Tag: none (unreleased candidate)')
+    assert verify.build_info_problems(candidate, 'V1.2.1-a1b2c3d', 'a' * 40,
+                                      unreleased_candidate=True) == []
+    assert verify.build_info_problems(candidate.replace('Git Tag: none', 'Git Tag: v1.2.1'),
+                                      'V1.2.1-a1b2c3d', 'a' * 40,
+                                      unreleased_candidate=True)
 
 
 def test_summary_reports_version_commit_and_asset_digests(tmp_path):
@@ -130,6 +138,10 @@ def test_sbom_must_carry_the_product_version_and_no_distributed_sdk():
                         'properties': [{'name': 'minijmp:distributed', 'value': 'false'}]}],
     }
     assert verify.sbom_problems(document, 'v1.2.1') == []
+    unreleased = json.loads(json.dumps(document))
+    unreleased['metadata']['properties'][0]['value'] = 'unreleased'
+    assert verify.sbom_problems(unreleased, 'v1.2.1', 'unreleased') == []
+    assert verify.sbom_problems(unreleased, 'v1.2.1')
     drifted = json.loads(json.dumps(document))
     drifted['metadata']['component']['version'] = '1.2.0'
     assert any('SBOM version' in problem for problem in verify.sbom_problems(drifted, 'v1.2.1'))

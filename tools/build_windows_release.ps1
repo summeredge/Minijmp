@@ -5,6 +5,8 @@
     # Public candidate: reuse fixed verified PIReader binary
     # No bundled SDK, code signing or DLP settle windows.
     [switch]$Public,
+    # Local candidate: preserve the product version without creating a tag.
+    [switch]$UnreleasedCandidate,
     [string]$PythonPath,
     [string]$CertificateThumbprint = $env:MINIJMP_SIGNING_THUMBPRINT,
     [ValidateSet('CurrentUser', 'LocalMachine')]
@@ -32,6 +34,10 @@ $makeZip = Join-Path $root 'tools\make_zip.py'
 $smoke = Join-Path $root 'tools\smoke_launch.py'
 $releaseVersion = 'V1.2.2.3'
 $productVersion = 'v1.2.2.3'
+$isPublicPackage = [bool]($Public -or $UnreleasedCandidate)
+if ($UnreleasedCandidate -and ($Public -or $InternalReview)) {
+    throw 'Use -UnreleasedCandidate by itself; it already selects the unsigned public package contents.'
+}
 if ($root.Length -gt 80) {
     throw 'Build path is too long. Place the repository in a local path of at most 80 characters, for example C:\src\MiniJMP.'
 }
@@ -43,7 +49,7 @@ if ($env:OS -ne 'Windows_NT') {
     throw 'Build this Windows package on Windows x64.'
 }
 if (!$InternalReview) {
-if (!$Public) {
+if (!$isPublicPackage) {
 $CertificateThumbprint = ($CertificateThumbprint -replace '\s', '').ToUpperInvariant()
 if ($CertificateThumbprint -notmatch '^[0-9A-F]{40}$') {
     throw 'Provide a code-signing certificate thumbprint with -CertificateThumbprint or MINIJMP_SIGNING_THUMBPRINT.'
@@ -54,7 +60,7 @@ if (!$certificate -or !$certificate.HasPrivateKey) {
 }
 }
 }
-if ($Public) {
+if ($isPublicPackage) {
     $readerRecord = Join-Path $root 'packaging/windows/pireader/manifest.json'
     $compiledReader = Join-Path (Split-Path $readerRecord) 'PIReader.exe'
     & $python (Join-Path $root 'tools/verify_public_release.py') --check-reader-input
@@ -132,6 +138,20 @@ if ($Public) {
     if ($dirty.Count) {
         throw "Refusing to build from a dirty working tree; commit or remove the $($dirty.Count) changed entries first."
     }
+} elseif ($UnreleasedCandidate) {
+    if (Test-Path -LiteralPath $sourceBundleInfo -PathType Leaf) {
+        throw 'Unreleased candidates must be built from the clean Git checkout.'
+    }
+    $head = (git -C $root rev-parse HEAD).Trim()
+    $branch = (git -C $root branch --show-current).Trim()
+    $originMain = (git -C $root rev-parse origin/main).Trim()
+    if ($branch -ne 'main') { throw "Candidate builds must run on main; branch is '$branch'." }
+    & git -C $root merge-base --is-ancestor origin/main HEAD
+    if ($LASTEXITCODE -ne 0) { throw 'origin/main is not an ancestor of HEAD; reconcile the branch before building.' }
+    $dirty = @(git -C $root status --porcelain --untracked-files=normal)
+    if ($dirty.Count) {
+        throw "Refusing to build from a dirty working tree; commit or remove the $($dirty.Count) changed entries first."
+    }
 } elseif (Test-Path -LiteralPath $sourceBundleInfo -PathType Leaf) {
     $headLine = Get-Content -LiteralPath $sourceBundleInfo |
         Where-Object { $_ -match '^Base Git HEAD: ([0-9a-f]{40})$' } | Select-Object -First 1
@@ -157,6 +177,7 @@ if ($Public) {
         throw "Refusing to build from a dirty working tree; commit or remove the $($dirty.Count) changed entries first."
     }
 }
+$artifactVersion = if ($UnreleasedCandidate) { "$releaseVersion-$($head.Substring(0, 7))" } else { $releaseVersion }
 
 $required = @(
     'PIReader\config.example.txt', 'PIReader\tags.example.txt', 'LICENSE',
@@ -179,21 +200,21 @@ if ($template -cne "Server=`nUser=`nPassword=`nInterval=5m`nBlockDays=7" -or
 }
 
 $distRoot = Join-Path $root 'dist'
-$buildRoot = Join-Path $root "build\windows-pkg-$releaseVersion"
-$releaseDir = Join-Path $distRoot "MiniJMP-$releaseVersion"
-$auditDir = Join-Path $distRoot "MiniJMP-$releaseVersion-Release"
+$buildRoot = Join-Path $root "build\windows-pkg-$artifactVersion"
+$releaseDir = Join-Path $distRoot "MiniJMP-$artifactVersion"
+$auditDir = Join-Path $distRoot "MiniJMP-$artifactVersion-Release"
 # Public and internal archives use distinct names.
-$archiveName = if ($Public) { "MiniJMP-$releaseVersion-Windows-x64-portable.zip" } else { "MiniJMP-$releaseVersion-Windows-x64.zip" }
+$archiveName = if ($isPublicPackage) { "MiniJMP-$artifactVersion-Windows-x64-portable.zip" } else { "MiniJMP-$artifactVersion-Windows-x64.zip" }
 $releaseZip = Join-Path $auditDir $archiveName
-$sourceZip = Join-Path $auditDir "MiniJMP-$releaseVersion-Source.zip"
-$hashFile = if ($Public) {
-    Join-Path $auditDir "SHA256SUMS-$releaseVersion.txt"
+$sourceZip = Join-Path $auditDir "MiniJMP-$artifactVersion-Source.zip"
+$hashFile = if ($isPublicPackage) {
+    Join-Path $auditDir "SHA256SUMS-$artifactVersion.txt"
 } else {
-    Join-Path $distRoot "MiniJMP-$releaseVersion-SHA256SUMS.txt"
+    Join-Path $distRoot "MiniJMP-$artifactVersion-SHA256SUMS.txt"
 }
 $recordDir = Join-Path $root 'docs\release'
-$buildLog = Join-Path $recordDir "pyinstaller-build-$releaseVersion.txt"
-$manifestPath = Join-Path $recordDir "build-inputs-$releaseVersion.txt"
+$buildLog = Join-Path $recordDir "pyinstaller-build-$artifactVersion.txt"
+$manifestPath = Join-Path $recordDir "build-inputs-$artifactVersion.txt"
 
 # Never overwrite or remove earlier artifacts.
 $existing = @($auditDir, $releaseDir, $releaseZip, $sourceZip, $hashFile, $buildLog, $manifestPath,
@@ -246,7 +267,7 @@ if ($PlotlyPilot) {
 }
 
 $envReport | Set-Content -LiteralPath $buildLog -Encoding utf8
-if (!$Public) {
+if (!$isPublicPackage) {
 Write-Output 'Building PIReader from project source...'
 $piBuild = Join-Path $buildRoot 'pireader'
 New-Item -ItemType Directory -Path $piBuild | Out-Null
@@ -285,7 +306,7 @@ if (!(Test-Path -LiteralPath (Join-Path $rawApp 'MiniJMP.exe') -PathType Leaf) -
     !(Test-Path -LiteralPath (Join-Path $rawApp '_internal') -PathType Container)) {
     throw 'PyInstaller did not produce MiniJMP.exe and _internal.'
 }
-if (!$Public) {
+if (!$isPublicPackage) {
     $readerInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($compiledReader)
     $assemblyInfo = Get-Content -LiteralPath (Join-Path $root 'PIReader/Properties/AssemblyInfo.cs') -Raw
     $readerVersion = [regex]::Match($assemblyInfo, 'AssemblyFileVersion\("([^"]+)"\)').Groups[1].Value
@@ -305,7 +326,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Pruning unused pyarrow components failed.' }
 Copy-Item -LiteralPath $rawApp -Destination $releaseDir -Recurse
 Copy-Item -LiteralPath (Join-Path $root 'LICENSE') -Destination (Join-Path $releaseDir 'LICENSE')
 $usageText = (Get-Content -LiteralPath (Join-Path $root 'packaging\windows\USAGE.txt') -Raw -Encoding utf8).TrimEnd()
-if ($Public) {
+if ($isPublicPackage) {
     $usageText += $nl + $nl + '本公开候选包包含自研 PIReader.exe，不提供三个 OSIsoft 专有 SDK DLL；使用 PI 需要目标电脑合法安装兼容的 PI SDK/PIPC。默认配置为 PIReader/config.txt。PIReader 版本和摘要见 BUILD-INFO.txt。'
 }
 Set-Content -LiteralPath (Join-Path $releaseDir 'README.txt') -Value $usageText -Encoding utf8
@@ -320,7 +341,7 @@ New-Item -ItemType Directory -Path $piTarget -Force | Out-Null
 Copy-Item -LiteralPath $compiledReader -Destination (Join-Path $piTarget 'PIReader.exe')
 Copy-Item -LiteralPath (Join-Path $piSource 'config.example.txt') -Destination (Join-Path $piTarget 'config.txt')
 Copy-Item -LiteralPath (Join-Path $piSource 'tags.example.txt') -Destination (Join-Path $piTarget 'tags.txt')
-if (!$Public) {
+if (!$isPublicPackage) {
 foreach ($sdkName in $piSdkNames) {
     $sdkInput = Join-Path $PiSdkDirectory $sdkName
     $sdkOutput = Join-Path $piTarget $sdkName
@@ -342,10 +363,12 @@ $sdkComponents = @(foreach ($sdkName in $piSdkNames) {
 })
 $sdkComponents | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $releaseDir 'SDK-COMPONENTS.json') -Encoding utf8
 }
-$buildMode = if ($Public) {
+$buildMode = if ($UnreleasedCandidate) {
+    'Unreleased Public candidate (unsigned, no PI SDK)'
+} elseif ($Public) {
     'Public CI candidate (unsigned, no PI SDK)'
 } elseif ($InternalReview) { 'InternalReview (not approved for deployment)' } else { 'Formal trusted signature' }
-if ($Public) {
+if ($isPublicPackage) {
     $signatureInfo = @('未签名：公开候选包不进行代码签名，也不作为正式发布。')
 } elseif ($InternalReview) {
     $signatureInfo = @('代码签名状态：暂未实施，企业审批及替代控制说明由申请人另行提供。')
@@ -371,7 +394,7 @@ if ($signatureInfo.Count -ne 2 -or @($signatureInfo | Where-Object {
 }
 }
 $noticeMode = @()
-if ($Public) { $noticeMode = @('--public') }
+if ($isPublicPackage) { $noticeMode = @('--public') }
 & $python (Join-Path $root 'tools\write_third_party_notices.py') $releaseDir @noticeMode
 if ($LASTEXITCODE -ne 0) { throw 'Generating third-party notices failed.' }
 
@@ -386,18 +409,18 @@ $treeState = if ($branch -eq 'source bundle') {
 } else {
     'Working tree was clean; build inputs matched Git HEAD.'
 }
-$piBundlingNote = if ($Public) {
+$piBundlingNote = if ($isPublicPackage) {
     'Public candidate: PIReader/PIReader.exe reused from the fixed verified input; no OSIsoft SDK DLLs bundled. Default config: PIReader/config.txt. Target machine requires legally installed compatible PI SDK/PIPC; see BUILD-INFO.txt for the PIReader version and digest.'
 } else {
     'MiniJMP V1.2 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件不构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。'
 }
 $buildInfoLines = @(
     "MiniJMP $productVersion Windows x64",
-    "Release name: $releaseVersion",
+    "Release name: $artifactVersion",
     "Build mode: $buildMode",
     $piBundlingNote,
     "Base Git HEAD: $head",
-    "Git Tag: $productVersion",
+    "Git Tag: $(if ($UnreleasedCandidate) { 'none (unreleased candidate)' } else { $productVersion })",
     "Build time: $([DateTimeOffset]::Now.ToString('o'))",
     "Branch: $branch",
     "Origin/main: $originMain",
@@ -407,7 +430,7 @@ $buildInfoLines = @(
     "Windows: $($os.Caption), version $($os.Version), build $($os.BuildNumber), $($os.OSArchitecture)",
     "Core dependencies: $coreVersions"
 )
-if (!$Public) {
+if (!$isPublicPackage) {
     $buildInfoLines += @(
         ("PI SDK build references and bundled proprietary runtime files: " + ($piSdkBuildInputs -join '; ')),
         'PIReader: built from project source for .NET Framework 4.8, x86; three proprietary OSIsoft DLLs are distributed in PIReader/.',
@@ -431,7 +454,7 @@ if (!$Public) {
     }
 }
 $buildInfoLines += "PIReader SHA256: $((Get-FileHash -LiteralPath (Join-Path $piTarget 'PIReader.exe') -Algorithm SHA256).Hash)"
-if (!$Public) {
+if (!$isPublicPackage) {
     foreach ($sourceName in @('PIReader.csproj', 'Program.cs', 'TimeExpressionParser.cs', 'Properties/AssemblyInfo.cs')) {
         $buildInfoLines += "PIReader source SHA256 ${sourceName}: $((Get-FileHash -LiteralPath (Join-Path $piSource $sourceName) -Algorithm SHA256).Hash)"
     }
@@ -443,14 +466,16 @@ $buildInfoLines += @(
 $buildInfo = $buildInfoLines -join $nl
 Set-Content -LiteralPath (Join-Path $releaseDir 'BUILD-INFO.txt') -Value $buildInfo -Encoding utf8
 @(
-    "Corresponding source archive: MiniJMP-$releaseVersion-Source.zip",
+    "Corresponding source archive: MiniJMP-$artifactVersion-Source.zip",
     "Base Git HEAD: $head",
     'Repository: https://github.com/summeredge/Minijmp',
     'The source ZIP contains the corresponding source files and build scripts; it omits .git, OSIsoft PI SDK assemblies and real PI connection settings.',
     'Build prerequisites for PIReader are listed in PACKAGING.md and SOURCE-BUNDLE-INFO.txt.'
 ) -join $nl | Set-Content -LiteralPath (Join-Path $releaseDir 'SOURCE-CODE.txt') -Encoding utf8
 
-& $python (Join-Path $root 'tools\write_release_sbom.py') $releaseDir $auditDir (Join-Path $workPath 'MiniJMP')
+$sbomArgs = @($releaseDir, $auditDir, (Join-Path $workPath 'MiniJMP'))
+if ($UnreleasedCandidate) { $sbomArgs += @('--tag', 'unreleased') }
+& $python (Join-Path $root 'tools\write_release_sbom.py') @sbomArgs
 if ($LASTEXITCODE -ne 0) { throw 'SBOM generation failed.' }
 
 # Stage the sources actually used from disk, in TEMP so DLP-synced folders
@@ -469,7 +494,7 @@ try {
 
     $sourceInfo = @(
         "MiniJMP $productVersion corresponding source",
-        "Release name: $releaseVersion",
+        "Release name: $artifactVersion",
     "Build mode: $buildMode",
     $piBundlingNote,
         "Base Git HEAD: $head",
@@ -494,7 +519,7 @@ try {
 
     & $python $makeZip 'make' $releaseDir $releaseZip
     if ($LASTEXITCODE -ne 0) { throw 'Creating the runtime archive failed.' }
-    & $python $makeZip 'make' $sourceStage $sourceZip '--root-name' "MiniJMP-$releaseVersion-source"
+    & $python $makeZip 'make' $sourceStage $sourceZip '--root-name' "MiniJMP-$artifactVersion-source"
     if ($LASTEXITCODE -ne 0) { throw 'Creating the source archive failed.' }
 } finally {
     if (Test-Path -LiteralPath $sourceStage) {
@@ -508,12 +533,12 @@ if ($LASTEXITCODE -ne 0) { throw 'Encrypted (DLP) files found in the package.' }
 # Transparent encryption can rewrite archives after they land, and it changes
 # size without touching mtime. Only the local internal build waits for that; a
 # hosted runner reads the finished archive back immediately.
-if (!$Public) {
+if (!$isPublicPackage) {
     Write-Output 'Waiting 120s for the transparent-encryption rewrite to settle...'
     1..4 | ForEach-Object { Start-Sleep -Seconds 30 }
 }
-$settleInterval = if ($Public) { '0' } else { '15' }
-$settleAttempts = if ($Public) { '1' } else { '3' }
+$settleInterval = if ($isPublicPackage) { '0' } else { '15' }
+$settleAttempts = if ($isPublicPackage) { '1' } else { '3' }
 $artifacts = @($releaseZip, $sourceZip)
 $digests = @{}
 foreach ($artifact in $artifacts) {
@@ -522,7 +547,7 @@ foreach ($artifact in $artifacts) {
     $digests[$artifact] = ($line -join '').Trim() -replace '^SHA256=', ''
 }
 
-$exeRelative = "MiniJMP-$releaseVersion/MiniJMP.exe"
+$exeRelative = "MiniJMP-$artifactVersion/MiniJMP.exe"
 $inspect = @(& $python $makeZip 'inspect' $releaseZip '--entry' $exeRelative)
 if ($LASTEXITCODE -ne 0) { throw "Runtime archive failed CRC or entry checks: $inspect" }
 $inspect | ForEach-Object { Write-Output $_ }
@@ -534,19 +559,19 @@ if ($zipExeHash -ne $exeHash) {
     throw "The EXE inside the archive differs from the built EXE ($zipExeHash vs $exeHash)."
 }
 $hashLines = @()
-if ($Public) {
+if ($isPublicPackage) {
     # A candidate only publishes files that live beside SHA256SUMS, so every
     # listed digest can be re-checked after download. The CSV inventories stay
     # out: a transparent-encryption client rewrites .csv after it is written.
     $hashLines += "$($digests[$releaseZip])  $archiveName"
-    $hashLines += "$($digests[$sourceZip])  MiniJMP-$releaseVersion-Source.zip"
+    $hashLines += "$($digests[$sourceZip])  MiniJMP-$artifactVersion-Source.zip"
     $sbomPath = Join-Path $auditDir 'SBOM.cdx.json'
     if (Test-Path -LiteralPath $sbomPath -PathType Leaf) {
         $hashLines += "$((Get-FileHash -LiteralPath $sbomPath -Algorithm SHA256).Hash)  SBOM.cdx.json"
     }
 } else {
     $hashLines += "$exeHash  $exeRelative"
-    $piRelative = "MiniJMP-$releaseVersion/PIReader/PIReader.exe"
+    $piRelative = "MiniJMP-$artifactVersion/PIReader/PIReader.exe"
     $piInspect = @(& $python $makeZip 'inspect' $releaseZip '--entry' $piRelative)
     if ($LASTEXITCODE -ne 0) { throw "PIReader archive entry failed CRC or entry checks: $piInspect" }
     $zipPiHash = @($piInspect | Where-Object { $_ -like 'ENTRY-SHA256=*' })[0] -replace '^ENTRY-SHA256=', ''
@@ -558,12 +583,12 @@ if ($Public) {
     }
     $hashLines += "$piHash  $piRelative"
     $hashLines += "$($digests[$releaseZip])  $archiveName"
-    $hashLines += "$($digests[$sourceZip])  MiniJMP-$releaseVersion-Source.zip"
+    $hashLines += "$($digests[$sourceZip])  MiniJMP-$artifactVersion-Source.zip"
 }
 $hashes = $hashLines -join $nl
 Set-Content -LiteralPath $hashFile -Value $hashes -Encoding ascii
 
-if (!$Public) {
+if (!$isPublicPackage) {
     Write-Output 'Re-verifying after SHA256SUMS was written (90s window)...'
     1..3 | ForEach-Object { Start-Sleep -Seconds 30 }
 }
@@ -585,7 +610,7 @@ if (!$SkipSmoke) {
     try {
         & $python -m zipfile -e $releaseZip $unzipRoot
         if ($LASTEXITCODE -ne 0) { throw 'Extracting the runtime archive failed.' }
-        & $python $smoke (Join-Path $unzipRoot "MiniJMP-$releaseVersion\MiniJMP.exe") 90
+        & $python $smoke (Join-Path $unzipRoot "MiniJMP-$artifactVersion\MiniJMP.exe") 90
         if ($LASTEXITCODE -ne 0) { throw 'Smoke launch of the unzipped build failed.' }
     } finally {
         if (Test-Path -LiteralPath $unzipRoot) { Remove-Item -LiteralPath $unzipRoot -Recurse -Force }
@@ -599,12 +624,14 @@ Get-Content -LiteralPath $hashFile
 Write-Output "Build log: $buildLog"
 Write-Output "Runtime manifest: $manifestPath"
 
-if (!$Public) {
+if (!$isPublicPackage) {
 & $python (Join-Path $root 'tools\release_metadata.py') '--finalize' $releaseDir $auditDir
 if ($LASTEXITCODE -ne 0) { throw 'Review package finalization failed.' }
 }
 
-if ($Public) {
-    & $python (Join-Path $root 'tools\verify_public_release.py') $auditDir --release $releaseVersion --commit $head
+if ($isPublicPackage) {
+    $verifyArgs = @($auditDir, '--release', $artifactVersion, '--commit', $head)
+    if ($UnreleasedCandidate) { $verifyArgs += '--unreleased-candidate' }
+    & $python (Join-Path $root 'tools\verify_public_release.py') @verifyArgs
     if ($LASTEXITCODE -ne 0) { throw 'Public candidate verification failed; do not distribute this build.' }
 }

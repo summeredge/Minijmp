@@ -154,6 +154,10 @@ def test_generated_sbom_classifies_runtime_dependency_and_signed_executable(tmp_
     with (tmp_path / 'audit' / 'SBOM.csv').open(encoding='utf-8-sig', newline='') as handle:
         rows = list(csv.DictReader(handle))
     assert next(row for row in rows if row['名称'] == 'sample')['SHA256'] == digest
+    candidate = sbom.generate(runtime, tmp_path / 'audit-unreleased', build, tag='unreleased')
+    candidate_tag = next(item['value'] for item in candidate['metadata']['properties']
+                         if item['name'] == 'minijmp:tag')
+    assert candidate_tag == 'unreleased'
 
 
 def test_pi_executable_hash_comes_from_runtime_copy(tmp_path, monkeypatch):

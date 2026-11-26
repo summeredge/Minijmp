@@ -66,7 +66,7 @@ Enterprise Defender, TsdEncrypt/DLP transparent encryption, and other security p
 
 ## Optional PI Historical Data Import
 
-Choose **File → Import PI Data**. A Windows release package includes a `PIReader` folder beside `MiniJMP.exe`, containing `PIReader.exe` and `config.txt`. The local machine still requires the **PI SDK/PIPC runtime** and permission to access the server; the PI SDK is not distributed with this software. You can also specify paths through environment variables or the Browse button. Enter a Tag or Tag Mask, historical time range, and sampling interval. A successful import replaces the current worksheet, so save any data you need to keep first.
+Choose **File → Import PI Data**. A public Windows package includes a `PIReader` folder beside `MiniJMP.exe`, containing `PIReader.exe` and `config.txt`, but excludes the proprietary PI SDK DLLs. Internal builds may include three SDK files. The local machine still requires a compatible, lawfully installed **PI SDK/PIPC runtime** and permission to access the server. You can also specify paths through environment variables or the Browse button. Enter a Tag or Tag Mask, historical time range, and sampling interval. A successful import replaces the current worksheet, so save any data you need to keep first.
 
 For operating instructions, constraints, and error handling, see the [PI data import guide](docs/PI-data-import.md). Ordinary statistical features do not depend on the PI SDK.
 

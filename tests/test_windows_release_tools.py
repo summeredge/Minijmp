@@ -463,7 +463,9 @@ def test_version_identifiers_and_build_info_agree():
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
     assert '$releaseVersion = ' + "'V1.2.2.3'" in script
     assert '$productVersion = ' + "'v1.2.2.3'" in script
-    assert 'Release name: $releaseVersion' in script
+    assert 'Release name: $artifactVersion' in script
+    assert '[switch]$UnreleasedCandidate' in script
+    assert 'none (unreleased candidate)' in script
     assert 'PIReader: built from project source' in script
     assert 'PI SDK/PIPC runtime' in script
     assert "'--hidden-import', 'pyarrow.parquet'" in script

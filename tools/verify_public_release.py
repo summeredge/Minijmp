@@ -109,10 +109,11 @@ def sums_problems(text, base):
     return problems
 
 
-def build_info_problems(text, release, commit):
+def build_info_problems(text, release, commit, *, unreleased_candidate=False):
     """Return what a BUILD-INFO.txt states wrongly for this candidate."""
     problems = []
-    for prefix, expected in (('Release name: ', release), ('Git Tag: ', None),
+    expected_tag = 'none (unreleased candidate)' if unreleased_candidate else None
+    for prefix, expected in (('Release name: ', release), ('Git Tag: ', expected_tag),
                              ('Base Git HEAD: ', commit), ('Build mode: ', 'Public')):
         line = next((item for item in text.splitlines() if item.startswith(prefix)), None)
         if line is None:
@@ -122,7 +123,7 @@ def build_info_problems(text, release, commit):
     return problems
 
 
-def sbom_problems(document, product):
+def sbom_problems(document, product, expected_tag=None):
     """Return version or distribution problems in a CycloneDX document."""
     problems = []
     metadata = document.get('metadata', {})
@@ -131,8 +132,9 @@ def sbom_problems(document, product):
         problems.append(f"SBOM version {component.get('version')!r} is not {product.lstrip('v')!r}")
     properties = {item['name']: item['value'] for item in metadata.get('properties', [])
                   if isinstance(item, dict) and 'name' in item}
-    if properties.get('minijmp:tag') != product:
-        problems.append(f"SBOM tag {properties.get('minijmp:tag')!r} is not {product!r}")
+    expected_tag = expected_tag or product
+    if properties.get('minijmp:tag') != expected_tag:
+        problems.append(f"SBOM tag {properties.get('minijmp:tag')!r} is not {expected_tag!r}")
     for component in document.get('components', []):
         name = str(component.get('name', ''))
         if name in PI_SDK_DLLS or name.lower().startswith('osisoft.'):
@@ -201,7 +203,7 @@ def executable_problems(executable, expected_file_version, *, reader=False):
     return problems
 
 
-def verify(audit, release=None, commit=None):
+def verify(audit, release=None, commit=None, *, unreleased_candidate=False):
     """Return (problems, product) for the candidate in the audit directory."""
     audit = Path(audit)
     product, display = release_metadata.release_titles()
@@ -273,7 +275,8 @@ def verify(audit, release=None, commit=None):
             problems.append('missing BUILD-INFO.txt beside the built executable')
         else:
             problems.extend(build_info_problems(
-                build_info.read_text(encoding='utf-8-sig'), release, commit))
+                build_info.read_text(encoding='utf-8-sig'), release, commit,
+                unreleased_candidate=unreleased_candidate))
 
     reader = runtime / 'PIReader/PIReader.exe'
     if not reader.is_file():
@@ -303,7 +306,8 @@ def verify(audit, release=None, commit=None):
             problems.append(f'SHA256SUMS does not list {name}')
     try:
         document = json.loads(sbom.read_text(encoding='utf-8'))
-        problems.extend(sbom_problems(document, product))
+        problems.extend(sbom_problems(
+            document, product, 'unreleased' if unreleased_candidate else product))
         components = [item for item in document.get('components', []) if item.get('name') == 'PIReader.exe']
         if len(components) != 1:
             problems.append('SBOM must contain exactly one PIReader.exe component')
@@ -369,10 +373,13 @@ def main(argv=None):
     parser.add_argument('audit', type=Path, help='directory holding the candidate archives')
     parser.add_argument('--release', help='release name, such as V1.2.1; derived from the metadata')
     parser.add_argument('--commit', help='expected Git commit of the build')
+    parser.add_argument('--unreleased-candidate', action='store_true',
+                        help='require the untagged candidate marker in BUILD-INFO and SBOM')
     parser.add_argument('--artifact', default='', help='Actions artifact name for the summary')
     parser.add_argument('--summary', type=Path, help='append a Markdown summary to this file')
     args = parser.parse_args(sys.argv[1:] if argv is None else argv)
-    problems, product = verify(args.audit, args.release, args.commit)
+    problems, product = verify(args.audit, args.release, args.commit,
+                               unreleased_candidate=args.unreleased_candidate)
     for problem in problems:
         print(f'BLOCKED: {problem}')
     if problems:

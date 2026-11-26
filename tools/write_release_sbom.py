@@ -1,6 +1,7 @@
 """Inventory the locked environment and actual PyInstaller onedir contents."""
 
 import ast
+import argparse
 import csv
 from datetime import datetime, timezone
 from importlib import metadata
@@ -168,9 +169,10 @@ def minijmp_runtime_component(path):
     return item
 
 
-def generate(runtime, destination, build):
+def generate(runtime, destination, build, *, tag=None):
     runtime, destination, build = Path(runtime), Path(destination), Path(build)
     product = product_version()
+    tag = tag or product
     destination.mkdir(parents=True, exist_ok=True)
     commit = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
     collected = toc_sources(build)
@@ -330,7 +332,7 @@ def generate(runtime, destination, build):
     bom = {'bomFormat': 'CycloneDX', 'specVersion': '1.6', 'serialNumber': 'urn:uuid:' + str(uuid.uuid4()), 'version': 1,
            'metadata': {'timestamp': datetime.now(timezone.utc).isoformat(),
                         'component': {'type': 'application', 'name': 'MiniJMP', 'version': product.lstrip('v'), 'bom-ref': 'MiniJMP'},
-                        'properties': properties(commit=commit, tag=product, lock_sha256=sha256_file(lock),
+                        'properties': properties(commit=commit, tag=tag, lock_sha256=sha256_file(lock),
                                                  hash_lock_sha256=sha256_file(HASH_LOCK),
                                                  review_status='授权与未知许可未放行；供内部审核')},
            'components': components, 'dependencies': dependencies}
@@ -353,6 +355,10 @@ def generate(runtime, destination, build):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) not in (3, 4):
-        raise SystemExit('Usage: write_release_sbom.py RUNTIME_DIRECTORY AUDIT_DIRECTORY [PYINSTALLER_WORK_DIRECTORY]')
-    generate(*sys.argv[1:])
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('runtime_directory')
+    parser.add_argument('audit_directory')
+    parser.add_argument('pyinstaller_work_directory')
+    parser.add_argument('--tag', help='version tag recorded in the SBOM; use unreleased for an untagged candidate')
+    args = parser.parse_args()
+    generate(args.runtime_directory, args.audit_directory, args.pyinstaller_work_directory, tag=args.tag)

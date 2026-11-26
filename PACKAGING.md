@@ -65,6 +65,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_windows_release_
 
 发布工作区必须在main、干净，且origin/main为HEAD祖先；允许本地快进领先，不自动推送、不修改同步规则。先提交全部版本源码、发布工具及审核模板，创建本地annotated `v<版本>`（与 `version_info.txt` 的产品版本一致），记录完整SHA，然后构建。源码ZIP没有.git时可按SOURCE-BUNDLE-INFO复现基础构建；正式审核包最终化需Git冻结和对应Tag。
 
+正式版本号尚未确定、且当前产品标签指向较早提交时，使用 `-UnreleasedCandidate` 从干净的 `main` 构建本地候选包。该模式保留 `version_info.txt` 的产品版本，不创建或移动标签；运行包、源码包及审核目录在版本名后附加构建提交的短 SHA，`BUILD-INFO.txt` 和 SBOM 将候选标记为未发布。该包用于本地验收，不是已批准的正式发行包。
+
 ## 构建与产物
 
 ```powershell
@@ -74,6 +76,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/build_windows_release.
 `-CertificateThumbprint` 指定用于签名的代码签名证书，也可通过 `MINIJMP_SIGNING_THUMBPRINT` 环境变量提供；`-CertificateStore` 可选 `CurrentUser` 或 `LocalMachine`，默认 `CurrentUser`。`-PiSdkDirectory` 指定三个合法 PI SDK 编译引用的目录，默认项目 `PIReader` 目录。`-FrameworkReferenceDirectory` 指定 .NET Framework 4.8 参考程序集目录，默认系统 Developer Pack 目录；没有 Developer Pack 时可使用 [Microsoft 官方 net48 参考程序集](https://www.nuget.org/packages/Microsoft.NETFramework.ReferenceAssemblies.net48/1.0.3)解压后的 `build/.NETFramework/v4.8` 目录。`-SignToolPath` 可选，用于指定 `signtool.exe` 路径。
 
 内部送审使用 `-InternalReview`，可在没有企业证书时跳过签名；正式模式保持双 EXE 可信验签要求。不要使用测试自签名冒充企业签名。
+
+本地未发布候选包可将试验绘图引擎一并收集：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/build_windows_release.ps1 -UnreleasedCandidate -PlotlyPilot
+```
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/check_windows_release_ready.ps1 -InternalReview -FrameworkReferenceDirectory '<官方net48目录>/build/.NETFramework/v4.8'
