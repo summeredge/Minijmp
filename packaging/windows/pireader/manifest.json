@@ -5,6 +5,7 @@
     "git_blob": "0eb622e9b9dbcd83d6e957e8aee10624269c34dc",
     "packaging_commit": "785636091bd2bb4c1853f28d6ce283c0237421ed",
     "same_blob_at_legacy_path_commit": "ca0571dcf9b322212624fbde9207a74bf33b995b",
-    "source_build_and_field_validation": "unconfirmed; see docs/release/SOURCE-PROVENANCE.md"
+    "ownership_and_license": "In-house PIReader source and binary; included under MiniJMP GPL v3 as confirmed by the project maintainer",
+    "source_build_and_field_validation": "Historical records incomplete; accepted for V1.3.0 without rebuilding; see docs/release/SOURCE-PROVENANCE.md"
   }
 }

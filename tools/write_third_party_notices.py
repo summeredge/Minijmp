@@ -135,13 +135,13 @@ def generate(destination, public=False):
     if public:
         pi_bundle = ('本公开候选包不包含 OSIsoft/AVEVA PI SDK 组件；'
                      '包含自研 PIReader.exe；PI 功能需要目标电脑合法安装兼容的 PI SDK/PIPC，默认配置为 PIReader/config.txt。未实测企业 PI 连接。\n\n')
-        pireader_line = ('PIReader/ source code is developed in-house for MiniJMP; GPL-3.0-or-later; see LICENSE. '
+        pireader_line = ('PIReader C# source and binary: copyright MiniJMP project maintainers; in-house, GPL-3.0-only; see LICENSE. '
                          'The public runtime reuses PIReader/PIReader.exe; see BUILD-INFO.txt for its version, digest and any recorded provenance.\n')
         sdk_line = ('OSIsoft/AVEVA PI SDK DLLs remain proprietary third-party components and are not distributed '
                     'in this public candidate. Excluding DLLs does not establish compliance with all license requirements.\n\n')
     else:
         pi_bundle = ('MiniJMP V1.2 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件不构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。\n\n')
-        pireader_line = ('PIReader/ source code is developed in-house for MiniJMP; GPL-3.0-or-later; see LICENSE. '
+        pireader_line = ('PIReader C# source and binary: copyright MiniJMP project maintainers; in-house, GPL-3.0-only; see LICENSE. '
                          'The source-built runtime executable is PIReader/PIReader.exe.\n')
         sdk_line = ('OSIsoft/AVEVA PI SDK DLLs remain proprietary third-party components. Packaging does not verify '
                     'or grant redistribution permission; see PI-SDK-NOTICE.txt.\n\n')
@@ -152,7 +152,7 @@ def generate(destination, public=False):
         + 'BlakerCI 1.0-6 translated code: Jan Klaschka, GPL-3.0-only; code/blakerCI.py.\n'
         + 'Hmisc hoeffd.s translation: Frank E Harrell Jr and contributors, GPL-2.0-or-later; matches Hmisc 5.1-3 (CRAN mirror 1dd1751850d080156ac8152ec6de54f049dff659); original revision unknown; code/nonpara_cor.py.\n'
         + pireader_line
-        + 'The code/pi_reader.py adapter identifies reuse from https://github.com/summeredge/PI-Data-Viewer/backend/pi_reader.py ; separate license evidence remains UNCONFIRMED.\n'
+        + 'PI adapter (code/pi_reader.py): copyright project maintainers; in-house code reused from PI-Data-Viewer/backend/pi_reader.py and included under MiniJMP GPL v3.\n'
         + sdk_line
         + 'MiniJMP is licensed under GNU GPL version 3 or later; see the adjacent LICENSE file.\n'
         'The following runtime dependencies and PyInstaller bootloader were used for this build.\n'

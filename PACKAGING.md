@@ -96,7 +96,7 @@ PIReader/ 源码由 MiniJMP 项目自研，按项目 GPL-3.0-or-later 许可。�
 
 三个 OSIsoft/AVEVA DLL 仍是专有第三方组件，不属于 MiniJMP 自研代码或 GPL 许可，其再分发授权仍未确认。内部构建使用 `-PiSdkDirectory` 指定的三个 DLL 作为编译引用；公开模式不复制这些 DLL，企业内部模式仍只复制这三个文件到运行目录 PIReader/，不安装或注册这些 DLL；目标机须自行具备合法的匹配 PI SDK/PIPC 运行环境。
 
-SOURCE-PROVENANCE列出源码继承/修改/新增/待确认分类。`code/pi_reader.py` 仍保留其文件头所列 PI-Data-Viewer 来源及许可待核实状态；Hoeffding 复制片段的许可也待补充。即使构建通过也不得宣称整体合规已放行。SBOM记录实际依赖、二进制、未知版本/许可与排除组件，不以requirements清单代替实际打包核对。
+SOURCE-PROVENANCE 记录源码来源。维护者确认 PI-Data-Viewer 适配器、PIReader C# 程序及编译产物均为自研，纳入 MiniJMP GPL v3。公开包继续复用固定 PIReader.exe。Hoeffding D 的独立实现和 Hmisc 移植依据见来源清单。SBOM记录实际依赖、二进制、未知版本/许可与排除组件，不以requirements清单代替实际打包核对。
 
 ## 一致性与冒烟
 

@@ -1,15 +1,23 @@
 # MiniJMP V1.3.0 Windows 发布验收
 
-## 当前候选版（2026-11-26）
+## V1.3.0 最终候选（2026-11-26）
+
+- 产品 v1.3.0，软件显示 V1.3.0，Windows EXE 文件版本 1.3.0.0，PIReader 独立版本 1.0.0.0。关于窗口的更新月份改为 2026 年 11 月。
+- 维护者确认 PI-Data-Viewer、Python 适配器、PIReader C# 程序及编译产物均为自研，纳入 MiniJMP GPL v3，无须另行取得第三方授权。固定 PIReader 历史构建记录不足不阻塞本次发布，继续复用现有文件。公开包排除三个 OSIsoft/AVEVA 专有 SDK DLL。
+- 复用此前通过的定向测试及 F3-2、F3-3 结果。实际 EXE 代表性操作通过后，为最终候选的构建源码提交创建本地 annotated tag v1.3.0。
+
+## 历史候选 V1.3.0-ea0af89（2026-11-26）
+
+以下记录保留该候选构建时的状态。
 
 - 产品版本 v1.3.0，软件显示 V1.3.0，Windows EXE 文件版本 1.3.0.0。PIReader 保持独立版本 1.0.0.0。
-- 构建命令为 \`./tools/build_windows_release.ps1 -UnreleasedCandidate -PlotlyPilot\`。实际源码提交、版本和摘要以该次候选的 BUILD-INFO、SOURCE-BUNDLE-INFO 和 SHA256SUMS 为准。
+- 构建命令为 `./tools/build_windows_release.ps1 -UnreleasedCandidate -PlotlyPilot`。实际源码提交、版本和摘要以该次候选的 BUILD-INFO、SOURCE-BUNDLE-INFO 和 SHA256SUMS 为准。
 - Hoeffding D 依据数学定义重新实现。旧测试快照中的复制片段也已替换为直接按观测对计算的整数权重参考。定向检查涵盖并列秩、常数、非有限值、最小样本边界、正反完全顺序与报告。Hmisc p 值移植与固定的 5.1-3 源码匹配，历史取用版本未确认。
 - 正式发布待取得 PI-Data-Viewer 适配器的权属及分发依据，以及固定 PIReader 的对应源码和构建关系。PIReader 的版本、摘要和 Git 字节来源已登记，详见 [源码来源](../release/SOURCE-PROVENANCE.md)。
 - 实际 EXE 交互验收以当前候选为准。历史 EXE 的启动证据见下方。通过实际交互及来源核查后再创建本地 annotated tag v1.3.0。
 - F3-2、F3-3 沿用阶段报告及原功能覆盖矩阵。本轮仅执行相关定向检查。
 
-## 本次候选构建证据
+### 历史候选构建证据
 
 - 干净源码提交为 ea0af89af007b757860c8eafe64178754a3f25ba。候选名 V1.3.0-ea0af89。输出复制到 D:\Download\MiniJMP-v1.3.0-candidate-ea0af89，并从该目录重新计算 ZIP 摘要。
 - 使用项目 .venv 的 Python 3.11.9、PyInstaller 6.22.3，在 Windows 11 x64 26300 构建。构建日志和打包清单位于 docs/release 下，文件名包含 V1.3.0-ea0af89。现有环境的依赖版本与锁文件匹配，缺少其历史 wheel 安装摘要。
@@ -25,8 +33,8 @@
 
 ## 实际 EXE 手工验收步骤
 
-1. 解压候选 ZIP 至独立可写目录，启动 MiniJMP.exe。打开“帮助 → 关于”核对 V1.3.0，再通过 F1 打开中文离线帮助。
-2. 在同一工程导入仓库中的 \`sample_data/coatings.csv\` 与 \`sample_data/Gasket.xlsx\`，核对列名、行数和工作表，编辑一个数值并验证撤销与重做。另导入一个代表性大 CSV，确认导入完成、行数正确并可编辑。记录文件大小和行列数。
+1. 解压候选 ZIP 至独立可写目录，启动 MiniJMP.exe。打开“帮助 → 关于”核对 V1.3.0 与 2026 年 11 月，再通过 F1 打开中文离线帮助。
+2. 在同一工程导入仓库中的 `sample_data/coatings.csv` 与 `sample_data/Gasket.xlsx`，核对列名、行数和工作表，编辑一个数值并验证撤销与重做。
 3. 用有足够数据行和数值列的工作表各做一次描述性统计、线性回归、PCA、过程能力及控制图。记录成功生成的报告或图形。
 4. 在该工程新建两因子两水平全因子 DOE，填入非恒定响应，运行对应分析并查看结果。使用同一数据各生成一个 Matplotlib 图和 Plotly 试验图，确认 Plotly 窗口实际呈现且可交互。
 5. 保存为新的 .dexpl，退出程序，从同一 EXE 重新启动并打开工程。确认编辑后的数据、DOE 表、历史报告和图形可从分析导航打开。

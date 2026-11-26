@@ -94,7 +94,7 @@ class Minijmp_pre(DataExplore):
         add_section('二次开发说明',
                     '本软件基于原作者 G.Du 发布的 Minijmp 开源项目进行二次开发。\n'
                     '本版本包含后续功能修改与改进，与原作者发布的原始版本有所区别。'
-                    '更新日期：2026年10月。\n'
+                    '更新日期：2026年11月。\n'
                     '基础组件 DataExplore 0.13：Copyright (C) Damien Farrell 2014-')
 
         add_section('开发工具',

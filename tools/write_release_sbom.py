@@ -142,7 +142,7 @@ def pi_runtime_components(runtime):
         is_program = name == 'PIReader.exe'
         if is_program:
             url = 'https://github.com/summeredge/Minijmp'
-            license_name, spdx = 'GNU GPL version 3 or later; see LICENSE', 'GPL-3.0-or-later'
+            license_name, spdx = 'GNU GPL v3; see LICENSE', 'GPL-3.0-only'
             source = pi_reader_provenance(runtime)
         else:
             url = 'https://www.aveva.com/'
@@ -252,8 +252,8 @@ def generate(runtime, destination, build, *, tag=None):
         ('PandasTable / DataExplore', '0.13 (DataExplore display; pandastable revision unknown)', 'https://github.com/dmnfarrell/pandastable', 'GNU GPL v3 or later', 'GPL-3.0-or-later', True, 'code/pandastable_local/; Copyright (C) Damien Farrell 2014-'),
         ('BlakerCI translated routines', '1.0-6', 'https://cran.r-project.org/package=BlakerCI', 'GNU GPL v3', 'GPL-3.0-only', True, 'code/blakerCI.py; Jan Klaschka'),
         ('Hmisc hoeffd.s translation', 'unknown', 'https://hbiostat.org/R/Hmisc/', 'GNU GPL v2 or later; historical revision unknown; verified against CRAN Hmisc 5.1-3 (1dd1751850d080156ac8152ec6de54f049dff659)', 'GPL-2.0-or-later', True, 'code/nonpara_cor.py; Frank E Harrell Jr and contributors'),
-        ('PI-Data-Viewer adapter', 'unknown', 'https://github.com/summeredge/PI-Data-Viewer', '待确认：来源项目未找到独立LICENSE', '', True, 'code/pi_reader.py; source comment identifies PI-Data-Viewer/backend/pi_reader.py'),
-        ('MiniJMP PIReader', 'unknown', 'https://github.com/summeredge/Minijmp', 'GNU GPL version 3 or later; see LICENSE', 'GPL-3.0-or-later', True, 'PIReader/ source; in-house development confirmed by project owner'),
+        ('PI-Data-Viewer adapter', 'unknown', 'https://github.com/summeredge/PI-Data-Viewer', 'GNU GPL v3; in-house code reused in MiniJMP', 'GPL-3.0-only', True, 'code/pi_reader.py; ownership and GPL v3 inclusion confirmed by project maintainer'),
+        ('MiniJMP PIReader', 'unknown', 'https://github.com/summeredge/Minijmp', 'GNU GPL v3; see LICENSE', 'GPL-3.0-only', True, 'PIReader/ source; in-house development confirmed by project owner'),
         ('Carbon Icons', '11.91.0', 'https://github.com/carbon-design-system/carbon', 'Apache License 2.0', 'Apache-2.0', True, 'code/icon_resource.py; IBM Carbon'),
         ('Tabler Icons', 'a4ce1404bc6d24d3c365afe7b258d6bf6f48d62d', 'https://github.com/tabler/tabler-icons', 'MIT License', 'MIT', True, 'code/icon_resource.py; Paweł Kuna'),
         ('Python runtime', sys.version.split()[0], 'https://www.python.org/', 'Python Software Foundation License', 'PSF-2.0', True, 'CPython runtime including standard library; not pip packages'),
