@@ -1,6 +1,6 @@
 # F3-2 全功能数值验证与统计准确性验收
 
-## 当前状态：F3-2A 至 F3-2E 完成；F3-2F、F3-2G 进行中
+## 当前状态：F3-2A 至 F3-2F 完成；F3-2G 进行中
 
 本报告按 F3-2A 至 F3-2G 的工作包持续更新。阶段结束条件是所有适用的数值功能均有证据状态、确定缺陷已修复并验收、方法差异和原生证据缺口已说明。当前结论仅对应已完成的工作包，不代表全产品数值验收完成。
 
@@ -160,6 +160,44 @@ Minitab 22.3 未能执行命令，故本包没有新增 22 原生案例。Minita
 
 结果 **146 passed**。原生方法差异仍包括短周期加法/乘法初始化与部分乘法区间参数；Minitab 19.1.0.1 对 `ATARIMA C1; BMODEL 1 0 1 0 1.` 返回未知命令 `ATAR`，因此自动 ARIMA 的厂商 Box–Cox、常数与模型选择选项无端到端原生证据。Minitab 22.3 当前登录受阻，未新增原生案例。没有复现出需修复的时间序列计算缺陷。
 
+## F3-2F：DOE 数值与模型可估性（已完成）
+
+核对 `NV-SCR-001–007`、`NV-FAC-001–019`、`NV-RSM-001–016`、`NV-MIX-001–013`、`NV-TAG-001–011`、`NV-GEN-002–009`，共 74 条。按行复核专项独立参考、测试入口、归档原生来源和方法边界；修正了 DOE 来源映射及漏记的历史原生案例。矩阵现记录 63 条在所列独立参考范围内通过、11 条仍缺完整独立 oracle；45 条有范围受限的历史原生证据、29 条原生证据不足。通过状态只表示矩阵列明的案例/字段，不外推为所有配置或 Minitab parity。
+
+### 独立数学参考
+
+| 功能族 | 覆盖字段与独立证据 |
+|---|---|
+| Screening | PB/DSD 的运行数、编码水平、主效应与二阶项交叉积、设计矩阵秩、投影/别名；筛选效应含 Lenth PSE=3、参考线 8.6366344892 及固定别名投影。混合 DSD 的 1 连续+2 分类完整二阶秩差异按具体点集审查，见下方差异记录。 |
+| Factorial / Split-Plot | 组合与正交性、完整/分数模型矩阵、混合水平对比、区组和误差层；重复案例独立核对纯误差 SS/df=8/4、失拟 SS/df=128/1。自定义设计、Foldover、增补分别用对应参考矩阵核对。 |
+| Response Surface | CCD 点数、编码和秩；解析多项式拟合、预测/区间、约束及解析优化；9/10 因子 BBD 的独立点集、秩、条件数和区组正交性。 |
+| Mixture | 精确分数格点/重心、约束区域顶点、Scheffé 系数/ANOVA/预测、置信与预测区间、有限网格优化界及 Trace/网格/叠加可行交集。 |
+| Taguchi | 正交表独立矩阵审计、静态 S/N 手算、动态斜率/MSE 公式、噪声条件模型及控制组合搜索；阵列状态只覆盖参考列明的配置。 |
+| Optimal / 诊断 / 功效 | D-optimal 小例穷举 `det(X'X)=4`、距离选点、秩/logdet/增补；功效由非中心 F 参考核对。跨设计诊断和未列明功效类型仍保持未验证。 |
+
+详细数值参考见 [Screening](../doe-minitab/screening-reference-validation.md)、[Factorial](../doe-minitab/factorial-reference-validation.md)、[BBD](../doe-minitab/bbd-reference-validation.md)、[Mixture](../doe-minitab/mixture-reference-validation.md)、[Taguchi](../doe-minitab/taguchi-reference-validation.md)、[Optimal](../doe-minitab/optimal-reference-validation.md) 以及各自 `tests/fixtures/doe_*_reference/`。二元响应和功效引用 `tests/fixtures/doe_h_reference/`；预测区间引用 `tests/fixtures/doe_phase2_interval_reference/`。矩阵中已按实际方法修正这些引用，避免把 DOE-H、BBD 或 Optimal 参考交叉误标到其他算法。
+
+### 原生固定案例与明确差异
+
+- 继续保留 Minitab 19.1.0.1 的 PB12、DSD、Factorial/GFF、Split-Plot、Foldover、CCD/BBD、三组分混料、Taguchi L8/L9、最优设计等逐案记录和版本标识。相应对标报告分别有 475/0、883/14 N/A、三因子 BBD 356/0、混料 247/6 N/A、Taguchi 473/25 N/A/2 UNSUPPORTED 等固定比较计数；这些计数只对应各报告中的字段和输入。
+- RSM-002 另保留用户提供、版本标为 Minitab 22.6.0 的五份 9/10 因子 BBD CSV：无区组、9 因子 5/10 区组、10 因子无区组/2 区组。设置为连续 −1/+1、10 中心点、单次重复、不随机化。五组设计允许运行重排与区组重编号后点集/区组均数学等价，标准序不一致。fixture 不能证明来自 Minitab 22.3，也未改写为 22.3 证据。
+- 二元 Factorial 原生对标保留 16 个超容差项和 2 个 N/A；二元 RSM 的 4 个 Wald z 超容差项最大约 `2.72×10⁻⁸`。这些是已记录的数值差异，尚无独立证据证明为生产算法缺陷，不作为全量通过处理。
+- 混合 DSD 的 1 连续+2 分类按同一模型 `[1,x,A,B,x²,xA,xB,AB]` 比较：本地点集秩 8，Minitab 19.1.0.1 冻结点集秩 7；归档点集满足精确关系 `1−2x²−xA−xB−AB=0`。差异来自不同点集，改变完整二阶模型可估性；两边的一阶满秩和主效应—二阶交叉积条件均符合记录。它不构成本地秩计算缺陷，但本地与 Minitab 19 的完整二阶模型不等价。Minitab 22 对此配置没有原生点集证据。
+- 现存 Minitab 22.6 BBD 与上述 Minitab 19 原生案例都继续使用各自版本标识。Minitab 22.3 当前会话因注销/许可证门户状态而无法通过 COM 新建可用工程，本阶段没有新增 22.3 原生命令、输入参数或输出。
+
+### 定向验证与遗留测试失败
+
+项目 `.venv`（Python 3.11.9）下，对 83 个非 GUI DOE 测试文件执行：
+
+```powershell
+$files = rg --files tests | Where-Object { $_ -match '^tests\\test_doe_.*\.py$' -and $_ -notmatch '_gui\.py$' }
+& $python -m pytest $files -q --tb=short
+```
+
+结果 **1,676 passed、2 failed**。两项失败是 `test_doe_e_lifecycle.py::test_bad_metadata_does_not_replace_live_workbook` 与 `test_doe_efg_workbook_integration.py::test_efg_designs_share_project_roundtrip_copy_analysis_and_metadata_isolation`：测试把 `.dexpl` ZIP 项目当作 gzip/pickle 读取（文件签名 `PK`），不是数值比较失败。两项测试和 `code/worksheets.py` 项目读写实现相对 F3-2A 基线均未改变；本轮未改持久化或重写无关测试。
+
+没有复现需修复的 DOE 统计计算缺陷。设计标准序、随机流、局部优化不保证全局最优、Taguchi 阵列目录范围、二元模型超差及 DSD 二阶可估性差异均按具体功能/配置保留在矩阵，不推广成其他方法缺陷。
+
 ## 工作包状态
 
 | 工作包 | 范围 | 状态 | 本阶段结果 |
@@ -169,6 +207,6 @@ Minitab 22.3 未能执行命令，故本包没有新增 22 原生案例。Minita
 | F3-2C | 回归、ANOVA、GLM、PCA | 已完成 | 11 条矩阵记录；闭式矩阵、独立似然、SVD/eigh、受限 ANOVA 和正交区间覆盖核对；保留原生缺证与 4 项旧 `dist_fit.py` 结构哈希差异 |
 | F3-2D | 过程能力、SPC、MSA | 已完成 | 26 条矩阵记录已对账；补回历史 Nelson 原生字段及质量工具独立参考；保留 D2 精度、报警行、非对称秩方法差异与 Minitab 22.3 登录限制 |
 | F3-2E | 时间序列与预测 | 已完成 | 1 条矩阵记录覆盖的独立递推、统计量与历史原生字段已核对；保留 Minitab 19 ATARIMA 不支持和 Winters 初始化/区间差异 |
-| F3-2F | DOE 数值与模型可估性 | 进行中 | 74 条矩阵记录；复用 DOE 固定设计/分析 fixtures 与历史 Minitab 19/22 案例，核对模型可估性与差异 |
-| F3-2G | 缺陷闭合及最终验收 | 待开始 | — |
+| F3-2F | DOE 数值与模型可估性 | 已完成 | 74 条记录逐行对账；63 条独立参考在限定范围内通过、11 条保留缺证；45 条历史原生部分验证；1,676 项通过、2 项非数值工程测试的 gzip/ZIP 测试假设失败；未发现需修复的 DOE 统计计算缺陷 |
+| F3-2G | 缺陷闭合及最终验收 | 进行中 | 汇总 142 条适用记录、补核图形派生数值并统一最终状态 |
 
