@@ -73,7 +73,8 @@ def product_version(root=ROOT):
 def release_name(groups):
     """V1.2 for the historical v1.2.0 line; later segments show once they advance (V1.2.2, V1.2.2.1)."""
     major, minor, patch, build, beta = groups
-    return (f'V{major}.{minor}' + (f'.{patch}' if patch != '0' or build else '') +
+    return (f'V{major}.{minor}' + ('' if (major, minor, patch, build, beta) ==
+                              ('1', '2', '0', None, None) else f'.{patch}') +
             (f'.{build}' if build else '') + (f'-beta{beta}' if beta else ''))
 
 

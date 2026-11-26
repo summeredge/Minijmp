@@ -32,8 +32,8 @@ $versionInfo = Join-Path $root 'packaging\windows\version_info.txt'
 $entry = Join-Path $root 'packaging\windows_entrypoint.py'
 $makeZip = Join-Path $root 'tools\make_zip.py'
 $smoke = Join-Path $root 'tools\smoke_launch.py'
-$releaseVersion = 'V1.2.2.3'
-$productVersion = 'v1.2.2.3'
+$releaseVersion = 'V1.3.0'
+$productVersion = 'v1.3.0'
 $isPublicPackage = [bool]($Public -or $UnreleasedCandidate)
 if ($UnreleasedCandidate -and ($Public -or $InternalReview)) {
     throw 'Use -UnreleasedCandidate by itself; it already selects the unsigned public package contents.'

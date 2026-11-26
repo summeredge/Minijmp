@@ -1,8 +1,8 @@
-# MiniJMP V1.2.1 版本与审核说明
+# MiniJMP V1.3.0 版本与审核说明
 
 > 本资料供内部审核。当前源码存在未核实的第三方代码许可，正式分发及合规放行受阻；本文不是企业验收或合规放行结论。
 
-许可状态核对日期：2026-11-04。
+许可状态核对日期：2026-11-26。
 
 ## 软件概况
 
@@ -10,9 +10,9 @@ MiniJMP 是独立的 Windows 桌面统计分析软件，提供表格数据导入
 
 | 标识 | 值 |
 |---|---|
-| 发布名 | `V1.2.1` |
-| 产品版本 | `v1.2.1` |
-| Windows 文件版本 | `1.2.1.0` |
+| 发布名 | `V1.3.0` |
+| 产品版本 | `v1.3.0` |
+| Windows 文件版本 | `1.3.0.0` |
 | Git tag | `{{TAG}}`|
 | 对应 Git commit | `{{COMMIT}}` |
 
@@ -25,8 +25,8 @@ MiniJMP 是独立的 Windows 桌面统计分析软件，提供表格数据导入
 ## 仓库、许可与分发状态
 
 - 本仓库为 [summeredge/Minijmp](https://github.com/summeredge/Minijmp)，基于原项目 [garrydu/Minijmp](https://github.com/garrydu/Minijmp) 二次开发。本仓库 `LICENSE` 声明 GNU GPL v3。该声明本身不能证明下列外部代码的授权或许可兼容性。
-- `code/nonpara_cor.py::hoeffd_example` 明确标记为复制自 [Dicklesworthstone/hoeffdings_d_explainer](https://github.com/Dicklesworthstone/hoeffdings_d_explainer) 的 README。审核时未找到该仓库的独立 `LICENSE`，GitHub license API 返回 HTTP 404：[许可查询](https://api.github.com/repos/Dicklesworthstone/hoeffdings_d_explainer/license)。
-- `PIReader/` 是 MiniJMP 项目自研源码（项目维护者确认），按项目 GPL-3.0-or-later 许可；运行包使用本次源码构建产生的 `PIReader/PIReader.exe`。`code/pi_reader.py` 的文件头注明复用 [PI-Data-Viewer/backend/pi_reader.py](https://github.com/summeredge/PI-Data-Viewer)，该来源的独立许可仍未核实。
+- Hoeffding D 已替换原 README 片段。Hmisc p 值移植的署名、许可和对照版本记录见 [源码来源](SOURCE-PROVENANCE.md)。
+- PIReader C# 源码由项目维护者确认自研。公开构建复用固定二进制，其构建来源仍待核实。Python PI 适配器的独立分发许可仍需权利人确认。
 
 上述许可缺口尚无独立授权文件或兼容性结论。该构建资料和包可用于内部审核；正式分发及合规放行须先补足授权依据或移除/替换相关代码，并重新审核。不得据此宣称整个交付物已获合规放行。
 
@@ -39,8 +39,8 @@ MiniJMP 是独立的 Windows 桌面统计分析软件，提供表格数据导入
 
 ## PI 发布边界
 
-- 当前 Windows 构建将源码编译的 `PIReader.exe` 放在运行包 `PIReader/PIReader.exe`；SBOM 记录该运行文件的版本与实际 SHA-256，不取仓库中的旧 EXE。源码包不含 PIReader.exe 或 PI SDK DLL。
-MiniJMP V1.2 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件不构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。 三个 DLL 保持专有第三方身份，再分发授权待企业确认；公开 Git 与源码 ZIP 不含 SDK DLL，不自动安装或注册组件。
+- 公开候选运行包使用固定 PIReader 1.0.0.0。随包 SBOM 和构建信息记录实际文件的 SHA-256。运行包排除三个 OSIsoft 专有 SDK DLL，源码包排除 SDK DLL 和 PIReader.exe。
+- 使用 PI 导入需要取得相应授权，在目标电脑安装并配置 PI SDK/PIPC，并具备 PI Server 访问权限。
 
 ## 数据与企业验证边界
 

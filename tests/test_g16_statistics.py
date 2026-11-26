@@ -196,13 +196,11 @@ def test_f02_matrix_values_reports_and_unordered_pairs(old, monkeypatch, method)
             equal(a.values, b.values)
 
 
-def test_f02_no_python_boolean_sum_or_repeated_comparison():
-    import nonpara_cor
-    tree = ast.parse(inspect.getsource(nonpara_cor.hoeffd_example))
-    loop = next(n for n in ast.walk(tree) if isinstance(n, ast.For))
-    assert not any(isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
-                   and n.func.id == 'sum' for n in ast.walk(loop))
-    assert len([n for n in ast.walk(loop) if isinstance(n, ast.Compare)]) == 4
+@pytest.mark.parametrize('reverse', [False, True])
+def test_f02_perfect_untied_dependence(reverse):
+    from nonpara_cor import hoeffd_example
+    x = list(range(8))
+    assert hoeffd_example(x, x[::-1] if reverse else x) == 1.0
 
 
 @pytest.mark.parametrize('n,p,x', [(12, .3, 0), (12, .3, 12), (15, .4, 4),

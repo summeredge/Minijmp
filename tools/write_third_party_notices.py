@@ -150,8 +150,7 @@ def generate(destination, public=False):
         + 'MiniJMP upstream: G.Du, Copyright (C) G.Du 2024-, https://github.com/garrydu/Minijmp .\n'
         + 'Embedded PandasTable/DataExplore: Copyright (C) Damien Farrell 2014-, GPL-3.0-or-later; https://github.com/dmnfarrell/pandastable .\n'
         + 'BlakerCI 1.0-6 translated code: Jan Klaschka, GPL-3.0-only; code/blakerCI.py.\n'
-        + 'Hmisc hoeffd.s translation: Frank E Harrell Jr and contributors, GPL-2.0-or-later; original version unknown; code/nonpara_cor.py.\n'
-        + 'hoeffdings_d_explainer: Dicklesworthstone, copied README snippet in code/nonpara_cor.py; license/redistribution authorization UNCONFIRMED; https://github.com/Dicklesworthstone/hoeffdings_d_explainer .\n'
+        + 'Hmisc hoeffd.s translation: Frank E Harrell Jr and contributors, GPL-2.0-or-later; matches Hmisc 5.1-3 (CRAN mirror 1dd1751850d080156ac8152ec6de54f049dff659); original revision unknown; code/nonpara_cor.py.\n'
         + pireader_line
         + 'The code/pi_reader.py adapter identifies reuse from https://github.com/summeredge/PI-Data-Viewer/backend/pi_reader.py ; separate license evidence remains UNCONFIRMED.\n'
         + sdk_line

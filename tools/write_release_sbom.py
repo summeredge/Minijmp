@@ -251,8 +251,7 @@ def generate(runtime, destination, build, *, tag=None):
     embedded = [
         ('PandasTable / DataExplore', '0.13 (DataExplore display; pandastable revision unknown)', 'https://github.com/dmnfarrell/pandastable', 'GNU GPL v3 or later', 'GPL-3.0-or-later', True, 'code/pandastable_local/; Copyright (C) Damien Farrell 2014-'),
         ('BlakerCI translated routines', '1.0-6', 'https://cran.r-project.org/package=BlakerCI', 'GNU GPL v3', 'GPL-3.0-only', True, 'code/blakerCI.py; Jan Klaschka'),
-        ('Hmisc hoeffd.s translation', 'unknown', 'https://hbiostat.org/R/Hmisc/', 'GNU GPL v2 or later; copied revision unknown', 'GPL-2.0-or-later', True, 'code/nonpara_cor.py; Frank E Harrell Jr and contributors'),
-        ('hoeffdings_d_explainer snippet', 'unknown', 'https://github.com/Dicklesworthstone/hoeffdings_d_explainer', '待确认：未找到授权声明，正式分发阻断', '', True, 'code/nonpara_cor.py::hoeffd_example; Dicklesworthstone'),
+        ('Hmisc hoeffd.s translation', 'unknown', 'https://hbiostat.org/R/Hmisc/', 'GNU GPL v2 or later; historical revision unknown; verified against CRAN Hmisc 5.1-3 (1dd1751850d080156ac8152ec6de54f049dff659)', 'GPL-2.0-or-later', True, 'code/nonpara_cor.py; Frank E Harrell Jr and contributors'),
         ('PI-Data-Viewer adapter', 'unknown', 'https://github.com/summeredge/PI-Data-Viewer', '待确认：来源项目未找到独立LICENSE', '', True, 'code/pi_reader.py; source comment identifies PI-Data-Viewer/backend/pi_reader.py'),
         ('MiniJMP PIReader', 'unknown', 'https://github.com/summeredge/Minijmp', 'GNU GPL version 3 or later; see LICENSE', 'GPL-3.0-or-later', True, 'PIReader/ source; in-house development confirmed by project owner'),
         ('Carbon Icons', '11.91.0', 'https://github.com/carbon-design-system/carbon', 'Apache License 2.0', 'Apache-2.0', True, 'code/icon_resource.py; IBM Carbon'),

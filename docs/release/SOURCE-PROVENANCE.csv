@@ -1,7 +1,7 @@
 ﻿分类,源码路径,上游项目,作者或署名,许可证,依据与限制
 C,PIReader/PIReader.csproj,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者（自研；2026-11-11 确认）,GPL-3.0-or-later（项目许可）,相对原项目为新增路径；自研身份由项目维护者确认
 C,PIReader/Properties/AssemblyInfo.cs,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者,GPL-3.0-or-later（项目许可）,项目产品名称及程序集版本信息
-C,PIReader/PIReader.exe,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者（自研；2026-11-11 确认）,GPL-3.0-or-later（项目许可）,仓库内副本为历史构建文件；运行包 SBOM 使用本次签名运行目录的 PIReader/PIReader.exe 与 SHA-256
+C,PIReader/PIReader.exe,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者（自研；2026-11-11 确认）,GPL-3.0-or-later（项目许可）,仓库历史路径；同一 blob 后用于固定包装输入，见 manifest 条目和 Markdown 证据
 C,PIReader/Program.cs,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者（自研；2026-11-11 确认）,GPL-3.0-or-later（项目许可）,相对原项目为新增路径；自研身份由项目维护者确认
 C,PIReader/TimeExpressionParser.cs,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者（自研；2026-11-11 确认）,GPL-3.0-or-later（项目许可）,相对原项目为新增路径；自研身份由项目维护者确认
 C,PIReader/build.bat,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者（自研；2026-11-11 确认）,GPL-3.0-or-later（项目许可）,相对原项目为新增路径；自研身份由项目维护者确认
@@ -116,7 +116,7 @@ B,code/linear_fit.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护�
 B,code/linear_plot.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 B,code/modified_app.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 B,code/modified_table.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
-B,code/nonpara_cor.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创；内含hoeffdings_d_explainer复制代码（授权待确认）及Hmisc移植
+B,code/nonpara_cor.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创；Hoeffding D 已独立实现；p 值移植与 Hmisc 5.1-3 对照一致，原移植版本未记载
 B,code/one_way_ANOVA.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 B,code/ortho_fit.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 B,code/pandastable_local/app.py,https://github.com/dmnfarrell/pandastable,Damien Farrell；G.Du；本仓库维护者,GPL-3.0-or-later,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
@@ -138,7 +138,7 @@ C,code/pca_analysis.py,https://github.com/summeredge/Minijmp,本仓库维护者�
 C,code/pca_dialog.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 C,code/pca_plots.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 C,code/pi_import.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
-D,code/pi_reader.py,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE）,文件头注明复用 PI-Data-Viewer/backend/pi_reader.py；独立授权未确认；与项目自研的 PIReader/ 程序分开登记
+D,code/pi_reader.py,https://github.com/summeredge/PI-Data-Viewer,PI-Data-Viewer / summeredge；更早来源未核实,待确认（来源项目未找到LICENSE）,文件头注明复用 PI-Data-Viewer/backend/pi_reader.py；原项目公开链接返回 404；需权利人确认授权；与项目自研的 PIReader/ 程序分开登记
 B,code/plots.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 C,code/pls_regression.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 B,code/poisson.py,https://github.com/garrydu/Minijmp,G.Du；本仓库维护者,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
@@ -180,3 +180,4 @@ C,packaging/windows/licenses/Tabler-Icons-MIT.txt,https://github.com/summeredge/
 C,packaging/windows/requirements-py311.lock,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 C,packaging/windows/version_info.txt,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
 C,packaging/windows_entrypoint.py,https://github.com/summeredge/Minijmp,本仓库维护者；逐项归属未审计,GPL-3.0-or-later（项目许可；其他来源例外见说明）,按Git路径/blob与固定上游比较；C仅表示路径新增，不证明原创
+D,packaging/windows/pireader/PIReader.exe,https://github.com/summeredge/Minijmp,MiniJMP 项目维护者,固定二进制与对应源码关系待确认,Git blob 0eb622e9b9dbcd83d6e957e8aee10624269c34dc；见发布清单和 Markdown 证据

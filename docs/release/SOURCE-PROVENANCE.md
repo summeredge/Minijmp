@@ -1,6 +1,6 @@
 # 源码来源与许可证
 
-核对日期：2026-11-04；PIReader 自研身份于 2026-11-11 由项目维护者确认。原项目 [garrydu/Minijmp](https://github.com/garrydu/Minijmp)，原作者 G.Du，Copyright (C) G.Du 2024-；二次开发项目 [summeredge/Minijmp](https://github.com/summeredge/Minijmp)。根 LICENSE 保留 GNU GPLv3，代码中适用的“或更高版本”条款保留。
+本次核对日期：2026-11-26；PIReader 自研身份于 2026-11-11 由项目维护者确认。原项目 [garrydu/Minijmp](https://github.com/garrydu/Minijmp)，原作者 G.Du，Copyright (C) G.Du 2024-；二次开发项目 [summeredge/Minijmp](https://github.com/summeredge/Minijmp)。根 LICENSE 保留 GNU GPLv3，代码中适用的“或更高版本”条款保留。
 
 ## 分类口径
 
@@ -15,18 +15,16 @@
 | C | code/advanced_regression.py、generalized_regression.py、pls_regression.py、pca_analysis.py等 | 相对固定上游新增的高级回归、PLS、PCA；按项目GPL许可，未逐行排除外部片段 |
 | C | code/doe_*.py、advanced_spc*.py、time_series_analysis.py等 | 新增DOE、高级SPC与时间序列；依赖SciPy/statsmodels等计算，具体第三方依赖另列SBOM；方法参考文献不自动等于复制源码 |
 | D | code/pi_reader.py | 文件头注明复用 PI-Data-Viewer/backend/pi_reader.py；独立许可证据仍待核实。此 Python adapter 与 PIReader/ C# 程序分别登记 |
-| C | PIReader/ | 项目维护者确认由 MiniJMP 项目自研，适用项目 GPL-3.0-or-later。运行包使用本次源码构建产生的 `PIReader/PIReader.exe`；SBOM 对运行目录中的实际文件计算 SHA-256，不用仓库旧 EXE |
+| C | PIReader/ | 项目维护者确认由 MiniJMP 项目自研，适用项目 GPL-3.0-or-later。公开候选运行包复用固定 PIReader 1.0.0.0，SBOM 对实际随包文件计算 SHA-256。固定文件的源码及构建关联待证实 |
 | B，第三方片段 | code/blakerCI.py | 明示由R BlakerCI 1.0-6移植（p-value除外）；Jan Klaschka；CRAN DESCRIPTION为GPL-3，SPDX GPL-3.0-only；源码链接见文件头 |
-| B，第三方片段 | code/nonpara_cor.py::phoeffd | 明示由Hmisc R/hoeffd.s移植；Frank E Harrell Jr及贡献者；当前DESCRIPTION GPL (>=2)，SPDX GPL-2.0-or-later；实际移植版本未记载，不能以当前5.3-0冒充版本 |
-| B，第三方片段；授权D | code/nonpara_cor.py::hoeffd_example | 文件明确copy-pasted自Dicklesworthstone/hoeffdings_d_explainer README。GitHub仓库未显示许可证，license API为404；作者署名保留，SPDX及分发授权待确认，不推断为GPL/MIT。这是正式合规放行阻断 |
+| B，第三方片段 | code/nonpara_cor.py::phoeffd | Frank E Harrell Jr 及贡献者，GPL-2.0-or-later。Python 移植最迟见于 MiniJMP 提交 1253526（2024-10-26）。查表、插值区间与尾部近似均和 [Hmisc 5.1-3 的 R/hoeffd.s](https://github.com/cran/Hmisc/blob/1dd1751850d080156ac8152ec6de54f049dff659/R/hoeffd.s) 一致。原移植所取版本未记录 |
+| B，本项目实现 | code/nonpara_cor.py::hoeffd_example | 依据 [Hoeffding（1948）](https://doi.org/10.1214/aoms/1177730150) 的统计定义及有许可的 Hmisc 参考独立实现。生产源码和随源码包分发的旧测试快照均已替换 README 复制片段 |
 | C，外部图标 | code/icon_resource.py | IBM Carbon @carbon/icons 11.91.0，Apache-2.0；Tabler Icons，Paweł Kuna，MIT；固定上游commit、文件名与完整许可见THIRD-PARTY-NOTICES及packaging/windows/licenses/ |
 
 ## 证据与限制
 
 - BlakerCI DESCRIPTION：https://raw.githubusercontent.com/cran/BlakerCI/master/DESCRIPTION （Version 1.0-6，Author Jan Klaschka，License GPL-3）。
-- Hmisc DESCRIPTION：https://raw.githubusercontent.com/cran/Hmisc/master/DESCRIPTION；原移植链接 https://rdrr.io/cran/Hmisc/src/R/hoeffd.s 。
-- Hoeffding复制来源：https://github.com/Dicklesworthstone/hoeffdings_d_explainer ，核对license API无可用许可证；不把公开可读视作授权。
-- PI SDK 属于 OSIsoft/AVEVA 专有第三方软件；三个 DLL 的再分发授权仍未确认。指定构建输入目录不会改变或授予授权。源码 ZIP 排除这些 DLL。
-- 源码清单可支持内部审核，不能代替缺失授权。`code/pi_reader.py` 与 Hoeffding 复制片段的授权缺口仍需补充证据，未解决前不宣称正式合规发布完成。
-
-MiniJMP V1.2 Windows 发布包随附三个 PI SDK 相关组件，用于支持 PI 数据访问。PI 数据导入功能须在已取得相应授权、安装并正确配置 PI SDK/PIPC 运行环境，且具有 PI Server 访问权限的企业办公终端上使用。随包组件不构成完整的 PI System 运行环境，也不代表授予额外的软件使用或再分发许可。
+- Hmisc 许可与署名见 [固定版本 DESCRIPTION](https://github.com/cran/Hmisc/blob/1dd1751850d080156ac8152ec6de54f049dff659/DESCRIPTION)，随包保留该版本元数据。现有标量接口与 p 值计算保持原行为。
+- PI-Data-Viewer 适配器首次引入见 MiniJMP 提交 e072596ba51743b65c81b9446c92033a67774a57。公开来源 URL 本次返回 404。待维护者提供原文件与提交、作者及外部贡献情况，以及依据 GPLv3 或更高版本修改和公开分发的授权。
+- 固定 PIReader SHA-256 为 3EEEA2BB6D747BD2731C2F405F2A1FECBDB6C0FAC672F659F1C26ECD2DDF23D0，Git blob 0eb622e9b9dbcd83d6e957e8aee10624269c34dc。固定路径见提交 785636091bd2bb4c1853f28d6ce283c0237421ed，同一 blob 也见于 ca0571dcf9b322212624fbde9207a74bf33b995b 的旧路径 PIReader/PIReader.exe。该线索证实字节相同，尚无记录将其绑定到构建输入、编译器和 SDK 版本、或带日期及摘要的现场验证。
+- PIReader 源码树提供 .NET Framework 4.8 x86 工程和单独的旧构建批处理。公开候选包及对应源码包均排除三个 OSIsoft/AVEVA 专有 SDK DLL。含 SDK 的内部构建需要组织确认软件授权和分发范围。
