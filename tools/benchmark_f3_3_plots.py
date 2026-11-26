@@ -46,6 +46,7 @@ def summarize(values: list[float]) -> dict[str, float]:
 
 def run(repeats: int, lifecycle_cycles: int, visible: bool) -> dict:
     import tkinter as tk
+    from benchmark_f3_3 import _memory_bytes
 
     rng = np.random.default_rng(SEED)
     data = {kind: make_data(kind, rows, rng) for kind, rows in PLOT_CASES}
@@ -55,13 +56,14 @@ def run(repeats: int, lifecycle_cycles: int, visible: bool) -> dict:
         root.withdraw()
     callback_errors: list[str] = []
 
-    def report_callback_exception(_widget, _exception, error, _traceback) -> None:
+    def report_callback_exception(_exception, error, _traceback) -> None:
         callback_errors.append(str(error))
         root.quit()
 
     root.report_callback_exception = report_callback_exception
     measurements: dict[str, list[dict[str, float]]] = {kind: [] for kind, _ in PLOT_CASES}
     lifecycle = {"output_window": [], "general_plotter": []}
+    lifecycle_memory = []
     weak_figures = []
     weak_canvases = []
     weak_windows = []
@@ -159,6 +161,9 @@ def run(repeats: int, lifecycle_cycles: int, visible: bool) -> dict:
 
     def measure_lifecycle() -> None:
         index = progress["cycle"]
+        if index == 0:
+            working, private = _memory_bytes()
+            lifecycle_memory.append((working, private))
         kind = "output_window" if index % 2 == 0 else "general_plotter"
         start = time.perf_counter()
         viewer = (plot_viewer(table=None, register=False) if kind == "output_window"
@@ -175,6 +180,7 @@ def run(repeats: int, lifecycle_cycles: int, visible: bool) -> dict:
         weak_windows.append(weakref.ref(viewer.main))
         progress["cycle"] += 1
         del viewer
+        lifecycle_memory.append(_memory_bytes())
         if progress["cycle"] < lifecycle_cycles * 2:
             root.after(0, measure_lifecycle)
         else:
@@ -189,6 +195,7 @@ def run(repeats: int, lifecycle_cycles: int, visible: bool) -> dict:
                 pass
             heartbeat_id = None
         gc.collect()
+        lifecycle_memory.append(_memory_bytes())
         result["resources"] = {
             "remaining_toplevels": sum(isinstance(widget, tk.Toplevel)
                                        for widget in root.winfo_children()),
@@ -243,6 +250,21 @@ def run(repeats: int, lifecycle_cycles: int, visible: bool) -> dict:
                 "close_ms": summarize([sample["close_ms"] for sample in values]),
             }
             for kind, values in lifecycle.items()
+        },
+        "lifecycle_memory": {
+            "samples": len(lifecycle_memory),
+            "start_working_set_mib": round(lifecycle_memory[0][0] / 1024**2, 2),
+            "end_working_set_mib": round(lifecycle_memory[-1][0] / 1024**2, 2),
+            "peak_working_set_mib": round(
+                max(sample[0] for sample in lifecycle_memory) / 1024**2, 2),
+            "start_private_mib": round(lifecycle_memory[0][1] / 1024**2, 2),
+            "end_private_mib": round(lifecycle_memory[-1][1] / 1024**2, 2),
+            "peak_private_mib": round(
+                max(sample[1] for sample in lifecycle_memory) / 1024**2, 2),
+            "end_working_set_delta_mib": round(
+                (lifecycle_memory[-1][0] - lifecycle_memory[0][0]) / 1024**2, 2),
+            "end_private_delta_mib": round(
+                (lifecycle_memory[-1][1] - lifecycle_memory[0][1]) / 1024**2, 2),
         },
     })
     return result
