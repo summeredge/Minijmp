@@ -382,9 +382,11 @@ class plot_viewer(PlotViewer):
 
     def close(self):
         """Close the window, including an already destroyed viewer."""
-        self._cleanup()
-        if self.main.winfo_exists():
-            self.main.destroy()
+        try:
+            self._cleanup()
+        finally:
+            if self.main.winfo_exists():
+                self.main.destroy()
 
     def _cleanup(self):
         if self._cleaned_up:
@@ -393,11 +395,13 @@ class plot_viewer(PlotViewer):
         for table in (self.table, getattr(self.table, 'child', None)):
             if table is not None and getattr(table, 'pf', None) is self:
                 table.pf = None
-        if hasattr(self, 'animateopts'):
-            self.animateopts.stop()
-        for variable in self.globalvars.values():
-            for mode, callback in variable.trace_info():
-                variable.trace_remove(mode, callback)
-        self._drag_handler = None
-        plt.close(self.fig)
+        try:
+            if hasattr(self, 'animateopts'):
+                self.animateopts.stop()
+        finally:
+            for variable in self.globalvars.values():
+                for mode, callback in variable.trace_info():
+                    variable.trace_remove(mode, callback)
+            self._drag_handler = None
+            plt.close(self.fig)
         return

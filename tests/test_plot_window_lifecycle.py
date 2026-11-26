@@ -15,7 +15,8 @@ from sb_hist_dialog import singleHistoDialog, multiHistoDialog, xyHistoDialog
 from sb_misc_dialog import countPlotDialog, linePlotDialog, dotPlotDialog
 from dist_plot_dialog import displayProbDialog, displayProb2xDialog
 from modified_table import MTable
-from pandastable_local.plotting import PlotViewer
+from pandastable_local.plotting import AnimateOptions, PlotViewer
+from plots import plot_viewer
 
 
 @pytest.fixture
@@ -470,6 +471,42 @@ def test_plot_viewer_close_destroys_after_video_finalize_error(animation_plot):
     assert table.pf is None
     assert not animate.running
     assert not viewer.main.winfo_exists()
+    variables = list(viewer.globalvars.values())
+    for name in ('mplopts', 'mplopts3d', 'labelopts', 'layoutopts', 'styleopts', 'animateopts'):
+        variables.extend(getattr(getattr(viewer, name), 'tkvars', {}).values())
+    assert all(not variable.trace_info() for variable in variables
+               if hasattr(variable, 'trace_info'))
+    assert viewer._drag_handler is None
+
+
+def test_production_plot_viewer_cleans_up_after_video_finalize_error(
+        animation_plot, monkeypatch):
+    table, _, previous = animation_plot
+    previous.close()
+    viewer = plot_viewer(table)
+    animate = AnimateOptions(parent=viewer)
+    error = OSError('video finalize failed')
+
+    class FailedWriterContext:
+        def __exit__(self, *exc_info):
+            raise error
+
+    animate.running = True
+    animate._writer_context = FailedWriterContext()
+    viewer.animateopts = animate
+    closed_figures = []
+    monkeypatch.setattr('plots.plt.close', closed_figures.append)
+
+    with pytest.raises(OSError) as raised:
+        viewer.close()
+
+    assert raised.value is error
+    assert table.pf is None
+    assert not viewer.main.winfo_exists()
+    assert viewer._cleaned_up
+    assert viewer._drag_handler is None
+    assert all(not variable.trace_info() for variable in viewer.globalvars.values())
+    assert closed_figures == [viewer.fig]
 
 
 def test_animation_slow_frame_close_cancels_late_callback(

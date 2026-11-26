@@ -1010,6 +1010,17 @@ class PlotViewer(Frame):
         for table in (self.table, getattr(self.table, 'child', None)):
             if getattr(table, 'pf', None) is self:
                 table.pf = None
+        variables = list(self.globalvars.values())
+        for name in ('mplopts', 'mplopts3d', 'labelopts', 'layoutopts',
+                     'styleopts', 'animateopts'):
+            variables.extend(getattr(getattr(self, name, None), 'tkvars', {}).values())
+        variables.extend(getattr(self, name) for name in ('rangevar', 'engine')
+                         if getattr(self, name, None) is not None)
+        for variable in variables:
+            if not hasattr(variable, 'trace_info'):
+                continue
+            for mode, callback in variable.trace_info():
+                variable.trace_remove(mode, callback)
         self._drag_handler = None
 
     def _flow_panelhead(self, event=None):

@@ -413,6 +413,35 @@ def test_preview_reports_invalid_roles_and_removes_pending_update(tk_root):
         frame.destroy()
 
 
+def test_preview_coalesces_parameter_changes_before_render(tk_root, monkeypatch):
+    table, frame, viewer = make_viewer(tk_root)
+    try:
+        viewer.startPreview(lambda pending: None, '来源')
+        rendered = []
+        render = viewer._renderPreview
+
+        def count_render(**kwargs):
+            rendered.append(True)
+            return render(**kwargs)
+
+        monkeypatch.setattr(viewer, '_renderPreview', count_render)
+        viewer.labelopts.tkvars['title'].set('第一次')
+        viewer.labelopts.tkvars['xlabel'].set('工况')
+        viewer.mplopts.tkvars['linewidth'].set(2.0)
+        viewer.labelopts.tkvars['title'].set('最后参数')
+        assert viewer._preview_after is not None
+
+        viewer.main.update_idletasks()
+
+        assert rendered == [True]
+        assert viewer._preview_after is None
+        assert viewer.fig._suptitle.get_text() == '最后参数'
+    finally:
+        viewer.close()
+        table.destroy()
+        frame.destroy()
+
+
 def test_general_plotly_data_and_histogram_edges():
     import pytest
     from plots import general_plotly_figure
