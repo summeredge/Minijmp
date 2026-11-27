@@ -21,6 +21,7 @@ def step(name):
 @pytest.mark.parametrize('scenario', [
     'tag_push', 'manual_same', 'manual_main_ahead', 'invalid_tag',
     'version_mismatch', 'identifier_mismatch', 'tag_head_mismatch',
+    'preflight_sha', 'preflight_sha_mismatch',
 ])
 def test_checkout_commit_validation(tmp_path, scenario):
     repo = tmp_path / 'repo'
@@ -50,7 +51,8 @@ def test_checkout_commit_validation(tmp_path, scenario):
     target_commit = git('rev-parse', 'HEAD')
     tag = subprocess.check_output([sys.executable, str(repo / 'tools/release_metadata.py'),
                                    '--print-product'], text=True).strip()
-    git('tag', '-a', tag, '-m', 'release tag')
+    if not scenario.startswith('preflight_'):
+        git('tag', '-a', tag, '-m', 'release tag')
     event_commit = target_commit
     if scenario in ('manual_main_ahead', 'tag_head_mismatch'):
         (repo / 'later.txt').write_text('main advanced', encoding='utf-8')
@@ -58,7 +60,7 @@ def test_checkout_commit_validation(tmp_path, scenario):
         git('commit', '-m', 'main advances')
         event_commit = git('rev-parse', 'HEAD')
     if scenario != 'tag_head_mismatch':
-        git('checkout', '--detach', tag)
+        git('checkout', '--detach', target_commit if scenario.startswith('preflight_') else tag)
     if scenario == 'invalid_tag':
         tag = 'main'
     elif scenario == 'version_mismatch':
@@ -69,10 +71,15 @@ def test_checkout_commit_validation(tmp_path, scenario):
     script.write_text(step('Check the tag, the version identifiers and the build commit'),
                       encoding='utf-8-sig')
     env = dict(os.environ, TAG=tag, GITHUB_SHA=event_commit, GITHUB_OUTPUT=str(output))
+    env['PREFLIGHT_COMMIT'] = {
+        'preflight_sha': target_commit,
+        'preflight_sha_mismatch': '0' * 40,
+    }.get(scenario, '')
     env['PATH'] = str(Path(sys.executable).parent) + os.pathsep + env['PATH']
     result = subprocess.run(['powershell', '-NoProfile', '-File', str(script)], cwd=repo,
                             env=env, capture_output=True, text=True, timeout=30)
-    if scenario in ('invalid_tag', 'version_mismatch', 'identifier_mismatch', 'tag_head_mismatch'):
+    if scenario in ('invalid_tag', 'version_mismatch', 'identifier_mismatch', 'tag_head_mismatch',
+                    'preflight_sha_mismatch'):
         assert result.returncode != 0, result.stdout
         assert not output.exists()
     else:
@@ -84,7 +91,7 @@ def test_checkout_commit_validation(tmp_path, scenario):
 
 def test_commit_wiring_and_publish_permissions_stay_restricted():
     text = WORKFLOW.read_text(encoding='utf-8')
-    assert 'ref: ${{ github.event_name == \'workflow_dispatch\' && inputs.tag || github.ref }}' in text
+    assert 'ref: ${{ github.event_name == \'workflow_dispatch\' && (inputs.commit || inputs.tag) || github.ref }}' in text
     assert re.search(r'id: checkout\s', text)
     assert 'BUILD_COMMIT: ${{ steps.checkout.outputs.commit }}' in text
     verify = step('Verify the candidate and write the job summary')
@@ -108,6 +115,8 @@ def test_public_build_requires_fixed_reader_and_no_sdk_settings():
     script = (ROOT / 'tools/build_windows_release.ps1').read_text(encoding='utf-8-sig')
     assert '--check-reader-input' in script
     build = step('Build the public candidate')
+    assert '-UnreleasedCandidate -PreflightCommit' in build
+    assert '-PlotlyPilot' not in build
     assert '-PiSdkDirectory' not in build and '-FrameworkReferenceDirectory' not in build
     text = WORKFLOW.read_text(encoding='utf-8')
     assert 'runs-on: windows-2022' in text

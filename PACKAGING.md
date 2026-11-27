@@ -4,10 +4,12 @@
 
 ## 公开候选包（GitHub Actions）
 
-`.github/workflows/release.yml` 是公开发布入口。推送符合 `v*` 规则的新版本 Tag 后，Actions 自动构建、校验、上传候选包并创建 GitHub Release。手动运行可指定已有 Tag，仅生成候选包。
+`.github/workflows/release.yml` 是公开发布入口。推送符合 `v*` 规则的新版本 Tag 后，Actions 自动构建、校验、上传候选包并创建 GitHub Release。手动运行时填写完整的 40 位提交 SHA（commit）或已有版本标签（tag），二选一。SHA 必须已能从 GitHub 仓库检出。手动运行只上传候选产物。
 
-- 触发后先校验 Tag 格式、Tag 指向的提交、`version_info.txt` 与其他版本标识一致，以及检出目录干净。
-- 运行环境为 Windows + Python 3.11（默认 `windows-2022`），依赖来自 `packaging/windows/requirements-py311.lock`；PyInstaller 参数、onedir/windowed、Splash、图标、依赖收集与 pyarrow 裁剪与内部构建共用同一份脚本参数（`-Public` 模式）。
+推送正式标签前，记录待发布的完整 SHA，并确认同一 SHA 的手动预检通过。以 .github/workflows/release.yml 中的锁定依赖、发布定向测试和默认公开构建配置为准。核对运行摘要中的 SHA、测试结果和产物校验。使用 -PlotlyPilot 的本地候选只覆盖该试验配置。如果本地仅执行了部分测试，仍需确认工作流中的打包断言和统计源码守卫已通过。
+
+- 触发后先校验标签指向或预检 SHA 与检出提交一致，再检查`version_info.txt` 与其他版本标识一致，和工作区是否干净。
+- 运行环境为 Windows + Python 3.11（默认 `windows-2022`），依赖来自 `packaging/windows/requirements-py311.lock`；PyInstaller 参数、onedir/windowed、Splash、图标、依赖收集与 pyarrow 裁剪与内部构建共用同一份脚本参数。标签构建使用 `-Public`，SHA 预检使用 `-UnreleasedCandidate -PreflightCommit`。SHA 候选的文件名附带提交短 SHA。
 - `-Public` 重新构建 MiniJMP 主程序，并复用通过固定输入校验的原版 PIReader。公开候选包通过 CRC/SHA256 复核后才可发布。
 - 产物：`MiniJMP-<版本>-Windows-x64-portable.zip`、`MiniJMP-<版本>-Source.zip`、`SHA256SUMS-<版本>.txt`，以及 `SBOM.cdx.json`、`SBOM.csv`、`RUNTIME-CONTENTS.csv`、`BUILD-INFO.txt`、`SOURCE-CODE.txt` 和构建/测试记录。
 - 自动校验 Tag/版本/Commit 一致、ZIP CRC 与 SHA256、包内 EXE 与本次构建产物一致、包含 PIReader.exe、干净的 PIReader/config.txt 和 tags.txt 模板，不含三个 OSIsoft DLL、真实账号、密码或企业配置，并核对 PIReader 文件版本、x86 架构、产物摘要和 SBOM、Splash 与图标已嵌入、SBOM 版本一致；任一项失败即中止，不会上传正式 Release。

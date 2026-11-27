@@ -7,6 +7,7 @@
     [switch]$Public,
     # Local candidate: preserve the product version without creating a tag.
     [switch]$UnreleasedCandidate,
+    [string]$PreflightCommit,
     [string]$PythonPath,
     [string]$CertificateThumbprint = $env:MINIJMP_SIGNING_THUMBPRINT,
     [ValidateSet('CurrentUser', 'LocalMachine')]
@@ -35,6 +36,9 @@ $smoke = Join-Path $root 'tools\smoke_launch.py'
 $releaseVersion = 'V1.3.1'
 $productVersion = 'v1.3.1'
 $isPublicPackage = [bool]($Public -or $UnreleasedCandidate)
+if ($PreflightCommit -and (!$UnreleasedCandidate -or $PreflightCommit -notmatch '\A[0-9a-f]{40}\z')) {
+    throw 'PreflightCommit requires -UnreleasedCandidate and a full Git SHA.'
+}
 if ($UnreleasedCandidate -and ($Public -or $InternalReview)) {
     throw 'Use -UnreleasedCandidate by itself; it already selects the unsigned public package contents.'
 }
@@ -143,11 +147,17 @@ if ($Public) {
         throw 'Unreleased candidates must be built from the clean Git checkout.'
     }
     $head = (git -C $root rev-parse HEAD).Trim()
-    $branch = (git -C $root branch --show-current).Trim()
-    $originMain = (git -C $root rev-parse origin/main).Trim()
-    if ($branch -ne 'main') { throw "Candidate builds must run on main; branch is '$branch'." }
-    & git -C $root merge-base --is-ancestor origin/main HEAD
-    if ($LASTEXITCODE -ne 0) { throw 'origin/main is not an ancestor of HEAD; reconcile the branch before building.' }
+    if ($PreflightCommit) {
+        if ($head -ne $PreflightCommit) { throw 'Checkout differs from preflight SHA.' }
+        $branch = 'SHA preflight (GitHub Actions)'
+        $originMain = 'not required for SHA preflight'
+    } else {
+        $branch = (git -C $root branch --show-current).Trim()
+        $originMain = (git -C $root rev-parse origin/main).Trim()
+        if ($branch -ne 'main') { throw "Candidate builds must run on main; branch is '$branch'." }
+        & git -C $root merge-base --is-ancestor origin/main HEAD
+        if ($LASTEXITCODE -ne 0) { throw 'origin/main is not an ancestor of HEAD; reconcile the branch before building.' }
+    }
     $dirty = @(git -C $root status --porcelain --untracked-files=normal)
     if ($dirty.Count) {
         throw "Refusing to build from a dirty working tree; commit or remove the $($dirty.Count) changed entries first."

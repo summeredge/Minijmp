@@ -9,7 +9,11 @@ on:
     inputs:
       tag:
         description: 已存在的版本 Tag（例如 v1.2.1）
-        required: true
+        required: false
+        type: string
+      commit:
+        description: 完整的 40 位 Git SHA（与 Tag 二选一）
+        required: false
         type: string
 
 permissions:
@@ -29,10 +33,24 @@ jobs:
       release: ${{ steps.meta.outputs.release }}
       artifact: ${{ steps.meta.outputs.artifact }}
     steps:
-      - name: Check out the version tag
+      - name: Validate manual target
+        if: github.event_name == 'workflow_dispatch'
+        shell: powershell
+        env:
+          TAG: ${{ inputs.tag }}
+          PREFLIGHT_COMMIT: ${{ inputs.commit }}
+        run: |
+          if ([bool]$env:TAG -eq [bool]$env:PREFLIGHT_COMMIT) {
+            throw 'Supply exactly one of tag or commit.'
+          }
+          if ($env:PREFLIGHT_COMMIT -and $env:PREFLIGHT_COMMIT -notmatch '\A[0-9a-f]{40}\z') {
+            throw 'Commit must be a full 40-character Git SHA.'
+          }
+
+      - name: Check out the version or preflight commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && (inputs.commit || inputs.tag) || github.ref }}
           fetch-depth: 0
 
       - name: Set up Python 3.11
@@ -51,13 +69,18 @@ jobs:
         shell: powershell
         env:
           TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+          PREFLIGHT_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit || '' }}
         run: |
           $ErrorActionPreference = 'Stop'
-          python tools/release_metadata.py --verify-tag $env:TAG
-          if ($LASTEXITCODE -ne 0) { throw "Tag $env:TAG does not identify this build." }
+          $head = (git rev-parse HEAD).Trim()
+          if ($env:PREFLIGHT_COMMIT) {
+            if ($head -ne $env:PREFLIGHT_COMMIT) { throw 'Checkout differs from preflight SHA.' }
+          } else {
+            python tools/release_metadata.py --verify-tag $env:TAG
+            if ($LASTEXITCODE -ne 0) { throw "Tag $env:TAG does not identify this build." }
+          }
           python tools/release_metadata.py
           if ($LASTEXITCODE -ne 0) { throw 'Version identifiers disagree; fix them before building.' }
-          $head = (git rev-parse HEAD).Trim()
           if (@(git status --porcelain --untracked-files=normal).Count) {
             throw 'The checked out tree is not clean.'
           }
@@ -66,10 +89,14 @@ jobs:
       - name: Record the version under build
         id: meta
         shell: powershell
+        env:
+          PREFLIGHT_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit || '' }}
+          BUILD_COMMIT: ${{ steps.checkout.outputs.commit }}
         run: |
           $product = (python tools/release_metadata.py --print-product).Trim()
           $release = (python tools/release_metadata.py --print-release).Trim()
           if ($LASTEXITCODE -ne 0) { throw 'Could not read the release metadata.' }
+          if ($env:PREFLIGHT_COMMIT) { $release += '-' + $env:BUILD_COMMIT.Substring(0, 7) }
           "product=$product" | Add-Content -LiteralPath $env:GITHUB_OUTPUT -Encoding utf8
           "release=$release" | Add-Content -LiteralPath $env:GITHUB_OUTPUT -Encoding utf8
           "artifact=MiniJMP-$release-windows-x64-candidate" | Add-Content -LiteralPath $env:GITHUB_OUTPUT -Encoding utf8
@@ -93,9 +120,14 @@ jobs:
         env:
           # Window titles are Chinese; the runner console defaults to cp1252.
           PYTHONIOENCODING: utf-8
+          PREFLIGHT_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit || '' }}
         run: |
           $python = (Get-Command python).Source
-          & ./tools/build_windows_release.ps1 -Public -PythonPath $python
+          if ($env:PREFLIGHT_COMMIT) {
+            & ./tools/build_windows_release.ps1 -UnreleasedCandidate -PreflightCommit $env:PREFLIGHT_COMMIT -PythonPath $python
+          } else {
+            & ./tools/build_windows_release.ps1 -Public -PythonPath $python
+          }
 
       - name: Verify the candidate and write the job summary
         shell: powershell
@@ -103,10 +135,13 @@ jobs:
           RELEASE: ${{ steps.meta.outputs.release }}
           ARTIFACT: ${{ steps.meta.outputs.artifact }}
           BUILD_COMMIT: ${{ steps.checkout.outputs.commit }}
+          PREFLIGHT_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.commit || '' }}
         run: |
+          $mode = @()
+          if ($env:PREFLIGHT_COMMIT) { $mode = @('--unreleased-candidate') }
           python tools/verify_public_release.py "dist/MiniJMP-$env:RELEASE-Release" `
             --release $env:RELEASE --commit $env:BUILD_COMMIT `
-            --artifact $env:ARTIFACT --summary $env:GITHUB_STEP_SUMMARY
+            --artifact $env:ARTIFACT --summary $env:GITHUB_STEP_SUMMARY @mode
           if ($LASTEXITCODE -ne 0) { throw 'The candidate failed verification.' }
 
       - name: Upload the candidate artifacts
