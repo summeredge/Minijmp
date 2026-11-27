@@ -64,7 +64,7 @@ def _license_files(distribution):
     return files
 
 
-def _runtime_dependencies():
+def _runtime_dependencies(plotly_pilot=False):
     pending = [Requirement(line) for line in
                (ROOT / 'requirements.txt').read_text(encoding='utf-8').splitlines()
                if line.strip() and not line.lstrip().startswith('#')]
@@ -74,6 +74,8 @@ def _runtime_dependencies():
         if requirement.marker and not requirement.marker.evaluate({'extra': ''}):
             continue
         name = canonicalize_name(requirement.name)
+        if name in {'plotly', 'tkwry'} and not plotly_pilot:
+            continue
         if name in distributions:
             continue
         distribution = metadata.distribution(name)
@@ -99,13 +101,13 @@ def _license_summary(distribution):
     return 'See the included upstream license text.'
 
 
-def generate(destination, public=False):
+def generate(destination, public=False, plotly_pilot=False):
     destination = Path(destination)
     license_dir = destination / 'THIRD-PARTY-LICENSES'
     license_dir.mkdir(parents=True, exist_ok=True)
 
     rows = []
-    for distribution in _runtime_dependencies():
+    for distribution in _runtime_dependencies(plotly_pilot):
         package = distribution.metadata['Name']
         version = distribution.version
         copied = []
@@ -175,6 +177,10 @@ def generate(destination, public=False):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) not in (2, 3) or (len(sys.argv) == 3 and sys.argv[2] != '--public'):
-        raise SystemExit('Usage: write_third_party_notices.py DESTINATION [--public]')
-    generate(sys.argv[1], public=len(sys.argv) == 3)
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('destination')
+    parser.add_argument('--public', action='store_true')
+    parser.add_argument('--plotly-pilot', action='store_true')
+    generate(**vars(parser.parse_args()))

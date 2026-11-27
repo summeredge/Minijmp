@@ -98,6 +98,44 @@ def normalize_p2_legacy(tree, module, baseline):
     return normalize_spec_calls(tree)
 
 
+def normalize_f2_f3_approved(tree, module, baseline):
+    """匹配已验收提交中的完整节点，再与原冻结基线比较其余源码。"""
+    hashes = {
+        'qc_dialog.py': {
+            # 1791ce4
+            'Type1GageDialog': 'a2318ba04046288b2a9f9922ad20807bcf123fb0d841be2cb17b76156c9ea24f',
+            'GageLinearityDialog': 'd79415821220ca20fc2959a411d07ffd65c4050813f3fc0e47a2e3cc3d95c8dd',
+        },
+        'utilities.py': {
+            # 4745378
+            'is_number': 'c645cc62904a4511a3161795516f213f3394c65b2cd39af79e76c7231cbe69c7',
+            'norm_test': '847c38312dea26bc3cacde42c1596532de1f2b3c0f5b4ea62eef80591e03e0f0',
+            'number_list': '8912706bad30bc8fac76a6020a43d670a49da72ab080f2edb0e4205c574d2c96',
+            'number_2lists': '55579b013fd187d862bd33781f502db6f73e5ed334896c241188ef84cd8d97b7',
+            # 7b70fb6
+            'normality_option': '4eb8c9e19a1bc59c93881a4847b3b0f3fa384485cd8e551db29fa57b7d4112a4',
+        },
+    }[module]
+    for name, expected in hashes.items():
+        node, = [n for n in tree.body if getattr(n, 'name', None) == name]
+        assert hashlib.sha256(ast.dump(node).encode()).hexdigest() == expected, name
+        original = next((n for n in baseline.body if getattr(n, 'name', None) == name), None)
+        i = tree.body.index(node)
+        if original is None:
+            del tree.body[i]
+        else:
+            restored = copy.deepcopy(original)
+            if name == 'norm_test':
+                # 保留延迟导入供下面的导入守卫验证，比较前由该守卫移除。
+                restored.body[:0] = [n for n in node.body if isinstance(n, ast.ImportFrom)]
+            tree.body[i] = restored
+    if module == 'utilities.py':
+        current = ast.dump(ast.parse('from math import isfinite, isnan').body[0])
+        i, = [i for i, n in enumerate(tree.body) if ast.dump(n) == current]
+        tree.body[i] = ast.parse('from math import isnan').body[0]
+
+
+
 def normalize_p1_numeric(tree, module, baseline):
     """校验已审查的完整函数后还原旧节点；其他 AST 仍由原守卫比较。"""
     names = {'utilities.py': ('pearson_correlation', 'c4_values'),
@@ -107,7 +145,11 @@ def normalize_p1_numeric(tree, module, baseline):
         nodes = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == name]
         assert len(nodes) == 1, name
         node = nodes[0]
-        assert hashlib.sha256(ast.dump(node).encode()).hexdigest() == hashes[f'{module}:{name}'], name
+        expected = {hashes[f'{module}:{name}']}
+        if module == 'utilities.py':
+            # 51b01f2 延迟导入归一后保留此前 23672e0 的 Pearson 输入校验。
+            expected.add({'pearson_correlation': 'c54f6fd40c5f7c70987906cbf54e29ac5bc7a46d477dd428cdb2e6b1f1cd4594', 'c4_values': 'f5f039490f4f3e2f8caaeccfc5607ae40c4e6fb85e82cb58039ccb2ea15ef387'}[name])
+        assert hashlib.sha256(ast.dump(node).encode()).hexdigest() in expected, name
         original = next(n for n in baseline.body if isinstance(n, ast.FunctionDef) and n.name == name)
         tree.body[tree.body.index(node)] = copy.deepcopy(original)
     if module == 'utilities.py':

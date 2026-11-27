@@ -32,8 +32,8 @@ $versionInfo = Join-Path $root 'packaging\windows\version_info.txt'
 $entry = Join-Path $root 'packaging\windows_entrypoint.py'
 $makeZip = Join-Path $root 'tools\make_zip.py'
 $smoke = Join-Path $root 'tools\smoke_launch.py'
-$releaseVersion = 'V1.3.0'
-$productVersion = 'v1.3.0'
+$releaseVersion = 'V1.3.1'
+$productVersion = 'v1.3.1'
 $isPublicPackage = [bool]($Public -or $UnreleasedCandidate)
 if ($UnreleasedCandidate -and ($Public -or $InternalReview)) {
     throw 'Use -UnreleasedCandidate by itself; it already selects the unsigned public package contents.'
@@ -395,6 +395,7 @@ if ($signatureInfo.Count -ne 2 -or @($signatureInfo | Where-Object {
 }
 $noticeMode = @()
 if ($isPublicPackage) { $noticeMode = @('--public') }
+if ($PlotlyPilot) { $noticeMode += '--plotly-pilot' }
 & $python (Join-Path $root 'tools\write_third_party_notices.py') $releaseDir @noticeMode
 if ($LASTEXITCODE -ne 0) { throw 'Generating third-party notices failed.' }
 

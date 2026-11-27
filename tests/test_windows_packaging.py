@@ -102,10 +102,10 @@ def test_frozen_entrypoint_calls_gui_main_without_startup_subprocess(monkeypatch
 
 def test_release_archives_identify_commit_and_preserve_existing_artifacts():
     script = (ROOT / 'tools' / 'build_windows_release.ps1').read_text(encoding='utf-8')
-    assert "MiniJMP-$releaseVersion" in script
-    assert "MiniJMP-$releaseVersion-source" in script
+    assert "MiniJMP-$artifactVersion" in script
+    assert "MiniJMP-$artifactVersion-source" in script
     assert 'Existing release output is preserved' in script
-    assert 'windows-pkg-$releaseVersion' in script
+    assert 'windows-pkg-$artifactVersion' in script
     assert "-Filter 'MiniJMP-V*'" not in script
     assert 'merge-base --is-ancestor origin/main HEAD' in script
     assert '$python $makeZip ' in script
@@ -251,8 +251,8 @@ def test_third_party_notice_generator_copies_dependency_licenses(tmp_path):
     assert 'IBM Carbon Design System' in notice
     assert 'Copyright (c) 2020-2026 Paweł Kuna' in notice
     assert 'chart--histogram.svg' in notice and 'chart-scatter-3d.svg' in notice
-    assert 'PIReader/ source code is developed in-house for MiniJMP' in notice
-    assert 'code/pi_reader.py adapter identifies reuse from' in notice
+    assert 'PIReader C# source and binary: copyright MiniJMP project maintainers; in-house, GPL-3.0-only' in notice
+    assert 'PI adapter (code/pi_reader.py)' in notice
     assert 'OSIsoft/AVEVA PI SDK DLLs remain proprietary third-party components' in notice
     assert 'excluded from both release archives' not in notice
     licenses = destination / 'THIRD-PARTY-LICENSES'
@@ -280,7 +280,7 @@ def test_notice_runtime_closure_respects_markers_and_excludes_build_tools(tmp_pa
     namespace = runpy.run_path(str(ROOT / 'tools/write_third_party_notices.py'))
     function = namespace['_runtime_dependencies']
     monkeypatch.setitem(function.__globals__, 'ROOT', tmp_path)
-    (tmp_path / 'requirements.txt').write_text('app\n', encoding='utf-8')
+    (tmp_path / 'requirements.txt').write_text('app\nplotly\ntkwry\n', encoding='utf-8')
     distributions = {
         'app': Mock(requires=['dependency', 'optional; extra == "test"',
                               'other-platform; python_version < "2"']),

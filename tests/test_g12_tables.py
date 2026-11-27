@@ -114,13 +114,16 @@ def test_export_png_is_atomic_and_closes_image(tmp_path, monkeypatch, failure):
 
 
 def test_utilities_change_is_only_interval_report_output():
-    from source_baselines import normalize_phase3_press
+    from source_baselines import normalize_f2_f3_approved, normalize_phase3_press
     old = read_source_baseline(BASE, 'code/utilities.py')
     current = (ROOT/'code/utilities.py').read_text(encoding='utf-8')
-    deferred = ast.unparse(normalize_deferred_imports(ast.parse(current), ast.parse(old)))
+    current_tree, old_tree = ast.parse(current), ast.parse(old)
+    normalize_f2_f3_approved(current_tree, 'utilities.py', old_tree)
+    deferred = ast.unparse(normalize_deferred_imports(current_tree, old_tree))
     assert computation_dump(deferred, 'mean_std_CIs') == computation_dump(old, 'mean_std_CIs')
     trees = [ast.parse(source) for source in (old, current)]
     normalize_phase3_press(trees[1])
+    normalize_f2_f3_approved(trees[1], 'utilities.py', trees[0])
     normalize_deferred_imports(trees[1], trees[0], normalize_baseline=True)
     normalize_p1_numeric(trees[1], 'utilities.py', trees[0])
     normalize_review_d2(trees[1])

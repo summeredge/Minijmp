@@ -248,7 +248,7 @@ def test_complete_candidate_verification(tmp_path, monkeypatch, fault, expected)
 
 def test_public_notices_describe_source_built_reader(tmp_path, monkeypatch):
     import write_third_party_notices as notices
-    monkeypatch.setattr(notices, '_runtime_dependencies', lambda: [])
+    monkeypatch.setattr(notices, '_runtime_dependencies', lambda plotly_pilot: [])
     notices.generate(tmp_path, public=True)
     text = (tmp_path / 'THIRD-PARTY-NOTICES.txt').read_text(encoding='utf-8')
     assert 'PIReader/PIReader.exe' in text and 'PIReader/config.txt' in text

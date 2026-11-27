@@ -270,7 +270,7 @@ def test_real_application_route_gui_and_txt(viewer, tmp_path, case, monkeypatch)
 
 
 def test_plot_dialog_and_statistical_dependencies_unchanged():
-    from source_baselines import normalize_phase3_press
+    from source_baselines import normalize_f2_f3_approved, normalize_phase3_press
     for name in ('qc_dialog.py', 'ctrlchart_dialog.py', 'cpk_plot.py', 'grr_plot.py',
                  'chart_style.py', 'utilities.py', 'two_way_anova.py', 'one_way_ANOVA.py'):
         # 合并时 main 已含 G9/G10 呈现迁移；仍逐字保护这三个共享模块。
@@ -278,26 +278,22 @@ def test_plot_dialog_and_statistical_dependencies_unchanged():
             'utilities.py', 'two_way_anova.py', 'one_way_ANOVA.py') else BASE
         before = read_source_baseline(baseline, f'code/{name}')
         current = (ROOT/'code'/name).read_text(encoding='utf-8')
-        if name in ('qc_dialog.py', 'ctrlchart_dialog.py'):
+        if name == 'ctrlchart_dialog.py':
+            import hashlib
+            # e9e836d 已验收独立子组控制图，精确固定该提交的完整 AST。
+            assert hashlib.sha256(ast.dump(ast.parse(current)).encode()).hexdigest() == (
+                '16659e71b2ae7e6fb4ea90cf821e4aa79c6e04c1322349591b5b1b673e706038')
+        elif name == 'qc_dialog.py':
             from source_baselines import normalize_column_memory
             current_tree = normalize_column_memory(ast.parse(current), name)
-            if name == 'ctrlchart_dialog.py':
-                # G5 已验收 NP/C 共用入口的判异开关；仅还原精确的 True 关键字。
-                for cls_name, call_name in (('NPDialog', 'p_np_plot'), ('CDialog', 'cu_plot')):
-                    cls = next(n for n in current_tree.body if isinstance(n, ast.ClassDef) and n.name == cls_name)
-                    calls = [n for n in ast.walk(cls) if isinstance(n, ast.Call)
-                             and isinstance(n.func, ast.Name) and n.func.id == call_name]
-                    assert len(calls) == 1
-                    keywords = [kw for kw in calls[0].keywords if kw.arg == 'detect_rules']
-                    assert len(keywords) == 1 and ast.unparse(keywords[0].value) == 'True'
-                    calls[0].keywords.remove(keywords[0])
-            if name == 'qc_dialog.py':
-                normalize_p2_legacy(current_tree, name, ast.parse(before))
+            normalize_f2_f3_approved(current_tree, name, ast.parse(before))
+            normalize_p2_legacy(current_tree, name, ast.parse(before))
             assert ast.dump(current_tree) == ast.dump(ast.parse(before))
         elif name == 'utilities.py':
             # G12 仅迁移区间报告；其余全文及该函数计算仍受保护。
             trees = [ast.parse(source) for source in (before, current)]
             normalize_phase3_press(trees[1])
+            normalize_f2_f3_approved(trees[1], name, trees[0])
             normalize_deferred_imports(trees[1], trees[0], normalize_baseline=True)
             normalize_p1_numeric(trees[1], 'utilities.py', trees[0])
             normalize_review_d2(trees[1])
