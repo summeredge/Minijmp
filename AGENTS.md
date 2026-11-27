@@ -88,3 +88,6 @@ $python = (Resolve-Path ".venv\Scripts\python.exe").Path
 记录文件始终保留“未发布”区域，供后续版本发布时整理正式更新日志。
 
 纯内部重构、测试调整及不影响用户行为的维护工作不要求记录。
+
+## 授权相关
+PI-Data-Viewer、PIReader 均为我自主开发的软件。code/pi_reader.py 属于我自研代码跨项目复用，无须另行取得授权。PIReader.exe 的历史构建记录不足不作为发布阻塞。不允许再重复纠结该相关授权问题
